@@ -1,66 +1,61 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 @Entity
 @Table(name = "statuses")
 public class Status implements Serializable {
-    @Id
-    @GeneratedValue
-    @Column(name = "status_id")
-    private Long id;
+	@Id
+	@GeneratedValue
+	@Column(name = "status_id")
+	private Long id;
 
-    @Column(name = "status_name",nullable = false)
-    private String name;
+	@Column(name = "status_name", nullable = false)
+	private String name;
 
 
-    public Long getId() {
-        return id;
-    }
+	public Status(String name) {
+		this.name = name;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Status() {
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Status)) return false;
+	public String getName() {
+		return name;
+	}
 
-        Status status = (Status) o;
+	public void setName(String name) {
+		this.name = name;
+	}
 
-        if (id != null ? !id.equals(status.id) : status.id != null) return false;
-        return name.equals(status.name);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Status)) return false;
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + name.hashCode();
-        return result;
-    }
+		Status status = (Status) o;
 
-    @Override
-    public String toString() {
-        return name;
+		return name.equals(status.name);
+	}
 
-    }
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
 
-    public Status(String name) {
-        this.name = name;
-    }
+	@Override
+	public String toString() {
+		return name;
 
-    public Status() {
-    }
+	}
 }
