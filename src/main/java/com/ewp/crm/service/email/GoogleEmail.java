@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,9 @@ public class GoogleEmail {
     private String mailFrom;
 
     @Autowired
+    private BeanFactory beanFactory;
+
+    @Autowired
     ClientService clientService;
 
     private Properties javaMailProperties() {
@@ -56,11 +60,13 @@ public class GoogleEmail {
         mailReceiver.setJavaMailProperties(javaMailProperties());
         mailReceiver.setShouldDeleteMessages(false);
         mailReceiver.setShouldMarkMessagesAsRead(false);
+        mailReceiver.setCancelIdleInterval(3600);
+        mailReceiver.setBeanFactory(beanFactory);
         mailReceiver.afterPropertiesSet();
 
         ImapIdleChannelAdapter imapIdleChannelAdapter = new ImapIdleChannelAdapter(mailReceiver);
         imapIdleChannelAdapter.setAutoStartup(true);
-        imapIdleChannelAdapter.setReconnectDelay(10000);
+        imapIdleChannelAdapter.setReconnectDelay(300000);
         imapIdleChannelAdapter.setShouldReconnectAutomatically(true);
         imapIdleChannelAdapter.setOutputChannel(directChannel());
         imapIdleChannelAdapter.afterPropertiesSet();
@@ -110,7 +116,7 @@ public class GoogleEmail {
                 client.setPhoneNumber(str.replace("phone: ", ""));
             }
         }
-        client.setStatus(new Status("Test1"));
+        client.setStatus(new Status("From email"));
         return client;
     }
 }
