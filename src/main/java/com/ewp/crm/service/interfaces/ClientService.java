@@ -15,11 +15,9 @@ public interface ClientService {
 
 	void addClient(Client client) throws ClientException;
 
-	void updateClient(Client client);
-
 	void updateClient(Long id, Client client) throws ClientException;
 
-	void deleteClient(Client client);
+	void deleteClient(Client client) throws ClientException;
 
 	void deleteClient(Long id) throws ClientException;
 

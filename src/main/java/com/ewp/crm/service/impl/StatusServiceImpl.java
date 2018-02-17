@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class StatusServiceImpl implements StatusService {
 
 	@Autowired
-	StatusDAO statusDAO;
+	private StatusDAO statusDAO;
 
 	@Override
 	public Status getStatusByName(String name) {

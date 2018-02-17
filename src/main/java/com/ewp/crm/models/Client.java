@@ -9,11 +9,11 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "users")
+@Table(name = "clients")
 public class Client implements Serializable {
 	@Id
 	@GeneratedValue
-	@Column(name = "user_id")
+	@Column(name = "client_id")
 	private Long id;
 
 	@Column(name = "first_name", nullable = false)
@@ -38,9 +38,8 @@ public class Client implements Serializable {
 	private Sex sex;
 
 
-
 	@NotNull
-	@ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.MERGE,CascadeType.DETACH,CascadeType.DETACH,CascadeType.PERSIST})
+	@ManyToOne
 	@JoinColumn(name = "status_id")
 	private Status status;
 
@@ -122,10 +121,6 @@ public class Client implements Serializable {
 		this.status = status;
 	}
 
-	private enum Sex {
-		MALE, FEMALE;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -152,6 +147,10 @@ public class Client implements Serializable {
 		result = 31 * result + (sex != null ? sex.hashCode() : 0);
 		result = 31 * result + status.hashCode();
 		return result;
+	}
+
+	private enum Sex {
+		MALE, FEMALE;
 	}
 
 }
