@@ -149,7 +149,7 @@ public class Client implements Serializable {
 		return result;
 	}
 
-	private enum Sex {
+	public enum Sex {
 		MALE, FEMALE;
 	}
 
