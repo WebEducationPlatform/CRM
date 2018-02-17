@@ -16,4 +16,9 @@ public class StatusServiceImpl implements StatusService {
 	public Status getStatusByName(String name) {
 		return statusDAO.findStatusByName(name);
 	}
+
+	@Override
+	public void addStatus(Status status) {
+		statusDAO.saveAndFlush(status);
+	}
 }
