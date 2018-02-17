@@ -41,7 +41,7 @@ public class ClientServiceImpl implements ClientService {
 		try {
 			clientDAO.delete(id);
 		} catch (Exception e) {
-			throw new ClientException("An error occurred while deleting the client");
+			throw new ClientException(e.getMessage());
 		}
 	}
 
@@ -51,7 +51,7 @@ public class ClientServiceImpl implements ClientService {
 			client.setStatus(statusDAO.findStatusByName(client.getStatus().getName()));
 			clientDAO.saveAndFlush(client);
 		} catch (Exception e) {
-			throw new ClientException("An error occurred while saving the client");
+			throw new ClientException(e.getMessage());
 		}
 	}
 
@@ -62,7 +62,7 @@ public class ClientServiceImpl implements ClientService {
 			client.setStatus(statusDAO.findStatusByName(client.getStatus().getName()));
 			clientDAO.saveAndFlush(client);
 		} catch (Exception e) {
-			throw new ClientException("An error occurred while updating the client");
+			throw new ClientException(e.getMessage());
 		}
 	}
 
@@ -71,7 +71,7 @@ public class ClientServiceImpl implements ClientService {
 		try {
 			clientDAO.delete(client);
 		} catch (Exception e) {
-			throw new ClientException("An error occurred while deleting the client");
+			throw new ClientException(e.getMessage());
 		}
 	}
 }
