@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,10 +15,7 @@ import java.util.List;
 @RequestMapping("admin/rest/client")
 public class RestClientController {
 	@Autowired
-	ClientService clientService;
-
-	@Autowired
-	StatusService statusService;
+	private ClientService clientService;
 
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
