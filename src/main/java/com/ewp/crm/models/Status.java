@@ -2,9 +2,11 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "statuses")
+@Table
 public class Status implements Serializable {
 	@Id
 	@GeneratedValue
@@ -14,6 +16,11 @@ public class Status implements Serializable {
 	@Column(name = "status_name", nullable = false)
 	private String name;
 
+	@OneToMany(cascade = CascadeType.MERGE)
+	@JoinTable(name = "status_users",
+			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
+			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
+	private List<Client> clients;
 
 	public Status(String name) {
 		this.name = name;
@@ -38,6 +45,17 @@ public class Status implements Serializable {
 		this.name = name;
 	}
 
+	public List<Client> getClients() {
+		return clients;
+	}
+
+	public void setClients(Client client) {
+		if (this.clients == null) {
+			this.clients = new ArrayList<>();
+		}
+		this.clients.add(client);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -45,17 +63,20 @@ public class Status implements Serializable {
 
 		Status status = (Status) o;
 
+		if (id != null ? !id.equals(status.id) : status.id != null) return false;
 		return name.equals(status.name);
 	}
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + name.hashCode();
+		return result;
 	}
 
 	@Override
 	public String toString() {
 		return name;
-
 	}
+
 }

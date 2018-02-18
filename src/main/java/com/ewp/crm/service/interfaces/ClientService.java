@@ -6,6 +6,7 @@ import java.util.List;
 
 
 public interface ClientService {
+
 	List<Client> getAllClients();
 
 	Client getClientByEmail(String name);
@@ -18,4 +19,5 @@ public interface ClientService {
 
 	void deleteClient(Long id);
 
+	void deleteClient(Client client);
 }
