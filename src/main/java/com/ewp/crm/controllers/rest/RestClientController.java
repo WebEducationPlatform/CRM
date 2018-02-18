@@ -25,24 +25,24 @@ public class RestClientController {
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<Client> getClientByID(@PathVariable Long id) throws ClientException {
+	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public ResponseEntity updateUser(@RequestBody Client client) throws ClientException {
+	public ResponseEntity updateUser(@RequestBody Client client) {
 		clientService.updateClient(client);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
-	public ResponseEntity deleteUser(@PathVariable Long id) throws ClientException {
+	public ResponseEntity deleteUser(@PathVariable Long id) {
 		clientService.deleteClient(id);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
-	public ResponseEntity addUser(@RequestBody Client client) throws ClientException {
+	public ResponseEntity addUser(@RequestBody Client client) {
 		clientService.addClient(client);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}

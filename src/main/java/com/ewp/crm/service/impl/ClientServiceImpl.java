@@ -55,22 +55,18 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	private void checkNewClient(Client client) {
-		if (clientDAO.findClientByEmail(client.getEmail()) != null) {
-			throw new ClientException("Клиент с таким e-mail уже существует");
-		}
-		if (clientDAO.findClientByPhoneNumber(client.getPhoneNumber()) != null) {
-			throw new ClientException("Клиент с таким номером телефона уже существует");
+		if ((clientDAO.findClientByEmail(client.getEmail()) != null)
+				|| (clientDAO.findClientByPhoneNumber(client.getPhoneNumber()) != null)) {
+			throw new ClientException("Клиент уже существует");
 		}
 	}
 
 	private void checkExistClient(Client client) {
-		Client currentClient = clientDAO.findClientByEmail(client.getEmail());
-		if (currentClient != null && !currentClient.getId().equals(client.getId())) {
-			throw new ClientException("Клиент с таким e-mail уже существует");
-		}
-		currentClient = clientDAO.findClientByPhoneNumber(client.getPhoneNumber());
-		if (currentClient != null && !currentClient.getId().equals(client.getId())) {
-			throw new ClientException("Клиент с таким номером телефона уже существует");
+		Client currentClientByEmail;
+		Client currentClientByPhone;
+		if (((currentClientByEmail = clientDAO.findClientByEmail(client.getEmail())) != null && !currentClientByEmail.getId().equals(client.getId()))
+				|| ((currentClientByPhone = clientDAO.findClientByPhoneNumber(client.getPhoneNumber())) != null && !currentClientByPhone.getId().equals(client.getId()))) {
+			throw new ClientException("Клиент уже существует");
 		}
 	}
 }
