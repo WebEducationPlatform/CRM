@@ -1,8 +1,8 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,21 +10,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/admin")
-public class ClientController {
+@RequestMapping("/user")
+public class UserController {
+
+	private final StatusService statusService;
+	private final ClientService clientService;
+
 	@Autowired
-	ClientService clientService;
-	//TODO Определить везде view
+	public UserController(StatusService statusService, ClientService clientService) {
+		this.statusService = statusService;
+		this.clientService = clientService;
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getall() {
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.addObject("users", clientService.getAllClients());
+	public ModelAndView getAll() {
+		ModelAndView modelAndView = new ModelAndView("main-client-table");
+		modelAndView.addObject("allStatuses", statusService.getAll());
 		return modelAndView;
 	}
 
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
-	public void addUser(Client client) throws ClientException {
+	public void addUser(Client client) {
 		clientService.addClient(client);
 	}
 
