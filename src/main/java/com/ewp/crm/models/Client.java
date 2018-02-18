@@ -36,7 +36,6 @@ public class Client implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
-
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	private Status status;
@@ -45,6 +44,17 @@ public class Client implements Serializable {
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
+		this.name = name;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
+		this.age = age;
+		this.sex = sex;
+		this.status = status;
+
+	}
+
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -87,24 +97,6 @@ public class Client implements Serializable {
 		this.phoneNumber = phoneNumber;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Client)) return false;
-
-		Client client = (Client) o;
-
-		if (!phoneNumber.equals(client.phoneNumber)) return false;
-		return email.equals(client.email);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = phoneNumber.hashCode();
-		result = 31 * result + email.hashCode();
-		return result;
-	}
-
 	public String getEmail() {
 		return email;
 	}
@@ -137,6 +129,23 @@ public class Client implements Serializable {
 		this.status = status;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Client)) return false;
+
+		Client client = (Client) o;
+
+		if (!phoneNumber.equals(client.phoneNumber)) return false;
+		return email.equals(client.email);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = phoneNumber.hashCode();
+		result = 31 * result + email.hashCode();
+		return result;
+	}
 
 	public enum Sex {
 		MALE, FEMALE;

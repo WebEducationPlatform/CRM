@@ -38,6 +38,11 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
+	public void deleteClient(Client client) {
+		clientDAO.delete(client);
+	}
+
+	@Override
 	public void addClient(Client client) {
 		checkNewClient(client);
 		clientDAO.saveAndFlush(client);
