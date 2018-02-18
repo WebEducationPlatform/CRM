@@ -1,0 +1,84 @@
+.tilt.right {
+    transform: rotate(3deg);
+    -moz-transform: rotate(3deg);
+    -webkit-transform: rotate(3deg);
+}
+.tilt.left {
+    transform: rotate(-3deg);
+    -moz-transform: rotate(-3deg);
+    -webkit-transform: rotate(-3deg);
+}
+body {
+    min-width: 520px;
+    background-color: linen;
+}
+.column {
+    width: 15%;
+    float: left;
+    padding-bottom: 100px;
+}
+.portlet {
+    margin: 0 1em 1em 0;
+    padding: 0.3em;
+}
+.portlet-header {
+    padding: 0.2em 0.3em;
+    margin-bottom: 0.5em;
+    position: relative;
+    background-image: linear-gradient(to bottom,#faf0e6 0,#ff57222b 100%);
+ }
+
+.portlet-header:hover {
+    cursor: move;
+}
+
+.portlet-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-top: -8px;
+}
+.portlet-content {
+    padding: 0.4em;
+}
+.portlet-placeholder {
+    border: 1px dotted black;
+    margin: 0 1em 1em 0;
+    height: 50px;
+}
+div h1 {
+    margin-right: 4%;
+    text-align: center;
+    border-bottom: 5px solid #ff00001a;
+}
+
+a {
+    color: black;
+}
+
+ul.nav a:hover { 
+    background-color: #ffead6 !important; 
+}
+
+#new-status-form {
+    display: none;
+}
+
+.create-new-status-column {
+    width: 15%;
+    float: left;
+    padding-bottom: 100px;
+    margin-top: 3%;
+}
+
+#add-user-btn {
+    width: 96%;
+    height: 80%;
+    background-image: linear-gradient(to bottom,#faf0e6 0,#fbd8cf 100%);
+    border-color: #d7d7d7;
+}
+
+#delete-status-icon {
+    float: right;
+    margin-right: 15px;
+}
