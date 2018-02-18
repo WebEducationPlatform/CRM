@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+          crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script th:src="@{/js/jquery-3.2.0.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.min.js}" type="text/javascript"></script>
+
+    <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+</head>
+<body>
+<div style="margin: 1%">
+    <div class="col-md-1 sidebar">
+        <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Export</a></li>
+        </ul>
+    </div>
+
+    <!--<div class="column">
+        <div><h1>Добавить</h1></div>
+        <button type="button" class="btn btn-warning" id="add-user-btn" data-toggle="modal" data-target="#add-user-modal"><a class="glyphicon glyphicon-plus"></a></button>
+    </div>-->
+
+
+
+    <div id="status-column" class="column" th:each="status : ${allStatuses}" th:value="${status.id}">
+        <div><a id="delete-status-icon" class="glyphicon glyphicon-remove" th:onclick="'deleteStatus(\''+ ${status.id} +'\')'"></a>
+            <h1 th:text="${status.name}"></h1>
+        </div>
+        <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
+            <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
+            <div class="portlet-content">
+                <span th:text="${client.phoneNumber}"></span>
+                <br/>
+                <span th:text="${client.email}"></span>
+                <br/>
+                <span th:text="${client.age}"></span>
+                <br/>
+                <span th:text="${client.sex}"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-new-status-column">
+        <span id="create-new-status-span">Создать новый статус</span>
+        <form role="form" id="new-status-form">
+            <div class="form-group">
+                <input type="text" class="form-control" id="new-status-name"
+                       placeholder="Введите новое название статуса"/>
+            </div>
+            <button type="button" id="create-new-status" class="btn btn-warning btn-sm" onclick="createNewStatus()">создать</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form role="form" id="new-user-form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Создание нового пользователя</h4>
+            </div>
+            <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="new-user-first-name">Имя</label>
+                        <input class="form-control" id="new-user-first-name" placeholder="Имя" name="name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-last-name">Фамилия</label>
+                        <input class="form-control" id="new-user-last-name" placeholder="Фамилия" name="lastName"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-phone-number">Номер телефона</label>
+                        <input type="number" class="form-control" id="new-user-phone-number" placeholder="Номер телефона" name="phoneNumber"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-email">Email</label>
+                        <input type="email" class="form-control" id="new-user-email" placeholder="Email" name="email"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-age">Возраст</label>
+                        <input type="email" class="form-control" id="new-user-age" placeholder="Возраст" name="age"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">Выберите пол</label>
+                        <select class="form-control" id="sex" name="sex">
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                        </select>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" onclick="createNewUser()">Сохранить изменения</button>
+            </div>
+        </div>
+    </form>
+    </div>
+</div>
+
+</body>
+
+</html>

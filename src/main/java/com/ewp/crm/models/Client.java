@@ -4,16 +4,15 @@ import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "users")
+@Table(name = "clients")
 public class Client implements Serializable {
 	@Id
 	@GeneratedValue
-	@Column(name = "user_id")
+	@Column(name = "client_id")
 	private Long id;
 
 	@Column(name = "first_name", nullable = false)
@@ -37,10 +36,7 @@ public class Client implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
-
-
-	@NotNull
-	@ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.MERGE,CascadeType.DETACH,CascadeType.DETACH,CascadeType.PERSIST})
+	@ManyToOne
 	@JoinColumn(name = "status_id")
 	private Status status;
 
@@ -48,6 +44,17 @@ public class Client implements Serializable {
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
+		this.name = name;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
+		this.age = age;
+		this.sex = sex;
+		this.status = status;
+
+	}
+
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -122,10 +129,6 @@ public class Client implements Serializable {
 		this.status = status;
 	}
 
-	private enum Sex {
-		MALE, FEMALE;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -133,25 +136,19 @@ public class Client implements Serializable {
 
 		Client client = (Client) o;
 
-		if (age != client.age) return false;
-		if (!name.equals(client.name)) return false;
-		if (lastName != null ? !lastName.equals(client.lastName) : client.lastName != null) return false;
-		if (phoneNumber != null ? !phoneNumber.equals(client.phoneNumber) : client.phoneNumber != null) return false;
-		if (!email.equals(client.email)) return false;
-		if (sex != client.sex) return false;
-		return status.equals(client.status);
+		if (!phoneNumber.equals(client.phoneNumber)) return false;
+		return email.equals(client.email);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = name.hashCode();
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
+		int result = phoneNumber.hashCode();
 		result = 31 * result + email.hashCode();
-		result = 31 * result + (int) age;
-		result = 31 * result + (sex != null ? sex.hashCode() : 0);
-		result = 31 * result + status.hashCode();
 		return result;
+	}
+
+	public enum Sex {
+		MALE, FEMALE;
 	}
 
 }
