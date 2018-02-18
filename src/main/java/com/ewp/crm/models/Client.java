@@ -38,6 +38,10 @@ public class Client implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "status_id")
+	@JoinTable(name = "status_users",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
+
 	private Status status;
 
 	public Client() {

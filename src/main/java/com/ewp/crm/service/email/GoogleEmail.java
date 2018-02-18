@@ -4,6 +4,7 @@ import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,9 @@ public class GoogleEmail {
 
     @Autowired
     private ClientService clientService;
+
+    @Autowired
+    private StatusService statusService;
 
     private Properties javaMailProperties() {
         Properties javaMailProperties = new Properties();
@@ -147,7 +151,7 @@ public class GoogleEmail {
                 client.setPhoneNumber(str.replace("phone: ", ""));
             }
         }
-        client.setStatus(new Status("From email"));
+        client.setStatus(statusService.get(1L));
         return client;
     }
 }
