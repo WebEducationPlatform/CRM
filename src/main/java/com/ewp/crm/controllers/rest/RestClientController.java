@@ -29,9 +29,9 @@ public class RestClientController {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
-	@RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
-	public ResponseEntity updateUser(@PathVariable Long id, @RequestBody Client client) throws ClientException {
-		clientService.updateClient(id, client);
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	public ResponseEntity updateUser(@RequestBody Client client) throws ClientException {
+		clientService.updateClient(client);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
