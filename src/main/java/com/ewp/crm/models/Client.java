@@ -50,37 +50,38 @@ public class Client implements Serializable {
 	@JoinTable(name = "status_users",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
-
 	private Status status;
 
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="job_id")
+	@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))
 	private Job job;
-
 
 	public Client() {
 	}
 
-	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, String comment) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
-		this.status = status;
-
+		this.city = city;
+		this.country = country;
+		this.comment = comment;
 	}
 
-	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, String comment, Job job) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
-		this.status = status;
-
+		this.city = city;
+		this.country = country;
+		this.comment = comment;
+		this.job = job;
 	}
 
 	public Long getId() {
