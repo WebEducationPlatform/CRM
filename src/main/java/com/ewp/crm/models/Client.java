@@ -36,6 +36,15 @@ public class Client implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
+	@Column(name = "city")
+	private String city;
+
+	@Column(name = "country")
+	private String country;
+
+	@Column(name = "comment")
+	private String comment;
+
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	@JoinTable(name = "status_users",
@@ -43,6 +52,11 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
 
 	private Status status;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="job_id")
+	private Job job;
+
 
 	public Client() {
 	}
@@ -123,6 +137,38 @@ public class Client implements Serializable {
 
 	public void setSex(Sex sex) {
 		this.sex = sex;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public Job getJob() {
+		return job;
+	}
+
+	public void setJob(Job job) {
+		this.job = job;
 	}
 
 	public Status getStatus() {
