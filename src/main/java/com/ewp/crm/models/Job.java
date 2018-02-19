@@ -23,6 +23,11 @@ public class Job {
     public Job() {
     }
 
+    public Job(String organization, String position) {
+        this.organization = organization;
+        this.position = position;
+    }
+
     public Long getId() {
         return id;
     }
