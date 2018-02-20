@@ -34,8 +34,8 @@ import javax.mail.search.SearchTerm;
 import java.io.IOException;
 import java.util.Properties;
 
-@Configuration
-@EnableIntegration
+//@Configuration
+//@EnableIntegration
 public class GoogleEmail {
 
     @Value("${google.mail.login}")

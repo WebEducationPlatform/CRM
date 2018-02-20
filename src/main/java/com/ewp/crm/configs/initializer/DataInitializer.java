@@ -1,9 +1,13 @@
 package com.ewp.crm.configs.initializer;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DataInitializer {
@@ -12,8 +16,21 @@ public class DataInitializer {
 	private StatusService statusService;
 	@Autowired
 	private ClientService clientService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private RoleService roleService;
 
 	private void init() {
+
+		Role roleAdmin = new Role("ADMIN");
+		Role roleUser = new Role("USER");
+		roleService.add(roleAdmin);
+		roleService.add(roleUser);
+
+		User user = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru", "admin", 2000D, roleService.getByRoleName("ADMIN"));
+		userService.add(user);
+
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
@@ -32,5 +49,7 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
+
+
 	}
 }

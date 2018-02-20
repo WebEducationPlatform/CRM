@@ -1,0 +1,21 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>CRM</title>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<div class="container">
+
+    <form class="form-signin" name='loginForm' action="/processing-url" method='POST'>
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <input class="form-control" placeholder="Login" type="text" name="username"/>
+        <input class="form-control" placeholder="Password" type="password" name="password"/>
+        <br/>
+        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" value="Login"/>
+    </form>
+
+</div>
+</body>
+</html>
