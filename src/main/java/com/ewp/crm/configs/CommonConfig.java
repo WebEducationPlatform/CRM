@@ -8,6 +8,7 @@ import org.thymeleaf.templateresolver.TemplateResolver;
 @Configuration
 public class CommonConfig {
 
+	//TODO to application.properties
 	@Bean
 	public TemplateResolver springThymeleafTemplateResolver() {
 		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
