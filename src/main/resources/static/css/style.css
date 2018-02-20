@@ -82,3 +82,11 @@ ul.nav a:hover {
     float: right;
     margin-right: 15px;
 }
+
+#clients-table {
+    margin-top: 5%;
+}
+
+#searchInput {
+    margin-top: 1%;
+}

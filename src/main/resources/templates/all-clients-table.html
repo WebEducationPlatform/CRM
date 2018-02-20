@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div style="margin: 1%">
+    <div th:replace="fragments/htmlFragments::left-panel"></div>
+
+    <div class="col-md-6 col-md-offset-2">
+        <div><h1>Таблица всех пользователей</h1></div>
+        <div class="col-md-6 col-md-offset-3"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/></div>
+        <table class="table table-hover" id="clients-table">
+            <thead>
+            <tr>
+                <td>#</td>
+                <td>Имя</td>
+                <td>Фамилия</td>
+                <td>Телефон</td>
+                <td>Email</td>
+                <td>Возраст</td>
+                <td>Пол</td>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+            <tr th:each="client,iter : ${allClients}">
+                <td th:text="${iter.count}"></td>
+                <td th:text="${client.name}"></td>
+                <td th:text="${client.lastName}"></td>
+                <td th:text="${client.phoneNumber}"></td>
+                <td th:text="${client.email}"></td>
+                <td th:text="${client.age}"></td>
+                <td th:text="${client.sex}"></td>
+            </tr>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+</body>
+</html>

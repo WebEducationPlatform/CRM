@@ -29,6 +29,13 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@RequestMapping(value = "/allClients", method = RequestMethod.GET)
+	public ModelAndView allUsersPage() {
+		ModelAndView modelAndView = new ModelAndView("all-clients-table");
+		modelAndView.addObject("allClients", clientService.getAllClients());
+		return modelAndView;
+	}
+
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	public void addUser(Client client) {
 		clientService.addClient(client);
