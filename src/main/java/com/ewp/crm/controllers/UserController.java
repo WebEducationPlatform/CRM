@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/client")
 public class UserController {
 
 	private final StatusService statusService;
