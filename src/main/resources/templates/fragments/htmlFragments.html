@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
 </head>
 <body>
@@ -11,6 +12,31 @@
 
         </ul>
     </div>
+</th:block>
+
+<th:block th:fragment="top-navigation-panel">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
+                    <p class="navbar-text navbar-left">Signed in as <span sec:authentication="name"></span></p>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/client">Клиенты</a></li>
+                <li><a href="/client/allClients">Все клиенты</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/logout">Выход</a></li>
+            </ul>
+        </div>
+
+    </nav>
 </th:block>
 
 <th:block th:fragment="header">

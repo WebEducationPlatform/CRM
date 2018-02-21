@@ -71,6 +71,16 @@ ul.nav a:hover {
     margin-top: 3%;
 }
 
+.navbar-fixed-top {
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#fbd8cf),to(#f7f0e9));
+    box-shadow: inset 0 1px 0 rgb(250, 240, 230), 0 1px 5px rgba(241, 232, 222, 0);
+    border-color: #faf0e6;
+}
+
+.navbar-right {
+     margin-right: 0px;
+}
+
 #add-user-btn {
     width: 96%;
     height: 80%;
@@ -89,4 +99,9 @@ ul.nav a:hover {
 
 #searchInput {
     margin-top: 1%;
+}
+
+#logo-span {
+    cursor: default;
+    color: black;
 }
