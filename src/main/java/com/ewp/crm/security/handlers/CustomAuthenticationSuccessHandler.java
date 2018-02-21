@@ -2,8 +2,12 @@ package com.ewp.crm.security.handlers;
 
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
@@ -19,6 +23,7 @@ import java.util.Collection;
 
 @Service
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+	private static Logger logger = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
 
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
@@ -37,9 +42,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 	protected String determineTargetUrl(Authentication authentication) {
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (authorities.contains(new Role("ADMIN"))) {
+			logger.info(user.getEmail() + " has been logged in like ADMIN");
 			return "/client";
 		} else if (authorities.contains(new Role("USER"))) {
+			logger.info(user.getEmail() + " has been logged in like USER");
 			return "/client";
 		} else {
 			throw new IllegalStateException();
