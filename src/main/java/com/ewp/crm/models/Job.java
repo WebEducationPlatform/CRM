@@ -1,31 +1,33 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "job")
-public class Job {
+@Table(name = "jobs")
+public class Job implements Serializable {
 
     @Id
     @Column(name = "job_id")
     @GeneratedValue
     private Long id;
 
-    @Column(name = "organization")
+    @Column
     private String organization;
 
-    @Column(name = "position")
+    @Column
     private String position;
 
-    @OneToOne(mappedBy = "job")
+    @ManyToOne(targetEntity = Client.class)
     private Client client;
 
     public Job() {
     }
 
-    public Job(String organization, String position) {
+    public Job(String organization, String position, Client client) {
         this.organization = organization;
         this.position = position;
+        this.client = client;
     }
 
     public Long getId() {

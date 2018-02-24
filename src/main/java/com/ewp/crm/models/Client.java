@@ -6,10 +6,12 @@ import org.hibernate.validator.constraints.Email;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "clients")
 public class Client implements Serializable {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "client_id")
@@ -52,9 +54,8 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
 	private Status status;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))
-	private Job job;
+	@OneToMany(targetEntity = Job.class, mappedBy = "client")
+	private List<Job> jobs;
 
 	public Client() {
 	}
@@ -71,7 +72,7 @@ public class Client implements Serializable {
 		this.comment = comment;
 	}
 
-	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, String comment, Job job) {
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, String comment, List<Job> jobs) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -81,7 +82,7 @@ public class Client implements Serializable {
 		this.city = city;
 		this.country = country;
 		this.comment = comment;
-		this.job = job;
+		this.jobs = jobs;
 	}
 
 	public Long getId() {
@@ -164,12 +165,12 @@ public class Client implements Serializable {
 		this.comment = comment;
 	}
 
-	public Job getJob() {
-		return job;
+	public List<Job> getJobs() {
+		return jobs;
 	}
 
-	public void setJob(Job job) {
-		this.job = job;
+	public void setJobs(List<Job> jobs) {
+		this.jobs = jobs;
 	}
 
 	public Status getStatus() {
