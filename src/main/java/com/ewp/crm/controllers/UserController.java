@@ -1,17 +1,22 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 
 @Controller
@@ -32,8 +37,15 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getAll() {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Status> statuses;
+		if (userFromSession.getRole().equals(new Role("ADMIN"))) {
+			statusService.getAll();
+		} else {
+			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
+		}
 		ModelAndView modelAndView = new ModelAndView("main-client-table");
-		modelAndView.addObject("allStatuses", statusService.getAll());
+		modelAndView.addObject("statuses", statusService.getAll());
 		return modelAndView;
 	}
 
