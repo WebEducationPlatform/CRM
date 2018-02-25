@@ -4,6 +4,7 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+    <script type="text/javascript" th:src="@{/js/comments.js}"></script>
 </head>
 <body>
 <div style="margin: 2%">
@@ -16,15 +17,54 @@
         <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
             <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
             <div class="portlet-content">
-                <span th:text="${client.phoneNumber}"></span>
-                <br/>
-                <span th:text="${client.email}"></span>
-                <br/>
-                <span th:text="${client.age}"></span>
-                <br/>
-                <span th:text="${client.sex}"></span>
+                <div data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                    <span th:text="${client.phoneNumber}"></span>
+                    <br/>
+                    <span th:text="${client.email}"></span>
+                    <br/>
+                    <span th:text="${client.age}"></span>
+                    <br/>
+                    <span th:text="${client.sex}"></span>
+                </div>
+            </div>
+
+            <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" th:text="${client.name} + ' ' + ${client.lastName}"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <span th:text="${client.phoneNumber}"></span>
+                            <br/>
+                            <span th:text="${client.email}"></span>
+                            <br/>
+                            <span th:text="${client.age}"></span>
+                            <br/>
+                            <span th:text="${client.sex}"></span>
+                        </div>
+                        <div class="modal-footer modal-comments">
+                            <div class="comments">
+                                <span>Комментарии:</span>
+                                <div class="form-group">
+                                    <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
+                                    <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
+                                </div>
+                                <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
+                                    <li th:each="comment : ${client.comments}">
+                                        <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
+                                        <p th:text="${comment.getContent()}"></p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
+
     </div>
 
     <div class="create-new-status-column">
@@ -38,17 +78,15 @@
         </form>
     </div>
 </div>
-
-
 <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form role="form" id="new-user-form">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Создание нового пользователя</h4>
-            </div>
-            <div class="modal-body">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Создание нового пользователя</h4>
+                </div>
+                <div class="modal-body">
 
                     <div class="form-group">
                         <label for="new-user-first-name">Имя</label>
@@ -77,16 +115,15 @@
                             <option>FEMALE</option>
                         </select>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewUser()">Сохранить изменения</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                <button type="button" class="btn btn-primary" onclick="createNewUser()">Сохранить изменения</button>
-            </div>
-        </div>
-    </form>
+        </form>
     </div>
 </div>
-
 </body>
 
 </html>

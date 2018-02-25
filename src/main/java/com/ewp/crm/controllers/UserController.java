@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+
 @Controller
 @RequestMapping("/client")
 public class UserController {
 
 	private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
 	private final StatusService statusService;
+
 	private final ClientService clientService;
 
 	@Autowired
