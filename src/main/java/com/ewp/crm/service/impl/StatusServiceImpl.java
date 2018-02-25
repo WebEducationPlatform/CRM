@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusDataException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientDAO;
 import com.ewp.crm.repository.interfaces.StatusDAO;
