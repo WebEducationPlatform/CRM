@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientDAO;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,11 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<Client> getAllClients() {
 		return clientDAO.findAll();
+	}
+
+	@Override
+	public List<Client> getClientsByOwnerUser(User ownerUser) {
+		return clientDAO.getClientsByOwnerUser(ownerUser);
 	}
 
 	@Override

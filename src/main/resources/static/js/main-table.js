@@ -135,5 +135,29 @@ function tilt_direction(item) {
     item.data("move_handler", move_handler);
 }
 
+function assign(id) {
+    let
+        url = '/admin/rest/client/assign',
+        formData = {
+            clientId: id,
+        };
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            $('#assign-client' + id).remove();
+            $('#info-client' + id).append(
+                "<p class='user-icon'>" +
+                    owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "</p>"
+            );
+        },
+        error: function (error) {
+        }
+    });
+}
+
 
 
