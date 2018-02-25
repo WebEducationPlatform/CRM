@@ -113,6 +113,16 @@ function senReqOnChangeStatus(clientId, statusId) {
         url: url,
         data: formData,
         success: function (data) {
+            let
+                url = '/admin/rest/client/' + clientId;
+            $.get(url, 
+                function (data) {
+                    $('#client-' + data.id + 'history').prepend(
+                        "<li>" +
+                        "   <span>" + data.history[data.history.length-1].title + "</span>" +
+                        "</li>"
+                    );
+                });
         },
         error: function (error) {
         }
