@@ -39,6 +39,10 @@ public class RestClientController {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (user != null) {
 			Client client = clientService.getClientByID(clientId);
+			if (client.getOwnerUser() != null) {
+				logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
+				return ResponseEntity.badRequest().body(null);
+			}
 			client.setOwnerUser(user);
 			clientService.updateClient(client);
 			logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
