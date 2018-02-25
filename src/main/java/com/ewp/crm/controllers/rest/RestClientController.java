@@ -34,6 +34,19 @@ public class RestClientController {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
+	@RequestMapping(value = "/assign", method = RequestMethod.POST)
+	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (user != null) {
+			Client client = clientService.getClientByID(clientId);
+			client.setOwnerUser(user);
+			clientService.updateClient(client);
+			logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		clientService.updateClient(client);

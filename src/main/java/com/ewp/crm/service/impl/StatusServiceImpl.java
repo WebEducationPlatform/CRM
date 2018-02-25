@@ -3,12 +3,14 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.status.StatusDataException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientDAO;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +29,23 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getAll() {
 		return statusDAO.findAll();
+	}
+
+	@Override
+	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
+		List<Status> statuses = getAll();
+		for (Status status: statuses) {
+			List<Client> filteredClients = new ArrayList<>();
+			for (Client client: status.getClients()) {
+				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
+					filteredClients.add(client);
+				} else {
+
+				}
+			}
+			status.setClients(filteredClients);
+		}
+		return statuses;
 	}
 
 	@Override
@@ -81,7 +100,7 @@ public class StatusServiceImpl implements StatusService {
 		beginStatus.getClients().remove(client);
 		statusDAO.saveAndFlush(beginStatus);
 		client.setStatus(endStatus);
-		endStatus.setClients(client);
+		endStatus.addClient(client);
 		statusDAO.saveAndFlush(endStatus);
 	}
 }

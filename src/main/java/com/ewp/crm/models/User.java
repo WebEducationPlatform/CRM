@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -212,5 +213,52 @@ public class User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		User user = (User) o;
+
+		if (age != user.age) return false;
+		if (Double.compare(user.salary, salary) != 0) return false;
+		if (id != null ? !id.equals(user.id) : user.id != null) return false;
+		if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
+		if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
+		if (phoneNumber != null ? !phoneNumber.equals(user.phoneNumber) : user.phoneNumber != null) return false;
+		if (email != null ? !email.equals(user.email) : user.email != null) return false;
+		if (password != null ? !password.equals(user.password) : user.password != null) return false;
+		if (vk != null ? !vk.equals(user.vk) : user.vk != null) return false;
+		if (!Arrays.equals(photo, user.photo)) return false;
+		if (sex != null ? !sex.equals(user.sex) : user.sex != null) return false;
+		if (city != null ? !city.equals(user.city) : user.city != null) return false;
+		if (country != null ? !country.equals(user.country) : user.country != null) return false;
+		if (vacancy != null ? !vacancy.equals(user.vacancy) : user.vacancy != null) return false;
+		return role != null ? role.equals(user.role) : user.role == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		long temp;
+		result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
+		result = 31 * result + (email != null ? email.hashCode() : 0);
+		result = 31 * result + (password != null ? password.hashCode() : 0);
+		result = 31 * result + (vk != null ? vk.hashCode() : 0);
+		result = 31 * result + Arrays.hashCode(photo);
+		result = 31 * result + (sex != null ? sex.hashCode() : 0);
+		result = 31 * result + (int) age;
+		result = 31 * result + (city != null ? city.hashCode() : 0);
+		result = 31 * result + (country != null ? country.hashCode() : 0);
+		result = 31 * result + (vacancy != null ? vacancy.hashCode() : 0);
+		temp = Double.doubleToLongBits(salary);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 31 * result + (role != null ? role.hashCode() : 0);
+		return result;
 	}
 }

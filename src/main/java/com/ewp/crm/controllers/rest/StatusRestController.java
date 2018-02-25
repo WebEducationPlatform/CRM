@@ -29,7 +29,7 @@ public class StatusRestController {
 
 		statusService.add(new Status(statusName));
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has added status with name: {}", currentAdmin.getEmail(), statusName);
+		logger.info("User {} has added status with name: {}", currentAdmin.getEmail(), statusName);
 		return ResponseEntity.ok("Успешно добавлено");
 	}
 

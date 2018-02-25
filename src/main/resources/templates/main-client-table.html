@@ -10,14 +10,15 @@
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div id="status-column" class="column" th:each="status : ${allStatuses}" th:value="${status.id}">
+    <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
         <div><a id="delete-status-icon" class="glyphicon glyphicon-remove" th:onclick="'deleteStatus(\''+ ${status.id} +'\')'"></a>
             <h1 th:text="${status.name}"></h1>
         </div>
         <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
             <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
             <div class="portlet-content">
-                <div data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                <div th:id="'info-client' + ${client.id}" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+
                     <span th:text="${client.phoneNumber}"></span>
                     <br/>
                     <span th:text="${client.email}"></span>
@@ -25,6 +26,11 @@
                     <span th:text="${client.age}"></span>
                     <br/>
                     <span th:text="${client.sex}"></span>
+                    <br/>
+                    <p th:if="${client.ownerUser != null}" class="user-icon"
+                          th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                          + #strings.substring(client.ownerUser.lastName, 0,1)}">
+                    </p>
                 </div>
             </div>
 
@@ -43,6 +49,13 @@
                             <span th:text="${client.age}"></span>
                             <br/>
                             <span th:text="${client.sex}"></span>
+                            <br/>
+                            <button th:if="${client.ownerUser == null}"
+                                    th:id="'assign-client' + ${client.id}"
+                                    th:onclick="'assign('+ ${client.id} +')'"
+                                    class="btn btn-md btn-info" >
+                                взять себе
+                            </button>
                         </div>
                         <div class="modal-footer modal-comments">
                             <div class="comments">
