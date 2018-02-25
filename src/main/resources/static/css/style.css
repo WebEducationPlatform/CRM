@@ -105,3 +105,20 @@ ul.nav a:hover {
     cursor: default;
     color: black;
 }
+
+.modal-comments {
+    text-align: left;
+}
+
+.modal-content {
+    background-color: #edeff0;
+}
+
+.modal-header {
+    border-bottom: 1px solid #cdcfd0;
+}
+
+.modal-footer {
+    border-top: 1px solid #cdcfd0;
+}
+
