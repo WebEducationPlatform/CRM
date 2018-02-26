@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +18,8 @@ public class Status implements Serializable {
 	@Column(name = "status_name", nullable = false)
 	private String name;
 
-	@OneToMany(cascade = CascadeType.MERGE)
+	@JsonManagedReference
+	@OneToMany
 	@JoinTable(name = "status_users",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
