@@ -1,8 +1,8 @@
 package com.ewp.crm.repository.interfaces;
 
-/**
- * Created by Pahomov on 26.02.2018.
- */
-public interface PassportDAO {
+import com.ewp.crm.models.Passport;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PassportDAO extends JpaRepository<Passport, Long> {
 
 }
