@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "client")
 public class Client implements Serializable {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "client_id")
@@ -72,6 +73,7 @@ public class Client implements Serializable {
 	@JoinTable(name = "history_client",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
+	@OrderBy("id desc")
 	private List<ClientHistory> history = new ArrayList<>();
 
 	public Client() {
@@ -95,8 +97,6 @@ public class Client implements Serializable {
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
-		this.status = status;
-
 	}
 
 	public Long getId() {

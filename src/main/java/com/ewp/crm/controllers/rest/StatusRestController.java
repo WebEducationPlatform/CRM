@@ -46,7 +46,7 @@ public class StatusRestController {
 			return ResponseEntity.badRequest().build();
 		}
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		currentClient.addHistory(new ClientHistory(currentAdmin.getEmail() + " has changed status to " + statusService.get(statusId).getName()));
+		currentClient.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил статус на " + statusService.get(statusId).getName()));
 		statusService.changeClientStatus(clientId, statusId);
 		logger.info("Admin {} has changed status of client with id: {} to status id: {}", currentAdmin.getEmail(), clientId, statusId);
 		return ResponseEntity.ok().build();

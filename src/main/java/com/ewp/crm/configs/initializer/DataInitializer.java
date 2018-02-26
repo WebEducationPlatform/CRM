@@ -1,9 +1,6 @@
 package com.ewp.crm.configs.initializer;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -38,6 +35,10 @@ public class DataInitializer {
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE);
 		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE);
 		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE);
+		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
+		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
+		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
+		client4.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		clientService.addClient(client1);
 		clientService.addClient(client2);
 		clientService.addClient(client3);
@@ -49,7 +50,5 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
-
-
 	}
 }
