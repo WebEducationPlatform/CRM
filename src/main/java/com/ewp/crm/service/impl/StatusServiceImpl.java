@@ -81,8 +81,9 @@ public class StatusServiceImpl implements StatusService {
 		Status endStatus = statusDAO.findOne(statusId);
 		beginStatus.getClients().remove(client);
 		statusDAO.saveAndFlush(beginStatus);
-		client.setStatus(endStatus);
 		endStatus.setClients(client);
 		statusDAO.saveAndFlush(endStatus);
+		client.setStatus(endStatus);
+		clientDAO.saveAndFlush(client);
 	}
 }
