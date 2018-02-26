@@ -45,7 +45,7 @@ public class RestClientController {
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		client.setHistory(clientService.getClientByID(client.getId()).getHistory());
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил профиль клиента"));
+		client.addHistory(new ClientHistory("Admin " + currentAdmin.getEmail() + " has updated client: id " + client.getId() + ", email " + client.getEmail()));
 		clientService.updateClient(client);
 		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -62,7 +62,7 @@ public class RestClientController {
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
+		client.addHistory(new ClientHistory("Admin " + currentAdmin.getEmail() + " has added client: id " + client.getId() + ", email " + client.getEmail()));
 		clientService.addClient(client);
 		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
