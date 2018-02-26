@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -46,15 +47,17 @@ public class UserController {
 
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public void addUser(Client client) {
-		clientService.addClient(client);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		client.addHistory(new ClientHistory(currentAdmin.getEmail()+ " добавил клиента"));
+		clientService.addClient(client);
 		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/updateClient", method = RequestMethod.POST)
 	public void updateUser(Client client) {
-		clientService.updateClient(client);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		client.addHistory(new ClientHistory(currentAdmin.getEmail()+ " изменил клиента"));
+		clientService.updateClient(client);
 		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 	}
 

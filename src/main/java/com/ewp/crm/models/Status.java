@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Table
 public class Status implements Serializable {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "status_id")

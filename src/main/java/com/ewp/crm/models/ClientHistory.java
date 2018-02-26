@@ -7,6 +7,7 @@ import javax.persistence.*;
 @Entity
 @Table
 public class ClientHistory {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "history_id")

@@ -119,7 +119,7 @@ function senReqOnChangeStatus(clientId, statusId) {
                 function (data) {
                     $('#client-' + data.id + 'history').prepend(
                         "<li>" +
-                        "   <span>" + data.history[data.history.length-1].title + "</span>" +
+                        "   <span>" + data.history[0].title + "</span>" +
                         "</li>"
                     );
                 });
