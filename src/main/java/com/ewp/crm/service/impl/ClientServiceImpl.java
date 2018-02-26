@@ -8,10 +8,18 @@ import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class ClientServiceImpl implements ClientService {
+
+	public CharSequence subSequence(int start, int end) {
+		int length = end - start;
+		byte[] bytes = new byte[length];
+		Arrays.copyOfRange(data, start, length);
+		return new AsciiCharSequence(bytes);
+	}
 
 
 	@Autowired

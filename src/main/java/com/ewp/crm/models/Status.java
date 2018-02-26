@@ -18,11 +18,10 @@ public class Status implements Serializable {
 	@Column(name = "status_name", nullable = false)
 	private String name;
 
-	@JsonManagedReference
-	@OneToMany
-	@JoinTable(name = "status_users",
+	@OneToMany(cascade = CascadeType.MERGE)
+	@JoinTable(name = "status_client",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
-			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
+			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
 	private List<Client> clients;
 
 	public Status(String name) {
