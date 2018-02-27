@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.List;
 @Entity
 @Table
 public class Status implements Serializable {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "status_id")
@@ -18,6 +18,7 @@ public class Status implements Serializable {
 	@Column(name = "status_name", nullable = false)
 	private String name;
 
+	@JsonBackReference
 	@OneToMany(cascade = CascadeType.MERGE)
 	@JoinTable(name = "status_client",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},

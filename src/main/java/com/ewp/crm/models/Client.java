@@ -2,16 +2,19 @@ package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "client")
 public class Client implements Serializable {
+
 	@Id
 	@GeneratedValue
 	@Column(name = "client_id")
@@ -38,6 +41,7 @@ public class Client implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
+	@JsonManagedReference
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	@JoinTable(name = "status_client",
@@ -51,6 +55,26 @@ public class Client implements Serializable {
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
+
+	public List<ClientHistory> getHistory() {
+		return history;
+	}
+
+	public void setHistory(List<ClientHistory> history) {
+		this.history = history;
+	}
+
+	public void addHistory(ClientHistory history) {
+		this.history.add(history);
+	}
+
+	@JsonManagedReference
+	@OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+	@JoinTable(name = "history_client",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
+	@OrderBy("id desc")
+	private List<ClientHistory> history = new ArrayList<>();
 
 	public Client() {
 	}
@@ -73,8 +97,6 @@ public class Client implements Serializable {
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
-		this.status = status;
-
 	}
 
 	public Long getId() {

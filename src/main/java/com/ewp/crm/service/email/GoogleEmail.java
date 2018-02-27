@@ -62,14 +62,18 @@ public class GoogleEmail {
     @Value("${mail.imap.server}")
     private String imapServer;
 
-    @Autowired
-    private BeanFactory beanFactory;
+    private final BeanFactory beanFactory;
+
+    private final ClientService clientService;
+
+    private final StatusService statusService;
 
     @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private StatusService statusService;
+    public GoogleEmail(BeanFactory beanFactory, ClientService clientService, StatusService statusService) {
+        this.beanFactory = beanFactory;
+        this.clientService = clientService;
+        this.statusService = statusService;
+    }
 
     private Properties javaMailProperties() {
         Properties javaMailProperties = new Properties();

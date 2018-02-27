@@ -23,6 +23,7 @@ import java.util.Collection;
 
 @Service
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
 	private static Logger logger = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
 
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
