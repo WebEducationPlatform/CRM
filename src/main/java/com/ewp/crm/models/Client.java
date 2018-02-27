@@ -73,7 +73,7 @@ public class Client implements Serializable {
 	@JoinTable(name = "history_client",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
-	@OrderBy("id desc")
+	@OrderBy("id DESC")
 	private List<ClientHistory> history = new ArrayList<>();
 
 	public Client() {

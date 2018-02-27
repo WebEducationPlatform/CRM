@@ -48,7 +48,7 @@ public class UserController {
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public void addUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail()+ " добавил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
 		clientService.addClient(client);
 		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 	}
@@ -56,7 +56,7 @@ public class UserController {
 	@RequestMapping(value = "/updateClient", method = RequestMethod.POST)
 	public void updateUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail()+ " изменил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил клиента"));
 		clientService.updateClient(client);
 		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
 	}
