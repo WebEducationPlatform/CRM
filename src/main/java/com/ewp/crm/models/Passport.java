@@ -6,7 +6,7 @@ import java.sql.Date;
 import java.util.Arrays;
 
 @Entity
-@Table(name = "passports")
+@Table(name = "passport")
 public class Passport implements Serializable {
 
     @Id
