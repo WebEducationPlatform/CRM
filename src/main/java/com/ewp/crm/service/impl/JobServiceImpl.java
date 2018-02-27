@@ -11,12 +11,12 @@ import java.util.List;
 @Service
 public class JobServiceImpl implements JobService {
 
-    private JobDAO jobDAO;
+    private final JobDAO jobDAO;
 
     @Autowired
-    public JobServiceImpl(JobDAO jobDAO){
+    public JobServiceImpl(JobDAO jobDAO) {
         this.jobDAO = jobDAO;
-    };
+    }
 
     @Override
     public void add(Job job) {
