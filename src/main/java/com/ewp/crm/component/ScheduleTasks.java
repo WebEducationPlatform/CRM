@@ -48,7 +48,7 @@ public class ScheduleTasks {
                     logger.error(e.getMessage());
                 }
                 if ((newClient != null) && (clientService.getClientByEmail(newClient.getEmail()) == null)) {
-                    Status newClientsStatus = statusService.get("New clients");
+                    Status newClientsStatus = statusService.get(1L);
                     newClient.setStatus(newClientsStatus);
                     clientService.addClient(newClient);
                     logger.info("New client with id{} has added from VK", newClient.getId());
