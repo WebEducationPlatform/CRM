@@ -8,14 +8,18 @@ import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class ClientServiceImpl implements ClientService {
 
+	private final ClientDAO clientDAO;
 
 	@Autowired
-	private ClientDAO clientDAO;
+	public ClientServiceImpl(ClientDAO clientDAO) {
+		this.clientDAO = clientDAO;
+	}
 
 	@Override
 	public List<Client> getAllClients() {
