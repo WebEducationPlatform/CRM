@@ -14,14 +14,6 @@ import java.util.List;
 @Service
 public class ClientServiceImpl implements ClientService {
 
-	public CharSequence subSequence(int start, int end) {
-		int length = end - start;
-		byte[] bytes = new byte[length];
-		Arrays.copyOfRange(data, start, length);
-		return new AsciiCharSequence(bytes);
-	}
-
-
 	@Autowired
 	private ClientDAO clientDAO;
 
