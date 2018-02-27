@@ -16,14 +16,6 @@ public class ClientServiceImpl implements ClientService {
 
 	private final ClientDAO clientDAO;
 
-	public CharSequence subSequence(int start, int end) {
-		int length = end - start;
-		byte[] bytes = new byte[length];
-		Arrays.copyOfRange(data, start, length);
-		return new AsciiCharSequence(bytes);
-	}
-
-
 	@Autowired
 	public ClientServiceImpl(ClientDAO clientDAO) {
 		this.clientDAO = clientDAO;
