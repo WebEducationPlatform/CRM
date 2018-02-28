@@ -13,16 +13,12 @@ public class DataInitializer {
 
 	@Autowired
 	private StatusService statusService;
-
 	@Autowired
 	private ClientService clientService;
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private RoleService roleService;
-
-	@Autowired
-	private JobService jobService;
 
 	private void init() {
 
