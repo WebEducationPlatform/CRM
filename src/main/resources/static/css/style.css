@@ -71,6 +71,16 @@ ul.nav a:hover {
     margin-top: 3%;
 }
 
+.navbar-fixed-top {
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#fbd8cf),to(#f7f0e9));
+    box-shadow: inset 0 1px 0 rgb(250, 240, 230), 0 1px 5px rgba(241, 232, 222, 0);
+    border-color: #faf0e6;
+}
+
+.navbar-right {
+     margin-right: 0px;
+}
+
 #add-user-btn {
     width: 96%;
     height: 80%;
@@ -82,3 +92,33 @@ ul.nav a:hover {
     float: right;
     margin-right: 15px;
 }
+
+#clients-table {
+    margin-top: 5%;
+}
+
+#searchInput {
+    margin-top: 1%;
+}
+
+#logo-span {
+    cursor: default;
+    color: black;
+}
+
+.modal-comments {
+    text-align: left;
+}
+
+.modal-content {
+    background-color: #edeff0;
+}
+
+.modal-header {
+    border-bottom: 1px solid #cdcfd0;
+}
+
+.modal-footer {
+    border-top: 1px solid #cdcfd0;
+}
+
