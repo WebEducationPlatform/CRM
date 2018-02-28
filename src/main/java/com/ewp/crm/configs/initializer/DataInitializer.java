@@ -7,16 +7,22 @@ import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 public class DataInitializer {
 
 	@Autowired
 	private StatusService statusService;
+
 	@Autowired
 	private ClientService clientService;
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private RoleService roleService;
+
+	@Autowired
+	private JobService jobService;
 
 	private void init() {
 
@@ -52,5 +58,6 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
+
 	}
 }
