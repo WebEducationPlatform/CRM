@@ -28,6 +28,7 @@ public class DataInitializer {
 		User user = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru", "admin", 2000D, roleService.getByRoleName("ADMIN"));
 		userService.add(user);
 
+		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
@@ -43,10 +44,11 @@ public class DataInitializer {
 		clientService.addClient(client2);
 		clientService.addClient(client3);
 		clientService.addClient(client4);
-		status1.setClients(clientService.getClientByEmail("u.dolg@mail.ru"));
+		status0.setClients(clientService.getClientByEmail("u.dolg@mail.ru"));
 		status1.setClients(clientService.getClientByEmail("i.fiod@mail.ru"));
 		status2.setClients(clientService.getClientByEmail("vboyko@mail.ru"));
 		status3.setClients(clientService.getClientByEmail("a.solo@mail.ru"));
+		statusService.add(status0);
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
