@@ -41,6 +41,15 @@ public class Client implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
+	@Column(name = "city")
+	private String city;
+
+	@Column(name = "country")
+	private String country;
+
+	@Column(name = "comment")
+	private String comment;
+
 	@JsonManagedReference
 	@ManyToOne
 	@JoinColumn(name = "status_id")
@@ -76,6 +85,9 @@ public class Client implements Serializable {
 	@OrderBy("id DESC")
 	private List<ClientHistory> history = new ArrayList<>();
 
+	@OneToMany(targetEntity = Job.class, mappedBy = "client")
+	private List<Job> jobs;
+
 	public Client() {
 	}
 
@@ -86,6 +98,7 @@ public class Client implements Serializable {
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
+		this.city = city;
 		this.status = status;
 
 	}
@@ -153,6 +166,38 @@ public class Client implements Serializable {
 
 	public void setSex(Sex sex) {
 		this.sex = sex;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public List<Job> getJobs() {
+		return jobs;
+	}
+
+	public void setJobs(List<Job> jobs) {
+		this.jobs = jobs;
 	}
 
 	public Status getStatus() {
