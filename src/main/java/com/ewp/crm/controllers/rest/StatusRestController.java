@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.exceptions.status.StatusDataException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
@@ -61,8 +60,5 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@ExceptionHandler(StatusDataException.class)
-	public ResponseEntity handleException(StatusDataException ex) {
-		return ResponseEntity.badRequest().body(ex.getMessage());
-	}
+
 }
