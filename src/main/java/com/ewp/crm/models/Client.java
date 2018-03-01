@@ -52,7 +52,7 @@ public class Client implements Serializable {
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "client_comment",
-			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
 
