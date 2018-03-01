@@ -1,14 +1,13 @@
 package com.ewp.crm.service.impl;
 
 
-import com.ewp.crm.exceptions.client.ClientException;
+import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.repository.interfaces.ClientDAO;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -61,7 +60,7 @@ public class ClientServiceImpl implements ClientService {
 	private void checkNewClient(Client client) {
 		if ((clientDAO.findClientByEmail(client.getEmail()) != null)
 				|| (clientDAO.findClientByPhoneNumber(client.getPhoneNumber()) != null)) {
-			throw new ClientException("Клиент уже существует");
+			throw new ClientExistsException("Клиент уже существует");
 		}
 	}
 
@@ -70,7 +69,7 @@ public class ClientServiceImpl implements ClientService {
 		Client currentClientByPhone;
 		if (((currentClientByEmail = clientDAO.findClientByEmail(client.getEmail())) != null && !currentClientByEmail.getId().equals(client.getId()))
 				|| ((currentClientByPhone = clientDAO.findClientByPhoneNumber(client.getPhoneNumber())) != null && !currentClientByPhone.getId().equals(client.getId()))) {
-			throw new ClientException("Клиент уже существует");
+			throw new ClientExistsException("Клиент уже существует");
 		}
 	}
 }
