@@ -1,7 +1,6 @@
 $(document).ready(function () {
     $(".column").sortable({
         connectWith: ".column",
-        handle: ".portlet-header",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
