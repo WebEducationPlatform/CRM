@@ -1,3 +1,4 @@
+
 .tilt.right {
     transform: rotate(3deg);
     -moz-transform: rotate(3deg);
@@ -20,6 +21,17 @@ body {
 .portlet {
     margin: 0 1em 1em 0;
     padding: 0.3em;
+    cursor: pointer;
+}
+
+.portlet:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.portlet:hover {
+    background: #f5f5f5;
 }
 .portlet-header {
     padding: 0.2em 0.3em;
@@ -28,9 +40,6 @@ body {
     background-image: linear-gradient(to bottom,#faf0e6 0,#ff57222b 100%);
  }
 
-.portlet-header:hover {
-    cursor: move;
-}
 
 .portlet-toggle {
     position: absolute;
