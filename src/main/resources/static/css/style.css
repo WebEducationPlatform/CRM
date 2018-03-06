@@ -141,3 +141,10 @@ ul.nav a:hover {
     color: #9c9c9c;
 }
 
+#client_filter_group {
+    float: right;
+    width: 10%;
+    height: 10%;
+    padding-bottom: 100px;
+    margin-top: 3%;
+}
