@@ -1,5 +1,6 @@
 package com.ewp.crm.component.util;
 
+import com.ewp.crm.configs.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
@@ -14,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,44 +28,30 @@ import java.util.List;
 @Component
 public class VKUtil {
 
-    @Value("${vk.app.clientId}")
     private String clientId;
 
-    @Value("${vk.app.clientSecret}")
     private String clientSecret;
 
-    @Value("${vk.profile.username}")
     private String username;
 
-    @Value("${vk.profile.password}")
     private String password;
 
-    @Value("${vk.club.id}")
     private String clubId;
 
     private static String accessToken;
 
     private static Logger logger = LoggerFactory.getLogger(VKUtil.class);
 
+    @Autowired
+    public VKUtil(VKConfig vkConfig) {
+        clientId = vkConfig.getClientId();
+        clientSecret = vkConfig.getClientSecret();
+        username = vkConfig.getUsername();
+        password = vkConfig.getPassword();
+        clubId = vkConfig.getClubId();
+    }
+
     @PostConstruct
-    private void init() {
-        boolean configInitialized = checkConfig();
-        if (!configInitialized) {
-            logger.error("VK configs have not initialized. Check files of properties");
-        } else {
-            initAccessToken();
-        }
-    }
-
-    private boolean checkConfig() {
-        if (clientId == null || "".equals(clientId)) return false;
-        if (clientSecret == null || "".equals(clientSecret)) return false;
-        if (username == null || "".equals(username)) return false;
-        if (password == null || "".equals(password)) return false;
-        if (clubId == null || "".equals(clubId)) return false;
-        return true;
-    }
-
     private void initAccessToken() {
         String uri =
                 "https://oauth.vk.com/token" +

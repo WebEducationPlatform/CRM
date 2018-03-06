@@ -27,8 +27,14 @@ public class DataInitializer {
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
 
-		User user = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru", "admin", 2000D, roleService.getByRoleName("ADMIN"));
-		userService.add(user);
+		User admin = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru", "admin", 2000D, roleService.getByRoleName("ADMIN"));
+		userService.add(admin);
+
+		User user1 = new User("Ivan", "Ivanov", "89123456789", "user1@mail.ru", "user", 1000D, roleService.getByRoleName("USER"));
+		userService.add(user1);
+
+		User user2 = new User("Petr", "Petrov", "89129876543", "user2@mail.ru", "user", 1000D, roleService.getByRoleName("USER"));
+		userService.add(user2);
 
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
@@ -46,10 +52,10 @@ public class DataInitializer {
 		clientService.addClient(client2);
 		clientService.addClient(client3);
 		clientService.addClient(client4);
-		status0.setClients(clientService.getClientByEmail("u.dolg@mail.ru"));
-		status1.setClients(clientService.getClientByEmail("i.fiod@mail.ru"));
-		status2.setClients(clientService.getClientByEmail("vboyko@mail.ru"));
-		status3.setClients(clientService.getClientByEmail("a.solo@mail.ru"));
+		status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
+		status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
+		status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
+		status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
 		statusService.add(status0);
 		statusService.add(status1);
 		statusService.add(status2);
