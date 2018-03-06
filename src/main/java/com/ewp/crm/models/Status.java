@@ -1,10 +1,10 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table
@@ -15,14 +15,14 @@ public class Status implements Serializable {
 	@Column(name = "status_id")
 	private Long id;
 
-	@Column(name = "status_name", nullable = false)
+	@Column(name = "status_name", nullable = false, unique = true)
 	private String name;
 
-	@JsonBackReference
-	@OneToMany(cascade = CascadeType.MERGE)
-	@JoinTable(name = "status_client",
+	@JsonManagedReference
+	@OneToMany
+	@JoinTable(name = "status_users",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
-			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
+			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
 	public Status(String name) {
@@ -67,11 +67,8 @@ public class Status implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Status)) return false;
-
 		Status status = (Status) o;
-
-		if (id != null ? !id.equals(status.id) : status.id != null) return false;
-		return name.equals(status.name);
+		return (id != null ? id.equals(status.id) : status.id == null) && name.equals(status.name);
 	}
 
 	@Override

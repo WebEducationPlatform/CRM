@@ -185,6 +185,10 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
+	public String getFullName(){
+		return this.firstName + " " + this.lastName;
+	}
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singletonList(role);

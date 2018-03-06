@@ -61,23 +61,23 @@ public class UserController {
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public void addUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
 		clientService.addClient(client);
-		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/updateClient", method = RequestMethod.POST)
 	public void updateUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил клиента"));
 		clientService.updateClient(client);
-		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/deleteClient", method = RequestMethod.POST)
 	public void deleteUser(Client client) {
 		clientService.deleteClient(client);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has deleted client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has deleted client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 }

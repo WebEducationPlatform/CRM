@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Email;
@@ -50,11 +51,11 @@ public class Client implements Serializable {
 	@Column(name = "comment")
 	private String comment;
 
-	@JsonManagedReference
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "status_id")
-	@JoinTable(name = "status_client",
-			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+	@JoinTable(name = "status_users",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
 	private Status status;
 
