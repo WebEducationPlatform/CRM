@@ -48,13 +48,27 @@
                             <div class="comments">
                                 <span>Комментарии:</span>
                                 <div class="form-group">
-                                    <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
+                                    <textarea class="listener_class form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
                                     <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
                                 </div>
                                 <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
                                     <li th:each="comment : ${client.comments}">
                                         <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
                                         <p th:text="${comment.getContent()}"></p>
+
+                                        <div id="form-answer">
+                                            <div class="form-group">
+                                                <textarea class="form-control" th:id="'new-answer-for-comment' + ${comment.id}" placeholder="Напишите ответ"></textarea>
+                                                <button class="btn btn-md btn-success" th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'"> сохранить </button>
+                                            </div>
+                                        </div>
+                                        <ul th:id="'comment-'+${comment.id}+'answers'">
+                                            <li th:each="answer : ${comment.answers}">
+                                                <span th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
+                                                <p th:text="${answer.getContent()}"></p>
+                                            </li>
+                                        </ul>
+
                                     </li>
                                 </ul>
                             </div>
@@ -143,6 +157,6 @@
         </form>
     </div>
 </div>
-</body>
 
+</body>
 </html>
