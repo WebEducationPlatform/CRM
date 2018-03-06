@@ -39,6 +39,23 @@ public class RestClientController {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
+	@RequestMapping(value = "/assign", method = RequestMethod.POST)
+	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (user != null) {
+			Client client = clientService.getClientByID(clientId);
+			if (client.getOwnerUser() != null) {
+				logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
+				return ResponseEntity.badRequest().body(null);
+			}
+			client.setOwnerUser(user);
+			clientService.updateClient(client);
+			logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
