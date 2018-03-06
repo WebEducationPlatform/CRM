@@ -131,3 +131,13 @@ ul.nav a:hover {
     border-top: 1px solid #cdcfd0;
 }
 
+.user-icon {
+    border: 2px solid #cccccc;
+    border-radius: 40px;
+    padding: 10px;
+    margin-left: 70%;
+    background: #f1f1f1;
+    text-align: center;
+    color: #9c9c9c;
+}
+

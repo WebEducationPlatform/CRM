@@ -52,7 +52,11 @@ public class Status implements Serializable {
 		return clients;
 	}
 
-	public void setClients(Client client) {
+	public void setClients(List<Client> clients) {
+		this.clients = clients;
+	}
+
+	public void addClient(Client client) {
 		if (this.clients == null) {
 			this.clients = new ArrayList<>();
 		}
