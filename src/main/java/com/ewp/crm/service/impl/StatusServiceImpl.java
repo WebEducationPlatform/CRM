@@ -2,7 +2,6 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusDataException;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientDAO;
@@ -40,8 +39,6 @@ public class StatusServiceImpl implements StatusService {
 			for (Client client: status.getClients()) {
 				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
 					filteredClients.add(client);
-				} else {
-
 				}
 			}
 			status.setClients(filteredClients);
@@ -61,6 +58,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void add(Status status) {
+		checkStatusUnique(status);
 		statusDAO.saveAndFlush(status);
 	}
 
@@ -100,7 +98,6 @@ public class StatusServiceImpl implements StatusService {
 		Status endStatus = statusDAO.findOne(statusId);
 		beginStatus.getClients().remove(client);
 		statusDAO.saveAndFlush(beginStatus);
-		client.setStatus(endStatus);
 		endStatus.addClient(client);
 		statusDAO.saveAndFlush(endStatus);
 		client.setStatus(endStatus);

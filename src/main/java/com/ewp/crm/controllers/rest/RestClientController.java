@@ -60,9 +60,9 @@ public class RestClientController {
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		client.setHistory(clientService.getClientByID(client.getId()).getHistory());
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил профиль клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
 		clientService.updateClient(client);
-		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -70,16 +70,16 @@ public class RestClientController {
 	public ResponseEntity deleteClient(@PathVariable Long id) {
 		clientService.deleteClient(id);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has deleted client with id {}", currentAdmin.getEmail(), id);
+		logger.info("{} has deleted client with id {}", currentAdmin.getFullName(), id);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
 		clientService.addClient(client);
-		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 

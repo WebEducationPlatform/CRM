@@ -1,6 +1,7 @@
 $(document).ready(function () {
     $(".column").sortable({
         connectWith: ".column",
+        handle: ".portlet-body",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
@@ -12,6 +13,14 @@ $(document).ready(function () {
             ui.item.removeData("move_handler");
             senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
         }
+    });
+
+    $(document).ready(function(){
+        $("#new-status-name").keypress(function(e){
+            if(e.keyCode===13){
+                createNewStatus();
+            }
+        });
     });
 
     $(".portlet")
@@ -81,7 +90,9 @@ function createNewUser() {
 function createNewStatus() {
     let url = '/admin/rest/status/add';
     let statusName = $('#new-status-name').val();
-
+    if (statusName===""){
+        return;
+    }
     let formData = {
         statusName: statusName
     };
@@ -94,10 +105,31 @@ function createNewStatus() {
             window.location.reload();
         },
         error: function (e) {
+            alert(e.responseText);
         }
     });
 }
 
+function changeStatusName(id) {
+    let url = '/admin/rest/status/edit';
+    let statusName = $("#change-status-name" + id).val();
+    let formData = {
+        statusName: statusName,
+        oldStatusId:id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function (result) {
+            window.location.reload();
+        },
+        error: function (e) {
+            alert(e.responseText);
+        }
+    });
+}
 
 function senReqOnChangeStatus(clientId, statusId) {
     let
