@@ -33,7 +33,19 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
-		return statusDAO.getStatusesByClientsOwnerUser(ownerUser);
+		List<Status> statuses = getAll();
+		for (Status status: statuses) {
+			List<Client> filteredClients = new ArrayList<>();
+			for (Client client: status.getClients()) {
+				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
+					filteredClients.add(client);
+				} else {
+
+				}
+			}
+			status.setClients(filteredClients);
+		}
+		return statuses;
 	}
 
 	@Override
