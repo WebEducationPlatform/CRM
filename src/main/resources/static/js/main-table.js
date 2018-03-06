@@ -168,5 +168,48 @@ function assign(id) {
     });
 }
 
+$(document).ready(function() {
+    $("#client_filter").change(function(){
+        var data = ($(this).val());
+        var jo = $("#status-columns").find($(".portlet"));
+        if (this.value === "") {
+            jo.show();
+            return;
+        }
+        jo.hide();
+        jo.filter(function (i, v) {
+            var d = $(this)[0].getElementsByClassName("user-icon");
+            if(d.length===0){
+                return false;
+            }
+            for (var w = 0; w < data.length; ++w) {
+                if (d[0].innerText.indexOf(data[w]) !== -1) {
+                    return true;
+                }
+            }
+        }).show();
+    });
+});
+
+$(document).ready(function() {
+    var names = $("#status-columns").find($(".user-icon"));
+    if (names.length===0){
+        $("#client_filter_group").remove();
+    }
+    var uniqueNames = [];
+    var temp = [];
+    for (var i = 0; i < names.length; ++i) {
+        if( ~temp.indexOf(names[i].innerText) ) {
+            names.slice(temp.indexOf(names[i].innerText));
+        } else {
+            temp.push(names[i].innerText);
+            uniqueNames.push(names[i]);
+        }}
+    $.each(uniqueNames, function(i, el){
+        $("#client_filter").append("<option value = "+el.innerText+">" + el.getAttribute("value") + "</option>");
+    });
+
+});
+
 
 

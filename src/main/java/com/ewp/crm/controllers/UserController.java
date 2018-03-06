@@ -40,13 +40,14 @@ public class UserController {
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
+		ModelAndView modelAndView = new ModelAndView("main-client-table");
 		if (userFromSession.getRole().equals(new Role("ADMIN"))) {
-			statusService.getAll();
+			statuses = statusService.getAll();
+			modelAndView.addObject("isAdmin", true);
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
-		ModelAndView modelAndView = new ModelAndView("main-client-table");
-		modelAndView.addObject("statuses", statusService.getAll());
+		modelAndView.addObject("statuses", statuses);
 		return modelAndView;
 	}
 
