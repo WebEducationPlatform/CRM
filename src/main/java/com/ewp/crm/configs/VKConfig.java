@@ -3,7 +3,6 @@ package com.ewp.crm.configs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -25,20 +24,20 @@ public class VKConfig {
     private static Logger logger = LoggerFactory.getLogger(VKConfig.class);
 
     @Autowired
-    public VKConfig(Environment env, ConfigurableApplicationContext context) {
+    public VKConfig(Environment env) {
         clientId = env.getProperty("vk.app.clientId");
         clientSecret = env.getProperty("vk.app.clientSecret");
         username  = env.getProperty("vk.profile.username");
         password = env.getProperty("vk.profile.password");
         clubId  = env.getProperty("vk.club.id");
 
-        if (!configValided()) {
+        if (!configIsValid()) {
             logger.error("VK configs have not initialized. Check files of properties");
             System.exit(-1);
         }
     }
 
-    private boolean configValided() {
+    private boolean configIsValid() {
         if (clientId == null || "".equals(clientId)) return false;
         if (clientSecret == null || "".equals(clientSecret)) return false;
         if (username == null || "".equals(username)) return false;
