@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -33,6 +33,16 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
+    private Boolean isAnswer = false;
+
+    @OrderBy("date ASC")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @org.hibernate.annotations.ForeignKey(name = "FK_MAIN_COMMENT", inverseName = "FK_DEPENDENT_COMMENT")
+    @JoinTable(name = "answers_to_comment",
+            joinColumns = {@JoinColumn(name = "comment_id")},
+            inverseJoinColumns = {@JoinColumn(name = "answer_comment_id")})
+    private List<Comment> answers;
+
     public Comment() {
     }
 
@@ -48,6 +58,14 @@ public class Comment {
         this.client = client;
         this.content = content;
         this.date = new Date(System.currentTimeMillis());
+    }
+
+    public Comment(User user, Client client, String content, Boolean isAnswer) {
+        this.user = user;
+        this.client = client;
+        this.date = new Date(System.currentTimeMillis());
+        this.content = content;
+        this.isAnswer = isAnswer;
     }
 
     public Long getId() {
@@ -88,6 +106,22 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Boolean getAnswer() {
+        return isAnswer;
+    }
+
+    public void setAnswer(Boolean isAnswer) {
+        this.isAnswer = isAnswer;
+    }
+
+    public List<Comment> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Comment> answers) {
+        this.answers = answers;
     }
 
     @Override

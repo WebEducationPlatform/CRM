@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/rest/comment")
 public class CommentController {
@@ -43,4 +45,22 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
+
+    @RequestMapping(value = "addAnswer", method = RequestMethod.POST)
+    public ResponseEntity<Comment> addAnswer(@RequestParam(name = "content") String content,
+                                             @RequestParam(name = "commentId") Long commentId){
+        User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userFromSession != null) {
+            User fromDB = userService.get(userFromSession.getId());
+            Comment comment = commentService.getById(commentId);
+            Comment answer = new Comment(fromDB, null, content, true);
+            List<Comment> answers = comment.getAnswers();
+            answers.add(answer);
+            commentService.update(comment);
+            return ResponseEntity.status(HttpStatus.OK).body(answer);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
+
 }
