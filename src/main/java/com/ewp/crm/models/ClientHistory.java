@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.*;
 
 @Entity
-@Table(name="history")
+@Table(name = "history")
 public class ClientHistory {
 
 	@Id
@@ -15,8 +15,22 @@ public class ClientHistory {
 
 	@Column
 	private String title;
+	@JsonBackReference
+	@ManyToOne
+	@JoinTable(name = "history_client",
+			joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
+			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
+	private Client client;
 
 	public ClientHistory() {
+	}
+
+	public ClientHistory(User user, String text) {
+		this.title=user.getFirstName()+ " " + user.getLastName() + " " + text;
+	}
+
+	public ClientHistory(String title) {
+		this.title = title;
 	}
 
 	public Long getId() {
@@ -42,17 +56,6 @@ public class ClientHistory {
 	public void setClient(Client client) {
 		this.client = client;
 	}
-
-	public ClientHistory(String title) {
-		this.title = title;
-	}
-
-	@JsonBackReference
-	@ManyToOne
-	@JoinTable(name = "history_client",
-			joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
-			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
-	private Client client;
 
 	@Override
 	public boolean equals(Object o) {

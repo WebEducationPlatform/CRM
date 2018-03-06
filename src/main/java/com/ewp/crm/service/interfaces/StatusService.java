@@ -1,12 +1,15 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 
 import java.util.List;
 
 public interface StatusService {
 
 	List<Status> getAll();
+
+	List<Status> getStatusesWithClientsForUser(User ownerUser);
 
 	Status get(Long id);
 

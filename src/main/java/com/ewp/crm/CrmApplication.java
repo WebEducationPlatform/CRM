@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-
 public class CrmApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(CrmApplication.class, args);
 	}

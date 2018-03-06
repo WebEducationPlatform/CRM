@@ -30,11 +30,20 @@ public class StatusRestController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
-
 		statusService.add(new Status(statusName));
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has added status with name: {}", currentAdmin.getEmail(), statusName);
+		logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
 		return ResponseEntity.ok("Успешно добавлено");
+	}
+
+	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName, @RequestParam(name = "oldStatusId") Long oldStatusId) {
+		Status status = statusService.get(oldStatusId);
+		status.setName(statusName);
+		statusService.update(status);
+		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		logger.info("{} has updated status {}", currentAdmin.getFullName(), statusName);
+		return ResponseEntity.ok().build();
 	}
 
 	@RequestMapping(value = "/change", method = RequestMethod.POST)
@@ -45,18 +54,17 @@ public class StatusRestController {
 			return ResponseEntity.badRequest().build();
 		}
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		currentClient.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил статус на " + statusService.get(statusId).getName()));
+		currentClient.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил статус c " + currentClient.getStatus().getName() + " на " + statusService.get(statusId).getName()));
 		statusService.changeClientStatus(clientId, statusId);
-		logger.info("Admin {} has changed status of client with id: {} to status id: {}", currentAdmin.getEmail(), clientId, statusId);
+		logger.info("{} has changed status of client with id: {} to status id: {}", currentAdmin.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId) {
-
 		statusService.delete(deleteId);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has  deleted status  with id {}", currentAdmin.getEmail(), deleteId);
+		logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 		return ResponseEntity.ok().build();
 	}
 

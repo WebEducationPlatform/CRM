@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Email;
@@ -50,18 +51,22 @@ public class Client implements Serializable {
 	@Column(name = "comment")
 	private String comment;
 
-	@JsonManagedReference
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "status_id")
-	@JoinTable(name = "status_client",
-			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+	@JoinTable(name = "status_users",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
 	private Status status;
+
+	@ManyToOne
+	@JoinColumn(name = "owner_user_id")
+	private User ownerUser;
 
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "client_comment",
-			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
 
@@ -216,6 +221,14 @@ public class Client implements Serializable {
 		this.comments = comments;
 	}
 
+	public User getOwnerUser() {
+		return ownerUser;
+	}
+
+	public void setOwnerUser(User ownerUser) {
+		this.ownerUser = ownerUser;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -231,6 +244,7 @@ public class Client implements Serializable {
 		if (email != null ? !email.equals(client.email) : client.email != null) return false;
 		if (sex != client.sex) return false;
 		if (status != null ? !status.equals(client.status) : client.status != null) return false;
+		if (ownerUser != null ? !ownerUser.equals(client.ownerUser) : client.ownerUser != null) return false;
 		return comments != null ? comments.equals(client.comments) : client.comments == null;
 	}
 
@@ -244,6 +258,7 @@ public class Client implements Serializable {
 		result = 31 * result + (int) age;
 		result = 31 * result + (sex != null ? sex.hashCode() : 0);
 		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (ownerUser != null ? ownerUser.hashCode() : 0);
 		result = 31 * result + (comments != null ? comments.hashCode() : 0);
 		return result;
 	}
