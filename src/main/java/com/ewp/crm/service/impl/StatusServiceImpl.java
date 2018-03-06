@@ -1,6 +1,6 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.exceptions.status.StatusDataException;
+import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
@@ -71,7 +71,7 @@ public class StatusServiceImpl implements StatusService {
 	private void checkStatusUnique(Status status) {
 		Status statusFromDB = statusDAO.findStatusByName(status.getName());
 		if (statusFromDB != null) {
-			throw new StatusDataException("Статус с таким названием уже существует");
+			throw new StatusExistsException("Статус с таким названием уже существует");
 		}
 	}
 

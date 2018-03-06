@@ -149,3 +149,9 @@ ul.nav a:hover {
     margin-right: 15px;
     margin-top: 5px;
 }
+
+.form-signin {
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+}
