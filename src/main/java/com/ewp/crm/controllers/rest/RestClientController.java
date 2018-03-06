@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
@@ -81,10 +80,5 @@ public class RestClientController {
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
-	@ExceptionHandler(ClientException.class)
-	public ResponseEntity error(ClientException e) {
-		return ResponseEntity.badRequest().body(e.getMessage());
 	}
 }
