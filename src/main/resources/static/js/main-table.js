@@ -1,5 +1,6 @@
 $(document).ready(function () {
     $(".column").sortable({
+	items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -240,7 +241,6 @@ $(document).ready(function() {
     $.each(uniqueNames, function(i, el){
         $("#client_filter").append("<option value = "+el.innerText+">" + el.getAttribute("value") + "</option>");
     });
-
 });
 
 
