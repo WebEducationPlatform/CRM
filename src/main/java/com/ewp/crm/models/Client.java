@@ -70,20 +70,8 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
 
-	public List<ClientHistory> getHistory() {
-		return history;
-	}
-
-	public void setHistory(List<ClientHistory> history) {
-		this.history = history;
-	}
-
-	public void addHistory(ClientHistory history) {
-		this.history.add(history);
-	}
-
 	@JsonManagedReference
-	@OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "history_client",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
@@ -92,6 +80,13 @@ public class Client implements Serializable {
 
 	@OneToMany(targetEntity = Job.class, mappedBy = "client")
 	private List<Job> jobs;
+
+	@Column
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "client_social_network",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+	private List<SocialNetwork> socialNetworks;
 
 	public Client() {
 	}
@@ -103,9 +98,7 @@ public class Client implements Serializable {
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
-		this.city = city;
 		this.status = status;
-
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
@@ -115,6 +108,18 @@ public class Client implements Serializable {
 		this.email = email;
 		this.age = age;
 		this.sex = sex;
+	}
+
+	public List<ClientHistory> getHistory() {
+		return history;
+	}
+
+	public void setHistory(List<ClientHistory> history) {
+		this.history = history;
+	}
+
+	public void addHistory(ClientHistory history) {
+		this.history.add(history);
 	}
 
 	public Long getId() {
@@ -229,6 +234,14 @@ public class Client implements Serializable {
 		this.ownerUser = ownerUser;
 	}
 
+	public List<SocialNetwork> getSocialNetworks() {
+		return socialNetworks;
+	}
+
+	public void setSocialNetworks(List<SocialNetwork> socialNetworks) {
+		this.socialNetworks = socialNetworks;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -264,7 +277,7 @@ public class Client implements Serializable {
 	}
 
 	public enum Sex {
-		MALE, FEMALE;
+		MALE, FEMALE
 	}
 
 }
