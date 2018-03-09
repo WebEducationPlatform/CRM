@@ -103,7 +103,7 @@
                                 <div class="comments">
                                     <span>Комментарии:</span>
                                     <div class="form-group">
-                                        <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
+                                        <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
                                         <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
                                     </div>
                                     <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
