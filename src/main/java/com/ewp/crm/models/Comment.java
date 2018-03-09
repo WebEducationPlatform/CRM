@@ -23,7 +23,7 @@ public class Comment {
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_comment",
-            joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
     private Client client;
 

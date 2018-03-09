@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
@@ -39,13 +38,30 @@ public class RestClientController {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
+	@RequestMapping(value = "/assign", method = RequestMethod.POST)
+	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (user != null) {
+			Client client = clientService.getClientByID(clientId);
+			if (client.getOwnerUser() != null) {
+				logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
+				return ResponseEntity.badRequest().body(null);
+			}
+			client.setOwnerUser(user);
+			clientService.updateClient(client);
+			logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		client.setHistory(clientService.getClientByID(client.getId()).getHistory());
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил профиль клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
 		clientService.updateClient(client);
-		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -53,21 +69,16 @@ public class RestClientController {
 	public ResponseEntity deleteClient(@PathVariable Long id) {
 		clientService.deleteClient(id);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has deleted client with id {}", currentAdmin.getEmail(), id);
+		logger.info("{} has deleted client with id {}", currentAdmin.getFullName(), id);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
 		clientService.addClient(client);
-		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
-	@ExceptionHandler(ClientException.class)
-	public ResponseEntity error(ClientException e) {
-		return ResponseEntity.badRequest().body(e.getMessage());
 	}
 }

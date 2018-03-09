@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.User;
 
 import java.util.List;
 
@@ -8,6 +9,8 @@ import java.util.List;
 public interface ClientService {
 
 	List<Client> getAllClients();
+
+	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	Client getClientByEmail(String name);
 
@@ -20,4 +23,6 @@ public interface ClientService {
 	void deleteClient(Long id);
 
 	void deleteClient(Client client);
+
+
 }
