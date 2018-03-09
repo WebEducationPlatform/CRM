@@ -72,61 +72,60 @@
                             </p>
                         </div>
                     </div>
-
-                    <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title" th:text="${client.name} + ' ' + ${client.lastName}"></h4>
-                                </div>
-                                <div class="modal-body">
-                                    <span th:text="${client.phoneNumber}"></span>
-                                    <br/>
-                                    <span th:text="${client.email}"></span>
-                                    <br/>
-                                    <span th:text="${client.age}"></span>
-                                    <br/>
-                                    <span th:text="${client.sex}"></span>
-                                    <br/>
-                                    <button th:if="${client.ownerUser == null}"
-                                            th:id="'assign-client' + ${client.id}"
-                                            th:onclick="'assign('+ ${client.id} +')'"
-                                            class="btn btn-md btn-info" >
-                                        взять себе
-                                    </button>
-                                </div>
-                                <div class="modal-footer modal-comments">
-                                    <div class="comments">
-                                        <span>Комментарии:</span>
-                                        <div class="form-group">
-                                            <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
-                                            <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
-                                        </div>
-                                        <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
-                                            <li th:each="comment : ${client.comments}">
-                                                <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                                                <p th:text="${comment.getContent()}"></p>
-                                            </li>
-                                        </ul>
+                </div>
+                <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" th:text="${client.name} + ' ' + ${client.lastName}"></h4>
+                            </div>
+                            <div class="modal-body">
+                                <span th:text="${client.phoneNumber}"></span>
+                                <br/>
+                                <span th:text="${client.email}"></span>
+                                <br/>
+                                <span th:text="${client.age}"></span>
+                                <br/>
+                                <span th:text="${client.sex}"></span>
+                                <br/>
+                                <button th:if="${client.ownerUser == null}"
+                                        th:id="'assign-client' + ${client.id}"
+                                        th:onclick="'assign('+ ${client.id} +')'"
+                                        class="btn btn-md btn-info" >
+                                    взять себе
+                                </button>
+                            </div>
+                            <div class="modal-footer modal-comments">
+                                <div class="comments">
+                                    <span>Комментарии:</span>
+                                    <div class="form-group">
+                                        <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
+                                        <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
                                     </div>
+                                    <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
+                                        <li th:each="comment : ${client.comments}">
+                                            <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
+                                            <p th:text="${comment.getContent()}"></p>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div class="modal-header">
-                                    <div class="panel-group" id="accordion">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" th:href="'#collapse'+${client.id}">Действия</a>
-                                                </h4>
-                                            </div>
-                                            <div th:id="'collapse'+${client.id}" class="panel-collapse collapse in">
-                                                <div class="panel-body">
-                                                    <ul class="history-list" th:id="'client-'+${client.id}+'history'">
-                                                        <li th:each="history : ${client.history}">
-                                                            <span th:text="${history.title}"></span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
+                            </div>
+                            <div class="modal-header">
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion" th:href="'#collapse'+${client.id}">Действия</a>
+                                            </h4>
+                                        </div>
+                                        <div th:id="'collapse'+${client.id}" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <ul class="history-list" th:id="'client-'+${client.id}+'history'">
+                                                    <li th:each="history : ${client.history}">
+                                                        <span th:text="${history.title}"></span>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
