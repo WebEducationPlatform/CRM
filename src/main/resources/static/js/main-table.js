@@ -243,5 +243,20 @@ $(document).ready(function() {
     });
 });
 
+$(document).ready(function() {
+    $('.form-control').textcomplete([
+    { // html
+        replace: function (mention) {
+            return '@' + mention + ' ';
+        },
+        mentions: ['yuku_t', 'dmitry', 'zhack'],
+        match: /\B@(\w*)$/,
+        search: function (term, callback) {
+            callback($.map(this.mentions, function (mention) {
+                $('.textcomplete-dropdown').css('z-index', '999999');
+                return mention.indexOf(term) === 0 ? mention : null;
 
-
+            }));
+        },
+        index: 1}])
+});
