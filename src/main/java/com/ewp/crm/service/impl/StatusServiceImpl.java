@@ -1,15 +1,16 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.exceptions.status.StatusDataException;
+import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientDAO;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,21 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
+		List<Status> statuses = getAll();
+		for (Status status: statuses) {
+			List<Client> filteredClients = new ArrayList<>();
+			for (Client client: status.getClients()) {
+				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
+					filteredClients.add(client);
+				}
+			}
+			status.setClients(filteredClients);
+		}
+		return statuses;
+	}
+
+	@Override
 	public Status get(Long id) {
 		return statusDAO.findOne(id);
 	}
@@ -42,6 +58,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void add(Status status) {
+		checkStatusUnique(status);
 		statusDAO.saveAndFlush(status);
 	}
 
@@ -54,7 +71,7 @@ public class StatusServiceImpl implements StatusService {
 	private void checkStatusUnique(Status status) {
 		Status statusFromDB = statusDAO.findStatusByName(status.getName());
 		if (statusFromDB != null) {
-			throw new StatusDataException("Статус с таким названием уже существует");
+			throw new StatusExistsException("Статус с таким названием уже существует");
 		}
 	}
 
@@ -81,7 +98,7 @@ public class StatusServiceImpl implements StatusService {
 		Status endStatus = statusDAO.findOne(statusId);
 		beginStatus.getClients().remove(client);
 		statusDAO.saveAndFlush(beginStatus);
-		endStatus.setClients(client);
+		endStatus.addClient(client);
 		statusDAO.saveAndFlush(endStatus);
 		client.setStatus(endStatus);
 		clientDAO.saveAndFlush(client);

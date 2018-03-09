@@ -2,17 +2,22 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 
 @Controller
@@ -33,8 +38,16 @@ public class UserController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getAll() {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Status> statuses;
 		ModelAndView modelAndView = new ModelAndView("main-client-table");
-		modelAndView.addObject("allStatuses", statusService.getAll());
+		if (userFromSession.getRole().equals(new Role("ADMIN"))) {
+			statuses = statusService.getAll();
+			modelAndView.addObject("isAdmin", true);
+		} else {
+			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
+		}
+		modelAndView.addObject("statuses", statuses);
 		return modelAndView;
 	}
 
@@ -48,23 +61,23 @@ public class UserController {
 	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
 	public void addUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " добавил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
 		clientService.addClient(client);
-		logger.info("Admin {} has added client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/updateClient", method = RequestMethod.POST)
 	public void updateUser(Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getEmail() + " изменил клиента"));
+		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил клиента"));
 		clientService.updateClient(client);
-		logger.info("Admin {} has updated client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/deleteClient", method = RequestMethod.POST)
 	public void deleteUser(Client client) {
 		clientService.deleteClient(client);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("Admin {} has deleted client: id {}, email {}", currentAdmin.getEmail(), client.getId(), client.getEmail());
+		logger.info("{} has deleted client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 	}
 }

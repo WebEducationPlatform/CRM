@@ -1,7 +1,8 @@
 $(document).ready(function () {
     $(".column").sortable({
+	items: '> .portlet',
         connectWith: ".column",
-        handle: ".portlet-header",
+        handle: ".portlet-body",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
@@ -13,6 +14,14 @@ $(document).ready(function () {
             ui.item.removeData("move_handler");
             senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
         }
+    });
+
+    $(document).ready(function(){
+        $("#new-status-name").keypress(function(e){
+            if(e.keyCode===13){
+                createNewStatus();
+            }
+        });
     });
 
     $(".portlet")
@@ -82,7 +91,9 @@ function createNewUser() {
 function createNewStatus() {
     let url = '/admin/rest/status/add';
     let statusName = $('#new-status-name').val();
-
+    if (statusName===""){
+        return;
+    }
     let formData = {
         statusName: statusName
     };
@@ -95,10 +106,31 @@ function createNewStatus() {
             window.location.reload();
         },
         error: function (e) {
+            alert(e.responseText);
         }
     });
 }
 
+function changeStatusName(id) {
+    let url = '/admin/rest/status/edit';
+    let statusName = $("#change-status-name" + id).val();
+    let formData = {
+        statusName: statusName,
+        oldStatusId:id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function (result) {
+            window.location.reload();
+        },
+        error: function (e) {
+            alert(e.responseText);
+        }
+    });
+}
 
 function senReqOnChangeStatus(clientId, statusId) {
     let
@@ -144,6 +176,72 @@ function tilt_direction(item) {
     $("html").bind("mousemove", move_handler);
     item.data("move_handler", move_handler);
 }
+
+function assign(id) {
+    let
+        url = '/admin/rest/client/assign',
+        formData = {
+            clientId: id,
+        };
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            $('#assign-client' + id).remove();
+            $('#info-client' + id).append(
+                "<p class='user-icon'>" +
+                    owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "</p>"
+            );
+        },
+        error: function (error) {
+        }
+    });
+}
+
+$(document).ready(function() {
+    $("#client_filter").change(function(){
+        var data = ($(this).val());
+        var jo = $("#status-columns").find($(".portlet"));
+        if (this.value === "") {
+            jo.show();
+            return;
+        }
+        jo.hide();
+        jo.filter(function (i, v) {
+            var d = $(this)[0].getElementsByClassName("user-icon");
+            if(d.length===0){
+                return false;
+            }
+            for (var w = 0; w < data.length; ++w) {
+                if (d[0].innerText.indexOf(data[w]) !== -1) {
+                    return true;
+                }
+            }
+        }).show();
+    });
+});
+
+$(document).ready(function() {
+    var names = $("#status-columns").find($(".user-icon"));
+    if (names.length===0){
+        $("#client_filter_group").remove();
+    }
+    var uniqueNames = [];
+    var temp = [];
+    for (var i = 0; i < names.length; ++i) {
+        if( ~temp.indexOf(names[i].innerText) ) {
+            names.slice(temp.indexOf(names[i].innerText));
+        } else {
+            temp.push(names[i].innerText);
+            uniqueNames.push(names[i]);
+        }}
+    $.each(uniqueNames, function(i, el){
+        $("#client_filter").append("<option value = "+el.innerText+">" + el.getAttribute("value") + "</option>");
+    });
+});
 
 
 

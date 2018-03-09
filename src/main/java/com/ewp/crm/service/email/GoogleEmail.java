@@ -1,6 +1,5 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.exceptions.client.ClientException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
