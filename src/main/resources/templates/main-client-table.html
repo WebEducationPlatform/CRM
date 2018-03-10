@@ -101,15 +101,35 @@
                             </div>
                             <div class="modal-footer modal-comments">
                                 <div class="comments">
-                                    <span>Комментарии:</span>
-                                    <div class="form-group">
-                                        <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
-                                        <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
-                                    </div>
-                                    <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
-                                        <li th:each="comment : ${client.comments}">
-                                            <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                                            <p th:text="${comment.getContent()}"></p>
+                                    <li class="list-group-item">
+                                        <span><h4>Комментарии:</h4></span>
+                                        <div class="form-group">
+                                            <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
+                                            <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить</button>
+                                        </div>
+                                    </li>
+                                    <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
+                                        <li class="list-group-item" th:each="comment : ${client.comments}">
+                                            <span class="comment-name"
+                                                  th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
+                                            <span class="hideshow">Ответить</span>
+                                            <p class="comment-text" th:text="${comment.getContent()}"></p>
+                                            <div class="form-answer">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" th:id="'new-answer-for-comment' + ${comment.id}" placeholder="Напишите ответ"></textarea>
+                                                    <button class="btn btn-md btn-success" th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'"> сохранить </button>
+                                                </div>
+                                            </div>
+                                            <ul class="answer-list" th:id="'comment-'+${comment.id}+'answers'">
+                                                <li th:each="answer : ${comment.answers}">
+                                                    <div>
+                                                        <hr></hr>
+                                                        <span class="comment-name"
+                                                                th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
+                                                        <p class="comment-text" th:text="${answer.getContent()}"></p>
+                                                    </div>
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
                                 </div>
@@ -207,4 +227,16 @@
 </div>
 
 </body>
+<script>
+    $(function() {
+        $('.hideshow').click(function(){
+            e = $(this).closest('.list-group-item').find('.form-answer');
+            if(e.is(':visible')) {
+                $('.form-answer').hide();
+            } else {
+                e.show();
+            }
+        })
+    });
+</script>
 </html>

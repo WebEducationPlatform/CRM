@@ -15,18 +15,19 @@ function sendComment(id) {
         success: function (comment) {
             $('#new-text-for-client' + id).val("");
             $('#client-' + id + 'comments').prepend(
-                "<li>" +
-                "   <span>" + comment.user.firstName + " " + comment.user.lastName +"</span>" +
-                "   <p>" + comment.content + "</p>" +
-                "   <div id=\"form-answer\">" +
-                "       <div class=\"form-group\">" +
-                "           <textarea class=\"form-control\" id=\"new-answer-for-comment" + comment.id + "\" placeholder=\"Напишите ответ\"></textarea>" +
-                "           <button class=\"btn btn-md btn-success\" onclick=\"sendAnswer(" + comment.id + ", \'test_message\')\"> сохранить </button>" +
-                "       </div>" +
-                "   </div>" +
-                "   <ul id=\"comment-" + comment.id + "answers\">" +
-                "   </ul>" +
-                "</li>"
+            '<li class="list-group-item">' +
+                '<span class="comment-name">' + comment.user.lastName + ' ' + comment.user.firstName + '</span>' +
+                '<span class="hideshow">Ответить</span>' +
+                '<p class="comment-text" ">' + comment.content + '</p>' +
+                    '<div class="form-answer">' +
+                        '<div class="form-group">' +
+                            '<textarea class="form-control" id="new-answer-for-comment' + comment.id + '" placeholder="Напишите ответ"></textarea>' +
+                            '<button class="btn btn-md btn-success" onclick="sendAnswer(' + comment.id + ', \'test_message\')"> сохранить </button>' +
+                        '</div>' +
+                    '</div>' +
+                '<ul class="answer-list" id="\'comment-'+ comment.id + 'answers\'">' +
+                '</ul>' +
+            '</li>'
             );
         },
         error: function (error) {
@@ -54,8 +55,8 @@ function sendAnswer(id) {
             $('#new-answer-for-comment' + id).val("");
             $('#comment-' + id + 'answers').prepend(
                 "<li>" +
-                "   <span>" + comment.user.firstName + " " + comment.user.lastName +"</span>" +
-                "   <p>" + comment.content + "</p>" +
+                "   <h4><span>" + comment.user.firstName + " " + comment.user.lastName +"</span></h4>" +
+                "   <p class='comment-text '>" + comment.content + "</p>" +
                 "</li>"
             );
         },
@@ -64,4 +65,7 @@ function sendAnswer(id) {
         }
     });
 }
+
+
+
 
