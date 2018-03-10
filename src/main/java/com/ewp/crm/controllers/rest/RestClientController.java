@@ -55,6 +55,23 @@ public class RestClientController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 	}
 
+	@RequestMapping(value = "/unassign", method = RequestMethod.POST)
+	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (user != null) {
+			Client client = clientService.getClientByID(clientId);
+			if (client.getOwnerUser() == null) {
+				logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", user.getEmail(), clientId);
+				return ResponseEntity.badRequest().build();
+			}
+			client.setOwnerUser(null);
+			clientService.updateClient(client);
+			logger.info("User {} has unassigned client with id {}", user.getEmail(), clientId);
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

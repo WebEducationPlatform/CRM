@@ -93,8 +93,16 @@
                                         th:id="'assign-client' + ${client.id}"
                                         th:onclick="'assign('+ ${client.id} +')'"
                                         class="btn btn-md btn-info" >
-                                    взять себе
+                                    взять себе карточку
                                 </button>
+                                <th:block th:if="${client.ownerUser != null}">
+                                    <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
+                                            th:id="'unassign-client' + ${client.id}"
+                                            th:onclick="'unassign('+ ${client.id} +')'"
+                                            class="btn btn-md btn-warning" >
+                                        отказаться от карточки
+                                    </button>
+                                </th:block>
                             </div>
                             <div class="modal-footer modal-comments">
                                 <div class="comments">
