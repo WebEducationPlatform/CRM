@@ -253,10 +253,8 @@ $(document).ready(function () {
         url: url,
         dataType : 'json',
         success: function (res) {
-            console.log(res.length);
             for (var i = 0; i < res.length; i++) {
                 userNames[i] = res[i].firstName + res[i].lastName;
-                console.log(userNames[i]);
             };
         },
         error : function (error) {
