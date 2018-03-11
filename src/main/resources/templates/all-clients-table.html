@@ -11,8 +11,10 @@
     <div class="col-md-6 col-md-offset-2">
         <div><h1>Таблица всех пользователей</h1></div>
         <div class="col-md-6 col-md-offset-3"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/></div>
+        <button type="button" class="btn btn-primary" id="filtration">Filtration</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Small modal</button>
         <table class="table table-hover" id="clients-table">
-            <thead>
+            <thead id="thead-table-clients">
             <tr>
                 <td>#</td>
                 <td>Имя</td>
@@ -24,20 +26,28 @@
             </tr>
             </thead>
             <tbody id="table-body">
-            <tr th:each="client,iter : ${allClients}">
-                <td th:text="${iter.count}"></td>
-                <td th:text="${client.name}"></td>
-                <td th:text="${client.lastName}"></td>
-                <td th:text="${client.phoneNumber}"></td>
-                <td th:text="${client.email}"></td>
-                <td th:text="${client.age}"></td>
-                <td th:text="${client.sex}"></td>
-            </tr>
+                <tr th:each="client,iter : ${allClients}">
+                    <td th:text="${iter.count}"></td>
+                    <td th:text="${client.name}"></td>
+                    <td th:text="${client.lastName}"></td>
+                    <td th:text="${client.phoneNumber}"></td>
+                    <td th:text="${client.email}"></td>
+                    <td th:text="${client.age}"></td>
+                    <td th:text="${client.sex}"></td>
+                </tr>
             </tbody>
             <tfoot>
 
             </tfoot>
         </table>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            ...
+        </div>
     </div>
 </div>
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
