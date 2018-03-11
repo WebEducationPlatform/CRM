@@ -41,35 +41,29 @@ public class RestClientController {
 	@RequestMapping(value = "/assign", method = RequestMethod.POST)
 	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (user != null) {
-			Client client = clientService.getClientByID(clientId);
-			if (client.getOwnerUser() != null) {
-				logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
-				return ResponseEntity.badRequest().body(null);
-			}
-			client.setOwnerUser(user);
-			clientService.updateClient(client);
-			logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
-			return ResponseEntity.ok(client.getOwnerUser());
+		Client client = clientService.getClientByID(clientId);
+		if (client.getOwnerUser() != null) {
+			logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
+			return ResponseEntity.badRequest().body(null);
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		client.setOwnerUser(user);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
 	@RequestMapping(value = "/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (user != null) {
-			Client client = clientService.getClientByID(clientId);
-			if (client.getOwnerUser() == null) {
-				logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", user.getEmail(), clientId);
-				return ResponseEntity.badRequest().build();
-			}
-			client.setOwnerUser(null);
-			clientService.updateClient(client);
-			logger.info("User {} has unassigned client with id {}", user.getEmail(), clientId);
-			return ResponseEntity.ok(client.getOwnerUser());
+		Client client = clientService.getClientByID(clientId);
+		if (client.getOwnerUser() == null) {
+			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", user.getEmail(), clientId);
+			return ResponseEntity.badRequest().build();
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		client.setOwnerUser(null);
+		clientService.updateClient(client);
+		logger.info("User {} has unassigned client with id {}", user.getEmail(), clientId);
+		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
