@@ -24,5 +24,5 @@ public interface ClientService {
 
 	void deleteClient(Client client);
 
-
+	List<Client> customQuery(String query);
 }
