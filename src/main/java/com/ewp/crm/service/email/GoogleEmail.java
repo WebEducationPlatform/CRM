@@ -1,5 +1,6 @@
 package com.ewp.crm.service.email;
 
+import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -36,49 +37,40 @@ import java.util.Properties;
 @EnableIntegration
 public class GoogleEmail {
 
-	@Value("${google.mail.login}")
 	private String login;
-
-	@Value("${google.mail.password}")
 	private String password;
-
-	@Value("${mail.from}")
 	private String mailFrom;
-
-	@Value("${mail.imap.socketFactory.class}")
 	private String socketFactoryClass;
-
-	@Value("${mail.imap.socketFactory.fallback}")
-	private String socketFaktoryFallback;
-
-	@Value("${mail.store.protocol}")
+	private String socketFactoryFallback;
 	private String protocol;
-
-	@Value("${mail.store.protocol}")
 	private String debug;
-
-	@Value("${mail.imap.server}")
 	private String imapServer;
 
 	private final BeanFactory beanFactory;
-
 	private final ClientService clientService;
-
 	private final StatusService statusService;
 
 	private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
 	@Autowired
-	public GoogleEmail(BeanFactory beanFactory, ClientService clientService, StatusService statusService) {
+	public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService) {
 		this.beanFactory = beanFactory;
 		this.clientService = clientService;
 		this.statusService = statusService;
+		login = mailConfig.getLogin();
+		password = mailConfig.getPassword();
+		mailFrom = mailConfig.getMailFrom();
+		socketFactoryClass = mailConfig.getSocketFactoryClass();
+		socketFactoryFallback = mailConfig.getSocketFactoryFallback();
+		protocol = mailConfig.getProtocol();
+		debug = mailConfig.getDebug();
+		imapServer = mailConfig.getImapServer();
 	}
 
 	private Properties javaMailProperties() {
 		Properties javaMailProperties = new Properties();
 		javaMailProperties.setProperty("mail.imap.socketFactory.class", socketFactoryClass);
-		javaMailProperties.setProperty("mail.imap.socketFactory.fallback", socketFaktoryFallback);
+		javaMailProperties.setProperty("mail.imap.socketFactory.fallback", socketFactoryFallback);
 		javaMailProperties.setProperty("mail.store.protocol", protocol);
 		javaMailProperties.setProperty("mail.debug", debug);
 
