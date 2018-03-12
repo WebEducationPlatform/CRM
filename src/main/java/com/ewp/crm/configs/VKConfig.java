@@ -21,6 +21,8 @@ public class VKConfig {
 
     private String clubId;
 
+    private String version;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfig.class);
 
     @Autowired
@@ -30,6 +32,7 @@ public class VKConfig {
         username  = env.getProperty("vk.profile.username");
         password = env.getProperty("vk.profile.password");
         clubId  = env.getProperty("vk.club.id");
+        version  = env.getProperty("vk.version");
 
         if (!configIsValid()) {
             logger.error("VK configs have not initialized. Check files of properties");
@@ -65,4 +68,8 @@ public class VKConfig {
     public String getClubId() {
         return clubId;
     }
+
+	public String getVersion() {
+		return version;
+	}
 }

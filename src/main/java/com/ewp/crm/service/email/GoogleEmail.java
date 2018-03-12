@@ -5,6 +5,8 @@ import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.utils.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,31 +29,44 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
+import java.util.Optional;
 import java.util.Properties;
 
 @Configuration
 @EnableIntegration
 public class GoogleEmail {
 
-	private final BeanFactory beanFactory;
-	private final ClientService clientService;
-	private final StatusService statusService;
 	@Value("${google.mail.login}")
 	private String login;
+
 	@Value("${google.mail.password}")
 	private String password;
+
 	@Value("${mail.from}")
 	private String mailFrom;
+
 	@Value("${mail.imap.socketFactory.class}")
 	private String socketFactoryClass;
+
 	@Value("${mail.imap.socketFactory.fallback}")
 	private String socketFaktoryFallback;
+
 	@Value("${mail.store.protocol}")
 	private String protocol;
+
 	@Value("${mail.store.protocol}")
 	private String debug;
+
 	@Value("${mail.imap.server}")
 	private String imapServer;
+
+	private final BeanFactory beanFactory;
+
+	private final ClientService clientService;
+
+	private final StatusService statusService;
+
+	private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
 	@Autowired
 	public GoogleEmail(BeanFactory beanFactory, ClientService clientService, StatusService statusService) {
@@ -62,7 +77,6 @@ public class GoogleEmail {
 
 	private Properties javaMailProperties() {
 		Properties javaMailProperties = new Properties();
-
 		javaMailProperties.setProperty("mail.imap.socketFactory.class", socketFactoryClass);
 		javaMailProperties.setProperty("mail.imap.socketFactory.fallback", socketFaktoryFallback);
 		javaMailProperties.setProperty("mail.store.protocol", protocol);
@@ -74,7 +88,6 @@ public class GoogleEmail {
 	@Bean
 	public ImapIdleChannelAdapter mailAdapter() {
 		ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
-
 		mailReceiver.setJavaMailProperties(javaMailProperties());
 		mailReceiver.setShouldDeleteMessages(false);
 		mailReceiver.setShouldMarkMessagesAsRead(true);
@@ -103,10 +116,11 @@ public class GoogleEmail {
 					parser.parse();
 					Client client = IncomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
 					if (client != null) {
+						client.setStatus(statusService.get(1L));
 						clientService.addClient(client);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("MimeMessageParser can't parse income data");
 				}
 			}
 		});
@@ -114,12 +128,13 @@ public class GoogleEmail {
 	}
 
 	private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
+		Optional<InternetAddress> internetAddress = Optional.empty();
 		try {
-			FromTerm fromTerm = new FromTerm(new InternetAddress(mailFrom));
-			return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+			internetAddress = Optional.of(new InternetAddress(mailFrom));
 		} catch (AddressException e) {
-			throw new RuntimeException(e);
+			logger.error("Can't parse email address \"from\"");
 		}
-
+		FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
+		return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 	}
 }

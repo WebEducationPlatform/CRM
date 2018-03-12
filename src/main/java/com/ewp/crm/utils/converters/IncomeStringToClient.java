@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 public class IncomeStringToClient {
 
@@ -43,10 +44,10 @@ public class IncomeStringToClient {
 
 	private static Client firstPlainTextTemplate(String[] workArr) {
 		Client resultClient = new Client();
-		String[] parsedName = parseName(getValueOfField(workArr[0]));
-		if (parsedName != null) {
-			resultClient.setName(parsedName[0]);
-			resultClient.setLastName(parsedName[1]);
+		Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
+		if (parsedName.isPresent()) {
+			resultClient.setName(parsedName.get()[0]);
+			resultClient.setLastName(parsedName.get()[1]);
 		} else {
 			resultClient.setName(getValueOfField(workArr[0]));
 		}
@@ -59,10 +60,10 @@ public class IncomeStringToClient {
 
 	private static Client secondPlainTextTemplate(String[] workArr) {
 		Client resultClient = new Client();
-		String[] parsedName = parseName(getValueOfField(workArr[0]));
-		if (parsedName != null) {
-			resultClient.setName(parsedName[0]);
-			resultClient.setLastName(parsedName[1]);
+		Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
+		if (parsedName.isPresent()) {
+			resultClient.setName(parsedName.get()[0]);
+			resultClient.setLastName(parsedName.get()[1]);
 		} else {
 			resultClient.setName(getValueOfField(workArr[0]));
 		}
@@ -76,10 +77,10 @@ public class IncomeStringToClient {
 
 	private static Client thirdPlainTextTemplate(String[] workArr) {
 		Client resultClient = new Client();
-		String[] parsedName = parseName(getValueOfField(workArr[6]));
-		if (parsedName != null) {
-			resultClient.setName(parsedName[0]);
-			resultClient.setLastName(parsedName[1]);
+		Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
+		if (parsedName.isPresent()) {
+			resultClient.setName(parsedName.get()[0]);
+			resultClient.setLastName(parsedName.get()[1]);
 		} else {
 			resultClient.setName(getValueOfField(workArr[6]));
 		}
@@ -90,11 +91,11 @@ public class IncomeStringToClient {
 		return resultClient;
 	}
 
-	private static String[] parseName(String fullName) {
+	private static Optional<String[]> parseName(String fullName) {
 		if (StringUtils.countOccurrencesOf(fullName, " ") == 1) {
-			return fullName.split(" ", 2);
+			return Optional.of(fullName.split(" ", 2));
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	private static SocialNetwork getSocialNetwork(String link) {
