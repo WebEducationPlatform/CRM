@@ -1,6 +1,6 @@
 package com.ewp.crm.component.util;
 
-import com.ewp.crm.configs.VKConfig;
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -70,7 +71,7 @@ public class VKUtil {
 		}
 	}
 
-	public List<String> getNewMassages() throws VKAccessTokenException {
+	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
 		String uriGetMassages = "https://api.vk.com/method/" +
 				"messages.getHistory" +
 				"?user_id=" + clubId +
@@ -102,13 +103,13 @@ public class VKUtil {
 				}
 			}
 			httpClient.execute(httpMarkMessages);
-			return resultList;
+			return Optional.of(resultList);
 		} catch (JSONException e) {
 			logger.error("Can not read message from JSON");
 		} catch (IOException e) {
 			logger.error("Failed to connect to VK server");
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	public Client parseClientFromMessage(String message) throws ParseClientException {
