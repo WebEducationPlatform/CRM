@@ -33,6 +33,7 @@ public class VKUtil {
 	private String username;
 	private String password;
 	private String clubId;
+	private String version;
 
 	@Autowired
 	public VKUtil(VKConfig vkConfig) {
@@ -41,17 +42,17 @@ public class VKUtil {
 		username = vkConfig.getUsername();
 		password = vkConfig.getPassword();
 		clubId = vkConfig.getClubId();
+		version = vkConfig.getVersion();
 	}
 
 	@PostConstruct
 	private void initAccessToken() {
-		String uri =
-				"https://oauth.vk.com/token" +
-						"?grant_type=password" +
-						"&client_id=" + clientId +
-						"&client_secret=" + clientSecret +
-						"&username=" + username +
-						"&password=" + password;
+		String uri = "https://oauth.vk.com/token" +
+				"?grant_type=password" +
+				"&client_id=" + clientId +
+				"&client_secret=" + clientSecret +
+				"&username=" + username +
+				"&password=" + password;
 
 		HttpGet httpGet = new HttpGet(uri);
 		try {
@@ -70,20 +71,18 @@ public class VKUtil {
 	}
 
 	public List<String> getNewMassages() throws VKAccessTokenException {
-		String uriGetMassages =
-				"https://api.vk.com/method/" +
-						"messages.getHistory" +
-						"?user_id=" + clubId +
-						"&rev=1" +
-						"&version=5.73" +
-						"&access_token=" + accessToken;
+		String uriGetMassages = "https://api.vk.com/method/" +
+				"messages.getHistory" +
+				"?user_id=" + clubId +
+				"&rev=1" +
+				"&version=" + version +
+				"&access_token=" + accessToken;
 
-		String uriMarkAsRead =
-				"https://api.vk.com/method/" +
-						"messages.markAsRead" +
-						"?peer_id=" + clubId +
-						"&version=5.73" +
-						"&access_token=" + accessToken;
+		String uriMarkAsRead = "https://api.vk.com/method/" +
+				"messages.markAsRead" +
+				"?peer_id=" + clubId +
+				"&version=" + version +
+				"&access_token=" + accessToken;
 		if (accessToken == null) {
 			throw new VKAccessTokenException("VK access token has not got");
 		}
@@ -157,8 +156,7 @@ public class VKUtil {
 			throw new ParseClientException("Couldn't parse vk message", e);
 		}
 
-		Client resultClient = new Client(name, lastName, phoneNumber, email, age, sex);
-		return resultClient;
+		return new Client(name, lastName, phoneNumber, email, age, sex);
 	}
 }
 
