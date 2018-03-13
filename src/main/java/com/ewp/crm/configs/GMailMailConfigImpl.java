@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("classpath:gmail.properties")
-public class GMailMailConfigImpl implements MailConfig{
+public class GMailMailConfigImpl implements MailConfig {
 
     private String login;
     private String password;
