@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -52,8 +53,8 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public List<Client> customQuery(String query) {
-		return clientRepository.customQuery(query);
+	public List<Client> filteringClient(FilteringCondition filteringCondition) {
+		return clientRepository.filteringClient(filteringCondition);
 	}
 
 	@Override

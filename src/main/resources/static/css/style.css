@@ -103,10 +103,6 @@ ul.nav a:hover {
 }
 
 #clients-table {
-    margin-top: 5%;
-}
-
-#searchInput {
     margin-top: 1%;
 }
 
@@ -159,4 +155,9 @@ ul.nav a:hover {
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
+}
+
+.filtration-button {
+    margin-left: 15px;
+    margin-top: 3px;
 }

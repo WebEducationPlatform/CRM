@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
 
 import java.util.List;
@@ -24,5 +25,5 @@ public interface ClientService {
 
 	void deleteClient(Client client);
 
-	List<Client> customQuery(String query);
+	List<Client> filteringClient(FilteringCondition filteringCondition);
 }
