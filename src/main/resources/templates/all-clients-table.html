@@ -10,9 +10,79 @@
 
     <div class="col-md-6 col-md-offset-2">
         <div><h1>Таблица всех пользователей</h1></div>
-        <div class="col-md-6 col-md-offset-3"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/></div>
-        <button type="button" class="btn btn-primary" id="filtration">Filtration</button>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Small modal</button>
+        <div class="row">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>
+            </div>
+            <div class="col-md-8"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/></div>
+        </div>
+        <div id="filter" class="collapse">
+                <div class="row">
+                    <div class="col-xs-2">
+                        <label class="control-label" for="sex">Пол: </label>
+                        <select class="form-control" id="sex" size="1">
+                            <option></option>
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-3">
+                        <div class="row">
+                            <label class="col-xs-12">Возраст:</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <input class="form-control" type="number" id="ageFrom" placeholder="От"/>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <input class="form-control" type="number" id="ageTo" placeholder="До"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <label class="control-label" for="city">Город: </label>
+                        <input class="form-control" type="text" id="city"/>
+                    </div>
+                    <div class="col-xs-3 offset-1">
+                        <label class="control-label" for="country">Страна: </label>
+                        <input class="form-control" type="text" id="country"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div class="row">
+                            <label class="col-xs-12">Дата: </label>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <input class="form-control" type="date" id="dateFrom" placeholder="От"/>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <input class="form-control" type="date" id="dateTo" placeholder="До"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <label class="control-label" for="isFinished">Закончил обучение: </label>
+                        <select class="form-control" id="isFinished" size="1">
+                            <option></option>
+                            <option>Да</option>
+                            <option>Нет</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-3 offset-1">
+                        <label class="control-label" for="isRefused">Отказался: </label>
+                        <select class="form-control" id="isRefused" size="1">
+                            <option></option>
+                            <option>Да</option>
+                            <option>Нет</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <button type="button" class="btn btn-info filtration-button" id="filtration">Найти</button>
+                </div>
+        </div>
         <table class="table table-hover" id="clients-table">
             <thead id="thead-table-clients">
             <tr>

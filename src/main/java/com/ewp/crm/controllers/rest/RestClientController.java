@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.slf4j.Logger;
@@ -83,44 +84,7 @@ public class RestClientController {
 	}
 
 	@RequestMapping(value = "/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Client>> getAllWithConditions(@RequestParam(value = "sex", defaultValue = "") String sex,
-															 @RequestParam(value = "ageTo", defaultValue = "-1") Integer ageTo,
-															 @RequestParam(value = "ageFrom", defaultValue = "-1") Integer ageFrom,
-															 @RequestParam(value = "city", defaultValue = "") String city) {
-		StringBuilder query = new StringBuilder("select cl from Client cl");
-		boolean isWasWhere = false;
-
-		if (!sex.equals("")){
-			query.append(" where cl.sex = '").append(sex).append("'");
-			isWasWhere = true;
-		} else {
-			query.append(" and ");
-		}
-		if (ageFrom != -1 || ageTo != -1) {
-			if (!isWasWhere) {
-				query.append(" where ");
-				isWasWhere = true;
-			} else {
-				query.append(" and ");
-			}
-			if (ageFrom == -1) {
-				query.append(" cl.age < ").append(ageTo);
-			} else if (ageTo == -1) {
-				query.append(" cl.age > ").append(ageFrom);
-			} else {
-				query.append(" cl.age between ").append(ageFrom).append(" and ").append(ageTo);
-			}
-		}
-		if (!city.equals("")) {
-			if (!isWasWhere){
-				query.append(" where cl.sex = '").append(sex).append("'");
-				isWasWhere = true;
-			} else {
-				query.append(" and ");
-			}
-			query.append(" cl.city = '").append(city).append("'");
-		}
-		System.out.println(query);
-		return ResponseEntity.ok(clientService.customQuery(query.toString()));
+	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
+		return ResponseEntity.ok(clientService.filteringClient(filteringCondition));
 	}
 }

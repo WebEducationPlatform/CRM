@@ -31,19 +31,25 @@ $(document).ready(
 );
 
 $('#filtration').click(function () {
-    var sex = "MALE";
-    var ageTo = 25;
-    var ageFrom = 15;
-    var url = "../admin/rest/client/filtration"
+    var data = {};
+    var url = "../admin/rest/client/filtration";
+
+    data['sex'] = $('#sex').val();
+    data['ageTo'] = $('#ageTo').val();
+    data['ageFrom'] = $('#ageFrom').val();
+    data['city'] = $('#city').val();
+    data['country'] = $('#country').val();
+    data['dateFrom'] = $('#dateFrom').val();
+    data['dateTo'] = $('#dateTo').val();
+    data['isFinished'] = $('#isFinished').val();
+    data['isRefused'] = $('#isRefused').val();
+
     $.ajax({
         type: 'POST',
+        contentType: "application/json",
         dataType: 'json',
         url: url,
-        data: {
-            sex: sex,
-            ageTo: ageTo,
-            ageFrom: ageFrom
-        },
+        data: JSON.stringify(data),
         success: function (res) {
             $("#table-body").remove();
             $("#thead-table-clients").after(
