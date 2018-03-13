@@ -28,7 +28,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public List<Status> getAll() {
-		return statusDAO.findAll();
+		return statusDAO.findAllByOrderByIdAsc();
 	}
 
 	@Override

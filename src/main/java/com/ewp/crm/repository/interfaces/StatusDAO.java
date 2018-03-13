@@ -14,4 +14,6 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
 	Status findStatusByClientsIn(List<Client> users);
 
     List<Status> getStatusesByClientsOwnerUser(User ownerUser);
+
+	List<Status> findAllByOrderByIdAsc();
 }

@@ -26,7 +26,6 @@ body {
 .portlet {
     margin: 0 1em 1em 0;
     padding: 0.3em;
-    cursor: pointer;
 }
 
 .portlet-body:active {
@@ -168,4 +167,55 @@ ul.nav a:hover {
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
+}
+
+#delete-status-icon{
+    cursor: pointer;
+}
+
+#update-status-icon{
+    cursor: pointer;
+}
+
+#create-new-status-btn:hover{
+    opacity: 1;
+}
+
+#create-new-status-btn{
+    margin-left: 11px;
+    margin-top:8px;
+    width: 180px;
+    padding-bottom: 6px;
+    padding-top:6px;
+    border: 0;
+    opacity:0.7;
+    text-align: left;
+}
+
+#create-new-status-cancelbtn{
+    border: none;
+    background: transparent;
+    margin-top: 3px;
+    width: 30px;
+    height: 30px;
+}
+
+#new-status-form {
+    background-color: #f8f8f8;
+    width: 215px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#new-status-name {
+    width: 195px;
+    margin-left: 10px;
+}
+
+#new-status-formgr {
+    margin-bottom: 1px;
+}
+
+#create-new-status{
+    margin-left: 10px;
 }

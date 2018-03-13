@@ -29,10 +29,15 @@ $(document).ready(function () {
         .find(".portlet-header")
         .addClass("panel-heading");
 
-    $("#create-new-status-span").click(function () {
+    $("#create-new-status-btn").click(function () {
         $(this).hide();
         $("#new-status-form").show();
         document.getElementById("new-status-name").focus();
+    });
+
+    $("#create-new-status-cancelbtn").click(function () {
+        $("#new-status-form").hide();
+        $("#create-new-status-btn").show();
     });
 
    /* $("#new-status-form").focusout(
@@ -92,8 +97,12 @@ function createNewStatus() {
     let url = '/admin/rest/status/add';
     let statusName = $('#new-status-name').val();
     if (statusName===""){
-        return;
+        statusName=$('#default-status-name').val();
+        if(statusName===""){
+            return
+        }
     }
+
     let formData = {
         statusName: statusName
     };
@@ -275,6 +284,12 @@ $(document).ready(function() {
     $.each(uniqueNames, function(i, el){
         $("#client_filter").append("<option value = "+el.innerText+">" + el.getAttribute("value") + "</option>");
     });
+});
+$(document).ready(function () {
+    $("#createDefaultStatus").modal({
+        backdrop: 'static',
+        keyboard: false
+    },'show');
 });
 
 
