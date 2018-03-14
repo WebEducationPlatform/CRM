@@ -36,7 +36,7 @@ public class Comment {
     private Boolean isAnswer = false;
 
     @OrderBy("date ASC")
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @org.hibernate.annotations.ForeignKey(name = "FK_MAIN_COMMENT", inverseName = "FK_DEPENDENT_COMMENT")
     @JoinTable(name = "answers_to_comment",
             joinColumns = {@JoinColumn(name = "comment_id")},

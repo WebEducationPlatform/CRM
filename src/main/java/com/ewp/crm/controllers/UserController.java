@@ -48,6 +48,7 @@ public class UserController {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
 		modelAndView.addObject("statuses", statuses);
+		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
 
