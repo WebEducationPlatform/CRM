@@ -123,6 +123,10 @@ ul.nav a:hover {
     background-color: #edeff0;
 }
 
+.modal-dialog {
+    max-width: 700px;
+}
+
 .modal-header {
     border-bottom: 1px solid #cdcfd0;
 }
@@ -172,24 +176,30 @@ ul.nav a:hover {
 }
 
 .comment-text {
-    padding-left: 15px;
-    padding-top: 5px;
-    font-size: medium;
+    padding: 9px 11px;
+    background: white;
+    border-radius: 10px;
 }
 
 .comment-name {
     font-size: large;
 }
 
+.comment-item {
+    background: none;
+    border: none;
+}
+
 .form-answer {
     display:none;
 }
 
-.list-group-item {
-    margin-top: 10px;
-}
-
-.hideshow {
+.comment-functional {
     float: right;
     text-align: left;
+    padding: 2px;
+}
+
+.form-edit {
+    display: none;
 }

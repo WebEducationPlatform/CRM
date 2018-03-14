@@ -63,4 +63,49 @@ public class CommentController {
         }
     }
 
+    @RequestMapping(value = "deleteComment", method = RequestMethod.POST)
+    public ResponseEntity deleteComment(@RequestParam(name = "id") Long id) {
+        User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (commentService.getById(id).getUser().equals(userFromSession)) {
+            commentService.delete(id);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @RequestMapping(value = "deleteAnswer", method = RequestMethod.POST)
+    public ResponseEntity deleteAnswer(@RequestParam(name = "answerId") Long answerId,
+                                       @RequestParam(name = "commentId") Long commentId) {
+        User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Comment answer = commentService.getById(answerId);
+        if (answer.getUser().equals(userFromSession)) {
+            Comment comment = commentService.getById(commentId);
+            List<Comment> answers = comment.getAnswers();
+            answers.remove(commentService.getById(answerId));
+            comment.setAnswers(answers);
+            commentService.update(comment);
+            commentService.delete(answerId);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+
+
+    @RequestMapping(value = "editComment", method = RequestMethod.POST)
+    public ResponseEntity editComment(@RequestParam(name = "id") Long id,
+                                      @RequestParam(name = "content") String content) {
+        User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (commentService.getById(id).getUser().equals(userFromSession)) {
+            Comment comment = commentService.getById(id);
+            comment.setContent(content);
+            commentService.update(comment);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
 }

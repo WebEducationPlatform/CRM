@@ -64,6 +64,7 @@ public class Client implements Serializable {
 	private User ownerUser;
 
 	@JsonIgnore
+	@OrderBy("date DESC")
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
