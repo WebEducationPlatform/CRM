@@ -62,6 +62,9 @@ public class StatusRestController {
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId) {
+		if(deleteId==1L){
+			return ResponseEntity.badRequest().build();
+		}
 		statusService.delete(deleteId);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
