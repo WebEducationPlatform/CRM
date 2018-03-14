@@ -182,11 +182,32 @@
             </div>
         </form>
     </div>
-    <div  class="form-group" id="client_filter_group" th:if="${isAdmin}">
-        <label id="client_filter_label" for="client_filter">Фильтр клиентов</label>
-        <select id = "client_filter" class="selectpicker"  multiple="multiple">
-        <option value=""></option>
-       </select>
+    <div id="panel">
+        <div id="panel-content">
+            <div class="panel-group">
+                <div class="panel-title">
+                    <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
+                    <h2>Меню</h2>
+                </div>
+                <div  id="client_filter_group" th:if="${isAdmin}">
+                    <div class="panel-heading" id="client-filter-heading">
+                        <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseFilter">Фильтр клиентов</a>
+                    </div>
+                    <div id="collapseFilter" class="panel-collapse collapse in">
+                        <div class="panel-body" id="panel-filter-body">
+                            <button type="button" id="showallbtn"  onclick="showall()">Показать все</button>
+                            <div class="checkbox" id="client_filter">
+                                <br></br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel-sticker">
+            <span>Меню</span>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
