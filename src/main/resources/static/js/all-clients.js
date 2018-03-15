@@ -34,16 +34,18 @@ $('#filtration').click(function () {
     var data = {};
     var url = "../admin/rest/client/filtration";
 
-    data['sex'] = $('#sex').val();
+    if ($('#sex').val() !== "") {
+        data['sex'] = $('#sex').val();
+    }
     data['ageTo'] = $('#ageTo').val();
     data['ageFrom'] = $('#ageFrom').val();
     data['city'] = $('#city').val();
     data['country'] = $('#country').val();
     data['dateFrom'] = $('#dateFrom').val();
     data['dateTo'] = $('#dateTo').val();
-    data['isFinished'] = $('#isFinished').val();
-    data['isRefused'] = $('#isRefused').val();
-
+    if ($('#state').val() !== "") {
+        data['state'] = $('#state').val();
+    }
     $.ajax({
         type: 'POST',
         contentType: "application/json",
@@ -66,6 +68,10 @@ $('#filtration').click(function () {
                     '        <td>' + res[i].email + '</td>' +
                     '        <td>' + res[i].age + ' </td>' +
                     '        <td>' + res[i].sex + ' </td>' +
+                    '        <td>' + res[i].city + ' </td>' +
+                    '        <td>' + res[i].country + ' </td>' +
+                    '        <td>' + res[i].state + ' </td>' +
+                    '        <td>' + res[i].dateOfRegistration + ' </td>' +
                     '    </tr>'
                 )
             }
