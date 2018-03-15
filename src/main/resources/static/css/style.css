@@ -159,5 +159,9 @@ ul.nav a:hover {
 
 .filtration-button {
     margin-left: 15px;
-    margin-top: 3px;
+    margin-top: 7px;
+}
+
+.filter {
+    margin-top: 10px;
 }

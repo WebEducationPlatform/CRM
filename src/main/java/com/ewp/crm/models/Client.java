@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Email;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,13 @@ public class Client implements Serializable {
 
 	@Column(name = "comment")
 	private String comment;
+
+	@Column(name = "client_state")
+	@Enumerated(EnumType.STRING)
+	private State state;
+
+	@Column(name = "date")
+	private Date dateOfRegistration;
 
 	@JsonBackReference
 	@ManyToOne
@@ -105,7 +113,6 @@ public class Client implements Serializable {
 		this.sex = sex;
 		this.city = city;
 		this.status = status;
-
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
@@ -117,6 +124,18 @@ public class Client implements Serializable {
 		this.sex = sex;
 	}
 
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, Date dateOfRegistration) {
+		this.name = name;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
+		this.age = age;
+		this.sex = sex;
+		this.city = city;
+		this.country = country;
+		this.state = state;
+		this.dateOfRegistration = dateOfRegistration;
+	}
 	public Long getId() {
 		return id;
 	}
@@ -229,6 +248,22 @@ public class Client implements Serializable {
 		this.ownerUser = ownerUser;
 	}
 
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public Date getDateOfRegistration() {
+		return dateOfRegistration;
+	}
+
+	public void setDateOfRegistration(Date dateOfRegistration) {
+		this.dateOfRegistration = dateOfRegistration;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -265,6 +300,10 @@ public class Client implements Serializable {
 
 	public enum Sex {
 		MALE, FEMALE;
+	}
+
+	public enum State {
+		REFUSED, FINISHED, LEARNING, NEW;
 	}
 
 }

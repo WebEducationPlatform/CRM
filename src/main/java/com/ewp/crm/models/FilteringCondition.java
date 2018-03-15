@@ -4,7 +4,7 @@ import java.sql.Date;
 
 public class FilteringCondition {
 
-    private String sex;
+    private Client.Sex sex;
 
     private Integer ageFrom;
 
@@ -16,22 +16,20 @@ public class FilteringCondition {
 
     private String country;
 
-    private String dateFrom;
+    private Date dateFrom;
 
-    private String dateTo;
+    private Date dateTo;
 
-    private String isFinished;
-
-    private String isRefused;
+    private Client.State state;
 
     public FilteringCondition() {
     }
 
-    public String getSex() {
+    public Client.Sex getSex() {
         return sex;
     }
 
-    public void setSex(String sex) {
+    public void setSex(Client.Sex sex) {
         this.sex = sex;
     }
 
@@ -67,36 +65,28 @@ public class FilteringCondition {
         this.city = city;
     }
 
-    public String getDateFrom() {
+    public Date getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(String dateFrom) {
+    public void setDateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public String getDateTo() {
+    public Date getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(String dateTo) {
+    public void setDateTo(Date dateTo) {
         this.dateTo = dateTo;
     }
 
-    public String getIsFinished() {
-        return isFinished;
+    public Client.State getState() {
+        return state;
     }
 
-    public void setIsFinished(String isFinished) {
-        this.isFinished = isFinished;
-    }
-
-    public String getIsRefused() {
-        return isRefused;
-    }
-
-    public void setIsRefused(String isRefused) {
-        this.isRefused = isRefused;
+    public void setState(Client.State state) {
+        this.state = state;
     }
 
     public String getCountry() {

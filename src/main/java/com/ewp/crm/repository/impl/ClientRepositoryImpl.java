@@ -3,6 +3,7 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,6 @@ import java.util.List;
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private EntityManager entityManager;
-
-    private boolean isWasWhere = false;
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -31,53 +30,62 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     private String createQuery(FilteringCondition filteringCondition) {
         StringBuilder query = new StringBuilder("select cl from Client cl");
 
-        if (!filteringCondition.getSex().equals("")) {
-            if (filteringCondition.getSex().equals(Client.Sex.MALE.name())) {
-                query.append(selectWhereOrAnd()).append(" cl.sex = 'MALE'");
-            } else if (filteringCondition.getSex().equals(Client.Sex.FEMALE.name())) {
-                query.append(selectWhereOrAnd()).append(" cl.sex = 'FEMALE'");
-            }
+        boolean isWasWhere = false;
+
+        if (filteringCondition.getSex() != null) {
+            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.sex = '").append(filteringCondition.getSex()).append("'");
+            isWasWhere = true;
         }
 
         if (filteringCondition.getAgeFrom() != null || filteringCondition.getAgeTo() != null) {
             if (filteringCondition.getAgeFrom() != null && filteringCondition.getAgeTo() != null) {
-                query.append(selectWhereOrAnd()).append(" cl.age between ").append(filteringCondition.getAgeFrom()).append(" and ").append(filteringCondition.getAgeTo());
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age between ").append(filteringCondition.getAgeFrom()).append(" and ").append(filteringCondition.getAgeTo());
+                isWasWhere = true;
             } else if (filteringCondition.getAgeFrom() != null) {
-                query.append(selectWhereOrAnd()).append(" cl.age >= ").append(filteringCondition.getAgeFrom());
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age >= ").append(filteringCondition.getAgeFrom());
+                isWasWhere = true;
             } else {
-                query.append(selectWhereOrAnd()).append(" cl.age <= ").append(filteringCondition.getAgeTo());
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age <= ").append(filteringCondition.getAgeTo());
+                isWasWhere = true;
             }
         }
 
-//        if (!filteringCondition.getCameFrom().equals("")) {
-//            query.append(selectWhereOrAnd()).append(" cl.cameFrom = '").append(filteringCondition.getCameFrom()).append("'");
-//        }
-
-        if (!filteringCondition.getCountry().equals("")) {
-            query.append(selectWhereOrAnd()).append(" cl.country = '").append(filteringCondition.getCountry()).append("'");
+        if (!filteringCondition.getCity().equals("")) {
+            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.city = '").append(filteringCondition.getCity()).append("'");
+            isWasWhere = true;
         }
 
-//        if (!filteringCondition.getCity().equals("")) {
-//            query.append(selectWhereOrAnd()).append(" cl.city = '").append(filteringCondition.getCity()).append("'");
-//        }
-//
-//        if (!filteringCondition.getIsFinished().equals("")) {
-//            query.append(selectWhereOrAnd()).append(" cl.isFinished = '").append(filteringCondition.getIsFinished()).append("'");
-//        }
-//
-//        if (!filteringCondition.getIsRefused().equals("")) {
-//            query.append(selectWhereOrAnd()).append(" cl.isRefused = '").append(filteringCondition.getIsRefused()).append("'");
-//        }
+        if (!filteringCondition.getCountry().equals("")) {
+            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.country = '").append(filteringCondition.getCountry()).append("'");
+            isWasWhere = true;
+        }
 
-        isWasWhere = false;
+        if (filteringCondition.getDateFrom() != null || filteringCondition.getDateTo() != null) {
+            if (filteringCondition.getDateFrom() != null && filteringCondition.getDateTo() != null) {
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration between '").append(filteringCondition.getDateFrom()).append("' and '").append(filteringCondition.getDateTo()).append("'");
+                isWasWhere = true;
+            } else if (filteringCondition.getDateFrom() != null) {
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+                isWasWhere = true;
+            } else {
+                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+                isWasWhere = true;
+            }
+        }
+
+        if (filteringCondition.getState() != null) {
+            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.state = '").append(filteringCondition.getState()).append("'");
+            isWasWhere = true;
+        }
+
+        System.out.println(query.toString());
         return query.toString();
     }
 
-    private String selectWhereOrAnd() {
-        if (this.isWasWhere) {
+    private String selectWhereOrAnd(Boolean isWasWhere) {
+        if (isWasWhere) {
             return " and";
         } else {
-            this.isWasWhere = true;
             return " where";
         }
     }
