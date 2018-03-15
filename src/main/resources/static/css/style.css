@@ -198,8 +198,13 @@ ul.nav a:hover {
     float: right;
     text-align: left;
     padding: 2px;
+    color: #9c9c9c;
 }
 
 .form-edit {
     display: none;
+}
+
+.comment-button {
+    margin-top: 5px;
 }

@@ -99,67 +99,7 @@
                                     взять себе
                                 </button>
                             </div>
-                            <div class="modal-footer modal-comments">
-                                <div class="comments">
-                                    <span><h4>Комментарии:</h4></span>
-                                    <div class="form-group">
-                                        <textarea class="form-control textcomplete"
-                                                  th:id="'new-text-for-client' + ${client.id}"
-                                                  placeholder="Напишите комментарий"></textarea>
-                                        <button class="btn btn-md btn-success" style="margin-top: 5px"
-                                                th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">
-                                            Cохранить
-                                        </button>
-                                    </div>
-                                    <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
-                                        <li class="list-group-item comment-item" th:each="comment : ${client.comments}">
-                                            <div th:id="'comment' + ${comment.id}">
-                                                <span class="comment-name"
-                                                      th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                                                <span th:if="${user == comment.user}" class="glyphicon glyphicon-remove comment-functional" th:onclick="'deleteComment('+ ${comment.id} + ')'"></span>
-                                                <span th:if="${user == comment.user}" class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                                                <span class="hide-show glyphicon glyphicon-comment comment-functional"></span>
-                                                <p class="comment-text" th:text="${comment.getContent()}"></p>
-                                                <div class="form-answer">
-                                                    <div class="form-group">
-                                                        <textarea class="form-control"
-                                                                  th:id="'new-answer-for-comment' + ${comment.id}"
-                                                                  placeholder="Напишите ответ"></textarea>
-                                                        <button class="btn btn-md btn-success"
-                                                                th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'">
-                                                            сохранить
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="form-edit">
-                                                    <div class="form-group">
-                                                        <textarea class="form-control edit-textarea"
-                                                                  th:id="'edit-comment' + ${comment.id}"
-                                                                  placeholder="Редактор"></textarea>
-                                                        <button class="btn btn-md btn-success"
-                                                                th:onclick="'editComment(' + ${comment.id} + ')'">
-                                                            Отредактировать
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <ul class="answer-list comment-item"
-                                                    th:id="'comment-'+${comment.id}+'answers'">
-                                                    <li th:each="answer : ${comment.answers}">
-                                                        <div th:id="'comment' + ${answer.id}">
-                                                        <span class="comment-name"
-                                                              th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
-                                                            <span th:if="${user == answer.user}" class="glyphicon glyphicon-remove comment-functional" th:onclick="'deleteAnswer('+ ${answer.id} + ', ' + ${comment.id} + ')'"></span>
-                                                            <span th:if="${user == answer.user}" class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                                                            <p class="comment-text"
-                                                               th:text="${answer.getContent()}"></p>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">
                                 <div class="panel-group" id="accordion">
                                     <div class="panel panel-default">

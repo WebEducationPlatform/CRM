@@ -33,23 +33,21 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
-    private Boolean isAnswer = false;
+    @JsonIgnore
+    @ManyToOne
+    private Comment mainComment;
 
-    @OrderBy("date ASC")
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @org.hibernate.annotations.ForeignKey(name = "FK_MAIN_COMMENT", inverseName = "FK_DEPENDENT_COMMENT")
-    @JoinTable(name = "answers_to_comment",
-            joinColumns = {@JoinColumn(name = "comment_id")},
-            inverseJoinColumns = {@JoinColumn(name = "answer_comment_id")})
+    @OrderBy("date DESC")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "mainComment")
     private List<Comment> answers;
 
     public Comment() {
     }
 
-    public Comment(User user, Client client, Date date, String content) {
+    public Comment(User user, Client client, Comment mainComment, String content) {
         this.user = user;
         this.client = client;
-        this.date = date;
+        this.mainComment = mainComment;
         this.content = content;
     }
 
@@ -58,14 +56,6 @@ public class Comment {
         this.client = client;
         this.content = content;
         this.date = new Date(System.currentTimeMillis());
-    }
-
-    public Comment(User user, Client client, String content, Boolean isAnswer) {
-        this.user = user;
-        this.client = client;
-        this.date = new Date(System.currentTimeMillis());
-        this.content = content;
-        this.isAnswer = isAnswer;
     }
 
     public Long getId() {
@@ -108,20 +98,20 @@ public class Comment {
         this.content = content;
     }
 
-    public Boolean getAnswer() {
-        return isAnswer;
-    }
-
-    public void setAnswer(Boolean isAnswer) {
-        this.isAnswer = isAnswer;
-    }
-
     public List<Comment> getAnswers() {
         return answers;
     }
 
     public void setAnswers(List<Comment> answers) {
         this.answers = answers;
+    }
+
+    public Comment getMainComment() {
+        return mainComment;
+    }
+
+    public void setMainComment(Comment mainComment) {
+        this.mainComment = mainComment;
     }
 
     @Override
