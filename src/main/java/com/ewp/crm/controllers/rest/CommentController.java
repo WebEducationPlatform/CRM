@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/admin/rest/comment")
 public class CommentController {
@@ -46,57 +44,30 @@ public class CommentController {
         }
     }
 
-    @RequestMapping(value = "addAnswer", method = RequestMethod.POST)
-    public ResponseEntity<Comment> addAnswer(@RequestParam(name = "content") String content,
-                                             @RequestParam(name = "commentId") Long commentId){
+    @RequestMapping(value = "/add/answer", method = RequestMethod.POST)
+    public ResponseEntity<Comment> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userFromSession != null) {
-            User fromDB = userService.get(userFromSession.getId());
-            Comment comment = commentService.getById(commentId);
-            Comment answer = new Comment(fromDB, null, content, true);
-            List<Comment> answers = comment.getAnswers();
-            answers.add(answer);
-            commentService.update(comment);
-            return ResponseEntity.status(HttpStatus.OK).body(answer);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+        User fromDB = userService.get(userFromSession.getId());
+        Comment comment = commentService.getById(commentId);
+        Client client = comment.getClient();
+        Comment answer = new Comment(fromDB, client, comment, content);
+        commentService.add(answer);
+        return ResponseEntity.status(HttpStatus.OK).body(answer);
     }
 
-    @RequestMapping(value = "deleteComment", method = RequestMethod.POST)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResponseEntity deleteComment(@RequestParam(name = "id") Long id) {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (commentService.getById(id).getUser().equals(userFromSession)) {
             commentService.delete(id);
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
-    @RequestMapping(value = "deleteAnswer", method = RequestMethod.POST)
-    public ResponseEntity deleteAnswer(@RequestParam(name = "answerId") Long answerId,
-                                       @RequestParam(name = "commentId") Long commentId) {
-        User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Comment answer = commentService.getById(answerId);
-        if (answer.getUser().equals(userFromSession)) {
-            Comment comment = commentService.getById(commentId);
-            List<Comment> answers = comment.getAnswers();
-            answers.remove(commentService.getById(answerId));
-            comment.setAnswers(answers);
-            commentService.update(comment);
-            commentService.delete(answerId);
-            return ResponseEntity.ok(HttpStatus.OK);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-
-
-
-    @RequestMapping(value = "editComment", method = RequestMethod.POST)
-    public ResponseEntity editComment(@RequestParam(name = "id") Long id,
-                                      @RequestParam(name = "content") String content) {
+    @RequestMapping(value = "/edit", method = RequestMethod.POST)
+    public ResponseEntity editComment(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (commentService.getById(id).getUser().equals(userFromSession)) {
             Comment comment = commentService.getById(id);
@@ -104,7 +75,7 @@ public class CommentController {
             commentService.update(comment);
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
