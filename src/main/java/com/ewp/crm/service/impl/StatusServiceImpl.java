@@ -75,13 +75,21 @@ public class StatusServiceImpl implements StatusService {
 		}
 	}
 
+	private void checkStatusId(Long id){
+		if(id==1L){
+			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
+		}
+	}
+
 	@Override
 	public void delete(Status status) {
+		checkStatusId(status.getId());
 		statusDAO.delete(status);
 	}
 
 	@Override
 	public void delete(Long id) {
+		checkStatusId(id);
 		Status statusFromDB = statusDAO.findOne(id);
 		for (Client client : statusFromDB.getClients()) {
 			client.setStatus(null);
