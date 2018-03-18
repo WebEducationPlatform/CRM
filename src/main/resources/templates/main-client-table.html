@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
     <script type="text/javascript" th:src="@{/js/comments.js}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </head>
 <body>
 <div style="margin: 2%">
@@ -59,7 +60,9 @@
                 <div class="portlet-body">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
                     <div class="portlet-content">
-                        <div th:id="'info-client' + ${client.id}" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                        <div class="clickModal" th:id="'info-client' + ${client.id}" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+
+
                             <span th:text="${client.phoneNumber}"></span>
                             <br/>
                             <span th:text="${client.email}"></span>
@@ -106,21 +109,7 @@
                                     </button>
                                 </th:block>
                             </div>
-                            <div class="modal-footer modal-comments">
-                                <div class="comments">
-                                    <span>Комментарии:</span>
-                                    <div class="form-group">
-                                        <textarea class="form-control" th:id="'new-text-for-client' + ${client.id}" placeholder="Напишите комментарий"></textarea>
-                                        <button class="btn btn-md btn-success" th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">сохранить</button>
-                                    </div>
-                                    <ul class="comment-list" th:id="'client-'+${client.id}+'comments'">
-                                        <li th:each="comment : ${client.comments}">
-                                            <span th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                                            <p th:text="${comment.getContent()}"></p>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">
                                 <div class="panel-group" id="accordion">
                                     <div class="panel panel-default">
@@ -165,6 +154,7 @@
        </select>
     </div>
 </div>
+
 <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form role="form" id="new-user-form">
@@ -211,6 +201,9 @@
         </form>
     </div>
 </div>
-</body>
 
+</body>
+<script>
+
+</script>
 </html>

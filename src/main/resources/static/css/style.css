@@ -132,6 +132,10 @@ ul.nav a:hover {
     background-color: #edeff0;
 }
 
+.modal-dialog {
+    max-width: 700px;
+}
+
 .modal-header {
     border-bottom: 1px solid #cdcfd0;
 }
@@ -168,4 +172,48 @@ ul.nav a:hover {
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
+}
+
+.comment-list {
+    background-color: #9c9c9c;
+    list-style-type: none;
+}
+
+.answer-list {
+    background-color: white;
+    list-style-type: none;
+}
+
+.comment-text {
+    padding: 9px 11px;
+    background: white;
+    border-radius: 10px;
+}
+
+.comment-name {
+    font-size: large;
+}
+
+.comment-item {
+    background: none;
+    border: none;
+}
+
+.form-answer {
+    display:none;
+}
+
+.comment-functional {
+    float: right;
+    text-align: left;
+    padding: 2px;
+    color: #9c9c9c;
+}
+
+.form-edit {
+    display: none;
+}
+
+.comment-button {
+    margin-top: 5px;
 }
