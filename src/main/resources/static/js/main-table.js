@@ -343,3 +343,39 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
+$(document).ready(function () {
+    var url = '/admin/rest/user';
+
+    var userNames = [];
+
+    $.ajax({
+        type: 'get',
+        url: url,
+        dataType : 'json',
+        success: function (res) {
+            for (var i = 0; i < res.length; i++) {
+                userNames[i] = res[i].firstName + res[i].lastName;
+            };
+        },
+        error : function (error) {
+            console.log(error);
+        }
+    })
+
+    $('.textcomplete').textcomplete([
+        {
+            replace: function (mention) {
+                return '@' + mention + ' ';
+            },
+            mentions: userNames,
+            match: /\B@(\w*)$/,
+            search: function (term, callback) {
+                callback($.map(this.mentions, function (mention) {
+                    $('.textcomplete-dropdown').css('z-index', '999999');
+                    return mention.indexOf(term) === 0 ? mention : null;
+
+                }));
+            },
+            index: 1
+        }])
+});

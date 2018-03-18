@@ -131,6 +131,10 @@ ul.nav a:hover {
     background-color: #edeff0;
 }
 
+.modal-dialog {
+    max-width: 700px;
+}
+
 .modal-header {
     border-bottom: 1px solid #cdcfd0;
 }
@@ -212,6 +216,7 @@ ul.nav a:hover {
     margin: 0 auto;
 }
 
+<<<<<<< HEAD
 #delete-status-icon{
     cursor: pointer;
 }
@@ -349,4 +354,48 @@ input[type="checkbox"]:checked + label:before {
 
 label:hover, label:active, input:hover+label, input:active+label {
     border: 1px solid #cccccc;
+}
+
+.comment-list {
+    background-color: #9c9c9c;
+    list-style-type: none;
+}
+
+.answer-list {
+    background-color: white;
+    list-style-type: none;
+}
+
+.comment-text {
+    padding: 9px 11px;
+    background: white;
+    border-radius: 10px;
+}
+
+.comment-name {
+    font-size: large;
+}
+
+.comment-item {
+    background: none;
+    border: none;
+}
+
+.form-answer {
+    display:none;
+}
+
+.comment-functional {
+    float: right;
+    text-align: left;
+    padding: 2px;
+    color: #9c9c9c;
+}
+
+.form-edit {
+    display: none;
+}
+
+.comment-button {
+    margin-top: 5px;
 }
