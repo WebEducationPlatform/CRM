@@ -1,5 +1,6 @@
 package com.ewp.crm.configs;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("classpath:vk.properties")
-public class VKConfig {
+public class VKConfigImpl implements VKConfig {
 
     private String clientId;
 
@@ -21,18 +22,21 @@ public class VKConfig {
 
     private String clubId;
 
-    private static Logger logger = LoggerFactory.getLogger(VKConfig.class);
+    private String version;
+
+    private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
-    public VKConfig(Environment env) {
+    public VKConfigImpl(Environment env) {
         clientId = env.getProperty("vk.app.clientId");
         clientSecret = env.getProperty("vk.app.clientSecret");
         username  = env.getProperty("vk.profile.username");
         password = env.getProperty("vk.profile.password");
         clubId  = env.getProperty("vk.club.id");
+        version  = env.getProperty("vk.version");
 
         if (!configIsValid()) {
-            logger.error("VK configs have not initialized. Check files of properties");
+            logger.error("VK configs have not initialized. Check vk.properties file");
             System.exit(-1);
         }
     }
@@ -65,4 +69,8 @@ public class VKConfig {
     public String getClubId() {
         return clubId;
     }
+
+	public String getVersion() {
+		return version;
+	}
 }
