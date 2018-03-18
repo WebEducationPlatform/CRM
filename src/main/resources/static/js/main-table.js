@@ -181,20 +181,54 @@ function assign(id) {
     let
         url = '/admin/rest/client/assign',
         formData = {
-            clientId: id,
-        };
+            clientId: id
+        },
+        assignBtn = $('#assign-client' + id);
 
     $.ajax({
         type: 'POST',
         url: url,
         data: formData,
         success: function (owner) {
-            $('#assign-client' + id).remove();
+            assignBtn.before(
+                "<button " +
+                "   id='unassign-client" + id +"' " +
+                "   onclick='unassign(" + id +")' " +
+                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+            );
+            assignBtn.remove();
             $('#info-client' + id).append(
                 "<p class='user-icon'>" +
                     owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>"
             );
+        },
+        error: function (error) {
+        }
+    });
+}
+
+function unassign(id) {
+    let
+        url = '/admin/rest/client/unassign',
+        formData = {
+            clientId: id
+        },
+        unassignBtn = $('#unassign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            unassignBtn.before(
+                "<button " +
+                "   id='assign-client" + id + "' " +
+                "   onclick='assign(" + id +")' " +
+                "   class='btn btn-md btn-info'>взять себе карточку</button>"
+            );
+            unassignBtn.remove();
+            $('#info-client' + id).find(".user-icon").remove();
         },
         error: function (error) {
         }

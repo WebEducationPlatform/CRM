@@ -63,7 +63,7 @@ body {
 div h1 {
     margin-right: 4%;
     text-align: center;
-    border-bottom: 5px solid #ff00001a;
+    font-size: 1.5vmax;
 }
 
 a {
@@ -78,11 +78,20 @@ ul.nav a:hover {
     display: none;
 }
 
+#column-header {
+    border-bottom: 5px solid #ff00001a;
+    margin-right: 5%;
+}
+
 .create-new-status-column {
     width: 15%;
     float: left;
     padding-bottom: 100px;
     margin-top: 3%;
+}
+
+.status-columns {
+    margin-top: 2%;
 }
 
 .navbar-fixed-top {

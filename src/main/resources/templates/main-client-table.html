@@ -12,6 +12,7 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
+            <div id="column-header">
             <div class="btn-group">
                 <button type="button" class="glyphicon glyphicon glyphicon-list " data-toggle="dropdown">
                 </button>
@@ -21,6 +22,7 @@
                 </ul>
             </div>
             <h1 th:text="${status.name}"></h1>
+            </div>
             <div class="modal fade" th:id="'renameStatusModal' + ${status.id}" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -96,8 +98,16 @@
                                         th:id="'assign-client' + ${client.id}"
                                         th:onclick="'assign('+ ${client.id} +')'"
                                         class="btn btn-md btn-info" >
-                                    взять себе
+                                    взять себе карточку
                                 </button>
+                                <th:block th:if="${client.ownerUser != null}">
+                                    <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
+                                            th:id="'unassign-client' + ${client.id}"
+                                            th:onclick="'unassign('+ ${client.id} +')'"
+                                            class="btn btn-md btn-warning" >
+                                        отказаться от карточки
+                                    </button>
+                                </th:block>
                             </div>
                             <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">

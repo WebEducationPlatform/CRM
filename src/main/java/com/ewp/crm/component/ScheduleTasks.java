@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @EnableScheduling
@@ -39,23 +40,25 @@ public class ScheduleTasks {
     @Scheduled(fixedRate = 10_000)
     private void handleRequestsFromVk() {
         try {
-            List<String> newMassages = vkUtil.getNewMassages();
-            for (String message : newMassages) {
-                Client newClient = null;
-                try {
-                    newClient = vkUtil.parseClientFromMessage(message);
-                } catch (ParseClientException e) {
-                    logger.error(e.getMessage());
-                }
-                if ((newClient != null) && (clientService.getClientByEmail(newClient.getEmail()) == null)) {
-                    Status newClientsStatus = statusService.get(1L);
-                    newClient.setStatus(newClientsStatus);
-                    clientService.addClient(newClient);
-                    logger.info("New client with id{} has added from VK", newClient.getId());
+            Optional<List<String>> newMassages = vkUtil.getNewMassages();
+            if (newMassages.isPresent()) {
+                for (String message : newMassages.get()) {
+                    try {
+                        Client newClient = vkUtil.parseClientFromMessage(message);
+                        if (clientService.getClientByEmail(newClient.getEmail()) == null) {
+                            Status newClientsStatus = statusService.get(1L);
+                            newClient.setStatus(newClientsStatus);
+                            clientService.addClient(newClient);
+                            logger.info("New client with id{} has added from VK", newClient.getId());
+                        }
+                    } catch (ParseClientException e) {
+                        logger.error(e.getMessage());
+                    }
                 }
             }
         } catch (VKAccessTokenException ex) {
             logger.error(ex.getMessage());
         }
+
     }
 }
