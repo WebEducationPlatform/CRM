@@ -11,13 +11,32 @@
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
+        <div class="modal fade" th:if="${statuses.size()== 0}" th:id="createDefaultStatus" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Создание нового статуса</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Стутус по умолчанию не задан. Введите имя нового статуса</h6>
+                        <div class="form-group">
+                            <input id="default-status-name" type="text" class="form-control"
+                                   placeholder="Введите новое название статуса"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="createNewStatus()">Создать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
             <div id="column-header">
             <div class="btn-group">
                 <button type="button" class="glyphicon glyphicon glyphicon-list " data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
+                    <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
                     <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название статуса</a></li>
                 </ul>
             </div>
@@ -138,20 +157,46 @@
     </div>
 
     <div class="create-new-status-column">
-        <span id="create-new-status-span">Создать новый статус</span>
+        <button type="button" id="create-new-status-btn">Новый статус...</button>
         <form role="form" id="new-status-form">
-            <div class="form-group">
+            <div class="form-group" id="new-status-formgr">
                 <input type="text" class="form-control" id="new-status-name"
-                       placeholder="Введите новое название статуса"/>
+                       placeholder="Новый статус..."/>
             </div>
-            <button type="button" id="create-new-status" class="btn btn-warning btn-sm" onclick="createNewStatus()">создать</button>
+            <div class="form-actions">
+                <button type="button" id="create-new-status" class="btn btn-success btn-sm" onclick="createNewStatus()">
+                    Сохранить
+                </button>
+                <button type="button" id="create-new-status-cancelbtn" class="glyphicon glyphicon-remove"></button>
+            </div>
         </form>
     </div>
-    <div  class="form-group" id="client_filter_group" th:if="${isAdmin}">
-        <label id="client_filter_label" for="client_filter">Фильтр клиентов</label>
-        <select id = "client_filter" class="selectpicker"  multiple="multiple">
-        <option value=""></option>
-       </select>
+    <div id="panel">
+        <div id="panel-content">
+            <div class="panel-group">
+                <div class="panel-title">
+                    <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
+                    <h2>Меню</h2>
+                </div>
+                <div  id="client_filter_group" th:if="${isAdmin}">
+                    <div class="panel-heading" id="client-filter-heading">
+                        <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseFilter">Фильтр клиентов</a>
+                    </div>
+                    <div id="collapseFilter" class="panel-collapse collapse in">
+                        <div class="panel-body" id="panel-filter-body">
+                            <button type="button" id="showallbtn"  onclick="showall()">Показать все</button>
+                            <div class="checkbox" id="client_filter">
+                                <br></br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel-sticker">
+            <span>Меню</span>
+        </div>
     </div>
 </div>
 
