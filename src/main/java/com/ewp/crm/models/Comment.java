@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -33,13 +33,21 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
+    @JsonIgnore
+    @ManyToOne
+    private Comment mainComment;
+
+    @OrderBy("date DESC")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "mainComment")
+    private List<Comment> answers;
+
     public Comment() {
     }
 
-    public Comment(User user, Client client, Date date, String content) {
+    public Comment(User user, Client client, Comment mainComment, String content) {
         this.user = user;
         this.client = client;
-        this.date = date;
+        this.mainComment = mainComment;
         this.content = content;
     }
 
@@ -88,6 +96,22 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public List<Comment> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Comment> answers) {
+        this.answers = answers;
+    }
+
+    public Comment getMainComment() {
+        return mainComment;
+    }
+
+    public void setMainComment(Comment mainComment) {
+        this.mainComment = mainComment;
     }
 
     @Override
