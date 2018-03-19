@@ -29,10 +29,15 @@ $(document).ready(function () {
         .find(".portlet-header")
         .addClass("panel-heading");
 
-    $("#create-new-status-span").click(function () {
+    $("#create-new-status-btn").click(function () {
         $(this).hide();
         $("#new-status-form").show();
         document.getElementById("new-status-name").focus();
+    });
+
+    $("#create-new-status-cancelbtn").click(function () {
+        $("#new-status-form").hide();
+        $("#create-new-status-btn").show();
     });
 
    /* $("#new-status-form").focusout(
@@ -92,7 +97,10 @@ function createNewStatus() {
     let url = '/admin/rest/status/add';
     let statusName = $('#new-status-name').val();
     if (statusName===""){
-        return;
+        statusName=$('#default-status-name').val();
+        if(statusName===""){
+            return
+        }
     }
     let formData = {
         statusName: statusName
@@ -181,38 +189,85 @@ function assign(id) {
     let
         url = '/admin/rest/client/assign',
         formData = {
-            clientId: id,
-        };
+            clientId: id
+        },
+        assignBtn = $('#assign-client' + id);
 
     $.ajax({
         type: 'POST',
         url: url,
         data: formData,
         success: function (owner) {
-            $('#assign-client' + id).remove();
+            assignBtn.before(
+                "<button " +
+                "   id='unassign-client" + id +"' " +
+                "   onclick='unassign(" + id +")' " +
+                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+            );
+            assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon'>" +
+                "<p class='user-icon' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                     owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>"
             );
+            fillFilterList()
         },
         error: function (error) {
         }
     });
 }
 
-$(document).ready(function() {
-    $("#client_filter").change(function(){
-        var data = ($(this).val());
+function unassign(id) {
+    let
+        url = '/admin/rest/client/unassign',
+        formData = {
+            clientId: id
+        },
+        unassignBtn = $('#unassign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            unassignBtn.before(
+                "<button " +
+                "   id='assign-client" + id + "' " +
+                "   onclick='assign(" + id +")' " +
+                "   class='btn btn-md btn-info'>взять себе карточку</button>"
+            );
+            unassignBtn.remove();
+            $('#info-client' + id).find(".user-icon").remove();
+            fillFilterList();
+        },
+        error: function (error) {
+        }
+    });
+}
+
+function showall() {
+    $('#client_filter input:checkbox').prop('checked', false);
+    $('#client_filter input:checkbox').change();
+}
+
+$(document).ready(function () {
+    $("#client_filter").change(function () {
+        var allChecks = $('#client_filter input:checkbox');
+        var data=[];
+        for (var w = 0; w < allChecks.length; ++w){
+            if(allChecks[w].checked){
+                data[data.length]=allChecks[w].value;
+            }
+        }
         var jo = $("#status-columns").find($(".portlet"));
-        if (this.value === "") {
+        if (data.length===0) {
             jo.show();
             return;
         }
         jo.hide();
         jo.filter(function (i, v) {
             var d = $(this)[0].getElementsByClassName("user-icon");
-            if(d.length===0){
+            if (d.length === 0) {
                 return false;
             }
             for (var w = 0; w < data.length; ++w) {
@@ -224,24 +279,103 @@ $(document).ready(function() {
     });
 });
 
-$(document).ready(function() {
+function fillFilterList() {
+    $("#client_filter").empty();
     var names = $("#status-columns").find($(".user-icon"));
-    if (names.length===0){
-        $("#client_filter_group").remove();
+    if (names.length === 0) {
+        $("#client_filter_group").hide();
+    }else {
+        $("#client_filter_group").show();
     }
     var uniqueNames = [];
     var temp = [];
     for (var i = 0; i < names.length; ++i) {
-        if( ~temp.indexOf(names[i].innerText) ) {
+        if (~temp.indexOf(names[i].innerText)) {
             names.slice(temp.indexOf(names[i].innerText));
         } else {
             temp.push(names[i].innerText);
             uniqueNames.push(names[i]);
-        }}
-    $.each(uniqueNames, function(i, el){
-        $("#client_filter").append("<option value = "+el.innerText+">" + el.getAttribute("value") + "</option>");
+        }
+    }
+    $.each(uniqueNames, function (i, el) {
+        $("#client_filter").append("<input type=\"checkbox\" id = checkbox_" + el.innerText + " value=" + el.innerText + "><label for=checkbox_" + el.innerText + ">" + el.getAttribute("value") + "</label></br>");
     });
+}
+
+(function ($) {
+    $(document).ready(function () {
+        var $panel = $('#panel');
+        if ($panel.length) {
+            var $sticker = $panel.children('#panel-sticker');
+            var showPanel = function () {
+                $sticker.hide();
+                $panel.animate({
+                    right: '+=400'
+                }, 200, function () {
+                    $(this).addClass('visible');
+                });
+            };
+            var hidePanel = function () {
+                $panel.animate({
+                    right: '-=400'
+                }, 200, function () {
+                    $(this).removeClass('visible');
+                });
+            };
+            $sticker
+                .children('span').click(function () {
+                showPanel();
+            });
+            $(document.getElementById('close-panel-icon')).click(function () {
+                hidePanel();
+                $sticker.show();
+            });
+        }
+    });
+})(jQuery);
+
+$(document).ready(function () {
+    $("#createDefaultStatus").modal({
+        backdrop: 'static',
+        keyboard: false
+    },'show');
 });
 
+$(document).ready(fillFilterList);
 
+$(document).ready(function () {
+    var url = '/admin/rest/user';
 
+    var userNames = [];
+
+    $.ajax({
+        type: 'get',
+        url: url,
+        dataType : 'json',
+        success: function (res) {
+            for (var i = 0; i < res.length; i++) {
+                userNames[i] = res[i].firstName + res[i].lastName;
+            };
+        },
+        error : function (error) {
+            console.log(error);
+        }
+    })
+
+    $('.textcomplete').textcomplete([
+        {
+            replace: function (mention) {
+                return '@' + mention + ' ';
+            },
+            mentions: userNames,
+            match: /\B@(\w*)$/,
+            search: function (term, callback) {
+                callback($.map(this.mentions, function (mention) {
+                    $('.textcomplete-dropdown').css('z-index', '999999');
+                    return mention.indexOf(term) === 0 ? mention : null;
+
+                }));
+            },
+            index: 1
+        }])
+});
