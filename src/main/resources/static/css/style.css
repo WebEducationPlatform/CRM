@@ -111,10 +111,6 @@ ul.nav a:hover {
 }
 
 #clients-table {
-    margin-top: 5%;
-}
-
-#searchInput {
     margin-top: 1%;
 }
 
@@ -216,7 +212,15 @@ ul.nav a:hover {
     margin: 0 auto;
 }
 
-<<<<<<< HEAD
+.filtration-button {
+    margin-left: 15px;
+    margin-top: 7px;
+}
+
+.filter {
+    margin-top: 10px;
+}
+
 #delete-status-icon{
     cursor: pointer;
 }

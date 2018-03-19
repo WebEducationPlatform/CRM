@@ -3,8 +3,9 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
-import com.ewp.crm.repository.interfaces.ClientDAO;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,58 +15,64 @@ import java.util.List;
 @Service
 public class ClientServiceImpl implements ClientService {
 
-	private final ClientDAO clientDAO;
+	private final ClientRepository clientRepository;
 
 	@Autowired
-	public ClientServiceImpl(ClientDAO clientDAO) {
-		this.clientDAO = clientDAO;
+	public ClientServiceImpl(ClientRepository clientRepository) {
+		this.clientRepository = clientRepository;
 	}
 
 	@Override
 	public List<Client> getAllClients() {
-		return clientDAO.findAll();
+		return clientRepository.findAll();
 	}
 
 	@Override
 	public List<Client> getClientsByOwnerUser(User ownerUser) {
-		return clientDAO.getClientsByOwnerUser(ownerUser);
+		return clientRepository.getClientsByOwnerUser(ownerUser);
 	}
 
 	@Override
 	public Client getClientByEmail(String email) {
-		return clientDAO.findClientByEmail(email);
+		return clientRepository.findClientByEmail(email);
 	}
 
 	@Override
 	public Client getClientByID(Long id) {
-		return clientDAO.findOne(id);
+		return clientRepository.findOne(id);
 	}
 
 	@Override
 	public void deleteClient(Long id) {
-		clientDAO.delete(id);
+		clientRepository.delete(id);
 	}
 
 	@Override
 	public void deleteClient(Client client) {
-		clientDAO.delete(client);
+		clientRepository.delete(client);
+	}
+
+	@Override
+	public List<Client> filteringClient(FilteringCondition filteringCondition) {
+		return clientRepository.filteringClient(filteringCondition);
 	}
 
 	@Override
 	public void addClient(Client client) {
 		checkNewClient(client);
-		clientDAO.saveAndFlush(client);
+		clientRepository.saveAndFlush(client);
 	}
 
 	@Override
 	public void updateClient(Client client) {
 		checkExistClient(client);
-		clientDAO.saveAndFlush(client);
+		clientRepository.saveAndFlush(client);
 	}
 
+
 	private void checkNewClient(Client client) {
-		if ((clientDAO.findClientByEmail(client.getEmail()) != null)
-				|| (clientDAO.findClientByPhoneNumber(client.getPhoneNumber()) != null)) {
+		if ((clientRepository.findClientByEmail(client.getEmail()) != null)
+				|| (clientRepository.findClientByPhoneNumber(client.getPhoneNumber()) != null)) {
 			throw new ClientExistsException("Клиент уже существует");
 		}
 	}
@@ -73,8 +80,8 @@ public class ClientServiceImpl implements ClientService {
 	private void checkExistClient(Client client) {
 		Client currentClientByEmail;
 		Client currentClientByPhone;
-		if (((currentClientByEmail = clientDAO.findClientByEmail(client.getEmail())) != null && !currentClientByEmail.getId().equals(client.getId()))
-				|| ((currentClientByPhone = clientDAO.findClientByPhoneNumber(client.getPhoneNumber())) != null && !currentClientByPhone.getId().equals(client.getId()))) {
+		if (((currentClientByEmail = clientRepository.findClientByEmail(client.getEmail())) != null && !currentClientByEmail.getId().equals(client.getId()))
+				|| ((currentClientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber())) != null && !currentClientByPhone.getId().equals(client.getId()))) {
 			throw new ClientExistsException("Клиент уже существует");
 		}
 	}

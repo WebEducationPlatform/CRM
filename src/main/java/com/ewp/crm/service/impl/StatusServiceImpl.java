@@ -4,7 +4,7 @@ import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.repository.interfaces.ClientDAO;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,12 @@ import java.util.List;
 public class StatusServiceImpl implements StatusService {
 
 	private final StatusDAO statusDAO;
-	private final ClientDAO clientDAO;
+	private final ClientRepository clientRepository;
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ClientDAO clientDAO) {
+	public StatusServiceImpl(StatusDAO statusDAO, ClientRepository clientRepository) {
 		this.statusDAO = statusDAO;
-		this.clientDAO = clientDAO;
+		this.clientRepository = clientRepository;
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void changeClientStatus(Long clientId, Long statusId) {
-		Client client = clientDAO.findOne(clientId);
+		Client client = clientRepository.findOne(clientId);
 		Status beginStatus = statusDAO.findStatusByClientsIn(Collections.singletonList(client));
 		Status endStatus = statusDAO.findOne(statusId);
 		beginStatus.getClients().remove(client);
@@ -109,6 +109,6 @@ public class StatusServiceImpl implements StatusService {
 		endStatus.addClient(client);
 		statusDAO.saveAndFlush(endStatus);
 		client.setStatus(endStatus);
-		clientDAO.saveAndFlush(client);
+		clientRepository.saveAndFlush(client);
 	}
 }
