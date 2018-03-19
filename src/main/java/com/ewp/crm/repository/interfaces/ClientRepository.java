@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClientDAO extends JpaRepository<Client, Long> {
+public interface ClientRepository extends JpaRepository<Client, Long>, ClientRepositoryCustom {
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	Client findClientByEmail(String Email);
 
 	Client findClientByPhoneNumber(String phoneNumber);
+
 }

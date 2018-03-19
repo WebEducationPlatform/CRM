@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.slf4j.Logger;
@@ -91,5 +92,10 @@ public class RestClientController {
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
+		return ResponseEntity.ok(clientService.filteringClient(filteringCondition));
 	}
 }
