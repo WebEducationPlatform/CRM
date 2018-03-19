@@ -28,66 +28,41 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     private String createQuery(FilteringCondition filteringCondition) {
-        StringBuilder query = new StringBuilder("select cl from Client cl");
-
-        boolean isWasWhere = false;
+        StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
 
         if (filteringCondition.getSex() != null) {
-            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.sex = '").append(filteringCondition.getSex()).append("'");
-            isWasWhere = true;
+            query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
         }
 
-        if (filteringCondition.getAgeFrom() != null || filteringCondition.getAgeTo() != null) {
-            if (filteringCondition.getAgeFrom() != null && filteringCondition.getAgeTo() != null) {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age between ").append(filteringCondition.getAgeFrom()).append(" and ").append(filteringCondition.getAgeTo());
-                isWasWhere = true;
-            } else if (filteringCondition.getAgeFrom() != null) {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age >= ").append(filteringCondition.getAgeFrom());
-                isWasWhere = true;
-            } else {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.age <= ").append(filteringCondition.getAgeTo());
-                isWasWhere = true;
-            }
+        if (filteringCondition.getAgeFrom() != null) {
+            query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+
+        }
+        if (filteringCondition.getAgeTo() != null) {
+            query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
         }
 
-        if (!filteringCondition.getCity().equals("")) {
-            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.city = '").append(filteringCondition.getCity()).append("'");
-            isWasWhere = true;
+        if (!filteringCondition.getCity().isEmpty()) {
+            query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
         }
 
-        if (!filteringCondition.getCountry().equals("")) {
-            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.country = '").append(filteringCondition.getCountry()).append("'");
-            isWasWhere = true;
+        if (!filteringCondition.getCountry().isEmpty()) {
+            query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
         }
 
-        if (filteringCondition.getDateFrom() != null || filteringCondition.getDateTo() != null) {
-            if (filteringCondition.getDateFrom() != null && filteringCondition.getDateTo() != null) {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration between '").append(filteringCondition.getDateFrom()).append("' and '").append(filteringCondition.getDateTo()).append("'");
-                isWasWhere = true;
-            } else if (filteringCondition.getDateFrom() != null) {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
-                isWasWhere = true;
-            } else {
-                query.append(selectWhereOrAnd(isWasWhere)).append(" cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
-                isWasWhere = true;
-            }
+        if (filteringCondition.getDateFrom() != null) {
+            query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+        }
+
+        if (filteringCondition.getDateTo() != null) {
+            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
         }
 
         if (filteringCondition.getState() != null) {
-            query.append(selectWhereOrAnd(isWasWhere)).append(" cl.state = '").append(filteringCondition.getState()).append("'");
-            isWasWhere = true;
+            query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
         }
 
-        System.out.println(query.toString());
         return query.toString();
-    }
-
-    private String selectWhereOrAnd(Boolean isWasWhere) {
-        if (isWasWhere) {
-            return " and";
-        } else {
-            return " where";
-        }
     }
 
 }
