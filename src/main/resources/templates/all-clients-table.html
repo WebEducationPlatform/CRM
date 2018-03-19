@@ -62,7 +62,7 @@
                         </div>
                     </div>
                     <div class="col-xs-3 offset-4">
-                        <label class="control-label" for="state">Закончил обучение: </label>
+                        <label class="control-label" for="state">Статус: </label>
                         <select class="form-control" id="state" size="1">
                             <option></option>
                             <option th:each="state : ${T(com.ewp.crm.models.Client.State).values()}" th:value="${state}" th:text="${state}"></option>
