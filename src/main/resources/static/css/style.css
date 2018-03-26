@@ -20,8 +20,8 @@ body {
 }
 
 .portlet-body{
-     cursor: pointer;
- }
+    cursor: pointer;
+}
 
 .portlet {
     margin: 0 1em 1em 0;
@@ -43,7 +43,7 @@ body {
     margin-bottom: 0.5em;
     position: relative;
     background-image: linear-gradient(to bottom,#faf0e6 0,#F3F7FA 100%);
- }
+}
 
 .portlet-toggle {
     position: absolute;
@@ -69,8 +69,8 @@ a {
     color: black;
 }
 
-ul.nav a:hover { 
-    background-color: #ffead6 !important; 
+ul.nav a:hover {
+    background-color: #ffead6 !important;
 }
 
 #new-status-form {
@@ -100,7 +100,7 @@ ul.nav a:hover {
 }
 
 .navbar-right {
-     margin-right: 0;
+    margin-right: 0;
 }
 
 #add-user-btn {
@@ -152,7 +152,7 @@ ul.nav a:hover {
 #panel {
     position: fixed;
     top: 10%;
-    right: -400px;
+    right: -350px;
     margin: -40px 0 0 0;
     overflow: hidden;
     height: 100%
@@ -161,10 +161,11 @@ ul.nav a:hover {
 #panel-content {
     background: #EEE;
     border: 1px solid #CCC;
-    width: 388px;
+    width: 350px;
     height: 100%;
     float: right;
     padding: 3px 5px;
+    margin-top: 8%;
 }
 
 #panel-sticker {
@@ -172,8 +173,8 @@ ul.nav a:hover {
     position: relative;
     opacity:0.7;
     padding: 3px 20px 3px 5px;
-    margin: 0;
     cursor: pointer;
+    margin-top: 4%;
 }
 
 #panel-sticker:hover {
@@ -193,10 +194,10 @@ ul.nav a:hover {
 }
 
 #client_filter_group {
-    border-bottom: 1px solid #cdcfd0;;
+    border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading {
+#client-filter-heading, #user_group-heading {
     background: gainsboro;
 }
 
@@ -354,10 +355,6 @@ input[type="checkbox"]:checked + label:before {
 
 #panel-filter-body{
     padding-bottom: 0;
-}
-
-label:hover, label:active, input:hover+label, input:active+label {
-    border: 1px solid #cccccc;
 }
 
 .comment-list {

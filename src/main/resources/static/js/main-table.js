@@ -155,7 +155,7 @@ function senReqOnChangeStatus(clientId, statusId) {
         success: function (data) {
             let
                 url = '/admin/rest/client/' + clientId;
-            $.get(url, 
+            $.get(url,
                 function (data) {
                     $('#client-' + data.id + 'history').prepend(
                         "<li>" +
@@ -310,14 +310,14 @@ function fillFilterList() {
             var showPanel = function () {
                 $sticker.hide();
                 $panel.animate({
-                    right: '+=400'
+                    right: '+=350'
                 }, 200, function () {
                     $(this).addClass('visible');
                 });
             };
             var hidePanel = function () {
                 $panel.animate({
-                    right: '-=400'
+                    right: '-=350'
                 }, 200, function () {
                     $(this).removeClass('visible');
                 });
