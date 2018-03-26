@@ -30,8 +30,8 @@ $(document).ready(
     })
 );
 
+var data = {};
 $('#filtration').click(function () {
-    var data = {};
     var url = "../admin/rest/client/filtration";
 
     if ($('#sex').val() !== "") {
@@ -80,4 +80,26 @@ $('#filtration').click(function () {
             console.log(error);
         }
     })
-})
+});
+
+
+$('#clientData').click(function (event) {
+    var url = "..admin/rest/client/createFile";
+    var val = {selected: $("#selectType").val()};
+     event.preventDefault()
+    if (jQuery.isEmptyObject(data)){
+         alert("FOO");
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json",
+            dataType: 'json',
+            url: url,
+            data: JSON.stringify(val)
+            // success:
+            //     // window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
+
+
+        });
+
+    }
+});
