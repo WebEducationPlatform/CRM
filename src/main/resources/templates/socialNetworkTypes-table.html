@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head>
+        <div th:replace="fragments/htmlFragments::header"></div>
+        <link rel="stylesheet" href="/css/style.css"/>
+    </head>
+</head>
+<body>
+<div style="margin: 1%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+
+    <div class="row">
+        <a class="btn btn-info" role="button"
+           data-toggle="modal"
+           data-target="#addSocialType"
+        >Add SocialNetwork Type</a>
+    </div>
+    <div th:replace="fragments/htmlFragments::addSocialNetworkType"></div>
+
+    <div class="col-md-5 col-md-offset-3">
+
+    <table class="table table-hover" id="networkTypes-table">
+        <thead>
+        <tr>
+            <td>#</td>
+            <td>SocialNetwork Type</td>
+            <td>Update</td>
+            <td>Delete</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="socialNetworkType : ${socialNetworkTypes}">
+            <td th:text="${socialNetworkType.id}"></td>
+            <td th:text="${socialNetworkType.name}"></td>
+            <td><a class="btn btn-info" role="button"
+                   data-toggle="modal"
+                   th:attr="data-target='#' + ${socialNetworkType.id}"
+            >Update</a>
+                <div th:replace="fragments/htmlFragments::updateSocialNetworkType"></div>
+            </td>
+
+            <td><a class="btn btn-danger" role="button"
+                   th:href="@{/client/deleteSocialNetworkType/(id=${socialNetworkType.id})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+</body>
+</html>
