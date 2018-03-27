@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.sql.Date;
@@ -22,7 +23,8 @@ public class Client implements Serializable {
 	@Column(name = "client_id")
 	private Long id;
 
-	@Column(name = "first_name", nullable = false)
+	@NotNull
+	@Column(name = "first_name")
 	private String name;
 
 	@Column(name = "last_name")
@@ -33,7 +35,7 @@ public class Client implements Serializable {
 
 	@Size(max = 50)
 	@Email(regexp = ValidationPattern.EMAIL_PATTERN)
-	@Column(name = "email", length = 50, nullable = false, unique = true)
+	@Column(name = "email", length = 50, unique = true)
 	private String email;
 
 	@Column(name = "age")
@@ -73,7 +75,7 @@ public class Client implements Serializable {
 
 	@JsonIgnore
 	@OrderBy("date DESC")
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
@@ -87,7 +89,11 @@ public class Client implements Serializable {
 	@OrderBy("id DESC")
 	private List<ClientHistory> history = new ArrayList<>();
 
-	@OneToMany(targetEntity = Job.class, mappedBy = "client")
+	@Column
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "client_job",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
 	private List<Job> jobs;
 
 	@Column

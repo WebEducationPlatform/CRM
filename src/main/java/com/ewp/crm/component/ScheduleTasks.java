@@ -1,7 +1,6 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.component.util.VKUtil;
-import com.ewp.crm.controllers.UserController;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
