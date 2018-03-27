@@ -5,8 +5,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "socialType")
-public class SocialType {
+public class SocialNetworkType {
 
     @Id
     @GeneratedValue
@@ -14,7 +13,7 @@ public class SocialType {
     private Long id;
 
     @Column
-    private String type;
+    private String name;
 
     public Long getId() {
         return id;
@@ -24,25 +23,29 @@ public class SocialType {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public String getName() {
+        return name;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public SocialNetworkType(String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SocialType)) return false;
-        SocialType that = (SocialType) o;
+        if (!(o instanceof SocialNetworkType)) return false;
+        SocialNetworkType that = (SocialNetworkType) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(type, that.type);
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type);
+        return Objects.hash(id, name);
     }
 }

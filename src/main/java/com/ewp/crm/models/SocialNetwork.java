@@ -17,7 +17,7 @@ public class SocialNetwork {
 
 
     @OneToOne
-    private SocialType socialType;
+    private SocialNetworkType socialNetworkType;
 
     public SocialNetwork() {
     }
@@ -29,13 +29,13 @@ public class SocialNetwork {
         SocialNetwork that = (SocialNetwork) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(link, that.link) &&
-                Objects.equals(socialType, that.socialType);
+                Objects.equals(socialNetworkType, that.socialNetworkType);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, link, socialType);
+        return Objects.hash(id, link, socialNetworkType);
     }
 
     public Long getId() {
@@ -54,11 +54,11 @@ public class SocialNetwork {
         this.link = link;
     }
 
-    public SocialType getSocialType() {
-        return socialType;
+    public SocialNetworkType getSocialNetworkType() {
+        return socialNetworkType;
     }
 
-    public void setSocialType(SocialType socialType) {
-        this.socialType = socialType;
+    public void setSocialNetworkType(SocialNetworkType socialNetworkType) {
+        this.socialNetworkType = socialNetworkType;
     }
 }
