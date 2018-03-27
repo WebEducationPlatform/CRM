@@ -1,7 +1,6 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.component.util.VKUtil;
-import com.ewp.crm.controllers.UserController;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
@@ -37,6 +36,24 @@ public class ScheduleTasks {
         this.statusService = statusService;
     }
 
+    private void addClient(Client client) {
+        Status newClientsStatus = statusService.get(1L);
+        client.setStatus(newClientsStatus);
+        client.setState(Client.State.NEW);
+        clientService.addClient(client);
+        logger.info("New client with id{} has added from VK", client.getId());
+    }
+
+    private void updateClient(Client newClient) {
+        Client updateClient = clientService.getClientByVkId(newClient.getVkId());
+        updateClient.setPhoneNumber(newClient.getPhoneNumber());
+        updateClient.setEmail(newClient.getEmail());
+        updateClient.setAge(newClient.getAge());
+        updateClient.setSex(newClient.getSex());
+        clientService.updateClient(updateClient);
+        logger.info("Client with id{} has updated from VK", updateClient.getId());
+    }
+
     @Scheduled(fixedRate = 10_000)
     private void handleRequestsFromVk() {
         try {
@@ -45,11 +62,11 @@ public class ScheduleTasks {
                 for (String message : newMassages.get()) {
                     try {
                         Client newClient = vkUtil.parseClientFromMessage(message);
-                        if (clientService.getClientByEmail(newClient.getEmail()) == null) {
-                            Status newClientsStatus = statusService.get(1L);
-                            newClient.setStatus(newClientsStatus);
-                            clientService.addClient(newClient);
-                            logger.info("New client with id{} has added from VK", newClient.getId());
+                        if (clientService.getClientByVkId(newClient.getVkId()) == null) {
+                            addClient(newClient);
+                        }
+                        if (clientService.getClientByVkId(newClient.getVkId()) != null) {
+                            updateClient(newClient);
                         }
                     } catch (ParseClientException e) {
                         logger.error(e.getMessage());
@@ -59,6 +76,20 @@ public class ScheduleTasks {
         } catch (VKAccessTokenException ex) {
             logger.error(ex.getMessage());
         }
-
     }
+
+    @Scheduled(fixedRate = 10_000)
+    private void handleRequestsFromVkCommunityMessages() {
+        Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
+        if (newUsers.isPresent()) {
+            for (Long id : newUsers.get()) {
+                Client newClient = vkUtil.getClientFromVkId(id);
+                if (newClient != null && clientService.getClientByVkId(newClient.getVkId()) == null) {
+                    addClient(newClient);
+                }
+            }
+        }
+    }
+
+
 }

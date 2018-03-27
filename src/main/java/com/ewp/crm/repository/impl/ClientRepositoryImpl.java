@@ -3,7 +3,6 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

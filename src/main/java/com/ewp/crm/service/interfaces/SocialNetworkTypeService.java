@@ -4,7 +4,7 @@ import com.ewp.crm.models.SocialNetworkType;
 
 import java.util.List;
 
-public interface NetworkTypeService {
+public interface SocialNetworkTypeService {
 
     void updateType(SocialNetworkType socialNetworkType);
 

@@ -17,6 +17,8 @@ public interface ClientService {
 
 	Client getClientByID(Long id);
 
+	Client getClientByVkId (Long vkId);
+
 	void addClient(Client client);
 
 	void updateClient(Client client);
