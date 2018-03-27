@@ -8,6 +8,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Component
 @PropertySource("classpath:vk.properties")
 public class VKConfigImpl implements VKConfig {
@@ -44,6 +47,12 @@ public class VKConfigImpl implements VKConfig {
         }
     }
 
+    public boolean containsIllegals(String communityToken) {
+        Pattern pattern = Pattern.compile("[!~#@*+%{}<>\\[\\]|\"\\_^]");
+        Matcher matcher = pattern.matcher(communityToken);
+        return matcher.find();
+    }
+
     private boolean configIsValid() {
         if (clientId == null || "".equals(clientId)) return false;
         if (clientSecret == null || "".equals(clientSecret)) return false;
@@ -51,6 +60,7 @@ public class VKConfigImpl implements VKConfig {
         if (password == null || "".equals(password)) return false;
         if (clubId == null || "".equals(clubId)) return false;
         if (communityToken == null || "".equals(communityToken)) return false;
+        if (!containsIllegals(communityToken)) return false;
         return true;
     }
 
