@@ -1,78 +1,64 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table
 public class SocialNetwork {
 
-	@Id
-	@GeneratedValue
-	@Column
-	private Long id;
+    @Id
+    @GeneratedValue
+    @Column
+    private Long id;
 
-	@Column
-	private String link;
-
-	@Column
-	@Enumerated(EnumType.STRING)
-	private SocialMarker socialMarker;
-
-	public SocialNetwork() {
-	}
-
-	public SocialNetwork(String link, SocialMarker socialMarker) {
-		this.link = link;
-		this.socialMarker = socialMarker;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getLink() {
-		return link;
-	}
+    @Column
+    private String link;
 
 
-	public void setLink(String link) {
-		this.link = link;
-	}
+    @OneToOne
+    private SocialType socialType;
 
-	public SocialMarker getSocialMarker() {
-		return socialMarker;
-	}
+    public SocialNetwork() {
+    }
 
-	public void setSocialMarker(SocialMarker socialMarker) {
-		this.socialMarker = socialMarker;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SocialNetwork)) return false;
+        SocialNetwork that = (SocialNetwork) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(link, that.link) &&
+                Objects.equals(socialType, that.socialType);
+    }
 
+    @Override
+    public int hashCode() {
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+        return Objects.hash(id, link, socialType);
+    }
 
-		SocialNetwork that = (SocialNetwork) o;
+    public Long getId() {
+        return id;
+    }
 
-		if (id != null ? !id.equals(that.id) : that.id != null) return false;
-		if (link != null ? !link.equals(that.link) : that.link != null) return false;
-		return socialMarker == that.socialMarker;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	@Override
-	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (link != null ? link.hashCode() : 0);
-		result = 31 * result + (socialMarker != null ? socialMarker.hashCode() : 0);
-		return result;
-	}
+    public String getLink() {
+        return link;
+    }
 
-	public enum SocialMarker {
-		FACEBOOK, VK
-	}
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public SocialType getSocialType() {
+        return socialType;
+    }
+
+    public void setSocialType(SocialType socialType) {
+        this.socialType = socialType;
+    }
 }
