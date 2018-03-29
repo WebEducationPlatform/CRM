@@ -433,8 +433,7 @@ button[id*=client-info] {
 }
 
 #userPhoto{
-    width: 200px;
-    height:250px;
+    max-width: 200px;
     margin-bottom: 2%;
     border: 2px solid;
 }

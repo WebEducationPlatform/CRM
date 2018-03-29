@@ -50,7 +50,7 @@ public class User implements UserDetails {
 	private double salary;
 
 	@Column(name = "photo")
-	private Blob photo;
+	private String photo;
 
 	@Column(name = "photoType")
 	private String photoType;
@@ -213,30 +213,11 @@ public class User implements UserDetails {
 	}
 
 	public String getPhoto() throws IOException, SQLException {
-		if (photo != null) {
-			String type = this.photoType;
-			if (type == null) {
-				type = "jpg";
-			}
-			return "data:image/" + type + ";base64," + convertToBase64(this.photo.getBinaryStream(),  type);
-		} else {
-			return null;
-		}
-	}
-
-	private String convertToBase64(InputStream inputStream, String type) throws IOException {
-		BufferedImage image = ImageIO.read(inputStream);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ImageIO.write(image, type, baos);
-		return DatatypeConverter.printBase64Binary(baos.toByteArray());
-	}
-
-	public void setPhoto(Blob photo) {
-		this.photo = photo;
-	}
-
-	public Blob getPhotoBlob() {
 		return this.photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
 
 	public String getPhotoType() {
