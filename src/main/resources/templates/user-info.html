@@ -23,22 +23,18 @@
                     <div class="form-group">
                         <label for="edit-user-first-name">Имя</label>
                         <input class="form-control" required="required" disabled="disabled" id="edit-user-first-name" th:value="${user.firstName}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-last-name">Фамилия</label>
                         <input class="form-control" required="required" id="edit-user-last-name" disabled="disabled" th:value="${user.lastName}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-password">Пароль</label>
                         <input type="password" class="form-control" required="required" disabled="disabled" id="edit-user-password" th:value="${user.password}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-phone-number">Номер телефона</label>
                         <input type="number" class="form-control" required="required" disabled="disabled" id="edit-user-phone-number" th:value="${user.phoneNumber}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-email">Email</label>
@@ -48,7 +44,6 @@
                     <div class="form-group">
                         <label for="edit-user-VKid">VK id</label>
                         <input type="text" class="form-control" disabled="disabled" id="edit-user-VKid" th:value="${user.vk}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-age">Возраст</label>
@@ -65,17 +60,14 @@
                     <div class="form-group">
                         <label for="edit-user-country">Страна</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-country" th:value="${user.country}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-city">Город</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-city" th:value="${user.city}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
-                        <label for="edit-user-vacancy">Позиция</label>
+                        <label for="edit-user-vacancy">позиция</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-vacancy" th:value="${user.vacancy}"/>
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-salary">Зарплата</label>
@@ -99,7 +91,7 @@
                     <label>Фото</label>
                     <img id="userPhoto" alt="" class="img-rounded img-responsive centre"
                          th:src="${user.photo}"  />
-                    <input accept="image/*" type="file" disabled="disabled" id='photoBtn' onchange="selectPhoto()" style="display: none"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file" disabled="disabled" id='photoBtn' onchange="selectPhoto()" style="display: none"/>
                     <label for="photoBtn" >
                         <span id="photoSelectBtn" class="btn btn-primary" disabled="disabled">Выбрать</span>
                     </label>

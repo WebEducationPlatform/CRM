@@ -104,29 +104,29 @@ $(document).ready(function () {
     })
 });
 
-var files;
+var file;
 
 function selectPhoto() {
-    files = $("#photoBtn")[0].files;
+    file = $("#photoBtn")[0].files[0];
     readURL(this);
 }
 
 function sendPhoto(id) {
 
-    if (typeof files === 'undefined') {
+    if (typeof file === 'undefined') {
         var current = document.getElementById("message");
         current.style.color = "limegreen";
         current.textContent = "Сохранено";
         return;
     }
 
+    if(file.size >  $("#photoBtn").attr("max")){
+        setErrorMessage("фотографии. Файл слишком велик");
+        return;
+    }
+
     var dataValue = new FormData();
-
-    $.each(files, function (key, value) {
-        dataValue.append(key, value);
-    });
-
-    dataValue.append('file', 1);
+    dataValue.append("0", file);
     dataValue.append("id",id);
     $.ajax({
         url: '/admin/rest/user/update/photo',
@@ -140,21 +140,21 @@ function sendPhoto(id) {
         success: function (data) {
             var current = document.getElementById("message");
             current.style.color = "limegreen";
-            current.textContent = "Сохранено";
+            current.textContent = data.msg;
         },
-        error: function () {
-            setErrorMessage("фотографии")
+        error: function (data) {
+            setErrorMessage(data.msg)
         }
     });
 }
 
 function readURL(input) {
-    if (input.files && input.files[0]) {
+    if (input.file) {
         var reader = new FileReader();
         reader.onload = function (e) {
             $('#userPhoto').attr('src', e.target.result);
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(input.file);
     }
 }
 

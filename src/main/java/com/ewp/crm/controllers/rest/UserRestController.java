@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
@@ -7,6 +8,7 @@ import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -45,7 +48,7 @@ public class UserRestController {
     public ResponseEntity deleteUser(@RequestParam(name = "deleteId") Long deleteId) {
         User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userService.get(deleteId);
-        for(Client ownedClient: currentUser.getOwnedClients()){
+        for(Client ownedClient: currentUser.getOwnedClients()) {
             ownedClient.setOwnerUser(null);
         }
         userService.delete(deleteId);
@@ -54,14 +57,14 @@ public class UserRestController {
     }
 
     @RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
-    public String addAvatar(@RequestParam("0") MultipartFile file,@RequestParam("id") Long id) {
+    public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
         User user = userService.get(id);
         try {
             userService.addPhoto(file, user);
-            return "{\"msg\":\"success\"}";
+            return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
         } catch (Exception e) {
             logger.error("Error during saving photo: " + e.getMessage());
-            return "Ошибка сохранения";
+            return ResponseEntity.badRequest().body("{\"msg\":\"Ошибка сохранения\"}");
         }
     }
 
