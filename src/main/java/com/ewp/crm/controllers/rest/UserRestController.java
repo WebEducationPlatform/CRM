@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
@@ -15,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -59,17 +56,20 @@ public class UserRestController {
     @RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
     public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
         User user = userService.get(id);
-        try {
-            userService.addPhoto(file, user);
-            return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
-        } catch (Exception e) {
-            logger.error("Error during saving photo: " + e.getMessage());
-            return ResponseEntity.badRequest().body("{\"msg\":\"Ошибка сохранения\"}");
-        }
+        userService.addPhoto(file, user);
+	    return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
     }
 
     @RequestMapping(value = {"/user/socialMarkers"}, method = RequestMethod.GET)
     public ResponseEntity<SocialNetwork.SocialMarker[]> getSocialMarkers() {
         return ResponseEntity.ok(SocialNetwork.SocialMarker.values());
+    }
+
+    @RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
+    public ResponseEntity addClient(@RequestBody User user) {
+        User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.update(user);
+        logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
+        return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
     }
 }

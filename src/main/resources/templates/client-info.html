@@ -38,7 +38,7 @@
             </div>
             <div class="form-group">
                 <label for="edit-client-age">Возраст</label>
-                <input type="text" class="form-control" disabled="disabled" data-error="Диапазон от 1 до 127" title = "Диапазон от 1 до 127" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$" onkeydown="return event.keyCode !== 69"  id="edit-client-age" th:value="${client.age}"/>
+                <input type="text" class="form-control" disabled="disabled" data-error="Диапазон от 1 до 127" title = "Диапазон от 1 до 127" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$" onkeydown="disableInputE()"  id="edit-client-age" th:value="${client.age}"/>
                 <div class="help-block with-errors"></div>
             </div>
             <div class="form-group">

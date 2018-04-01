@@ -61,7 +61,7 @@ function changeUser(id) {
             sendPhoto(id);
         },
         error: function (e) {
-            setErrorMessage();
+            setErrorMessage(e.responseJSON.message);
             console.log(e.responseText);
         }
     });
@@ -121,7 +121,7 @@ function sendPhoto(id) {
     }
 
     if(file.size >  $("#photoBtn").attr("max")){
-        setErrorMessage("фотографии. Файл слишком велик");
+        setErrorMessage("Ошибка сохранения фотографии. Файл слишком велик");
         return;
     }
 
@@ -143,7 +143,7 @@ function sendPhoto(id) {
             current.textContent = data.msg;
         },
         error: function (data) {
-            setErrorMessage(data.msg)
+            setErrorMessage(data.responseJSON.message)
         }
     });
 }
@@ -166,7 +166,67 @@ function setErrorMessage(message) {
         current.style.color = "red";
     }else {
         current = document.getElementById("message");
-        current.textContent = "Ошибка сохранения " + message;
+        current.textContent = message;
         current.style.color = "red";
     }
+}
+
+function addUser() {
+    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+        return;
+    }
+    if($("input[name='roleCheckBx']:checked").length === 0) {
+        var current = document.getElementById("message");
+        current.textContent = "Необходимо указать минимум одну роль!";
+        current.style.color = "red";
+        return false;
+    }
+
+    var $sel = $('#add-user-roles').find("input[type=checkbox]:checked");
+    let url = '/admin/rest/user/add';
+    var myRows = [];
+
+    $sel.each(function (index, sel) {
+        var obj = {};
+        obj["id"] = sel.value;
+        obj["roleName"] = sel.innerText;
+        myRows.push(obj);
+    });
+    let wrap = {
+        firstName: $('#add-user-first-name').val(),
+        lastName: $('#add-user-last-name').val(),
+        phoneNumber: $('#add-user-phone-number').val(),
+        email: $('#add-user-email').val(),
+        age: $('#add-user-age').val(),
+        sex: $('#add-user-sex').find('option:selected').text(),
+        country: $('#add-user-country').val(),
+        city: $('#add-user-city').val(),
+        salary: $('#add-user-salary').val(),
+        vk:$('#add-user-VKid').val(),
+        password:$('#add-user-password').val(),
+        vacancy: $("#add-user-vacancy").val(),
+        role:myRows
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(wrap),
+        beforeSend: function(){
+            var current = document.getElementById("message");
+            current.style.color = "darkorange";
+            current.textContent = "Загрузка...";
+
+        },
+        success: function (result) {
+            sendPhoto(result);
+        },
+        error: function (e) {
+            setErrorMessage(e.responseJSON.message);
+            console.log(e.responseText);
+        }
+    });
+
+
 }

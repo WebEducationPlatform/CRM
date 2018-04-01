@@ -27,7 +27,6 @@ public class Client implements Serializable {
 	@Column(name = "first_name")
 	private String name;
 
-	@Column(name = "last_name")
 	private String lastName;
 
 	@Column(name = "phone_number", unique = true)
@@ -38,20 +37,13 @@ public class Client implements Serializable {
 	@Column(name = "email", length = 50, unique = true)
 	private String email;
 
-	@Column(name = "age")
 	private byte age;
 
-	@Column(name = "sex")
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
-	@Column(name = "city")
 	private String city;
-
-	@Column(name = "country")
 	private String country;
-
-	@Column(name = "comment")
 	private String comment;
 
 	@Column(name = "client_state")
@@ -289,34 +281,20 @@ public class Client implements Serializable {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof Client)) return false;
 
 		Client client = (Client) o;
 
-		if (age != client.age) return false;
 		if (id != null ? !id.equals(client.id) : client.id != null) return false;
-		if (name != null ? !name.equals(client.name) : client.name != null) return false;
-		if (lastName != null ? !lastName.equals(client.lastName) : client.lastName != null) return false;
 		if (phoneNumber != null ? !phoneNumber.equals(client.phoneNumber) : client.phoneNumber != null) return false;
-		if (email != null ? !email.equals(client.email) : client.email != null) return false;
-		if (sex != client.sex) return false;
-		if (status != null ? !status.equals(client.status) : client.status != null) return false;
-		if (ownerUser != null ? !ownerUser.equals(client.ownerUser) : client.ownerUser != null) return false;
-		return comments != null ? comments.equals(client.comments) : client.comments == null;
+		return email != null ? email.equals(client.email) : client.email == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
 		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
 		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (int) age;
-		result = 31 * result + (sex != null ? sex.hashCode() : 0);
-		result = 31 * result + (status != null ? status.hashCode() : 0);
-		result = 31 * result + (ownerUser != null ? ownerUser.hashCode() : 0);
-		result = 31 * result + (comments != null ? comments.hashCode() : 0);
 		return result;
 	}
 

@@ -345,7 +345,7 @@ input[type="checkbox"]:checked + label:before {
     transform: rotate(45deg);
 }
 
-#showallbtn{
+#showallbtn, #addNewUser {
     width: 100%;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -435,7 +435,6 @@ button[id*=client-info] {
 #userPhoto{
     max-width: 200px;
     margin-bottom: 2%;
-    border: 2px solid;
 }
 
 #client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {

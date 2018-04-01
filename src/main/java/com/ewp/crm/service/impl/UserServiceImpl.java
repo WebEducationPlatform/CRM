@@ -1,9 +1,13 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.exceptions.user.UserExistsException;
+import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,8 +16,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -21,6 +23,8 @@ public class UserServiceImpl implements UserService {
 
 	private final UserDAO userDAO;
 	private final ImageConfig imageConfig;
+
+	private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Autowired
 	public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
@@ -45,11 +49,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void add(User user) {
+		if (userDAO.getUserByEmail(user.getEmail()) != null) {
+			throw new UserExistsException();
+		}
 		userDAO.saveAndFlush(user);
 	}
 
 	@Override
 	public void update(User user) {
+		User currentUserByEmail;
+		if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
+			throw new UserExistsException();
+		}
 		userDAO.saveAndFlush(user);
 	}
 
@@ -64,15 +75,24 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void addPhoto(MultipartFile file, User user) throws IOException, SQLException {
-
+	public void addPhoto(MultipartFile file, User user) {
 		if (!file.isEmpty()) {
-			BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
-			String fileName = "user-" + user.getId() + "-avatar.png";
-			File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
-			ImageIO.write(image, "png", outputFile);
-			user.setPhoto("/avatar/" + fileName);
-			update(user);
+			try {
+				BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
+				String fileName = "user-" + user.getId() + "-avatar.png";
+				File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
+				ImageIO.write(image, "png", outputFile);
+				user.setPhoto("/avatar/" + fileName);
+				update(user);
+			}catch (Exception e){
+				logger.error("Error during saving photo: " + e.getMessage());
+				throw new UserPhotoException();
+			}
 		}
+	}
+
+	@Override
+	public User getUserByEmail(String email) {
+		return userDAO.getUserByEmail(email);
 	}
 }

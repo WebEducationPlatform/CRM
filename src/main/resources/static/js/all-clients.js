@@ -32,7 +32,7 @@ $(document).ready(
 
 $('#filtration').click(function () {
     var data = {};
-    var url = "../admin/rest/client/filtration";
+    var url = "../rest/client/filtration";
 
     if ($('#sex').val() !== "") {
         data['sex'] = $('#sex').val();

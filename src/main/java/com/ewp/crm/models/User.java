@@ -1,19 +1,12 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.imageio.ImageIO;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.DatatypeConverter;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -31,7 +24,7 @@ public class User implements UserDetails {
 	private String lastName;
 	@Column(nullable = false)
 	private String phoneNumber;
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 	@Column(nullable = false)
 	private String password;
@@ -269,45 +262,21 @@ public class User implements UserDetails {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof User)) return false;
 
 		User user = (User) o;
 
-		if (age != user.age) return false;
-		if (Double.compare(user.salary, salary) != 0) return false;
-		if (id != null ? !id.equals(user.id) : user.id != null) return false;
-		if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
-		if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
-		if (phoneNumber != null ? !phoneNumber.equals(user.phoneNumber) : user.phoneNumber != null) return false;
-		if (email != null ? !email.equals(user.email) : user.email != null) return false;
-		if (password != null ? !password.equals(user.password) : user.password != null) return false;
-		if (vk != null ? !vk.equals(user.vk) : user.vk != null) return false;
-		if (sex != null ? !sex.equals(user.sex) : user.sex != null) return false;
-		if (city != null ? !city.equals(user.city) : user.city != null) return false;
-		if (country != null ? !country.equals(user.country) : user.country != null) return false;
-		if (vacancy != null ? !vacancy.equals(user.vacancy) : user.vacancy != null) return false;
-		return role != null ? role.equals(user.role) : user.role == null;
+		if (!id.equals(user.id)) return false;
+		if (!phoneNumber.equals(user.phoneNumber)) return false;
+		if (!email.equals(user.email)) return false;
+		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result;
-		long temp;
-		result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
-		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (password != null ? password.hashCode() : 0);
-		result = 31 * result + (vk != null ? vk.hashCode() : 0);
-		result = 31 * result + (sex != null ? sex.hashCode() : 0);
-		result = 31 * result + (int) age;
-		result = 31 * result + (city != null ? city.hashCode() : 0);
-		result = 31 * result + (country != null ? country.hashCode() : 0);
-		result = 31 * result + (vacancy != null ? vacancy.hashCode() : 0);
-		temp = Double.doubleToLongBits(salary);
-		result = 31 * result + (int) (temp ^ (temp >>> 32));
-		result = 31 * result + (role != null ? role.hashCode() : 0);
+		int result = id.hashCode();
+		result = 31 * result + phoneNumber.hashCode();
+		result = 31 * result + email.hashCode();
 		return result;
 	}
 }
