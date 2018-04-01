@@ -80,7 +80,7 @@ function changeClient(id) {
             current.textContent = "Загрузка...";
 
         },
-        success: function (result) {
+        success: function () {
             var current = document.getElementById("message");
             current.textContent = "Сохранено";
             current.style.color = "limegreen";
@@ -88,7 +88,7 @@ function changeClient(id) {
         error: function (e) {
             console.log(e.responseText);
             var current = document.getElementById("message");
-            current.textContent = "Ошибка сохранения";
+            current.textContent = "Ошибка сохранения. " + e.responseText;
             current.style.color = "red";
         }
     });

@@ -33,4 +33,12 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		return modelAndView;
 	}
+
+	@RequestMapping(value = "/add", method = RequestMethod.GET)
+	public ModelAndView addUser() {
+		ModelAndView modelAndView = new ModelAndView("add-user");
+		modelAndView.addObject("roles", roleService.getAll());
+		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
+		return modelAndView;
+	}
 }

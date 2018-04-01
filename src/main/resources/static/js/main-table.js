@@ -96,13 +96,8 @@ function createNewUser() {
 
 function createNewStatus() {
     let url = '/rest/status/add';
-    let statusName = $('#new-status-name').val();
-    if (statusName===""){
-        statusName=$('#default-status-name').val();
-        if(statusName===""){
-            return
-        }
-    }
+    let statusName = $('#new-status-name').val() ||  $('#default-status-name').val();
+    if(typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
@@ -116,6 +111,7 @@ function createNewStatus() {
         },
         error: function (e) {
             alert(e.responseText);
+            console.log(e.responseText);
         }
     });
 }

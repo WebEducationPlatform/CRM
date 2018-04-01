@@ -24,5 +24,7 @@ public interface UserService {
 
 	void delete(User user);
 
-	void addPhoto(MultipartFile file, User user) throws IOException, SQLException;
+	void addPhoto(MultipartFile file, User user);
+
+	User getUserByEmail(String email);
 }
