@@ -121,7 +121,7 @@ public class IncomeStringToClient {
 
         if (link.startsWith("vk.com") || link.startsWith("m.vk.com")) {
             socialNetwork.setLink(link);
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("вконтакте"));
+            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
         } else if (link.startsWith("www.facebook.com") || link.startsWith("m.facebook.com")) {
             socialNetwork.setLink(link);
             socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));

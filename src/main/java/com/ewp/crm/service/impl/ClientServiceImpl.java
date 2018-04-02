@@ -37,10 +37,6 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.findClientByEmail(email);
     }
 
-    @Override
-    public Client getClientByVkId(Long vkId) {
-        return clientRepository.findClientByVkId(vkId);
-    }
 
     @Override
     public Client getClientByID(Long id) {
@@ -64,7 +60,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void addClient(Client client) {
-        checkNewClient(client);
+      //  checkNewClient(client);
         clientRepository.saveAndFlush(client);
     }
 

@@ -47,8 +47,8 @@ public class VKConfigImpl implements VKConfig {
         }
     }
 
-    public boolean containsIllegals(String communityToken) {
-        Pattern pattern = Pattern.compile("[!~#@*+%{}<>\\[\\]|\"\\_^]");
+    private boolean containsIllegals(String communityToken) {
+        Pattern pattern = Pattern.compile("[!~#@*+%{}<>,№;:\\[\\]|\"\\_^]");
         Matcher matcher = pattern.matcher(communityToken);
         return matcher.find();
     }
@@ -58,9 +58,9 @@ public class VKConfigImpl implements VKConfig {
         if (clientSecret == null || "".equals(clientSecret)) return false;
         if (username == null || "".equals(username)) return false;
         if (password == null || "".equals(password)) return false;
+        if (containsIllegals(password)) return false;
         if (clubId == null || "".equals(clubId)) return false;
         if (communityToken == null || "".equals(communityToken)) return false;
-        if (!containsIllegals(communityToken)) return false;
         return true;
     }
 

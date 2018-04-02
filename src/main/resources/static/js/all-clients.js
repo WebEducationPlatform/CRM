@@ -84,22 +84,32 @@ $('#filtration').click(function () {
 
 
 $('#clientData').click(function (event) {
-    var url = "..admin/rest/client/createFile";
-    var val = {selected: $("#selectType").val()};
-     event.preventDefault()
-    if (jQuery.isEmptyObject(data)){
-         alert("FOO");
+    event.preventDefault();
+    var url = "../admin/rest/client/createFile";
+    var urlFiltration = "../admin/rest/client/createFileFiltr";
+    if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
-            contentType: "application/json",
-            dataType: 'json',
             url: url,
-            data: JSON.stringify(val)
-            // success:
-            //     // window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
+            data: {selected: $("#selectType").val()},
+            success: function () {
+                window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
 
+            }
 
         });
-
+    }
+    if (!(jQuery.isEmptyObject(data))) {
+        data['selected'] = $("#selectType").val();
+        $.ajax({
+            type: 'POST',
+            url: urlFiltration,
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function () {
+                window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
+            }
+        })
     }
 });
