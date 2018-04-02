@@ -53,6 +53,38 @@
     <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
 </th:block>
 
+<th:block th:fragment="downloadModal">
+
+    <!-- Modal -->
+    <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Скачать данные</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!--<form method="post"  id="clientData">-->
+                    <div class="modal-body">
+                        <select class="form-control" id="selectType" name="selectType">
+                            <option id="vk" name="vk" th:value="vk">Вконтакте</option>
+                            <option id="fb" name="facebook" th:value="facebook">Facebook</option>
+                            <option id="email" name="email" th:value="email">Email</option>
+                            <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
+                        </select>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" role="button" id="clientData">Скачать</button>
+                    </div>
+                <!--</form>-->
+            </div>
+        </div>
+    </div>
+</th:block>
 
 <th:block th:fragment="addSocialNetworkType">
     <div id="addSocialType" class="modal fade" role="dialog">

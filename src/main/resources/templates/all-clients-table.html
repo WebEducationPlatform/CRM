@@ -75,9 +75,15 @@
                 </div>
             </div>
 
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal">
+                Скачать данные
+            </button>
+
             <div class="row">
                 <button type="button" class="btn btn-info filtration-button" id="filtration">Найти</button>
             </div>
+
+            <div th:replace="fragments/htmlFragments::downloadModal"></div>
 
         </div>
         <table class="table table-hover" id="clients-table">

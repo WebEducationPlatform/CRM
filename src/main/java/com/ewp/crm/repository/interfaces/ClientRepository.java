@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,7 +14,5 @@ public interface ClientRepository extends JpaRepository<Client, Long>, ClientRep
 	Client findClientByEmail(String Email);
 
 	Client findClientByPhoneNumber(String phoneNumber);
-
-	Client findClientByVkId (Long vkId);
 
 }

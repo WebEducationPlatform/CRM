@@ -2,14 +2,15 @@ package com.ewp.crm.models;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-public class SocialNetworkType {
+public class SocialNetworkType implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(name = "socialType_id")
+    @Column
     private Long id;
 
     @Column
@@ -31,9 +32,13 @@ public class SocialNetworkType {
         this.name = name;
     }
 
+    public SocialNetworkType() {
+    }
+
     public SocialNetworkType(String name) {
         this.name = name;
     }
+
 
     @Override
     public boolean equals(Object o) {

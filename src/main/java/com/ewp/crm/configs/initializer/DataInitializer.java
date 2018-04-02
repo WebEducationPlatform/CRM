@@ -28,7 +28,7 @@ public class DataInitializer {
         roleService.add(roleAdmin);
         roleService.add(roleUser);
 
-        SocialNetworkType VK = new SocialNetworkType("вконтакте");
+        SocialNetworkType VK = new SocialNetworkType("vk");
         SocialNetworkType Facebook = new SocialNetworkType("facebook");
         socialNetworkTypeService.addType(VK);
         socialNetworkTypeService.addType(Facebook);
