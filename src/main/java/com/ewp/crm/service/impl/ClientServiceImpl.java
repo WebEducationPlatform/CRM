@@ -1,7 +1,6 @@
 package com.ewp.crm.service.impl;
 
 
-import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
@@ -60,30 +59,12 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void addClient(Client client) {
-      //  checkNewClient(client);
         clientRepository.saveAndFlush(client);
     }
 
     @Override
     public void updateClient(Client client) {
-        checkExistClient(client);
         clientRepository.saveAndFlush(client);
     }
 
-
-    private void checkNewClient(Client client) {
-        if ((clientRepository.findClientByEmail(client.getEmail()) != null)
-                || (clientRepository.findClientByPhoneNumber(client.getPhoneNumber()) != null)) {
-            throw new ClientExistsException("Клиент уже существует");
-        }
-    }
-
-    private void checkExistClient(Client client) {
-        Client currentClientByEmail;
-        Client currentClientByPhone;
-        if (((currentClientByEmail = clientRepository.findClientByEmail(client.getEmail())) != null && !currentClientByEmail.getId().equals(client.getId()))
-                || ((currentClientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber())) != null && !currentClientByPhone.getId().equals(client.getId()))) {
-            throw new ClientExistsException("Клиент уже существует");
-        }
-    }
 }
