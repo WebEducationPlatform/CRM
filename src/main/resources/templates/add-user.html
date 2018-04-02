@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/user-info.js}"></script>
+    <script th:src="@{/js/validator.min.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+    <div id = "user-info-container" class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-3" id="column1">
+                <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" id="saveChanges" onclick="addUser()">Сохранить</button>
+                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                    </div>
+                    <p><span id = "message"></span></p>
+                    <div class="form-group">
+                        <label for="add-user-first-name">Имя</label>
+                        <input class="form-control" required="required"  id="add-user-first-name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-last-name">Фамилия</label>
+                        <input class="form-control" required="required" id="add-user-last-name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-password">Пароль</label>
+                        <input type="password" class="form-control" required="required"  id="add-user-password" />
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-phone-number">Номер телефона</label>
+                        <input type="number" class="form-control" required="required"  id="add-user-phone-number"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-email">Email</label>
+                        <input type="email" data-error="Неверный формат Email" class="form-control" required = "required" pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$"  id="add-user-email"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-VKid">VK id</label>
+                        <input type="text" class="form-control"  id="add-user-VKid"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-age">Возраст</label>
+                        <input type="text" class="form-control" required="required" data-error="Диапазон от 1 до 127"  title = "Диапазон от 1 до 127" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$" id="add-user-age"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-sex">Выберите пол</label>
+                        <select class="form-control"  id="add-user-sex">
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-country">Страна</label>
+                        <input type="text" class="form-control" required="required"  id="add-user-country"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-city">Город</label>
+                        <input type="text" class="form-control" required="required"  id="add-user-city"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-vacancy">Позиция</label>
+                        <input type="text" class="form-control" required="required"  id="add-user-vacancy"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-user-salary">Зарплата</label>
+                        <input type="number" min="0" class="form-control" required="required" data-error="Неверный формат"  pattern="^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$" id="add-user-salary"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group" id = "add-user-roles">
+                        <label for="add-user-roles">Роли</label>
+                        <div class="checkbox" th:each="role : ${roles}">
+                            <input type="checkbox"  th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}" name = "roleCheckBx" title=""/>
+                            <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" id="column2" style="margin-top: 2%">
+                <div class="form-group" id="user-photo-group">
+                    <label>Фото</label>
+                    <img id="userPhoto" alt="" class="img-rounded img-responsive centre"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='photoBtn' onchange="selectPhoto()" style="display: none"/>
+                    <label for="photoBtn" >
+                        <span id="photoSelectBtn" class="btn btn-primary" >Выбрать</span>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

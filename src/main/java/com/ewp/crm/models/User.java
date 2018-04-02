@@ -1,15 +1,14 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Entity
 @Table
@@ -19,25 +18,51 @@ public class User implements UserDetails {
 	@GeneratedValue
 	private Long id;
 
+	@Column(nullable = false)
 	private String firstName;
+	@Column(nullable = false)
 	private String lastName;
+	@Column(nullable = false)
 	private String phoneNumber;
+	@Column(nullable = false, unique = true)
 	private String email;
+	@Column(nullable = false)
 	private String password;
 	private String vk;
-	private byte[] photo;
+	@Column(nullable = false)
 	private String sex;
+	@Column(nullable = false)
 	private byte age;
+	@Column(nullable = false)
 	private String city;
+	@Column(nullable = false)
 	private String country;
+	@Column(nullable = false)
 	private String vacancy;
+	@Column(nullable = false)
 	private double salary;
-	private Role role;
+
+	@Column(name = "photo")
+	private String photo;
+
+	@Column(name = "photoType")
+	private String photoType;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "ownerUser")
+	private List<Client> ownedClients;
+
+	@NotNull
+	@ManyToMany(fetch=FetchType.EAGER, targetEntity = Role.class)
+	@JoinTable(name = "permissions",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
+	private List<Role> role = new ArrayList<>();
 
 	public User() {
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, double salary, Role role) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, double salary, List<Role> role) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -47,14 +72,13 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, byte[] photo, String sex, byte age, String city, String country, String vacancy, double salary, Role role) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary,  List<Role> role) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.password = password;
 		this.vk = vk;
-		this.photo = photo;
 		this.sex = sex;
 		this.age = age;
 		this.city = city;
@@ -121,14 +145,6 @@ public class User implements UserDetails {
 		this.vk = vk;
 	}
 
-	public byte[] getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
-	}
-
 	public String getSex() {
 		return sex;
 	}
@@ -177,11 +193,11 @@ public class User implements UserDetails {
 		this.salary = salary;
 	}
 
-	public Role getRole() {
+	public List<Role> getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public void setRole(List<Role> role) {
 		this.role = role;
 	}
 
@@ -189,9 +205,25 @@ public class User implements UserDetails {
 		return this.firstName + " " + this.lastName;
 	}
 
+	public String getPhoto() throws IOException, SQLException {
+		return this.photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
+	public String getPhotoType() {
+		return photoType;
+	}
+
+	public void setPhotoType(String photoType) {
+		this.photoType = photoType;
+	}
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singletonList(role);
+		return Collections.synchronizedList(role);
 	}
 
 	@Override
@@ -219,50 +251,32 @@ public class User implements UserDetails {
 		return true;
 	}
 
+	public List<Client> getOwnedClients() {
+		return ownedClients;
+	}
+
+	public void setOwnedClients(List<Client> ownedClients) {
+		this.ownedClients = ownedClients;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof User)) return false;
 
 		User user = (User) o;
 
-		if (age != user.age) return false;
-		if (Double.compare(user.salary, salary) != 0) return false;
-		if (id != null ? !id.equals(user.id) : user.id != null) return false;
-		if (firstName != null ? !firstName.equals(user.firstName) : user.firstName != null) return false;
-		if (lastName != null ? !lastName.equals(user.lastName) : user.lastName != null) return false;
-		if (phoneNumber != null ? !phoneNumber.equals(user.phoneNumber) : user.phoneNumber != null) return false;
-		if (email != null ? !email.equals(user.email) : user.email != null) return false;
-		if (password != null ? !password.equals(user.password) : user.password != null) return false;
-		if (vk != null ? !vk.equals(user.vk) : user.vk != null) return false;
-		if (!Arrays.equals(photo, user.photo)) return false;
-		if (sex != null ? !sex.equals(user.sex) : user.sex != null) return false;
-		if (city != null ? !city.equals(user.city) : user.city != null) return false;
-		if (country != null ? !country.equals(user.country) : user.country != null) return false;
-		if (vacancy != null ? !vacancy.equals(user.vacancy) : user.vacancy != null) return false;
-		return role != null ? role.equals(user.role) : user.role == null;
+		if (!id.equals(user.id)) return false;
+		if (!phoneNumber.equals(user.phoneNumber)) return false;
+		if (!email.equals(user.email)) return false;
+		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result;
-		long temp;
-		result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
-		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (password != null ? password.hashCode() : 0);
-		result = 31 * result + (vk != null ? vk.hashCode() : 0);
-		result = 31 * result + Arrays.hashCode(photo);
-		result = 31 * result + (sex != null ? sex.hashCode() : 0);
-		result = 31 * result + (int) age;
-		result = 31 * result + (city != null ? city.hashCode() : 0);
-		result = 31 * result + (country != null ? country.hashCode() : 0);
-		result = 31 * result + (vacancy != null ? vacancy.hashCode() : 0);
-		temp = Double.doubleToLongBits(salary);
-		result = 31 * result + (int) (temp ^ (temp >>> 32));
-		result = 31 * result + (role != null ? role.hashCode() : 0);
+		int result = id.hashCode();
+		result = 31 * result + phoneNumber.hashCode();
+		result = 31 * result + email.hashCode();
 		return result;
 	}
 }

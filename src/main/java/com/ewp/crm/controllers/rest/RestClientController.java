@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("admin/rest/client")
 public class RestClientController {
 
 	private static Logger logger = LoggerFactory.getLogger(RestClientController.class);
@@ -30,17 +29,17 @@ public class RestClientController {
 		this.clientService = clientService;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAll() {
 		return ResponseEntity.ok(clientService.getAllClients());
 	}
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/rest/client/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
-	@RequestMapping(value = "/assign", method = RequestMethod.POST)
+	@RequestMapping(value = "/rest/client/assign", method = RequestMethod.POST)
 	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
@@ -54,7 +53,7 @@ public class RestClientController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
-	@RequestMapping(value = "/unassign", method = RequestMethod.POST)
+	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
@@ -68,17 +67,21 @@ public class RestClientController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.setHistory(clientService.getClientByID(client.getId()).getHistory());
+		Client currentClient = clientService.getClientByID(client.getId());
+		client.setHistory(currentClient.getHistory());
+		client.setComment(currentClient.getComment());
+		client.setOwnerUser(currentClient.getOwnerUser());
+		client.setStatus(currentClient.getStatus());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
 		clientService.updateClient(client);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
+	@RequestMapping(value = "/admin/rest/client/delete/{id}", method = RequestMethod.POST)
 	public ResponseEntity deleteClient(@PathVariable Long id) {
 		clientService.deleteClient(id);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -86,7 +89,7 @@ public class RestClientController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/addClient", method = RequestMethod.POST)
+	@RequestMapping(value = "/rest/client/addClient", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
@@ -95,7 +98,7 @@ public class RestClientController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/rest/client/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
 		return ResponseEntity.ok(clientService.filteringClient(filteringCondition));
 	}

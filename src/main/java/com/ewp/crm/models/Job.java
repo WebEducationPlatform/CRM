@@ -18,16 +18,12 @@ public class Job implements Serializable {
     @Column
     private String position;
 
-    @ManyToOne(targetEntity = Client.class)
-    private Client client;
-
     public Job() {
     }
 
-    public Job(String organization, String position, Client client) {
+    public Job(String organization, String position) {
         this.organization = organization;
         this.position = position;
-        this.client = client;
     }
 
     public Long getId() {
@@ -54,29 +50,23 @@ public class Job implements Serializable {
         this.position = position;
     }
 
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Job)) return false;
 
         Job job = (Job) o;
 
         if (!id.equals(job.id)) return false;
-        return client.equals(job.client);
+        if (!organization.equals(job.organization)) return false;
+        return position.equals(job.position);
     }
 
     @Override
     public int hashCode() {
         int result = id.hashCode();
-        result = 31 * result + client.hashCode();
+        result = 31 * result + organization.hashCode();
+        result = 31 * result + position.hashCode();
         return result;
     }
 }
