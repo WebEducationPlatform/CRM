@@ -7,7 +7,7 @@
     </head>
 </head>
 <body>
-<div style="margin: 1%">
+<div style="margin: 2.5%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
 
@@ -42,7 +42,7 @@
             </td>
 
             <td><a class="btn btn-danger" role="button"
-                   th:href="@{/client/deleteSocialNetworkType/(id=${socialNetworkType.id})}">Delete</a>
+                   th:href="@{/admin/user/deleteSocialNetworkType/(id=${socialNetworkType.id})}">Delete</a>
             </td>
         </tr>
         </tbody>

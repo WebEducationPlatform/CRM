@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers;
 
-<<<<<<< HEAD
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
@@ -34,30 +33,23 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin/user")
 public class UserController {
 
-<<<<<<< HEAD
-    private static Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    private final StatusService statusService;
-
-    private final ClientService clientService;
+	private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	private final UserService userService;
 	private final RoleService roleService;
 	private final ImageConfig imageConfig;
-    private final  SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialNetworkTypeService socialNetworkTypeService;
 
-    @Autowired
-   
-	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, StatusService statusService, ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
-        this.statusService = statusService;
-        this.clientService = clientService;
+	@Autowired
+
+	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
-        this.socialNetworkTypeService = socialNetworkTypeService;
-    }
+		this.socialNetworkTypeService = socialNetworkTypeService;
+	}
 
-   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
 		modelAndView.addObject("user", userService.get(id));
@@ -74,31 +66,32 @@ public class UserController {
 		return modelAndView;
 	}
 
-    @RequestMapping(value = "/socialNetworkTypes",method = RequestMethod.GET)
-    public ModelAndView socialNetworkTypes(ModelAndView modelAndView) {
-        List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
-        modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
-        modelAndView.setViewName("socialNetworkTypes-table");
-        return modelAndView;
-    }
-    @RequestMapping(value = "/deleteSocialNetworkType",method = RequestMethod.GET)
-    public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
-        socialNetworkTypeService.deleteType(Long.parseLong(id));
-        return new ModelAndView("redirect:/client/socialNetworkTypes");
+	@RequestMapping(value = "/socialNetworkTypes", method = RequestMethod.GET)
+	public ModelAndView socialNetworkTypes(ModelAndView modelAndView) {
+		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
+		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
+		modelAndView.setViewName("socialNetworkTypes-table");
+		return modelAndView;
+	}
 
-    }
+	@RequestMapping(value = "/deleteSocialNetworkType", method = RequestMethod.GET)
+	public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
+		socialNetworkTypeService.deleteType(Long.parseLong(id));
+		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
 
-    @RequestMapping(value = "/addSocialNetworkType", method = RequestMethod.POST)
-    public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-        socialNetworkTypeService.addType(socialNetworkType);
-        return new ModelAndView("redirect:/client/socialNetworkTypes");
-    }
+	}
 
-    @RequestMapping(value = "/updateSocialNetworkType", method = RequestMethod.POST)
-    public ModelAndView updateSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-        socialNetworkTypeService.updateType(socialNetworkType);
-        return new ModelAndView("redirect:/client/socialNetworkTypes");
-    }
+	@RequestMapping(value = "/addSocialNetworkType", method = RequestMethod.POST)
+	public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
+		socialNetworkTypeService.addType(socialNetworkType);
+		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
+	}
+
+	@RequestMapping(value = "/updateSocialNetworkType", method = RequestMethod.POST)
+	public ModelAndView updateSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
+		socialNetworkTypeService.updateType(socialNetworkType);
+		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
+	}
 
 
 }

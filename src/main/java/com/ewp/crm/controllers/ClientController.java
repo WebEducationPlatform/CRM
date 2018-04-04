@@ -2,6 +2,7 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
@@ -28,14 +29,17 @@ public class ClientController {
 
 	private final UserService userService;
 
+	private final SocialNetworkTypeService socialNetworkTypeService;
+
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService) {
+	public ClientController(StatusService statusService, ClientService clientService, UserService userService, SocialNetworkTypeService socialNetworkTypeService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
+		this.socialNetworkTypeService = socialNetworkTypeService;
 	}
 
-	@RequestMapping(value = "/client",method = RequestMethod.GET)
+	@RequestMapping(value = "/client", method = RequestMethod.GET)
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
@@ -87,7 +91,7 @@ public class ClientController {
 		ModelAndView modelAndView = new ModelAndView("client-info");
 		modelAndView.addObject("client", clientService.getClientByID(id));
 		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", SocialNetwork.SocialMarker.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		return modelAndView;
 	}
 }

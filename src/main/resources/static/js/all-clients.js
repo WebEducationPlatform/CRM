@@ -32,7 +32,6 @@ $(document).ready(
 
 var data = {};
 $('#filtration').click(function () {
-
     var url = "../rest/client/filtration";
 
     if ($('#sex').val() !== "") {
@@ -83,19 +82,17 @@ $('#filtration').click(function () {
     })
 });
 
-
 $('#clientData').click(function (event) {
     event.preventDefault();
-    var url = "../admin/rest/client/createFile";
-    var urlFiltration = "../admin/rest/client/createFileFiltr";
+    var url = "../rest/client/createFile";
+    var urlFiltration = "../rest/client/createFileFiltr";
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
             url: url,
             data: {selected: $("#selectType").val()},
             success: function () {
-                window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
-
+                window.location.replace("http://localhost:9090/rest/client/getClientsData")
             }
 
         });
@@ -109,7 +106,7 @@ $('#clientData').click(function (event) {
             dataType: 'json',
             data: JSON.stringify(data),
             success: function () {
-                window.location.replace("http://localhost:9090/admin/rest/client/getClientsData")
+                window.location.replace("http://localhost:9090/rest/client/getClientsData")
             }
         })
     }

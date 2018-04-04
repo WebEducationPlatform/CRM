@@ -89,7 +89,7 @@ public class Client implements Serializable {
 	private List<Job> jobs;
 
 	@Column
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true) //mappedby
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "client_social_network",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})

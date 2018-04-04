@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -16,6 +18,7 @@ public class SocialNetwork implements Serializable {
 	@Column
 	private String link;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinTable(name = "client_social_network",
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
@@ -27,6 +30,11 @@ public class SocialNetwork implements Serializable {
 	private SocialNetworkType socialNetworkType;
 
 	public SocialNetwork() {
+	}
+
+	public SocialNetwork(String link, SocialNetworkType socialNetworkType) {
+		this.link = link;
+		this.socialNetworkType = socialNetworkType;
 	}
 
 	public SocialNetwork(String link) {
