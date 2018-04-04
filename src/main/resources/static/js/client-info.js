@@ -21,7 +21,13 @@ function changeClient(id) {
                 }
                 if ($(th).attr('abbr') !== "") {
                     if(typeof $tds.eq(index).children().val()==='undefined') {
-                        obj[$(th).attr('abbr')] = $tds.eq(index).text();
+                        var obj1 = {};
+                        if($tds.eq(index)[0].id === "edit-client-SN_type"){
+                            obj1["name"] = $tds.eq(index)[0].innerText;
+                            obj[$(th).attr('abbr')] = obj1;
+                        }else {
+                            obj[$(th).attr('abbr')] = $tds.eq(index).text();
+                        }
                     }else{
                         obj[$(th).attr('abbr')] = $tds.eq(index).children().val();
                     }
