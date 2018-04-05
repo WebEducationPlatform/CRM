@@ -20,8 +20,8 @@ body {
 }
 
 .portlet-body{
-    cursor: pointer;
-}
+     cursor: pointer;
+ }
 
 .portlet {
     margin: 0 1em 1em 0;
@@ -43,7 +43,7 @@ body {
     margin-bottom: 0.5em;
     position: relative;
     background-image: linear-gradient(to bottom,#faf0e6 0,#F3F7FA 100%);
-}
+ }
 
 .portlet-toggle {
     position: absolute;
@@ -69,8 +69,8 @@ a {
     color: black;
 }
 
-ul.nav a:hover {
-    background-color: #ffead6 !important;
+ul.nav a:hover { 
+    background-color: #ffead6 !important; 
 }
 
 #new-status-form {
@@ -100,7 +100,7 @@ ul.nav a:hover {
 }
 
 .navbar-right {
-    margin-right: 0;
+     margin-right: 0;
 }
 
 #add-user-btn {
@@ -345,7 +345,7 @@ input[type="checkbox"]:checked + label:before {
     transform: rotate(45deg);
 }
 
-#showallbtn{
+#showallbtn, #addNewUser {
     width: 100%;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -399,4 +399,60 @@ input[type="checkbox"]:checked + label:before {
 
 .comment-button {
     margin-top: 5px;
+}
+
+h4.modal-title {
+    position: absolute;
+}
+
+#client-info-container {
+    margin-top: 50px;
+}
+
+#saveChanges, #editClientBtn, #backToMain , #editUser{
+    margin-right:15px;
+    margin-bottom: 10px;
+}
+
+#photoSelectBtn{
+    margin-top: 5%;
+}
+
+#sendPhotoBtn {
+    margin-top: 1%;
+    margin-left: 3%;
+}
+
+button[id*=client-info] {
+    float: right;
+}
+
+.glyphicon {
+    border: none;
+    background-color: transparent;
+}
+
+#userPhoto{
+    max-width: 200px;
+    margin-bottom: 2%;
+}
+
+#client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {
+    width: 50%;
+}
+
+#addNewSN, #addNewJob {
+    margin-bottom: 10px;
+}
+
+#edit {
+    margin-right: -30px;
+    margin-left:  0;
+    padding: 0;
+    max-width: 90%;
+    height: 20px;
+}
+
+#SN-table-body td, #job-table-body td {
+    max-width: 0;
 }

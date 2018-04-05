@@ -4,10 +4,14 @@ import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialNetwork;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +39,7 @@ public class VKUtil {
 	private String password;
 	private String clubId;
 	private String version;
+	private String communityToken;
 
 	@Autowired
 	public VKUtil(VKConfig vkConfig) {
@@ -44,6 +49,7 @@ public class VKUtil {
 		password = vkConfig.getPassword();
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
+		communityToken = vkConfig.getCommunityToken();
 	}
 
 	@PostConstruct
@@ -90,7 +96,10 @@ public class VKUtil {
 		try {
 			HttpGet httpGetMessages = new HttpGet(uriGetMassages);
 			HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
-			HttpClient httpClient = new DefaultHttpClient();
+			HttpClient httpClient = HttpClients.custom()
+					.setDefaultRequestConfig(RequestConfig.custom()
+							.setCookieSpec(CookieSpecs.STANDARD).build())
+					.build();
 			HttpResponse response = httpClient.execute(httpGetMessages);
 			String result = EntityUtils.toString(response.getEntity());
 			JSONObject json = new JSONObject(result);
@@ -112,6 +121,79 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
+
+	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
+		String uriGetDialog = "https://api.vk.com/method/" +
+				"messages.getDialogs" +
+				"?v=" + version +
+				"&unread=1" +
+				"&access_token=" +
+				communityToken;
+
+		HttpGet httpGetDialog = new HttpGet(uriGetDialog);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
+		try {
+			HttpResponse response = httpClient.execute(httpGetDialog);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject json = new JSONObject(result);
+			JSONObject responseObject = json.getJSONObject("response");
+			JSONArray jsonUsers = responseObject.getJSONArray("items");
+			List<Long> resultList = new ArrayList<>();
+			for (int i = 0; i < jsonUsers.length(); i++) {
+				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
+				resultList.add(jsonMessage.getLong("user_id"));
+			}
+			return Optional.of(resultList);
+		} catch (JSONException e) {
+			logger.error("Can not read message from JSON");
+		} catch (IOException e) {
+			logger.error("Failed to connect to VK server");
+		}
+		return Optional.empty();
+	}
+
+	public Optional<Client> getClientFromVkId(Long id) {
+		String uriGetClient = "https://api.vk.com/method/" +
+				"users.get?" +
+				"version=" + version +
+				"&user_id=" + id;
+
+		HttpGet httpGetClient = new HttpGet(uriGetClient);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
+		try {
+			HttpResponse response = httpClient.execute(httpGetClient);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject json = new JSONObject(result);
+			JSONArray jsonUsers = json.getJSONArray("response");
+			JSONObject jsonUser = jsonUsers.getJSONObject(0);
+			String name = jsonUser.getString("first_name");
+			String lastName = jsonUser.getString("last_name");
+
+			String vkLink = "vk.com/id" + id.toString();
+
+			Client client = new Client(name, lastName);
+			SocialNetwork socialNetwork = new SocialNetwork(vkLink);
+			List<SocialNetwork> socialNetworks = new ArrayList<>();
+			socialNetworks.add(socialNetwork);
+			client.setSocialNetworks(socialNetworks);
+
+
+			return Optional.of(client);
+		} catch (JSONException e) {
+			logger.error("Can not read message from JSON");
+		} catch (IOException e) {
+			logger.error("Failed to connect to VK server");
+		}
+
+		return Optional.empty();
+	}
+
 	public Client parseClientFromMessage(String message) throws ParseClientException {
 		if (!message.startsWith("Новая заявка")) {
 			throw new ParseClientException("Invalid message format");
@@ -129,8 +211,11 @@ public class VKUtil {
 		String email;
 		byte age;
 		Client.Sex sex;
-
+		String vkLink;
 		try {
+			String sM = message.substring(message.indexOf("vk.com/id"));
+			vkLink = sM.substring(0, sM.indexOf("Диалог:"));
+
 			String subMessage = message.substring(message.indexOf("Q:Имя:A:") + 8);
 			name = subMessage.substring(0, subMessage.indexOf("Q:Фамилия:"));
 			subMessage = message.substring(message.indexOf("Q:Фамилия:A:") + 12);
@@ -157,7 +242,12 @@ public class VKUtil {
 			throw new ParseClientException("Couldn't parse vk message", e);
 		}
 
-		return new Client(name, lastName, phoneNumber, email, age, sex);
+		Client client = new Client(name, lastName, phoneNumber, email, age, sex);
+		SocialNetwork socialNetwork = new SocialNetwork(vkLink);
+		List<SocialNetwork> socialNetworks = new ArrayList<>();
+		socialNetworks.add(socialNetwork);
+		client.setSocialNetworks(socialNetworks);
+		return client;
 	}
 }
 

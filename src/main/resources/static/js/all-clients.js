@@ -30,9 +30,9 @@ $(document).ready(
     })
 );
 
+var data = {};
 $('#filtration').click(function () {
-    var data = {};
-    var url = "../admin/rest/client/filtration";
+    var url = "../rest/client/filtration";
 
     if ($('#sex').val() !== "") {
         data['sex'] = $('#sex').val();
@@ -86,4 +86,34 @@ $('#filtration').click(function () {
             console.log(error);
         }
     })
-})
+});
+
+$('#clientData').click(function (event) {
+    event.preventDefault();
+    var url = "../rest/client/createFile";
+    var urlFiltration = "../rest/client/createFileFiltr";
+    if (jQuery.isEmptyObject(data)) {
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {selected: $("#selectType").val()},
+            success: function () {
+                window.location.replace("http://localhost:9090/rest/client/getClientsData")
+            }
+
+        });
+    }
+    if (!(jQuery.isEmptyObject(data))) {
+        data['selected'] = $("#selectType").val();
+        $.ajax({
+            type: 'POST',
+            url: urlFiltration,
+            contentType: "application/json",
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function () {
+                window.location.replace("http://localhost:9090/rest/client/getClientsData")
+            }
+        })
+    }
+});
