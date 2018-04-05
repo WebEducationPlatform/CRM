@@ -20,7 +20,7 @@ public class DataInitializer {
 	@Autowired
 	private RoleService roleService;
 	@Autowired
-	SocialNetworkTypeService socialNetworkTypeService;
+	private SocialNetworkTypeService socialNetworkTypeService;
 
 	private void init() {
 

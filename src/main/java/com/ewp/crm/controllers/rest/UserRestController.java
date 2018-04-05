@@ -38,7 +38,10 @@ public class UserRestController {
 
 	@RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAll() {
-		return ResponseEntity.ok(userService.getAll());
+		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List <User> users = userService.getAll();
+		users.remove(currentUser);
+		return ResponseEntity.ok(users);
 	}
 
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)

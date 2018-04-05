@@ -20,25 +20,36 @@ public class User implements UserDetails {
 
 	@Column(nullable = false)
 	private String firstName;
+
 	@Column(nullable = false)
 	private String lastName;
+
 	@Column(nullable = false)
 	private String phoneNumber;
+
 	@Column(nullable = false, unique = true)
 	private String email;
+
 	@Column(nullable = false)
 	private String password;
+
 	private String vk;
+
 	@Column(nullable = false)
 	private String sex;
+
 	@Column(nullable = false)
 	private byte age;
+
 	@Column(nullable = false)
 	private String city;
+
 	@Column(nullable = false)
 	private String country;
+
 	@Column(nullable = false)
 	private String vacancy;
+
 	@Column(nullable = false)
 	private double salary;
 
