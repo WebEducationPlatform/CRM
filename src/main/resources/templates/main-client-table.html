@@ -78,10 +78,10 @@
             </div>
             <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
                 <div class="portlet-body" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
-                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
+                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
+                    </div>
                     <div class="portlet-content">
                         <div class="clickModal" th:id="'info-client' + ${client.id}">
-
 
                             <span th:text="${client.phoneNumber}"></span>
                             <br/>
