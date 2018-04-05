@@ -119,7 +119,7 @@ public class Client implements Serializable {
 		this.sex = sex;
 	}
 
-	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, Date dateOfRegistration) {
+	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, Date dateOfRegistration, List<SocialNetwork> socialNetworks) {
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -130,6 +130,7 @@ public class Client implements Serializable {
 		this.country = country;
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
+		this.socialNetworks = socialNetworks;
 	}
 
 	public List<ClientHistory> getHistory() {

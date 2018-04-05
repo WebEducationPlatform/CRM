@@ -8,7 +8,7 @@
 <div style="margin: 1%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div class="col-md-6 col-md-offset-2">
+    <div class="col-md-8 col-md-offset-2">
         <div><h1>Таблица всех пользователей</h1></div>
         <div class="row">
             <div class="col-md-4">
@@ -81,12 +81,13 @@
                 <td>Фамилия</td>
                 <td>Телефон</td>
                 <td>Email</td>
+                <td>Социальная сеть</td>
                 <td>Возраст</td>
                 <td>Пол</td>
                 <td>Город</td>
                 <td>Страна</td>
                 <td>Статус</td>
-                <td>Дата</td>
+                <td>Дата регистрации</td>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -96,6 +97,9 @@
                     <td th:text="${client.lastName}"></td>
                     <td th:text="${client.phoneNumber}"></td>
                     <td th:text="${client.email}"></td>
+                    <td>
+                        <p th:each="soc : ${client.socialNetworks}" th:text="${soc.link}"></p>
+                    </td>
                     <td th:text="${client.age}"></td>
                     <td th:text="${client.sex}"></td>
                     <td th:text="${client.city}"></td>
