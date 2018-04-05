@@ -1,5 +1,5 @@
 function sendComment(id) {
-    var url = '/admin/rest/comment/add';
+    var url = '/rest/comment/add';
     var text = $('#new-text-for-client' + id).val();
     if (text === "") {
         return;
@@ -49,7 +49,7 @@ function sendComment(id) {
 }
 
 function sendAnswer(id) {
-    var url = '/admin/rest/comment/add/answer';
+    var url = '/rest/comment/add/answer';
     var text = $('#new-answer-for-comment' + id).val();
     if (text === "") {
         return;
@@ -89,7 +89,7 @@ function sendAnswer(id) {
 }
 
 function deleteComment(id) {
-    var url = "/admin/rest/comment/delete";
+    var url = "/rest/comment/delete";
 
     $.ajax({
         type: "POST",
@@ -108,7 +108,7 @@ function deleteComment(id) {
 }
 
 function editComment(id) {
-    var url = "/admin/rest/comment/edit";
+    var url = "/rest/comment/edit";
     var content = $('#edit-comment' + id).val();
     if (content === "") {
         return;

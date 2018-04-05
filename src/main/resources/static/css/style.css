@@ -152,7 +152,7 @@ ul.nav a:hover {
 #panel {
     position: fixed;
     top: 10%;
-    right: -400px;
+    right: -350px;
     margin: -40px 0 0 0;
     overflow: hidden;
     height: 100%
@@ -161,10 +161,11 @@ ul.nav a:hover {
 #panel-content {
     background: #EEE;
     border: 1px solid #CCC;
-    width: 388px;
+    width: 350px;
     height: 100%;
     float: right;
     padding: 3px 5px;
+    margin-top: 8%;
 }
 
 #panel-sticker {
@@ -172,8 +173,8 @@ ul.nav a:hover {
     position: relative;
     opacity:0.7;
     padding: 3px 20px 3px 5px;
-    margin: 0;
     cursor: pointer;
+    margin-top: 4%;
 }
 
 #panel-sticker:hover {
@@ -193,10 +194,10 @@ ul.nav a:hover {
 }
 
 #client_filter_group {
-    border-bottom: 1px solid #cdcfd0;;
+    border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading {
+#client-filter-heading, #user_group-heading {
     background: gainsboro;
 }
 
@@ -344,7 +345,7 @@ input[type="checkbox"]:checked + label:before {
     transform: rotate(45deg);
 }
 
-#showallbtn{
+#showallbtn, #addNewUser {
     width: 100%;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -354,10 +355,6 @@ input[type="checkbox"]:checked + label:before {
 
 #panel-filter-body{
     padding-bottom: 0;
-}
-
-label:hover, label:active, input:hover+label, input:active+label {
-    border: 1px solid #cccccc;
 }
 
 .comment-list {
@@ -402,4 +399,60 @@ label:hover, label:active, input:hover+label, input:active+label {
 
 .comment-button {
     margin-top: 5px;
+}
+
+h4.modal-title {
+    position: absolute;
+}
+
+#client-info-container {
+    margin-top: 50px;
+}
+
+#saveChanges, #editClientBtn, #backToMain , #editUser{
+    margin-right:15px;
+    margin-bottom: 10px;
+}
+
+#photoSelectBtn{
+    margin-top: 5%;
+}
+
+#sendPhotoBtn {
+    margin-top: 1%;
+    margin-left: 3%;
+}
+
+button[id*=client-info] {
+    float: right;
+}
+
+.glyphicon {
+    border: none;
+    background-color: transparent;
+}
+
+#userPhoto{
+    max-width: 200px;
+    margin-bottom: 2%;
+}
+
+#client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {
+    width: 50%;
+}
+
+#addNewSN, #addNewJob {
+    margin-bottom: 10px;
+}
+
+#edit {
+    margin-right: -30px;
+    margin-left:  0;
+    padding: 0;
+    max-width: 90%;
+    height: 20px;
+}
+
+#SN-table-body td, #job-table-body td {
+    max-width: 0;
 }

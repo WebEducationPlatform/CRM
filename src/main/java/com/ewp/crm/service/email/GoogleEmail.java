@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
@@ -37,96 +36,100 @@ import java.util.Properties;
 @EnableIntegration
 public class GoogleEmail {
 
-	private String login;
-	private String password;
-	private String mailFrom;
-	private String socketFactoryClass;
-	private String socketFactoryFallback;
-	private String protocol;
-	private String debug;
-	private String imapServer;
+    private String login;
+    private String password;
+    private String mailFrom;
+    private String socketFactoryClass;
+    private String socketFactoryFallback;
+    private String protocol;
+    private String debug;
+    private String imapServer;
 
-	private final BeanFactory beanFactory;
-	private final ClientService clientService;
-	private final StatusService statusService;
+    private final BeanFactory beanFactory;
+    private final ClientService clientService;
+    private final StatusService statusService;
+    private final IncomeStringToClient incomeStringToClient;
 
-	private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
-	@Autowired
-	public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService) {
-		this.beanFactory = beanFactory;
-		this.clientService = clientService;
-		this.statusService = statusService;
-		login = mailConfig.getLogin();
-		password = mailConfig.getPassword();
-		mailFrom = mailConfig.getMailFrom();
-		socketFactoryClass = mailConfig.getSocketFactoryClass();
-		socketFactoryFallback = mailConfig.getSocketFactoryFallback();
-		protocol = mailConfig.getProtocol();
-		debug = mailConfig.getDebug();
-		imapServer = mailConfig.getImapServer();
-	}
+    private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
-	private Properties javaMailProperties() {
-		Properties javaMailProperties = new Properties();
-		javaMailProperties.setProperty("mail.imap.socketFactory.class", socketFactoryClass);
-		javaMailProperties.setProperty("mail.imap.socketFactory.fallback", socketFactoryFallback);
-		javaMailProperties.setProperty("mail.store.protocol", protocol);
-		javaMailProperties.setProperty("mail.debug", debug);
+    @Autowired
+    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient) {
+        this.beanFactory = beanFactory;
+        this.clientService = clientService;
+        this.statusService = statusService;
+        this.incomeStringToClient = incomeStringToClient;
 
-		return javaMailProperties;
-	}
+        login = mailConfig.getLogin();
+        password = mailConfig.getPassword();
+        mailFrom = mailConfig.getMailFrom();
+        socketFactoryClass = mailConfig.getSocketFactoryClass();
+        socketFactoryFallback = mailConfig.getSocketFactoryFallback();
+        protocol = mailConfig.getProtocol();
+        debug = mailConfig.getDebug();
+        imapServer = mailConfig.getImapServer();
+    }
 
-	@Bean
-	public ImapIdleChannelAdapter mailAdapter() {
-		ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
-		mailReceiver.setJavaMailProperties(javaMailProperties());
-		mailReceiver.setShouldDeleteMessages(false);
-		mailReceiver.setShouldMarkMessagesAsRead(true);
-		mailReceiver.setCancelIdleInterval(3600);
-		mailReceiver.setBeanFactory(beanFactory);
-		mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
-		mailReceiver.afterPropertiesSet();
+    private Properties javaMailProperties() {
+        Properties javaMailProperties = new Properties();
+        javaMailProperties.setProperty("mail.imap.socketFactory.class", socketFactoryClass);
+        javaMailProperties.setProperty("mail.imap.socketFactory.fallback", socketFactoryFallback);
+        javaMailProperties.setProperty("mail.store.protocol", protocol);
+        javaMailProperties.setProperty("mail.debug", debug);
 
-		ImapIdleChannelAdapter imapIdleChannelAdapter = new ImapIdleChannelAdapter(mailReceiver);
-		imapIdleChannelAdapter.setAutoStartup(true);
-		imapIdleChannelAdapter.setReconnectDelay(300000);
-		imapIdleChannelAdapter.setShouldReconnectAutomatically(true);
-		imapIdleChannelAdapter.setOutputChannel(directChannel());
-		imapIdleChannelAdapter.afterPropertiesSet();
+        return javaMailProperties;
+    }
 
-		return imapIdleChannelAdapter;
-	}
+    @Bean
+    public ImapIdleChannelAdapter mailAdapter() {
+        ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
+        mailReceiver.setJavaMailProperties(javaMailProperties());
+        mailReceiver.setShouldDeleteMessages(false);
+        mailReceiver.setShouldMarkMessagesAsRead(true);
+        mailReceiver.setCancelIdleInterval(3600);
+        mailReceiver.setBeanFactory(beanFactory);
+        mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
+        mailReceiver.afterPropertiesSet();
 
-	@Bean
-	public DirectChannel directChannel() {
-		DirectChannel directChannel = new DirectChannel();
-		directChannel.subscribe(new MessageHandler() {
-			public void handleMessage(Message<?> message) throws MessagingException {
-				MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
-				try {
-					parser.parse();
-					Client client = IncomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
-					if (client != null) {
-						client.setStatus(statusService.get(1L));
-						clientService.addClient(client);
-					}
-				} catch (Exception e) {
-					logger.error("MimeMessageParser can't parse income data");
-				}
-			}
-		});
-		return directChannel;
-	}
+        ImapIdleChannelAdapter imapIdleChannelAdapter = new ImapIdleChannelAdapter(mailReceiver);
+        imapIdleChannelAdapter.setAutoStartup(true);
+        imapIdleChannelAdapter.setReconnectDelay(300000);
+        imapIdleChannelAdapter.setShouldReconnectAutomatically(true);
+        imapIdleChannelAdapter.setOutputChannel(directChannel());
+        imapIdleChannelAdapter.afterPropertiesSet();
 
-	private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
-		Optional<InternetAddress> internetAddress = Optional.empty();
-		try {
-			internetAddress = Optional.of(new InternetAddress(mailFrom));
-		} catch (AddressException e) {
-			logger.error("Can't parse email address \"from\"");
-		}
-		FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
-		return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-	}
+        return imapIdleChannelAdapter;
+    }
+
+    @Bean
+    public DirectChannel directChannel() {
+        DirectChannel directChannel = new DirectChannel();
+        directChannel.subscribe(new MessageHandler() {
+            public void handleMessage(Message<?> message) throws MessagingException {
+                MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
+                try {
+                    parser.parse();
+                    Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
+                    if (client != null) {
+                        client.setStatus(statusService.get(1L));
+                        clientService.addClient(client);
+                    }
+                } catch (Exception e) {
+                    logger.error("MimeMessageParser can't parse income data");
+                }
+            }
+        });
+        return directChannel;
+    }
+
+    private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
+        Optional<InternetAddress> internetAddress = Optional.empty();
+        try {
+            internetAddress = Optional.of(new InternetAddress(mailFrom));
+        } catch (AddressException e) {
+            logger.error("Can't parse email address \"from\"");
+        }
+        FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
+        return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+    }
 }

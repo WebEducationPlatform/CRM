@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
@@ -32,7 +33,7 @@
         </div>
         <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
             <div id="column-header">
-            <div class="btn-group">
+            <div class="btn-group" th:if="${isAdmin}">
                 <button type="button" class="glyphicon glyphicon glyphicon-list " data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
@@ -76,11 +77,11 @@
                 </div>
             </div>
             <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
-                <div class="portlet-body">
-                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}"></div>
+                <div class="portlet-body" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
+                    </div>
                     <div class="portlet-content">
-                        <div class="clickModal" th:id="'info-client' + ${client.id}" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
-
+                        <div class="clickModal" th:id="'info-client' + ${client.id}">
 
                             <span th:text="${client.phoneNumber}"></span>
                             <br/>
@@ -127,6 +128,11 @@
                                         отказаться от карточки
                                     </button>
                                 </th:block>
+                                <a th:href="'/admin/client/clientInfo/' +  ${client.id}"><button th:if="${isAdmin}"
+                                        th:id="'client-info' + ${client.id}"
+                                        class="btn btn-md btn-info" rel="clientInfo">
+                                    Расширенная информация
+                                </button></a>
                             </div>
                             <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">
@@ -187,8 +193,31 @@
                         <div class="panel-body" id="panel-filter-body">
                             <button type="button" id="showallbtn"  onclick="showall()">Показать все</button>
                             <div class="checkbox" id="client_filter">
-                                <br></br>
+                                <br/>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div  id="user_group" th:if="${isAdmin}">
+                    <div class="panel-heading" id="user_group-heading">
+                        <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseUser">Список сотрудников</a>
+                    </div>
+                    <div id="collapseUser" class="panel-collapse collapse in">
+                        <div class="panel-body" id="user_group-body">
+                            <table class="table table-bordered">
+                                <tr th:each="usr : ${users}">
+                                    <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                    <td class="editUserButtons" >
+                                        <a th:href="'/admin/user/' +  ${usr.id}"><button type="button" class="glyphicon glyphicon glyphicon-edit"></button></a>
+                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
+                                                type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <a href="/admin/user/add"><button type="button" id="addNewUser">Добавить пользователя</button></a>
                         </div>
                     </div>
                 </div>
@@ -199,6 +228,27 @@
         </div>
     </div>
 </div>
+
+<div th:each="usr : ${users}">
+    <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтвердите свое действие</h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">Да</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -246,7 +296,6 @@
         </form>
     </div>
 </div>
-
 </body>
 <script>
 

@@ -33,8 +33,4 @@ public class JobServiceImpl implements JobService {
         jobDAO.delete(job);
     }
 
-    @Override
-    public List<Job> getJobsByClientId(Long id) {
-        return jobDAO.findAllByClientId(id);
-    }
 }

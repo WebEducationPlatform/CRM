@@ -34,9 +34,9 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
 		List<Status> statuses = getAll();
-		for (Status status: statuses) {
+		for (Status status : statuses) {
 			List<Client> filteredClients = new ArrayList<>();
-			for (Client client: status.getClients()) {
+			for (Client client : status.getClients()) {
 				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
 					filteredClients.add(client);
 				}
@@ -54,6 +54,11 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public Status get(String name) {
 		return statusDAO.findStatusByName(name);
+	}
+
+	@Override
+	public Status getFirstStatusForClient() {
+		return statusDAO.findOne(1L);
 	}
 
 	@Override
@@ -75,8 +80,8 @@ public class StatusServiceImpl implements StatusService {
 		}
 	}
 
-	private void checkStatusId(Long id){
-		if(id==1L){
+	private void checkStatusId(Long id) {
+		if (id == 1L) {
 			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
 		}
 	}

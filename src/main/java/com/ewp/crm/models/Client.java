@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.sql.Date;
@@ -22,10 +23,10 @@ public class Client implements Serializable {
 	@Column(name = "client_id")
 	private Long id;
 
-	@Column(name = "first_name", nullable = false)
+	@NotNull
+	@Column(name = "first_name")
 	private String name;
 
-	@Column(name = "last_name")
 	private String lastName;
 
 	@Column(name = "phone_number", unique = true)
@@ -33,23 +34,16 @@ public class Client implements Serializable {
 
 	@Size(max = 50)
 	@Email(regexp = ValidationPattern.EMAIL_PATTERN)
-	@Column(name = "email", length = 50, nullable = false, unique = true)
+	@Column(name = "email", length = 50, unique = true)
 	private String email;
 
-	@Column(name = "age")
 	private byte age;
 
-	@Column(name = "sex")
 	@Enumerated(EnumType.STRING)
 	private Sex sex;
 
-	@Column(name = "city")
 	private String city;
-
-	@Column(name = "country")
 	private String country;
-
-	@Column(name = "comment")
 	private String comment;
 
 	@Column(name = "client_state")
@@ -73,7 +67,7 @@ public class Client implements Serializable {
 
 	@JsonIgnore
 	@OrderBy("date DESC")
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
@@ -87,7 +81,11 @@ public class Client implements Serializable {
 	@OrderBy("id DESC")
 	private List<ClientHistory> history = new ArrayList<>();
 
-	@OneToMany(targetEntity = Job.class, mappedBy = "client")
+	@Column
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "client_job",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
 	private List<Job> jobs;
 
 	@Column
@@ -97,7 +95,13 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
+
 	public Client() {
+	}
+
+	public Client(String name, String lastName) {
+		this.name = name;
+		this.lastName = lastName;
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
@@ -131,6 +135,7 @@ public class Client implements Serializable {
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
 	}
+
 
 	public List<ClientHistory> getHistory() {
 		return history;
@@ -280,39 +285,27 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof Client)) return false;
 
 		Client client = (Client) o;
 
-		if (age != client.age) return false;
 		if (id != null ? !id.equals(client.id) : client.id != null) return false;
-		if (name != null ? !name.equals(client.name) : client.name != null) return false;
-		if (lastName != null ? !lastName.equals(client.lastName) : client.lastName != null) return false;
 		if (phoneNumber != null ? !phoneNumber.equals(client.phoneNumber) : client.phoneNumber != null) return false;
-		if (email != null ? !email.equals(client.email) : client.email != null) return false;
-		if (sex != client.sex) return false;
-		if (status != null ? !status.equals(client.status) : client.status != null) return false;
-		if (ownerUser != null ? !ownerUser.equals(client.ownerUser) : client.ownerUser != null) return false;
-		return comments != null ? comments.equals(client.comments) : client.comments == null;
+		return email != null ? email.equals(client.email) : client.email == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
 		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
 		result = 31 * result + (email != null ? email.hashCode() : 0);
-		result = 31 * result + (int) age;
-		result = 31 * result + (sex != null ? sex.hashCode() : 0);
-		result = 31 * result + (status != null ? status.hashCode() : 0);
-		result = 31 * result + (ownerUser != null ? ownerUser.hashCode() : 0);
-		result = 31 * result + (comments != null ? comments.hashCode() : 0);
 		return result;
 	}
+
 
 	public enum Sex {
 		MALE, FEMALE
