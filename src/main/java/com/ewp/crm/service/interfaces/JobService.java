@@ -13,6 +13,4 @@ public interface JobService {
 
     void delete(Job job);
 
-    List<Job> getJobsByClientId(Long id);
-
 }

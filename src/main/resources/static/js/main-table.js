@@ -1,5 +1,6 @@
 $(document).ready(function () {
     $(".column").sortable({
+    delay:100,
 	items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
@@ -64,7 +65,7 @@ function deleteStatus(id) {
 
         }
     });
-};
+}
 
 function createNewUser() {
     let url = '/rest/user/addUser';
@@ -94,14 +95,9 @@ function createNewUser() {
 }
 
 function createNewStatus() {
-    let url = '/admin/rest/status/add';
-    let statusName = $('#new-status-name').val();
-    if (statusName===""){
-        statusName=$('#default-status-name').val();
-        if(statusName===""){
-            return
-        }
-    }
+    let url = '/rest/status/add';
+    let statusName = $('#new-status-name').val() ||  $('#default-status-name').val();
+    if(typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
@@ -115,6 +111,7 @@ function createNewStatus() {
         },
         error: function (e) {
             alert(e.responseText);
+            console.log(e.responseText);
         }
     });
 }
@@ -142,7 +139,7 @@ function changeStatusName(id) {
 
 function senReqOnChangeStatus(clientId, statusId) {
     let
-        url = '/admin/rest/status/change',
+        url = '/rest/status/change',
         formData = {
             clientId: clientId,
             statusId: statusId
@@ -154,8 +151,8 @@ function senReqOnChangeStatus(clientId, statusId) {
         data: formData,
         success: function (data) {
             let
-                url = '/admin/rest/client/' + clientId;
-            $.get(url,
+                url = '/rest/client/' + clientId;
+            $.get(url, 
                 function (data) {
                     $('#client-' + data.id + 'history').prepend(
                         "<li>" +
@@ -187,7 +184,7 @@ function tilt_direction(item) {
 
 function assign(id) {
     let
-        url = '/admin/rest/client/assign',
+        url = '/rest/client/assign',
         formData = {
             clientId: id
         },
@@ -219,7 +216,7 @@ function assign(id) {
 
 function unassign(id) {
     let
-        url = '/admin/rest/client/unassign',
+        url = '/rest/client/unassign',
         formData = {
             clientId: id
         },
@@ -344,7 +341,7 @@ $(document).ready(function () {
 $(document).ready(fillFilterList);
 
 $(document).ready(function () {
-    var url = '/admin/rest/user';
+    var url = '/rest/user';
 
     var userNames = [];
 
@@ -355,12 +352,12 @@ $(document).ready(function () {
         success: function (res) {
             for (var i = 0; i < res.length; i++) {
                 userNames[i] = res[i].firstName + res[i].lastName;
-            };
+            }
         },
         error : function (error) {
             console.log(error);
         }
-    })
+    });
 
     $('.textcomplete').textcomplete([
         {
@@ -379,3 +376,22 @@ $(document).ready(function () {
             index: 1
         }])
 });
+
+function deleteUser(id) {
+    let url = '/admin/rest/user/delete';
+    let formData = {
+        deleteId: id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function (result) {
+            location.reload();
+        },
+        error: function (e) {
+
+        }
+    });
+}
