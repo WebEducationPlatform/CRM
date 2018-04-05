@@ -43,7 +43,9 @@ public class Client implements Serializable {
 	private Sex sex;
 
 	private String city;
+
 	private String country;
+
 	private String comment;
 
 	@Column(name = "client_state")
