@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rest/comment")
-public class CommentController {
+public class CommentRestController {
 
     private ClientService clientService;
 
@@ -23,7 +23,7 @@ public class CommentController {
     private UserService userService;
 
     @Autowired
-    public CommentController(ClientService clientService, CommentService commentService, UserService userService) {
+    public CommentRestController(ClientService clientService, CommentService commentService, UserService userService) {
         this.clientService = clientService;
         this.commentService = commentService;
         this.userService = userService;

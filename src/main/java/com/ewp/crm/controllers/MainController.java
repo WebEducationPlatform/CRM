@@ -32,9 +32,10 @@ public class MainController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value =  "avatar/{file}", method = RequestMethod.GET)
+	@RequestMapping(value = "avatar/{file}", method = RequestMethod.GET)
 	public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
 		Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");
 		return Files.readAllBytes(fileLocation);
 	}
+
 }

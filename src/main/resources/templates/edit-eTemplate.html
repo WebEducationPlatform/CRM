@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование шаблона сообщения</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/edit-eTemplate.js}"></script>
+    <script src="//cdn.ckeditor.com/4.4.7/standard/ckeditor.js"></script>
+</head>
+<body>
+    <div style="margin: 4%">
+        <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+        <div class="container">
+            <h2>Редактирование шаблона сообщения</h2>
+            <fieldset>
+                <label for="body"></label>
+                <textarea id="body" required="required" th:text="${template.templateText}">
+                            &lt;p&gt;
+                                Example template layout.
+                            &lt;/p&gt;
+                        </textarea>
+                <script>
+                    CKEDITOR.replace('body', {
+                        allowedContent: true,
+                        height: '600px'
+                    });
+                </script>
+                <br/>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
+                    <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                </div>
+                <p><span id = "message"></span></p>
+            </fieldset>
+        </div>
+    </div>
+</body>
+</html>
