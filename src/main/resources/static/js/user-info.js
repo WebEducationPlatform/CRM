@@ -159,13 +159,11 @@ function readURL(input) {
 }
 
 function setErrorMessage(message) {
-    var current;
+    var current = document.getElementById("message");
     if(typeof message === 'undefined'){
-        current = document.getElementById("message");
         current.textContent = "Ошибка сохранения";
         current.style.color = "red";
     }else {
-        current = document.getElementById("message");
         current.textContent = message;
         current.style.color = "red";
     }

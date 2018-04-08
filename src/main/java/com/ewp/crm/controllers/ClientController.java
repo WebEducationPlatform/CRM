@@ -2,6 +2,7 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.EmailTemplateService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
@@ -9,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -28,11 +29,14 @@ public class ClientController {
 
 	private final UserService userService;
 
+	private final EmailTemplateService emailTemplateService;
+
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService) {
+	public ClientController(StatusService statusService, ClientService clientService, UserService userService, EmailTemplateService emailTemplateService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
+		this.emailTemplateService = emailTemplateService;
 	}
 
 	@RequestMapping(value = "/client",method = RequestMethod.GET)
@@ -49,6 +53,7 @@ public class ClientController {
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("users", userService.getAll());
+		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
 		return modelAndView;
 	}
 
@@ -88,6 +93,14 @@ public class ClientController {
 		modelAndView.addObject("client", clientService.getClientByID(id));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", SocialNetwork.SocialMarker.values());
+		return modelAndView;
+	}
+
+	@RequestMapping(value = {"admin/editEmailTemplate/{templateId}"}, method = RequestMethod.GET)
+	public ModelAndView editTemplatePage(@PathVariable("templateId") Long templateId) {
+		EmailTemplate emailTemplate = emailTemplateService.get(templateId);
+		ModelAndView modelAndView  = new ModelAndView("edit-eTemplate");
+		modelAndView.addObject("template", emailTemplate);
 		return modelAndView;
 	}
 }

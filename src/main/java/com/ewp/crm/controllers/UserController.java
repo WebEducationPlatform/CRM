@@ -23,7 +23,7 @@ public class UserController {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
-	}
+}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {

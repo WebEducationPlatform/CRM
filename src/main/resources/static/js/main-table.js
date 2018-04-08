@@ -395,3 +395,62 @@ function deleteUser(id) {
         }
     });
 }
+
+function sendTempate(clientId, templateName) {
+    let url = '/rest/client/sendEmail';
+    let formData = {
+        clientId: clientId,
+        templateName: templateName
+    };
+    var current = document.getElementById("sendTemplateBtn" + templateName);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
+        },
+        success: function (result) {
+            location.reload();
+        },
+        error: function (e) {
+            var currentStatus = document.getElementById("sendTemplateStatus" + templateName);
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+}
+
+function sendCustomTempate(clientId) {
+    let url = '/admin/client/customEmailTemplate';
+    let formData = {
+        clientId: clientId,
+        body: $('#custom-eTemplate-body').val()
+    };
+    var current = $("#sendCustomTemplateBtn")[0];
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
+        },
+        success: function (result) {
+            location.reload();
+        },
+        error: function (e) {
+            var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
+            current.textContent ="Отправить";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+}

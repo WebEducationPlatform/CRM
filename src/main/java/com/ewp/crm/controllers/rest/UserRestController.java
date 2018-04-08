@@ -7,7 +7,6 @@ import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,7 @@ import java.util.List;
 @RestController
 public class UserRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(RestClientController.class);
+    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final UserService userService;
 
@@ -34,7 +33,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
-    public ResponseEntity updateClient(@RequestBody User user) {
+    public ResponseEntity updateUser(@RequestBody User user) {
         User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         userService.update(user);
         logger.info("{} has updated user: id {}, email {}", currentAdmin.getFullName(), user.getId(), user.getEmail());
