@@ -136,6 +136,7 @@ public class Client implements Serializable {
 		this.country = country;
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
+		this.socialNetworks = socialNetworks;
 	}
 
 
