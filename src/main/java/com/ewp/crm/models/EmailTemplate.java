@@ -5,9 +5,11 @@ import javax.persistence.*;
 @Entity
 @Table
 public class EmailTemplate {
+
 	@Id
 	@GeneratedValue
 	private Long id;
+
 	@Column(unique = true)
 	private String name;
 

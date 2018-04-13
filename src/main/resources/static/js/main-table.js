@@ -396,13 +396,13 @@ function deleteUser(id) {
     });
 }
 
-function sendTempate(clientId, templateName) {
-    let url = '/rest/client/sendEmail';
+function sendTempate(clientId, templateId) {
+    let url = '/rest/sendEmail';
     let formData = {
         clientId: clientId,
-        templateName: templateName
+        templateId: templateId
     };
-    var current = document.getElementById("sendTemplateBtn" + templateName);
+    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
     $.ajax({
         type: "POST",
         url: url,
@@ -416,7 +416,7 @@ function sendTempate(clientId, templateName) {
             location.reload();
         },
         error: function (e) {
-            var currentStatus = document.getElementById("sendTemplateStatus" + templateName);
+            var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
             current.textContent ="Да";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";
@@ -427,7 +427,7 @@ function sendTempate(clientId, templateName) {
 }
 
 function sendCustomTempate(clientId) {
-    let url = '/admin/client/customEmailTemplate';
+    let url = '/rest/sendCustomEmailTemplate';
     let formData = {
         clientId: clientId,
         body: $('#custom-eTemplate-body').val()

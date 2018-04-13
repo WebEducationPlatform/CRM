@@ -1,5 +1,6 @@
 package com.ewp.crm.service.email;
 
+import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.EmailTemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,18 +12,23 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
-import javax.persistence.Entity;
+import java.io.File;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class MailSendService {
 	private JavaMailSender javaMailSender;
 	private TemplateEngine htmlTemplateEngine;
+	private final ImageConfig imageConfig;
+
 
 	@Autowired
-	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine) {
+	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine, ImageConfig imageConfig) {
 		this.javaMailSender = javaMailSender;
 		this.htmlTemplateEngine = htmlTemplateEngine;
+		this.imageConfig = imageConfig;
 	}
 
 	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
@@ -34,12 +40,17 @@ public class MailSendService {
 		}
 		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
-			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
+			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true, "UTF-8");
 			mimeMessageHelper.setSubject("Java Mentor");
 			mimeMessageHelper.setTo("mailhomes@mail.ru");
 			mimeMessageHelper.setFrom("JavaMentor");
 			String htmlContent = htmlTemplateEngine.process(templateFile, ctx);
 			mimeMessageHelper.setText(htmlContent, true);
+			Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
+			Matcher matcher = pattern.matcher(templateText);
+			while(matcher.find()){
+				mimeMessageHelper.addInline(matcher.group(), new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
+			}
 			javaMailSender.send(mimeMessage);
 		} catch (Exception e) {
 			throw new EmailTemplateException(e.getMessage());

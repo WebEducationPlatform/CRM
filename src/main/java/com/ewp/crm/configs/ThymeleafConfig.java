@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Configuration
 public class ThymeleafConfig {
+
 	private final static String PREFIX = "eMailTemplateText:";
 
 	@Bean

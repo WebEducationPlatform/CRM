@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
@@ -13,6 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -21,10 +27,12 @@ public class UserRestController {
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final UserService userService;
+    private ImageConfig imageConfig;
 
     @Autowired
-    public UserRestController(UserService userService) {
+    public UserRestController(UserService userService, ImageConfig imageConfig) {
         this.userService = userService;
+        this.imageConfig = imageConfig;
     }
 
     @RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -70,5 +78,12 @@ public class UserRestController {
         userService.update(user);
         logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
         return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
+    public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
+        Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");
+        return Files.readAllBytes(fileLocation);
     }
 }

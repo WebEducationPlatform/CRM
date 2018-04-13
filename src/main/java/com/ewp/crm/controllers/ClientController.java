@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.EmailTemplateService;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Controller
@@ -32,7 +31,7 @@ public class ClientController {
 	private final EmailTemplateService emailTemplateService;
 
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService, EmailTemplateService emailTemplateService) {
+	public ClientController(StatusService statusService, ClientService clientService, UserService userService, EmailTemplateService emailTemplateService, ImageConfig imageConfig) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
@@ -93,14 +92,6 @@ public class ClientController {
 		modelAndView.addObject("client", clientService.getClientByID(id));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", SocialNetwork.SocialMarker.values());
-		return modelAndView;
-	}
-
-	@RequestMapping(value = {"admin/editEmailTemplate/{templateId}"}, method = RequestMethod.GET)
-	public ModelAndView editTemplatePage(@PathVariable("templateId") Long templateId) {
-		EmailTemplate emailTemplate = emailTemplateService.get(templateId);
-		ModelAndView modelAndView  = new ModelAndView("edit-eTemplate");
-		modelAndView.addObject("template", emailTemplate);
 		return modelAndView;
 	}
 }
