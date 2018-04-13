@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.utils.converters.VKConverter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -41,8 +42,12 @@ public class VKUtil {
 	private String version;
 	private String communityToken;
 
+	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
+
+	private final VKConverter vkConverter;
+
 	@Autowired
-	public VKUtil(VKConfig vkConfig) {
+	public VKUtil(VKConfig vkConfig, VKConverter vkConverter) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -50,6 +55,7 @@ public class VKUtil {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
+		this.vkConverter = vkConverter;
 	}
 
 	@PostConstruct
@@ -78,15 +84,13 @@ public class VKUtil {
 	}
 
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
-		String uriGetMassages = "https://api.vk.com/method/" +
-				"messages.getHistory" +
+		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
 				"?user_id=" + clubId +
 				"&rev=1" +
 				"&version=" + version +
 				"&access_token=" + accessToken;
 
-		String uriMarkAsRead = "https://api.vk.com/method/" +
-				"messages.markAsRead" +
+		String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
 				"?peer_id=" + clubId +
 				"&version=" + version +
 				"&access_token=" + accessToken;
@@ -121,10 +125,74 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
+	public Optional<List<Long>> getFriendsIdFromManager() {
+		String friendsRequest = VK_API_METHOD_TEMPLATE + "friends.get" +
+				"?order=" + "random" +
+				"&v=" + version +
+				"&access_token=" + accessToken;
+
+		HttpGet request = new HttpGet(friendsRequest);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
+		try {
+			HttpResponse response = httpClient.execute(request);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject jsonObject = new JSONObject(result);
+			JSONObject jsonResponse = jsonObject.getJSONObject("response");
+			JSONArray jsonItems = jsonResponse.getJSONArray("items");
+			List<Long> friendsId = new ArrayList<>();
+			for (int i = 0; i < jsonItems.length(); i++) {
+				friendsId.add(jsonItems.getLong(i));
+			}
+			return Optional.of(friendsId);
+		} catch (JSONException e) {
+			logger.error("JSON couldn't parse response");
+		} catch (IOException e) {
+			logger.error("Failed connect to vk api");
+		}
+		return Optional.empty();
+	}
+
+	public boolean sendMessageToClient(Client client, String msg){
+		boolean result = false;
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			if(socialNetwork.getSocialNetworkType().getName().equals("vk")) {
+				long id = vkConverter.parseLink(socialNetwork.getLink());
+				result = sendMessageById(id,msg);
+			}
+		}
+		return result;
+	}
+
+	private boolean sendMessageById(long id, String msg){
+		String htmlMsg = vkConverter.parseMessage(msg);
+		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+				"?user_id=" + id +
+				"&v=" + version +
+				"&message=" + htmlMsg +
+				"&access_token=" + accessToken;
+		HttpGet request = new HttpGet(sendMsgRequest);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
+		try {
+			HttpResponse response = httpClient.execute(request);
+			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
+			JSONObject jsonResponse = jsonEntity.getJSONObject("response");
+			return true;
+		}catch (JSONException e){
+			logger.error("JSON couldn't parse response or principal can`t send message to client");
+		}catch (IOException e){
+			logger.error("Failed connect to vk api");
+		}
+		return false;
+	}
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-		String uriGetDialog = "https://api.vk.com/method/" +
-				"messages.getDialogs" +
+		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
 				"?v=" + version +
 				"&unread=1" +
 				"&access_token=" +
@@ -156,8 +224,7 @@ public class VKUtil {
 	}
 
 	public Optional<Client> getClientFromVkId(Long id) {
-		String uriGetClient = "https://api.vk.com/method/" +
-				"users.get?" +
+		String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
 				"version=" + version +
 				"&user_id=" + id;
 
