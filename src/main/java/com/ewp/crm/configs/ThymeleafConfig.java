@@ -25,9 +25,8 @@ public class ThymeleafConfig {
 
 	@Bean
 	public StringTemplateResolver stringTemplateResolver() {
-		StringTemplateResolver resolver = new StringTemplateResolver();
+		StringTemplateResolver resolver = new StringTemplateResolver(PREFIX);
 		resolver.setCharacterEncoding("UTF-8");
-		resolver.setPREFIX(PREFIX);
 		resolver.setOrder(3);
 		return resolver;
 	}
