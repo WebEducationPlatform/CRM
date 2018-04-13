@@ -403,6 +403,7 @@ function sendTempate(clientId, templateId) {
         templateId: templateId
     };
     var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
     $.ajax({
         type: "POST",
         url: url,
@@ -413,10 +414,12 @@ function sendTempate(clientId, templateId) {
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            location.reload();
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
         },
         error: function (e) {
-            var currentStatus = document.getElementById("sendTemplateStatus-" + templateId);
             current.textContent ="Да";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";
@@ -433,6 +436,7 @@ function sendCustomTempate(clientId) {
         body: $('#custom-eTemplate-body').val()
     };
     var current = $("#sendCustomTemplateBtn")[0];
+    var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
     $.ajax({
         type: "POST",
         url: url,
@@ -442,10 +446,12 @@ function sendCustomTempate(clientId) {
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            location.reload();
+            current.textContent ="Отправить";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
         },
         error: function (e) {
-            var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
             current.textContent ="Отправить";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";
