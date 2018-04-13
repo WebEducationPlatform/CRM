@@ -17,6 +17,7 @@ public class ImageConfig {
 	private static Logger logger = LoggerFactory.getLogger(ImageConfig.class);
 	private String pathForAvatar;
 	private long maxImageSize;
+	private String pathForImages;
 
 	@Autowired
 	public ImageConfig(Environment environment) {
@@ -29,6 +30,7 @@ public class ImageConfig {
 			System.exit(-1);
 		}
 		pathForAvatar = properties.getProperty("pathForAvatar");
+		pathForImages = properties.getProperty("pathForImages");
 		checkConfig();
 	}
 
@@ -37,14 +39,26 @@ public class ImageConfig {
 			logger.error("Path for avatars not specified");
 			System.exit(-1);
 		}
-		File path = new File(pathForAvatar);
-		if (!path.exists()) {
-			if (!path.mkdir()) {
+		if (pathForImages == null || "".equals(pathForImages)) {
+			logger.error("Path for images not specified");
+			System.exit(-1);
+		}
+		File avatarPath = new File(pathForAvatar);
+		if (!avatarPath.exists()) {
+			if (!avatarPath.mkdirs()) {
 				logger.error("Could not create folder for user photos");
 				System.exit(-1);
 			}
 		}
+		File imagePath = new File(pathForImages);
+		if (!imagePath.exists()) {
+			if (!imagePath.mkdirs()) {
+				logger.error("Could not create folder for images");
+				System.exit(-1);
+			}
+		}
 		pathForAvatar = pathForAvatar + "\\";
+		pathForImages = pathForImages + "\\";
 		if (maxImageSize == 0) {
 			maxImageSize = 1024;
 			logger.info("The size of the uploaded file is not specified. The value in 1MB is set");
@@ -53,6 +67,10 @@ public class ImageConfig {
 
 	public String getPathForAvatar() {
 		return pathForAvatar;
+	}
+
+	public String getPathForImages() {
+		return pathForImages;
 	}
 
 	public long getMaxImageSize() {

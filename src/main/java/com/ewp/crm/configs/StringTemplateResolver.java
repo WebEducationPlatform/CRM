@@ -14,9 +14,6 @@ public class StringTemplateResolver extends TemplateResolver {
 	private String PREFIX = "";
 
 	public StringTemplateResolver() {
-		Set<String> patterns = new HashSet<>();
-		patterns.add(PREFIX + "*");
-		setResolvablePatterns(patterns);
 		setResourceResolver(new StringResourceResolver());
 	}
 
@@ -26,6 +23,9 @@ public class StringTemplateResolver extends TemplateResolver {
 
 	public void setPREFIX(String PREFIX) {
 		this.PREFIX = PREFIX;
+		Set<String> patterns = new HashSet<>();
+		patterns.add(PREFIX + "*");
+		setResolvablePatterns(patterns);
 	}
 
 	@Override
@@ -46,5 +46,4 @@ public class StringTemplateResolver extends TemplateResolver {
 			return "stringResourceResolver";
 		}
 	}
-
 }

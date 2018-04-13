@@ -112,6 +112,5 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
-
 	}
 }

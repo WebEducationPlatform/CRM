@@ -23,14 +23,10 @@ public class ClientRestController {
 	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
-	private final MailSendService mailSendService;
-	private final EmailTemplateServiceImpl emailTemplateService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, MailSendService mailSendService, EmailTemplateServiceImpl emailTemplateService) {
+	public ClientRestController(ClientService clientService) {
 		this.clientService = clientService;
-		this.mailSendService = mailSendService;
-		this.emailTemplateService = emailTemplateService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -105,35 +101,5 @@ public class ClientRestController {
 	@RequestMapping(value = "/rest/client/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
 		return ResponseEntity.ok(clientService.filteringClient(filteringCondition));
-	}
-
-
-	@RequestMapping(value = "/rest/client/sendEmail", method = RequestMethod.POST)
-	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateName") String templateName) {
-		Client client = clientService.getClientByID(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		params.put("fullName",fullName);
-		mailSendService.prepareAndSend(client.getEmail(),params,emailTemplateService.getByName(templateName).getTemplateText(),
-				"emailStringTemplate");
-		return ResponseEntity.ok().build();
-	}
-
-	@RequestMapping(value = "/admin/client/customEmailTemplate", method = RequestMethod.POST)
-	public ResponseEntity addSocialNetworkType(@RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
-		Client client = clientService.getClientByID(clientId);
-		Map<String, String> params = new HashMap<>();
-		params.put("bodyText",body);
-		mailSendService.prepareAndSend(client.getEmail(),params,emailTemplateService.get(1L).getTemplateText(),
-				"emailStringTemplate");
-		return ResponseEntity.ok().build();
-	}
-
-	@RequestMapping(value = {"/admin/editEmailTemplate"}, method = RequestMethod.POST)
-	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
-		EmailTemplate emailTemplate = emailTemplateService.get(templateId);
-		emailTemplate.setTemplateText(templateText);
-		emailTemplateService.update(emailTemplate);
-		return ResponseEntity.ok().build();
 	}
 }

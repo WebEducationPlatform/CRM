@@ -131,7 +131,7 @@
                 </div>
                 <div class="modal-footer">
                     <span th:id = "'sendTemplateStatus' + ${template.name}"></span>
-                    <button type="button" th:id = "'sendTemplateBtn' + ${template.name}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.name} + '\')'">Да</button>
+                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                 </div>
             </div>

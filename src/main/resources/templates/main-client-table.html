@@ -53,7 +53,7 @@
                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
                             <a class="glyphicon glyphicon-ok" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
-                            <a th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>
@@ -61,7 +61,7 @@
                         </li>
                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id==1}">
                             <a class="glyphicon glyphicon-plus" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customEmailTemplate'"  th:text="' ' + ${template.name}"></a>
-                            <a th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>
