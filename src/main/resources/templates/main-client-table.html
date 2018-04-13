@@ -94,7 +94,7 @@
                                     взять себе карточку
                                 </button>
                                 <th:block th:if="${client.ownerUser != null}">
-                                    <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
+                                    <button th:if="${currentUserId == client.ownerUser.id}"
                                             th:id="'unassign-client' + ${client.id}"
                                             th:onclick="'unassign('+ ${client.id} +')'"
                                             class="btn btn-md btn-warning" >

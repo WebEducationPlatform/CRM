@@ -26,10 +26,11 @@ import java.util.Map;
 
 @RestController
 public class EmailRestController {
+
 	private final MailSendService mailSendService;
 	private final EmailTemplateServiceImpl emailTemplateService;
 	private final ClientService clientService;
-	private ImageConfig imageConfig;
+	private final ImageConfig imageConfig;
 
 
 	@Autowired
@@ -45,8 +46,8 @@ public class EmailRestController {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
-		params.put("fullName",fullName);
-		mailSendService.prepareAndSend(client.getEmail(),params,emailTemplateService.get(templateId).getTemplateText(),
+		params.put("fullName", fullName);
+		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
 	}
@@ -55,8 +56,8 @@ public class EmailRestController {
 	public ResponseEntity addSocialNetworkType(@RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
 		Client client = clientService.getClientByID(clientId);
 		Map<String, String> params = new HashMap<>();
-		params.put("bodyText",body);
-		mailSendService.prepareAndSend(client.getEmail(),params,emailTemplateService.get(1L).getTemplateText(),
+		params.put("bodyText", body);
+		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(1L).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
 	}
@@ -74,11 +75,12 @@ public class EmailRestController {
 	public ResponseEntity savePicture(@RequestParam("0") MultipartFile file) throws IOException {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
-		String fileName =  file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
-		File outputFile = new File(imageConfig.getPathForImages() + currentAdmin.getId() + "_" +fileName);
+		String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
+		File outputFile = new File(imageConfig.getPathForImages() + currentAdmin.getId() + "_" + fileName);
 		ImageIO.write(image, "png", outputFile);
 		return ResponseEntity.ok(currentAdmin.getId());
 	}
+
 	@ResponseBody
 	@RequestMapping(value = "/admin/image/{file}", method = RequestMethod.GET)
 	public byte[] getImage(@PathVariable("file") String file) throws IOException {

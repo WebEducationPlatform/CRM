@@ -13,7 +13,11 @@ public class StringTemplateResolver extends TemplateResolver {
 
 	private String PREFIX = "";
 
-	public StringTemplateResolver() {
+	public StringTemplateResolver(String prefix) {
+		this.PREFIX = prefix;
+		Set<String> patterns = new HashSet<>();
+		patterns.add(PREFIX + "*");
+		setResolvablePatterns(patterns);
 		setResourceResolver(new StringResourceResolver());
 	}
 
@@ -22,10 +26,7 @@ public class StringTemplateResolver extends TemplateResolver {
 	}
 
 	public void setPREFIX(String PREFIX) {
-		this.PREFIX = PREFIX;
-		Set<String> patterns = new HashSet<>();
-		patterns.add(PREFIX + "*");
-		setResolvablePatterns(patterns);
+
 	}
 
 	@Override

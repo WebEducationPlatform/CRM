@@ -4,7 +4,6 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.EmailTemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,8 +18,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class MailSendService {
-	private JavaMailSender javaMailSender;
-	private TemplateEngine htmlTemplateEngine;
+	private final JavaMailSender javaMailSender;
+	private final TemplateEngine htmlTemplateEngine;
 	private final ImageConfig imageConfig;
 
 
@@ -33,22 +32,25 @@ public class MailSendService {
 
 	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
 		final Context ctx = new Context();
-		templateText = templateText.replaceAll("\n","");
+		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);
-		for (Map.Entry<String, String> entry : params.entrySet()){
-			ctx.setVariable(entry.getKey(),entry.getValue());
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			ctx.setVariable(entry.getKey(), entry.getValue());
 		}
 		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
-			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true, "UTF-8");
+			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setSubject("Java Mentor");
 			mimeMessageHelper.setTo("mailhomes@mail.ru");
 			mimeMessageHelper.setFrom("JavaMentor");
 			String htmlContent = htmlTemplateEngine.process(templateFile, ctx);
 			mimeMessageHelper.setText(htmlContent, true);
 			Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
+			//inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
+			//Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
+			//Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
 			Matcher matcher = pattern.matcher(templateText);
-			while(matcher.find()){
+			while (matcher.find()) {
 				mimeMessageHelper.addInline(matcher.group(), new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
 			}
 			javaMailSender.send(mimeMessage);

@@ -53,6 +53,7 @@ public class ClientController {
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("users", userService.getAll());
 		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
+		modelAndView.addObject("currentUserId", ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 		return modelAndView;
 	}
 

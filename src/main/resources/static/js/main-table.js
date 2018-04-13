@@ -416,7 +416,7 @@ function sendTempate(clientId, templateId) {
             location.reload();
         },
         error: function (e) {
-            var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
+            var currentStatus = document.getElementById("sendTemplateStatus-" + templateId);
             current.textContent ="Да";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";

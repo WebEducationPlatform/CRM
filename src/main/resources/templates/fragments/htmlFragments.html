@@ -130,7 +130,7 @@
                     <h6>Отправить сообщение пользователю?</h6>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'sendTemplateStatus' + ${template.name}"></span>
+                    <span th:id = "'sendTemplateStatus-' + ${template.id}"></span>
                     <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                 </div>

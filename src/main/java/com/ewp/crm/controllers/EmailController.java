@@ -14,8 +14,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin")
 public class EmailController {
 
-	private EmailTemplateService emailTemplateService;
-	private ImageConfig imageConfig;
+	private final EmailTemplateService emailTemplateService;
+	private final ImageConfig imageConfig;
 
 	@Autowired
 	public EmailController(EmailTemplateService emailTemplateService, ImageConfig imageConfig) {
