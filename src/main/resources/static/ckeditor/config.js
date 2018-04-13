@@ -26,15 +26,10 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'about' }
 	];
 
-	// Remove some buttons provided by the standard plugins, which are
-	// not needed in the Standard(s) toolbar.
-	config.removeButtons = 'Underline,Subscript,Superscript';
-
-	// Set the most common block elements.
-	config.format_tags = 'p;h1;h2;h3;pre';
-
-	// Simplify the dialog windows.
-	config.removeDialogTabs = 'image:advanced;link:advanced';
-
 	CKEDITOR.dtd['p'] = {};
+    CKEDITOR.dtd.$object['p']=1;
+    CKEDITOR.dtd.$inline['p']=1;
+    CKEDITOR.dtd.$removeEmpty['p']=1;
+    config.enterMode = CKEDITOR.ENTER_BR;
+
 };
