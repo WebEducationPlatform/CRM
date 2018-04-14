@@ -43,7 +43,9 @@ public class Client implements Serializable {
 	private Sex sex;
 
 	private String city;
+
 	private String country;
+
 	private String comment;
 
 	@Column(name = "client_state")
@@ -95,7 +97,13 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
+
 	public Client() {
+	}
+
+	public Client(String name, String lastName) {
+		this.name = name;
+		this.lastName = lastName;
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
@@ -128,7 +136,9 @@ public class Client implements Serializable {
 		this.country = country;
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
+		this.socialNetworks = socialNetworks;
 	}
+
 
 	public List<ClientHistory> getHistory() {
 		return history;
@@ -278,6 +288,7 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -297,6 +308,7 @@ public class Client implements Serializable {
 		result = 31 * result + (email != null ? email.hashCode() : 0);
 		return result;
 	}
+
 
 	public enum Sex {
 		MALE, FEMALE

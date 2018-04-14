@@ -1,10 +1,14 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table
-public class SocialNetwork {
+public class SocialNetwork implements Serializable {
 
 	@Id
 	@GeneratedValue
@@ -14,16 +18,43 @@ public class SocialNetwork {
 	@Column
 	private String link;
 
-	@Column
-	@Enumerated(EnumType.STRING)
-	private SocialMarker socialMarker;
+	@JsonIgnore
+	@ManyToOne
+	@JoinTable(name = "client_social_network",
+			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+	private Client client;
+
+
+	@OneToOne
+	private SocialNetworkType socialNetworkType;
 
 	public SocialNetwork() {
 	}
 
-	public SocialNetwork(String link, SocialMarker socialMarker) {
+	public SocialNetwork(String link, SocialNetworkType socialNetworkType) {
 		this.link = link;
-		this.socialMarker = socialMarker;
+		this.socialNetworkType = socialNetworkType;
+	}
+
+	public SocialNetwork(String link) {
+		this.link = link;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof SocialNetwork)) return false;
+		SocialNetwork that = (SocialNetwork) o;
+		return Objects.equals(id, that.id) &&
+				Objects.equals(link, that.link) &&
+				Objects.equals(socialNetworkType, that.socialNetworkType);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(id, link, socialNetworkType);
 	}
 
 	public Long getId() {
@@ -38,41 +69,23 @@ public class SocialNetwork {
 		return link;
 	}
 
-
 	public void setLink(String link) {
 		this.link = link;
 	}
 
-	public SocialMarker getSocialMarker() {
-		return socialMarker;
+	public SocialNetworkType getSocialNetworkType() {
+		return socialNetworkType;
 	}
 
-	public void setSocialMarker(SocialMarker socialMarker) {
-		this.socialMarker = socialMarker;
+	public void setSocialNetworkType(SocialNetworkType socialNetworkType) {
+		this.socialNetworkType = socialNetworkType;
 	}
 
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		SocialNetwork that = (SocialNetwork) o;
-
-		if (id != null ? !id.equals(that.id) : that.id != null) return false;
-		if (link != null ? !link.equals(that.link) : that.link != null) return false;
-		return socialMarker == that.socialMarker;
+	public Client getClient() {
+		return client;
 	}
 
-	@Override
-	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (link != null ? link.hashCode() : 0);
-		result = 31 * result + (socialMarker != null ? socialMarker.hashCode() : 0);
-		return result;
-	}
-
-	public enum SocialMarker {
-		FACEBOOK, VK
+	public void setClient(Client client) {
+		this.client = client;
 	}
 }

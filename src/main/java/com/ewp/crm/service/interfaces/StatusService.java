@@ -15,6 +15,8 @@ public interface StatusService {
 
 	Status get(String name);
 
+	Status getFirstStatusForClient();
+
 	void add(Status status);
 
 	void update(Status status);

@@ -20,25 +20,36 @@ public class User implements UserDetails {
 
 	@Column(nullable = false)
 	private String firstName;
+
 	@Column(nullable = false)
 	private String lastName;
+
 	@Column(nullable = false)
 	private String phoneNumber;
+
 	@Column(nullable = false, unique = true)
 	private String email;
+
 	@Column(nullable = false)
 	private String password;
+
 	private String vk;
+
 	@Column(nullable = false)
 	private String sex;
+
 	@Column(nullable = false)
 	private byte age;
+
 	@Column(nullable = false)
 	private String city;
+
 	@Column(nullable = false)
 	private String country;
+
 	@Column(nullable = false)
 	private String vacancy;
+
 	@Column(nullable = false)
 	private double salary;
 
@@ -60,16 +71,6 @@ public class User implements UserDetails {
 	private List<Role> role = new ArrayList<>();
 
 	public User() {
-	}
-
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, double salary, List<Role> role) {
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.phoneNumber = phoneNumber;
-		this.email = email;
-		this.password = password;
-		this.salary = salary;
-		this.role = role;
 	}
 
 	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary,  List<Role> role) {
@@ -205,7 +206,7 @@ public class User implements UserDetails {
 		return this.firstName + " " + this.lastName;
 	}
 
-	public String getPhoto() throws IOException, SQLException {
+	public String getPhoto() {
 		return this.photo;
 	}
 

@@ -19,13 +19,10 @@ body {
 	padding-bottom: 100px;
 }
 
-.portlet-body{
-	cursor: pointer;
-}
-
 .portlet {
 	margin: 0 1em 1em 0;
 	padding: 0.3em;
+	cursor: pointer;
 }
 
 .portlet-body:active {
