@@ -4,9 +4,12 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ClientRestController {
@@ -23,10 +29,12 @@ public class ClientRestController {
 	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
+	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
 		this.clientService = clientService;
+		this.socialNetworkTypeService = socialNetworkTypeService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -70,11 +78,16 @@ public class ClientRestController {
 	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
+					socialNetwork.getSocialNetworkType().getName()).getId());
+		}
 		Client currentClient = clientService.getClientByID(client.getId());
 		client.setHistory(currentClient.getHistory());
-		client.setComment(currentClient.getComment());
+		client.setComments(currentClient.getComments());
 		client.setOwnerUser(currentClient.getOwnerUser());
 		client.setStatus(currentClient.getStatus());
+		client.setDateOfRegistration(currentClient.getDateOfRegistration());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
 		clientService.updateClient(client);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
@@ -100,6 +113,110 @@ public class ClientRestController {
 
 	@RequestMapping(value = "/rest/client/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
-		return ResponseEntity.ok(clientService.filteringClient(filteringCondition));
+		List<Client> clients = clientService.filteringClient(filteringCondition);
+		return ResponseEntity.ok(clients);
 	}
+
+	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
+	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
+
+		String path = "src/main/resources/clientData/";
+		File file = new File(path + "data.txt");
+
+		try {
+			FileWriter fileWriter = new FileWriter(file);
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+			List<Client> clients = clientService.getAllClients();
+			if (selected.equals("vk") || selected.equals("facebook")) {
+				for (Client client : clients) {
+					List<SocialNetwork> socialNetworks = client.getSocialNetworks();
+					for (SocialNetwork socialNetwork : socialNetworks) {
+						if (Optional.ofNullable(socialNetwork).isPresent()) {
+							if (socialNetwork.getSocialNetworkType().getName().equals(selected)) {
+								bufferedWriter.write(socialNetwork.getLink() + "\r\n");
+							}
+						}
+					}
+				}
+			}
+			if (selected.equals("email")) {
+				for (Client client : clients) {
+					bufferedWriter.write(client.getEmail() + "\r\n");
+				}
+			}
+			if (selected.equals("phoneNumber")) {
+				for (Client client : clients) {
+					bufferedWriter.write(client.getPhoneNumber() + "\r\n");
+				}
+			}
+
+			bufferedWriter.close();
+		} catch (IOException e) {
+			logger.error("File not created!");
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "rest/client/createFileFiltr", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity createFileWithFiltr(@RequestBody FilteringCondition filteringCondition) {
+		String path = "src/main/resources/clientData/";
+		File file = new File(path + "data.txt");
+
+		try {
+			FileWriter fileWriter = new FileWriter(file);
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+
+			List<Client> clients = clientService.filteringClient(filteringCondition);
+			if (filteringCondition.getSelected().equals("vk") || filteringCondition.getSelected().equals("facebook")) {
+				for (Client client : clients) {
+					List<SocialNetwork> socialNetworks = client.getSocialNetworks();
+					for (SocialNetwork socialNetwork : socialNetworks) {
+						if (Optional.ofNullable(socialNetwork).isPresent()) {
+							if (socialNetwork.getSocialNetworkType().getName().equals(filteringCondition.getSelected())) {
+								bufferedWriter.write(socialNetwork.getLink() + "\r\n");
+							}
+						}
+					}
+				}
+			}
+			if (filteringCondition.getSelected().equals("email")) {
+				for (Client client : clients) {
+					bufferedWriter.write(client.getEmail() + "\r\n");
+				}
+			}
+			if (filteringCondition.getSelected().equals("phoneNumber")) {
+				for (Client client : clients) {
+					bufferedWriter.write(client.getPhoneNumber() + "\r\n");
+				}
+			}
+
+			bufferedWriter.close();
+		} catch (IOException e) {
+			logger.error("File not created!");
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
+	public ResponseEntity<InputStreamResource> getClientsData() {
+
+		String path = "src/main/resources/clientData/";
+		File file = new File(path + "data.txt");
+
+		InputStreamResource resource = null;
+		try {
+			resource = new InputStreamResource(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			logger.error("File not found!");
+		}
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment;filename=" + file.getName())
+				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
+				.body(resource);
+
+	}
+
 }

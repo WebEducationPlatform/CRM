@@ -57,6 +57,11 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public Status getFirstStatusForClient() {
+		return statusDAO.findOne(1L);
+	}
+
+	@Override
 	public void add(Status status) {
 		checkStatusUnique(status);
 		statusDAO.saveAndFlush(status);

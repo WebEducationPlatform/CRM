@@ -22,6 +22,8 @@ public class FilteringCondition {
 
     private Client.State state;
 
+    private String selected;
+
     public FilteringCondition() {
     }
 
@@ -95,5 +97,13 @@ public class FilteringCondition {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getSelected() {
+        return selected;
+    }
+
+    public void setSelected(String selected) {
+        this.selected = selected;
     }
 }

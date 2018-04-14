@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StatusRestController {
 
-	private static Logger logger = LoggerFactory.getLogger(StatusRestController.class);
+    private static Logger logger = LoggerFactory.getLogger(StatusRestController.class);
 
-	private final StatusService statusService;
-	private final ClientService clientService;
+    private final StatusService statusService;
+    private final ClientService clientService;
 
-	@Autowired
-	public StatusRestController(StatusService statusService, ClientService clientService) {
-		this.statusService = statusService;
-		this.clientService = clientService;
-	}
+    @Autowired
+    public StatusRestController(StatusService statusService, ClientService clientService) {
+        this.statusService = statusService;
+        this.clientService = clientService;
+    }
 
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {

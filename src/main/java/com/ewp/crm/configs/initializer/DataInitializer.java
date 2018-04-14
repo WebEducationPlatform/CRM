@@ -13,14 +13,21 @@ public class DataInitializer {
 
 	@Autowired
 	private StatusService statusService;
+
 	@Autowired
 	private ClientService clientService;
+
 	@Autowired
 	private UserService userService;
+
 	@Autowired
 	private RoleService roleService;
+
 	@Autowired
 	private EmailTemplateService emailTemplateService;
+
+	@Autowired
+	private SocialNetworkTypeService socialNetworkTypeService;
 
 	private void init() {
 
@@ -28,6 +35,11 @@ public class DataInitializer {
 		Role roleUser = new Role("USER");
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
+
+		SocialNetworkType VK = new SocialNetworkType("vk");
+		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
+		socialNetworkTypeService.addType(VK);
+		socialNetworkTypeService.addType(FACEBOOK);
 
 		User admin = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), (byte) 22, "Moscow", "Russia", "Mentor",
@@ -91,15 +103,16 @@ public class DataInitializer {
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client4.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
-		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", SocialNetwork.SocialMarker.VK),
-				new SocialNetwork("https://fb", SocialNetwork.SocialMarker.FACEBOOK)));
-		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", SocialNetwork.SocialMarker.VK),
-				new SocialNetwork("https://fb", SocialNetwork.SocialMarker.FACEBOOK)));
-		client3.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", SocialNetwork.SocialMarker.VK),
-				new SocialNetwork("https://fb", SocialNetwork.SocialMarker.FACEBOOK)));
-		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", SocialNetwork.SocialMarker.VK),
-				new SocialNetwork("https://fb", SocialNetwork.SocialMarker.FACEBOOK)));
-		client1.setJobs(Arrays.asList(new Job("javaMentor","developer"),new Job("Microsoft","Junior developer")));
+		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
+				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
+				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+		client3.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
+				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
+				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+
+		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 		clientService.addClient(client1);
 		clientService.addClient(client2);
 		clientService.addClient(client3);
