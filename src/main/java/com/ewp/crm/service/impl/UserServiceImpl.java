@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 				String fileName = "user-" + user.getId() + "-avatar.png";
 				File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
 				ImageIO.write(image, "png", outputFile);
-				user.setPhoto("/avatar/" + fileName);
+				user.setPhoto("/admin/avatar/" + fileName);
 				update(user);
 			}catch (Exception e){
 				logger.error("Error during saving photo: " + e.getMessage());

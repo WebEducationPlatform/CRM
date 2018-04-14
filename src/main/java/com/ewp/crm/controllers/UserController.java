@@ -41,7 +41,6 @@ public class UserController {
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	@Autowired
-
 	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService) {
 		this.userService = userService;
 		this.roleService = roleService;
