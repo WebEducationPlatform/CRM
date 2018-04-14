@@ -74,26 +74,23 @@ function changeClient(id) {
         socialNetworks: SN,
         jobs: Job
     };
-
+    var current = document.getElementById("message");
     $.ajax({
         type: "POST",
         url: url,
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(wrap),
         beforeSend: function(){
-            var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
 
         },
         success: function () {
-            var current = document.getElementById("message");
             current.textContent = "Сохранено";
             current.style.color = "limegreen";
         },
         error: function (e) {
             console.log(e.responseText);
-            var current = document.getElementById("message");
             current.textContent = "Ошибка сохранения. " + e.responseText;
             current.style.color = "red";
         }

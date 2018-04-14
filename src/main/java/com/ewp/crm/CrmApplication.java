@@ -3,10 +3,9 @@ package com.ewp.crm;
 import com.ewp.crm.configs.initializer.DataInitializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
+@SpringBootApplication
 public class CrmApplication {
 
 	public static void main(String[] args) {

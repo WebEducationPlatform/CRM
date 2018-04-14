@@ -1,6 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.email.MailSendService;
+import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.slf4j.Logger;
@@ -14,20 +16,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.io.*;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-public class RestClientController {
+public class ClientRestController {
 
-	private static Logger logger = LoggerFactory.getLogger(RestClientController.class);
+	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	@Autowired
-	public RestClientController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 	}
