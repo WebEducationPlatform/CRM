@@ -40,7 +40,7 @@ public class UserRestController {
 	public ResponseEntity<List<User>> getAll() {
 		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List <User> users = userService.getAll();
-		users.remove(currentUser);
+		users.remove(userService.get(currentUser.getId()));
 		return ResponseEntity.ok(users);
 	}
 
