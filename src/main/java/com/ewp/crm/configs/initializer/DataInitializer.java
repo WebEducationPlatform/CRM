@@ -5,6 +5,7 @@ import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -111,7 +112,10 @@ public class DataInitializer {
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-
+		client2.setPostponedTo(LocalDate.of(1970,1,1));
+		client1.setPostponedTo(LocalDate.of(1970,1,1));
+		client3.setPostponedTo(LocalDate.of(1970,1,1));
+		client4.setPostponedTo(LocalDate.of(1970,1,1));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 		clientService.addClient(client1);
 		clientService.addClient(client2);

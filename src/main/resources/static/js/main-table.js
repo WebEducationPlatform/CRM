@@ -460,3 +460,36 @@ function sendCustomTempate(clientId) {
         }
     });
 }
+
+function hideClient(clientId) {
+    let url = 'admin/rest/client/postpone';
+    let formData = {
+        clientId: clientId,
+        date: $('#postponedDate' + clientId).val()
+    };
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function (result) {
+            location.reload();
+        },
+        error: function (e) {
+            currentStatus = $("#postponedStatus" + clientId)[0];
+            currentStatus.textContent = "Произошла ошибка";
+            console.log(e.responseText)
+        }
+    })
+}
+
+$(document).ready(function () {
+    var nowDate = new Date();
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() +1, 0, 0, 0, 0);
+    $('input[name="postponedDate"]').daterangepicker({
+        singleDatePicker: true,
+        locale: {
+            format: 'DD.MM.YYYY'
+        },
+        minDate: minDate
+    });
+});

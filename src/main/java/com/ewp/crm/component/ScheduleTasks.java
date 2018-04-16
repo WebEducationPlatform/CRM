@@ -17,6 +17,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +67,7 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVk() {
 		try {
 			Optional<List<String>> newMassages = vkUtil.getNewMassages();
@@ -89,7 +91,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
@@ -105,5 +107,15 @@ public class ScheduleTasks {
 		}
 	}
 
-
+	//@Scheduled(cron = "0 0 8 * * *")
+	@Scheduled(fixedRate = 40_000)
+	private void checkClientActivationDate() {
+		List<Client> clients = clientService.getAllClients();
+		for(Client client: clients) {
+			if(!client.isActive() && (client.getPostponedTo().isBefore(LocalDate.now()) || client.getPostponedTo().isEqual(LocalDate.now()))) {
+				client.setPostponedTo(LocalDate.of(1970,1,1));
+				clientService.updateClient(client);
+			}
+		}
+	}
 }

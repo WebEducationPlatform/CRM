@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,9 +49,26 @@ public class Client implements Serializable {
 
 	private String comment;
 
+	@NotNull
+	@Column(name = "postponedTo", nullable = false)
+	private Date postponedTo;
+
+
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
 	private State state;
+
+	public LocalDate getPostponedTo() {
+		return postponedTo.toLocalDate();
+	}
+
+	public void setPostponedTo(LocalDate postponedTo) {
+		this.postponedTo = Date.valueOf(postponedTo);
+	}
+
+	public boolean isActive() {
+		return getPostponedTo().isEqual(LocalDate.of(1970, 1, 1));
+	}
 
 	@Column(name = "date")
 	private Date dateOfRegistration;

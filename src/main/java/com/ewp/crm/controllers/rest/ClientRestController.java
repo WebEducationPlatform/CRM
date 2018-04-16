@@ -1,8 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.slf4j.Logger;
@@ -16,10 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.io.*;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -219,4 +216,22 @@ public class ClientRestController {
 
 	}
 
+	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
+	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
+		try {
+			Client client = clientService.getClientByID(clientId);
+			String[] partOfDate = date.split("\\.");
+			LocalDate postponedTo = LocalDate.of(Integer.parseInt(partOfDate[2]), Integer.parseInt(partOfDate[1]), Integer.parseInt(partOfDate[0]));
+			if (postponedTo.isBefore(LocalDate.now()) || postponedTo.isEqual(LocalDate.now()))
+				return ResponseEntity.badRequest().body("Дата не может быть меньше/равной сегодняшней");
+			client.setPostponedTo(postponedTo);
+			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
+			clientService.updateClient(client);
+			logger.info("{} has postponed client id {} until {}", currentAdmin.getFullName(), client.getId(), date);
+			return ResponseEntity.ok(HttpStatus.OK);
+		}catch (Exception e){
+			return ResponseEntity.badRequest().body("Произошла ошибка");
+		}
+	}
 }
