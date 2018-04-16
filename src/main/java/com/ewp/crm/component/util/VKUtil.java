@@ -5,7 +5,6 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
-import com.ewp.crm.utils.converters.VKConverter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -44,10 +43,8 @@ public class VKUtil {
 
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
 
-	private final VKConverter vkConverter;
-
 	@Autowired
-	public VKUtil(VKConfig vkConfig, VKConverter vkConverter) {
+	public VKUtil(VKConfig vkConfig) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -55,7 +52,6 @@ public class VKUtil {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
-		this.vkConverter = vkConverter;
 	}
 
 	@PostConstruct
@@ -125,70 +121,57 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public Optional<List<Long>> getFriendsIdFromManager() {
-		String friendsRequest = VK_API_METHOD_TEMPLATE + "friends.get" +
-				"?order=" + "random" +
+	public String sendMessageToClient(Client client, String msg) {
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
+				long id = Long.parseLong(socialNetwork.getLink()
+						.replace("https://vk.com/id", ""));
+				return sendMessageById(id, msg);
+			}
+		}
+		logger.error("{} hasn't vk social network", client.getEmail());
+		return client.getName() + " hasn't vk social network";
+	}
+
+	private String sendMessageById(long id, String msg) {
+		String unixCarriage = msg.replaceAll("\r\n", "\n");
+		String replaceCarriage = unixCarriage.replaceAll("\n", "%0A");
+		String uriMsg = replaceCarriage.replaceAll(" ", "%20");
+
+		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+				"?user_id=" + id +
 				"&v=" + version +
+				"&message=" + uriMsg +
 				"&access_token=" + accessToken;
 
-		HttpGet request = new HttpGet(friendsRequest);
+		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build())
-				.build();
+							.setDefaultRequestConfig(RequestConfig.custom()
+							.setCookieSpec(CookieSpecs.STANDARD).build())
+							.build();
 		try {
 			HttpResponse response = httpClient.execute(request);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject jsonObject = new JSONObject(result);
-			JSONObject jsonResponse = jsonObject.getJSONObject("response");
-			JSONArray jsonItems = jsonResponse.getJSONArray("items");
-			List<Long> friendsId = new ArrayList<>();
-			for (int i = 0; i < jsonItems.length(); i++) {
-				friendsId.add(jsonItems.getLong(i));
-			}
-			return Optional.of(friendsId);
+			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
+			return determineResponse(jsonEntity);
 		} catch (JSONException e) {
 			logger.error("JSON couldn't parse response");
 		} catch (IOException e) {
 			logger.error("Failed connect to vk api");
 		}
-		return Optional.empty();
+		return "Failed to send message";
 	}
 
-	public boolean sendMessageToClient(Client client, String msg){
-		boolean result = false;
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
-			if(socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-				long id = vkConverter.parseLink(socialNetwork.getLink());
-				result = sendMessageById(id,msg);
-			}
-		}
-		return result;
-	}
-
-	private boolean sendMessageById(long id, String msg){
-		String htmlMsg = vkConverter.parseMessage(msg);
-		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
-				"?user_id=" + id +
-				"&v=" + version +
-				"&message=" + htmlMsg +
-				"&access_token=" + accessToken;
-		HttpGet request = new HttpGet(sendMsgRequest);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build())
-				.build();
+	// Determine text, which varies depending of the success of the sending message
+	private String determineResponse(JSONObject jsonObject) throws JSONException {
 		try {
-			HttpResponse response = httpClient.execute(request);
-			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
-			JSONObject jsonResponse = jsonEntity.getJSONObject("response");
-			return true;
-		}catch (JSONException e){
-			logger.error("JSON couldn't parse response or principal can`t send message to client");
-		}catch (IOException e){
-			logger.error("Failed connect to vk api");
+			jsonObject.getInt("response");
+			return "Message sent";
+		} catch (JSONException e) {
+			JSONObject jsonError = jsonObject.getJSONObject("error");
+			String errorMessage = jsonError.getString("error_msg");
+			logger.error(errorMessage);
+			return errorMessage;
 		}
-		return false;
 	}
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
