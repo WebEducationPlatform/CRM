@@ -493,3 +493,8 @@ a[id^="eTemplateBtn"] {
 	width: -webkit-fill-available;  /*так и должно быть*/
 	width: fill-available; /*тут тоже*/
 }
+
+span[id^="postponedStatus"] {
+	color: red;
+	float: right;
+}
