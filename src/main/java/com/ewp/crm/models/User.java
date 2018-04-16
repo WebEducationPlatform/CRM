@@ -6,8 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 
 @Entity
@@ -16,6 +14,7 @@ public class User implements UserDetails {
 
 	@Id
 	@GeneratedValue
+	@Column (name = "user_id")
 	private Long id;
 
 	@Column(nullable = false)
@@ -60,11 +59,21 @@ public class User implements UserDetails {
 	private String photoType;
 
 	@JsonIgnore
+	@OneToMany
+	@JoinTable(name = "user_notification",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
+	private List<Notification> notifications;
+
+	@JsonIgnore
+	private boolean enableNotifications = true;
+
+	@JsonIgnore
 	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
 
 	@NotNull
-	@ManyToMany(fetch=FetchType.EAGER, targetEntity = Role.class)
+	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
@@ -73,7 +82,7 @@ public class User implements UserDetails {
 	public User() {
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary,  List<Role> role) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -202,9 +211,11 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
-	public String getFullName(){
+	public String getFullName() {
 		return this.firstName + " " + this.lastName;
 	}
+
+	public String getFullCombinedName() {return this.firstName + this.lastName;}
 
 	public String getPhoto() {
 		return this.photo;
@@ -279,5 +290,21 @@ public class User implements UserDetails {
 		result = 31 * result + phoneNumber.hashCode();
 		result = 31 * result + email.hashCode();
 		return result;
+	}
+
+	public boolean isEnableNotifications() {
+		return enableNotifications;
+	}
+
+	public void setEnableNotifications(boolean enableNotifications) {
+		this.enableNotifications = enableNotifications;
+	}
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<Notification> notifications) {
+		this.notifications = notifications;
 	}
 }

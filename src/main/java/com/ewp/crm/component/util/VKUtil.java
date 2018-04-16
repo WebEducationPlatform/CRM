@@ -174,9 +174,7 @@ public class VKUtil {
 			JSONObject jsonUser = jsonUsers.getJSONObject(0);
 			String name = jsonUser.getString("first_name");
 			String lastName = jsonUser.getString("last_name");
-
 			String vkLink = "vk.com/id" + id.toString();
-
 			Client client = new Client(name, lastName);
 			SocialNetwork socialNetwork = new SocialNetwork(vkLink);
 			List<SocialNetwork> socialNetworks = new ArrayList<>();

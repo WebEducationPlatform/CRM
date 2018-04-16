@@ -31,7 +31,8 @@ $(document).ready(
 );
 
 var data = {};
-$('#filtration').click(function () {
+$('#filtration').click(function (){
+    data = {};
     var url = "../rest/client/filtration";
 
     if ($('#sex').val() !== "") {
@@ -94,7 +95,6 @@ $('#clientData').click(function (event) {
             success: function () {
                 window.location.replace("http://localhost:9090/rest/client/getClientsData")
             }
-
         });
     }
     if (!(jQuery.isEmptyObject(data))) {

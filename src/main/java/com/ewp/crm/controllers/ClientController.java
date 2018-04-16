@@ -1,10 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +28,15 @@ public class ClientController {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
+	private final NotificationService notificationService;
+
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ClientController(StatusService statusService, ClientService clientService, UserService userService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.notificationService = notificationService;
 	}
 
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
@@ -53,13 +53,16 @@ public class ClientController {
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("users", userService.getAll());
+		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allUsersPage() {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());
+		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -88,10 +91,12 @@ public class ClientController {
 
 	@RequestMapping(value = "/admin/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("client-info");
 		modelAndView.addObject("client", clientService.getClientByID(id));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 }
