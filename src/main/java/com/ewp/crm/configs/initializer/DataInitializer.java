@@ -13,12 +13,19 @@ public class DataInitializer {
 
 	@Autowired
 	private StatusService statusService;
+
 	@Autowired
 	private ClientService clientService;
+
 	@Autowired
 	private UserService userService;
+
 	@Autowired
 	private RoleService roleService;
+
+	@Autowired
+	private EmailTemplateService emailTemplateService;
+
 	@Autowired
 	private SocialNetworkTypeService socialNetworkTypeService;
 
@@ -48,6 +55,41 @@ public class DataInitializer {
 				"user", null, Client.Sex.MALE.toString(), (byte) 24, "Tver", "Russia", "Manager",
 				500D, Collections.singletonList(roleService.getByRoleName("USER")));
 		userService.add(user2);
+
+		String templateText3 = "<!DOCTYPE html>\n" +
+				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
+				"<head></head>\n" +
+				"<body>\n" +
+				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Мы не смогли до Вас дозвониться</p>\n" +
+				"<p>Пожалуйста, свяжитесь с нами</p>\n" +
+				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
+				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
+				"</body>\n" +
+				"</html>";
+		String templateText2 = "<!DOCTYPE html>\n" +
+				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
+				"<head></head>\n" +
+				"<body>\n" +
+				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Напоминаем, что необходимо опатить обучение за следующий  месяц</p>\n" +
+				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
+				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
+				"</body>\n" +
+				"</html>";
+		String templateText1 = "<!DOCTYPE html>\n" +
+				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
+				"<head></head>\n" +
+				"<body>\n" +
+				"<p th:text=\"${bodyText}\">%Тут будет размещен текст%</p>\n" +
+				"</body>\n" +
+				"</html>";
+		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3);
+		EmailTemplate emailTemplate2 = new EmailTemplate("Оплата за обучение", templateText2);
+		EmailTemplate emailTemplate1 = new EmailTemplate("После разговора", templateText1);
+		emailTemplateService.add(emailTemplate1);
+		emailTemplateService.add(emailTemplate2);
+		emailTemplateService.add(emailTemplate3);
 
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
@@ -83,6 +125,5 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
-
 	}
 }

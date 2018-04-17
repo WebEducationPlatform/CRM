@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetworkType;
 import com.ewp.crm.models.User;
@@ -15,6 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.List;
@@ -24,17 +29,18 @@ import java.util.Optional;
 @RestController
 public class UserRestController {
 
-	private static Logger logger = LoggerFactory.getLogger(RestClientController.class);
+    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
-	private final UserService userService;
+    private final UserService userService;
+    private ImageConfig imageConfig;
+    private final SocialNetworkTypeService socialNetworkTypeService;
 
-	private final SocialNetworkTypeService socialNetworkTypeService;
-
-	@Autowired
-	public UserRestController(UserService userService, SocialNetworkTypeService socialNetworkTypeService) {
-		this.userService = userService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
-	}
+    @Autowired
+    public UserRestController(UserService userService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService) {
+        this.userService = userService;
+        this.imageConfig = imageConfig;
+        this.socialNetworkTypeService = socialNetworkTypeService;
+    }
 
 	@RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAll() {
@@ -86,6 +92,7 @@ public class UserRestController {
 		return ResponseEntity.ok(socialTypeNames);
 	}
 
+
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -93,4 +100,11 @@ public class UserRestController {
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
+
+    @ResponseBody
+    @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
+    public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
+        Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");
+        return Files.readAllBytes(fileLocation);
+    }
 }

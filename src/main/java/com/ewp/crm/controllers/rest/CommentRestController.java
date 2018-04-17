@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/rest/comment")
 @EnableAsync
-public class CommentController {
+public class CommentRestController {
 
 	private ClientService clientService;
 
@@ -32,7 +32,7 @@ public class CommentController {
 	private SendNotificationService sendNotificationService;
 
 	@Autowired
-	public CommentController(ClientService clientService, CommentService commentService, UserService userService, NotificationService notificationService, SendNotificationService sendNotificationService) {
+	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, NotificationService notificationService, SendNotificationService sendNotificationService) {
 		this.clientService = clientService;
 		this.commentService = commentService;
 		this.userService = userService;
