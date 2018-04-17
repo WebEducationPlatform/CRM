@@ -41,6 +41,8 @@ public class VKUtil {
 	private String version;
 	private String communityToken;
 
+	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
+
 	@Autowired
 	public VKUtil(VKConfig vkConfig) {
 		clientId = vkConfig.getClientId();
@@ -78,15 +80,13 @@ public class VKUtil {
 	}
 
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
-		String uriGetMassages = "https://api.vk.com/method/" +
-				"messages.getHistory" +
+		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
 				"?user_id=" + clubId +
 				"&rev=1" +
 				"&version=" + version +
 				"&access_token=" + accessToken;
 
-		String uriMarkAsRead = "https://api.vk.com/method/" +
-				"messages.markAsRead" +
+		String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
 				"?peer_id=" + clubId +
 				"&version=" + version +
 				"&access_token=" + accessToken;
@@ -121,10 +121,61 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
+	public String sendMessageToClient(Client client, String msg) {
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
+				long id = Long.parseLong(socialNetwork.getLink()
+						.replace("https://vk.com/id", ""));
+				return sendMessageById(id, msg);
+			}
+		}
+		logger.error("{} hasn't vk social network", client.getEmail());
+		return client.getName() + " hasn't vk social network";
+	}
+
+	private String sendMessageById(long id, String msg) {
+		String unixCarriage = msg.replaceAll("\r\n", "\n");
+		String replaceCarriage = unixCarriage.replaceAll("\n", "%0A");
+		String uriMsg = replaceCarriage.replaceAll(" ", "%20");
+
+		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+				"?user_id=" + id +
+				"&v=" + version +
+				"&message=" + uriMsg +
+				"&access_token=" + accessToken;
+
+		HttpGet request = new HttpGet(sendMsgRequest);
+		HttpClient httpClient = HttpClients.custom()
+							.setDefaultRequestConfig(RequestConfig.custom()
+							.setCookieSpec(CookieSpecs.STANDARD).build())
+							.build();
+		try {
+			HttpResponse response = httpClient.execute(request);
+			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
+			return determineResponse(jsonEntity);
+		} catch (JSONException e) {
+			logger.error("JSON couldn't parse response");
+		} catch (IOException e) {
+			logger.error("Failed connect to vk api");
+		}
+		return "Failed to send message";
+	}
+
+	// Determine text, which varies depending of the success of the sending message
+	private String determineResponse(JSONObject jsonObject) throws JSONException {
+		try {
+			jsonObject.getInt("response");
+			return "Message sent";
+		} catch (JSONException e) {
+			JSONObject jsonError = jsonObject.getJSONObject("error");
+			String errorMessage = jsonError.getString("error_msg");
+			logger.error(errorMessage);
+			return errorMessage;
+		}
+	}
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-		String uriGetDialog = "https://api.vk.com/method/" +
-				"messages.getDialogs" +
+		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
 				"?v=" + version +
 				"&unread=1" +
 				"&access_token=" +
@@ -156,8 +207,7 @@ public class VKUtil {
 	}
 
 	public Optional<Client> getClientFromVkId(Long id) {
-		String uriGetClient = "https://api.vk.com/method/" +
-				"users.get?" +
+		String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
 				"version=" + version +
 				"&user_id=" + id;
 

@@ -213,6 +213,40 @@ function assign(id) {
         }
     });
 }
+function assignUser(id, user) {
+    let
+        url = '/rest/client/assign/user',
+        formData = {
+            clientId: id,
+            userForAssign : user
+        },
+        own_icon = $('#own-' + id),
+        assignBtn = $('#assign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            own_icon.remove();
+            assignBtn.before(
+                "<button " +
+                "   id='unassign-client" + id +"' " +
+                "   onclick='unassign(" + id +")' " +
+                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+            );
+            assignBtn.remove();
+            $('#info-client' + id).append(
+                "<p class='user-icon' id='own-"+id+ "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "</p>"
+            );
+            fillFilterList()
+        },
+        error: function (error) {
+        }
+    });
+}
 
 function unassign(id) {
     let
