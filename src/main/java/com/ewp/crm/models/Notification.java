@@ -15,11 +15,11 @@ public class Notification implements Serializable {
 	@Column
 	private Long id;
 
-	@JsonIgnore
 	@ManyToOne
 	@JoinTable(name = "client_notification",
 			joinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
+	@JsonIgnore
 	private Client client;
 
 	@ManyToOne
