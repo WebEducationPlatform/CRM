@@ -46,7 +46,7 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
-
+		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
 
@@ -64,6 +64,7 @@ public class UserController {
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
@@ -82,6 +83,7 @@ public class UserController {
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
 		modelAndView.setViewName("socialNetworkTypes-table");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
@@ -90,7 +92,6 @@ public class UserController {
 	public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
 		socialNetworkTypeService.deleteType(Long.parseLong(id));
 		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-
 	}
 
 	@RequestMapping(value = "/admin/user/addSocialNetworkType", method = RequestMethod.POST)

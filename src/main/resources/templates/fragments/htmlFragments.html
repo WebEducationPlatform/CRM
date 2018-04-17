@@ -62,9 +62,9 @@
                 </li>
                 <li>
                     <button data-toggle="dropdown" class="user-icon" style="margin-right: 5%;margin-left: 0%;border-width: 3%;"
-                            th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
-                                  + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
-                            th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
+                            th:text="${#strings.substring(user.firstName, 0,1)
+                                  + #strings.substring(user.lastName, 0,1)}"
+                            th:value="${user.firstName} + ' ' + ${user.lastName}">
                     </button>
                     <ul class="dropdown-menu">
                         <li><a href="/user/customize">Настройки</a></li>
@@ -90,6 +90,7 @@
 
     <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
 </th:block>
+
 <th:block th:fragment="comments">
     <div class="modal-footer modal-comments">
         <div class="comments">
@@ -164,6 +165,27 @@
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="sendTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтвердите свое действие</h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Отправить сообщение пользователю?</h6>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
+                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="downloadModal">
 
     <!-- Modal -->
@@ -189,6 +211,27 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                     <button type="submit" class="btn btn-primary" role="button" id="clientData">Скачать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="deleteUser">
+    <div th:each="usr : ${users}">
+        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">Да</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -227,6 +270,102 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="changeStatusNameModal">
+<div class="modal fade" th:id="'renameStatusModal' + ${status.id}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameStatusModalTitle" th:text="${status.name}"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
+                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" placeholder="Название статуса"/>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
+
+<th:block th:fragment="deleteStatusModal">
+<div class="modal fade" th:id="'deleteStatusModal' + ${status.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтвердите свое действие</h5>
+            </div>
+            <div class="modal-body">
+                <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" th:onclick="'deleteStatus(\''+ ${status.id} +'\')'">Да</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
+
+<th:block th:fragment="createDefaultStatusModal">
+<div class="modal fade" th:if="${statuses.size()== 0}" th:id="createDefaultStatus" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создание нового статуса</h5>
+            </div>
+            <div class="modal-body">
+                <h6>Стутус по умолчанию не задан. Введите имя нового статуса</h6>
+                <div class="form-group">
+                    <input id="default-status-name" type="text" class="form-control"
+                           placeholder="Введите название статуса"/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="createNewStatus()">Создать</button>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
+
+<th:block th:fragment="customEmailTemplateModal">
+    <div class="modal fade" th:id="customEmailTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                        <div class="form-group">
+                            <textarea id="custom-eTemplate-body" class="form-control"
+                                   placeholder="Основной текст"></textarea>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <span id = "sendCustomEmailTemplateStatus"></span>
+                    <button type="button" class="btn btn-primary" id = 'sendCustomTemplateBtn' th:onclick="'sendCustomTempate(\'' + ${client.id} + '\')'">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block th:fragment="editEmailTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editEmailTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h6>Отправить сообщение пользователю?</h6>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'editEmailTemplate' + ${template.id}"></span>
+                    <button type="button" th:id = "'saveETemplateChangesBtn' + ${template.id}" class="btn btn-primary" th:onclick="'saveETemplateChanges(\'' +  ${template.id} + '\')'">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                </div>
+            </div>
         </div>
     </div>
 </th:block>

@@ -1,6 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.email.MailSendService;
+import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import com.ewp.crm.service.interfaces.UserService;
@@ -15,21 +17,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.io.*;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-public class RestClientController {
+public class ClientRestController {
 
-	private static Logger logger = LoggerFactory.getLogger(RestClientController.class);
+	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
 	private final UserService userService;
 
 	@Autowired
-	public RestClientController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService,UserService userService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
@@ -56,23 +61,6 @@ public class RestClientController {
 		client.setOwnerUser(user);
 		clientService.updateClient(client);
 		logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
-		return ResponseEntity.ok(client.getOwnerUser());
-	}
-
-	//hasAnyAuthority(ADMIN)
-	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
-	public ResponseEntity<User> assignUser(@RequestParam(name = "clientId") Long clientId,
-	                                       @RequestParam(name = "userForAssign")Long userId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		User assignUser = userService.get(userId);
-		Client client = clientService.getClientByID(clientId);
-		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
-			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", user.getEmail(), clientId, assignUser.getEmail());
-			return ResponseEntity.badRequest().body(null);
-		}
-		client.setOwnerUser(assignUser);
-		clientService.updateClient(client);
-		logger.info("User {} has assigned client with id {} to user {}", user.getEmail(), clientId, assignUser.getEmail());
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
