@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-	private NotificationRepository notificationRepository;
+	private final NotificationRepository notificationRepository;
 
 	@Autowired
 	public NotificationServiceImpl(NotificationRepository notificationRepository) {

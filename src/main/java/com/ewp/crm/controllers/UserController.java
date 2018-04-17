@@ -26,7 +26,7 @@ public class UserController {
 	private final RoleService roleService;
 	private final ImageConfig imageConfig;
 	private final SocialNetworkTypeService socialNetworkTypeService;
-	private NotificationService notificationService;
+	private final NotificationService notificationService;
 
 	@Autowired
 
@@ -71,14 +71,8 @@ public class UserController {
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (notifications) {
-			user.setEnableNotifications(true);
-			userService.update(user);
-		}
-		if (!notifications) {
-			user.setEnableNotifications(false);
-			userService.update(user);
-		}
+		user.setEnableNotifications(notifications);
+		userService.update(user);
 		return new ModelAndView("redirect:/user/customize");
 	}
 
