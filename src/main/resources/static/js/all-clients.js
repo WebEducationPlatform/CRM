@@ -59,7 +59,12 @@ $('#filtration').click(function (){
                 '<tbody id="table-body">' +
                 '    </tbody>'
             );
+
             for (var i = 0; i < res.length; i++) {
+                var socLink = '';
+                for(var j  = 0; j < res[i].socialNetworks.length; j++) {
+                    socLink += res[i].socialNetworks[j].link + '\n';
+                }
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
@@ -67,6 +72,7 @@ $('#filtration').click(function (){
                     '        <td>' + res[i].lastName + '</td>' +
                     '        <td>' + res[i].phoneNumber + '</td>' +
                     '        <td>' + res[i].email + '</td>' +
+                    '        <td>' + socLink + '</td>' +
                     '        <td>' + res[i].age + ' </td>' +
                     '        <td>' + res[i].sex + ' </td>' +
                     '        <td>' + res[i].city + ' </td>' +
