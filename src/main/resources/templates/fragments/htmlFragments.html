@@ -31,6 +31,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="/client">Клиенты</a></li>
                 <li><a href="/client/allClients">Все клиенты</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <th:block th:if="${notifications.size() > 0}">
                         <a class="glyphicon glyphicon-bell redBell" style="color: red" data-toggle="dropdown">
@@ -58,10 +60,8 @@
                         </th:block>
                     </ul>
                 </li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <button data-toggle="dropdown" class="user-icon"
+                    <button data-toggle="dropdown" class="user-icon" style="margin-right: 5%;margin-left: 0%;border-width: 3%;"
                             th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
                                   + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
                             th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">

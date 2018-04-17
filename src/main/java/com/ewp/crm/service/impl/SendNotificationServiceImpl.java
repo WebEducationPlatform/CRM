@@ -16,14 +16,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SendNotificationServiceImpl implements SendNotificationService {
 
-	private UserService userService;
+	private final UserService userService;
 
-	private MailNotificationService mailNotificationService;
+	private final MailNotificationService mailNotificationService;
 
-	private NotificationService notificationService;
+	private final NotificationService notificationService;
 
 	@Autowired
-	public void SendNotificationService(UserService userService, MailNotificationService mailNotificationService, NotificationService notificationService) {
+	public SendNotificationServiceImpl(UserService userService, MailNotificationService mailNotificationService, NotificationService notificationService) {
 		this.userService = userService;
 		this.mailNotificationService = mailNotificationService;
 		this.notificationService = notificationService;
