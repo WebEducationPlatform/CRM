@@ -123,7 +123,7 @@
                                             <div class="panel-body">
                                                 <span>Скрыть клиента до: </span>
                                                 <div class = "form-group">
-                                                    <input type = "text" class="form-control" th:id = "'postponedDate' + ${client.id}" name="postponedDate" placeholder="Дата"/>
+                                                    <input type = "text" class="form-control" th:id = "'postponedDate' + ${client.id}" name="postponedDate"/>
                                                 </div>
                                                 <button th:onclick="'hideClient('+ ${client.id} +')'"
                                                         class="btn btn-md btn-info" >OK

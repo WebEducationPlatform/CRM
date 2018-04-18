@@ -58,6 +58,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public List<Client> getChangeActiveClients() {
+        return clientRepository.getChangeActiveClients();
+    }
+
+    @Override
     public void addClient(Client client) {
         clientRepository.saveAndFlush(client);
     }

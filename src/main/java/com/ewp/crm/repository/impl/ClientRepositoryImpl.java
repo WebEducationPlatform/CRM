@@ -1,5 +1,6 @@
 package com.ewp.crm.repository.impl;
 
+import com.ewp.crm.component.ScheduleTasks;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
@@ -24,6 +25,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {
         return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+    }
+
+    @Override
+    public List<Client> getChangeActiveClients() {
+        return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponedTo!='" + ScheduleTasks.defaultDate.toString() +
+                "'and cl.postponedTo<=now()").getResultList();
     }
 
     private String createQuery(FilteringCondition filteringCondition) {

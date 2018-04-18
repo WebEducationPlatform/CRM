@@ -484,12 +484,17 @@ function hideClient(clientId) {
 
 $(document).ready(function () {
     var nowDate = new Date();
-    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate() +1, 0, 0, 0, 0);
+    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     $('input[name="postponedDate"]').daterangepicker({
         singleDatePicker: true,
+        timePicker: true,
+        timePickerIncrement: 10,
+        timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY'
+            format: 'DD.MM.YYYY H:mm'
         },
-        minDate: minDate
+        minDate: minDate,
+        startDate: minDate
     });
 });
