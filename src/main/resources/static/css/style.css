@@ -301,7 +301,7 @@ ul.nav a:hover {
 }
 
 
-input[type="checkbox"] { display: none; }
+input[id^="checkbox-user"] { display: none; }
 
 input[type="checkbox"] + label {
 	display: block;

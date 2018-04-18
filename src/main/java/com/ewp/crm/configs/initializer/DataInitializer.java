@@ -1,11 +1,13 @@
 package com.ewp.crm.configs.initializer;
 
+import com.ewp.crm.component.ScheduleTasks;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -61,7 +63,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Мы не смогли до Вас дозвониться</p>\n" +
 				"<p>Пожалуйста, свяжитесь с нами</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
@@ -72,7 +74,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Напоминаем, что необходимо опатить обучение за следующий  месяц</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
@@ -112,10 +114,10 @@ public class DataInitializer {
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-		client2.setPostponedTo(LocalDate.of(1970,1,1));
-		client1.setPostponedTo(LocalDate.of(1970,1,1));
-		client3.setPostponedTo(LocalDate.of(1970,1,1));
-		client4.setPostponedTo(LocalDate.of(1970,1,1));
+		client2.setPostponedTo(ScheduleTasks.defaultDate);
+		client1.setPostponedTo(ScheduleTasks.defaultDate);
+		client3.setPostponedTo(ScheduleTasks.defaultDate);
+		client4.setPostponedTo(ScheduleTasks.defaultDate);
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 		clientService.addClient(client1);
 		clientService.addClient(client2);

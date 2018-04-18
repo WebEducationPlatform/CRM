@@ -10,15 +10,20 @@ import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import com.ewp.crm.service.interfaces.StatusService;
+import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,15 +31,17 @@ import java.util.Optional;
 @EnableScheduling
 public class ScheduleTasks {
 
-	private VKUtil vkUtil;
+	private final VKUtil vkUtil;
 
-	private ClientService clientService;
+	public static final LocalDateTime defaultDate = LocalDateTime.of(1970,1,1,0,0);
 
-	private StatusService statusService;
+	private final ClientService clientService;
 
-	private SocialNetworkService socialNetworkService;
+	private final StatusService statusService;
 
-	private SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialNetworkService socialNetworkService;
+
+	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
@@ -110,12 +117,11 @@ public class ScheduleTasks {
 	//@Scheduled(cron = "0 0 8 * * *")
 	@Scheduled(fixedRate = 40_000)
 	private void checkClientActivationDate() {
-		List<Client> clients = clientService.getAllClients();
+		List<Client> clients = clientService.getChangeActiveClients();
 		for(Client client: clients) {
-			if(!client.isActive() && (client.getPostponedTo().isBefore(LocalDate.now()) || client.getPostponedTo().isEqual(LocalDate.now()))) {
-				client.setPostponedTo(LocalDate.of(1970,1,1));
-				clientService.updateClient(client);
-			}
+			client.setPostponedTo(defaultDate);
+			clientService.updateClient(client);
+
 		}
 	}
 }

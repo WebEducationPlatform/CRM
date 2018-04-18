@@ -15,8 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -220,17 +219,24 @@ public class ClientRestController {
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.getClientByID(clientId);
-			String[] partOfDate = date.split("\\.");
-			LocalDate postponedTo = LocalDate.of(Integer.parseInt(partOfDate[2]), Integer.parseInt(partOfDate[1]), Integer.parseInt(partOfDate[0]));
-			if (postponedTo.isBefore(LocalDate.now()) || postponedTo.isEqual(LocalDate.now()))
+			//List<Client> cl = clientService.getChangeActiveClients();
+			String[] partOfDate = date.split("\\.|\\s|\\:");
+			int day = Integer.parseInt(partOfDate[0]);
+			int month = Integer.parseInt(partOfDate[1]);
+			int year = Integer.parseInt(partOfDate[2]);
+			int hour = Integer.parseInt(partOfDate[3]);
+			int minute = Integer.parseInt(partOfDate[4]);
+			LocalDateTime postponedTo = LocalDateTime.of(year, month, day, hour, minute);
+			if (postponedTo.isBefore(LocalDateTime.now()) || postponedTo.isEqual(LocalDateTime.now())) {
 				return ResponseEntity.badRequest().body("Дата не может быть меньше/равной сегодняшней");
+			}
 			client.setPostponedTo(postponedTo);
 			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
 			clientService.updateClient(client);
 			logger.info("{} has postponed client id {} until {}", currentAdmin.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
-		}catch (Exception e){
+		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
 	}
