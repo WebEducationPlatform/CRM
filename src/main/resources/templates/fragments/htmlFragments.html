@@ -63,10 +63,10 @@
                     </ul>
                 </li>
                 <li>
-                    <button data-toggle="dropdown" class="user-icon" style="margin-right: 5%;margin-left: 0%;border-width: 3%;"
-                            th:text="${#strings.substring(user.firstName, 0,1)
-                                  + #strings.substring(user.lastName, 0,1)}"
-                            th:value="${user.firstName} + ' ' + ${user.lastName}">
+                    <button data-toggle="dropdown" class="user-icon"
+                            th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
+                                     + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
+                            th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
                     </button>
                     <ul class="dropdown-menu">
                         <li><a href="/user/customize">Настройки</a></li>
