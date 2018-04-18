@@ -46,7 +46,7 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
-		modelAndView.addObject("user", userFromSession);
+		//modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
 
@@ -64,7 +64,6 @@ public class UserController {
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
