@@ -11,7 +11,6 @@ import com.ewp.crm.service.interfaces.UserService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +30,6 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 	}
 
 	@Override
-	@Async
 	public void sendNotification(String content, Client client) {
 		List<User> users = userService.getAll();
 		for (User user : users) {

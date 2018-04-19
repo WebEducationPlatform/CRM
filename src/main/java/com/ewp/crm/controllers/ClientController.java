@@ -38,7 +38,7 @@ public class ClientController {
 
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        EmailTemplateService emailTemplateService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
+	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
