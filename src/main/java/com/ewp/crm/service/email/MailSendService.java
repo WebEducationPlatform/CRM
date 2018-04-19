@@ -11,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -81,6 +82,7 @@ public class MailSendService {
 		}
 	}
 
+	@Async
 	public void sendNotificationMessage(User userToNotify) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setSubject("Оповещение из CRM");
