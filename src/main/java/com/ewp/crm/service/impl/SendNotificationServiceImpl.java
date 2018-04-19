@@ -8,12 +8,13 @@ import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.UserService;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class SendNotificationServiceImpl implements SendNotificationService {
@@ -39,13 +40,17 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 		Matcher matcher = pattern.matcher(content);
 
 		while (matcher.find()) {
-			String[] result = matcher.group().split(regexForSplit);
-			User userToNotify = userService.getUserByFirstNameAndLastName(result[1], result[2]);
-			if (userToNotify.isEnableNotifications()) {
-				mailSendService.sendNotificationMessage(userToNotify);
+			String[] fullName = matcher.group().split(regexForSplit);
+			if (fullName.length == 3) {
+				User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
+				if (Optional.ofNullable(userToNotify).isPresent()) {
+					if (userToNotify.isEnableNotifications()) {
+						mailSendService.sendNotificationMessage(userToNotify);
+					}
+					Notification notification = new Notification(client, userToNotify);
+					notificationService.addNotification(notification);
+				}
 			}
-			Notification notification = new Notification(client, userToNotify);
-			notificationService.addNotification(notification);
 		}
 	}
 }
