@@ -2,9 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Comment;
-import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.email.MailNotificationService;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/rest/comment")
@@ -25,7 +22,6 @@ public class CommentRestController {
 	private CommentService commentService;
 
 	private UserService userService;
-
 
 	private NotificationService notificationService;
 
