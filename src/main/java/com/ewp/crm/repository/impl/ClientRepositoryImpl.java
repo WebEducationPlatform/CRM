@@ -4,6 +4,7 @@ import com.ewp.crm.component.ScheduleTasks;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,6 @@ import java.util.List;
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private EntityManager entityManager;
-
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -25,12 +25,6 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {
         return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
-    }
-
-    @Override
-    public List<Client> getChangeActiveClients() {
-        return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponedTo!='" + ScheduleTasks.defaultDate.toString() +
-                "'and cl.postponedTo<=now()").getResultList();
     }
 
     private String createQuery(FilteringCondition filteringCondition) {
@@ -70,5 +64,4 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
         return query.toString();
     }
-
 }

@@ -65,11 +65,11 @@ public class MailSendService {
 			mimeMessageHelper.setSubject("Java Mentor");
 			mimeMessageHelper.setTo(recipient);
 			mimeMessageHelper.setFrom(emailLogin);
-			String htmlContent = htmlTemplateEngine.process(templateFile, ctx);
+			StringBuilder htmlContent =  new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
 			for (Map.Entry<String, String> entry : params.entrySet()) {
-				htmlContent = htmlContent.replaceAll(entry.getKey(), entry.getValue());
+				htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
 			}
-			mimeMessageHelper.setText(htmlContent, true);
+			mimeMessageHelper.setText(htmlContent.toString(), true);
 			Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
 			//inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
 			//Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
