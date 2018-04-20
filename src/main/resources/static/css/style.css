@@ -494,7 +494,11 @@ a[id^="eTemplateBtn"] {
 	width: fill-available; /*тут тоже*/
 }
 
-span[id^="postponedStatus"] {
+span[id^="postponeStatus"] {
 	color: red;
 	float: right;
+}
+
+textarea[id^="postponeComment"] {
+	width: 100%;
 }

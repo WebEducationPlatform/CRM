@@ -465,7 +465,8 @@ function hideClient(clientId) {
     let url = 'admin/rest/client/postpone';
     let formData = {
         clientId: clientId,
-        date: $('#postponedDate' + clientId).val()
+        date: $('#postponeDate' + clientId).val(),
+        comment: $('#postponeComment' + clientId).val()
     };
     $.ajax({
         type: "POST",
@@ -475,7 +476,7 @@ function hideClient(clientId) {
             location.reload();
         },
         error: function (e) {
-            currentStatus = $("#postponedStatus" + clientId)[0];
+            currentStatus = $("#postponeStatus" + clientId)[0];
             currentStatus.textContent = "Произошла ошибка";
             console.log(e.responseText)
         }
@@ -486,7 +487,7 @@ $(document).ready(function () {
     var nowDate = new Date();
     var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
-    $('input[name="postponedDate"]').daterangepicker({
+    $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
         timePickerIncrement: 10,

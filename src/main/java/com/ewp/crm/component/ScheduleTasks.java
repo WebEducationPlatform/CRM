@@ -6,24 +6,14 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SocialNetworkService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
-import org.aspectj.lang.annotation.Before;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +23,6 @@ public class ScheduleTasks {
 
 	private final VKUtil vkUtil;
 
-	public static final LocalDateTime defaultDate = LocalDateTime.of(1970,1,1,0,0);
-
 	private final ClientService clientService;
 
 	private final StatusService statusService;
@@ -43,15 +31,18 @@ public class ScheduleTasks {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
+	private final PostponeClientDataService postponeClientDataService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, PostponeClientDataService postponeClientDataService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.postponeClientDataService = postponeClientDataService;
 	}
 
 	private void addClient(Client newClient) {
@@ -117,9 +108,9 @@ public class ScheduleTasks {
 	//@Scheduled(cron = "0 0 8 * * *")
 	@Scheduled(fixedRate = 40_000)
 	private void checkClientActivationDate() {
-		List<Client> clients = clientService.getChangeActiveClients();
-		for(Client client: clients) {
-			client.setPostponedTo(defaultDate);
+		List<Client> activePostponedClients = postponeClientDataService.getChangeActiveClients();
+		for (Client client : activePostponedClients) {
+			client.setPostponeClientData(null);
 			clientService.updateClient(client);
 
 		}

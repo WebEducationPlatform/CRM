@@ -1,6 +1,5 @@
 package com.ewp.crm.models;
 
-import com.ewp.crm.component.ScheduleTasks;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,8 +10,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,25 +48,24 @@ public class Client implements Serializable {
 
 	private String comment;
 
-	@NotNull
-	@Column(name = "postponedTo", nullable = false)
-	private java.util.Date postponedTo;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	private PostponeClientData postponeClientData;
 
 
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
 	private State state;
 
-	public LocalDateTime getPostponedTo() {
-		return LocalDateTime.ofInstant(postponedTo.toInstant(), ZoneId.systemDefault());
+	public PostponeClientData getPostponeClientData() {
+		return postponeClientData;
 	}
 
-	public void setPostponedTo(LocalDateTime postponedTo) {
-		this.postponedTo = Date.from(postponedTo.atZone(ZoneId.systemDefault()).toInstant());
+	public void setPostponeClientData(PostponeClientData postponeClientData) {
+		this.postponeClientData = postponeClientData;
 	}
 
 	public boolean isActive() {
-		return getPostponedTo().isEqual(ScheduleTasks.defaultDate);
+		return getPostponeClientData()==null;
 	}
 
 	@Column(name = "date")

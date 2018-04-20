@@ -98,7 +98,7 @@
                                     взять себе карточку
                                 </button>
                                 <th:block th:if="${client.ownerUser != null}">
-                                    <button th:if="${currentUserId == client.ownerUser.id}"
+                                    <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
                                             th:id="'unassign-client' + ${client.id}"
                                             th:onclick="'unassign('+ ${client.id} +')'"
                                             class="btn btn-md btn-warning" >
@@ -123,12 +123,16 @@
                                             <div class="panel-body">
                                                 <span>Скрыть клиента до: </span>
                                                 <div class = "form-group">
-                                                    <input type = "text" class="form-control" th:id = "'postponedDate' + ${client.id}" name="postponedDate"/>
+                                                    <input type = "text" class="form-control" th:id = "'postponeDate' + ${client.id}" name="postponeDate"/>
+                                                </div>
+                                                <span>Комментарий: </span>
+                                                <div class = "form-group">
+                                                    <textarea th:id = "'postponeComment' + ${client.id}"></textarea>
                                                 </div>
                                                 <button th:onclick="'hideClient('+ ${client.id} +')'"
                                                         class="btn btn-md btn-info" >OK
                                                 </button>
-                                                <span th:id = "'postponedStatus' + ${client.id}"></span>
+                                                <span th:id = "'postponeStatus' + ${client.id}"></span>
                                             </div>
                                         </div>
                                     </div>

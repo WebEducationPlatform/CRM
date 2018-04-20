@@ -3,6 +3,9 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -216,25 +218,20 @@ public class ClientRestController {
 	}
 
 	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
-	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
+	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date, @RequestParam String comment) {
 		try {
 			Client client = clientService.getClientByID(clientId);
-			//List<Client> cl = clientService.getChangeActiveClients();
-			String[] partOfDate = date.split("\\.|\\s|\\:");
-			int day = Integer.parseInt(partOfDate[0]);
-			int month = Integer.parseInt(partOfDate[1]);
-			int year = Integer.parseInt(partOfDate[2]);
-			int hour = Integer.parseInt(partOfDate[3]);
-			int minute = Integer.parseInt(partOfDate[4]);
-			LocalDateTime postponedTo = LocalDateTime.of(year, month, day, hour, minute);
-			if (postponedTo.isBefore(LocalDateTime.now()) || postponedTo.isEqual(LocalDateTime.now())) {
-				return ResponseEntity.badRequest().body("Дата не может быть меньше/равной сегодняшней");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
+			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
+				logger.info("Wrong postpone date: {}", date);
+				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponedTo(postponedTo);
+			client.setPostponeClientData(new PostponeClientData(postponeDate.toDate(), comment));
 			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
 			clientService.updateClient(client);
-			logger.info("{} has postponed client id {} until {}", currentAdmin.getFullName(), client.getId(), date);
+			logger.info("{} has postponed client id= {} until {}", currentAdmin.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
