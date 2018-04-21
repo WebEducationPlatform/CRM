@@ -28,7 +28,20 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
+            <div class="portlet" th:each="client,stat : ${status.clients}" th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
+                <div class="portlet-title">
+                        <div class="dropdown" style="margin-left:90%;">
+                            <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
+                            <ul class="dropdown-menu">
+                                <li th:each="worker : ${users}">
+                                    <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                </li>
+                                <li>
+                                    <a th:onclick="'unassign('+ ${client.id} +')'">Unassign</a>
+                                </li>
+                            </ul>
+                        </div>
+                </div>
                 <div class="portlet-body" data-toggle="modal"
                      th:attrappend="data-target=@{#client-__${client.id}__-modal}">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
@@ -48,8 +61,11 @@
                             <p th:if="${client.ownerUser != null}" class="user-icon"
                                th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
-                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}">
+                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                               th:id="'own-' + ${client.id}">
                             </p>
+                            <p th:if="${client.ownerUser != null}" style="display:none" th:text="${client.ownerUser.fullName}"></p>
+
                             <th:block th:each="notification : ${client.notifications}">
                                 <th:block th:if="${notification != null}">
                                 <span id="notification"
@@ -108,7 +124,7 @@
                                     взять себе карточку
                                 </button>
                                 <th:block th:if="${client.ownerUser != null}">
-                                    <button th:if="${currentUserId == client.ownerUser.id}"
+                                    <button th:if="${user.id == client.ownerUser.id}"
                                             th:id="'unassign-client' + ${client.id}"
                                             th:onclick="'unassign('+ ${client.id} +')'"
                                             class="btn btn-md btn-warning">

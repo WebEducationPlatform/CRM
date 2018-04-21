@@ -124,8 +124,7 @@ public class VKUtil {
 	public String sendMessageToClient(Client client, String msg) {
 		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-				long id = Long.parseLong(socialNetwork.getLink()
-						.replace("https://vk.com/id", ""));
+				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
 				return sendMessageById(id, msg);
 			}
 		}
@@ -134,9 +133,8 @@ public class VKUtil {
 	}
 
 	private String sendMessageById(long id, String msg) {
-		String unixCarriage = msg.replaceAll("\r\n", "\n");
-		String replaceCarriage = unixCarriage.replaceAll("\n", "%0A");
-		String uriMsg = replaceCarriage.replaceAll(" ", "%20");
+		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
+		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
 		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
 				"?user_id=" + id +
