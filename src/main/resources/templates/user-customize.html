@@ -14,13 +14,13 @@
 
         <h1>Настройка оповещений:</h1>
         <form method="post" th:action="@{/user/enableNotifications}">
-            <div th:if="${#authentication.getPrincipal().isEnableNotifications()}">
+            <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
             <select class="form-control" name="notifications">
                 <option th:value="true" selected="selected">Включить</option>
                 <option th:value="false">Отключить</option>
             </select>
             </div>
-            <div th:if="${!#authentication.getPrincipal().isEnableNotifications()}">
+            <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
                 <select class="form-control" name="notifications">
                     <option th:value="true" >Включить</option>
                     <option th:value="false" selected="selected">Отключить</option>
