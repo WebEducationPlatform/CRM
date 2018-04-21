@@ -495,3 +495,20 @@ a[id^="eTemplateBtn"] {
 	width: -webkit-fill-available;  /*так и должно быть*/
 	width: fill-available; /*тут тоже*/
 }
+
+input[id="search-clients"] {
+    width:50%;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+input[id="search-clients"]:focus {
+    width:130%;
+}
+div.search-place{
+    padding:10px 15px 15px 15px;
+}
+
+button.option{
+    margin:0;
+    display:none;
+}

@@ -46,7 +46,40 @@ $(document).ready(function () {
             $(this).hide();
             $("#create-new-status-span").show();
         });*/
+
+   //Search clients in main
+    $("#search-clients").keyup(function () {
+        //split input data by space
+        let data = this.value.split(" ");
+        //take portlet data
+        let portletArr = $(".portlet");
+        //if input data is empty: show all and return
+        if(this.value.trim() === ''){
+            portletArr.show();
+            return;
+        }
+        portletArr.hide();
+        //filtering array of portlet
+        portletArr.filter(function () {
+            //filtering by data in portlet body
+            let portlet = $(this).find(".portlet-body");
+            let $validCount = 0;
+            for (let i = 0; i < data.length; i++){
+                if(portlet.is(":contains('"+ data[i] +"')")){
+                    $validCount++;
+                }
+            }
+            return $validCount === data.length;
+        }).show();
+    })
 });
+
+function displayOption(clientId) {
+    $("#option_" + clientId).show();
+}
+function hideOption(clientId) {
+    $("#option_" + clientId).hide();
+}
 
 function deleteStatus(id) {
     let url = '/admin/rest/status/delete';
@@ -203,9 +236,10 @@ function assign(id) {
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                     owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
-                "</p>"
+                "</p>" +
+                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
         },
@@ -213,14 +247,13 @@ function assign(id) {
         }
     });
 }
-function assignUser(id, user) {
-    let
+function assignUser(id, user, principalId) {
+    var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
             userForAssign : user
         },
-        own_icon = $('#own-' + id),
         assignBtn = $('#assign-client' + id);
 
     $.ajax({
@@ -228,18 +261,35 @@ function assignUser(id, user) {
         url: url,
         data: formData,
         success: function (owner) {
-            own_icon.remove();
-            assignBtn.before(
-                "<button " +
-                "   id='unassign-client" + id +"' " +
-                "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
-            );
+            let info_client = $('#info-client' + id),
+                target_btn = $("a[href='/admin/client/clientInfo/"+ id +"']"),
+                unassign_btn = $('#unassign-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".user-icon").remove();
+
+            //If admin assigned himself
+            if(principalId === user){
+                //If admin assigned himself second time
+                if(unassign_btn.length === 0){
+                    target_btn.before(
+                        "<button " +
+                        "   id='unassign-client" + id +"' " +
+                        "   onclick='unassign(" + id +")' " +
+                        "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+                    );
+                }
+                //If admin not assign himself, he don`t have unassign button
+            }else {
+                unassign_btn.remove();
+            }
             assignBtn.remove();
-            $('#info-client' + id).append(
-                "<p class='user-icon' id='own-"+id+ "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+
+            //Add Worker icon and info for search by worker
+            info_client.append(
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
                 owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
-                "</p>"
+                "</p>" +
+                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
         },
@@ -261,14 +311,25 @@ function unassign(id) {
         url: url,
         data: formData,
         success: function (owner) {
-            unassignBtn.before(
-                "<button " +
-                "   id='assign-client" + id + "' " +
-                "   onclick='assign(" + id +")' " +
-                "   class='btn btn-md btn-info'>взять себе карточку</button>"
-            );
-            unassignBtn.remove();
-            $('#info-client' + id).find(".user-icon").remove();
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".user-icon").remove();
+            if(unassignBtn.length !== 0){
+                unassignBtn.before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assign(" + id +")' " +
+                    "   class='btn btn-md btn-info'>взять себе карточку</button>"
+                );
+                unassignBtn.remove();
+            }else{
+                $("a[href='/admin/client/clientInfo/"+ id +"']").before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assign(" + id +")' " +
+                    "   class='btn btn-md btn-info'>взять себе карточку</button>"
+                );
+            }
             fillFilterList();
         },
         error: function (error) {

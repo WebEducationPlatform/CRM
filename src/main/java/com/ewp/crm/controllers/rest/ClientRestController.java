@@ -64,6 +64,23 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	//TODO hasAnyAuthority('ADMIN')
+	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
+	public ResponseEntity<User> assignUser(@RequestParam(name = "clientId") Long clientId,
+	                                       @RequestParam(name = "userForAssign") Long userId) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User assignUser = userService.get(userId);
+		Client client = clientService.getClientByID(clientId);
+		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", principal.getEmail(), clientId, assignUser.getEmail());
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		client.setOwnerUser(assignUser);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {} to user {}", principal.getEmail(), clientId, assignUser.getEmail());
+		return ResponseEntity.ok(client.getOwnerUser());
+	}
+
 	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
