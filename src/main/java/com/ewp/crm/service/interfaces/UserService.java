@@ -27,4 +27,6 @@ public interface UserService {
 	void addPhoto(MultipartFile file, User user);
 
 	User getUserByEmail(String email);
+
+	User getUserByFirstNameAndLastName(String firstName, String lastName);
 }
