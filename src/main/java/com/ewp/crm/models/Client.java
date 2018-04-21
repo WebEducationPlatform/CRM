@@ -75,6 +75,12 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
 
+	@OneToMany
+	@JoinTable(name = "client_notification",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
+	private List<Notification> notifications;
+
 	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "history_client",
@@ -307,6 +313,14 @@ public class Client implements Serializable {
 		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
 		result = 31 * result + (email != null ? email.hashCode() : 0);
 		return result;
+	}
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<Notification> notifications) {
+		this.notifications = notifications;
 	}
 
 

@@ -5,6 +5,7 @@ import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,13 @@ public class ClientRestController {
 
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final UserService userService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.userService = userService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -15,12 +15,14 @@
 </th:block>
 
 <th:block th:fragment="top-navigation-panel">
+    <div class="container">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="navbar-header">
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
-                    <p class="navbar-text navbar-left">Signed in as <span sec:authentication="name"></span></p>
+                    <p class="navbar-text navbar-left">Signed in as <span sec:authentication="name">
+                    </span></p>
                 </ul>
             </div>
 
@@ -32,11 +34,48 @@
                 <li><a href="/client/allClients">Все клиенты</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/logout">Выход</a></li>
+                <li class="dropdown">
+                    <th:block th:if="${notifications.size() > 0}">
+                        <a class="glyphicon glyphicon-bell redBell" style="color: red" data-toggle="dropdown">
+                        </a>
+                    </th:block>
+                    <th:block th:if="${notifications.size() == 0}">
+                        <a class="glyphicon glyphicon-bell" data-toggle="dropdown">
+                        </a>
+                    </th:block>
+                    <ul class="dropdown-menu">
+                        <th:block th:if="${notifications.size() > 0}">
+                            <th:block th:each="notification : ${notifications}">
+                                <li th:class="'menu' + ${notification.client.id}">
+                                    <a th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
+                                    </a>
+                                    <button data-toggle="modal"
+                                            th:attrappend="data-target=@{#client-__${notification.client.id}__-modal}"
+                                            th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                            class="glyphicon glyphicon-share-alt pull-right"></button>
+                                </li>
+                            </th:block>
+                        </th:block>
+                        <th:block th:if="${notifications.size() == 0}">
+                            <li><a>У вас нет новых оповещений</a></li>
+                        </th:block>
+                    </ul>
+                </li>
+                <li>
+                    <button data-toggle="dropdown" class="user-icon"
+                            th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
+                                     + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
+                            th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/user/customize">Настройки</a></li>
+                        <li><a href="/logout">Выход</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
-
     </nav>
+    </div>
 </th:block>
 
 <th:block th:fragment="header">
@@ -61,12 +100,15 @@
                 <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}"
                           placeholder="Напишите комментарий"></textarea>
                 <button class="btn btn-md btn-success comment-button"
-                        th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить</button>
+                        th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить
+                </button>
             </div>
             <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
-                <li class="list-group-item comment-item" th:each="comment : ${client.comments}" th:if="${comment.mainComment == null}">
+                <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
+                    th:if="${comment.mainComment == null}">
                     <div th:id="'comment' + ${comment.id}" th:class="comment">
-                        <span class="comment-name" th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
+                        <span class="comment-name"
+                              th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
                         <span th:if="${user == comment.user}" class="glyphicon glyphicon-remove comment-functional"
                               th:onclick="'deleteComment('+ ${comment.id} + ')'"></span>
                         <span th:if="${user == comment.user}"
@@ -75,18 +117,22 @@
                         <p class="comment-text" th:text="${comment.getContent()}"></p>
                         <div class="form-answer">
                             <div class="form-group">
-                                <textarea class="form-control textcomplete" th:id="'new-answer-for-comment' + ${comment.id}"
+                                <textarea class="form-control textcomplete"
+                                          th:id="'new-answer-for-comment' + ${comment.id}"
                                           placeholder="Напишите ответ"></textarea>
                                 <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'">Cохранить</button>
+                                        th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'">Cохранить
+                                </button>
                             </div>
                         </div>
                         <div class="form-edit">
                             <div class="form-group">
-                                <textarea class="form-control edit-textarea textcomplete" th:id="'edit-comment' + ${comment.id}"
+                                <textarea class="form-control edit-textarea textcomplete"
+                                          th:id="'edit-comment' + ${comment.id}"
                                           placeholder="Редактор"></textarea>
                                 <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'editComment(' + ${comment.id} + ')'">Отредактировать</button>
+                                        th:onclick="'editComment(' + ${comment.id} + ')'">Отредактировать
+                                </button>
                             </div>
                         </div>
                         <ul class="answer-list comment-item"
@@ -103,10 +149,12 @@
                                     <p class="comment-text" th:text="${answer.getContent()}"></p>
                                     <div class="form-edit">
                                         <div class="form-group">
-                                            <textarea class="form-control edit-textarea textcomplete" th:id="'edit-comment' + ${answer.id}"
+                                            <textarea class="form-control edit-textarea textcomplete"
+                                                      th:id="'edit-comment' + ${answer.id}"
                                                       placeholder="Редактор"></textarea>
                                             <button class="btn btn-md btn-success comment-button"
-                                                    th:onclick="'editComment(' + ${answer.id} + ')'">Отредактировать</button>
+                                                    th:onclick="'editComment(' + ${answer.id} + ')'">Отредактировать
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -152,19 +200,19 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                    <div class="modal-body">
-                        <select class="form-control" id="selectType" name="selectType">
-                            <option id="vk" name="vk" th:value="vk">Вконтакте</option>
-                            <option id="fb" name="facebook" th:value="facebook">Facebook</option>
-                            <option id="email" name="email" th:value="email">Email</option>
-                            <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
-                        </select>
+                <div class="modal-body">
+                    <select class="form-control" id="selectType" name="selectType">
+                        <option id="vk" name="vk" th:value="vk">Вконтакте</option>
+                        <option id="fb" name="facebook" th:value="facebook">Facebook</option>
+                        <option id="email" name="email" th:value="email">Email</option>
+                        <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
+                    </select>
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                        <button type="submit" class="btn btn-primary" role="button" id="clientData">Скачать</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary" role="button" id="clientData">Скачать</button>
+                </div>
             </div>
         </div>
     </div>
