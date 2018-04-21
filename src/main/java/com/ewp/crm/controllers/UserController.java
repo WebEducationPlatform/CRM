@@ -71,7 +71,7 @@ public class UserController {
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		user.setEnableNotifications(notifications);
+		user.setEnableMailNotifications(notifications);
 		userService.update(user);
 		return new ModelAndView("redirect:/user/customize");
 	}

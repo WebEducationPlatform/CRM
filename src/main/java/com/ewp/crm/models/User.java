@@ -66,7 +66,7 @@ public class User implements UserDetails {
 	private List<Notification> notifications;
 
 	@JsonIgnore
-	private boolean enableNotifications = true;
+	private boolean enableMailNotifications = true;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "ownerUser")
@@ -292,12 +292,12 @@ public class User implements UserDetails {
 		return result;
 	}
 
-	public boolean isEnableNotifications() {
-		return enableNotifications;
+	public boolean isEnableMailNotifications() {
+		return enableMailNotifications;
 	}
 
-	public void setEnableNotifications(boolean enableNotifications) {
-		this.enableNotifications = enableNotifications;
+	public void setEnableMailNotifications(boolean enableMailNotifications) {
+		this.enableMailNotifications = enableMailNotifications;
 	}
 
 	public List<Notification> getNotifications() {

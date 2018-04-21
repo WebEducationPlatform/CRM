@@ -44,7 +44,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 			if (fullName.length == 3) {
 				User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
 				if (Optional.ofNullable(userToNotify).isPresent()) {
-					if (userToNotify.isEnableNotifications()) {
+					if (userToNotify.isEnableMailNotifications()) {
 						mailSendService.sendNotificationMessage(userToNotify);
 					}
 					Notification notification = new Notification(client, userToNotify);
