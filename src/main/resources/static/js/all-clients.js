@@ -11,13 +11,14 @@ $(document).ready(
         jo.hide();
 
         jo.filter(function (i, v) {
+            let $validCount = 0;
             var $t = $(this);
             for (var d = 0; d < data.length; ++d) {
                 if ($t.is(":contains('" + data[d] + "')")) {
-                    return true;
+                    $validCount++;
                 }
             }
-            return false;
+            return $validCount === data.length;
         }).show();
     }).focus(function () {
         this.value = "";
