@@ -303,7 +303,7 @@ ul.nav a:hover {
 }
 
 
-input[type="checkbox"] { display: none; }
+input[id^="checkbox-user"] { display: none; }
 
 input[type="checkbox"] + label {
 	display: block;
@@ -494,4 +494,9 @@ a[id^="eTemplateBtn"] {
 	width: -moz-available;
 	width: -webkit-fill-available;  /*так и должно быть*/
 	width: fill-available; /*тут тоже*/
+}
+
+span[id^="postponeStatus"] {
+	color: red;
+	float: right;
 }

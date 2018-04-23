@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
     <script type="text/javascript" th:src="@{/js/comments.js}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
     <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </head>
@@ -85,7 +89,7 @@
                 </div>
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customEmailTemplateModal"></div>
-                <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog">
+                <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog" data-keyboard="false">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -123,17 +127,39 @@
                                     </button>
                                 </a>
                             </div>
-                            <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">
-                                <div class="panel-group" id="accordion">
+                                <div class="panel-group" id="hideAccordion">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion"
-                                                   th:href="'#collapse'+${client.id}">Действия</a>
+                                                <a data-toggle="collapse" data-parent="#hideAccordion" th:href="'#hideClientCollapse'+${client.id}">Скрыть карточку</a>
                                             </h4>
                                         </div>
-                                        <div th:id="'collapse'+${client.id}" class="panel-collapse collapse in">
+                                        <div th:id="'hideClientCollapse'+${client.id}" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <span>Скрыть клиента до: </span>
+                                                <div class = "form-group">
+                                                    <input type = "text" class="form-control" th:id = "'postponeDate' + ${client.id}" name="postponeDate"/>
+                                                </div>
+                                                <button th:onclick="'hideClient('+ ${client.id} +')'"
+                                                        class="btn btn-md btn-info" >OK
+                                                </button>
+                                                <span th:id = "'postponeStatus' + ${client.id}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:replace="fragments/htmlFragments::comments"></div>
+                            <div class="modal-header">
+                                <div class="panel-group" id="actionsAccordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#actionsAccordion" th:href="'#collapse'+${client.id}">Действия</a>
+                                            </h4>
+                                        </div>
+                                        <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
                                             <div class="panel-body">
                                                 <ul class="history-list" th:id="'client-'+${client.id}+'history'">
                                                     <li th:each="history : ${client.history}">
