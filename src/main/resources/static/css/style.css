@@ -1,4 +1,6 @@
-
+ul{
+    list-style-type:none;
+}
 .tilt.right {
 	transform: rotate(3deg);
 	-moz-transform: rotate(3deg);

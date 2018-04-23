@@ -10,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </head>
 <body>
 <div style="margin: 2%">
@@ -30,12 +32,15 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div class="portlet" th:each="client : ${status.clients}" th:if="${client.Active == true}" th:value="${client.id}">
-                <div class="portlet-body" data-toggle="modal" th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+            <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
+                <div class="portlet-body" data-toggle="modal"
+                     th:attrappend="data-target=@{#client-__${client.id}__-modal}">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
-                        <div class="clickModal" th:id="'info-client' + ${client.id}">
+                        <div class="clickModal" th:id="'info-client' + ${client.id}"
+                             th:onclick="'markAsRead('+ ${client.id} +')'">
+
                             <span th:text="${client.phoneNumber}"></span>
                             <br/>
                             <span th:text="${client.email}"></span>
@@ -46,8 +51,17 @@
                             <br/>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
                                th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
-                                  + #strings.substring(client.ownerUser.lastName, 0,1)}" th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}">
+                                  + #strings.substring(client.ownerUser.lastName, 0,1)}"
+                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}">
                             </p>
+                            <th:block th:each="notification : ${client.notifications}">
+                                <th:block th:if="${notification != null}">
+                                <span id="notification"
+                                      th:if="${notification.userToNotify.id == #authentication.getPrincipal().getId()}"
+                                      class="notification glyphicon glyphicon-bell pull-right"
+                                      style="color: red"></span>
+                                </th:block>
+                            </th:block>
                         </div>
                     </div>
                 </div>
@@ -94,22 +108,24 @@
                                 <button th:if="${client.ownerUser == null}"
                                         th:id="'assign-client' + ${client.id}"
                                         th:onclick="'assign('+ ${client.id} +')'"
-                                        class="btn btn-md btn-info" >
+                                        class="btn btn-md btn-info">
                                     взять себе карточку
                                 </button>
                                 <th:block th:if="${client.ownerUser != null}">
                                     <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
                                             th:id="'unassign-client' + ${client.id}"
                                             th:onclick="'unassign('+ ${client.id} +')'"
-                                            class="btn btn-md btn-warning" >
+                                            class="btn btn-md btn-warning">
                                         отказаться от карточки
                                     </button>
                                 </th:block>
-                                <a th:href="'/admin/client/clientInfo/' +  ${client.id}"><button th:if="${isAdmin}"
-                                        th:id="'client-info' + ${client.id}"
-                                        class="btn btn-md btn-info" rel="clientInfo">
-                                    Расширенная информация
-                                </button></a>
+                                <a th:href="'/admin/client/clientInfo/' +  ${client.id}">
+                                    <button th:if="${isAdmin}"
+                                            th:id="'client-info' + ${client.id}"
+                                            class="btn btn-md btn-info" rel="clientInfo">
+                                        Расширенная информация
+                                    </button>
+                                </a>
                             </div>
                             <div class="modal-header">
                                 <div class="panel-group" id="hideAccordion">
@@ -184,21 +200,21 @@
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-                <div  id="client_filter_group" th:if="${isAdmin}">
+                <div id="client_filter_group" th:if="${isAdmin}">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseFilter">Фильтр клиентов</a>
                     </div>
                     <div id="collapseFilter" class="panel-collapse collapse in">
                         <div class="panel-body" id="panel-filter-body">
-                            <button type="button" id="showallbtn"  onclick="showall()">Показать все</button>
+                            <button type="button" id="showallbtn" onclick="showall()">Показать все</button>
                             <div class="checkbox" id="client_filter">
                                 <br/>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div  id="user_group" th:if="${isAdmin}">
+                <div id="user_group" th:if="${isAdmin}">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseUser">Список сотрудников</a>
@@ -208,8 +224,10 @@
                             <table class="table table-bordered">
                                 <tr th:each="usr : ${users}">
                                     <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
-                                    <td class="editUserButtons" >
-                                        <a th:href="'/admin/user/' +  ${usr.id}"><button type="button" class="glyphicon glyphicon glyphicon-edit"></button></a>
+                                    <td class="editUserButtons">
+                                        <a th:href="'/admin/user/' +  ${usr.id}">
+                                            <button type="button" class="glyphicon glyphicon glyphicon-edit"></button>
+                                        </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
                                                 th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
@@ -217,10 +235,13 @@
                                     </td>
                                 </tr>
                             </table>
-                            <a href="/admin/user/add"><button type="button" id="addNewUser">Добавить пользователя</button></a>
+                            <a href="/admin/user/add">
+                                <button type="button" id="addNewUser">Добавить пользователя</button>
+                            </a>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
         <div id="panel-sticker">

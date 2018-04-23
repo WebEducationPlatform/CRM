@@ -2,6 +2,7 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.EmailTemplateException;
+import com.ewp.crm.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -43,10 +45,10 @@ public class MailSendService {
 		checkConfig(environment);
 	}
 
-	private void checkConfig(Environment environment){
+	private void checkConfig(Environment environment) {
 		this.emailLogin = environment.getProperty("spring.mail.username");
 		String password = environment.getProperty("spring.mail.password");
-		if (emailLogin == null || "".equals(emailLogin)||(password == null || "".equals(password))){
+		if (emailLogin == null || "".equals(emailLogin) || (password == null || "".equals(password))) {
 			logger.error("Mail configs have not initialized. Check application.properties file");
 			System.exit(-1);
 		}
@@ -84,5 +86,16 @@ public class MailSendService {
 			logger.error("Can't send mail to {}", recipient);
 			throw new EmailTemplateException(e.getMessage());
 		}
+	}
+
+	@Async
+	public void sendNotificationMessage(User userToNotify) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setSubject("Оповещение из CRM");
+		message.setText("Вас упомянули в комментариях под карточкой");
+		message.setFrom(emailLogin);
+		message.setTo(userToNotify.getEmail());
+		javaMailSender.send(message);
+
 	}
 }
