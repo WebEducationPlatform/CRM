@@ -56,7 +56,7 @@ public class EmailRestController {
 	public ResponseEntity addSocialNetworkType(@RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
 		Client client = clientService.getClientByID(clientId);
 		Map<String, String> params = new HashMap<>();
-		params.put("bodyText", body);
+		params.put("%bodyText%", body);
 		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(1L).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
