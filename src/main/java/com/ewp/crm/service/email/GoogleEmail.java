@@ -85,6 +85,7 @@ public class GoogleEmail {
         ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
         mailReceiver.setJavaMailProperties(javaMailProperties());
         mailReceiver.setShouldDeleteMessages(false);
+
         mailReceiver.setShouldMarkMessagesAsRead(true);
         mailReceiver.setCancelIdleInterval(3600);
         mailReceiver.setBeanFactory(beanFactory);
