@@ -125,10 +125,6 @@
                                                 <div class = "form-group">
                                                     <input type = "text" class="form-control" th:id = "'postponeDate' + ${client.id}" name="postponeDate"/>
                                                 </div>
-                                                <span>Комментарий: </span>
-                                                <div class = "form-group">
-                                                    <textarea th:id = "'postponeComment' + ${client.id}"></textarea>
-                                                </div>
                                                 <button th:onclick="'hideClient('+ ${client.id} +')'"
                                                         class="btn btn-md btn-info" >OK
                                                 </button>

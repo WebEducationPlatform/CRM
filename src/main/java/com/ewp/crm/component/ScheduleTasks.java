@@ -6,7 +6,10 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SocialNetworkService;
+import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +34,15 @@ public class ScheduleTasks {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
-	private final PostponeClientDataService postponeClientDataService;
-
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, PostponeClientDataService postponeClientDataService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
-		this.postponeClientDataService = postponeClientDataService;
 	}
 
 	private void addClient(Client newClient) {
@@ -105,14 +105,11 @@ public class ScheduleTasks {
 		}
 	}
 
-	//@Scheduled(cron = "0 0 8 * * *")
-	@Scheduled(fixedRate = 40_000)
+	@Scheduled(cron = "0 0 8 * * *")
 	private void checkClientActivationDate() {
-		List<Client> activePostponedClients = postponeClientDataService.getChangeActiveClients();
-		for (Client client : activePostponedClients) {
-			client.setPostponeClientData(null);
+		for (Client client : clientService.getChangeActiveClients()) {
+			client.setPostponeDate(null);
 			clientService.updateClient(client);
-
 		}
 	}
 }

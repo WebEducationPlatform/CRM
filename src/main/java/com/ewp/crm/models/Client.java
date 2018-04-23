@@ -48,25 +48,13 @@ public class Client implements Serializable {
 
 	private String comment;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private PostponeClientData postponeClientData;
+	@Column(name = "postponeDate")
+	private Date postponeDate;
 
 
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
 	private State state;
-
-	public PostponeClientData getPostponeClientData() {
-		return postponeClientData;
-	}
-
-	public void setPostponeClientData(PostponeClientData postponeClientData) {
-		this.postponeClientData = postponeClientData;
-	}
-
-	public boolean isActive() {
-		return getPostponeClientData()==null;
-	}
 
 	@Column(name = "date")
 	private Date dateOfRegistration;
@@ -206,6 +194,18 @@ public class Client implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Date getPostponeDate() {
+		return postponeDate;
+	}
+
+	public void setPostponeDate(Date postponeDate) {
+		this.postponeDate = postponeDate;
+	}
+
+	public boolean isActive() {
+		return getPostponeDate()==null;
 	}
 
 	public byte getAge() {
