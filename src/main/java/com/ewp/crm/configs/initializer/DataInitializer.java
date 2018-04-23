@@ -81,7 +81,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"${bodyText}\">%Тут будет размещен текст%</p>\n" +
+				"<p>%bodyText%</p>\n" +
 				"</body>\n" +
 				"</html>";
 		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3);
