@@ -24,15 +24,15 @@ import java.util.Optional;
 @EnableScheduling
 public class ScheduleTasks {
 
-	private VKUtil vkUtil;
+	private final VKUtil vkUtil;
 
-	private ClientService clientService;
+	private final ClientService clientService;
 
-	private StatusService statusService;
+	private final StatusService statusService;
 
-	private SocialNetworkService socialNetworkService;
+	private final SocialNetworkService socialNetworkService;
 
-	private SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
@@ -65,7 +65,7 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVk() {
 		try {
 			Optional<List<String>> newMassages = vkUtil.getNewMassages();
@@ -89,7 +89,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
@@ -105,5 +105,11 @@ public class ScheduleTasks {
 		}
 	}
 
-
+	@Scheduled(cron = "0 0 8 * * *")
+	private void checkClientActivationDate() {
+		for (Client client : clientService.getChangeActiveClients()) {
+			client.setPostponeDate(null);
+			clientService.updateClient(client);
+		}
+	}
 }

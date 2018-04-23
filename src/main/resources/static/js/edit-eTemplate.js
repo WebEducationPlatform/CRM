@@ -79,3 +79,22 @@ function insertNewPicture(userId) {
     text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + userId + '_' +filename + "|\" src=\"/admin/image/" + userId + '_' + filename + ".png\"/>");
     CKEDITOR.instances.body.insertElement(text);
 }
+
+$(document).ready(function () {
+    editor = CKEDITOR.replace('body', {
+        allowedContent: true,
+        height: '600px'
+    });
+
+    editor.addCommand("infoCommend", {
+        exec: function(edt) {
+            $("#infoModal").modal('show');
+        }
+    });
+    editor.ui.addButton('SuperButton', {
+        label: "Info",
+        command: 'infoCommend',
+        toolbar: 'styles',
+        icon: 'info.png'
+    });
+});

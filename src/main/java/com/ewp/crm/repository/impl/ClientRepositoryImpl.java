@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,7 +14,6 @@ import java.util.List;
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private EntityManager entityManager;
-
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -24,6 +22,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {
         return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+    }
+
+    @Override
+    public List<Client> getChangeActiveClients() {
+        return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
     }
 
     private String createQuery(FilteringCondition filteringCondition) {
@@ -63,5 +66,4 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
         return query.toString();
     }
-
 }
