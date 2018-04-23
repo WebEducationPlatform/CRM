@@ -30,7 +30,6 @@ public class UserController {
 	private final NotificationService notificationService;
 
 	@Autowired
-
 	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.userService = userService;
 		this.roleService = roleService;

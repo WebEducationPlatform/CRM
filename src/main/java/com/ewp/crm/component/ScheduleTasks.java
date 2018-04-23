@@ -6,10 +6,7 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SocialNetworkService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +30,9 @@ public class ScheduleTasks {
 	private SocialNetworkService socialNetworkService;
 
 	private SocialNetworkTypeService socialNetworkTypeService;
+
+	@Autowired
+	private SMSService smsService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
@@ -105,5 +105,9 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(fixedRate = 5_000)
+	private void getBalance(){
+		logger.info("Balance SMS is {}", smsService.getBalance());
+	}
 
 }
