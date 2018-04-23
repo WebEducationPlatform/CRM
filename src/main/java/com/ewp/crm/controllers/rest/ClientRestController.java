@@ -218,7 +218,7 @@ public class ClientRestController {
 	}
 
 	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
-	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date, @RequestParam String comment) {
+	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.getClientByID(clientId);
 			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
@@ -227,11 +227,11 @@ public class ClientRestController {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeClientData(new PostponeClientData(postponeDate.toDate(), comment));
+			client.setPostponeDate(postponeDate.toDate());
 			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
 			clientService.updateClient(client);
-			logger.info("{} has postponed client id= {} until {}", currentAdmin.getFullName(), client.getId(), date);
+			logger.info("{} has postponed client id:{} until {}", currentAdmin.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");

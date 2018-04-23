@@ -498,7 +498,3 @@ span[id^="postponeStatus"] {
 	color: red;
 	float: right;
 }
-
-textarea[id^="postponeComment"] {
-	width: 100%;
-}

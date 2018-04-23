@@ -465,8 +465,7 @@ function hideClient(clientId) {
     let url = 'admin/rest/client/postpone';
     let formData = {
         clientId: clientId,
-        date: $('#postponeDate' + clientId).val(),
-        comment: $('#postponeComment' + clientId).val()
+        date: $('#postponeDate' + clientId).val()
     };
     $.ajax({
         type: "POST",

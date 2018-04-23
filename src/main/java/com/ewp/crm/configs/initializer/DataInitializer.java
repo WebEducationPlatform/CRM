@@ -1,14 +1,10 @@
 package com.ewp.crm.configs.initializer;
 
-import com.ewp.crm.component.ScheduleTasks;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
-import org.joda.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
