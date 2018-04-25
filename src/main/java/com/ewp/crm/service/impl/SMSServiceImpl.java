@@ -49,7 +49,7 @@ public class SMSServiceImpl implements SMSService {
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
 		}
-		return "Error to send message";
+		return "Error send message";
 	}
 
 	@Override
@@ -62,14 +62,7 @@ public class SMSServiceImpl implements SMSService {
 		try {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Status messages:\n");
-			for (int i = 0; i < messages.length(); i++) {
-				stringBuilder.append(clients.get(i).getPhoneNumber());
-				stringBuilder.append(" : ");
-				stringBuilder.append(((JSONObject) messages.get(i)).getString("status"));
-				stringBuilder.append("\n");
-			}
+			StringBuilder stringBuilder = buildResponseMessage(clients,messages);
 			return stringBuilder.toString();
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
@@ -79,11 +72,11 @@ public class SMSServiceImpl implements SMSService {
 
 
 	@Override
-	public String scheduledSMS(Client client, String text, Object schedule) {
+	public String scheduledSMS(Client client, String text, String date) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
-			jsonRequest.put("scheduleTime", schedule);
+			jsonRequest.put("scheduleTime", date);
 			JSONObject request = buildMessages(jsonRequest,Collections.singletonList(client),text);
 			HttpEntity<String> entity = new HttpEntity<>(request.toString(),createHeaders());
 			ResponseEntity<String> response = restTemplate.exchange(uri,HttpMethod.POST,entity, String.class);
@@ -97,8 +90,22 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
-	public String scheduledSMS(List<Client> client, String text, Object schedule) {
-		return null;
+	public String scheduledSMS(List<Client> clients, String text, String date) {
+		URI uri = URI.create(TEMPLATE_URI + "/send.json");
+		JSONObject jsonRequest = new JSONObject();
+		try {
+			jsonRequest.put("scheduleTime", date);
+			JSONObject request = buildMessages(jsonRequest,clients, text);
+			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+			JSONObject body = new JSONObject(response.getBody());
+			JSONArray messages = body.getJSONArray("messages");
+			StringBuilder stringBuilder = buildResponseMessage(clients,messages);
+			return stringBuilder.toString();
+		} catch (JSONException e) {
+			logger.error("JSON can`t parse response");
+		}
+		return "Error to send messages";
 	}
 
 	@Override
@@ -116,6 +123,18 @@ public class SMSServiceImpl implements SMSService {
 			}
 		}
 		return "Error authorization";
+	}
+
+	private StringBuilder buildResponseMessage(List<Client> clients, JSONArray messages) throws JSONException {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("Status messages:\n");
+		for (int i = 0; i < messages.length(); i++) {
+			stringBuilder.append(clients.get(i).getPhoneNumber());
+			stringBuilder.append(" : ");
+			stringBuilder.append(((JSONObject) messages.get(i)).getString("status"));
+			stringBuilder.append("\n");
+		}
+		return stringBuilder;
 	}
 
 	private JSONObject buildMessages(JSONObject jsonRequest, List<Client> clients, String text) {
