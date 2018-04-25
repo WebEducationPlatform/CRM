@@ -31,8 +31,6 @@ public class ScheduleTasks {
 
 	private SocialNetworkTypeService socialNetworkTypeService;
 
-	@Autowired
-	private SMSService smsService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
@@ -104,10 +102,4 @@ public class ScheduleTasks {
 			}
 		}
 	}
-
-	@Scheduled(fixedRate = 5_000)
-	private void getBalance(){
-		logger.info("Balance SMS is {}", smsService.getBalance());
-	}
-
 }
