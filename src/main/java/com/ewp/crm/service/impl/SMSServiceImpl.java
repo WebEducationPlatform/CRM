@@ -56,13 +56,13 @@ public class SMSServiceImpl implements SMSService {
 	public String sendSMS(List<Client> clients, String text) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
-		JSONObject request = buildMessages(jsonRequest,clients, text);
+		JSONObject request = buildMessages(jsonRequest, clients, text);
 		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 		try {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			StringBuilder stringBuilder = buildResponseMessage(clients,messages);
+			StringBuilder stringBuilder = buildResponseMessage(clients, messages);
 			return stringBuilder.toString();
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
@@ -77,9 +77,9 @@ public class SMSServiceImpl implements SMSService {
 		JSONObject jsonRequest = new JSONObject();
 		try {
 			jsonRequest.put("scheduleTime", date);
-			JSONObject request = buildMessages(jsonRequest,Collections.singletonList(client),text);
-			HttpEntity<String> entity = new HttpEntity<>(request.toString(),createHeaders());
-			ResponseEntity<String> response = restTemplate.exchange(uri,HttpMethod.POST,entity, String.class);
+			JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), text);
+			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			JSONObject body = new JSONObject(response.getBody());
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			return message.getString("status");
@@ -95,12 +95,12 @@ public class SMSServiceImpl implements SMSService {
 		JSONObject jsonRequest = new JSONObject();
 		try {
 			jsonRequest.put("scheduleTime", date);
-			JSONObject request = buildMessages(jsonRequest,clients, text);
+			JSONObject request = buildMessages(jsonRequest, clients, text);
 			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			StringBuilder stringBuilder = buildResponseMessage(clients,messages);
+			StringBuilder stringBuilder = buildResponseMessage(clients, messages);
 			return stringBuilder.toString();
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");

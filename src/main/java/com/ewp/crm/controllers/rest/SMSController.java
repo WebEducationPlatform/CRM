@@ -17,8 +17,6 @@ import java.util.List;
 @RequestMapping("/user/sms")
 public class SMSController {
 
-	public static Logger logger = LoggerFactory.getLogger(SMSController.class);
-
 	private final SMSService smsService;
 	private final ClientService clientService;
 
@@ -71,7 +69,7 @@ public class SMSController {
 		for (Long id : listClientsId) {
 			clients.add(clientService.getClientByID(id));
 		}
-		String response = smsService.scheduledSMS(clients,message,date);
+		String response = smsService.scheduledSMS(clients, message, date);
 		if (!response.equals("ok")) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
@@ -79,9 +77,9 @@ public class SMSController {
 	}
 
 	@GetMapping("/balance")
-	public ResponseEntity<String> getBalance(){
+	public ResponseEntity<String> getBalance() {
 		String response = smsService.getBalance();
-		if(response.contains("balance")){
+		if (response.contains("balance")) {
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
