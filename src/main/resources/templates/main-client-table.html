@@ -32,7 +32,7 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div class="portlet" th:each="client : ${status.clients}" th:value="${client.id}">
+            <div class="portlet" th:each="client : ${status.clients}" th:if="${client.Active == true}" th:value="${client.id}">
                 <div class="portlet-body" data-toggle="modal"
                      th:attrappend="data-target=@{#client-__${client.id}__-modal}">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
