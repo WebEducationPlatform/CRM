@@ -60,7 +60,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Мы не смогли до Вас дозвониться</p>\n" +
 				"<p>Пожалуйста, свяжитесь с нами</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
@@ -71,7 +71,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Напоминаем, что необходимо опатить обучение за следующий  месяц</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
@@ -81,7 +81,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"${bodyText}\">%Тут будет размещен текст%</p>\n" +
+				"<p>%bodyText%</p>\n" +
 				"</body>\n" +
 				"</html>";
 		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3);
@@ -111,7 +111,6 @@ public class DataInitializer {
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 		clientService.addClient(client1);
 		clientService.addClient(client2);

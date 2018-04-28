@@ -38,7 +38,7 @@ public class ClientController {
 
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        EmailTemplateService emailTemplateService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
+	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
@@ -58,8 +58,8 @@ public class ClientController {
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
-		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
@@ -71,7 +71,7 @@ public class ClientController {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());
-		modelAndView.addObject("user", userFromSession);
+		//modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}

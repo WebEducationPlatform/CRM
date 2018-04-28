@@ -46,7 +46,7 @@ public class EmailRestController {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
-		params.put("fullName", fullName);
+		params.put("%fullName%", fullName);
 		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
@@ -56,7 +56,7 @@ public class EmailRestController {
 	public ResponseEntity addSocialNetworkType(@RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
 		Client client = clientService.getClientByID(clientId);
 		Map<String, String> params = new HashMap<>();
-		params.put("bodyText", body);
+		params.put("%bodyText%", body);
 		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(1L).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();

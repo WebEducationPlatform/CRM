@@ -46,7 +46,6 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
-		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
 
@@ -64,7 +63,6 @@ public class UserController {
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}
@@ -72,7 +70,7 @@ public class UserController {
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		user.setEnableNotifications(notifications);
+		user.setEnableMailNotifications(notifications);
 		userService.update(user);
 		return new ModelAndView("redirect:/user/customize");
 	}
@@ -83,7 +81,6 @@ public class UserController {
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
 		modelAndView.setViewName("socialNetworkTypes-table");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
 		return modelAndView;
 	}

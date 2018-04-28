@@ -52,6 +52,9 @@ public class StatusRestController {
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
+		if (currentClient.getStatus().getId().equals(statusId)) {
+			return ResponseEntity.badRequest().build();
+		}
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		currentClient.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил статус c " + currentClient.getStatus().getName() + " на " + statusService.get(statusId).getName()));
 		statusService.changeClientStatus(clientId, statusId);
