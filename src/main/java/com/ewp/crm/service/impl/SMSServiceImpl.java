@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -35,6 +36,7 @@ public class SMSServiceImpl implements SMSService {
 		this.smsConfig = smsConfig;
 	}
 
+	@Async
 	@Override
 	public String sendSMS(Client client, String text) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
@@ -52,6 +54,7 @@ public class SMSServiceImpl implements SMSService {
 		return "Error send message";
 	}
 
+	@Async
 	@Override
 	public String sendSMS(List<Client> clients, String text) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
@@ -62,17 +65,16 @@ public class SMSServiceImpl implements SMSService {
 		try {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			StringBuilder stringBuilder = buildResponseMessage(clients, messages);
-			return stringBuilder.toString();
+			return null;//TODO Исправить
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
 		}
 		return "Error to send messages";
 	}
 
-
+	@Async
 	@Override
-	public String scheduledSMS(Client client, String text, String date) {
+	public String plannedSMS(Client client, String text, String date) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -89,8 +91,9 @@ public class SMSServiceImpl implements SMSService {
 		return "Error to send messages";
 	}
 
+	@Async
 	@Override
-	public String scheduledSMS(List<Client> clients, String text, String date) {
+	public String plannedSMS(List<Client> clients, String text, String date) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -100,8 +103,7 @@ public class SMSServiceImpl implements SMSService {
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			StringBuilder stringBuilder = buildResponseMessage(clients, messages);
-			return stringBuilder.toString();
+			return null; //TODO Исправить
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
 		}
@@ -123,18 +125,6 @@ public class SMSServiceImpl implements SMSService {
 			}
 		}
 		return "Error authorization";
-	}
-
-	private StringBuilder buildResponseMessage(List<Client> clients, JSONArray messages) throws JSONException {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Status messages:\n");
-		for (int i = 0; i < messages.length(); i++) {
-			stringBuilder.append(clients.get(i).getPhoneNumber());
-			stringBuilder.append(" : ");
-			stringBuilder.append(((JSONObject) messages.get(i)).getString("status"));
-			stringBuilder.append("\n");
-		}
-		return stringBuilder;
 	}
 
 	private JSONObject buildMessages(JSONObject jsonRequest, List<Client> clients, String text) {
