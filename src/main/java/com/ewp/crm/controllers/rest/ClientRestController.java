@@ -29,11 +29,13 @@ public class ClientRestController {
 
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final UserService userService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.userService = userService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
