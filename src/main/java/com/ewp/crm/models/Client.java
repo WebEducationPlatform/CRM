@@ -10,8 +10,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -47,6 +47,10 @@ public class Client implements Serializable {
 	private String country;
 
 	private String comment;
+
+	@Column(name = "postponeDate")
+	private Date postponeDate;
+
 
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
@@ -196,6 +200,18 @@ public class Client implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Date getPostponeDate() {
+		return postponeDate;
+	}
+
+	public void setPostponeDate(Date postponeDate) {
+		this.postponeDate = postponeDate;
+	}
+
+	public boolean isActive() {
+		return getPostponeDate()==null;
 	}
 
 	public byte getAge() {

@@ -303,7 +303,7 @@ ul.nav a:hover {
 }
 
 
-input[type="checkbox"] { display: none; }
+input[id^="checkbox-user"] { display: none; }
 
 input[type="checkbox"] + label {
 	display: block;
@@ -511,4 +511,10 @@ div.search-place{
 button.option{
     margin:0;
     display:none;
+}
+
+
+span[id^="postponeStatus"] {
+	color: red;
+	float: right;
 }

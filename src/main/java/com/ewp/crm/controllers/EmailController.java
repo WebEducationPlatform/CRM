@@ -28,6 +28,7 @@ public class EmailController {
 		this.notificationService = notificationService;
 	}
 
+
 	@RequestMapping(value = {"/editEmailTemplate/{templateId}"}, method = RequestMethod.GET)
 	public ModelAndView editTemplatePage(@PathVariable("templateId") Long templateId) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -36,7 +37,7 @@ public class EmailController {
 		modelAndView.addObject("template", emailTemplate);
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
-		modelAndView.addObject("user", userFromSession);
+
 		return modelAndView;
 	}
 }
