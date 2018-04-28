@@ -4,19 +4,15 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-@RestController()
+@RestController
 @RequestMapping("/user/sms")
 public class SMSController {
 
@@ -40,12 +36,12 @@ public class SMSController {
 	}
 
 	@PostMapping("/schedule/client/{clientId}")
-	public ResponseEntity<String> sendScheduleSMS(@PathVariable("clientId") Long id,
-	                                              @RequestParam("message") String message,
-	                                              @RequestParam("date") String date) {
+	public ResponseEntity<String> plannedSMS(@PathVariable("clientId") Long id,
+	                                         @RequestParam("message") String message,
+	                                         @RequestParam("date") String date) {
 		Client client = clientService.getClientByID(id);
 		DateTime utc = DateTime.parse(date);
-		String response = smsService.scheduledSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+		String response = smsService.plannedSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
 		if (!response.equals("ok")) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
@@ -66,15 +62,15 @@ public class SMSController {
 	}
 
 	@PostMapping("/schedule/clients/{listClientsId}")
-	public ResponseEntity<String> sendScheduleSMS(@PathVariable("listClientsId") List<Long> listClientsId,
-	                                              @RequestParam("message") String message,
-	                                              @RequestParam("date") String date) {
+	public ResponseEntity<String> plannedSMS(@PathVariable("listClientsId") List<Long> listClientsId,
+	                                         @RequestParam("message") String message,
+	                                         @RequestParam("date") String date) {
 		List<Client> clients = new LinkedList<>();
 		DateTime utc = DateTime.parse(date);
 		for (Long id : listClientsId) {
 			clients.add(clientService.getClientByID(id));
 		}
-		String response = smsService.scheduledSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+		String response = smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"));
 		if (!response.equals("ok")) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
