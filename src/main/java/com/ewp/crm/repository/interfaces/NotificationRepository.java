@@ -10,5 +10,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 	void deleteNotificationsByClientAndUserToNotify(Client client, User user);
 
+	void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user);
+
 	List<Notification> getNotificationsByUserToNotify(User user);
 }

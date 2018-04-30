@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class CommentRestController {
 	public ResponseEntity markAsRead(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(id);
-		notificationService.deleteNotificationsByClientAndUserToNotify(client, userFromSession);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT,client,userFromSession);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
