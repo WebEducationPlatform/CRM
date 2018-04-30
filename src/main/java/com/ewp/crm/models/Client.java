@@ -107,6 +107,11 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "client_sms_info",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
+	private List<SMSInfo> smsInfo = new ArrayList<>();
 
 	public Client() {
 	}
@@ -146,7 +151,6 @@ public class Client implements Serializable {
 		this.country = country;
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
-		this.socialNetworks = socialNetworks;
 	}
 
 
@@ -160,6 +164,10 @@ public class Client implements Serializable {
 
 	public void addHistory(ClientHistory history) {
 		this.history.add(history);
+	}
+
+	public void addSMSInfo(SMSInfo smsInfo) {
+		this.smsInfo.add(smsInfo);
 	}
 
 	public Long getId() {
@@ -331,6 +339,11 @@ public class Client implements Serializable {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "Client: id: " + id + "; email: " + email + "; number: " + phoneNumber;
+	}
+
 	public List<Notification> getNotifications() {
 		return notifications;
 	}
@@ -339,6 +352,13 @@ public class Client implements Serializable {
 		this.notifications = notifications;
 	}
 
+	public List<SMSInfo> getSmsInfo() {
+		return smsInfo;
+	}
+
+	public void setSmsInfo(List<SMSInfo> smsInfo) {
+		this.smsInfo = smsInfo;
+	}
 
 	public enum Sex {
 		MALE, FEMALE

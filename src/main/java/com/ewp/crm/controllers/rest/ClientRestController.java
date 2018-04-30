@@ -107,6 +107,7 @@ public class ClientRestController {
 		client.setStatus(currentClient.getStatus());
 		client.setDateOfRegistration(currentClient.getDateOfRegistration());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
+		client.setSmsInfo(currentClient.getSmsInfo());
 		clientService.updateClient(client);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);

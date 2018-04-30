@@ -1,9 +1,11 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SMSInfo;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.*;
@@ -31,15 +33,24 @@ public class ScheduleTasks {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
+	private final SMSUtil smsUtil;
+
+	private final SMSInfoService smsInfoService;
+
+	private final SendNotificationService sendNotificationService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.smsUtil = smsUtil;
+		this.smsInfoService = smsInfoService;
+		this.sendNotificationService = sendNotificationService;
 	}
 
 	private void addClient(Client newClient) {
@@ -108,5 +119,40 @@ public class ScheduleTasks {
 			client.setPostponeDate(null);
 			clientService.updateClient(client);
 		}
+	}
+
+	//TODO 600_0000 after tests
+	@Scheduled(fixedRate = 6_000)
+	private void checkSMSMessages() {
+		logger.info("start checking sms statuses");
+		List<SMSInfo> queueSMS = smsInfoService.getSMSbyDelivery(false);
+		for (SMSInfo sms : queueSMS) {
+			String status = smsUtil.getStatusMessage(sms.getSmsId());
+			if (!status.equals("queued")) {
+				if (status.equals("delivered")) {
+					sms.setDelivered(true);
+					smsInfoService.updateSMSInfo(sms);
+				} else {
+					String forView = determineStatusOfResponse(status);
+					logger.info("THERE MUST BE SENDING NOTIFICATION WITH INFO {}", forView);
+					smsInfoService.deleteSMSInfo(sms.getId());
+				}
+			}
+		}
+	}
+
+	private String determineStatusOfResponse(String status) {
+		String info;
+		switch (status) {
+			case "delivery error":
+				info = "Номер заблокирован или вне зоны";
+				break;
+			case "incorrect id":
+				info = "Неверный id сообщения";
+				break;
+			default:
+				info = "Неизвестная ошибка sms";
+		}
+		return info;
 	}
 }
