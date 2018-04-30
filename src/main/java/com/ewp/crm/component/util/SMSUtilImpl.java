@@ -1,8 +1,10 @@
-package com.ewp.crm.service.impl;
+package com.ewp.crm.component.util;
 
+import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.service.interfaces.SMSService;
+import com.ewp.crm.models.SMSInfo;
+import com.ewp.crm.models.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,20 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.codec.Base64;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Service
-public class SMSServiceImpl implements SMSService {
+//TODO протестировать с async
+@Component
+public class SMSUtilImpl implements SMSUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(SMSServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(SMSUtilImpl.class);
 
 	private final SMSConfig smsConfig;
 	private final RestTemplate restTemplate;
@@ -31,14 +32,13 @@ public class SMSServiceImpl implements SMSService {
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 	}
 
-	@Async
 	@Override
-	public String sendSMS(Client client, String text) {
+	public void sendSMS(Client client, String text, User sender) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), text);
@@ -47,16 +47,15 @@ public class SMSServiceImpl implements SMSService {
 		try {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-			return message.getString("status");
+			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
+			client.addSMSInfo(smsInfo);
 		} catch (JSONException e) {
-			logger.error("JSON can`t parse response");
+			logger.error("Error to send message");
 		}
-		return "Error send message";
 	}
 
-	@Async
 	@Override
-	public String sendSMS(List<Client> clients, String text) {
+	public void sendSMS(List<Client> clients, String text, User sender) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		JSONObject request = buildMessages(jsonRequest, clients, text);
@@ -65,16 +64,17 @@ public class SMSServiceImpl implements SMSService {
 		try {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			return null;//TODO Исправить
+			for (int i = 0; i < messages.length(); i++) {
+				JSONObject smsInfo = (JSONObject) messages.get(i);
+				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
+			}
 		} catch (JSONException e) {
-			logger.error("JSON can`t parse response");
+			logger.error("Error to send messages");
 		}
-		return "Error to send messages";
 	}
 
-	@Async
 	@Override
-	public String plannedSMS(Client client, String text, String date) {
+	public void plannedSMS(Client client, String text, String date, User sender) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -84,16 +84,15 @@ public class SMSServiceImpl implements SMSService {
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			JSONObject body = new JSONObject(response.getBody());
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-			return message.getString("status");
+			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
+			client.addSMSInfo(smsInfo);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return "Error to send messages";
 	}
 
-	@Async
 	@Override
-	public String plannedSMS(List<Client> clients, String text, String date) {
+	public void plannedSMS(List<Client> clients, String text, String date, User sender) {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -103,11 +102,13 @@ public class SMSServiceImpl implements SMSService {
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			JSONObject body = new JSONObject(response.getBody());
 			JSONArray messages = body.getJSONArray("messages");
-			return null; //TODO Исправить
+			for (int i = 0; i < messages.length(); i++) {
+				JSONObject smsInfo = (JSONObject) messages.get(i);
+				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
+			}
 		} catch (JSONException e) {
 			logger.error("JSON can`t parse response");
 		}
-		return "Error to send messages";
 	}
 
 	@Override
@@ -124,13 +125,36 @@ public class SMSServiceImpl implements SMSService {
 				logger.error("Can`t take balance, error authorization");
 			}
 		}
-		return "Error authorization";
+		return "Error";
+	}
+
+	@Override
+	public String getStatusMessage(long smsId) {
+		URI uri = URI.create(TEMPLATE_URI + "/status.json");
+		JSONObject request = new JSONObject();
+		JSONObject smsRequest = new JSONObject();
+		try {
+			smsRequest.put("smscId", smsId);
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.put(smsRequest);
+			request.put("messages", jsonArray);
+			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+
+			JSONObject body = new JSONObject(response.getBody());
+			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
+			return message.getString("status");
+		} catch (JSONException e) {
+			logger.error("Can`t take sms status, JSON parse error");
+		}
+
+		return "Error";
 	}
 
 	private JSONObject buildMessages(JSONObject jsonRequest, List<Client> clients, String text) {
-		List<JSONObject> jsonClients = new ArrayList<>();
+		JSONArray jsonClients = new JSONArray();
 		for (Client client : clients) {
-			jsonClients.add(buildMessage(client, text));
+			jsonClients.put(buildMessage(client, text));
 		}
 		try {
 			jsonRequest.put("messages", jsonClients);
@@ -145,7 +169,6 @@ public class SMSServiceImpl implements SMSService {
 		try {
 			jsonObject.put("phone", client.getPhoneNumber());
 			jsonObject.put("sender", smsConfig.getAlphaName());
-			jsonObject.put("clientId", client.getId());
 			jsonObject.put("text", text);
 		} catch (JSONException e) {
 			e.printStackTrace();
