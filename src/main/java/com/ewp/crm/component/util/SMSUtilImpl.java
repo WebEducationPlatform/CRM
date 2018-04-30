@@ -87,7 +87,7 @@ public class SMSUtilImpl implements SMSUtil {
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.error("Error to send message");
 		}
 	}
 
@@ -107,7 +107,7 @@ public class SMSUtilImpl implements SMSUtil {
 				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
 			}
 		} catch (JSONException e) {
-			logger.error("JSON can`t parse response");
+			logger.error("Error to send message");
 		}
 	}
 
@@ -159,7 +159,7 @@ public class SMSUtilImpl implements SMSUtil {
 		try {
 			jsonRequest.put("messages", jsonClients);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.error("Can`t build JSON message {}", e.getMessage());
 		}
 		return jsonRequest;
 	}
@@ -171,7 +171,7 @@ public class SMSUtilImpl implements SMSUtil {
 			jsonObject.put("sender", smsConfig.getAlphaName());
 			jsonObject.put("text", text);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.error("Can`t build JSON message {}", e.getMessage());
 		}
 		return jsonObject;
 	}

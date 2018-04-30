@@ -15,6 +15,9 @@ public class Notification implements Serializable {
 	@Column
 	private Long id;
 
+	@Basic
+	private String information;
+
 	@ManyToOne
 	@JoinTable(name = "client_notification",
 			joinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
@@ -29,14 +32,24 @@ public class Notification implements Serializable {
 	@JsonIgnore
 	private User userToNotify;
 
+	@Enumerated(EnumType.STRING)
+	private Type type;
+
 	public Notification() {
 	}
 
-	public Notification(Client client, User userToNotify) {
+	public Notification(Client client, User userToNotify, Type type) {
 		this.client = client;
 		this.userToNotify = userToNotify;
+		this.type = type;
 	}
 
+	public Notification(String information, Client client, User userToNotify, Type type) {
+		this.information = information;
+		this.client = client;
+		this.userToNotify = userToNotify;
+		this.type = type;
+	}
 
 	public Client getClient() {
 		return client;
@@ -74,7 +87,26 @@ public class Notification implements Serializable {
 
 	@Override
 	public int hashCode() {
-
 		return Objects.hash(id, client, userToNotify);
+	}
+
+	public String getInformation() {
+		return information;
+	}
+
+	public void setInformation(String information) {
+		this.information = information;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	public enum Type{
+		COMMENT, SMS
 	}
 }

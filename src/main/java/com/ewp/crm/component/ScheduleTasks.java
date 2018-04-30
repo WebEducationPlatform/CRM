@@ -134,7 +134,7 @@ public class ScheduleTasks {
 					smsInfoService.updateSMSInfo(sms);
 				} else {
 					String forView = determineStatusOfResponse(status);
-					logger.info("THERE MUST BE SENDING NOTIFICATION WITH INFO {}", forView);
+					sendNotificationService.sendNotification(forView,sms.getClient(),sms.getUser());
 					smsInfoService.deleteSMSInfo(sms.getId());
 				}
 			}

@@ -47,10 +47,17 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 					if (userToNotify.isEnableMailNotifications()) {
 						mailSendService.sendNotificationMessage(userToNotify);
 					}
-					Notification notification = new Notification(client, userToNotify);
+					Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
 					notificationService.addNotification(notification);
 				}
 			}
 		}
+	}
+
+	@Override
+	public void sendNotification(String info, Client client, User user) {
+		Notification notification = new Notification(client,user, Notification.Type.SMS);
+		notification.setInformation(info);
+		notificationService.addNotification(notification);
 	}
 }
