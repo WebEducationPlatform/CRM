@@ -33,19 +33,19 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div class="portlet" th:each="client,stat : ${status.clients}" th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
+            <div class="portlet" th:each="client : ${status.clients}" th:if="${client.Active == true}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
                 <div class="portlet-title" sec:authorize="hasAnyAuthority('ADMIN')">
-                        <div class="dropdown" style="margin-left:90%;">
-                            <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
-                            <ul class="dropdown-menu">
-                                <li th:each="worker : ${users}">
-                                    <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
-                                </li>
-                                <li>
-                                    <a th:onclick="'unassign('+ ${client.id} +')'">Unassign</a>
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="dropdown" style="margin-left:90%;">
+                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
+                        <ul class="dropdown-menu">
+                            <li th:each="worker : ${users}">
+                                <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                            </li>
+                            <li>
+                                <a th:onclick="'unassign('+ ${client.id} +')'">Unassign</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="portlet-body" data-toggle="modal"
                      th:attrappend="data-target=@{#client-__${client.id}__-modal}">
@@ -75,7 +75,7 @@
                                 <span id="notification"
                                       class="notification glyphicon glyphicon-bell pull-right"
                                       style="color: red"></span>
-                                </th:block>
+                            </th:block>
                         </div>
                     </div>
                 </div>
