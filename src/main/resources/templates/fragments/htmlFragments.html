@@ -40,25 +40,27 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <th:block th:if="${notifications.size() > 0}">
-                        <a class="glyphicon glyphicon-bell redBell" style="color: red" data-toggle="dropdown">
-                        </a>
-                    </th:block>
-                    <th:block th:if="${notifications.size() == 0}">
-                        <a class="glyphicon glyphicon-bell" data-toggle="dropdown">
-                        </a>
-                    </th:block>
+                    <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
                     <ul class="dropdown-menu">
                         <th:block th:if="${notifications.size() > 0}">
                             <th:block th:each="notification : ${notifications}">
-                                <li th:class="'menu' + ${notification.client.id}">
-                                    <a th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                    <a data-toggle="modal" class="notification-header-btn"
+                                       th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                       th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                       th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
                                     </a>
-                                    <button data-toggle="modal"
-                                            th:attrappend="data-target=@{#client-__${notification.client.id}__-modal}"
-                                            th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                            class="glyphicon glyphicon-share-alt pull-right"></button>
-                                </li>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).SMS}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="notification-header-btn"
+                                           th:attrappend="data-target='#sms-error-modal_' + ${notification.client.id}"
+                                           th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
                             </th:block>
                         </th:block>
                         <th:block th:if="${notifications.size() == 0}">

@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "client")
@@ -318,6 +319,17 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
+	public List<Notification> getSmsNotifications(){
+		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.SMS)).collect(Collectors.toList());
+	}
+
+	public List<Notification> getCommentNotifications(){
+		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.COMMENT)).collect(Collectors.toList());
+	}
+
+	public boolean ifPrincipalHaveNotifications(User user){
+		return this.notifications.stream().anyMatch(n -> n.getUserToNotify().equals(user));
+	}
 
 	@Override
 	public boolean equals(Object o) {

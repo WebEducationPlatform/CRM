@@ -45,7 +45,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -55,7 +55,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -63,7 +63,7 @@ public class UserController {
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -81,7 +81,7 @@ public class UserController {
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
 		modelAndView.setViewName("socialNetworkTypes-table");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 

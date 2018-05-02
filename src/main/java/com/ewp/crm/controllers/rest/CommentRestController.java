@@ -53,6 +53,7 @@ public class CommentRestController {
 		}
 	}
 
+	//TODO перенести на NotificationRestController
 	@RequestMapping(value = "/markAsRead", method = RequestMethod.POST)
 	public ResponseEntity markAsRead(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

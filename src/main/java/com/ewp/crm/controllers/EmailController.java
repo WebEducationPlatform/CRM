@@ -36,7 +36,7 @@ public class EmailController {
 		ModelAndView modelAndView = new ModelAndView("edit-eTemplate");
 		modelAndView.addObject("template", emailTemplate);
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 
 		return modelAndView;
 	}

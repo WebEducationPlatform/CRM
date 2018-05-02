@@ -141,6 +141,7 @@ public class ScheduleTasks {
 		}
 	}
 
+	//TODO не знаю куда запихнуть
 	private String determineStatusOfResponse(String status) {
 		String info;
 		switch (status) {
@@ -151,7 +152,7 @@ public class ScheduleTasks {
 				info = "Неверный id сообщения";
 				break;
 			default:
-				info = "Неизвестная ошибка sms";
+				info = "Неизвестная ошибка";
 		}
 		return info;
 	}

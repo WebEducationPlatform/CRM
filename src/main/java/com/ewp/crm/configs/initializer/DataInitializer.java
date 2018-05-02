@@ -100,8 +100,9 @@ public class DataInitializer {
 		client1.addSMSInfo(new SMSInfo(456, "Hello client 1 repeat", admin));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
 		client2.addSMSInfo(new SMSInfo(789, "Hello client 2", admin));
-		client2.addSMSInfo(new SMSInfo(012, "Hello client 2 repeat", admin));
+		client2.addSMSInfo(new SMSInfo(1234, "Hello client 2 repeat", admin));
 		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
+		client3.addSMSInfo(new SMSInfo(78942, "Hello client 3", admin));
 		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
 		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
