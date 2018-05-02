@@ -27,19 +27,12 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	@Transactional
-	public void deleteNotificationsByClientAndUserToNotify(Client client, User user) {
-		notificationRepository.deleteNotificationsByClientAndUserToNotify(client, user);
-	}
-
-	@Transactional
-	@Override
 	public void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user) {
 		notificationRepository.deleteByTypeAndClientAndUserToNotify(type, client, user);
 	}
 
-
 	@Override
-	public List<Notification> getNotificationsByUserToNotify(User user) {
-		return notificationRepository.getNotificationsByUserToNotify(user);
+	public List<Notification> getByUserToNotify(User user) {
+		return notificationRepository.getByUserToNotify(user);
 	}
 }

@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
     <script type="text/javascript" th:src="@{/js/comments.js}"></script>
+    <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -70,18 +71,16 @@
                             </p>
                             <p th:if="${client.ownerUser != null}" style="display:none" th:text="${client.ownerUser.fullName}"></p>
 
-                            <th:block th:each="notification : ${client.notifications}">
-                                <th:block th:if="${notification != null}">
+                            <th:block th:if="${client.commentNotifications.size() > 0 and client.ifPrincipalHaveNotifications(#authentication.getPrincipal())}">
                                 <span id="notification"
-                                      th:if="${notification.userToNotify.id == #authentication.getPrincipal().getId()}"
                                       class="notification glyphicon glyphicon-bell pull-right"
                                       style="color: red"></span>
                                 </th:block>
-                            </th:block>
                         </div>
                     </div>
                 </div>
                 <div class="btn-group">
+                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                     <button name= "emailTmplList" type="button" class="glyphicon glyphicon-envelope" data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
@@ -102,10 +101,46 @@
                             </a>
                         </li>
                     </ul>
+                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+
+                    <!-- SMS ERROR INFO BTN -->
+                    <th:block th:if="${client.ifPrincipalHaveNotifications(#authentication.getPrincipal()) and client.smsNotifications.size() > 0}">
+                    <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                    <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Ошибки sms</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- SMS INFO TODO продолжить-->
+                                    <table>
+                                        <th:block th:each="notification_sms : ${client.smsNotifications}">
+                                        <tr>
+                                            <td>
+                                                <span th:id="'sms_notification_id_' + ${notification_sms.id}" th:text="${notification_sms.information}"></span>
+                                            </td>
+                                        </tr>
+                                        </th:block>
+                                    </table>
+                                    <!--/ SMS INFO -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" th:onclick="'clearClientSmsNotifications('+ ${client.id} +')'" data-dismiss="modal">Очистить</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    </th:block>
+                    <!--/ SMS ERROR INFO BTN -->
+
                 </div>
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customEmailTemplateModal"></div>
-                <div th:id="@{client-__${client.id}__-modal}" class="modal fade" role="dialog" data-keyboard="false">
+                <div th:id="'client-'+${client.id}+'-modal'" class="modal fade" role="dialog" data-keyboard="false">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -128,7 +163,7 @@
                                     взять себе карточку
                                 </button>
                                 <th:block th:if="${client.ownerUser != null}">
-                                    <button th:if="${#authentication.getPrincipal().getId() == client.ownerUser.id}"
+                                    <button th:if="${#authentication.principal.id == client.ownerUser.id}"
                                             th:id="'unassign-client' + ${client.id}"
                                             th:onclick="'unassign('+ ${client.id} +')'"
                                             class="btn btn-md btn-warning">
@@ -136,7 +171,7 @@
                                     </button>
                                 </th:block>
                                 <a th:href="'/admin/client/clientInfo/' +  ${client.id}">
-                                    <button th:if="${isAdmin}"
+                                    <button sec:authorize="hasAnyAuthority('ADMIN')"
                                             th:id="'client-info' + ${client.id}"
                                             class="btn btn-md btn-info" rel="clientInfo">
                                         Расширенная информация
@@ -216,7 +251,7 @@
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-                <div id="client_filter_group" th:if="${isAdmin}">
+                <div id="client_filter_group" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseFilter">Фильтр клиентов</a>
@@ -230,7 +265,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="user_group" th:if="${isAdmin}">
+                <div id="user_group" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseUser">Список сотрудников</a>
