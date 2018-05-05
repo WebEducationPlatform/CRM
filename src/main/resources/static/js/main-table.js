@@ -1,8 +1,10 @@
 $(function () {
     $('.open-description-btn').on('click', function(event) {
         var id = $(this).data('id');
-        var text =  $('#info-client'+ id).text();
+        var infoClient =  $('#info-client'+ id);
+        var text = infoClient.find('.client-description').text();
         var testModal = $('#TestModal');
+
         testModal.find('textarea').val(text);
         testModal.find('button').remove();
         testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
@@ -24,7 +26,7 @@ function saveDescription(id) {
         url: url,
         data: formData,
         success: function () {
-            $("#info-client" + id).text(text);
+            $("#info-client" + id).find('.client-description').text(text);
             $('#TestModal').modal('hide');
         },
         error: function (error) {
