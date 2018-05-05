@@ -114,6 +114,9 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
 	private List<SMSInfo> smsInfo = new ArrayList<>();
 
+	@Column(name = "client_description_comment")
+	private String clientDescriptionComment;
+
 	public Client() {
 	}
 
@@ -173,6 +176,14 @@ public class Client implements Serializable {
 
 	public Long getId() {
 		return id;
+	}
+
+	public String getClientDescriptionComment() {
+		return clientDescriptionComment;
+	}
+
+	public void setClientDescriptionComment(String clientDescriptionComment) {
+		this.clientDescriptionComment = clientDescriptionComment;
 	}
 
 	public void setId(Long id) {

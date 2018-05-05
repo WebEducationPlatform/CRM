@@ -1,3 +1,40 @@
+$(function () {
+    $('.open-description-btn').on('click', function(event) {
+        var id = $(this).data('id');
+        var text =  $('#info-client'+ id).text();
+        var testModal = $('#TestModal');
+        testModal.find('textarea').val(text);
+        testModal.find('button').remove();
+        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
+        testModal.modal('show');
+    });
+});
+
+
+function saveDescription(id) {
+    let text =  $('#TestModal').find('textarea').val();
+    let
+        url = 'rest/client/addDescription',
+        formData = {
+            clientId: id,
+            clientDescription: text
+        };
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function () {
+            $("#info-client" + id).text(text);
+            $('#TestModal').modal('hide');
+        },
+        error: function (error) {
+        }
+    });
+}
+
+
+
+
 $(document).ready(function () {
     $(".column").sortable({
     delay:100,
@@ -232,7 +269,7 @@ function assign(id) {
                 "<button " +
                 "   id='unassign-client" + id +"' " +
                 "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+                "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
@@ -275,7 +312,7 @@ function assignUser(id, user, principalId) {
                         "<button " +
                         "   id='unassign-client" + id +"' " +
                         "   onclick='unassign(" + id +")' " +
-                        "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+                        "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
                     );
                 }
                 //If admin not assign himself, he don`t have unassign button
@@ -319,7 +356,7 @@ function unassign(id) {
                     "<button " +
                     "   id='assign-client" + id + "' " +
                     "   onclick='assign(" + id +")' " +
-                    "   class='btn btn-md btn-info'>взять себе карточку</button>"
+                    "   class='btn btn-sm btn-info'>взять себе карточку</button>"
                 );
                 unassignBtn.remove();
             }else{

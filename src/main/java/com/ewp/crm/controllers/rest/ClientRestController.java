@@ -258,4 +258,18 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
 	}
+
+	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
+	public ResponseEntity<String> addComment(@RequestParam(name = "clientId") Long clientId,
+	                                         @RequestParam(name = "clientDescription") String clientDescription) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userFromSession != null) {
+			Client client = clientService.getClientByID(clientId);
+			client.setClientDescriptionComment(clientDescription);
+			clientService.addClient(client);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+			return  new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+	}
 }

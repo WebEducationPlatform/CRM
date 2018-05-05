@@ -86,6 +86,7 @@
 </th:block>
 
 <th:block th:fragment="header">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
           crossorigin="anonymous"/>
@@ -102,11 +103,13 @@
 <th:block th:fragment="comments">
     <div class="modal-footer modal-comments">
         <div class="comments">
+            <div class="panel panel-default">
+                <div class="panel-heading">
             <span><h4>Комментарии:</h4></span>
             <div class="form-group">
                 <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}"
                           placeholder="Напишите комментарий"></textarea>
-                <button class="btn btn-md btn-success comment-button"
+                <button class="btn btn-sm btn-success comment-button"
                         th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить
                 </button>
             </div>
@@ -172,6 +175,8 @@
             </ul>
         </div>
     </div>
+    </div>
+    </div>
 </th:block>
 
 <th:block th:fragment="sendTemplateModal">
@@ -183,6 +188,24 @@
                 </div>
                 <div class="modal-body">
                     <h6>Отправить сообщение пользователю?</h6>
+                    <div class="form-сheck">
+                        <form>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value=""/>
+                            </label>
+                            <th:block th:each="socNetwork : ${client.socialNetworks}">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" th:text="${socNetwork.socialNetworkType.name}"  value=""/>
+                                </label>
+                            </th:block>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="SMS" value=""/>
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value=""/>Выбрать все
+                            </label>
+                        </form>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>

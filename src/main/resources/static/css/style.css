@@ -1,5 +1,14 @@
+.text-board {
+	word-wrap:break-word;
+}
+
+
+.font-size {
+	font-size: 12px;
+}
+
 ul{
-    list-style-type:none;
+	list-style-type:none;
 }
 .tilt.right {
 	transform: rotate(3deg);
