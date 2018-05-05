@@ -3,6 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <div th:replace="fragments/htmlFragments::header"></div>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
     <script type="text/javascript" th:src="@{/js/comments.js}"></script>
@@ -47,22 +48,37 @@
                         </ul>
                     </div>
                 </div>
+                <div>
+                    <button type="button" class="btn btn-default btn-xs open-description-btn"  th:attr="data-id=${client.id}" >
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+
+                    <div th:id="'TestModal'" class="modal" tabindex="-1">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <form role="form">
+                                        <div class="form-group">
+                                            <h5>Введите заметку</h5>
+                                            <textarea class="form-control" th:id="'textArea' + ${client.id}" rows="4"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success btn-sm" th:id="'btnClose'" th:onclick="'saveDescription('+ ${client.id} +')'" >Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="portlet-body" data-toggle="modal"
                      th:attrappend="data-target=@{#client-__${client.id}__-modal}">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
-                        <div class="clickModal" th:id="'info-client' + ${client.id}"
+                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
                              th:onclick="'markAsRead('+ ${client.id} +')'">
-
-                            <span th:text="${client.phoneNumber}"></span>
-                            <br/>
-                            <span th:text="${client.email}"></span>
-                            <br/>
-                            <span th:text="${client.age}"></span>
-                            <br/>
-                            <span th:text="${client.sex}"></span>
-                            <br/>
+                            <div th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
                                th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
@@ -141,50 +157,118 @@
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customEmailTemplateModal"></div>
                 <div th:id="'client-'+${client.id}+'-modal'" class="modal fade" role="dialog" data-keyboard="false">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-md">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title" th:text="${client.name} + ' ' + ${client.lastName}"></h4>
                             </div>
                             <div class="modal-body">
-                                <span th:text="${client.phoneNumber}"></span>
-                                <br/>
-                                <span th:text="${client.email}"></span>
-                                <br/>
-                                <span th:text="${client.age}"></span>
-                                <br/>
-                                <span th:text="${client.sex}"></span>
-                                <br/>
-                                <button th:if="${client.ownerUser == null}"
-                                        th:id="'assign-client' + ${client.id}"
-                                        th:onclick="'assign('+ ${client.id} +')'"
-                                        class="btn btn-md btn-info">
-                                    взять себе карточку
-                                </button>
-                                <th:block th:if="${client.ownerUser != null}">
-                                    <button th:if="${#authentication.principal.id == client.ownerUser.id}"
-                                            th:id="'unassign-client' + ${client.id}"
-                                            th:onclick="'unassign('+ ${client.id} +')'"
-                                            class="btn btn-md btn-warning">
-                                        отказаться от карточки
-                                    </button>
-                                </th:block>
-                                <a th:href="'/admin/client/clientInfo/' +  ${client.id}">
-                                    <button sec:authorize="hasAnyAuthority('ADMIN')"
-                                            th:id="'client-info' + ${client.id}"
-                                            class="btn btn-md btn-info" rel="clientInfo">
-                                        Расширенная информация
-                                    </button>
-                                </a>
-                            </div>
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <table class="table table-condensed font-size">
+                                            <tbody>
+                                            <tr>
+                                                <td>Электронная почта: </td>
+                                                <td th:text="${client.email}"></td>
+                                                <td><div class="btn-group">
+                                                    <a name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
+                                                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                                                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
+                                                            <a class="glyphicon glyphicon-ok" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
+                                                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                                                                <button
+                                                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                                                </button>
+                                                            </a>
+                                                        </li>
+                                                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id==1}">
+                                                            <a class="glyphicon glyphicon-plus" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
+                                                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                                                                <button
+                                                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                                                </button>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Номер телефона: </td>
+                                                <td th:text="${client.phoneNumber}"></td>
+                                                <td><a class="btn btn-default btn btn-light btn-xs "><span class="glyphicon glyphicon-earphone"></span></a></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Возраст: </td>
+                                                <td th:text="${client.age}"></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Пол: </td>
+                                                <td th:text="${client.sex}"></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Социальные сети: </td>
+                                                <td><div class="btn-group">
+                                                    <a name= "emailTmplList" data-toggle="dropdown" class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
+                                                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                                                        <li th:id  = "'VKtemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
+                                                            <a class="glyphicon glyphicon-ok" th:id = "'sendVKBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
+                                                            <a th:if="${isAdmin}" th:href="'admin/editVKytemplate/' +  ${template.id}">
+                                                                <button
+                                                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                                                </button>
+                                                            </a>
+                                                        </li>
+                                                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id==1}">
+                                                            <a class="glyphicon glyphicon-plus" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
+                                                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                                                                <button
+                                                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                                                </button>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                    <a class="btn btn-social-icon btn-facebook btn-sm"><span class="fa fa-facebook"></span></a></td>
+                                                <td></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div>
+                                            <button th:if="${client.ownerUser == null}"
+                                                    th:id="'assign-client' + ${client.id}"
+                                                    th:onclick="'assign('+ ${client.id} +')'"
+                                                    class="btn btn-sm btn-info" >
+                                                взять себе карточку
+                                            </button>
+                                            <th:block th:if="${client.ownerUser != null}">
+                                                <button th:if="${currentUserId == client.ownerUser.id}"
+                                                        th:id="'unassign-client' + ${client.id}"
+                                                        th:onclick="'unassign('+ ${client.id} +')'"
+                                                        class="btn btn-sm btn-warning" >
+                                                    отказаться от карточки
+                                                </button>
+                                            </th:block>
+                                            <a th:href="'/admin/client/clientInfo/' +  ${client.id}">
+                                                <button th:if="${isAdmin}"
+                                                        th:id="'client-info' + ${client.id}"
+                                                        class="btn btn-info btn-sm" rel="clientInfo">
+                                                    Расширенная информация
+                                                </button></a>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    </div>
                             <div class="modal-header">
                                 <div class="panel-group" id="hideAccordion">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#hideAccordion" th:href="'#hideClientCollapse'+${client.id}">Скрыть карточку</a>
+                                                <a  сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" th:href="'#hideClientCollapse'+${client.id}">Скрыть карточку</a>
                                             </h4>
+                                        </div>
                                         </div>
                                         <div th:id="'hideClientCollapse'+${client.id}" class="panel-collapse collapse">
                                             <div class="panel-body">
@@ -200,7 +284,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             <div th:replace="fragments/htmlFragments::comments"></div>
                             <div class="modal-header">
                                 <div class="panel-group" id="actionsAccordion">
