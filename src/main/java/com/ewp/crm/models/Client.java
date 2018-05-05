@@ -108,12 +108,14 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
+	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "client_sms_info",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
 	private List<SMSInfo> smsInfo = new ArrayList<>();
 
+	@Lob
 	@Column(name = "client_description_comment")
 	private String clientDescriptionComment;
 
@@ -330,14 +332,20 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
+	//TODO На перемещение в контроллер
+	@JsonIgnore
 	public List<Notification> getSmsNotifications(){
 		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.SMS)).collect(Collectors.toList());
 	}
 
+	//TODO На перемещение в контроллер
+	@JsonIgnore
 	public List<Notification> getCommentNotifications(){
 		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.COMMENT)).collect(Collectors.toList());
 	}
 
+	//TODO На перемещение в контроллер
+	@JsonIgnore
 	public boolean ifPrincipalHaveNotifications(User user){
 		return this.notifications.stream().anyMatch(n -> n.getUserToNotify().equals(user));
 	}

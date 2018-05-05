@@ -71,14 +71,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body" data-toggle="modal"
+                <div class="portlet-body" data-toggle="modal" th:onclick="'markAsReadMenu('+ ${client.id} +')'"
                      th:attrappend="data-target=@{#client-__${client.id}__-modal}">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
-                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
-                             th:onclick="'markAsRead('+ ${client.id} +')'">
-                            <div th:text="${client.clientDescriptionComment}"></div>
+                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
+                            <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
                                th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
