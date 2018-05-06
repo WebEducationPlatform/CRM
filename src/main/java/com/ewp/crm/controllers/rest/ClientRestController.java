@@ -94,22 +94,22 @@ public class ClientRestController {
 	}
 
 	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
-	public ResponseEntity updateClient(@RequestBody Client client) {
+	public ResponseEntity updateClient(@RequestBody Client currentClient) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+		for (SocialNetwork socialNetwork : currentClient.getSocialNetworks()) {
 			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
 					socialNetwork.getSocialNetworkType().getName()).getId());
 		}
-		Client currentClient = clientService.getClientByID(client.getId());
-		client.setHistory(currentClient.getHistory());
-		client.setComments(currentClient.getComments());
-		client.setOwnerUser(currentClient.getOwnerUser());
-		client.setStatus(currentClient.getStatus());
-		client.setDateOfRegistration(currentClient.getDateOfRegistration());
-		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
-		client.setSmsInfo(currentClient.getSmsInfo());
-		clientService.updateClient(client);
-		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		Client clientFromDB = clientService.getClientByID(currentClient.getId());
+		currentClient.setHistory(clientFromDB.getHistory());
+		currentClient.setComments(clientFromDB.getComments());
+		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
+		currentClient.setStatus(clientFromDB.getStatus());
+		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
+		currentClient.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
+		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
+		clientService.updateClient(currentClient);
+		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -177,8 +177,8 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "rest/client/createFileFiltr", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity createFileWithFiltr(@RequestBody FilteringCondition filteringCondition) {
+	@RequestMapping(value = "rest/client/createFileFilter", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
 		String path = "src/main/resources/clientData/";
 		File file = new File(path + "data.txt");
 
@@ -269,7 +269,7 @@ public class ClientRestController {
 			clientService.addClient(client);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} else {
-			return  new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 	}
 }

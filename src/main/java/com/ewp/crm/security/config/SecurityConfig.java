@@ -31,7 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
 		http
 				.authorizeRequests()
 				.antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER")
@@ -54,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http
 				.sessionManagement()
-				.maximumSessions(100)
+				.maximumSessions(10000)
 				.maxSessionsPreventsLogin(false)
 				.expiredUrl("/login?logout")
 				.sessionRegistry(sessionRegistry());

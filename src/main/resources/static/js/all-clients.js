@@ -93,7 +93,7 @@ $('#filtration').click(function (){
 $('#clientData').click(function (event) {
     event.preventDefault();
     var url = "../rest/client/createFile";
-    var urlFiltration = "../rest/client/createFileFiltr";
+    var urlFiltration = "../rest/client/createFileFilter";
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
