@@ -141,7 +141,6 @@ public class ScheduleTasks {
 		}
 	}
 
-	//TODO не знаю куда запихнуть
 	private String determineStatusOfResponse(String status) {
 		String info;
 		switch (status) {
