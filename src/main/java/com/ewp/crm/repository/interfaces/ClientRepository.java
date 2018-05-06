@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
