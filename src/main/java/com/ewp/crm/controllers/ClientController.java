@@ -105,4 +105,15 @@ public class ClientController {
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
+
+	@RequestMapping(value = "/admin/client/add", method = RequestMethod.GET)
+	public ModelAndView addClient() {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("states", Client.State.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		return modelAndView;
+	}
 }

@@ -25,7 +25,7 @@ public class Client implements Serializable {
 	private Long id;
 
 	@NotNull
-	@Column(name = "first_name")
+	@Column(name = "first_name", nullable = false)
 	private String name;
 
 	private String lastName;
