@@ -549,10 +549,9 @@ function sendTempate(clientId, templateId) {
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
+            $(".modal").modal('hide');
+			current.textContent ="Да";
+			current.removeAttribute("disabled");
         },
         error: function (e) {
             current.textContent ="Да";
@@ -564,27 +563,35 @@ function sendTempate(clientId, templateId) {
     });
 }
 
-function sendCustomTempate(clientId) {
-    let url = '/rest/sendCustomEmailTemplate';
+function sendCustomTempate(clientId, templateId) {
+    let url = '/rest/sendEmail';
+    body = $('#custom-eTemplate-body' + clientId + templateId).val();
     let formData = {
         clientId: clientId,
-        body: $('#custom-eTemplate-body').val()
+        templateId: templateId,
+        body: body
     };
-    var current = $("#sendCustomTemplateBtn")[0];
-    var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
+    var current = $("#sendCustomTemplateBtn" + clientId + templateId)[0];
+    var currentStatus = $("#sendCustomEmailTemplateStatus" + clientId + templateId)[0];
+    if (body === "") {
+        currentStatus.style.color = "red";
+        currentStatus.textContent = "Введите текст";
+        return false;
+    }
     $.ajax({
         type: "POST",
         url: url,
         data: formData,
         beforeSend: function(){
             current.textContent ="Отправка..";
-            current.setAttribute("disabled", "true")
+            current.setAttribute("disabled", "true");
+            currentStatus.textContent = "";
         },
         success: function (result) {
-            current.textContent ="Отправить";
-            current.removeAttribute("disabled");
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
+			$(".modal").modal('hide');
+			$("#custom-eTemplate-body" + clientId + templateId).val("");
+			current.textContent ="Отправить";
+			current.removeAttribute("disabled");
         },
         error: function (e) {
             current.textContent ="Отправить";
@@ -632,4 +639,30 @@ $(document).ready(function () {
         minDate: minDate,
         startDate: minDate
     });
+});
+
+$(function () {
+$('.portlet-body').on('click', function(e) {
+	if(e.target.className.startsWith("portlet-body") !== -1) {
+		$('#' + $(e.target).attr('name')).modal('show');
+	}
+});
+});
+
+$(function () {
+	$('.portlet-header').on('click', function(e) {
+	    var modalName = $(e.target).parents(".portlet-body").attr('name');
+		if(e.target.className.startsWith("portlet-header") !== -1) {
+			$($('#' + modalName)).modal('show');
+		}
+	});
+});
+
+$(function () {
+	$('.portlet-content').on('click', function(e) {
+		var modalName = $(e.target).parents(".portlet-body").attr('name');
+		if(e.target.className.startsWith("portlet-content") !== -1) {
+			$($('#' + modalName)).modal('show');
+		}
+	});
 });
