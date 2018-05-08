@@ -179,44 +179,6 @@
     </div>
 </th:block>
 
-<th:block th:fragment="sendTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтвердите свое действие</h5>
-                </div>
-                <div class="modal-body">
-                    <h6>Отправить сообщение пользователю?</h6>
-                    <div class="form-сheck">
-                        <form>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value=""/>
-                            </label>
-                            <th:block th:each="socNetwork : ${client.socialNetworks}">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" th:text="${socNetwork.socialNetworkType.name}"  value=""/>
-                                </label>
-                            </th:block>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" th:text="SMS" value=""/>
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" value=""/>Выбрать все
-                            </label>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
-                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</th:block>
-
 <th:block th:fragment="downloadModal">
 
     <!-- Modal -->
@@ -367,23 +329,65 @@
 </th:block>
 
 <th:block th:fragment="customEmailTemplateModal">
-    <div class="modal fade" th:id="customEmailTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}" th:id="'customEmailTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Введите текст</h5>
+                </div>
                 <div class="modal-body">
                         <div class="form-group">
-                            <textarea id="custom-eTemplate-body" class="form-control"
+                            <textarea th:id="'custom-eTemplate-body' + ${client.id} + ${template.id}" class="form-control"
                                    placeholder="Основной текст"></textarea>
                         </div>
                 </div>
                 <div class="modal-footer">
-                    <span id = "sendCustomEmailTemplateStatus"></span>
-                    <button type="button" class="btn btn-primary" id = 'sendCustomTemplateBtn' th:onclick="'sendCustomTempate(\'' + ${client.id} + '\')'">Отправить</button>
+                    <span th:id = "'sendCustomEmailTemplateStatus' + ${client.id} + ${template.id}"></span>
+                    <button type="button" class="btn btn-primary" th:id = "'sendCustomTemplateBtn' + ${client.id} + ${template.id}"  th:onclick="'sendCustomTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Отправить</button>
                 </div>
             </div>
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="sendTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${!template.hasBody()}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтвердите свое действие</h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Отправить сообщение пользователю?</h6>
+                    <div class="form-сheck">
+                        <form>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value=""/>
+                            </label>
+                            <th:block th:each="socNetwork : ${client.socialNetworks}">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" th:text="${socNetwork.socialNetworkType.name}"  value=""/>
+                                </label>
+                            </th:block>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="SMS" value=""/>
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value=""/>Выбрать все
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
+                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="editEmailTemplateModal">
     <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editEmailTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">

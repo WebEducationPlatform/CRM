@@ -113,7 +113,9 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(cron = "0 0 8 * * *")
+	//TODO @Scheduled(cron = "0 0 8 * * *") after tests
+	//@Scheduled(cron = "0 0 8 * * *")
+	@Scheduled(fixedRate = 100_000)
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);

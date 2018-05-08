@@ -71,8 +71,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body" data-toggle="modal" th:onclick="'markAsReadMenu('+ ${client.id} +')'"
-                     th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                <div class="portlet-body" th:onclick="'markAsReadMenu('+ ${client.id} +')'" th:name = "'client-'+${client.id} + '-modal'">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
@@ -93,65 +92,57 @@
                             </th:block>
                         </div>
                     </div>
-                </div>
-                <div class="btn-group">
-                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                    <button name= "emailTmplList" type="button" class="glyphicon glyphicon-envelope" data-toggle="dropdown">
-                    </button>
-                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
-                            <a class="glyphicon glyphicon-ok" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
-                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
-                                <button
-                                    type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
-                                </button>
-                            </a>
-                        </li>
-                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id==1}">
-                            <a class="glyphicon glyphicon-plus" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customEmailTemplate'"  th:text="' ' + ${template.name}"></a>
-                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
-                                <button
-                                    type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
-                                </button>
-                            </a>
-                        </li>
-                    </ul>
-                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+                    <div class="btn-group">
+                        <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                        <button name= "emailTmplList" type="button" class="glyphicon glyphicon-envelope" data-toggle="dropdown">
+                        </button>
+                        <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                            <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                                <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
+                                <a class="glyphicon glyphicon-plus" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customEmailTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
+                                <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
+                                    <button
+                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                    </button>
+                                </a>
+                            </li>
+                        </ul>
+                        <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
-                    <!-- SMS ERROR INFO BTN -->
-                    <th:block th:if="${client.ifPrincipalHaveNotifications(#authentication.getPrincipal()) and client.smsNotifications.size() > 0}">
-                    <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
-                    <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Ошибки sms</h4>
+                        <!-- SMS ERROR INFO BTN -->
+                        <th:block th:if="${client.ifPrincipalHaveNotifications(#authentication.getPrincipal()) and client.smsNotifications.size() > 0}">
+                        <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                        <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Ошибки sms</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- SMS INFO TODO продолжить-->
+                                        <table>
+                                            <th:block th:each="notification_sms : ${client.smsNotifications}">
+                                            <tr>
+                                                <td>
+                                                    <span th:id="'sms_notification_id_' + ${notification_sms.id}" th:text="${notification_sms.information}"></span>
+                                                </td>
+                                            </tr>
+                                            </th:block>
+                                        </table>
+                                        <!--/ SMS INFO -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" th:onclick="'clearClientSmsNotifications('+ ${client.id} +')'" data-dismiss="modal">Очистить</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    <!-- SMS INFO TODO продолжить-->
-                                    <table>
-                                        <th:block th:each="notification_sms : ${client.smsNotifications}">
-                                        <tr>
-                                            <td>
-                                                <span th:id="'sms_notification_id_' + ${notification_sms.id}" th:text="${notification_sms.information}"></span>
-                                            </td>
-                                        </tr>
-                                        </th:block>
-                                    </table>
-                                    <!--/ SMS INFO -->
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" th:onclick="'clearClientSmsNotifications('+ ${client.id} +')'" data-dismiss="modal">Очистить</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                                </div>
+
                             </div>
-
                         </div>
+                        </th:block>
+                        <!--/ SMS ERROR INFO BTN -->
                     </div>
-                    </th:block>
-                    <!--/ SMS ERROR INFO BTN -->
-
                 </div>
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customEmailTemplateModal"></div>
