@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.service.interfaces.SocialNetworkService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -43,8 +44,10 @@ public class VKUtil {
 
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
 
+	private final SocialNetworkService socialNetworkService;
+
 	@Autowired
-	public VKUtil(VKConfig vkConfig) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -52,6 +55,7 @@ public class VKUtil {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
+		this.socialNetworkService = socialNetworkService;
 	}
 
 	@PostConstruct
@@ -122,7 +126,8 @@ public class VKUtil {
 	}
 
 	public String sendMessageToClient(Client client, String msg) {
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
+		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
 				return sendMessageById(id, msg);

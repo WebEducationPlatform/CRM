@@ -1,3 +1,13 @@
+#textTemplateArea {
+	width: 100%;
+	padding: 15px;
+}
+
+.head-padding {
+	padding-top: 15px;
+}
+
+
 .text-board {
 	word-wrap:break-word;
 }

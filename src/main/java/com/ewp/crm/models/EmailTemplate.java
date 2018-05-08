@@ -16,7 +16,16 @@ public class EmailTemplate {
 	@Lob
 	private String templateText;
 
+	@Lob
+	private String otherText;
+
 	public EmailTemplate() {
+	}
+
+	public EmailTemplate(String name, String templateText, String otherText) {
+		this.name = name;
+		this.templateText = templateText;
+		this.otherText = otherText;
 	}
 
 	public EmailTemplate(String name, String templateText) {
@@ -27,6 +36,14 @@ public class EmailTemplate {
 	public Long getId() {
 
 		return id;
+	}
+
+	public String getOtherText() {
+		return otherText;
+	}
+
+	public void setOtherText(String otherText) {
+		this.otherText = otherText;
 	}
 
 	public void setId(Long id) {
