@@ -70,6 +70,14 @@ public class EmailRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@RequestMapping(value = {"/admin/editOtherTemplate"}, method = RequestMethod.POST)
+	public ResponseEntity editOtherETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
+		EmailTemplate otherTemplate = emailTemplateService.get(templateId);
+		otherTemplate.setOtherText(templateText);
+		emailTemplateService.update(otherTemplate);
+		return ResponseEntity.ok().build();
+	}
+
 	@ResponseBody
 	@RequestMapping(value = "/admin/savePicture", method = RequestMethod.POST)
 	public ResponseEntity savePicture(@RequestParam("0") MultipartFile file) throws IOException {

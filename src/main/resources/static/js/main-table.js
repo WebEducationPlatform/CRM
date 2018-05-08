@@ -1,4 +1,23 @@
 $(function () {
+    $('.save_value').on('click', function(event) {
+    var sel = $('input[type="checkbox"]:checked').map(function(i, el) {
+        return $(el).val();
+    });
+    console.log(sel.get())
+})
+});
+
+
+$(function () {
+$('.select_all').click(function() {
+    var c = this.checked;
+    $(':checkbox').prop('checked',c);
+});
+});
+
+
+
+$(function () {
     $('.open-description-btn').on('click', function(event) {
         var id = $(this).data('id');
         var infoClient =  $('#info-client'+ id);
@@ -526,6 +545,39 @@ function deleteUser(id) {
         },
         error: function (e) {
 
+        }
+    });
+}
+
+function sendMessageVK(clientId, templateId) {
+    let url = '/rest/sendVK';
+    let formData = {
+        clientId: clientId,
+        templateId: templateId
+    };
+    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
+        },
+        success: function (result) {
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
+        },
+        error: function (e) {
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
         }
     });
 }
