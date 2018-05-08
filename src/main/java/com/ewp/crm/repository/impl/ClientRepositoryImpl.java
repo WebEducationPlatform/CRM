@@ -14,54 +14,56 @@ import java.util.List;
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
-    private EntityManager entityManager;
+	private EntityManager entityManager;
 
-    @Autowired
-    public ClientRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+	@Autowired
+	public ClientRepositoryImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
-    @Override
-    public List<Client> filteringClient(FilteringCondition filteringCondition) {
-        return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
-    }
+	@Override
+	public List<Client> filteringClient(FilteringCondition filteringCondition) {
+		return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+	}
 
-    private String createQuery(FilteringCondition filteringCondition) {
-        StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
 
-        if (filteringCondition.getSex() != null) {
-            query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
-        }
+	private String createQuery(FilteringCondition filteringCondition) {
+		StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
 
-        if (filteringCondition.getAgeFrom() != null) {
-            query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+		if (filteringCondition.getSex() != null) {
+			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
+		}
 
-        }
-        if (filteringCondition.getAgeTo() != null) {
-            query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
-        }
+		if (filteringCondition.getAgeFrom() != null) {
+			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
 
-        if (!filteringCondition.getCity().isEmpty()) {
-            query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
-        }
+		}
+		if (filteringCondition.getAgeTo() != null) {
+			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
+		}
 
-        if (!filteringCondition.getCountry().isEmpty()) {
-            query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
-        }
+		if (!filteringCondition.getCity().isEmpty()) {
+			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
+		}
 
-        if (filteringCondition.getDateFrom() != null) {
-            query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
-        }
+		if (!filteringCondition.getCountry().isEmpty()) {
+			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
+		}
 
-        if (filteringCondition.getDateTo() != null) {
-            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
-        }
+		if (filteringCondition.getDateFrom() != null) {
+			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+		}
 
-        if (filteringCondition.getState() != null) {
-            query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
-        }
+		if (filteringCondition.getDateTo() != null) {
+			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+		}
 
-        return query.toString();
-    }
+		if (filteringCondition.getState() != null) {
+			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
+		}
+
+		return query.toString();
+	}
+
 
 }

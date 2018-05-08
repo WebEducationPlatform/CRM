@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SocialNetworkTypeRepository extends JpaRepository<SocialNetworkType, Long> {
 
-    SocialNetworkType getSocialNetworkTypeByName(String name);
+	SocialNetworkType getSocialNetworkTypeByName(String name);
 }

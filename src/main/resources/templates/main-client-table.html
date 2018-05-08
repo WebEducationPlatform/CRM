@@ -16,12 +16,13 @@
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
         <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
             <div id="column-header">
-            <div class="btn-group" th:if="${isAdmin}">
+            <div class="btn-group">
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
-                    <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}"> Удалить статус</a></li>
-                    <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}"> Изменить название статуса</a></li>
+                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" data-toggle="modal" th:attrappend="data-target='#addClientInStatus' + ${status.id}">Добавить клиента</a></li>
+                    <li sec:authorize="hasAuthority('ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
+                    <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название статуса</a></li>
                 </ul>
             </div>
             <h1 th:text="${status.name}"></h1>
@@ -34,6 +35,7 @@
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
+
                         <div class="clickModal" th:id="'info-client' + ${client.id}"
                              th:onclick="'markAsRead('+ ${client.id} +')'">
 
@@ -149,7 +151,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <div class="create-new-status-column">
@@ -224,5 +225,6 @@
     </div>
 </div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
+</div>
 </body>
 </html>

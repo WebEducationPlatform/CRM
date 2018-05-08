@@ -146,7 +146,7 @@ function deleteJob(id) {
 var SNs="";
 function addNewSN(snid) {
     if(SNs.length===0){
-        console.log("Массив SocialMarkers пуст!");
+        console.log("Массив socialNetworkTypes пуст!");
         return;
     }
     $("#SN-table-body").append("<tr><td hidden=\"hidden\" id=\"edit-client-SN_" + snid + "_id\"></td><td id=\"edit-client-SN_" + snid + "_link\"></td><td id=\"edit-client-SN_" + snid + "_type\"></td><td><button type=\"button\" id=\"deleteSocial" + snid + "\" onclick=\"deleteSocial('" + snid + "')\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
@@ -186,19 +186,19 @@ $(function () {
     })
 });
 
-var socialMarkers = [];
+var socialNetworkTypes = [];
 
 $(document).ready(function () {
 
-    var url = '/user/socialMarkers';
+    var url = '/user/socialNetworkTypes';
     $.ajax({
         type: 'get',
         url: url,
         dataType: 'json',
         success: function (res) {
-            socialMarkers=res;
-            $.each(socialMarkers,function (index, marker) {
-                SNs = SNs + "<option>"+ marker + "</option>"
+            socialNetworkTypes=res;
+            $.each(socialNetworkTypes,function (index, type) {
+                SNs = SNs + "<option>"+ type + "</option>"
             });
         },
         error: function (error) {

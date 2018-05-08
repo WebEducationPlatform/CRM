@@ -1,19 +1,15 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.EmailTemplateService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -61,7 +57,7 @@ public class ClientController {
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
 		return modelAndView;
 	}
@@ -71,8 +67,7 @@ public class ClientController {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());
-		//modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -107,7 +102,23 @@ public class ClientController {
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
+	}
+
+	@RequestMapping(value = "/admin/client/add", method = RequestMethod.GET)
+	public ModelAndView addClient() {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("states", Client.State.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "/phone", method = RequestMethod.GET)
+	public ModelAndView getPhone() {
+		return new ModelAndView("webrtrc");
 	}
 }

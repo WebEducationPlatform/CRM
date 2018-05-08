@@ -7,4 +7,5 @@ import java.util.List;
 public interface ClientRepositoryCustom {
 
     List filteringClient(FilteringCondition filteringCondition);
+
 }

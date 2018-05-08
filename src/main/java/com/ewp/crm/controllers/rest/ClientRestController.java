@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,8 +124,9 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
+
 		String path = "src/main/resources/clientData/";
-		File file = new File(path + "data.txt");
+		File file = new File(path);
 
 		try {
 			FileWriter fileWriter = new FileWriter(file);
@@ -205,7 +207,9 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
 	public ResponseEntity<InputStreamResource> getClientsData() {
 
+		//String path = "resources/clientData/";
 		String path = "src/main/resources/clientData/";
+
 		File file = new File(path + "data.txt");
 
 		InputStreamResource resource = null;
