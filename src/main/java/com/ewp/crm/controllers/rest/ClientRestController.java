@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -30,12 +31,14 @@ public class ClientRestController {
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
 	private final UserService userService;
+	private final StatusService statusService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, StatusService statusService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
+		this.statusService = statusService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,12 +124,18 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/rest/client/addClient", method = RequestMethod.POST)
+	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
+					socialNetwork.getSocialNetworkType().getName()).getId());
+		}
+		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
+		client.setStatus(statusService.get(1L));
 		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, name {}", currentAdmin.getFullName(), client.getId(), client.getName());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 

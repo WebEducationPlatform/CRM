@@ -135,25 +135,27 @@ $(window).keydown(function (event) {
     }
 });
 
-function deleteSocial(id) {
-    $('#deleteSocial' + id).parent().parent().remove();
+function deleteSocial(element) {
+	$(element).parent().parent().remove();
 }
 
-function deleteJob(id) {
-    $('#deleteJob' + id).parent().parent().remove();
+function deleteJob(element) {
+	$(element).parent().parent().remove();
 }
 
 var SNs="";
-function addNewSN(snid) {
+function addNewSN() {
     if(SNs.length===0){
         console.log("Массив SocialMarkers пуст!");
         return;
     }
-    $("#SN-table-body").append("<tr><td hidden=\"hidden\" id=\"edit-client-SN_" + snid + "_id\"></td><td id=\"edit-client-SN_" + snid + "_link\"></td><td id=\"edit-client-SN_" + snid + "_type\"></td><td><button type=\"button\" id=\"deleteSocial" + snid + "\" onclick=\"deleteSocial('" + snid + "')\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+	var size =  ($("#SN-table-body")[0]).rows.length;
+	$("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
-function addNewJob(jobid) {
-    $("#job-table-body").append("<tr><td hidden=\"hidden\" id=\"edit-client-job_" + jobid + "_id\"></td><td id=\"edit-client-job_" + jobid + "_organization\"></td><td id=\"edit-client-job_" + jobid + "_position\"></td><td><button type=\"button\" id=\"deleteJob" + jobid + "\" onclick=\"deleteJob('" + jobid + "')\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+function addNewJob() {
+    var size =  ($("#job-table-body")[0]).rows.length;
+    $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function revertUnable() {
