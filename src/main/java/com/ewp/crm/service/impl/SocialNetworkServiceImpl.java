@@ -18,6 +18,7 @@ public class SocialNetworkServiceImpl implements SocialNetworkService {
 	public SocialNetworkServiceImpl(SocialNetworkRepository socialNetworkRepository) {
 		this.socialNetworkRepository = socialNetworkRepository;
 	}
+
 	@Override
 	public SocialNetwork getSocialNetworkByLink(String link) {
 		return socialNetworkRepository.getByLink(link);

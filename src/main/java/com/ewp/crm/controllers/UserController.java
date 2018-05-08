@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class UserController {
 
-	//TODO логгер не используется
 	private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	private final UserService userService;

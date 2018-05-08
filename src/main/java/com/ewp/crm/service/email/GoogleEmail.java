@@ -105,21 +105,19 @@ public class GoogleEmail {
     @Bean
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
-        directChannel.subscribe(new MessageHandler() {
-            public void handleMessage(Message<?> message) throws MessagingException {
-                MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
-                try {
-                    parser.parse();
-                    Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
-                    if (client != null) {
-                        client.setStatus(statusService.get(1L));
-                        clientService.addClient(client);
-                    }
-                } catch (Exception e) {
-                    logger.error("MimeMessageParser can't parse income data");
-                }
-            }
-        });
+        directChannel.subscribe(message -> {
+			MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
+			try {
+				parser.parse();
+				Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
+				if (client != null) {
+					client.setStatus(statusService.get(1L));
+					clientService.addClient(client);
+				}
+			} catch (Exception e) {
+				logger.error("MimeMessageParser can't parse income data");
+			}
+		});
         return directChannel;
     }
 

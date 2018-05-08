@@ -119,6 +119,7 @@
                     <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
                     <!-- SMS ERROR INFO BTN -->
+                    <!-- TODO Изменить  -->
                     <th:block th:if="${client.ifPrincipalHaveNotifications(#authentication.getPrincipal()) and client.smsNotifications.size() > 0}">
                     <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
                     <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
