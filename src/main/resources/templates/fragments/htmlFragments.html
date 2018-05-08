@@ -180,7 +180,7 @@
 </th:block>
 
 <th:block th:fragment="sendTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade box-modal" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -191,15 +191,15 @@
                     <div class="form-сheck">
                         <form>
                             <label class="checkbox-inline">
-                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value="email"/>
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value="email"  class="my-checkbox"/>
                             </label>
                             <th:block th:each="socNetwork : ${client.socialNetworks}">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox"  th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}"/>
+                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
                                 </label>
                             </th:block>
                             <label class="checkbox-inline">
-                                <input type="checkbox" th:text="SMS" value="sms"/>
+                                <input type="checkbox"  th:text="SMS" value="sms" class="my-checkbox"/>
                             </label>
                             <label class="checkbox-inline">
                                 <input type="checkbox" value="all" class="select_all"/>Выбрать все

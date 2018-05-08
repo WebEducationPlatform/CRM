@@ -1,20 +1,38 @@
 $(function () {
     $('.save_value').on('click', function(event) {
-    var sel = $('input[type="checkbox"]:checked').map(function(i, el) {
-        return $(el).val();
-    });
-    console.log(sel.get())
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList =sel.get();
+        console.log(sel.get());
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            data: JSON.stringify(boxList),
+            url:"/rest/sendSeveralMessage",
+            success:function(result){
+                alert('sucess')
+            }
+        });
 })
 });
 
+// $(function () {
+//     $('.save_value').on('click', function(event) {
+//         var sel = $('input[type="checkbox"]:checked').map(function(i, el) {
+//             return $(el).val();
+//         });
+//         console.log(sel.get())
+//     })
+// });
 
-$(function () {
-$('.select_all').click(function() {
-    var c = this.checked;
-    $(':checkbox').prop('checked',c);
-});
-});
-
+// $(function () {
+//     $('.select_all').click(function() {
+//         var currentForm = $(this).parents('.box-modal');
+//         currentForm.find('.my-checkbox').prop('checked');
+//     });
+// });
 
 
 $(function () {
