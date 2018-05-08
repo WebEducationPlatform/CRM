@@ -13,7 +13,8 @@ import java.util.List;
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
+
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
