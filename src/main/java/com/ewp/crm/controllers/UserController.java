@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class UserController {
 
+	//TODO логгер не используется
 	private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	private final UserService userService;
@@ -29,7 +30,6 @@ public class UserController {
 	private final NotificationService notificationService;
 
 	@Autowired
-
 	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.userService = userService;
 		this.roleService = roleService;
@@ -45,7 +45,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -55,7 +55,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -63,7 +63,7 @@ public class UserController {
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 
@@ -81,7 +81,7 @@ public class UserController {
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
 		modelAndView.setViewName("socialNetworkTypes-table");
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getNotificationsByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 

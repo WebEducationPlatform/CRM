@@ -20,12 +20,6 @@
                                 Example template layout.
                             &lt;/p&gt;
                         </textarea>
-                <script>
-                    CKEDITOR.replace('body', {
-                        allowedContent: true,
-                        height: '600px'
-                    });
-                </script>
                 <br/>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
@@ -37,6 +31,29 @@
                 </div>
                 <p><span id = "message"></span></p>
             </fieldset>
+        </div>
+    </div>
+    <div class="modal fade" id="infoModal"  role="dialog"  aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Краткая информация о редакторе</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h5>Ключевые слова заключены в знаки процента %</h5>
+                    <h5>При отправке сообщения они будут заменены на соответсвующие им значения</h5>
+                    <h5><b>Например:</b></h5>
+                    <h5>%fullName% будет заменен на имя и фамилию клиента</h5>
+                    <h5><b>Поддерживаемые ключевые слова:</b></h5>
+                    <ul>
+                        <li>%fullName% - Фамилия и имя клиента;</li>
+                    </ul>
+                    <ul>
+                        <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого текста;</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </body>

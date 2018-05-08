@@ -60,7 +60,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Мы не смогли до Вас дозвониться</p>\n" +
 				"<p>Пожалуйста, свяжитесь с нами</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
@@ -71,7 +71,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"'Добрый день, ' + ${fullName}\">Добрый день, %userName%</p>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
 				"<p>Напоминаем, что необходимо опатить обучение за следующий  месяц</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
@@ -81,7 +81,7 @@ public class DataInitializer {
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
 				"<body>\n" +
-				"<p th:text=\"${bodyText}\">%Тут будет размещен текст%</p>\n" +
+				"<p>%bodyText%</p>\n" +
 				"</body>\n" +
 				"</html>";
 		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3);
@@ -95,9 +95,14 @@ public class DataInitializer {
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
-		Client client1 = new Client("Юрий", "Долгоруков", "89677745632", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
+		Client client1 = new Client("Юрий", "Долгоруков", "89891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
+		client1.addSMSInfo(new SMSInfo(123, "Hello client 1", admin));
+		client1.addSMSInfo(new SMSInfo(456, "Hello client 1 repeat", admin));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
+		client2.addSMSInfo(new SMSInfo(789, "Hello client 2", admin));
+		client2.addSMSInfo(new SMSInfo(1234, "Hello client 2 repeat", admin));
 		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
+		client3.addSMSInfo(new SMSInfo(78942, "Hello client 3", admin));
 		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
 		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
@@ -111,7 +116,6 @@ public class DataInitializer {
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 		clientService.addClient(client1);
 		clientService.addClient(client2);

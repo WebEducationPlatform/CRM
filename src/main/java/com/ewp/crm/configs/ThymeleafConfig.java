@@ -18,6 +18,7 @@ public class ThymeleafConfig {
 	@Bean
 	public TemplateResolver springThymeleafTemplateResolver() {
 		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+		resolver.setCacheable(false);
 		resolver.setPrefix("classpath:/templates/");
 		resolver.setSuffix(".html");
 		resolver.setOrder(1);

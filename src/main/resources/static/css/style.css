@@ -1,5 +1,14 @@
+.text-board {
+	word-wrap:break-word;
+}
+
+
+.font-size {
+	font-size: 12px;
+}
+
 ul{
-    list-style-type:none;
+	list-style-type:none;
 }
 .tilt.right {
 	transform: rotate(3deg);
@@ -175,7 +184,7 @@ ul.nav a:hover {
 	opacity:0.7;
 	padding: 3px 20px 3px 5px;
 	cursor: pointer;
-	margin-top: 4%;
+	margin-top: 7%;
 }
 
 #panel-sticker:hover {
@@ -303,7 +312,7 @@ ul.nav a:hover {
 }
 
 
-input[type="checkbox"] { display: none; }
+input[id^="checkbox-user"] { display: none; }
 
 input[type="checkbox"] + label {
 	display: block;
@@ -494,4 +503,31 @@ a[id^="eTemplateBtn"] {
 	width: -moz-available;
 	width: -webkit-fill-available;  /*так и должно быть*/
 	width: fill-available; /*тут тоже*/
+}
+
+input[id="search-clients"] {
+    width:50%;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+input[id="search-clients"]:focus {
+    width:130%;
+}
+div.search-place{
+    padding:10px 15px 15px 15px;
+}
+
+button.option{
+    margin:0;
+    display:none;
+}
+
+
+span[id^="postponeStatus"] {
+	color: red;
+	float: right;
+}
+
+a.notification-header-btn{
+    cursor:pointer;
 }
