@@ -42,22 +42,14 @@ public class EmailRestController {
 	}
 
 	@RequestMapping(value = "/rest/sendEmail", method = RequestMethod.POST)
-	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
+	                                @RequestParam(value = "body",required = false) String body) {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
-		params.put("fullName", fullName);
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
 		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
-				"emailStringTemplate");
-		return ResponseEntity.ok().build();
-	}
-
-	@RequestMapping(value = "/rest/sendCustomEmailTemplate", method = RequestMethod.POST)
-	public ResponseEntity addSocialNetworkType(@RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
-		Client client = clientService.getClientByID(clientId);
-		Map<String, String> params = new HashMap<>();
-		params.put("bodyText", body);
-		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(1L).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
 	}

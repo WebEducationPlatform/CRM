@@ -103,8 +103,10 @@ public class ClientController {
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+
 		return modelAndView;
 	}
+
 
 	@RequestMapping(value = "/admin/client/add", method = RequestMethod.GET)
 	public ModelAndView addClient() {

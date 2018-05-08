@@ -8,8 +8,7 @@ public interface NotificationService {
 
 	void addNotification(Notification notification);
 
-	void deleteNotificationsByClientAndUserToNotify(Client client, User user);
+	void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user);
 
 	List<Notification> getByUserToNotify(User user);
-
 }

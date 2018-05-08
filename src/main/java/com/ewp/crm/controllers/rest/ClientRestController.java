@@ -1,10 +1,12 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.StatusService;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.io.*;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +31,14 @@ public class ClientRestController {
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
 	private final UserService userService;
+	private final StatusService statusService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, StatusService statusService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
+		this.statusService = statusService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,6 +62,23 @@ public class ClientRestController {
 		client.setOwnerUser(user);
 		clientService.updateClient(client);
 		logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+		return ResponseEntity.ok(client.getOwnerUser());
+	}
+
+	//TODO hasAnyAuthority('ADMIN')
+	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
+	public ResponseEntity<User> assignUser(@RequestParam(name = "clientId") Long clientId,
+	                                       @RequestParam(name = "userForAssign") Long userId) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User assignUser = userService.get(userId);
+		Client client = clientService.getClientByID(clientId);
+		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", principal.getEmail(), clientId, assignUser.getEmail());
+			return ResponseEntity.ok(client.getOwnerUser());
+		}
+		client.setOwnerUser(assignUser);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {} to user {}", principal.getEmail(), clientId, assignUser.getEmail());
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
@@ -93,6 +110,7 @@ public class ClientRestController {
 		client.setStatus(currentClient.getStatus());
 		client.setDateOfRegistration(currentClient.getDateOfRegistration());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
+		client.setSmsInfo(currentClient.getSmsInfo());
 		clientService.updateClient(client);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -106,12 +124,18 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/rest/client/addClient", method = RequestMethod.POST)
+	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
+					socialNetwork.getSocialNetworkType().getName()).getId());
+		}
+		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
+		client.setStatus(statusService.get(1L));
 		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, name {}", currentAdmin.getFullName(), client.getId(), client.getName());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -124,9 +148,8 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
-
 		String path = "src/main/resources/clientData/";
-		File file = new File(path);
+		File file = new File(path + "data.txt");
 
 		try {
 			FileWriter fileWriter = new FileWriter(file);
@@ -207,9 +230,7 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
 	public ResponseEntity<InputStreamResource> getClientsData() {
 
-		//String path = "resources/clientData/";
 		String path = "src/main/resources/clientData/";
-
 		File file = new File(path + "data.txt");
 
 		InputStreamResource resource = null;
@@ -226,4 +247,38 @@ public class ClientRestController {
 
 	}
 
+	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
+	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
+		try {
+			Client client = clientService.getClientByID(clientId);
+			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
+			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
+				logger.info("Wrong postpone date: {}", date);
+				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
+			}
+			client.setPostponeDate(postponeDate.toDate());
+			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
+			clientService.updateClient(client);
+			logger.info("{} has postponed client id:{} until {}", currentAdmin.getFullName(), client.getId(), date);
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Произошла ошибка");
+		}
+	}
+
+	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
+	public ResponseEntity<String> addComment(@RequestParam(name = "clientId") Long clientId,
+	                                         @RequestParam(name = "clientDescription") String clientDescription) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userFromSession != null) {
+			Client client = clientService.getClientByID(clientId);
+			client.setClientDescriptionComment(clientDescription);
+			clientService.addClient(client);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+			return  new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+	}
 }

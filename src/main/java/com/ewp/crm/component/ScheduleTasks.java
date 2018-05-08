@@ -1,15 +1,14 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SMSInfo;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SocialNetworkService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +23,34 @@ import java.util.Optional;
 @EnableScheduling
 public class ScheduleTasks {
 
-	private VKUtil vkUtil;
+	private final VKUtil vkUtil;
 
-	private ClientService clientService;
+	private final ClientService clientService;
 
-	private StatusService statusService;
+	private final StatusService statusService;
 
-	private SocialNetworkService socialNetworkService;
+	private final SocialNetworkService socialNetworkService;
 
-	private SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialNetworkTypeService socialNetworkTypeService;
+
+	private final SMSUtil smsUtil;
+
+	private final SMSInfoService smsInfoService;
+
+	private final SendNotificationService sendNotificationService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.smsUtil = smsUtil;
+		this.smsInfoService = smsInfoService;
+		this.sendNotificationService = sendNotificationService;
 	}
 
 	private void addClient(Client newClient) {
@@ -65,7 +73,7 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVk() {
 		try {
 			Optional<List<String>> newMassages = vkUtil.getNewMassages();
@@ -89,7 +97,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 100_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
@@ -105,5 +113,49 @@ public class ScheduleTasks {
 		}
 	}
 
+	//TODO @Scheduled(cron = "0 0 8 * * *") after tests
+	//@Scheduled(cron = "0 0 8 * * *")
+	@Scheduled(fixedRate = 100_000)
+	private void checkClientActivationDate() {
+		for (Client client : clientService.getChangeActiveClients()) {
+			client.setPostponeDate(null);
+			clientService.updateClient(client);
+		}
+	}
 
+	//TODO 600_0000 after tests
+	@Scheduled(fixedRate = 6_000)
+	private void checkSMSMessages() {
+		logger.info("start checking sms statuses");
+		List<SMSInfo> queueSMS = smsInfoService.getSMSbyDelivery(false);
+		for (SMSInfo sms : queueSMS) {
+			String status = smsUtil.getStatusMessage(sms.getSmsId());
+			if (!status.equals("queued")) {
+				if (status.equals("delivered")) {
+					sms.setDelivered(true);
+					smsInfoService.updateSMSInfo(sms);
+				} else {
+					String forView = determineStatusOfResponse(status);
+					sendNotificationService.sendNotification(forView,sms.getClient(),sms.getUser());
+					smsInfoService.deleteSMSInfo(sms.getId());
+				}
+			}
+		}
+	}
+
+	//TODO не знаю куда запихнуть
+	private String determineStatusOfResponse(String status) {
+		String info;
+		switch (status) {
+			case "delivery error":
+				info = "Номер заблокирован или вне зоны";
+				break;
+			case "incorrect id":
+				info = "Неверный id сообщения";
+				break;
+			default:
+				info = "Неизвестная ошибка";
+		}
+		return info;
+	}
 }

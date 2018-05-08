@@ -1,3 +1,42 @@
+$(function () {
+    $('.open-description-btn').on('click', function(event) {
+        var id = $(this).data('id');
+        var infoClient =  $('#info-client'+ id);
+        var text = infoClient.find('.client-description').text();
+        var testModal = $('#TestModal');
+
+        testModal.find('textarea').val(text);
+        testModal.find('button').remove();
+        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
+        testModal.modal('show');
+    });
+});
+
+
+function saveDescription(id) {
+    let text =  $('#TestModal').find('textarea').val();
+    let
+        url = 'rest/client/addDescription',
+        formData = {
+            clientId: id,
+            clientDescription: text
+        };
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function () {
+            $("#info-client" + id).find('.client-description').text(text);
+            $('#TestModal').modal('hide');
+        },
+        error: function (error) {
+        }
+    });
+}
+
+
+
+
 $(document).ready(function () {
     $(".column").sortable({
     delay:100,
@@ -46,7 +85,40 @@ $(document).ready(function () {
             $(this).hide();
             $("#create-new-status-span").show();
         });*/
+
+   //Search clients in main
+    $("#search-clients").keyup(function () {
+        //split input data by space
+        let data = this.value.split(" ");
+        //take portlet data
+        let portletArr = $(".portlet");
+        //if input data is empty: show all and return
+        if(this.value.trim() === ''){
+            portletArr.show();
+            return;
+        }
+        portletArr.hide();
+        //filtering array of portlet
+        portletArr.filter(function () {
+            //filtering by data in portlet body
+            let portlet = $(this).find(".portlet-body");
+            let $validCount = 0;
+            for (let i = 0; i < data.length; i++){
+                if(portlet.is(":contains('"+ data[i] +"')")){
+                    $validCount++;
+                }
+            }
+            return $validCount === data.length;
+        }).show();
+    })
 });
+
+function displayOption(clientId) {
+    $("#option_" + clientId).show();
+}
+function hideOption(clientId) {
+    $("#option_" + clientId).hide();
+}
 
 function deleteStatus(id) {
     let url = '/admin/rest/status/delete';
@@ -199,13 +271,14 @@ function assign(id) {
                 "<button " +
                 "   id='unassign-client" + id +"' " +
                 "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
+                "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                     owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
-                "</p>"
+                "</p>" +
+                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
         },
@@ -213,14 +286,13 @@ function assign(id) {
         }
     });
 }
-function assignUser(id, user) {
-    let
+function assignUser(id, user, principalId) {
+    var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
             userForAssign : user
         },
-        own_icon = $('#own-' + id),
         assignBtn = $('#assign-client' + id);
 
     $.ajax({
@@ -228,18 +300,35 @@ function assignUser(id, user) {
         url: url,
         data: formData,
         success: function (owner) {
-            own_icon.remove();
-            assignBtn.before(
-                "<button " +
-                "   id='unassign-client" + id +"' " +
-                "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-md btn-warning'>отказаться от карточки</button>"
-            );
+            let info_client = $('#info-client' + id),
+                target_btn = $("a[href='/admin/client/clientInfo/"+ id +"']"),
+                unassign_btn = $('#unassign-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".user-icon").remove();
+
+            //If admin assigned himself
+            if(principalId === user){
+                //If admin assigned himself second time
+                if(unassign_btn.length === 0){
+                    target_btn.before(
+                        "<button " +
+                        "   id='unassign-client" + id +"' " +
+                        "   onclick='unassign(" + id +")' " +
+                        "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
+                    );
+                }
+                //If admin not assign himself, he don`t have unassign button
+            }else {
+                unassign_btn.remove();
+            }
             assignBtn.remove();
-            $('#info-client' + id).append(
-                "<p class='user-icon' id='own-"+id+ "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+
+            //Add Worker icon and info for search by worker
+            info_client.append(
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
                 owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
-                "</p>"
+                "</p>" +
+                "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
         },
@@ -261,14 +350,25 @@ function unassign(id) {
         url: url,
         data: formData,
         success: function (owner) {
-            unassignBtn.before(
-                "<button " +
-                "   id='assign-client" + id + "' " +
-                "   onclick='assign(" + id +")' " +
-                "   class='btn btn-md btn-info'>взять себе карточку</button>"
-            );
-            unassignBtn.remove();
-            $('#info-client' + id).find(".user-icon").remove();
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".user-icon").remove();
+            if(unassignBtn.length !== 0){
+                unassignBtn.before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assign(" + id +")' " +
+                    "   class='btn btn-sm btn-info'>взять себе карточку</button>"
+                );
+                unassignBtn.remove();
+            }else{
+                $("a[href='/admin/client/clientInfo/"+ id +"']").before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assign(" + id +")' " +
+                    "   class='btn btn-md btn-info'>взять себе карточку</button>"
+                );
+            }
             fillFilterList();
         },
         error: function (error) {
@@ -449,10 +549,9 @@ function sendTempate(clientId, templateId) {
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
+            $(".modal").modal('hide');
+			current.textContent ="Да";
+			current.removeAttribute("disabled");
         },
         error: function (e) {
             current.textContent ="Да";
@@ -464,27 +563,35 @@ function sendTempate(clientId, templateId) {
     });
 }
 
-function sendCustomTempate(clientId) {
-    let url = '/rest/sendCustomEmailTemplate';
+function sendCustomTempate(clientId, templateId) {
+    let url = '/rest/sendEmail';
+    body = $('#custom-eTemplate-body' + clientId + templateId).val();
     let formData = {
         clientId: clientId,
-        body: $('#custom-eTemplate-body').val()
+        templateId: templateId,
+        body: body
     };
-    var current = $("#sendCustomTemplateBtn")[0];
-    var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
+    var current = $("#sendCustomTemplateBtn" + clientId + templateId)[0];
+    var currentStatus = $("#sendCustomEmailTemplateStatus" + clientId + templateId)[0];
+    if (body === "") {
+        currentStatus.style.color = "red";
+        currentStatus.textContent = "Введите текст";
+        return false;
+    }
     $.ajax({
         type: "POST",
         url: url,
         data: formData,
         beforeSend: function(){
             current.textContent ="Отправка..";
-            current.setAttribute("disabled", "true")
+            current.setAttribute("disabled", "true");
+            currentStatus.textContent = "";
         },
         success: function (result) {
-            current.textContent ="Отправить";
-            current.removeAttribute("disabled");
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
+			$(".modal").modal('hide');
+			$("#custom-eTemplate-body" + clientId + templateId).val("");
+			current.textContent ="Отправить";
+			current.removeAttribute("disabled");
         },
         error: function (e) {
             current.textContent ="Отправить";
@@ -495,3 +602,67 @@ function sendCustomTempate(clientId) {
         }
     });
 }
+
+function hideClient(clientId) {
+    let url = 'admin/rest/client/postpone';
+    let formData = {
+        clientId: clientId,
+        date: $('#postponeDate' + clientId).val()
+    };
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function (result) {
+            location.reload();
+        },
+        error: function (e) {
+            currentStatus = $("#postponeStatus" + clientId)[0];
+            currentStatus.textContent = "Произошла ошибка";
+            console.log(e.responseText)
+        }
+    })
+}
+
+$(document).ready(function () {
+    var nowDate = new Date();
+    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
+    $('input[name="postponeDate"]').daterangepicker({
+        singleDatePicker: true,
+        timePicker: true,
+        timePickerIncrement: 10,
+        timePicker24Hour: true,
+        locale: {
+            format: 'DD.MM.YYYY H:mm'
+        },
+        minDate: minDate,
+        startDate: minDate
+    });
+});
+
+$(function () {
+$('.portlet-body').on('click', function(e) {
+	if(e.target.className.startsWith("portlet-body") !== -1) {
+		$('#' + $(e.target).attr('name')).modal('show');
+	}
+});
+});
+
+$(function () {
+	$('.portlet-header').on('click', function(e) {
+	    var modalName = $(e.target).parents(".portlet-body").attr('name');
+		if(e.target.className.startsWith("portlet-header") !== -1) {
+			$($('#' + modalName)).modal('show');
+		}
+	});
+});
+
+$(function () {
+	$('.portlet-content').on('click', function(e) {
+		var modalName = $(e.target).parents(".portlet-body").attr('name');
+		if(e.target.className.startsWith("portlet-content") !== -1) {
+			$($('#' + modalName)).modal('show');
+		}
+	});
+});

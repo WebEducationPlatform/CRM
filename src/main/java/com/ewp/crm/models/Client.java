@@ -10,9 +10,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "client")
@@ -24,7 +25,7 @@ public class Client implements Serializable {
 	private Long id;
 
 	@NotNull
-	@Column(name = "first_name")
+	@Column(name = "first_name", nullable = false)
 	private String name;
 
 	private String lastName;
@@ -47,6 +48,10 @@ public class Client implements Serializable {
 	private String country;
 
 	private String comment;
+
+	@Column(name = "postponeDate")
+	private Date postponeDate;
+
 
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
@@ -103,6 +108,16 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
+	@JsonIgnore
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "client_sms_info",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
+	private List<SMSInfo> smsInfo = new ArrayList<>();
+
+	@Lob
+	@Column(name = "client_description_comment")
+	private String clientDescriptionComment;
 
 	public Client() {
 	}
@@ -142,7 +157,6 @@ public class Client implements Serializable {
 		this.country = country;
 		this.state = state;
 		this.dateOfRegistration = dateOfRegistration;
-		this.socialNetworks = socialNetworks;
 	}
 
 
@@ -158,8 +172,20 @@ public class Client implements Serializable {
 		this.history.add(history);
 	}
 
+	public void addSMSInfo(SMSInfo smsInfo) {
+		this.smsInfo.add(smsInfo);
+	}
+
 	public Long getId() {
 		return id;
+	}
+
+	public String getClientDescriptionComment() {
+		return clientDescriptionComment;
+	}
+
+	public void setClientDescriptionComment(String clientDescriptionComment) {
+		this.clientDescriptionComment = clientDescriptionComment;
 	}
 
 	public void setId(Long id) {
@@ -196,6 +222,18 @@ public class Client implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Date getPostponeDate() {
+		return postponeDate;
+	}
+
+	public void setPostponeDate(Date postponeDate) {
+		this.postponeDate = postponeDate;
+	}
+
+	public boolean isActive() {
+		return getPostponeDate()==null;
 	}
 
 	public byte getAge() {
@@ -294,6 +332,23 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
+	//TODO На перемещение в контроллер
+	@JsonIgnore
+	public List<Notification> getSmsNotifications(){
+		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.SMS)).collect(Collectors.toList());
+	}
+
+	//TODO На перемещение в контроллер
+	@JsonIgnore
+	public List<Notification> getCommentNotifications(){
+		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.COMMENT)).collect(Collectors.toList());
+	}
+
+	//TODO На перемещение в контроллер
+	@JsonIgnore
+	public boolean ifPrincipalHaveNotifications(User user){
+		return this.notifications.stream().anyMatch(n -> n.getUserToNotify().equals(user));
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -315,6 +370,11 @@ public class Client implements Serializable {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "Client: id: " + id + "; email: " + email + "; number: " + phoneNumber;
+	}
+
 	public List<Notification> getNotifications() {
 		return notifications;
 	}
@@ -323,13 +383,20 @@ public class Client implements Serializable {
 		this.notifications = notifications;
 	}
 
+	public List<SMSInfo> getSmsInfo() {
+		return smsInfo;
+	}
+
+	public void setSmsInfo(List<SMSInfo> smsInfo) {
+		this.smsInfo = smsInfo;
+	}
 
 	public enum Sex {
 		MALE, FEMALE
 	}
 
 	public enum State {
-		REFUSED, FINISHED, LEARNING, NEW;
+		REFUSED, FINISHED, LEARNING, NEW
 	}
 
 }
