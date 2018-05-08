@@ -82,8 +82,8 @@ public class UserRestController {
 		return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
 	}
 
-	@RequestMapping(value = {"/user/socialMarkers"}, method = RequestMethod.GET)
-	public ResponseEntity<Map<Long, String>> getSocialMarkers() {
+	@RequestMapping(value = {"/user/socialNetworkTypes"}, method = RequestMethod.GET)
+	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
 		Map<Long, String> socialTypeNames = new HashMap<>();
 		for (SocialNetworkType socialNetworkType : socialNetworkTypes) {

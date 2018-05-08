@@ -162,22 +162,24 @@ $(document).on('click', '.hide-show', function () {
 
 function markAsRead(clientId) {
     var url = "/rest/comment/markAsRead";
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: url,
-        data: {
-            id: clientId
-        },
-        success: function () {
-            $('#info-client' + clientId).find(".notification").remove();
-            $('.menu' + clientId).remove();
+    if ($('#info-client' + clientId).find(".notification").length !== 0) {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: url,
+            data: {
+                id: clientId
+            },
+            success: function () {
+                $('#info-client' + clientId).find(".notification").remove();
+                $('.menu' + clientId).remove();
 
-        },
-        error : function (error) {
-            console.log(error);
-        }
-    })
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
 }
 
 

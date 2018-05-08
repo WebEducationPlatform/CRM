@@ -10,6 +10,6 @@ public interface NotificationService {
 
 	void deleteNotificationsByClientAndUserToNotify(Client client, User user);
 
-	List<Notification> getNotificationsByUserToNotify(User user);
+	List<Notification> getByUserToNotify(User user);
 
 }

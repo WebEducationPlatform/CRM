@@ -58,6 +58,9 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
+	@Column
+	private boolean ipTelephony;
+
 	@JsonIgnore
 	@OneToMany
 	@JoinTable(name = "user_notification",
@@ -82,7 +85,7 @@ public class User implements UserDetails {
 	public User() {
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role, boolean ipTelephony) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -96,6 +99,7 @@ public class User implements UserDetails {
 		this.vacancy = vacancy;
 		this.salary = salary;
 		this.role = role;
+		this.ipTelephony = ipTelephony;
 	}
 
 	public Long getId() {
@@ -306,5 +310,13 @@ public class User implements UserDetails {
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public boolean isIpTelephony() {
+		return ipTelephony;
+	}
+
+	public void setIpTelephony(boolean ipTelephony) {
+		this.ipTelephony = ipTelephony;
 	}
 }

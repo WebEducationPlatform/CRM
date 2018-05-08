@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	public List<Notification> getNotificationsByUserToNotify(User user) {
+	public List<Notification> getByUserToNotify(User user) {
 		return notificationRepository.getNotificationsByUserToNotify(user);
 	}
 }
