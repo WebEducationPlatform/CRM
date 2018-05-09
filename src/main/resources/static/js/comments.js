@@ -160,42 +160,4 @@ $(document).on('click', '.hide-show', function () {
     }
 });
 
-function markAsRead(clientId) {
-    var url = "/rest/comment/markAsRead";
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: url,
-        data: {
-            id: clientId
-        },
-        success: function () {
-            $('#info-client' + clientId).find(".notification").remove();
-            $('.menu' + clientId).remove();
-
-        },
-        error : function (error) {
-            console.log(error);
-        }
-    })
-}
-
-
-function markAsReadMenu(clientId) {
-    var url = "/rest/comment/markAsRead";
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: url,
-        data: {
-            id: clientId
-        },
-        success: function () {
-            $('#info-client' + clientId).find(".notification").remove();
-            $('.menu' + clientId).remove();
-        },
-        error : function (error) {
-            console.log(error);
-        }
-    })
-}
+//TODO Методы перенесены в notification.js

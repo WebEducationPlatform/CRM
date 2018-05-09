@@ -121,8 +121,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	//TODO 600_0000 after tests
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getSMSbyDelivery(false);

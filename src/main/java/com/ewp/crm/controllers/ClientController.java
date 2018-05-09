@@ -58,6 +58,8 @@ public class ClientController {
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
+		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
 		return modelAndView;
 	}
