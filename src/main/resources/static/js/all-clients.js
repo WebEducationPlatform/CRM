@@ -1,20 +1,22 @@
 $(document).ready(
     $("#searchInput").keyup(function () {
         //split the current value of searchInput
-        var data = this.value.split(" ");
+        let data = this.value.toLowerCase().split(" ");
         //create a jquery object of the rows
-        var jo = $("#table-body").find("tr");
-        if (this.value == "") {
+        let jo = $("#table-body").find("tr");
+        if (this.value.trim() === "") {
             jo.show();
             return;
         }
         jo.hide();
 
-        jo.filter(function (i, v) {
+        jo.filter(function () {
             let $validCount = 0;
-            var $t = $(this);
-            for (var d = 0; d < data.length; ++d) {
-                if ($t.is(":contains('" + data[d] + "')")) {
+            let $t = $(this);
+            let $temp = $t.clone();
+            $temp.text($temp.text().toLowerCase());
+            for (let d = 0; d < data.length; ++d) {
+                if ($temp.is(":contains('" + data[d] + "')")) {
                     $validCount++;
                 }
             }
