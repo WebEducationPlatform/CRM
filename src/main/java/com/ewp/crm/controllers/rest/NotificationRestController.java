@@ -30,8 +30,8 @@ public class NotificationRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/markAsRead", method = RequestMethod.POST)
-	public ResponseEntity markAsRead(@RequestParam(name = "id") Long id) {
+	@RequestMapping(value = "/comment/clear/{clientId}", method = RequestMethod.POST)
+	public ResponseEntity markAsRead(@PathVariable("clientId") long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(id);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT,client,userFromSession);

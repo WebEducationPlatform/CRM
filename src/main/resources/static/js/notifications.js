@@ -15,14 +15,11 @@ function clearClientSmsNotifications(id) {
 
 //Перенесено из comment.js
 function markAsRead(clientId) {
-    var url = "/rest/comment/markAsRead";
+    var url = "/user/notification/comment/clear/" + clientId;
     $.ajax({
         type: "POST",
         dataType: 'json',
         url: url,
-        data: {
-            id: clientId
-        },
         success: function () {
             $('#info-client' + clientId).find(".notification").remove();
             $('.menu' + clientId).remove();
@@ -36,14 +33,11 @@ function markAsRead(clientId) {
 
 //Перенесено из comment.js
 function markAsReadMenu(clientId) {
-    var url = "/rest/comment/markAsRead";
+    var url = "/user/notification/comment/clear/" + clientId;
     $.ajax({
         type: "POST",
         dataType: 'json',
         url: url,
-        data: {
-            id: clientId
-        },
         success: function () {
             $('#info-client' + clientId).find(".notification").remove();
             $('.menu' + clientId).remove();

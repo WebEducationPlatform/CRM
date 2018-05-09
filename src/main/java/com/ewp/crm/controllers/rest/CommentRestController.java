@@ -53,14 +53,6 @@ public class CommentRestController {
 		}
 	}
 
-	@RequestMapping(value = "/markAsRead", method = RequestMethod.POST)
-	public ResponseEntity markAsRead(@RequestParam(name = "id") Long id) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(id);
-		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT,client,userFromSession);
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/add/answer", method = RequestMethod.POST)
 	public ResponseEntity<Comment> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
