@@ -86,10 +86,12 @@
                             </p>
                             <p th:if="${client.ownerUser != null}" style="display:none" th:text="${client.ownerUser.fullName}"></p>
 
-                            <th:block th:if="${client.commentNotifications.size() > 0 and client.ifPrincipalHaveNotifications(#authentication.getPrincipal())}">
-                                <span id="notification"
-                                      class="notification glyphicon glyphicon-bell pull-right"
-                                      style="color: red"></span>
+                            <th:block th:each="notification_comment:${notifications_type_comment}">
+                                <th:block th:if="${notification_comment.client == client}">
+                                   <span id="notification"
+                                         class="notification glyphicon glyphicon-bell pull-right"
+                                         style="color: red"></span>
+                                </th:block>
                             </th:block>
                         </div>
                     </div>
@@ -119,9 +121,12 @@
                     <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
                     <!-- SMS ERROR INFO BTN -->
-                    <!-- TODO Изменить  -->
-                    <th:block th:if="${client.ifPrincipalHaveNotifications(#authentication.getPrincipal()) and client.smsNotifications.size() > 0}">
-                    <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                    <!-- TODO обсудить варианты решения -->
+                    <th:block th:each="notification_sms:${notifications_type_sms}">
+                        <th:block th:if="${notification_sms.client == client}">
+                            <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                        </th:block>
+                    </th:block>
                     <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
                         <div class="modal-dialog modal-sm">
                             <div class="modal-content">
@@ -130,11 +135,11 @@
                                     <h4 class="modal-title">Ошибки sms</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <!-- SMS INFO TODO продолжить-->
+                                    <!-- SMS INFO -->
                                     <table>
-                                        <th:block th:each="notification_sms : ${client.smsNotifications}">
+                                        <th:block th:each="notification_sms : ${notifications_type_sms}">
                                         <tr>
-                                            <td>
+                                            <td th:if="${notification_sms.client == client}">
                                                 <span th:id="'sms_notification_id_' + ${notification_sms.id}" th:text="${notification_sms.information}"></span>
                                             </td>
                                         </tr>
@@ -150,7 +155,6 @@
 
                         </div>
                     </div>
-                    </th:block>
                     <!--/ SMS ERROR INFO BTN -->
 
                 </div>

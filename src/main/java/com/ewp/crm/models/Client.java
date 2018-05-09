@@ -332,24 +332,6 @@ public class Client implements Serializable {
 		this.socialNetworks = socialNetworks;
 	}
 
-	//TODO На перемещение в контроллер
-	@JsonIgnore
-	public List<Notification> getSmsNotifications(){
-		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.SMS)).collect(Collectors.toList());
-	}
-
-	//TODO На перемещение в контроллер
-	@JsonIgnore
-	public List<Notification> getCommentNotifications(){
-		return this.notifications.stream().filter(n-> n.getType().equals(Notification.Type.COMMENT)).collect(Collectors.toList());
-	}
-
-	//TODO На перемещение в контроллер
-	@JsonIgnore
-	public boolean ifPrincipalHaveNotifications(User user){
-		return this.notifications.stream().anyMatch(n -> n.getUserToNotify().equals(user));
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
