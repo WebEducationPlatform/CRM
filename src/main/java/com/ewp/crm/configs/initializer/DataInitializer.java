@@ -29,6 +29,9 @@ public class DataInitializer {
 	@Autowired
 	private SocialNetworkTypeService socialNetworkTypeService;
 
+	@Autowired
+	private NotificationService notificationService;
+
 	private void init() {
 
 		Role roleAdmin = new Role("ADMIN");
@@ -99,10 +102,10 @@ public class DataInitializer {
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
 		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
 		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
-		client1.addSMSInfo(new SMSInfo(123456789, "SMS Message to client", admin));
-		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client", admin));
-		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client", admin));
-		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client", admin));
+		client1.addSMSInfo(new SMSInfo(123456789, "SMS Message to client 1", admin));
+		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client 2", admin));
+		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client 3", admin));
+		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client 4", admin));
 		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
@@ -128,5 +131,24 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
+		//Test SMS ERROR NOTIFICATION
+		Notification smsErrorNotificationExampleToClient1 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(1L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient2 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(2L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient3 = new Notification("Ошибка на ст" +
+				"" +
+				"ороне смс сервиса",clientService.getClientByID(3L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient4 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(4L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(1L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(2L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient3more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(3L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient4more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(4L),userService.get(1L),Notification.Type.SMS);
+		notificationService.addNotification(smsErrorNotificationExampleToClient1);
+		notificationService.addNotification(smsErrorNotificationExampleToClient2);
+		notificationService.addNotification(smsErrorNotificationExampleToClient3);
+		notificationService.addNotification(smsErrorNotificationExampleToClient4);
+		notificationService.addNotification(smsErrorNotificationExampleToClient1more);
+		notificationService.addNotification(smsErrorNotificationExampleToClient2more);
+		notificationService.addNotification(smsErrorNotificationExampleToClient3more);
+		notificationService.addNotification(smsErrorNotificationExampleToClient4more);
 	}
 }
