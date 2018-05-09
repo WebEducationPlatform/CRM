@@ -89,7 +89,7 @@ $(document).ready(function () {
    //Search clients in main
     $("#search-clients").keyup(function () {
         //split input data by space
-        let data = this.value.split(" ");
+        let data = this.value.toLowerCase().split(" ");
         //take portlet data
         let portletArr = $(".portlet");
         //if input data is empty: show all and return
@@ -102,9 +102,11 @@ $(document).ready(function () {
         portletArr.filter(function () {
             //filtering by data in portlet body
             let portlet = $(this).find(".portlet-body");
+            let temp = portlet.clone();
+            temp.text(temp.text().toLowerCase());
             let $validCount = 0;
             for (let i = 0; i < data.length; i++){
-                if(portlet.is(":contains('"+ data[i] +"')")){
+                if(temp.is(":contains('"+ data[i] +"')")){
                     $validCount++;
                 }
             }
