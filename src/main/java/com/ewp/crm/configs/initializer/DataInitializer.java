@@ -131,21 +131,11 @@ public class DataInitializer {
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
-		//Test SMS ERROR NOTIFICATION
-		Notification smsErrorNotificationExampleToClient1 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(1L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient2 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(2L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient3 = new Notification("Ошибка на ст" +
-				"" +
-				"ороне смс сервиса",clientService.getClientByID(3L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient4 = new Notification("Ошибка на стороне смс сервиса",clientService.getClientByID(4L),userService.get(1L),Notification.Type.SMS);
+		//TEST SMS ERROR NOTIFICATION
 		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(1L),userService.get(1L),Notification.Type.SMS);
 		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(2L),userService.get(1L),Notification.Type.SMS);
 		Notification smsErrorNotificationExampleToClient3more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(3L),userService.get(1L),Notification.Type.SMS);
 		Notification smsErrorNotificationExampleToClient4more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(4L),userService.get(1L),Notification.Type.SMS);
-		notificationService.addNotification(smsErrorNotificationExampleToClient1);
-		notificationService.addNotification(smsErrorNotificationExampleToClient2);
-		notificationService.addNotification(smsErrorNotificationExampleToClient3);
-		notificationService.addNotification(smsErrorNotificationExampleToClient4);
 		notificationService.addNotification(smsErrorNotificationExampleToClient1more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient2more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient3more);

@@ -528,6 +528,6 @@ span[id^="postponeStatus"] {
 	float: right;
 }
 
-a.notification-header-btn{
+a.link-cursor-pointer{
     cursor:pointer;
 }

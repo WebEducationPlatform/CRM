@@ -51,11 +51,14 @@ public class StatusRestController {
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
-		if (currentClient.getStatus().getId().equals(statusId)) {
+		if (currentClient.getStatus() != null && currentClient.getStatus().getId().equals(statusId)) {
 			return ResponseEntity.badRequest().build();
 		}
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		currentClient.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил статус c " + currentClient.getStatus().getName() + " на " + statusService.get(statusId).getName()));
+		String clientHistoryInfo = currentAdmin.getFullName() + " изменил статус "
+				+ (currentClient.getStatus() != null ? "с " + currentClient.getStatus().getName() : "")
+				+ " на " + statusService.get(statusId).getName();
+		currentClient.addHistory(new ClientHistory(clientHistoryInfo));
 		statusService.changeClientStatus(clientId, statusId);
 		logger.info("{} has changed status of client with id: {} to status id: {}", currentAdmin.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();
@@ -71,13 +74,17 @@ public class StatusRestController {
 
 	@PostMapping("/admin/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	Client client = clientService.getClientByID(clientId);
     	if(client == null){
     		logger.error("Can`t delete client status, client with id = {} not found", clientId);
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 	    }
+		Status status = client.getStatus();
     	client.setStatus(null);
+    	client.addHistory(new ClientHistory(principal.getFullName() + " удалил клиента из статуса " + status.getName()));
     	clientService.updateClient(client);
+    	logger.info("{} delete client {} in status {}", principal.getFullName(), client.getEmail(), status.getName());
     	return ResponseEntity.status(HttpStatus.OK).build();
 	}
 }

@@ -210,36 +210,7 @@ function changeStatusName(id) {
         }
     });
 }
-
-function senReqOnChangeStatus(clientId, statusId) {
-    let
-        url = '/rest/status/change',
-        formData = {
-            clientId: clientId,
-            statusId: statusId
-        };
-
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: formData,
-        success: function (data) {
-            let
-                url = '/rest/client/' + clientId;
-            $.get(url, 
-                function (data) {
-                    $('#client-' + data.id + 'history').prepend(
-                        "<li>" +
-                        "   <span>" + data.history[0].title + "</span>" +
-                        "</li>"
-                    );
-                });
-        },
-        error: function (error) {
-        }
-    });
-}
-
+// перенесено на status.js
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {

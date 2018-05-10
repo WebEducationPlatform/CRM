@@ -109,11 +109,14 @@ public class StatusServiceImpl implements StatusService {
 		Client client = clientRepository.findOne(clientId);
 		Status beginStatus = statusDAO.findStatusByClientsIn(Collections.singletonList(client));
 		Status endStatus = statusDAO.findOne(statusId);
-		beginStatus.getClients().remove(client);
-		statusDAO.saveAndFlush(beginStatus);
+		if (beginStatus != null) {
+			beginStatus.getClients().remove(client);
+			statusDAO.saveAndFlush(beginStatus);
+		}
 		endStatus.addClient(client);
 		statusDAO.saveAndFlush(endStatus);
-		client.setStatus(endStatus);
-		clientRepository.saveAndFlush(client);
+		//TODO обсудить решение
+//		client.setStatus(endStatus);
+//		clientRepository.saveAndFlush(client);
 	}
 }
