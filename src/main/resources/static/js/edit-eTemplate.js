@@ -1,15 +1,3 @@
-// function switchTemplate() {
-//     var selected = $('#socNetworkChoose').val();
-//     if(selected === 'email') {
-//         $('#field').show();
-//         $('#showAR').hide();
-//     } else if(selected === 'vk'){
-//         $('#field').hide();
-//         $('#showAR').show();
-//     }
-//     console.log(selected);
-// }
-
 
 
 function switchTemplate() {

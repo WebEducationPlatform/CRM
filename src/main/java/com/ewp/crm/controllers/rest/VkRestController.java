@@ -36,7 +36,7 @@ public class VkRestController {
 
 
 	@RequestMapping(value = "/rest/sendVK", method = RequestMethod.POST)
-	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+	public ResponseEntity sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
 		Client client = clientService.getClientByID(clientId);
 		String vkText = emailTemplateService.get(templateId).getOtherText();
 		vkUtil.sendMessageToClient(client,vkText);
