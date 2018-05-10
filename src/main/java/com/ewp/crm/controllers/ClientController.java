@@ -69,6 +69,7 @@ public class ClientController {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());
+		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}

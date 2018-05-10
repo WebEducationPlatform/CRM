@@ -46,7 +46,7 @@
                             <th:block th:each="notification : ${notifications}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                     <li th:class="'menu' + ${notification.client.id}">
-                                    <a data-toggle="modal" class="notification-header-btn"
+                                    <a data-toggle="modal" class="link-cursor-pointer"
                                        th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
                                        th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                        th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
