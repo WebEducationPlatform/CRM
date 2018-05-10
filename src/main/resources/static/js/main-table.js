@@ -1,3 +1,4 @@
+//Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.save_value').on('click', function(event) {
         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
@@ -18,36 +19,22 @@ $(function () {
 })
 });
 
-// $(function () {
-//     $('.save_value').on('click', function(event) {
-//         var sel = $('input[type="checkbox"]:checked').map(function(i, el) {
-//             return $(el).val();
-//         });
-//         console.log(sel.get())
-//     })
-// });
-
-// $(function () {
-//     $('.select_all').click(function() {
-//         var currentForm = $(this).parents('.box-modal');
-//         currentForm.find('.my-checkbox').prop('checked');
-//     });
-// });
-
-
+// Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.open-description-btn').on('click', function(event) {
-        var id = $(this).data('id');
-        var infoClient =  $('#info-client'+ id);
-        var text = infoClient.find('.client-description').text();
-        var testModal = $('#TestModal');
-
-        testModal.find('textarea').val(text);
-        testModal.find('button').remove();
-        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
-        testModal.modal('show');
+    $('.select_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox').prop('checked', true);
+        currentForm.find('.deselect_all').prop('checked', false);
     });
 });
+
+$(function () {
+    $('.deselect_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox').prop('checked', false);
+    });
+});
+
 
 
 function saveDescription(id) {
@@ -600,39 +587,58 @@ function sendMessageVK(clientId, templateId) {
     });
 }
 
+$(function () {
+    $('.open-description-btn').on('click', function(event) {
+        var id = $(this).data('id');
+        var infoClient =  $('#info-client'+ id);
+        var text = infoClient.find('.client-description').text();
+        var testModal = $('#TestModal');
 
-function sendTempate(clientId, templateId) {
-    let url = '/rest/sendEmail';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId
-    };
-    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
-    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-
-        beforeSend: function(){
-            current.textContent ="Отправка..";
-            current.setAttribute("disabled", "true")
-        },
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
-        },
-        error: function (e) {
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+        testModal.find('textarea').val(text);
+        testModal.find('button').remove();
+        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
+        testModal.modal('show');
     });
-}
+});
+
+$(function () {
+    $('.send-all-message').on('click', function (event) {
+        var clientId = $(this).data('clientId');
+        var templateId = $(this).data('templateId');
+
+        let url = '/rest/sendEmail';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId
+        };
+        var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+        var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+            beforeSend: function () {
+                current.textContent = "Отправка..";
+                current.setAttribute("disabled", "true")
+            },
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
+                current.textContent = "Да";
+                current.removeAttribute("disabled");
+            },
+            error: function (e) {
+                current.textContent = "Да";
+                current.removeAttribute("disabled");
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
+    });
+});
+
 
 function sendCustomTempate(clientId) {
     let url = '/rest/sendCustomEmailTemplate';

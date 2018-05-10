@@ -56,6 +56,7 @@ public class MailSendService {
 
 	@Async
 	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
+		recipient = emailLogin; //Удалить после тестов!!
 		final Context ctx = new Context();
 		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);

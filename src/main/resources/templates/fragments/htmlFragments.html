@@ -180,7 +180,7 @@
 </th:block>
 
 <th:block th:fragment="sendTemplateModal">
-    <div class="modal fade box-modal" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -189,7 +189,7 @@
                 <div class="modal-body">
                     <h6>Отправить сообщение пользователю?</h6>
                     <div class="form-сheck">
-                        <form>
+                        <form class="box-modal">
                             <label class="checkbox-inline">
                                 <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value="email"  class="my-checkbox"/>
                             </label>
@@ -202,7 +202,10 @@
                                 <input type="checkbox"  th:text="SMS" value="sms" class="my-checkbox"/>
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" value="all" class="select_all"/>Выбрать все
+                                <input type="checkbox"  class="select_all my-checkbox"/>Выбрать все
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="deselect_all"/>Отменить все
                             </label>
                         </form>
                         <button type="button" class="btn btn-primary save_value" name="save_value" value="Save">Нет</button>
@@ -210,7 +213,7 @@
                 </div>
                 <div class="modal-footer">
                     <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
-                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
+                    <button type="button" th:id ="'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary send-all-message"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Да</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                 </div>
             </div>
