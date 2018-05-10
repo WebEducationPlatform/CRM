@@ -20,7 +20,7 @@ public class Status implements Serializable {
 
 	@JsonManagedReference
 	@OneToMany
-	@JoinTable(name = "status_users",
+	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
