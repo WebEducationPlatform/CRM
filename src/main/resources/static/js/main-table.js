@@ -1,23 +1,4 @@
-//Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
-$(function () {
-    $('.save_value').on('click', function(event) {
-        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-            return $(el).val();
-        });
-        var boxList =sel.get();
-        console.log(sel.get());
 
-        $.ajax({
-            contentType: "application/json",
-            type: 'POST',
-            data: JSON.stringify(boxList),
-            url:"/rest/sendSeveralMessage",
-            success:function(result){
-                alert('sucess')
-            }
-        });
-})
-});
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -587,6 +568,7 @@ function sendMessageVK(clientId, templateId) {
     });
 }
 
+
 $(function () {
     $('.open-description-btn').on('click', function(event) {
         var id = $(this).data('id');
@@ -601,22 +583,43 @@ $(function () {
     });
 });
 
+//Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
+$(function () {
+    $('.save_value').on('click', function(event) {
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList =sel.get();
+        console.log(sel.get());
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            data: JSON.stringify(boxList),
+            url:"/rest/sendSeveralMessage",
+            success:function(result){
+                alert('sucess')
+            }
+        });
+    })
+});
+
 $(function () {
     $('.send-all-message').on('click', function (event) {
+            var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+                return $(el).val();
+            });
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
 
-        let url = '/rest/sendEmail';
-        let formData = {
-            clientId: clientId,
-            templateId: templateId
-        };
+
         var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
         var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
         $.ajax({
+            contentType: "application/json",
             type: "POST",
-            url: url,
-            data: formData,
+            url: '/rest/sendSeveralMessage/' + clientId,
+            data: JSON.stringify(sel.get()),
 
             beforeSend: function () {
                 current.textContent = "Отправка..";

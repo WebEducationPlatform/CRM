@@ -85,8 +85,8 @@ public class DataInitializer {
 				"</body>\n" +
 				"</html>";
 
-		String otherText3 = "Добрый день, %fullName%! Нам не удалось дозвониться до Вас";
-		String otherText2 = "Здравствуйте \\%fullName%\\ ! Просьба оплатить обучение";
+		String otherText3 = "Добрый день, fullName ! Нам не удалось дозвониться до Вас";
+		String otherText2 = "Здравствуйте fullName ! Просьба оплатить обучение";
 		String otherText1 = "Доброго времени суток! Мы рассмотрели вашу заявку";
 
 		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3, otherText3);
