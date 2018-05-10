@@ -9,12 +9,10 @@ import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class StatusRestController {
@@ -48,6 +46,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	//TODO логичнее /status/client/change
 	@RequestMapping(value = "rest/status/change", method = RequestMethod.POST)
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
@@ -68,5 +67,17 @@ public class StatusRestController {
 		statusService.delete(deleteId);
 		logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/admin/status/client/delete")
+	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
+    	Client client = clientService.getClientByID(clientId);
+    	if(client == null){
+    		logger.error("Can`t delete client status, client with id = {} not found", clientId);
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+	    }
+    	client.setStatus(null);
+    	clientService.updateClient(client);
+    	return ResponseEntity.status(HttpStatus.OK).build();
 	}
 }
