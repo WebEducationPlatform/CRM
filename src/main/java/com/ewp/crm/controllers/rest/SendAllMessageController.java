@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class SendAllMessageController {
@@ -35,16 +38,23 @@ public class SendAllMessageController {
 	}
 
 
-	@RequestMapping(value = "/rest/sendSeveralMessage", method = RequestMethod.POST)
-	public ResponseEntity sendSeveralMessage(@RequestBody String[] boxList) {
+	@RequestMapping(value = "/rest/sendSeveralMessage/{clientId}", method = RequestMethod.POST)
+	public ResponseEntity sendSeveralMessage(@PathVariable("clientId") long clientId,@RequestBody String[] boxList) {
 		if (Arrays.asList(boxList).contains("vk")) {
-			System.out.println("VKесть!");
+			Client client = clientService.getClientByID(clientId);
+			String vkText = emailTemplateService.get(2L).getOtherText();
+			vkUtil.sendMessageToClient(client,vkText);
 		}
 		if (Arrays.asList(boxList).contains("facebook")) {
 			System.out.println("FBесть!");
 		}
 		if (Arrays.asList(boxList).contains("email")) {
-			System.out.println("EMAILесть!");
+			Client client = clientService.getClientByID(clientId);
+			String fullName = client.getName() + " " + client.getLastName();
+			Map<String, String> params = new HashMap<>();
+			params.put("%fullName%", fullName);
+			mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(2L).getTemplateText(),
+					"emailStringTemplate");
 		}
 		if (Arrays.asList(boxList).contains("sms")) {
 			System.out.println("SMSесть!");
