@@ -2,15 +2,20 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Comment;
-import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 
 
 @RestController
@@ -18,12 +23,15 @@ import org.springframework.web.bind.annotation.*;
 @EnableAsync
 public class CommentRestController {
 
+	private static Logger logger = LoggerFactory.getLogger(CommentRestController.class);
+
 	private ClientService clientService;
 
 	private CommentService commentService;
 
 	private UserService userService;
 
+	//TODO не используется
 	private NotificationService notificationService;
 
 	private SendNotificationService sendNotificationService;
@@ -41,16 +49,15 @@ public class CommentRestController {
 	public ResponseEntity<Comment> addComment(@RequestParam(name = "clientId") Long clientId,
 	                                          @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (userFromSession != null) {
-			User fromDB = userService.get(userFromSession.getId());
-			Client client = clientService.getClientByID(clientId);
-			sendNotificationService.sendNotification(content, client);
-			Comment newComment = new Comment(fromDB, client, content);
-			commentService.add(newComment);
-			return ResponseEntity.status(HttpStatus.OK).body(newComment);
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		Client client = clientService.getClientByID(clientId);
+		if (client == null) {
+			logger.error("Can`t add comment, client with id {} not found", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
+		sendNotificationService.sendNotification(content, client);
+		Comment newComment = new Comment(userFromSession, client, content);
+		commentService.add(newComment);
+		return ResponseEntity.status(HttpStatus.OK).body(newComment);
 	}
 
 	@RequestMapping(value = "/add/answer", method = RequestMethod.POST)

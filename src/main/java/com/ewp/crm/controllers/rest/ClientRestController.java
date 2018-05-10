@@ -260,16 +260,15 @@ public class ClientRestController {
 	}
 
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
-	public ResponseEntity<String> addComment(@RequestParam(name = "clientId") Long clientId,
+	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
 	                                         @RequestParam(name = "clientDescription") String clientDescription) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (userFromSession != null) {
-			Client client = clientService.getClientByID(clientId);
-			client.setClientDescriptionComment(clientDescription);
-			clientService.addClient(client);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		Client client = clientService.getClientByID(clientId);
+		if(client == null){
+			logger.error("Can`t add description, client with id {} not found", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
 		}
+		client.setClientDescriptionComment(clientDescription);
+		clientService.addClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 }
