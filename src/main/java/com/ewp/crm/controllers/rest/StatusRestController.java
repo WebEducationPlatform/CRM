@@ -76,7 +76,7 @@ public class StatusRestController {
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	Client client = clientService.getClientByID(clientId);
-    	if(client == null){
+    	if (client == null) {
     		logger.error("Can`t delete client status, client with id = {} not found", clientId);
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 	    }

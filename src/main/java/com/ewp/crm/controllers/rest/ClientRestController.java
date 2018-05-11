@@ -261,9 +261,9 @@ public class ClientRestController {
 
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
-	                                         @RequestParam(name = "clientDescription") String clientDescription) {
+	                                             @RequestParam(name = "clientDescription") String clientDescription) {
 		Client client = clientService.getClientByID(clientId);
-		if(client == null){
+		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
 		}

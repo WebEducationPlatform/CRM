@@ -31,17 +31,13 @@ public class CommentRestController {
 
 	private UserService userService;
 
-	//TODO не используется
-	private NotificationService notificationService;
-
 	private SendNotificationService sendNotificationService;
 
 	@Autowired
-	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, NotificationService notificationService, SendNotificationService sendNotificationService) {
+	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, SendNotificationService sendNotificationService) {
 		this.clientService = clientService;
 		this.commentService = commentService;
 		this.userService = userService;
-		this.notificationService = notificationService;
 		this.sendNotificationService = sendNotificationService;
 	}
 
