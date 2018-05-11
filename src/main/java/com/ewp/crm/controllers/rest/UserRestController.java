@@ -96,7 +96,7 @@ public class UserRestController {
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
 	public ResponseEntity addUser(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		userService.update(user);
+		userService.add(user);
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
