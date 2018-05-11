@@ -18,6 +18,9 @@ public class Status implements Serializable {
 	@Column(name = "status_name", nullable = false, unique = true)
 	private String name;
 
+	@Basic
+	private Boolean isDefault = false;
+
 	@JsonManagedReference
 	@OneToMany
 	@JoinTable(name = "status_clients",
@@ -25,13 +28,17 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
+	public Status(String name, Boolean isDefault) {
+		this.name = name;
+		this.isDefault = isDefault;
+	}
+
 	public Status(String name) {
 		this.name = name;
 	}
 
 	public Status() {
 	}
-
 	public Long getId() {
 		return id;
 	}
@@ -83,4 +90,11 @@ public class Status implements Serializable {
 		return name;
 	}
 
+	public Boolean getDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(Boolean aDefault) {
+		isDefault = aDefault;
+	}
 }

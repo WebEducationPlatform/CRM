@@ -9,7 +9,6 @@ import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -46,17 +45,16 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	//TODO логичнее /status/client/change
-	@RequestMapping(value = "rest/status/change", method = RequestMethod.POST)
+	@RequestMapping(value = "/rest/status/client/change", method = RequestMethod.POST)
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
-		if (currentClient.getStatus() != null && currentClient.getStatus().getId().equals(statusId)) {
+		if (currentClient.getStatus().getId().equals(statusId)) {
 			return ResponseEntity.badRequest().build();
 		}
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String clientHistoryInfo = currentAdmin.getFullName() + " изменил статус "
-				+ (currentClient.getStatus() != null ? "с " + currentClient.getStatus().getName() : "")
+		String clientHistoryInfo = currentAdmin.getFullName() + " изменил статус"
+				+ " с " + currentClient.getStatus().getName()
 				+ " на " + statusService.get(statusId).getName();
 		currentClient.addHistory(new ClientHistory(clientHistoryInfo));
 		statusService.changeClientStatus(clientId, statusId);
@@ -72,19 +70,21 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/admin/status/client/delete")
+	@PostMapping("/admin/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	Client client = clientService.getClientByID(clientId);
     	if (client == null) {
     		logger.error("Can`t delete client status, client with id = {} not found", clientId);
-    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    		return ResponseEntity.notFound().build();
 	    }
 		Status status = client.getStatus();
-    	client.setStatus(null);
+    	//TODO обсудить решение
+    	Status defaultStatus = statusService.get("default");
+    	client.setStatus(defaultStatus);
     	client.addHistory(new ClientHistory(principal.getFullName() + " удалил клиента из статуса " + status.getName()));
     	clientService.updateClient(client);
-    	logger.info("{} delete client {} in status {}", principal.getFullName(), client.getEmail(), status.getName());
-    	return ResponseEntity.status(HttpStatus.OK).build();
+    	logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());
+    	return ResponseEntity.ok().build();
 	}
 }

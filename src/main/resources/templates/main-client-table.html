@@ -21,7 +21,7 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}">
+        <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.default}">
             <div id="column-header">
             <div class="btn-group" th:if="${isAdmin}">
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
@@ -35,7 +35,7 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div class="portlet" th:each="client : ${status.clients}" th:if="${client.Active == true}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
+            <div class="portlet" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
                 <div class="portlet-title" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
@@ -122,7 +122,6 @@
                     <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
                     <!-- SMS ERROR INFO BTN -->
-                    <!-- TODO обсудить варианты решения -->
                     <th:block th:each="notification_sms:${notifications_type_sms}">
                         <th:block th:if="${notification_sms.client == client}">
                             <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
