@@ -1,6 +1,6 @@
 //TODO add button in view after merge with Svyatoslav
 function deleteClientStatus(clientId) {
-    let url = "/admin/status/client/delete";
+    let url = "/admin/rest/status/client/delete";
     let requestParam = {
         clientId: clientId
     };
@@ -19,7 +19,7 @@ function deleteClientStatus(clientId) {
 
 function senReqOnChangeStatus(clientId, statusId) {
     let
-        url = '/rest/status/change',
+        url = '/rest/status/client/change',
         formData = {
             clientId: clientId,
             statusId: statusId
@@ -48,7 +48,7 @@ function senReqOnChangeStatus(clientId, statusId) {
 
 function returnClientToStatus(clientId, statusId) {
     let
-        url = '/rest/status/change',
+        url = '/rest/status/client/change',
         formData = {
             clientId: clientId,
             statusId: statusId

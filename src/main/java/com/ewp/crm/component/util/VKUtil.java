@@ -84,6 +84,9 @@ public class VKUtil {
 	}
 
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
+		if (accessToken == null) {
+			throw new VKAccessTokenException("VK access token has not got");
+		}
 		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
 				"?user_id=" + clubId +
 				"&rev=1" +
@@ -94,9 +97,6 @@ public class VKUtil {
 				"?peer_id=" + clubId +
 				"&version=" + version +
 				"&access_token=" + accessToken;
-		if (accessToken == null) {
-			throw new VKAccessTokenException("VK access token has not got");
-		}
 		try {
 			HttpGet httpGetMessages = new HttpGet(uriGetMassages);
 			HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
