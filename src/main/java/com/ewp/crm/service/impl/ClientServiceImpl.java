@@ -36,6 +36,11 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.findClientByEmail(email);
 	}
 
+	@Override
+	public Client getClientByPhoneNumber(String phoneNumber) {
+		return clientRepository.findClientByPhoneNumber(phoneNumber);
+	}
+
 
 	@Override
 	public Client getClientByID(Long id) {

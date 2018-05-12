@@ -26,7 +26,6 @@ public class User implements UserDetails {
 	private String lastName;
 
 	@Column(nullable = false)
-	@Pattern(regexp = ValidationPattern.PHONE_NUMBER_PATTERN)
 	private String phoneNumber;
 
 	@Column(nullable = false, unique = true)

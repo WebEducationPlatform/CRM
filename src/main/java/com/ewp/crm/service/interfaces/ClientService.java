@@ -15,6 +15,8 @@ public interface ClientService {
 
 	Client getClientByEmail(String name);
 
+	Client getClientByPhoneNumber(String phoneNumber);
+
 	Client getClientByID(Long id);
 
 	void addClient(Client client);
