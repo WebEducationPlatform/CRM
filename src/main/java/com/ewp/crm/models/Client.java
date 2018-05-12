@@ -30,7 +30,7 @@ public class Client implements Serializable {
 
 	private String lastName;
 
-	@Column(name = "phone_number", unique = true)
+	@Column(name = "phoneNumber", unique = true)
 	private String phoneNumber;
 
 	@Size(max = 50)
@@ -51,7 +51,6 @@ public class Client implements Serializable {
 
 	@Column(name = "postponeDate")
 	private Date postponeDate;
-
 
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
@@ -80,7 +79,7 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
 	private List<Comment> comments;
 
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "client_notification",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})

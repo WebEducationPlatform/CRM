@@ -162,7 +162,7 @@ $(document).on('click', '.hide-show', function () {
 
 function markAsRead(clientId) {
     var url = "/rest/comment/markAsRead";
-    if ($('#info-client' + clientId).find(".notification").length !== 0) {
+    if ($('#info-client' + clientId).find("#notification").length !== 0) {
         $.ajax({
             type: "POST",
             dataType: 'json',

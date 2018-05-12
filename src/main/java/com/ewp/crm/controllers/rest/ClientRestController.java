@@ -20,6 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,7 +136,8 @@ public class ClientRestController {
 		}
 		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
-		client.setStatus(statusService.get(1L));
+		Status status = statusService.get(client.getStatus().getName());
+		client.setStatus(status);
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, name {}", currentAdmin.getFullName(), client.getId(), client.getName());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -148,34 +152,46 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
-		String path = "src/main/resources/clientData/";
-		File file = new File(path + "data.txt");
+		String path = "DownloadData";
+		File dir = new File(path);
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				logger.error("Could not create folder for text files");
+			}
+		}
+		String fileName = "data.txt";
+		File file = new File(dir, fileName);
+		try {
+			if (!file.exists()) {
+				if (!file.createNewFile()) {
+					logger.error("File for clients not created!");
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		try {
 			FileWriter fileWriter = new FileWriter(file);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-			List<Client> clients = clientService.getAllClients();
-			if (selected.equals("vk") || selected.equals("facebook")) {
-				for (Client client : clients) {
-					List<SocialNetwork> socialNetworks = client.getSocialNetworks();
-					for (SocialNetwork socialNetwork : socialNetworks) {
-						if (Optional.ofNullable(socialNetwork).isPresent()) {
-							if (socialNetwork.getSocialNetworkType().getName().equals(selected)) {
-								bufferedWriter.write(socialNetwork.getLink() + "\r\n");
-							}
-						}
-					}
+
+			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(selected)).isPresent()) {
+				List<SocialNetwork> socialNetworks = socialNetworkTypeService.getByTypeName(selected).getSocialNetworkList();
+				for (SocialNetwork socialNetwork : socialNetworks) {
+					bufferedWriter.write(socialNetwork.getLink() + "\r\n");
 				}
 			}
 			if (selected.equals("email")) {
-				for (Client client : clients) {
-					bufferedWriter.write(client.getEmail() + "\r\n");
+				List<String> emails = clientService.getClientsEmails();
+				for (String email : emails) {
+					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (selected.equals("phoneNumber")) {
-				for (Client client : clients) {
-					bufferedWriter.write(client.getPhoneNumber() + "\r\n");
+				List<String> phoneNumbers = clientService.getClientsPhoneNumbers();
+				for (String phoneNumber : phoneNumbers) {
+					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
 
@@ -186,32 +202,44 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "rest/client/createFileFiltr", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity createFileWithFiltr(@RequestBody FilteringCondition filteringCondition) {
-		String path = "src/main/resources/clientData/";
-		File file = new File(path + "data.txt");
+	@RequestMapping(value = "rest/client/createFileFilter", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
+
+		String path = "DownloadData";
+		File dir = new File(path);
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				logger.error("Could not create folder for text files");
+			}
+		}
+		String fileName = "data.txt";
+		File file = new File(dir, fileName);
+		try {
+			if (!file.exists()) {
+				if (!file.createNewFile()) {
+					logger.error("File for filtered clients not created!");
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		try {
 			FileWriter fileWriter = new FileWriter(file);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-
 			List<Client> clients = clientService.filteringClient(filteringCondition);
-			if (filteringCondition.getSelected().equals("vk") || filteringCondition.getSelected().equals("facebook")) {
-				for (Client client : clients) {
-					List<SocialNetwork> socialNetworks = client.getSocialNetworks();
-					for (SocialNetwork socialNetwork : socialNetworks) {
-						if (Optional.ofNullable(socialNetwork).isPresent()) {
-							if (socialNetwork.getSocialNetworkType().getName().equals(filteringCondition.getSelected())) {
-								bufferedWriter.write(socialNetwork.getLink() + "\r\n");
-							}
-						}
-					}
+
+			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
+				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
+				for (String socialNetworkLink : socialNetworkLinks) {
+					bufferedWriter.write(socialNetworkLink + "\r\n");
 				}
 			}
 			if (filteringCondition.getSelected().equals("email")) {
-				for (Client client : clients) {
-					bufferedWriter.write(client.getEmail() + "\r\n");
+				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
+				for (String email : emails) {
+					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (filteringCondition.getSelected().equals("phoneNumber")) {
@@ -230,7 +258,7 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
 	public ResponseEntity<InputStreamResource> getClientsData() {
 
-		String path = "src/main/resources/clientData/";
+		String path = "DownloadData\\";
 		File file = new File(path + "data.txt");
 
 		InputStreamResource resource = null;
@@ -275,7 +303,7 @@ public class ClientRestController {
 		if (userFromSession != null) {
 			Client client = clientService.getClientByID(clientId);
 			client.setClientDescriptionComment(clientDescription);
-			clientService.addClient(client);
+			clientService.updateClient(client);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} else {
 			return  new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

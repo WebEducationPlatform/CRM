@@ -32,7 +32,7 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-user-phone-number">Номер телефона</label>
-                        <input type="number" class="form-control" required="required" disabled="disabled" id="edit-user-phone-number" th:value="${user.phoneNumber}"/>
+                        <input type="tel" class="form-control" required="required" disabled="disabled" id="edit-user-phone-number" th:value="${user.phoneNumber}"/>
                     </div>
 
                        <div class="form-group" id="ipTelephony">
@@ -40,12 +40,12 @@
 
                                       <div class="checkbox">
                                         <th:block th:if="${user.ipTelephony}">
-                                         <input type="checkbox" name="ipTelephony" title="" th:id="ipTel" checked="checked"/>
-                                         <label th:for="ipTel" ></label>
+                                         <input type="checkbox" name="ipTelephony" disabled="disabled" title="" th:id="ipTel" checked="checked"/>
+                                         <label th:for="ipTel"></label>
                                         </th:block>
                                         <th:block th:if="${!user.ipTelephony}">
-                                        <input type="checkbox" name="ipTelephony" title="" th:id="ipTel"/>
-                                        <label th:for="ipTel" ></label>
+                                        <input type="checkbox" name="ipTelephony" disabled="disabled" th:id="ipTel"/>
+                                        <label th:for="ipTel"></label>
                                         </th:block>
                                       </div>
                           </div>

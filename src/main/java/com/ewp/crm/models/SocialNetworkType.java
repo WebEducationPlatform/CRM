@@ -1,6 +1,9 @@
 package com.ewp.crm.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.List;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -15,6 +18,13 @@ public class SocialNetworkType implements Serializable {
 
 	@Column
 	private String name;
+
+	@JsonIgnore
+	@OneToMany
+	@JoinTable(name = "social_network_social_network_type",
+			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
+			joinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+	private List<SocialNetwork> socialNetworkList;
 
 	public Long getId() {
 		return id;
@@ -54,4 +64,11 @@ public class SocialNetworkType implements Serializable {
 		return Objects.hash(id, name);
 	}
 
+	public List<SocialNetwork> getSocialNetworkList() {
+		return socialNetworkList;
+	}
+
+	public void setSocialNetworkList(List<SocialNetwork> socialNetworkList) {
+		this.socialNetworkList = socialNetworkList;
+	}
 }

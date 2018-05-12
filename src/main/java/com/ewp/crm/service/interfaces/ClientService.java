@@ -28,4 +28,14 @@ public interface ClientService {
 	List<Client> filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
+
+	List<String> getClientsEmails();
+
+	List<String> getClientsPhoneNumbers();
+
+	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 }

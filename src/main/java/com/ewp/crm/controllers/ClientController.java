@@ -108,10 +108,11 @@ public class ClientController {
 	}
 
 
-	@RequestMapping(value = "/admin/client/add", method = RequestMethod.GET)
-	public ModelAndView addClient() {
+	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
+	public ModelAndView addClient(@PathVariable String statusName) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("status", statusService.get(statusName));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);

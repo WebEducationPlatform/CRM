@@ -13,57 +13,207 @@ import java.util.List;
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
-    private EntityManager entityManager;
-    @Autowired
-    public ClientRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+	private EntityManager entityManager;
 
-    @Override
-    public List<Client> filteringClient(FilteringCondition filteringCondition) {
-        return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
-    }
 
-    @Override
-    public List<Client> getChangeActiveClients() {
-        return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
-    }
+	@Autowired
+	public ClientRepositoryImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
-    private String createQuery(FilteringCondition filteringCondition) {
-        StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
+	@Override
+	public List<Client> filteringClient(FilteringCondition filteringCondition) {
+		return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+	}
 
-        if (filteringCondition.getSex() != null) {
-            query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
-        }
+	@Override
+	public List<Client> getChangeActiveClients() {
+		return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
+	}
 
-        if (filteringCondition.getAgeFrom() != null) {
-            query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+	@Override
+	public List<String> getClientsEmail() {
+		return entityManager.createQuery("SELECT email FROM Client").getResultList();
+	}
 
-        }
-        if (filteringCondition.getAgeTo() != null) {
-            query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
-        }
+	@Override
+	public List<String> getClientsPhoneNumber() {
+		return entityManager.createQuery("SELECT phoneNumber FROM Client").getResultList();
+	}
 
-        if (!filteringCondition.getCity().isEmpty()) {
-            query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
-        }
+	@Override
+	public List<String> getFilteredClientsEmail(FilteringCondition filteringCondition) {
+		return entityManager.createQuery(createQueryForGetEmails(filteringCondition)).getResultList();
+	}
 
-        if (!filteringCondition.getCountry().isEmpty()) {
-            query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
-        }
+	@Override
+	public List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition) {
+		return entityManager.createQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
+	}
 
-        if (filteringCondition.getDateFrom() != null) {
-            query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
-        }
+	@Override
+	public List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition) {
+		return entityManager.createNativeQuery(queryForGetSNLinksFromFilteredClients(filteringCondition)).getResultList();
+	}
 
-        if (filteringCondition.getDateTo() != null) {
-            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
-        }
 
-        if (filteringCondition.getState() != null) {
-            query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
-        }
+	private String createQuery(FilteringCondition filteringCondition) {
+		StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
 
-        return query.toString();
-    }
+		if (filteringCondition.getSex() != null) {
+			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
+		}
+
+		if (filteringCondition.getAgeFrom() != null) {
+			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+
+		}
+		if (filteringCondition.getAgeTo() != null) {
+			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
+		}
+
+		if (!filteringCondition.getCity().isEmpty()) {
+			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
+		}
+
+		if (!filteringCondition.getCountry().isEmpty()) {
+			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
+		}
+
+		if (filteringCondition.getDateFrom() != null) {
+			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+		}
+
+		if (filteringCondition.getDateTo() != null) {
+			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+		}
+
+		if (filteringCondition.getState() != null) {
+			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
+		}
+
+		return query.toString();
+	}
+
+	private String createQueryForGetEmails(FilteringCondition filteringCondition) {
+		StringBuilder query = new StringBuilder("select email from Client cl where 1 = 1");
+
+		if (filteringCondition.getSex() != null) {
+			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
+		}
+
+		if (filteringCondition.getAgeFrom() != null) {
+			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+
+		}
+		if (filteringCondition.getAgeTo() != null) {
+			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
+		}
+
+		if (!filteringCondition.getCity().isEmpty()) {
+			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
+		}
+
+		if (!filteringCondition.getCountry().isEmpty()) {
+			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
+		}
+
+		if (filteringCondition.getDateFrom() != null) {
+			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+		}
+
+		if (filteringCondition.getDateTo() != null) {
+			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+		}
+
+		if (filteringCondition.getState() != null) {
+			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
+		}
+
+		return query.toString();
+	}
+
+	private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
+		StringBuilder query = new StringBuilder("select phoneNumber from Client cl where 1 = 1");
+
+		if (filteringCondition.getSex() != null) {
+			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
+		}
+
+		if (filteringCondition.getAgeFrom() != null) {
+			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+
+		}
+		if (filteringCondition.getAgeTo() != null) {
+			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
+		}
+
+		if (!filteringCondition.getCity().isEmpty()) {
+			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
+		}
+
+		if (!filteringCondition.getCountry().isEmpty()) {
+			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
+		}
+
+		if (filteringCondition.getDateFrom() != null) {
+			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+		}
+
+		if (filteringCondition.getDateTo() != null) {
+			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+		}
+
+		if (filteringCondition.getState() != null) {
+			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
+		}
+
+		return query.toString();
+	}
+
+	private String queryForGetSNLinksFromFilteredClients(FilteringCondition filteringCondition) {
+
+		StringBuilder query = new StringBuilder("SELECT social_network.link\n" +
+				"FROM client_social_network\n" +
+				"  INNER JOIN social_network ON client_social_network.social_network_id = social_network.id\n" +
+				"  INNER JOIN client ON client_social_network.client_id = client.client_id\n" +
+				"  INNER JOIN social_network_social_network_type ON social_network.id = social_network_social_network_type.social_network_id\n" +
+				"  INNER JOIN social_network_type ON social_network_social_network_type.social_network_type_id = social_network_type.id\n" +
+				"WHERE social_network_type.name = '" + filteringCondition.getSelected() + "'");
+
+		if (filteringCondition.getSex() != null) {
+			query.append(" and client.sex = '").append(filteringCondition.getSex()).append("'");
+		}
+
+		if (filteringCondition.getAgeFrom() != null) {
+			query.append(" and client.age >= ").append(filteringCondition.getAgeFrom());
+
+		}
+		if (filteringCondition.getAgeTo() != null) {
+			query.append(" and client.age <= ").append(filteringCondition.getAgeTo());
+		}
+
+		if (!filteringCondition.getCity().isEmpty()) {
+			query.append(" and client.city = '").append(filteringCondition.getCity()).append("'");
+		}
+
+		if (!filteringCondition.getCountry().isEmpty()) {
+			query.append(" and client.country = '").append(filteringCondition.getCountry()).append("'");
+		}
+
+		if (filteringCondition.getDateFrom() != null) {
+			query.append(" and client.date >= '").append(filteringCondition.getDateFrom()).append("'");
+		}
+
+		if (filteringCondition.getDateTo() != null) {
+			query.append(" and client.date <= '").append(filteringCondition.getDateTo()).append("'");
+		}
+
+		if (filteringCondition.getState() != null) {
+			query.append(" and client.client_state = '").append(filteringCondition.getState()).append("'");
+		}
+
+		return query.toString();
+	}
 }
+

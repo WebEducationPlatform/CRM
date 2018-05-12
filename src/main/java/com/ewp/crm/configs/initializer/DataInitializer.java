@@ -41,17 +41,17 @@ public class DataInitializer {
 		socialNetworkTypeService.addType(VK);
 		socialNetworkTypeService.addType(FACEBOOK);
 
-		User admin = new User("Stanislav", "Sorokin", "89331558899", "admin@mail.ru",
+		User admin = new User("Stanislav", "Sorokin", "79331558899", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), (byte) 22, "Moscow", "Russia", "Mentor",
 				2000D, Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN")), true);
 		userService.add(admin);
 
-		User user1 = new User("Ivan", "Ivanov", "89123456789", "user1@mail.ru",
+		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
 				"user", null, Client.Sex.MALE.toString(), (byte) 28, "Minsk", "Belarus", "Manager",
 				1001D, Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user1);
 
-		User user2 = new User("Petr", "Petrov", "89129876543", "user2@mail.ru",
+		User user2 = new User("Petr", "Petrov", "79129876543", "user2@mail.ru",
 				"user", null, Client.Sex.MALE.toString(), (byte) 24, "Tver", "Russia", "Manager",
 				500D, Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user2);
@@ -95,15 +95,15 @@ public class DataInitializer {
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
-		Client client1 = new Client("Юрий", "Долгоруков", "89891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
+		Client client1 = new Client("Юрий", "Долгоруков", "79891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		client1.addSMSInfo(new SMSInfo(123, "Hello client 1", admin));
 		client1.addSMSInfo(new SMSInfo(456, "Hello client 1 repeat", admin));
-		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
+		Client client2 = new Client("Вадим", "Бойко", "79687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
 		client2.addSMSInfo(new SMSInfo(789, "Hello client 2", admin));
 		client2.addSMSInfo(new SMSInfo(1234, "Hello client 2 repeat", admin));
-		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
+		Client client3 = new Client("Александра", "Соловьева", "", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
 		client3.addSMSInfo(new SMSInfo(78942, "Hello client 3", admin));
-		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
+		Client client4 = new Client("Иван", "Федоров", "79637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
 		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));

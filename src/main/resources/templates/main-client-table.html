@@ -26,7 +26,7 @@
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" data-toggle="modal" th:attrappend="data-target='#addClientInStatus' + ${status.id}">Добавить клиента</a></li>
+                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
                     <li sec:authorize="hasAuthority('ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
                     <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название статуса</a></li>
                 </ul>
@@ -191,7 +191,7 @@
                                             <tr>
                                                 <td>Номер телефона: </td>
                                                 <td th:text="${client.phoneNumber}"></td>
-                                                <td><a class="btn btn-default btn btn-light btn-xs "><span class="glyphicon glyphicon-earphone"></span></a></td>
+                                                <td><a class="btn btn-default btn btn-light btn-xs "><span th:onclick="'callToClient(\'' + ${#authentication.getPrincipal().getPhoneNumber()} + '\',\'' +  ${client.phoneNumber} + '\')'" class="glyphicon glyphicon-earphone"></span></a></td>
                                             </tr>
                                             <tr>
                                                 <td>Возраст: </td>
