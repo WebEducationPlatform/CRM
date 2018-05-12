@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "history")
@@ -13,8 +14,24 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
-	@Column
+	@Column(nullable = false)
 	private String title;
+
+	@Basic
+	private String link;
+
+	@Basic
+	private Date date = new Date();
+
+	@Column(name = "history_type", nullable = false)
+	private Type type;
+
+	@Transient
+	private User user;
+
+	@Transient
+	private SocialNetworkType socialNetworkType;
+
 	@JsonBackReference
 	@ManyToOne
 	@JoinTable(name = "history_client",
@@ -25,36 +42,76 @@ public class ClientHistory {
 	public ClientHistory() {
 	}
 
-	public ClientHistory(User user, String text) {
-		this.title=user.getFirstName()+ " " + user.getLastName() + " " + text;
-	}
-
+	//TODO REFACTORING - delete this constructor
 	public ClientHistory(String title) {
 		this.title = title;
 	}
 
-	public Long getId() {
-		return id;
+	// Social actions
+	public ClientHistory(Client client, Type type, SocialNetworkType socialNetworkType) {
+		this.client = client;
+		this.type = type;
+		this.socialNetworkType = socialNetworkType;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
+	// Worker actions
+	public ClientHistory(Client client, Type type, User user, String link) {
+		this.user = user;
+		this.link = link;
+		this.type = type;
+		this.client = client;
 	}
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public Client getClient() {
-		return client;
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	public void setClient(Client client) {
 		this.client = client;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public Client getClient() {
+		return client;
+	}
+
+	public SocialNetworkType getSocialNetworkType() {
+		return socialNetworkType;
 	}
 
 	@Override
@@ -75,5 +132,14 @@ public class ClientHistory {
 		result = 31 * result + title.hashCode();
 		result = 31 * result + client.hashCode();
 		return result;
+	}
+
+
+	public enum Type {
+		STATUS,
+		SMS,
+		CALL,
+		POSTPONE,
+		SOCIAL_REQUEST
 	}
 }
