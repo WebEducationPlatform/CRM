@@ -63,7 +63,17 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.getChangeActiveClients();
     }
 
-    @Override
+	@Override
+	public List<Client> findClientsByManyIds(List<Long> ids) {
+		return clientRepository.findByIdIn(ids);
+	}
+
+	@Override
+	public void updateBatchClients(List<Client> clients) {
+		clientRepository.updateBatchClients(clients);
+	}
+
+	@Override
     public void addClient(Client client) {
         clientRepository.saveAndFlush(client);
     }
