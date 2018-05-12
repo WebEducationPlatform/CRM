@@ -536,7 +536,40 @@ function deleteUser(id) {
 }
 
 function sendMessageVK(clientId, templateId) {
-    let url = '/rest/sendVK';
+    let url = '/rest/vkontakte';
+    let formData = {
+        clientId: clientId,
+        templateId: templateId
+    };
+    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
+        },
+        success: function (result) {
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
+        },
+        error: function (e) {
+            current.textContent ="Да";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+}
+
+function sendTempate(clientId, templateId) {
+    let url = 'rest/sendEmail';
     let formData = {
         clientId: clientId,
         templateId: templateId
@@ -584,25 +617,25 @@ $(function () {
 });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
-// $(function () {
-//     $('.save_value').on('click', function(event) {
-//         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-//             return $(el).val();
-//         });
-//         var boxList =sel.get();
-//         console.log(sel.get());
-//
-//         $.ajax({
-//             contentType: "application/json",
-//             type: 'POST',
-//             data: JSON.stringify(boxList),
-//             url:"/rest/sendSeveralMessage",
-//             success:function(result){
-//                 alert('sucess')
-//             }
-//         });
-//     })
-// });
+$(function () {
+    $('.save_value').on('click', function(event) {
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList =sel.get();
+        console.log(sel.get());
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            data: JSON.stringify(boxList),
+            url:"/rest/sendSeveralMessage",
+            success:function(result){
+                alert('sucess')
+            }
+        });
+    })
+});
 
 $(function () {
     $('.send-all-message').on('click', function (event) {
@@ -648,10 +681,18 @@ $(function () {
 });
 
 
-function sendCustomTempate(clientId) {
-    let url = '/rest/sendCustomEmailTemplate';
+
+$(function () {
+    $('.send-all-custom-message').on('click', function(event) {
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList = JSON.stringify(sel.get());
+        var clientId = $(this).data('clientId');
+    let url = '/rest/messages/custom';
     let formData = {
         clientId: clientId,
+        boxList: boxList,
         body: $('#custom-eTemplate-body').val()
     };
     var current = $("#sendCustomTemplateBtn")[0];
@@ -678,7 +719,8 @@ function sendCustomTempate(clientId) {
             console.log(e)
         }
     });
-}
+});
+});
 
 function hideClient(clientId) {
     let url = 'admin/rest/client/postpone';

@@ -7,6 +7,7 @@ import com.ewp.crm.models.EmailTemplate;
 import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,11 +36,17 @@ public class VkRestController {
 	}
 
 
-	@RequestMapping(value = "/rest/sendVK", method = RequestMethod.POST)
-	public ResponseEntity sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
+	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
 		Client client = clientService.getClientByID(clientId);
 		String vkText = emailTemplateService.get(templateId).getOtherText();
-		vkUtil.sendMessageToClient(client,vkText);
-		return ResponseEntity.ok().build();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params1 = new HashMap<>();
+		params1.put("%fullName%", fullName);
+		for (Map.Entry<String, String> entry : params1.entrySet()) {
+			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+			vkUtil.sendMessageToClient(client, vkText);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 }

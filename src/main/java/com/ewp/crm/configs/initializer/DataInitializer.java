@@ -114,7 +114,7 @@ public class DataInitializer {
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client4.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
-		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
+		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id349461389", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
