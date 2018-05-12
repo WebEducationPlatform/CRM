@@ -191,7 +191,7 @@
                     <div class="form-сheck">
                         <form class="box-modal">
                             <label class="checkbox-inline">
-                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value="email"  class="my-checkbox"/>
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" th:value="email"  class="my-checkbox"/>
                             </label>
                             <th:block th:each="socNetwork : ${client.socialNetworks}">
                                 <label class="checkbox-inline">
@@ -199,7 +199,7 @@
                                 </label>
                             </th:block>
                             <label class="checkbox-inline">
-                                <input type="checkbox"  th:text="SMS" value="sms" class="my-checkbox"/>
+                                <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
                             </label>
                             <label class="checkbox-inline">
                                 <input type="checkbox"  class="select_all my-checkbox"/>Выбрать все
@@ -208,7 +208,6 @@
                                 <input type="checkbox"  class="deselect_all"/>Отменить все
                             </label>
                         </form>
-                        <button type="button" class="btn btn-primary save_value" name="save_value" value="Save">Нет</button>
                     </div>
                 </div>
                 <div class="modal-footer">

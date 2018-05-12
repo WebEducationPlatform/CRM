@@ -38,30 +38,34 @@ public class SendAllMessageController {
 	}
 
 
-	@RequestMapping(value = "/rest/sendSeveralMessage/{clientId}", method = RequestMethod.POST)
-	public ResponseEntity sendSeveralMessage(@PathVariable("clientId") long clientId,@RequestBody String[] boxList) {
-		if (Arrays.asList(boxList).contains("vk")) {
+	@RequestMapping(value = "rest/messages", method = RequestMethod.POST)
+	public ResponseEntity sendSeveralMessage(@RequestParam("boxList") String boxList,
+	                                         @RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+		if (boxList.contains("vk")) {
 			Client client = clientService.getClientByID(clientId);
-			String vkText = emailTemplateService.get(2L).getOtherText();
-			vkUtil.sendMessageToClient(client,vkText);
+			String vkText = emailTemplateService.get(templateId).getOtherText();
+			String fullName = client.getName() + " " + client.getLastName();
+			Map<String, String> params1 = new HashMap<>();
+			params1.put("%fullName%", fullName);
+			for (Map.Entry<String, String> entry : params1.entrySet()) {
+				vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+				vkUtil.sendMessageToClient(client, vkText);
+			}
 		}
-		if (Arrays.asList(boxList).contains("facebook")) {
+		if (boxList.contains("facebook")) {
 			System.out.println("FBесть!");
 		}
-		if (Arrays.asList(boxList).contains("email")) {
+		if (boxList.contains("email")) {
 			Client client = clientService.getClientByID(clientId);
 			String fullName = client.getName() + " " + client.getLastName();
 			Map<String, String> params = new HashMap<>();
 			params.put("%fullName%", fullName);
-			mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(2L).getTemplateText(),
+			mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
 					"emailStringTemplate");
 		}
-		if (Arrays.asList(boxList).contains("sms")) {
+		if (boxList.contains("sms")) {
 			System.out.println("SMSесть!");
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 }
-
-
-

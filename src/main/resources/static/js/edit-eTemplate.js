@@ -4,10 +4,10 @@ function switchTemplate() {
     var selected = $('#socNetworkChoose').val();
     if (selected === 'email') {
         $('#field').show();
-        $('#showAR').hide();
+        $('#show-area').hide();
     } else if (selected === 'vk'){
         $('#field').hide();
-        $('#showAR').show();
+        $('#show-area').show();
     }
 }
 

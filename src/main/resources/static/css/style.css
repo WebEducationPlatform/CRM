@@ -1,6 +1,17 @@
+#show-area {
+	padding-left: 0px;
+	margin-top: 15px;
+}
+
+#textArea1 {
+	resize: none;
+}
+
+
 #textTemplateArea {
 	width: 100%;
 	padding: 15px;
+	resize: none;
 }
 
 .head-padding {

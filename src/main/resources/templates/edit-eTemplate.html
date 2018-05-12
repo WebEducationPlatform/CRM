@@ -17,7 +17,7 @@
         <label style="font-size: 20px" for="socNetworkChoose">Редактирование шаблона </label>
         <select style="font-size: 20px" class="form-inline" id="socNetworkChoose" th:onchange="'switchTemplate()'">
             <option value="email">email</option>
-            <option value="vk">vk</option>
+            <option value="vk">vk,sms,facebook</option>
         </select>
         </div>
 
@@ -41,7 +41,7 @@
                 <p><span id = "message"></span></p>
             </fieldset>
 
-            <div class="col-md-12 content" style="display: none;" id="showAR">
+            <div class="col-md-12 content" style="display: none;" id="show-area">
 
                     <textarea  th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
 
