@@ -378,10 +378,31 @@
                             <textarea id="custom-eTemplate-body" class="form-control"
                                    placeholder="Основной текст"></textarea>
                         </div>
+                    <div class="form-сheck">
+                        <form class="box-modal">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" th:value="email"  class="my-checkbox"/>
+                            </label>
+                            <th:block th:each="socNetwork : ${client.socialNetworks}">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
+                                </label>
+                            </th:block>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="select_all my-checkbox"/>Выбрать все
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="deselect_all"/>Отменить все
+                            </label>
+                        </form>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <span id = "sendCustomEmailTemplateStatus"></span>
-                    <button type="button" class="btn btn-primary" id = 'sendCustomTemplateBtn' th:onclick="'sendCustomTempate(\'' + ${client.id} + '\')'">Отправить</button>
+                    <button type="button" class="btn btn-primary send-all-custom-message" id = 'sendCustomTemplateBtn'  th:attr="data-client-id=${client.id}">Отправить</button>
                 </div>
             </div>
         </div>

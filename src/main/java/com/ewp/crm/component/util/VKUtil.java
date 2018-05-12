@@ -20,13 +20,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Component
@@ -132,6 +132,7 @@ public class VKUtil {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
 				return sendMessageById(id, msg);
 			}
+
 		}
 		logger.error("{} hasn't vk social network", client.getEmail());
 		return client.getName() + " hasn't vk social network";
@@ -149,9 +150,9 @@ public class VKUtil {
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
-							.setDefaultRequestConfig(RequestConfig.custom()
-							.setCookieSpec(CookieSpecs.STANDARD).build())
-							.build();
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
 		try {
 			HttpResponse response = httpClient.execute(request);
 			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
@@ -299,4 +300,3 @@ public class VKUtil {
 		return client;
 	}
 }
-

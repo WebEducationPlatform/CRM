@@ -213,9 +213,9 @@
                                                 <td><div class="btn-group">
                                                     <a name= "emailTmplList" data-toggle="dropdown" class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
                                                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                                                        <li th:id  = "'VKtemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
-                                                            <a class="glyphicon glyphicon-ok" th:id = "'sendVKBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
-                                                            <a th:if="${isAdmin}" th:href="'admin/editVKytemplate/' +  ${template.id}">
+                                                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}" th:if="${template.id!=1}">
+                                                            <a class="glyphicon glyphicon-ok" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" th:onclick="'sendMessageVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'" th:text="' ' + ${template.name}"></a>
+                                                            <a th:if="${isAdmin}" th:href="'admin/editEmailTemplate/' +  ${template.id}">
                                                                 <button
                                                                         type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                                                 </button>

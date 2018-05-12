@@ -526,6 +526,13 @@ a[id^="eTemplateBtn"] {
 	width: fill-available; /*тут тоже*/
 }
 
+a[id^="VKtemplate"] {
+	width: 100%;
+	width: -moz-available;
+	width: -webkit-fill-available;  /*так и должно быть*/
+	width: fill-available; /*тут тоже*/
+}
+
 input[id="search-clients"] {
     width:50%;
     -webkit-transition: width 0.4s ease-in-out;
