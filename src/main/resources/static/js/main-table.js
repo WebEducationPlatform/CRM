@@ -17,7 +17,7 @@ $(function () {
 });
 
 
-
+//Сохранить заметку на лицевой стороне карточки
 function saveDescription(id) {
     let text =  $('#TestModal').find('textarea').val();
     let
@@ -584,25 +584,25 @@ $(function () {
 });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
-$(function () {
-    $('.save_value').on('click', function(event) {
-        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-            return $(el).val();
-        });
-        var boxList =sel.get();
-        console.log(sel.get());
-
-        $.ajax({
-            contentType: "application/json",
-            type: 'POST',
-            data: JSON.stringify(boxList),
-            url:"/rest/sendSeveralMessage",
-            success:function(result){
-                alert('sucess')
-            }
-        });
-    })
-});
+// $(function () {
+//     $('.save_value').on('click', function(event) {
+//         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+//             return $(el).val();
+//         });
+//         var boxList =sel.get();
+//         console.log(sel.get());
+//
+//         $.ajax({
+//             contentType: "application/json",
+//             type: 'POST',
+//             data: JSON.stringify(boxList),
+//             url:"/rest/sendSeveralMessage",
+//             success:function(result){
+//                 alert('sucess')
+//             }
+//         });
+//     })
+// });
 
 $(function () {
     $('.send-all-message').on('click', function (event) {
@@ -611,15 +611,20 @@ $(function () {
             });
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
+        var boxList = JSON.stringify(sel.get());
+        let formData = {
+            boxList: boxList,
+            clientId: clientId,
+            templateId: templateId
+        };
 
 
         var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
         var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
         $.ajax({
-            contentType: "application/json",
             type: "POST",
-            url: '/rest/sendSeveralMessage/' + clientId,
-            data: JSON.stringify(sel.get()),
+            url: '/rest/messages',
+            data: formData,
 
             beforeSend: function () {
                 current.textContent = "Отправка..";
