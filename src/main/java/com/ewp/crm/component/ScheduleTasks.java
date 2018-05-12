@@ -4,10 +4,7 @@ import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SMSInfo;
-import com.ewp.crm.models.SocialNetwork;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +36,12 @@ public class ScheduleTasks {
 
 	private final SendNotificationService sendNotificationService;
 
+	private final ClientHistoryService clientHistoryService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -51,6 +50,7 @@ public class ScheduleTasks {
 		this.smsUtil = smsUtil;
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	private void addClient(Client newClient) {
@@ -59,6 +59,8 @@ public class ScheduleTasks {
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
 		clientService.addClient(newClient);
+		ClientHistory clientHistory = new ClientHistory(newClient, ClientHistory.Type.SOCIAL_REQUEST, socialNetworkTypeService.getByTypeName("vk"));
+		clientHistoryService.addClientHistory(clientHistory);
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
@@ -70,6 +72,7 @@ public class ScheduleTasks {
 		updateClient.setAge(newClient.getAge());
 		updateClient.setSex(newClient.getSex());
 		clientService.updateClient(updateClient);
+		// TODO добавлять историю ?
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
@@ -133,7 +136,7 @@ public class ScheduleTasks {
 					smsInfoService.updateSMSInfo(sms);
 				} else {
 					String forView = determineStatusOfResponse(status);
-					sendNotificationService.sendNotification(forView,sms.getClient(),sms.getUser());
+					sendNotificationService.sendNotification(forView, sms.getClient(), sms.getUser());
 					smsInfoService.deleteSMSInfo(sms.getId());
 				}
 			}
