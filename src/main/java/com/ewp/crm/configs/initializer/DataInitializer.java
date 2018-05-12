@@ -94,7 +94,7 @@ public class DataInitializer {
 		emailTemplateService.add(emailTemplate2);
 		emailTemplateService.add(emailTemplate3);
 
-		Status defaultStatus = new Status("default",true);
+		Status defaultStatus = new Status("default", true);
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
