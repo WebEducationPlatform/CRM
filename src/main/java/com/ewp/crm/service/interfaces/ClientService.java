@@ -28,4 +28,8 @@ public interface ClientService {
 	List<Client> filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
+
+	List<Client> findClientsByManyIds(List<Long> ids);
+
+	void updateBatchClients(List<Client> clients);
 }

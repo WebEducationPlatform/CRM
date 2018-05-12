@@ -63,17 +63,7 @@ public class UserRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/admin/rest/user/delete", method = RequestMethod.POST)
-	public ResponseEntity deleteUser(@RequestParam(name = "deleteId") Long deleteId) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		User currentUser = userService.get(deleteId);
-		for (Client ownedClient : currentUser.getOwnedClients()) {
-			ownedClient.setOwnerUser(null);
-		}
-		userService.delete(deleteId);
-		logger.info("{} has  deleted user  with id {}, email {}", currentAdmin.getFullName(), deleteId, currentUser.getEmail());
-		return ResponseEntity.ok().build();
-	}
+	//Workers will be deactivated, not deleted
 
 	@RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
 	public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {

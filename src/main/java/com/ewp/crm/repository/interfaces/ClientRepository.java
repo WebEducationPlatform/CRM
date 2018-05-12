@@ -1,10 +1,8 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,4 +14,5 @@ public interface ClientRepository extends JpaRepository<Client, Long>, ClientRep
 
 	Client findClientByPhoneNumber(String phoneNumber);
 
+	List<Client> findByIdIn(List<Long> ids);
 }

@@ -4,7 +4,9 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -14,6 +16,9 @@ import java.util.List;
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private final EntityManager entityManager;
+
+    @Value("${project.jpa.batch-size}")
+    private int batchSize;
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -30,7 +35,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
     }
 
-    private String createQuery(FilteringCondition filteringCondition) {
+	//TODO generics?
+	@Transactional
+	@Override
+	public void updateBatchClients(List<Client> clients) {
+		for (int i = 0; i < clients.size(); i++) {
+			entityManager.merge(clients.get(i));
+			if (i % batchSize == 0) {
+				entityManager.flush();
+				entityManager.clear();
+			}
+		}
+		entityManager.flush();
+		entityManager.clear();
+	}
+
+	private String createQuery(FilteringCondition filteringCondition) {
         StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
 
         if (filteringCondition.getSex() != null) {

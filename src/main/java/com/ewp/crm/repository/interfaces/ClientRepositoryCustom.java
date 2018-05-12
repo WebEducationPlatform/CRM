@@ -10,4 +10,6 @@ public interface ClientRepositoryCustom {
 	List filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
+
+	void updateBatchClients(List<Client> clients);
 }

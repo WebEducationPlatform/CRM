@@ -51,14 +51,9 @@ public class SMSController {
 	@PostMapping("/send/now/clients/{listClientsId}")
 	public ResponseEntity<String> sendSMS(@PathVariable("listClientsId") List<Long> listClientsId, @RequestParam("message") String message) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = new LinkedList<>();
-		for (Long id : listClientsId) {
-			clients.add(clientService.getClientByID(id));
-		}
+		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
 		smsUtil.sendSMS(clients, message, principal);
-		for (Client client : clients) {
-			clientService.updateClient(client);
-		}
+		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Messages in queue");
 	}
 
@@ -67,15 +62,10 @@ public class SMSController {
 	                                         @RequestParam("message") String message,
 	                                         @RequestParam("date") String date) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = new LinkedList<>();
+		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
 		DateTime utc = DateTime.parse(date);
-		for (Long id : listClientsId) {
-			clients.add(clientService.getClientByID(id));
-		}
 		smsUtil.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), principal);
-		for (Client client : clients) {
-			clientService.updateClient(client);
-		}
+		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send");
 	}
 
