@@ -1,11 +1,13 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.*;
 
 @Entity
@@ -24,6 +26,7 @@ public class User implements UserDetails {
 	private String lastName;
 
 	@Column(nullable = false)
+	@Pattern(regexp = ValidationPattern.PHONE_NUMBER_PATTERN)
 	private String phoneNumber;
 
 	@Column(nullable = false, unique = true)
@@ -62,7 +65,7 @@ public class User implements UserDetails {
 	private boolean ipTelephony;
 
 	@JsonIgnore
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})

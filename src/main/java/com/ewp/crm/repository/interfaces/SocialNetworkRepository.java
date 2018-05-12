@@ -8,4 +8,5 @@ public interface SocialNetworkRepository extends JpaRepository <SocialNetwork, L
 
 	SocialNetwork getByLink(String ling);
 
+
 }

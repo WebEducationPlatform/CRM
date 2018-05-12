@@ -18,6 +18,12 @@
 						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
 					</div>
 					<p><span id = "message"></span></p>
+
+					<div class="form-group">
+                    	<label for="edit-client-first-name" th:text="${status.name}"></label>
+                    	<input type="hidden" id="client-status" th:value="${status.name}"/>
+                    </div>
+
 					<div class="form-group">
 						<label for="edit-client-first-name">Имя</label>
 						<input class="form-control" required = "required" id="edit-client-first-name"/>
@@ -28,7 +34,7 @@
 					</div>
 					<div class="form-group">
 						<label for="edit-client-phone-number">Номер телефона</label>
-						<input type="number" class="form-control" id="edit-client-phone-number"/>
+						<input type="tel" class="form-control" id="edit-client-phone-number"/>
 					</div>
 					<div class="form-group">
 						<label for="edit-client-email">Email</label>
@@ -37,7 +43,7 @@
 					</div>
 					<div class="form-group">
 						<label for="edit-client-age">Возраст</label>
-						<input type="text" class="form-control" data-error="Диапазон от 1 до 127" title = "Диапазон от 1 до 127" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$" onkeydown="disableInputE()"  id="edit-client-age"/>
+						<input type="text" class="form-control" data-error="Диапазон от 1 до 127" title = "Диапазон от 1 до 127" onkeydown="disableInputE()"  id="edit-client-age" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$"/>
 						<div class="help-block with-errors"></div>
 					</div>
 					<div class="form-group">

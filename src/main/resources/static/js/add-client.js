@@ -54,7 +54,8 @@ function addClient() {
 	} catch (e) {
 		return;
 	}
-	let url = '/admin/rest/client/add';
+		var phoneNumber = $('#edit-client-phone-number').val();
+    let url = '/admin/rest/client/add';
 	let wrap = {
 		name: $('#edit-client-first-name').val(),
 		lastName: $('#edit-client-last-name').val(),
@@ -65,6 +66,7 @@ function addClient() {
 		state:  $('#edit-client-state').val(),
 		country: $('#edit-client-country').val(),
 		city: $('#edit-client-city').val(),
+		status: $('#client-status').val(),
 		socialNetworks: SN,
 		jobs: Job
 	};
@@ -140,7 +142,7 @@ function deleteJob(element) {
 var SNs="";
 function addNewSN() {
 	if(SNs.length===0){
-		console.log("Массив SocialMarkers пуст!");
+		console.log("Массив SocialNetworkTypes пуст!");
 		return;
 	}
 	var size =  ($("#SN-table-body")[0]).rows.length;
@@ -158,19 +160,19 @@ $(function () {
 	})
 });
 
-var socialMarkers = [];
+var socialNetworkTypes = [];
 
 $(document).ready(function () {
 
-	var url = '/user/socialMarkers';
+	var url = '/user/socialNetworkTypes';
 	$.ajax({
 		type: 'get',
 		url: url,
 		dataType: 'json',
 		success: function (res) {
-			socialMarkers=res;
-			$.each(socialMarkers,function (index, marker) {
-				SNs = SNs + "<option>"+ marker + "</option>"
+			socialNetworkTypes=res;
+			$.each(socialNetworkTypes,function (index, type) {
+				SNs = SNs + "<option>"+ type + "</option>"
 			});
 		},
 		error: function (error) {

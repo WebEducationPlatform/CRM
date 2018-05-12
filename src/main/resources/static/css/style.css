@@ -313,6 +313,8 @@ ul.nav a:hover {
 
 
 input[id^="checkbox-user"] { display: none; }
+input[id^="ipTel"] { display: none; }
+
 
 input[type="checkbox"] + label {
 	display: block;

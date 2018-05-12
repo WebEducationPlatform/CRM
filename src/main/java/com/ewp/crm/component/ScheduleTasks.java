@@ -9,6 +9,7 @@ import com.ewp.crm.models.SMSInfo;
 import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.*;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,7 @@ public class ScheduleTasks {
 		Status newClientsStatus = statusService.getFirstStatusForClient();
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
+		newClient.setDateOfRegistration(LocalDateTime.now().toDate());
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
 		clientService.addClient(newClient);
 		logger.info("New client with id{} has added from VK", newClient.getId());
@@ -124,7 +126,7 @@ public class ScheduleTasks {
 	}
 
 	//TODO 600_0000 after tests
-	@Scheduled(fixedRate = 6_000)
+//	@Scheduled(fixedRate = 6_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getSMSbyDelivery(false);
