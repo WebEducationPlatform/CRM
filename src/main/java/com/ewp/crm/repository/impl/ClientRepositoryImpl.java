@@ -58,83 +58,19 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
 
 	private String createQuery(FilteringCondition filteringCondition) {
-		StringBuilder query = new StringBuilder("select cl from Client cl where 1 = 1");
-
-		if (filteringCondition.getSex() != null) {
-			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
-		}
-
-		if (filteringCondition.getAgeFrom() != null) {
-			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
-
-		}
-		if (filteringCondition.getAgeTo() != null) {
-			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
-		}
-
-		if (!filteringCondition.getCity().isEmpty()) {
-			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
-		}
-
-		if (!filteringCondition.getCountry().isEmpty()) {
-			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
-		}
-
-		if (filteringCondition.getDateFrom() != null) {
-			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
-		}
-
-		if (filteringCondition.getDateTo() != null) {
-			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
-		}
-
-		if (filteringCondition.getState() != null) {
-			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
-		}
-
-		return query.toString();
+		return "select cl from Client cl where 1 = 1" + filterQuery(filteringCondition);
 	}
 
 	private String createQueryForGetEmails(FilteringCondition filteringCondition) {
-		StringBuilder query = new StringBuilder("select email from Client cl where 1 = 1");
-
-		if (filteringCondition.getSex() != null) {
-			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
-		}
-
-		if (filteringCondition.getAgeFrom() != null) {
-			query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
-
-		}
-		if (filteringCondition.getAgeTo() != null) {
-			query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
-		}
-
-		if (!filteringCondition.getCity().isEmpty()) {
-			query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
-		}
-
-		if (!filteringCondition.getCountry().isEmpty()) {
-			query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
-		}
-
-		if (filteringCondition.getDateFrom() != null) {
-			query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
-		}
-
-		if (filteringCondition.getDateTo() != null) {
-			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
-		}
-
-		if (filteringCondition.getState() != null) {
-			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
-		}
-
-		return query.toString();
+		return "select email from Client cl where 1 = 1" + filterQuery(filteringCondition);
 	}
 
 	private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
-		StringBuilder query = new StringBuilder("select phoneNumber from Client cl where 1 = 1");
+		return "select phoneNumber from Client cl where 1 = 1" + filterQuery(filteringCondition);
+	}
+
+	private String filterQuery(FilteringCondition filteringCondition) {
+		StringBuilder query = new StringBuilder();
 
 		if (filteringCondition.getSex() != null) {
 			query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");

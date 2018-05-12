@@ -25,7 +25,7 @@ public class GMailMailConfigImpl implements MailConfig {
 
     @Autowired
     public GMailMailConfigImpl(Environment env) {
-        login = env.getProperty("google.mail.login");
+        login = env.getProperty("google.mail.login").replaceAll("@", "%40");
         password = env.getProperty("google.mail.password");
         mailFrom = env.getProperty("mail.from");
         socketFactoryClass = env.getProperty("mail.imap.socketFactory.class");
