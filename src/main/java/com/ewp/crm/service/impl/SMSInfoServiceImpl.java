@@ -22,8 +22,13 @@ public class SMSInfoServiceImpl implements SMSInfoService {
 	}
 
 	@Override
-	public List<SMSInfo> getSMSbyDelivery(Boolean isDelivered) {
-		return smsInfoRepository.findByIsDelivered(isDelivered);
+	public List<SMSInfo> getBySMSIsChecked(boolean isChecked) {
+		return smsInfoRepository.findByIsChecked(isChecked);
+	}
+
+	@Override
+	public SMSInfo getById(long id) {
+		return smsInfoRepository.findOne(id);
 	}
 
 	@Override

@@ -32,6 +32,9 @@ public class DataInitializer {
 	@Autowired
 	private NotificationService notificationService;
 
+	@Autowired
+	private ClientHistoryService clientHistoryService;
+
 	private void init() {
 
 		Role roleAdmin = new Role("ADMIN");
@@ -107,10 +110,10 @@ public class DataInitializer {
 		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client 2", admin));
 		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client 3", admin));
 		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client 4", admin));
-		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
-		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
-		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
-		client4.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
+		client1.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client1));
+		client2.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client2));
+		client3.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client3));
+		client4.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client4));
 		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
@@ -134,10 +137,10 @@ public class DataInitializer {
 		statusService.add(status2);
 		statusService.add(status3);
 		//TEST SMS ERROR NOTIFICATION
-		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(1L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(2L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient3more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(3L),userService.get(1L),Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient4more = new Notification("Абонент вне зоны действия сети",clientService.getClientByID(4L),userService.get(1L),Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(1L), userService.get(1L), Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(2L), userService.get(1L), Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient3more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(3L), userService.get(1L), Notification.Type.SMS);
+		Notification smsErrorNotificationExampleToClient4more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(4L), userService.get(1L), Notification.Type.SMS);
 		notificationService.addNotification(smsErrorNotificationExampleToClient1more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient2more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient3more);

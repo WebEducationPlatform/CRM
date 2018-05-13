@@ -122,7 +122,7 @@
                     <td th:text="${client.dateOfRegistration}"></td>
                     <td th:if="${client.status.getName() == 'default'}">
                         <div class="dropdown">
-                            <button type="button" class="btn btn-info" data-toggle="dropdown" th:id="'return-to-status-btn' + ${client.id}">Вернуть</button>
+                            <button type="button" class="btn btn-info" data-toggle="dropdown" th:id="'return-to-status-btn' + ${client.id}">Добавить</button>
                             <ul class="dropdown-menu">
                                 <li th:each="status:${statuses}" th:if="${!status.default}">
                                     <a class="link-cursor-pointer" th:text="${status.name}" th:onclick="'returnClientToStatus('+ ${client.id} +','+ ${status.id} +')'"></a>

@@ -16,11 +16,14 @@ public class SMSInfo implements Serializable {
 	@Column(name = "sms_id")
 	private long smsId;
 
+	@Column(name = "delivery_status")
+	private String deliveryStatus;
+
 	@Basic
 	private String message;
 
 	@Basic
-	private Boolean isDelivered = false;
+	private boolean isChecked = false;
 
 	@ManyToOne
 	@JoinTable(name = "client_sms_info",
@@ -41,14 +44,15 @@ public class SMSInfo implements Serializable {
 		this.smsId = smsId;
 		this.message = message;
 		this.user = whoSend;
+		this.deliveryStatus = "в очереди";
 	}
 
-	public Boolean getDelivered() {
-		return isDelivered;
+	public Boolean getChecked() {
+		return isChecked;
 	}
 
-	public void setDelivered(Boolean delivered) {
-		isDelivered = delivered;
+	public void setChecked(boolean delivered) {
+		isChecked = delivered;
 	}
 
 	public String getMessage() {
@@ -85,5 +89,13 @@ public class SMSInfo implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getDeliveryStatus() {
+		return deliveryStatus;
+	}
+
+	public void setDeliveryStatus(String deliveryStatus) {
+		this.deliveryStatus = deliveryStatus;
 	}
 }

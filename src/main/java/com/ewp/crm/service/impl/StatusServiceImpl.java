@@ -58,7 +58,11 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status getFirstStatusForClient() {
-		return statusDAO.findOne(1L);
+		Status check = statusDAO.findOne(2L);
+		if (check == null) {
+			return statusDAO.findOne(1L);
+		}
+		return check;
 	}
 
 	@Override
@@ -105,18 +109,8 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public void changeClientStatus(Long clientId, Long statusId) {
-		Client client = clientRepository.findOne(clientId);
-		Status beginStatus = statusDAO.findStatusByClientsIn(Collections.singletonList(client));
-		Status endStatus = statusDAO.findOne(statusId);
-		if (beginStatus != null) {
-			beginStatus.getClients().remove(client);
-			statusDAO.saveAndFlush(beginStatus);
-		}
-		endStatus.addClient(client);
-		statusDAO.saveAndFlush(endStatus);
-		//TODO обсудить решение
-//		client.setStatus(endStatus);
-//		clientRepository.saveAndFlush(client);
+	public void changeClientStatus(Client client, Long statusId) {
+		//TODO решить что делать
 	}
+
 }

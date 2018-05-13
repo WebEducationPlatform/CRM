@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
@@ -17,35 +18,46 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public void addClientHistory(ClientHistory clientHistory) {
-		determineTitleOfClientHistory(clientHistory);
-		clientHistoryRepository.saveAndFlush(clientHistory);
+	public void addHistory(ClientHistory history) {
+		clientHistoryRepository.saveAndFlush(history);
 	}
 
-	private void determineTitleOfClientHistory(ClientHistory clientHistory) {
+	@Override
+	public ClientHistory generateValidHistory(ClientHistory clientHistory, Client client) {
 		ClientHistory.Type type = clientHistory.getType();
+		if (type == ClientHistory.Type.SYSTEM) {
+			clientHistory.setTitle("Клиент был добавлен при инициализации CRM");
+			return clientHistory;
+		}
 		if (type == ClientHistory.Type.SOCIAL_REQUEST) {
 			clientHistory.setTitle("Поступила заявка с " + clientHistory.getSocialNetworkType().getName());
-			return;
+			return clientHistory;
 		}
 		String worker = clientHistory.getUser().getFullName();
 		String title;
 		switch (type) {
+			case ADD_CLIENT:
+				title = worker + " добавил клиента вручную ";
+				break;
+			case UPDATE_CLIENT:
+				title = worker + " обновил информацию клиента ";
+				break;
 			case SMS:
-				title = worker + " отправил SMS ";
+				title = worker + " отправил клиенту SMS ";
 				break;
 			case CALL:
 				title = worker + " позвонил ";
 				break;
 			case STATUS:
-				title = worker + " перевел клиента в статус " + clientHistory.getClient().getStatus().getName();
+				title = worker + " перевел клиента в статус " + client.getStatus().getName();
 				break;
 			case POSTPONE:
-				title = worker + " скрыл клиента до " + clientHistory.getClient().getPostponeDate();
+				title = worker + " скрыл клиента до " + client.getPostponeDate();
 				break;
 			default:
 				title = "История инициализирована через пустой конструктор";
 		}
 		clientHistory.setTitle(title);
+		return clientHistory;
 	}
 }
