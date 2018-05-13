@@ -1,7 +1,7 @@
 package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
-import com.ewp.crm.exceptions.email.EmailTemplateException;
+import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +54,8 @@ public class MailSendService {
 		}
 	}
 
-	@Async
 	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
+		recipient = emailLogin; //Удалить после тестов!!
 		final Context ctx = new Context();
 		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);
@@ -82,7 +82,7 @@ public class MailSendService {
 			javaMailSender.send(mimeMessage);
 		} catch (Exception e) {
 			logger.error("Can't send mail to {}", recipient);
-			throw new EmailTemplateException(e.getMessage());
+			throw new MessageTemplateException(e.getMessage());
 		}
 	}
 
@@ -94,6 +94,5 @@ public class MailSendService {
 		message.setFrom(emailLogin);
 		message.setTo(userToNotify.getEmail());
 		javaMailSender.send(message);
-
 	}
 }

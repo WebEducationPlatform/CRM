@@ -27,9 +27,17 @@
                 </select>
             </div>
             <br/>
-            <button type="submit" class="btn btn-primary" role="button">Сохранить</button>
+            <button type="submit" class="btn btn-primary pull-right" role="button">Сохранить</button>
         </form>
 </div>
+
+    <div class="col-md-6 col-md-offset-2">
+
+        <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
+        <button sec:authorize="hasAuthority('ADMIN')" class="btn btn-primary pul">Изменить профиль</button>
+        </a>
+</div>
+
 </div>
 </body>
 </html>

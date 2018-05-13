@@ -16,9 +16,7 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
+
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -106,18 +104,18 @@ public class GoogleEmail {
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
-			MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
-			try {
-				parser.parse();
-				Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
-				if (client != null) {
-					client.setStatus(statusService.get(1L));
-					clientService.addClient(client);
-				}
-			} catch (Exception e) {
-				logger.error("MimeMessageParser can't parse income data");
-			}
-		});
+            MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
+            try {
+                parser.parse();
+                Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
+                if (client != null) {
+                    client.setStatus(statusService.get(1L));
+                    clientService.addClient(client);
+                }
+            } catch (Exception e) {
+                logger.error("MimeMessageParser can't parse income data");
+            }
+        });
         return directChannel;
     }
 

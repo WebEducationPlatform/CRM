@@ -6,6 +6,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,7 @@ public class ScheduleTasks {
 		Status newClientsStatus = statusService.getFirstStatusForClient();
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
+		newClient.setDateOfRegistration(LocalDateTime.now().toDate());
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
 		ClientHistory clientHistory = new ClientHistory(socialNetworkTypeService.getByTypeName("vk"));
 		clientHistoryService.generateValidHistory(clientHistory, newClient);

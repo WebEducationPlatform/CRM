@@ -12,4 +12,15 @@ public interface ClientRepositoryCustom {
 	List<Client> getChangeActiveClients();
 
 	void updateBatchClients(List<Client> clients);
+
+	List getClientsEmail();
+
+	List<String> getClientsPhoneNumber();
+
+	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
+
 }

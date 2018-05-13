@@ -1,3 +1,24 @@
+#show-area {
+	padding-left: 0px;
+	margin-top: 15px;
+}
+
+#textArea1 {
+	resize: none;
+}
+
+
+#textTemplateArea {
+	width: 100%;
+	padding: 15px;
+	resize: none;
+}
+
+.head-padding {
+	padding-top: 15px;
+}
+
+
 .text-board {
 	word-wrap:break-word;
 }
@@ -313,6 +334,8 @@ ul.nav a:hover {
 
 
 input[id^="checkbox-user"] { display: none; }
+input[id^="ipTel"] { display: none; }
+
 
 input[type="checkbox"] + label {
 	display: block;
@@ -419,7 +442,7 @@ h4.modal-title {
 	margin-top: 50px;
 }
 
-#saveChanges, #editClientBtn, #backToMain , #editUser, #saveTemplate{
+#saveChanges, #editClientBtn, #backToMain , #editUser, #saveTemplate, #backToMain1,#saveTemplate1{
 	margin-right:15px;
 	margin-bottom: 10px;
 	border-radius: 10%;
@@ -486,7 +509,7 @@ button[name|="emailTmplList"] {
 	background-color: transparent;
 }
 
-#sendCustomEmailTemplateStatus {
+#sendCustomMessageTemplateStatus {
 	float: left;
 }
 
@@ -499,6 +522,13 @@ li[id^="eTemplate"] {
 }
 
 a[id^="eTemplateBtn"] {
+	width: 100%;
+	width: -moz-available;
+	width: -webkit-fill-available;  /*так и должно быть*/
+	width: fill-available; /*тут тоже*/
+}
+
+a[id^="VKtemplate"] {
 	width: 100%;
 	width: -moz-available;
 	width: -webkit-fill-available;  /*так и должно быть*/

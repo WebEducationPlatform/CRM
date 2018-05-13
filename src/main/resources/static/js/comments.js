@@ -159,5 +159,3 @@ $(document).on('click', '.hide-show', function () {
         e.show();
     }
 });
-
-//TODO Методы перенесены в notification.js

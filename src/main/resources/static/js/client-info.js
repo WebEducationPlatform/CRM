@@ -135,25 +135,27 @@ $(window).keydown(function (event) {
     }
 });
 
-function deleteSocial(id) {
-    $('#deleteSocial' + id).parent().parent().remove();
+function deleteSocial(element) {
+	$(element).parent().parent().remove();
 }
 
-function deleteJob(id) {
-    $('#deleteJob' + id).parent().parent().remove();
+function deleteJob(element) {
+	$(element).parent().parent().remove();
 }
 
 var SNs="";
-function addNewSN(snid) {
+function addNewSN() {
     if(SNs.length===0){
-        console.log("Массив SocialMarkers пуст!");
+        console.log("Массив socialNetworkTypes пуст!");
         return;
     }
-    $("#SN-table-body").append("<tr><td hidden=\"hidden\" id=\"edit-client-SN_" + snid + "_id\"></td><td id=\"edit-client-SN_" + snid + "_link\"></td><td id=\"edit-client-SN_" + snid + "_type\"></td><td><button type=\"button\" id=\"deleteSocial" + snid + "\" onclick=\"deleteSocial('" + snid + "')\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+	var size =  ($("#SN-table-body")[0]).rows.length;
+	$("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
-function addNewJob(jobid) {
-    $("#job-table-body").append("<tr><td hidden=\"hidden\" id=\"edit-client-job_" + jobid + "_id\"></td><td id=\"edit-client-job_" + jobid + "_organization\"></td><td id=\"edit-client-job_" + jobid + "_position\"></td><td><button type=\"button\" id=\"deleteJob" + jobid + "\" onclick=\"deleteJob('" + jobid + "')\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+function addNewJob() {
+    var size =  ($("#job-table-body")[0]).rows.length;
+    $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function revertUnable() {
@@ -186,19 +188,19 @@ $(function () {
     })
 });
 
-var socialMarkers = [];
+var socialNetworkTypes = [];
 
 $(document).ready(function () {
 
-    var url = '/user/socialMarkers';
+    var url = '/user/socialNetworkTypes';
     $.ajax({
         type: 'get',
         url: url,
         dataType: 'json',
         success: function (res) {
-            socialMarkers=res;
-            $.each(socialMarkers,function (index, marker) {
-                SNs = SNs + "<option>"+ marker + "</option>"
+            socialNetworkTypes=res;
+            $.each(socialNetworkTypes,function (index, type) {
+                SNs = SNs + "<option>"+ type + "</option>"
             });
         },
         error: function (error) {

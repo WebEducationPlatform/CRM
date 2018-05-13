@@ -20,13 +20,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Component
@@ -125,13 +125,15 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg) {
+	public String sendMessageToClient(Client client, String msg , Map<String, String> params ) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
-				return sendMessageById(id, msg);
+				String vkText = replaceName(msg,params);
+				return sendMessageById(id, vkText);
 			}
+
 		}
 		logger.error("{} hasn't vk social network", client.getEmail());
 		return client.getName() + " hasn't vk social network";
@@ -149,9 +151,9 @@ public class VKUtil {
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
-							.setDefaultRequestConfig(RequestConfig.custom()
-							.setCookieSpec(CookieSpecs.STANDARD).build())
-							.build();
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
 		try {
 			HttpResponse response = httpClient.execute(request);
 			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
@@ -297,6 +299,14 @@ public class VKUtil {
 		socialNetworks.add(socialNetwork);
 		client.setSocialNetworks(socialNetworks);
 		return client;
+	}
+
+	private String replaceName(String msg,Map<String, String> params ) {
+		String vkText = msg;
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+		}
+		return vkText;
 	}
 }
 

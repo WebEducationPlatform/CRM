@@ -29,7 +29,7 @@
             </div>
             <div class="form-group">
                 <label for="edit-client-phone-number">Номер телефона</label>
-                <input type="number" class="form-control" disabled="disabled" id="edit-client-phone-number" th:value="${client.phoneNumber}"/>
+                <input type="tel" class="form-control" disabled="disabled" id="edit-client-phone-number" th:value="${client.phoneNumber}"/>
             </div>
             <div class="form-group">
                 <label for="edit-client-email">Email</label>
@@ -74,16 +74,16 @@
                     </thead>
                     <tbody id = "SN-table-body">
                     <tr th:each="socials:${client.socialNetworks}">
-                        <td  hidden="hidden" th:id="'edit-client-SN_' + ${socials.id} + '_id'" th:value="${socials.id}" th:text="${socials.id}"></td>
-                        <td th:id="'edit-client-SN_'+ ${socials.id} + '_link'" th:value="${socials.link}" th:text="${socials.link}"></td>
-                        <td th:id="'edit-client-SN_type'" th:value="${socials.socialNetworkType.id}" th:text="${socials.socialNetworkType.name}"></td>
-                        <td><button disabled="disabled" type="button" th:id="'deleteSocial'+${socials.id}" th:onclick="'deleteSocial(\''+ ${socials.id} +'\')'" class="glyphicon glyphicon-remove"></button></td>
+                        <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
+                        <td th:value="${socials.link}" th:text="${socials.link}"></td>
+                        <td th:value="${socials.socialNetworkType.id}" th:text="${socials.socialNetworkType.name}"></td>
+                        <td><button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'" class="glyphicon glyphicon-remove"></button></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             </form>
-            <button class="btn btn-md btn-info" disabled="disabled" id = "addNewSN" th:onclick="'addNewSN(' + ${client.socialNetworks.size()+1} + ')'">Добавить соц. сеть</button>
+            <button class="btn btn-md btn-info" disabled="disabled" id = "addNewSN" th:onclick="'addNewSN()'">Добавить соц. сеть</button>
             <form id="job-client-from">
                 <div class="form-group">
                     <label>Работа</label>
@@ -98,15 +98,15 @@
                         <tbody id = "job-table-body">
                         <tr th:each="job:${client.jobs}">
                             <td  hidden="hidden" th:id="'edit-client-job'+ ${job.id} + '_id'" th:value="${job.id}" th:text="${job.id}"></td>
-                            <td th:id="'edit-client-job_'+ ${job.id} + '_organization'" th:value="${job.organization}" th:text="${job.organization}"></td>
-                            <td th:id="'edit-client-job_' + ${job.id} + '_postion'" th:value="${job.position}" th:text="${job.position}"></td>
-                            <td><button disabled="disabled" type="button" th:id="'deleteJob'+${job.id}" th:onclick="'deleteJob(\''+ ${job.id} +'\')'" class="glyphicon glyphicon-remove"></button></td>
+                            <td th:value="${job.organization}" th:text="${job.organization}"></td>
+                            <td th:value="${job.position}" th:text="${job.position}"></td>
+                            <td><button disabled="disabled" type="button" th:onclick="'deleteJob('+ this + ')'" class="glyphicon glyphicon-remove"></button></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </form>
-            <button class="btn btn-md btn-info" disabled="disabled" id = "addNewJob" th:onclick="'addNewJob(' + ${client.jobs.size()+1} + ')'">Добавить работу</button>
+            <button class="btn btn-md btn-info" disabled="disabled" id = "addNewJob" th:onclick="'addNewJob()'">Добавить работу</button>
         </div>
         <div class="col-md-6"></div>
     </div>

@@ -35,11 +35,11 @@ public class ImageConfig {
 	}
 
 	private void checkConfig() {
-		if (pathForAvatar == null || "".equals(pathForAvatar)) {
+		if (pathForAvatar == null || pathForAvatar.isEmpty()) {
 			logger.error("Path for avatars not specified");
 			System.exit(-1);
 		}
-		if (pathForImages == null || "".equals(pathForImages)) {
+		if (pathForImages == null || pathForImages.isEmpty()) {
 			logger.error("Path for images not specified");
 			System.exit(-1);
 		}
