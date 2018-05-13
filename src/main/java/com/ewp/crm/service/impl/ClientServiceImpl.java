@@ -82,6 +82,7 @@ public class ClientServiceImpl implements ClientService {
     public void addClient(Client client) {
         clientRepository.saveAndFlush(client);
     }
+
 	@Override
 	public List<String> getClientsEmails() {
 		return clientRepository.getClientsEmail();
@@ -105,11 +106,6 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition) {
 		return clientRepository.getFilteredClientsSNLinks(filteringCondition);
-	}
-
-	@Override
-	public void addClient(Client client) {
-		clientRepository.saveAndFlush(client);
 	}
 
     @Override

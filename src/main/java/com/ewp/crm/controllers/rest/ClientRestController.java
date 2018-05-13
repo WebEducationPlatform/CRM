@@ -103,9 +103,9 @@ public class ClientRestController {
 	}
 
 	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
-	public ResponseEntity updateClient(@RequestBody Client client) {
+	public ResponseEntity updateClient(@RequestBody Client currentClient) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+		for (SocialNetwork socialNetwork : currentClient.getSocialNetworks()) {
 			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
 					socialNetwork.getSocialNetworkType().getName()).getId());
 		}
@@ -116,6 +116,7 @@ public class ClientRestController {
 		currentClient.setStatus(clientFromDB.getStatus());
 		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
+		currentClient.setNotifications(clientFromDB.getNotifications());
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.UPDATE_CLIENT, currentAdmin);
 		clientHistoryService.generateValidHistory(clientHistory, currentClient);
 		currentClient.addHistory(clientHistory);
@@ -134,7 +135,7 @@ public class ClientRestController {
 
 	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
 			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
 					socialNetwork.getSocialNetworkType().getName()).getId());
@@ -146,7 +147,7 @@ public class ClientRestController {
 		clientHistoryService.generateValidHistory(clientHistory, client);
 		client.addHistory(clientHistory);
 		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 

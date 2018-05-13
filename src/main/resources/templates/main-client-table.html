@@ -73,8 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body" data-toggle="modal" th:onclick="'markAsReadMenu('+ ${client.id} +')'"
-                     th:attrappend="data-target=@{#client-__${client.id}__-modal}">
+                <div class="portlet-body" th:onclick="'markAsReadMenu('+ ${client.id} +')'" th:name = "'client-'+${client.id} + '-modal'">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="portlet-content">
@@ -96,7 +95,6 @@
                                 </th:block>
                             </th:block>
                         </div>
-                    </div>
                 </div>
                 <div class="btn-group">
                     <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
@@ -151,6 +149,7 @@
                     <!--/ SMS ERROR INFO BTN -->
 
                 </div>
+                </div>
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
                 <div th:id="'client-'+${client.id}+'-modal'" class="modal fade" role="dialog" data-keyboard="false">
@@ -193,7 +192,11 @@
                                             <tr>
                                                 <td>Номер телефона: </td>
                                                 <td th:text="${client.phoneNumber}"></td>
-                                                <td><a class="btn btn-default btn btn-light btn-xs "><span class="glyphicon glyphicon-earphone"></span></a></td>
+                                                <td>
+                                                    <a class="btn btn-default btn btn-light btn-xs ">
+                                                    <span th:onclick="'callToClient(\'' + ${#authentication.getPrincipal().getPhoneNumber()} + '\',\'' +  ${client.phoneNumber} + '\')'"
+                                                          class="glyphicon glyphicon-earphone"></span></a>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Возраст: </td>

@@ -79,7 +79,7 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
-	@Scheduled(fixedRate = 100_000)
+	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
 		try {
 			Optional<List<String>> newMassages = vkUtil.getNewMassages();
@@ -103,7 +103,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 100_000)
+	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
