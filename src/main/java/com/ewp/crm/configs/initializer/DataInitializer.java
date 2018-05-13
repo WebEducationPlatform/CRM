@@ -24,7 +24,7 @@ public class DataInitializer {
 	private RoleService roleService;
 
 	@Autowired
-	private EmailTemplateService emailTemplateService;
+	private MessageTemplateService MessageTemplateService;
 
 	@Autowired
 	private SocialNetworkTypeService socialNetworkTypeService;
@@ -84,26 +84,33 @@ public class DataInitializer {
 				"<p>%bodyText%</p>\n" +
 				"</body>\n" +
 				"</html>";
-		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3);
-		EmailTemplate emailTemplate2 = new EmailTemplate("Оплата за обучение", templateText2);
-		EmailTemplate emailTemplate1 = new EmailTemplate("После разговора", templateText1);
-		emailTemplateService.add(emailTemplate1);
-		emailTemplateService.add(emailTemplate2);
-		emailTemplateService.add(emailTemplate3);
+
+		String otherText3 = "Добрый день , %fullName%! \n Mы не смогли до Вас довзониться \n" +
+				"Пожалуйста, свяжитесь с нами \n" + "С наилучшими пожеланиями, команда JavaMentor";
+		String otherText2 = "Добрый день, %fullName%! \n  Напоминаем, что необходимо опатить обучение за следующий  месяц \n " +
+				"С наилучшими пожеланиями, команда JavaMentor";
+		String otherText1 = "%bodyText%";
+
+		MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
+		MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
+		MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1);
+		MessageTemplateService.add(MessageTemplate1);
+		MessageTemplateService.add(MessageTemplate2);
+		MessageTemplateService.add(MessageTemplate3);
 
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
-		Client client1 = new Client("Юрий", "Долгоруков", "79891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
-		client1.addSMSInfo(new SMSInfo(123, "Hello client 1", admin));
-		client1.addSMSInfo(new SMSInfo(456, "Hello client 1 repeat", admin));
-		Client client2 = new Client("Вадим", "Бойко", "79687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
-		client2.addSMSInfo(new SMSInfo(789, "Hello client 2", admin));
-		client2.addSMSInfo(new SMSInfo(1234, "Hello client 2 repeat", admin));
-		Client client3 = new Client("Александра", "Соловьева", "", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
-		client3.addSMSInfo(new SMSInfo(78942, "Hello client 3", admin));
-		Client client4 = new Client("Иван", "Федоров", "79637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
+
+		Client client1 = new Client("Юрий", "Долгоруков", "89891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
+		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
+		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
+		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
+		client1.addSMSInfo(new SMSInfo(123456789, "SMS Message to client", admin));
+		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client", admin));
+		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client", admin));
+		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client", admin));
 		client1.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client2.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));
 		client3.addHistory(new ClientHistory("Клиент был добавлен при инициализации CRM"));

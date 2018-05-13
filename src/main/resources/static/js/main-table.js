@@ -1,20 +1,25 @@
-$(function () {
-    $('.open-description-btn').on('click', function (event) {
-        var id = $(this).data('id');
-        var infoClient = $('#info-client' + id);
-        var text = infoClient.find('.client-description').text();
-        var testModal = $('#TestModal');
 
-        testModal.find('textarea').val(text);
-        testModal.find('button').remove();
-        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
-        testModal.modal('show');
+
+// Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
+$(function () {
+    $('.select_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox').prop('checked', true);
+        currentForm.find('.deselect_all').prop('checked', false);
+    });
+});
+
+$(function () {
+    $('.deselect_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox').prop('checked', false);
     });
 });
 
 
+//Сохранить заметку на лицевой стороне карточки
 function saveDescription(id) {
-    let text = $('#TestModal').find('textarea').val();
+    let text =  $('#TestModal').find('textarea').val();
     let
         url = 'rest/client/addDescription',
         formData = {
@@ -35,10 +40,12 @@ function saveDescription(id) {
 }
 
 
+
+
 $(document).ready(function () {
     $(".column").sortable({
-        delay: 100,
-        items: '> .portlet',
+    delay:100,
+	items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -54,9 +61,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function () {
-        $("#new-status-name").keypress(function (e) {
-            if (e.keyCode === 13) {
+    $(document).ready(function(){
+        $("#new-status-name").keypress(function(e){
+            if(e.keyCode===13){
                 createNewStatus();
             }
         });
@@ -78,20 +85,20 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-    /* $("#new-status-form").focusout(
-         function () {
-             $(this).hide();
-             $("#create-new-status-span").show();
-         });*/
+   /* $("#new-status-form").focusout(
+        function () {
+            $(this).hide();
+            $("#create-new-status-span").show();
+        });*/
 
-    //Search clients in main
+   //Search clients in main
     $("#search-clients").keyup(function () {
         //split input data by space
         let data = this.value.split(" ");
         //take portlet data
         let portletArr = $(".portlet");
         //if input data is empty: show all and return
-        if (this.value.trim() === '') {
+        if(this.value.trim() === ''){
             portletArr.show();
             return;
         }
@@ -101,8 +108,8 @@ $(document).ready(function () {
             //filtering by data in portlet body
             let portlet = $(this).find(".portlet-body");
             let $validCount = 0;
-            for (let i = 0; i < data.length; i++) {
-                if (portlet.is(":contains('" + data[i] + "')")) {
+            for (let i = 0; i < data.length; i++){
+                if(portlet.is(":contains('"+ data[i] +"')")){
                     $validCount++;
                 }
             }
@@ -114,7 +121,6 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
-
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
@@ -167,8 +173,8 @@ function createNewUser() {
 
 function createNewStatus() {
     let url = '/rest/status/add';
-    let statusName = $('#new-status-name').val() || $('#default-status-name').val();
-    if (typeof statusName === "undefined" || statusName === "") return;
+    let statusName = $('#new-status-name').val() ||  $('#default-status-name').val();
+    if(typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
@@ -192,7 +198,7 @@ function changeStatusName(id) {
     let statusName = $("#change-status-name" + id).val();
     let formData = {
         statusName: statusName,
-        oldStatusId: id
+        oldStatusId:id
     };
 
     $.ajax({
@@ -223,7 +229,7 @@ function senReqOnChangeStatus(clientId, statusId) {
         success: function (data) {
             let
                 url = '/rest/client/' + clientId;
-            $.get(url,
+            $.get(url, 
                 function (data) {
                     $('#client-' + data.id + 'history').prepend(
                         "<li>" +
@@ -268,14 +274,14 @@ function assign(id) {
         success: function (owner) {
             assignBtn.before(
                 "<button " +
-                "   id='unassign-client" + id + "' " +
-                "   onclick='unassign(" + id + ")' " +
+                "   id='unassign-client" + id +"' " +
+                "   onclick='unassign(" + id +")' " +
                 "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
-                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                    owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -285,13 +291,12 @@ function assign(id) {
         }
     });
 }
-
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign: user
+            userForAssign : user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -301,32 +306,32 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/admin/client/clientInfo/" + id + "']"),
+                target_btn = $("a[href='/admin/client/clientInfo/"+ id +"']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
 
             //If admin assigned himself
-            if (principalId === user) {
+            if(principalId === user){
                 //If admin assigned himself second time
-                if (unassign_btn.length === 0) {
+                if(unassign_btn.length === 0){
                     target_btn.before(
                         "<button " +
-                        "   id='unassign-client" + id + "' " +
-                        "   onclick='unassign(" + id + ")' " +
+                        "   id='unassign-client" + id +"' " +
+                        "   onclick='unassign(" + id +")' " +
                         "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
                     );
                 }
                 //If admin not assign himself, he don`t have unassign button
-            } else {
+            }else {
                 unassign_btn.remove();
             }
             assignBtn.remove();
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -353,19 +358,19 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if (unassignBtn.length !== 0) {
+            if(unassignBtn.length !== 0){
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id + ")' " +
+                    "   onclick='assign(" + id +")' " +
                     "   class='btn btn-sm btn-info'>взять себе карточку</button>"
                 );
                 unassignBtn.remove();
-            } else {
-                $("a[href='/admin/client/clientInfo/" + id + "']").before(
+            }else{
+                $("a[href='/admin/client/clientInfo/"+ id +"']").before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id + ")' " +
+                    "   onclick='assign(" + id +")' " +
                     "   class='btn btn-md btn-info'>взять себе карточку</button>"
                 );
             }
@@ -384,14 +389,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data = [];
-        for (var w = 0; w < allChecks.length; ++w) {
-            if (allChecks[w].checked) {
-                data[data.length] = allChecks[w].value;
+        var data=[];
+        for (var w = 0; w < allChecks.length; ++w){
+            if(allChecks[w].checked){
+                data[data.length]=allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length === 0) {
+        if (data.length===0) {
             jo.show();
             return;
         }
@@ -415,7 +420,7 @@ function fillFilterList() {
     var names = $("#status-columns").find($(".user-icon"));
     if (names.length === 0) {
         $("#client_filter_group").hide();
-    } else {
+    }else {
         $("#client_filter_group").show();
     }
     var uniqueNames = [];
@@ -469,7 +474,7 @@ $(document).ready(function () {
     $("#createDefaultStatus").modal({
         backdrop: 'static',
         keyboard: false
-    }, 'show');
+    },'show');
 });
 
 $(document).ready(fillFilterList);
@@ -482,13 +487,13 @@ $(document).ready(function () {
     $.ajax({
         type: 'get',
         url: url,
-        dataType: 'json',
+        dataType : 'json',
         success: function (res) {
             for (var i = 0; i < res.length; i++) {
                 userNames[i] = res[i].firstName + res[i].lastName;
             }
         },
-        error: function (error) {
+        error : function (error) {
             console.log(error);
         }
     });
@@ -530,51 +535,31 @@ function deleteUser(id) {
     });
 }
 
-
-function callToClient(userNumber, clientNumber) {
-    let url = '/user/rest/call/voximplant';
-    let formData = {
-        from: userNumber,
-        to: clientNumber
-    };
-    $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-
-            error: function (e) {
-                console.log(e)
-            }
-
-        }
-    )
-
-}
-
-function sendTempate(clientId, templateId) {
-    let url = '/rest/sendEmail';
+function sendMessageVK(clientId, templateId) {
+    let url = '/rest/vkontakte';
     let formData = {
         clientId: clientId,
         templateId: templateId
     };
     var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
-    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
+    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
     $.ajax({
         type: "POST",
         url: url,
         data: formData,
 
-        beforeSend: function () {
-            current.textContent = "Отправка..";
+        beforeSend: function(){
+            current.textContent ="Отправка..";
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            $(".modal").modal('hide');
-            current.textContent = "Да";
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+            current.textContent ="Да";
             current.removeAttribute("disabled");
         },
         error: function (e) {
-            current.textContent = "Да";
+            current.textContent ="Да";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";
             currentStatus.textContent = "Ошибка";
@@ -583,38 +568,31 @@ function sendTempate(clientId, templateId) {
     });
 }
 
-function sendCustomTempate(clientId, templateId) {
-    let url = '/rest/sendEmail';
-    body = $('#custom-eTemplate-body' + clientId + templateId).val();
+function sendTempate(clientId, templateId) {
+    let url = 'rest/sendEmail';
     let formData = {
         clientId: clientId,
-        templateId: templateId,
-        body: body
+        templateId: templateId
     };
-    var current = $("#sendCustomTemplateBtn" + clientId + templateId)[0];
-    var currentStatus = $("#sendCustomEmailTemplateStatus" + clientId + templateId)[0];
-    if (body === "") {
-        currentStatus.style.color = "red";
-        currentStatus.textContent = "Введите текст";
-        return false;
-    }
+    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
     $.ajax({
         type: "POST",
         url: url,
         data: formData,
-        beforeSend: function () {
-            current.textContent = "Отправка..";
-            current.setAttribute("disabled", "true");
-            currentStatus.textContent = "";
+
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            $(".modal").modal('hide');
-            $("#custom-eTemplate-body" + clientId + templateId).val("");
-            current.textContent = "Отправить";
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+            current.textContent ="Да";
             current.removeAttribute("disabled");
         },
         error: function (e) {
-            current.textContent = "Отправить";
+            current.textContent ="Да";
             current.removeAttribute("disabled");
             currentStatus.style.color = "red";
             currentStatus.textContent = "Ошибка";
@@ -622,6 +600,127 @@ function sendCustomTempate(clientId, templateId) {
         }
     });
 }
+
+
+$(function () {
+    $('.open-description-btn').on('click', function(event) {
+        var id = $(this).data('id');
+        var infoClient =  $('#info-client'+ id);
+        var text = infoClient.find('.client-description').text();
+        var testModal = $('#TestModal');
+
+        testModal.find('textarea').val(text);
+        testModal.find('button').remove();
+        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
+        testModal.modal('show');
+    });
+});
+
+//Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
+$(function () {
+    $('.save_value').on('click', function(event) {
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList =sel.get();
+        console.log(sel.get());
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            data: JSON.stringify(boxList),
+            url:"/rest/sendSeveralMessage",
+            success:function(result){
+                alert('sucess')
+            }
+        });
+    })
+});
+
+$(function () {
+    $('.send-all-message').on('click', function (event) {
+            var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+                return $(el).val();
+            });
+        var clientId = $(this).data('clientId');
+        var templateId = $(this).data('templateId');
+        var boxList = JSON.stringify(sel.get());
+        let formData = {
+            boxList: boxList,
+            clientId: clientId,
+            templateId: templateId
+        };
+
+
+        var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+        var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
+        $.ajax({
+            type: "POST",
+            url: '/rest/messages',
+            data: formData,
+
+            beforeSend: function () {
+                current.textContent = "Отправка..";
+                current.setAttribute("disabled", "true")
+            },
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
+                current.textContent = "Да";
+                current.removeAttribute("disabled");
+            },
+            error: function (e) {
+                current.textContent = "Да";
+                current.removeAttribute("disabled");
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
+    });
+});
+
+
+
+$(function () {
+    $('.send-all-custom-message').on('click', function(event) {
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+        var boxList = JSON.stringify(sel.get());
+        var clientId = $(this).data('clientId');
+    let url = '/rest/messages/custom';
+    let formData = {
+        clientId: clientId,
+        boxList: boxList,
+        body: $('#custom-eTemplate-body').val()
+    };
+    var current = $("#sendCustomTemplateBtn")[0];
+    var currentStatus = $("#sendCustomMessageTemplateStatus")[0];
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        beforeSend: function(){
+            current.textContent ="Отправка..";
+            current.setAttribute("disabled", "true")
+        },
+        success: function (result) {
+            current.textContent ="Отправить";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+        },
+        error: function (e) {
+            current.textContent ="Отправить";
+            current.removeAttribute("disabled");
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+});
+});
 
 function hideClient(clientId) {
     let url = 'admin/rest/client/postpone';
@@ -646,8 +745,8 @@ function hideClient(clientId) {
 
 $(document).ready(function () {
     var nowDate = new Date();
-    var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
-    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
+    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
@@ -660,7 +759,6 @@ $(document).ready(function () {
         startDate: minDate
     });
 });
-
 $(function () {
     $('.portlet-body').on('click', function (e) {
         if (e.target.className.startsWith("portlet-body") !== -1) {

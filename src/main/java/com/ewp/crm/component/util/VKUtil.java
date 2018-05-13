@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.service.interfaces.SocialNetworkService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -19,13 +20,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Component
@@ -43,8 +44,10 @@ public class VKUtil {
 
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
 
+	private final SocialNetworkService socialNetworkService;
+
 	@Autowired
-	public VKUtil(VKConfig vkConfig) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -52,6 +55,7 @@ public class VKUtil {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
+		this.socialNetworkService = socialNetworkService;
 	}
 
 	@PostConstruct
@@ -121,12 +125,15 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg) {
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
+	public String sendMessageToClient(Client client, String msg , Map<String, String> params ) {
+		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
+		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
-				return sendMessageById(id, msg);
+				String vkText = replaceName(msg,params);
+				return sendMessageById(id, vkText);
 			}
+
 		}
 		logger.error("{} hasn't vk social network", client.getEmail());
 		return client.getName() + " hasn't vk social network";
@@ -144,9 +151,9 @@ public class VKUtil {
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
-							.setDefaultRequestConfig(RequestConfig.custom()
-							.setCookieSpec(CookieSpecs.STANDARD).build())
-							.build();
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
 		try {
 			HttpResponse response = httpClient.execute(request);
 			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
@@ -222,14 +229,12 @@ public class VKUtil {
 			JSONObject jsonUser = jsonUsers.getJSONObject(0);
 			String name = jsonUser.getString("first_name");
 			String lastName = jsonUser.getString("last_name");
-			String vkLink = "vk.com/id" + id.toString();
+			String vkLink = "vk.com/id" + id;
 			Client client = new Client(name, lastName);
 			SocialNetwork socialNetwork = new SocialNetwork(vkLink);
 			List<SocialNetwork> socialNetworks = new ArrayList<>();
 			socialNetworks.add(socialNetwork);
 			client.setSocialNetworks(socialNetworks);
-
-
 			return Optional.of(client);
 		} catch (JSONException e) {
 			logger.error("Can not read message from JSON");
@@ -294,6 +299,14 @@ public class VKUtil {
 		socialNetworks.add(socialNetwork);
 		client.setSocialNetworks(socialNetworks);
 		return client;
+	}
+
+	private String replaceName(String msg,Map<String, String> params ) {
+		String vkText = msg;
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+		}
+		return vkText;
 	}
 }
 

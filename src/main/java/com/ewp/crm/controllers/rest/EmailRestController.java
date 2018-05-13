@@ -2,10 +2,10 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.EmailTemplate;
+import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
+import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +28,15 @@ import java.util.Map;
 public class EmailRestController {
 
 	private final MailSendService mailSendService;
-	private final EmailTemplateServiceImpl emailTemplateService;
+	private final MessageTemplateServiceImpl MessageTemplateService;
 	private final ClientService clientService;
 	private final ImageConfig imageConfig;
 
 
 	@Autowired
-	public EmailRestController(MailSendService mailSendService, EmailTemplateServiceImpl emailTemplateService, ClientService clientService, ImageConfig imageConfig) {
+	public EmailRestController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig) {
 		this.mailSendService = mailSendService;
-		this.emailTemplateService = emailTemplateService;
+		this.MessageTemplateService = MessageTemplateService;
 		this.clientService = clientService;
 		this.imageConfig = imageConfig;
 	}
@@ -54,11 +54,19 @@ public class EmailRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@RequestMapping(value = {"/admin/editEmailTemplate"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/admin/editMessageTemplate"}, method = RequestMethod.POST)
 	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
-		EmailTemplate emailTemplate = emailTemplateService.get(templateId);
-		emailTemplate.setTemplateText(templateText);
-		emailTemplateService.update(emailTemplate);
+		MessageTemplate MessageTemplate = MessageTemplateService.get(templateId);
+		MessageTemplate.setTemplateText(templateText);
+		MessageTemplateService.update(MessageTemplate);
+		return ResponseEntity.ok().build();
+	}
+
+	@RequestMapping(value = {"/admin/editOtherTemplate"}, method = RequestMethod.POST)
+	public ResponseEntity editOtherETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
+		MessageTemplate otherTemplate = MessageTemplateService.get(templateId);
+		otherTemplate.setOtherText(templateText);
+		MessageTemplateService.update(otherTemplate);
 		return ResponseEntity.ok().build();
 	}
 

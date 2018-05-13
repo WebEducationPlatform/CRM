@@ -26,7 +26,7 @@ public class ClientController {
 
 	private final UserService userService;
 
-	private final EmailTemplateService emailTemplateService;
+	private final MessageTemplateService MessageTemplateService;
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
@@ -34,11 +34,11 @@ public class ClientController {
 
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
+	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
-		this.emailTemplateService = emailTemplateService;
+		this.MessageTemplateService = MessageTemplateService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
 	}
@@ -58,7 +58,7 @@ public class ClientController {
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
+		modelAndView.addObject("emailTmpl", MessageTemplateService.getall());
 		return modelAndView;
 	}
 

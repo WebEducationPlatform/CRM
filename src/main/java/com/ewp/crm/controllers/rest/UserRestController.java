@@ -51,7 +51,7 @@ public class UserRestController {
 	}
 
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
-	public ResponseEntity updateClient(@RequestBody User user) {
+	public ResponseEntity updateUser(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Optional<String> userPhoto = Optional.ofNullable(user.getPhoto());
 		Optional<String> currentPhoto = Optional.ofNullable(userService.get(user.getId()).getPhoto());
@@ -94,7 +94,7 @@ public class UserRestController {
 
 
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
-	public ResponseEntity addClient(@RequestBody User user) {
+	public ResponseEntity addUser(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		userService.update(user);
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
