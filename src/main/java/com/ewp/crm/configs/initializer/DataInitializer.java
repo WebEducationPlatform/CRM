@@ -89,7 +89,7 @@ public class DataInitializer {
 				"Пожалуйста, свяжитесь с нами \n" + "С наилучшими пожеланиями, команда JavaMentor";
 		String otherText2 = "Добрый день, %fullName%! \n  Напоминаем, что необходимо опатить обучение за следующий  месяц \n " +
 				"С наилучшими пожеланиями, команда JavaMentor";
-		String otherText1 = "Доброго времени суток! Мы рассмотрели вашу заявку";
+		String otherText1 = "%bodyText%";
 
 		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3, otherText3);
 		EmailTemplate emailTemplate2 = new EmailTemplate("Оплата за обучение", templateText2, otherText2);

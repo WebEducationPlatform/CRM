@@ -41,12 +41,10 @@ public class VkRestController {
 		Client client = clientService.getClientByID(clientId);
 		String vkText = emailTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params1 = new HashMap<>();
-		params1.put("%fullName%", fullName);
-		for (Map.Entry<String, String> entry : params1.entrySet()) {
-			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
-			vkUtil.sendMessageToClient(client, vkText);
-		}
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+
+		vkUtil.sendMessageToClient(client, vkText, params);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 }

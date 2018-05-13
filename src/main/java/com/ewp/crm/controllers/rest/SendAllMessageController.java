@@ -45,12 +45,10 @@ public class SendAllMessageController {
 			Client client = clientService.getClientByID(clientId);
 			String vkText = emailTemplateService.get(templateId).getOtherText();
 			String fullName = client.getName() + " " + client.getLastName();
-			Map<String, String> params1 = new HashMap<>();
-			params1.put("%fullName%", fullName);
-			for (Map.Entry<String, String> entry : params1.entrySet()) {
-				vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
-				vkUtil.sendMessageToClient(client, vkText);
-			}
+			Map<String, String> params = new HashMap<>();
+			params.put("%fullName%", fullName);
+			vkUtil.sendMessageToClient(client, vkText, params);
+
 		}
 		if (boxList.contains("facebook")) {
 			System.out.println("FBесть!");
@@ -76,12 +74,10 @@ public class SendAllMessageController {
 		if (boxList.contains("vk")) {
 			Client client = clientService.getClientByID(clientId);
 			String vkText = emailTemplateService.get(1L).getOtherText();
-			Map<String, String> params1 = new HashMap<>();
-			params1.put("%bodyText%", body);
-			for (Map.Entry<String, String> entry : params1.entrySet()) {
-				vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
-				vkUtil.sendMessageToClient(client, vkText);
-			}
+			Map<String, String> params = new HashMap<>();
+			params.put("%bodyText%", body);
+			vkUtil.sendMessageToClient(client, vkText, params);
+
 		}
 		if (boxList.contains("facebook")) {
 			System.out.println("FBесть!");
