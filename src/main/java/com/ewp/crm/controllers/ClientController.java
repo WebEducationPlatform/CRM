@@ -32,15 +32,18 @@ public class ClientController {
 
 	private final NotificationService notificationService;
 
+	private final ClientHistoryService clientHistoryService;
+
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
+	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.emailTemplateService = emailTemplateService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
@@ -75,23 +78,27 @@ public class ClientController {
 	}
 
 	@RequestMapping(value = "/client/addClient", method = RequestMethod.POST)
-	public void addUser(Client client) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
+	public void addClient(Client client) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.ADD_CLIENT, principal);
+		clientHistoryService.generateValidHistory(clientHistory, client);
+		client.addHistory(clientHistory);
 		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/admin/client/updateClient", method = RequestMethod.POST)
-	public void updateUser(Client client) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил клиента"));
+	public void updateClient(Client client) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.UPDATE_CLIENT, principal);
+		clientHistoryService.generateValidHistory(clientHistory, client);
+		client.addHistory(clientHistory);
 		clientService.updateClient(client);
-		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has updated client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 	}
 
 	@RequestMapping(value = "/admin/client/deleteClient", method = RequestMethod.POST)
-	public void deleteUser(Client client) {
+	public void deleteClient(Client client) {
 		clientService.deleteClient(client);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		logger.info("{} has deleted client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());

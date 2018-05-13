@@ -16,13 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user/sms")
-public class SMSController {
+public class SMSRestController {
 
 	private final SMSUtil smsUtil;
 	private final ClientService clientService;
 
 	@Autowired
-	public SMSController(SMSUtil smsUtil, ClientService clientService) {
+	public SMSRestController(SMSUtil smsUtil, ClientService clientService) {
 		this.smsUtil = smsUtil;
 		this.clientService = clientService;
 	}

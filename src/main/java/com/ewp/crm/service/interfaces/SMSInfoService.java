@@ -8,7 +8,9 @@ public interface SMSInfoService {
 
 	List<SMSInfo> getAllSMS();
 
-	List<SMSInfo> getSMSbyDelivery(Boolean isDelivered);
+	List<SMSInfo> getBySMSIsChecked(boolean isChecked);
+
+	SMSInfo getById(long id);
 
 	void updateSMSInfo(SMSInfo smsInfo);
 

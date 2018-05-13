@@ -58,9 +58,10 @@ public class ScheduleTasks {
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SOCIAL_REQUEST, socialNetworkTypeService.getByTypeName("vk"));
+		clientHistoryService.generateValidHistory(clientHistory, newClient);
+		newClient.addHistory(clientHistory);
 		clientService.addClient(newClient);
-		ClientHistory clientHistory = new ClientHistory(newClient, ClientHistory.Type.SOCIAL_REQUEST, socialNetworkTypeService.getByTypeName("vk"));
-		clientHistoryService.addClientHistory(clientHistory);
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
@@ -124,21 +125,28 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 600_000)
+	@Scheduled(fixedRate = 6_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
-		List<SMSInfo> queueSMS = smsInfoService.getSMSbyDelivery(false);
+		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
 			String status = smsUtil.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
 				if (status.equals("delivered")) {
-					sms.setDelivered(true);
-					smsInfoService.updateSMSInfo(sms);
+					sms.setDeliveryStatus("доставлено");
 				} else {
-					String forView = determineStatusOfResponse(status);
-					sendNotificationService.sendNotification(forView, sms.getClient(), sms.getUser());
-					smsInfoService.deleteSMSInfo(sms.getId());
+					String deliveryStatus = determineStatusOfResponse(status);
+					sendNotificationService.sendNotification(deliveryStatus, sms.getClient(), sms.getUser());
+					sms.setDeliveryStatus(deliveryStatus);
 				}
+				sms.setChecked(true);
+				smsInfoService.updateSMSInfo(sms);
+				String link = "/user/sms/info/" + sms.getId();
+				Client client = clientService.getClientByID(sms.getClient().getId());
+				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SMS, sms.getUser(), link);
+				clientHistoryService.generateValidHistory(clientHistory, sms.getClient());
+				clientHistory.setClient(client);
+				clientHistoryService.addHistory(clientHistory);
 			}
 		}
 	}

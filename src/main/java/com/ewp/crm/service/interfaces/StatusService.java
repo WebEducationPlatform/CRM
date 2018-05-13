@@ -1,5 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 
@@ -25,5 +26,5 @@ public interface StatusService {
 
 	void delete(Long id);
 
-	void changeClientStatus(Long clientId, Long statusId);
+	void changeClientStatus(Client client, Long statusId);
 }

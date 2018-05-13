@@ -5,5 +5,6 @@ import com.ewp.crm.service.interfaces.EmailTemplateService;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EmailTemplateDAO extends JpaRepository<EmailTemplate, Long> {
+
 	EmailTemplate getByName(String templateName);
 }

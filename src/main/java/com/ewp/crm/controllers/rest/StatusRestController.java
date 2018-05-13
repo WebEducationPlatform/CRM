@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -16,16 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class StatusRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(StatusRestController.class);
+	private static Logger logger = LoggerFactory.getLogger(StatusRestController.class);
 
-    private final StatusService statusService;
-    private final ClientService clientService;
+	private final StatusService statusService;
+	private final ClientService clientService;
+	private final ClientHistoryService clientHistoryService;
 
-    @Autowired
-    public StatusRestController(StatusService statusService, ClientService clientService) {
-        this.statusService = statusService;
-        this.clientService = clientService;
-    }
+	@Autowired
+	public StatusRestController(StatusService statusService, ClientService clientService, ClientHistoryService clientHistoryService) {
+		this.statusService = statusService;
+		this.clientService = clientService;
+		this.clientHistoryService = clientHistoryService;
+	}
 
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
@@ -50,15 +53,15 @@ public class StatusRestController {
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.ok().build();
 		}
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String clientHistoryInfo = currentAdmin.getFullName() + " изменил статус"
-				+ " с " + currentClient.getStatus().getName()
-				+ " на " + statusService.get(statusId).getName();
-		currentClient.addHistory(new ClientHistory(clientHistoryInfo));
-		statusService.changeClientStatus(clientId, statusId);
-		logger.info("{} has changed status of client with id: {} to status id: {}", currentAdmin.getFullName(), clientId, statusId);
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		currentClient.setStatus(statusService.get(statusId));
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS, principal);
+		clientHistoryService.generateValidHistory(clientHistory, currentClient);
+		currentClient.addHistory(clientHistory);
+		clientService.updateClient(currentClient);
+		logger.info("{} has changed status of client with id: {} to status id: {}", principal.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();
 	}
 
@@ -73,18 +76,18 @@ public class StatusRestController {
 	@PostMapping("/admin/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    	Client client = clientService.getClientByID(clientId);
-    	if (client == null) {
-    		logger.error("Can`t delete client status, client with id = {} not found", clientId);
-    		return ResponseEntity.notFound().build();
-	    }
+		Client client = clientService.getClientByID(clientId);
+		if (client == null) {
+			logger.error("Can`t delete client status, client with id = {} not found", clientId);
+			return ResponseEntity.notFound().build();
+		}
 		Status status = client.getStatus();
-    	//TODO обсудить решение
-    	Status defaultStatus = statusService.get("default");
-    	client.setStatus(defaultStatus);
-    	client.addHistory(new ClientHistory(principal.getFullName() + " удалил клиента из статуса " + status.getName()));
-    	clientService.updateClient(client);
-    	logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());
-    	return ResponseEntity.ok().build();
+		client.setStatus(statusService.get("default"));
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS, principal);
+		clientHistoryService.generateValidHistory(clientHistory, client);
+		client.addHistory(clientHistory);
+		clientService.updateClient(client);
+		logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());
+		return ResponseEntity.ok().build();
 	}
 }

@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.joda.time.LocalDateTime;
@@ -30,12 +31,14 @@ public class ClientRestController {
 	private final ClientService clientService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
 	private final UserService userService;
+	private final ClientHistoryService clientHistoryService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,7 +65,6 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
-	//TODO hasAnyAuthority('ADMIN')
 	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
 	public ResponseEntity<User> assignUser(@RequestParam(name = "clientId") Long clientId,
 	                                       @RequestParam(name = "userForAssign") Long userId) {
@@ -106,8 +108,10 @@ public class ClientRestController {
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
 		currentClient.setStatus(clientFromDB.getStatus());
 		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
-		currentClient.addHistory(new ClientHistory(currentAdmin.getFullName() + " изменил профиль клиента"));
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.UPDATE_CLIENT, currentAdmin);
+		clientHistoryService.generateValidHistory(clientHistory, currentClient);
+		currentClient.addHistory(clientHistory);
 		clientService.updateClient(currentClient);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -123,10 +127,12 @@ public class ClientRestController {
 
 	@RequestMapping(value = "/rest/client/addClient", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		client.addHistory(new ClientHistory(currentAdmin.getFullName() + " добавил клиента"));
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.ADD_CLIENT, principal);
+		clientHistoryService.generateValidHistory(clientHistory, client);
+		client.addHistory(clientHistory);
 		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
+		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -249,10 +255,10 @@ public class ClientRestController {
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
 			client.setPostponeDate(postponeDate.toDate());
-			User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			client.addHistory(new ClientHistory(currentAdmin.getFullName() + " скрыл клиента до " + date));
+			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			client.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.POSTPONE, principal), client));
 			clientService.updateClient(client);
-			logger.info("{} has postponed client id:{} until {}", currentAdmin.getFullName(), client.getId(), date);
+			logger.info("{} has postponed client id:{} until {}", principal.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");

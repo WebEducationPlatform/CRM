@@ -24,11 +24,14 @@ public class ClientHistory {
 	private Date date = new Date();
 
 	@Column(name = "history_type", nullable = false)
+	@Enumerated(EnumType.STRING)
 	private Type type;
 
+	//Use for generate title only
 	@Transient
 	private User user;
 
+	//Use for generate title only
 	@Transient
 	private SocialNetworkType socialNetworkType;
 
@@ -47,19 +50,28 @@ public class ClientHistory {
 		this.title = title;
 	}
 
+	// System actions
+	public ClientHistory(Type type) {
+		this.type = type;
+	}
+
 	// Social actions
-	public ClientHistory(Client client, Type type, SocialNetworkType socialNetworkType) {
-		this.client = client;
+	public ClientHistory(Type type, SocialNetworkType socialNetworkType) {
 		this.type = type;
 		this.socialNetworkType = socialNetworkType;
 	}
 
 	// Worker actions
-	public ClientHistory(Client client, Type type, User user, String link) {
-		this.user = user;
-		this.link = link;
+	public ClientHistory(Type type, User user) {
 		this.type = type;
-		this.client = client;
+		this.user = user;
+	}
+
+	// Worker actions
+	public ClientHistory(Type type, User user, String link) {
+		this.type = type;
+		this.link = link;
+		this.user = user;
 	}
 
 	public void setTitle(String title) {
@@ -74,12 +86,12 @@ public class ClientHistory {
 		this.type = type;
 	}
 
-	public void setClient(Client client) {
-		this.client = client;
-	}
-
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public void setClient(Client client) {
+		this.client = client;
 	}
 
 	public Long getId() {
@@ -136,6 +148,9 @@ public class ClientHistory {
 
 
 	public enum Type {
+		SYSTEM,
+		ADD_CLIENT,
+		UPDATE_CLIENT,
 		STATUS,
 		SMS,
 		CALL,
