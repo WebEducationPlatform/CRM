@@ -3,8 +3,8 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.EmailTemplate;
-import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,22 +24,22 @@ public class VkRestController {
 
 	private final VKUtil vkUtil ;
 	private final ClientService clientService;
-	private final EmailTemplateServiceImpl emailTemplateService;
+	private final MessageTemplateServiceImpl MessageTemplateService;
 
 
 
 	@Autowired
-	public VkRestController(ClientService clientService, EmailTemplateServiceImpl emailTemplateService, VKUtil vkUtil1) {
+	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKUtil vkUtil1) {
 		this.vkUtil = vkUtil1;
 		this.clientService = clientService;
-		this.emailTemplateService = emailTemplateService;
+		this.MessageTemplateService = MessageTemplateService;
 	}
 
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
 		Client client = clientService.getClientByID(clientId);
-		String vkText = emailTemplateService.get(templateId).getOtherText();
+		String vkText = MessageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);

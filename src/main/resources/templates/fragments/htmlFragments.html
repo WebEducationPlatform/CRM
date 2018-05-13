@@ -369,8 +369,8 @@
 </div>
 </th:block>
 
-<th:block th:fragment="customEmailTemplateModal">
-    <div class="modal fade" th:id="customEmailTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
+<th:block th:fragment="customMessageTemplateModal">
+    <div class="modal fade" th:id="customMessageTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body">
@@ -401,22 +401,22 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span id = "sendCustomEmailTemplateStatus"></span>
+                    <span id = "sendCustomMessageTemplateStatus"></span>
                     <button type="button" class="btn btn-primary send-all-custom-message" id = 'sendCustomTemplateBtn'  th:attr="data-client-id=${client.id}">Отправить</button>
                 </div>
             </div>
         </div>
     </div>
 </th:block>
-<th:block th:fragment="editEmailTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editEmailTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+<th:block th:fragment="editMessageTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editMessageTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
                     <h6>Отправить сообщение пользователю?</h6>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'editEmailTemplate' + ${template.id}"></span>
+                    <span th:id = "'editMessageTemplate' + ${template.id}"></span>
                     <button type="button" th:id = "'saveETemplateChangesBtn' + ${template.id}" class="btn btn-primary" th:onclick="'saveETemplateChanges(\'' +  ${template.id} + '\')'">Сохранить</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                 </div>

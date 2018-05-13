@@ -696,7 +696,7 @@ $(function () {
         body: $('#custom-eTemplate-body').val()
     };
     var current = $("#sendCustomTemplateBtn")[0];
-    var currentStatus = $("#sendCustomEmailTemplateStatus")[0];
+    var currentStatus = $("#sendCustomMessageTemplateStatus")[0];
     $.ajax({
         type: "POST",
         url: url,
