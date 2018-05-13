@@ -1,9 +1,9 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "history")
@@ -21,7 +21,7 @@ public class ClientHistory {
 	private String link;
 
 	@Basic
-	private Date date = new Date();
+	private String date = DateTime.now().toString("dd MMM 'в' HH:mm yyyy'г'");
 
 	@Column(name = "history_type", nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -106,10 +106,6 @@ public class ClientHistory {
 		return link;
 	}
 
-	public Date getDate() {
-		return date;
-	}
-
 	public Type getType() {
 		return type;
 	}
@@ -120,6 +116,10 @@ public class ClientHistory {
 
 	public Client getClient() {
 		return client;
+	}
+
+	public String getDate() {
+		return date;
 	}
 
 	public SocialNetworkType getSocialNetworkType() {
@@ -145,7 +145,6 @@ public class ClientHistory {
 		result = 31 * result + client.hashCode();
 		return result;
 	}
-
 
 	public enum Type {
 		SYSTEM,
