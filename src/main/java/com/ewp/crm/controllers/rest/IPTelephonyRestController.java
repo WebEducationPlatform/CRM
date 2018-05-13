@@ -18,6 +18,7 @@ public class IPTelephonyRestController {
 
 	@RequestMapping(value = "/voximplant", method = RequestMethod.POST)
 	public void voximplantCall(@RequestParam String from, @RequestParam String to) {
+		//TODO добавить историю
 		ipUtil.call(from, to);
 	}
 }

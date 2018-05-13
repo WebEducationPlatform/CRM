@@ -214,7 +214,8 @@ public class VKUtil {
 	public Optional<Client> getClientFromVkId(Long id) {
 		String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
 				"version=" + version +
-				"&user_id=" + id;
+				"&user_id=" + id +
+				"&access_token=" + accessToken;
 
 		HttpGet httpGetClient = new HttpGet(uriGetClient);
 		HttpClient httpClient = HttpClients.custom()

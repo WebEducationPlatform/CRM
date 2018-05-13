@@ -757,3 +757,19 @@ $(function () {
         }
     });
 });
+
+function callToClient(userPhone, clientPhone) {
+    var url = "/user/rest/call/voximplant";
+    var formData = {
+        from: userPhone,
+        to: clientPhone
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
