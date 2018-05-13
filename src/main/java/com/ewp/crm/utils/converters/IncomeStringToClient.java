@@ -15,16 +15,14 @@ import java.util.Optional;
 @Component
 public class IncomeStringToClient {
 
-    private SocialNetworkTypeService socialNetworkTypeService;
+    private final SocialNetworkTypeService socialNetworkTypeService;
 
-    private static Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
 
     @Autowired
     public IncomeStringToClient(SocialNetworkTypeService socialNetworkTypeService) {
         this.socialNetworkTypeService = socialNetworkTypeService;
-
     }
-
 
     public Client convert(String income) {
         Client client = null;

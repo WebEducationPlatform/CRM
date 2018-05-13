@@ -21,6 +21,8 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
+                    <p class="navbar-text navbar-left">Signed in as <span sec:authentication="name">
+                    </span></p>
                 </ul>
             </div>
 
@@ -67,15 +69,13 @@
                     </ul>
                 </li>
                 <li>
-                    <button data-toggle="dropdown" class="user-icon" style="margin-right: 4%"
+                    <button data-toggle="dropdown" class="user-icon"
                             th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
                                      + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
                             th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
                     </button>
-                   <ul class="dropdown-menu">
+                    <ul class="dropdown-menu">
                         <li><a href="/user/customize">Настройки</a></li>
-
-                        <li sec:authorize="hasAuthority('ADMIN')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
                         <li><a href="/logout">Выход</a></li>
                     </ul>
                 </li>
@@ -176,6 +176,47 @@
         </div>
     </div>
     </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="sendTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтвердите свое действие</h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Отправить сообщение пользователю?</h6>
+                    <div class="form-сheck">
+                        <form class="box-modal">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" th:value="email"  class="my-checkbox"/>
+                            </label>
+                            <th:block th:each="socNetwork : ${client.socialNetworks}">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
+                                </label>
+                            </th:block>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="select_all my-checkbox"/>Выбрать все
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="deselect_all"/>Отменить все
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
+                    <button type="button" th:id ="'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary send-all-message"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Да</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                </div>
+            </div>
+        </div>
     </div>
 </th:block>
 
@@ -328,75 +369,54 @@
 </div>
 </th:block>
 
-<th:block th:fragment="customEmailTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}" th:id="'customEmailTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+<th:block th:fragment="customMessageTemplateModal">
+    <div class="modal fade" th:id="customMessageTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Введите текст</h5>
-                </div>
                 <div class="modal-body">
                         <div class="form-group">
-                            <textarea th:id="'custom-eTemplate-body' + ${client.id} + ${template.id}" class="form-control"
+                            <textarea id="custom-eTemplate-body" class="form-control"
                                    placeholder="Основной текст"></textarea>
                         </div>
-                </div>
-                <div class="modal-footer">
-                    <span th:id = "'sendCustomEmailTemplateStatus' + ${client.id} + ${template.id}"></span>
-                    <button type="button" class="btn btn-primary" th:id = "'sendCustomTemplateBtn' + ${client.id} + ${template.id}"  th:onclick="'sendCustomTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Отправить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</th:block>
-
-<th:block th:fragment="sendTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${!template.hasBody()}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтвердите свое действие</h5>
-                </div>
-                <div class="modal-body">
-                    <h6>Отправить сообщение пользователю?</h6>
                     <div class="form-сheck">
-                        <form>
+                        <form class="box-modal">
                             <label class="checkbox-inline">
-                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" value=""/>
+                                <input type="checkbox" th:text="E-mail" th:if="${client.email} != null" th:value="email"  class="my-checkbox"/>
                             </label>
                             <th:block th:each="socNetwork : ${client.socialNetworks}">
                                 <label class="checkbox-inline">
-                                    <input type="checkbox" th:text="${socNetwork.socialNetworkType.name}"  value=""/>
+                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
                                 </label>
                             </th:block>
                             <label class="checkbox-inline">
-                                <input type="checkbox" th:text="SMS" value=""/>
+                                <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" value=""/>Выбрать все
+                                <input type="checkbox"  class="select_all my-checkbox"/>Выбрать все
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox"  class="deselect_all"/>Отменить все
                             </label>
                         </form>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
-                    <button type="button" th:id = "'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary" th:onclick="'sendTempate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Да</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    <span id = "sendCustomMessageTemplateStatus"></span>
+                    <button type="button" class="btn btn-primary send-all-custom-message" id = 'sendCustomTemplateBtn'  th:attr="data-client-id=${client.id}">Отправить</button>
                 </div>
             </div>
         </div>
     </div>
 </th:block>
-
-<th:block th:fragment="editEmailTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editEmailTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+<th:block th:fragment="editMessageTemplateModal">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'editMessageTemplate'+ ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
                     <h6>Отправить сообщение пользователю?</h6>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'editEmailTemplate' + ${template.id}"></span>
+                    <span th:id = "'editMessageTemplate' + ${template.id}"></span>
                     <button type="button" th:id = "'saveETemplateChangesBtn' + ${template.id}" class="btn btn-primary" th:onclick="'saveETemplateChanges(\'' +  ${template.id} + '\')'">Сохранить</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                 </div>
