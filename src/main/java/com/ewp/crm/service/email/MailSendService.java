@@ -95,6 +95,5 @@ public class MailSendService {
 		message.setFrom(emailLogin);
 		message.setTo(userToNotify.getEmail());
 		javaMailSender.send(message);
-
 	}
 }

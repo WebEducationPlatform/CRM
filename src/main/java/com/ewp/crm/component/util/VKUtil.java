@@ -125,12 +125,13 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg) {
+	public String sendMessageToClient(Client client, String msg , Map<String, String> params ) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
-				return sendMessageById(id, msg);
+				String vkText = replaceName(msg,params);
+				return sendMessageById(id, vkText);
 			}
 
 		}
@@ -299,4 +300,13 @@ public class VKUtil {
 		client.setSocialNetworks(socialNetworks);
 		return client;
 	}
+
+	private String replaceName(String msg,Map<String, String> params ) {
+		String vkText = msg;
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+		}
+		return vkText;
+	}
 }
+
