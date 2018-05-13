@@ -49,7 +49,7 @@ public class EmailRestController {
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
-		mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
+		mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
 	}

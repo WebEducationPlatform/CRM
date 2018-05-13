@@ -21,9 +21,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
-                    <p class="navbar-text navbar-left">Signed in as <span sec:authentication="name">
-                    </span></p>
-                </ul>
+</ul>
             </div>
 
         </div>
@@ -74,10 +72,12 @@
                                      + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
                             th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="/user/customize">Настройки</a></li>
-                        <li><a href="/logout">Выход</a></li>
-                    </ul>
+                   <ul class="dropdown-menu">
+                                           <li><a href="/user/customize">Настройки</a></li>
+
+                                           <li sec:authorize="hasAuthority('ADMIN')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
+                                           <li><a href="/logout">Выход</a></li>
+                                      </ul>
                 </li>
             </ul>
         </div>
