@@ -17,7 +17,7 @@ $(document).ready(function () {
 });
 
 function saveTemplate(templateId) {
-    let url = '/admin/editEmailTemplate';
+    let url = '/admin/editMessageTemplate';
 
     let wrap = {
         templateId: templateId,

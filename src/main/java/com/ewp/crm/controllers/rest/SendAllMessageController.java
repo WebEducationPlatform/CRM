@@ -5,7 +5,7 @@ import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.EmailTemplateServiceImpl;
+import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class SendAllMessageController {
 
 	private final MailSendService mailSendService;
-	private final EmailTemplateServiceImpl emailTemplateService;
+	private final MessageTemplateServiceImpl MessageTemplateService;
 	private final ClientService clientService;
 	private final ImageConfig imageConfig;
 	private final SMSUtil smsUtil;
@@ -28,9 +28,9 @@ public class SendAllMessageController {
 
 
 	@Autowired
-	public SendAllMessageController(MailSendService mailSendService, EmailTemplateServiceImpl emailTemplateService, ClientService clientService, ImageConfig imageConfig, SMSUtil smsUtil, VKUtil vkUtil) {
+	public SendAllMessageController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig, SMSUtil smsUtil, VKUtil vkUtil) {
 		this.mailSendService = mailSendService;
-		this.emailTemplateService = emailTemplateService;
+		this.MessageTemplateService = MessageTemplateService;
 		this.clientService = clientService;
 		this.imageConfig = imageConfig;
 		this.smsUtil = smsUtil;
@@ -43,7 +43,7 @@ public class SendAllMessageController {
 	                                         @RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
 		if (boxList.contains("vk")) {
 			Client client = clientService.getClientByID(clientId);
-			String vkText = emailTemplateService.get(templateId).getOtherText();
+			String vkText = MessageTemplateService.get(templateId).getOtherText();
 			String fullName = client.getName() + " " + client.getLastName();
 			Map<String, String> params = new HashMap<>();
 			params.put("%fullName%", fullName);
@@ -58,7 +58,7 @@ public class SendAllMessageController {
 			String fullName = client.getName() + " " + client.getLastName();
 			Map<String, String> params = new HashMap<>();
 			params.put("%fullName%", fullName);
-			mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(templateId).getTemplateText(),
+			mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
 					"emailStringTemplate");
 		}
 		if (boxList.contains("sms")) {
@@ -73,7 +73,7 @@ public class SendAllMessageController {
 	                                         @RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
 		if (boxList.contains("vk")) {
 			Client client = clientService.getClientByID(clientId);
-			String vkText = emailTemplateService.get(1L).getOtherText();
+			String vkText = MessageTemplateService.get(1L).getOtherText();
 			Map<String, String> params = new HashMap<>();
 			params.put("%bodyText%", body);
 			vkUtil.sendMessageToClient(client, vkText, params);
@@ -86,7 +86,7 @@ public class SendAllMessageController {
 			Client client = clientService.getClientByID(clientId);
 			Map<String, String> params = new HashMap<>();
 			params.put("%bodyText%", body);
-			mailSendService.prepareAndSend(client.getEmail(), params, emailTemplateService.get(1L).getTemplateText(),
+			mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(1L).getTemplateText(),
 					"emailStringTemplate");
 		}
 		if (boxList.contains("sms")) {

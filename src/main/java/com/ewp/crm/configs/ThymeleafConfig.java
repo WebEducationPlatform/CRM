@@ -13,7 +13,7 @@ import java.util.Set;
 @Configuration
 public class ThymeleafConfig {
 
-	private final static String PREFIX = "eMailTemplateText:";
+	private final static String PREFIX = "MessageTemplateText:";
 
 	@Bean
 	public TemplateResolver springThymeleafTemplateResolver() {

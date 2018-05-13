@@ -24,7 +24,7 @@ public class DataInitializer {
 	private RoleService roleService;
 
 	@Autowired
-	private EmailTemplateService emailTemplateService;
+	private MessageTemplateService MessageTemplateService;
 
 	@Autowired
 	private SocialNetworkTypeService socialNetworkTypeService;
@@ -91,12 +91,12 @@ public class DataInitializer {
 				"С наилучшими пожеланиями, команда JavaMentor";
 		String otherText1 = "%bodyText%";
 
-		EmailTemplate emailTemplate3 = new EmailTemplate("Не дозвонился", templateText3, otherText3);
-		EmailTemplate emailTemplate2 = new EmailTemplate("Оплата за обучение", templateText2, otherText2);
-		EmailTemplate emailTemplate1 = new EmailTemplate("После разговора", templateText1, otherText1);
-		emailTemplateService.add(emailTemplate1);
-		emailTemplateService.add(emailTemplate2);
-		emailTemplateService.add(emailTemplate3);
+		MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
+		MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
+		MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1);
+		MessageTemplateService.add(MessageTemplate1);
+		MessageTemplateService.add(MessageTemplate2);
+		MessageTemplateService.add(MessageTemplate3);
 
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
