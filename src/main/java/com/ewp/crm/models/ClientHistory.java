@@ -56,8 +56,8 @@ public class ClientHistory {
 	}
 
 	// Social actions
-	public ClientHistory(Type type, SocialNetworkType socialNetworkType) {
-		this.type = type;
+	public ClientHistory(SocialNetworkType socialNetworkType) {
+		this.type = Type.SOCIAL_REQUEST;
 		this.socialNetworkType = socialNetworkType;
 	}
 

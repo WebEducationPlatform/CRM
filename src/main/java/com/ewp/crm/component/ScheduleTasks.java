@@ -58,7 +58,7 @@ public class ScheduleTasks {
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SOCIAL_REQUEST, socialNetworkTypeService.getByTypeName("vk"));
+		ClientHistory clientHistory = new ClientHistory(socialNetworkTypeService.getByTypeName("vk"));
 		clientHistoryService.generateValidHistory(clientHistory, newClient);
 		newClient.addHistory(clientHistory);
 		clientService.addClient(newClient);
@@ -141,7 +141,7 @@ public class ScheduleTasks {
 				}
 				sms.setChecked(true);
 				smsInfoService.updateSMSInfo(sms);
-				String link = "/user/sms/info/" + sms.getId();
+				String link = "/client/info/sms/" + sms.getId();
 				Client client = clientService.getClientByID(sms.getClient().getId());
 				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SMS, sms.getUser(), link);
 				clientHistoryService.generateValidHistory(clientHistory, sms.getClient());
