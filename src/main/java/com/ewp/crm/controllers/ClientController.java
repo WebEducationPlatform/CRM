@@ -26,7 +26,7 @@ public class ClientController {
 
 	private final UserService userService;
 
-	private final EmailTemplateService emailTemplateService;
+	private final MessageTemplateService MessageTemplateService;
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
@@ -36,11 +36,11 @@ public class ClientController {
 
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        EmailTemplateService emailTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService) {
+	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
-		this.emailTemplateService = emailTemplateService;
+		this.MessageTemplateService = MessageTemplateService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
 		this.clientHistoryService = clientHistoryService;
@@ -63,7 +63,7 @@ public class ClientController {
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-		modelAndView.addObject("emailTmpl", emailTemplateService.getall());
+		modelAndView.addObject("emailTmpl", MessageTemplateService.getall());
 		return modelAndView;
 	}
 
@@ -113,6 +113,25 @@ public class ClientController {
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+
 		return modelAndView;
+	}
+
+
+	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
+	public ModelAndView addClient(@PathVariable String statusName) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("status", statusService.get(statusName));
+		modelAndView.addObject("states", Client.State.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "/phone", method = RequestMethod.GET)
+	public ModelAndView getPhone() {
+		return new ModelAndView("webrtrc");
 	}
 }

@@ -26,7 +26,10 @@ public class SocialNetwork implements Serializable {
 	private Client client;
 
 
-	@OneToOne
+	@ManyToOne
+	@JoinTable(name = "social_network_social_network_type",
+			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
+			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private SocialNetworkType socialNetworkType;
 
 	public SocialNetwork() {

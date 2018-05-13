@@ -32,7 +32,7 @@ public class UserRestController {
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final UserService userService;
-    private final ImageConfig imageConfig;
+    private ImageConfig imageConfig;
     private final SocialNetworkTypeService socialNetworkTypeService;
 
     @Autowired
@@ -72,8 +72,8 @@ public class UserRestController {
 		return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
 	}
 
-	@RequestMapping(value = {"/user/socialMarkers"}, method = RequestMethod.GET)
-	public ResponseEntity<Map<Long, String>> getSocialTypes() {
+	@RequestMapping(value = {"/user/socialNetworkTypes"}, method = RequestMethod.GET)
+	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
 		Map<Long, String> socialTypeNames = new HashMap<>();
 		for (SocialNetworkType socialNetworkType : socialNetworkTypes) {

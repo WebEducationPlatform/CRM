@@ -1,11 +1,13 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.*;
 
 @Entity
@@ -58,8 +60,11 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
+	@Column
+	private boolean ipTelephony;
+
 	@JsonIgnore
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
@@ -82,7 +87,7 @@ public class User implements UserDetails {
 	public User() {
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role, boolean ipTelephony) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -96,6 +101,7 @@ public class User implements UserDetails {
 		this.vacancy = vacancy;
 		this.salary = salary;
 		this.role = role;
+		this.ipTelephony = ipTelephony;
 	}
 
 	public Long getId() {
@@ -306,5 +312,13 @@ public class User implements UserDetails {
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public boolean isIpTelephony() {
+		return ipTelephony;
+	}
+
+	public void setIpTelephony(boolean ipTelephony) {
+		this.ipTelephony = ipTelephony;
 	}
 }

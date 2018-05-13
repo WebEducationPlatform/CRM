@@ -24,6 +24,10 @@ public class EmailTemplate {
 		this.templateText = templateText;
 	}
 
+	public boolean hasBody() {
+		return templateText.contains("%bodyText%");
+	}
+
 	public Long getId() {
 
 		return id;

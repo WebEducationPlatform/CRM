@@ -15,6 +15,8 @@ public interface ClientService {
 
 	Client getClientByEmail(String name);
 
+	Client getClientByPhoneNumber(String phoneNumber);
+
 	Client getClientByID(Long id);
 
 	void addClient(Client client);
@@ -32,4 +34,14 @@ public interface ClientService {
 	List<Client> findClientsByManyIds(List<Long> ids);
 
 	void updateBatchClients(List<Client> clients);
+
+	List<String> getClientsEmails();
+
+	List<String> getClientsPhoneNumbers();
+
+	List<String> getFilteredClientsEmail(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
+
+	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 }

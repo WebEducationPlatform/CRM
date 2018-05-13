@@ -8,7 +8,7 @@ $(document).ready(function () {
     });
 });
 
-function changeUser(id) {
+function changeUser(id, authId) {
     if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
         return;
     }
@@ -34,6 +34,7 @@ function changeUser(id) {
         firstName: $('#edit-user-first-name').val(),
         lastName: $('#edit-user-last-name').val(),
         phoneNumber: $('#edit-user-phone-number').val(),
+        ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#edit-user-email').val(),
         age: $('#edit-user-age').val(),
         sex: $('#edit-user-sex').find('option:selected').text(),
@@ -59,6 +60,9 @@ function changeUser(id) {
         },
         success: function (result) {
             sendPhoto(id);
+            if (authId === id) {
+                window.location.replace("http://localhost:9090/logout")
+            }
         },
         error: function (e) {
             setErrorMessage(e.responseJSON.message);
@@ -194,6 +198,7 @@ function addUser() {
         firstName: $('#add-user-first-name').val(),
         lastName: $('#add-user-last-name').val(),
         phoneNumber: $('#add-user-phone-number').val(),
+        ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#add-user-email').val(),
         age: $('#add-user-age').val(),
         sex: $('#add-user-sex').find('option:selected').text(),
