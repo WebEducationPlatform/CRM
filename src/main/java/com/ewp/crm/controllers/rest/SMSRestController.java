@@ -1,9 +1,9 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.component.util.interfaces.SMSUtil;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @RestController
