@@ -531,3 +531,11 @@ span[id^="postponeStatus"] {
 a.link-cursor-pointer{
     cursor:pointer;
 }
+
+.client-history-table td{
+    padding: 5px;
+}
+
+.client-history-date {
+    background-color: #cccccc;
+}

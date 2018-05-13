@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,10 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		}
 		String worker = clientHistory.getUser().getFullName();
 		String title;
+		DateTime dateTime = null;
+		if (type == ClientHistory.Type.POSTPONE) {
+			dateTime = new DateTime(client.getPostponeDate());
+		}
 		switch (type) {
 			case ADD_CLIENT:
 				title = worker + " добавил клиента вручную ";
@@ -52,7 +57,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title = worker + " перевел клиента в статус " + client.getStatus().getName();
 				break;
 			case POSTPONE:
-				title = worker + " скрыл клиента до " + client.getPostponeDate();
+				title = worker + " скрыл клиента до " + dateTime.toString("dd MMM yyyy 'года' HH:mm");
 				break;
 			default:
 				title = "История инициализирована через пустой конструктор";
