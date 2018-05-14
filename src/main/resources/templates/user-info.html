@@ -16,7 +16,8 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" id="editUser">Редактировать</button>
                         <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + ${#authentication.getPrincipal().getId()} + '\')'">Сохранить</button>
-                    </div>
+						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+					</div>
                     <p><span id = "message"></span></p>
                     <div class="form-group">
                         <label for="edit-user-first-name">Имя</label>
@@ -61,8 +62,8 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-user-age">Возраст</label>
-                        <input type="text" class="form-control" required="required" data-error="Диапазон от 1 до 127" disabled="disabled" title = "Диапазон от 1 до 127" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$" id="edit-user-age" th:value="${user.age}"/>
-                        <div class="help-block with-errors"></div>
+                        <input type="number" class="form-control" min="0" max="127" onkeydown="disableInputE()" required="required" disabled="disabled" title = "Диапазон от 0 до 127" id="edit-user-age" th:value="${user.age}"/>
+                        <div class="help-block with-errors" style="color: red"></div>
                     </div>
                     <div class="form-group">
                         <label for="edit-user-sex">Выберите пол</label>
@@ -85,7 +86,8 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-user-salary">Зарплата</label>
-                        <input type="number" min="0" class="form-control" required="required" data-error="Неверный формат" disabled="disabled" pattern="^(0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*)$" id="edit-user-salary" th:value="${user.salary}"/>
+                        <input type="number" step="any" min="0" class="form-control" required="required" data-error="Неверный формат" disabled="disabled"
+							   id="edit-user-salary" th:value="${user.salary}" onkeydown="disableInputE()"/>
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group" id = "edit-user-roles">

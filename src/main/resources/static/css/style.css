@@ -569,3 +569,11 @@ a.link-cursor-pointer{
 .client-history-date {
     background-color: #cccccc;
 }
+
+span[id^="sendCustomEmailTemplateStatus"] {
+	color: red;
+}
+
+span[id^="sendTemplateStatus"] {
+	color: red;
+}
