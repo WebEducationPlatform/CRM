@@ -572,6 +572,7 @@ a.link-cursor-pointer{
 
 span[id^="sendCustomEmailTemplateStatus"] {
 	color: red;
+	float: left;
 }
 
 span[id^="sendTemplateStatus"] {
