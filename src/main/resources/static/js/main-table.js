@@ -541,40 +541,6 @@ function sendMessageVK(clientId, templateId) {
     });
 }
 
-function sendTempate(clientId, templateId) {
-    let url = 'rest/sendEmail';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId
-    };
-    var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
-    var currentStatus = document.getElementById("sendTemplateStatus-" + templateId+ "-" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-
-        beforeSend: function(){
-            current.textContent ="Отправка..";
-            current.setAttribute("disabled", "true")
-        },
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
-        },
-        error: function (e) {
-            current.textContent ="Да";
-            current.removeAttribute("disabled");
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
-    });
-}
-
-
 $(function () {
     $('.open-description-btn').on('click', function(event) {
         var id = $(this).data('id');
@@ -618,15 +584,17 @@ $(function () {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var boxList = JSON.stringify(sel.get());
+		var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
+		var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
+		if(sel.length===0) {
+			currentStatus.textContent = "Выберите куда отправить сообщение";
+			return false;
+		}
         let formData = {
             boxList: boxList,
             clientId: clientId,
             templateId: templateId
         };
-
-
-        var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
-        var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
         $.ajax({
             type: "POST",
             url: '/rest/messages',
@@ -637,15 +605,13 @@ $(function () {
                 current.setAttribute("disabled", "true")
             },
             success: function (result) {
-                currentStatus.style.color = "limegreen";
-                currentStatus.textContent = "Отправлено";
-                current.textContent = "Да";
-                current.removeAttribute("disabled");
+				$(".modal").modal('hide');
+				current.textContent ="Да";
+				current.removeAttribute("disabled");
             },
             error: function (e) {
                 current.textContent = "Да";
                 current.removeAttribute("disabled");
-                currentStatus.style.color = "red";
                 currentStatus.textContent = "Ошибка";
                 console.log(e)
             }
@@ -662,14 +628,20 @@ $(function () {
         });
         var boxList = JSON.stringify(sel.get());
         var clientId = $(this).data('clientId');
-    let url = '/rest/messages/custom';
+		var templateId = $(this).data('templateId');
+		var current = $("#sendCustomTemplateBtn" + clientId + templateId)[0];
+		var currentStatus = $("#sendCustomEmailTemplateStatus" + clientId + templateId)[0];
+		if(sel.length===0) {
+			currentStatus.textContent = "Выберите куда отправить сообщение";
+			return false;
+		}
+		let url = '/rest/messages';
     let formData = {
         clientId: clientId,
         boxList: boxList,
-        body: $('#custom-eTemplate-body').val()
-    };
-    var current = $("#sendCustomTemplateBtn")[0];
-    var currentStatus = $("#sendCustomMessageTemplateStatus")[0];
+		templateId:templateId,
+        body: $('#custom-eTemplate-body' + clientId + templateId).val()
+	};
     $.ajax({
         type: "POST",
         url: url,
@@ -679,15 +651,14 @@ $(function () {
             current.setAttribute("disabled", "true")
         },
         success: function (result) {
-            current.textContent ="Отправить";
-            current.removeAttribute("disabled");
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
+			$(".modal").modal('hide');
+			$("#custom-eTemplate-body" + clientId + templateId).val("");
+			current.textContent ="Отправить";
+			current.removeAttribute("disabled");
         },
         error: function (e) {
             current.textContent ="Отправить";
             current.removeAttribute("disabled");
-            currentStatus.style.color = "red";
             currentStatus.textContent = "Ошибка";
             console.log(e)
         }
@@ -734,8 +705,9 @@ $(document).ready(function () {
 });
 $(function () {
     $('.portlet-body').on('click', function (e) {
-        if (e.target.className.startsWith("portlet-body") !== -1) {
+        if (e.target.className.startsWith("portlet-body") === true) {
             $('#' + $(e.target).attr('name')).modal('show');
+			markAsReadMenu($(e.target).attr('client-id'))
         }
     });
 });

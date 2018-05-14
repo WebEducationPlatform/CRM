@@ -28,14 +28,14 @@ public class MessageTemplate {
 		this.otherText = otherText;
 	}
 
-	public MessageTemplate(String name, String templateText) {
-		this.name = name;
-		this.templateText = templateText;
-	}
-
 	public Long getId() {
 
 		return id;
+	}
+
+	//TODO перенести в конфиг
+	public boolean hasBody() {
+		return templateText.contains("%bodyText%");
 	}
 
 	public String getOtherText() {

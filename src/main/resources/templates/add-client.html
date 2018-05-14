@@ -20,7 +20,7 @@
 					<p><span id = "message"></span></p>
 
 					<div class="form-group">
-                    	<label for="edit-client-first-name" th:text="${status.name}"></label>
+                    	<label for="client-status" th:text="${status.name}"></label>
                     	<input type="hidden" id="client-status" th:value="${status.name}"/>
                     </div>
 
@@ -43,8 +43,8 @@
 					</div>
 					<div class="form-group">
 						<label for="edit-client-age">Возраст</label>
-						<input type="text" class="form-control" data-error="Диапазон от 1 до 127" title = "Диапазон от 1 до 127" onkeydown="disableInputE()"  id="edit-client-age" pattern="^[1-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$"/>
-						<div class="help-block with-errors"></div>
+						<input type="number" class="form-control" min="0" max="127" title = "Диапазон от 0 до 127" onkeydown="disableInputE()"  id="edit-client-age"/>
+						<div class="help-block with-error" style="color: red"></div>
 					</div>
 					<div class="form-group">
 						<label for="edit-client-sex">Выберите пол</label>

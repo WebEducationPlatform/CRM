@@ -180,7 +180,7 @@
 </th:block>
 
 <th:block th:fragment="sendTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${!template.hasBody()}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -370,12 +370,12 @@
 </th:block>
 
 <th:block th:fragment="customMessageTemplateModal">
-    <div class="modal fade" th:id="customMessageTemplate" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customMessageTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                         <div class="form-group">
-                            <textarea id="custom-eTemplate-body" class="form-control"
+                            <textarea th:id="'custom-eTemplate-body' + ${client.id} + ${template.id}" class="form-control"
                                    placeholder="Основной текст"></textarea>
                         </div>
                     <div class="form-сheck">
@@ -401,8 +401,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span id = "sendCustomMessageTemplateStatus"></span>
-                    <button type="button" class="btn btn-primary send-all-custom-message" id = 'sendCustomTemplateBtn'  th:attr="data-client-id=${client.id}">Отправить</button>
+                    <span th:id = "'sendCustomEmailTemplateStatus' + ${client.id} + ${template.id}"></span>
+                    <button type="button" class="btn btn-primary send-all-custom-message" th:id = "'sendCustomTemplateBtn' + ${client.id} + ${template.id}"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
                 </div>
             </div>
         </div>
