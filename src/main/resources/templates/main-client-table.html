@@ -73,10 +73,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body" th:onclick="'markAsReadMenu('+ ${client.id} +')'" th:name = "'client-'+${client.id} + '-modal'">
-                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}">
+                    <div class="portlet-header" th:onclick="'markAsReadMenu('+ ${client.id} +')'"  th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
-                    <div class="portlet-content">
+                    <div class="portlet-content" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"

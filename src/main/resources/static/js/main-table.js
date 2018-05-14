@@ -705,8 +705,9 @@ $(document).ready(function () {
 });
 $(function () {
     $('.portlet-body').on('click', function (e) {
-        if (e.target.className.startsWith("portlet-body") !== -1) {
+        if (e.target.className.startsWith("portlet-body") === true) {
             $('#' + $(e.target).attr('name')).modal('show');
+			markAsReadMenu($(e.target).attr('client-id'))
         }
     });
 });
