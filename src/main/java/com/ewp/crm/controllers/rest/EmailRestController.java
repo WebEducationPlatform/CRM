@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
@@ -47,6 +48,7 @@ public class EmailRestController {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 		mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
@@ -55,18 +57,16 @@ public class EmailRestController {
 	}
 
 	@RequestMapping(value = {"/admin/editMessageTemplate"}, method = RequestMethod.POST)
-	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
+	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText,
+	                                    @RequestParam String otherTemplateText) {
+		//TODO Убрать хардкод
+		if(templateText.contains("%bodyText%") ^ otherTemplateText.contains("%bodyText%")) {
+			throw new MessageTemplateException("%bodyText% должен присутствовать/остутствовать на обоих типах сообщения");
+		}
 		MessageTemplate MessageTemplate = MessageTemplateService.get(templateId);
 		MessageTemplate.setTemplateText(templateText);
+		MessageTemplate.setOtherText(otherTemplateText);
 		MessageTemplateService.update(MessageTemplate);
-		return ResponseEntity.ok().build();
-	}
-
-	@RequestMapping(value = {"/admin/editOtherTemplate"}, method = RequestMethod.POST)
-	public ResponseEntity editOtherETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText) {
-		MessageTemplate otherTemplate = MessageTemplateService.get(templateId);
-		otherTemplate.setOtherText(templateText);
-		MessageTemplateService.update(otherTemplate);
 		return ResponseEntity.ok().build();
 	}
 
