@@ -215,7 +215,6 @@ function changeStatusName(id) {
         }
     });
 }
-// перенесено на status.js
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {

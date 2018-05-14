@@ -143,12 +143,6 @@ public class ScheduleTasks {
 				}
 				sms.setChecked(true);
 				smsInfoService.updateSMSInfo(sms);
-				String link = "/client/info/sms/" + sms.getId();
-				Client client = clientService.getClientByID(sms.getClient().getId());
-				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SMS, sms.getUser(), link);
-				clientHistoryService.generateValidHistory(clientHistory, sms.getClient());
-				clientHistory.setClient(client);
-				clientHistoryService.addHistory(clientHistory);
 			}
 		}
 	}

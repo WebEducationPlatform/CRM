@@ -3,8 +3,9 @@ package com.ewp.crm.component.util;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,9 +21,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -45,9 +44,11 @@ public class VKUtil {
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
 
 	private final SocialNetworkService socialNetworkService;
+	private final ClientHistoryService clientHistoryService;
+	private final ClientService clientService;
 
 	@Autowired
-	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -56,6 +57,8 @@ public class VKUtil {
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
 		this.socialNetworkService = socialNetworkService;
+		this.clientHistoryService = clientHistoryService;
+		this.clientService = clientService;
 	}
 
 	@PostConstruct
@@ -125,15 +128,19 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg , Map<String, String> params ) {
+	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
-				String vkText = replaceName(msg,params);
-				return sendMessageById(id, vkText);
+				String vkText = replaceName(msg, params);
+				String responseMessage = sendMessageById(id, vkText);
+				Message message = new Message(Message.Type.VK, vkText);
+				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE, principal, message);
+				client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+				clientService.updateClient(client);
+				return responseMessage;
 			}
-
 		}
 		logger.error("{} hasn't vk social network", client.getEmail());
 		return client.getName() + " hasn't vk social network";
@@ -302,7 +309,7 @@ public class VKUtil {
 		return client;
 	}
 
-	private String replaceName(String msg,Map<String, String> params ) {
+	private String replaceName(String msg, Map<String, String> params) {
 		String vkText = msg;
 		for (Map.Entry<String, String> entry : params.entrySet()) {
 			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
