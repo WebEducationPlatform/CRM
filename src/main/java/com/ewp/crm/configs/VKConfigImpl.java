@@ -54,13 +54,13 @@ public class VKConfigImpl implements VKConfig {
     }
 
     private boolean configIsValid() {
-        if (clientId == null || "".equals(clientId)) return false;
+        /*if (clientId == null || "".equals(clientId)) return false;
         if (clientSecret == null || "".equals(clientSecret)) return false;
         if (username == null || "".equals(username)) return false;
         if (password == null || "".equals(password)) return false;
         if (containsIllegals(password)) return false;
         if (clubId == null || "".equals(clubId)) return false;
-        if (communityToken == null || "".equals(communityToken)) return false;
+        if (communityToken == null || "".equals(communityToken)) return false;*/
         return true;
     }
 

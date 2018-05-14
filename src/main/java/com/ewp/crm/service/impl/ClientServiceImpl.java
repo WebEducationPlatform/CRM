@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 
+import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ClientServiceImpl implements ClientService {
@@ -78,11 +80,31 @@ public class ClientServiceImpl implements ClientService {
 		clientRepository.updateBatchClients(clients);
 	}
 
+	//TODO упростить
 	@Override
     public void addClient(Client client) {
+		setEmptyNull(client);
+		if(client.getEmail()!=null) {
+			if(clientRepository.findClientByEmail(client.getEmail())!=null) {
+				throw new ClientExistsException();
+			}
+		}
+		if(client.getPhoneNumber()!=null) {
+			if(clientRepository.findClientByPhoneNumber(client.getPhoneNumber())!=null) {
+				throw new ClientExistsException();
+			}
+		}
         clientRepository.saveAndFlush(client);
     }
 
+    private void setEmptyNull(Client client) {
+	    if(client.getPhoneNumber().isEmpty()){
+		    client.setPhoneNumber(null);
+	    }
+	    if(client.getEmail().isEmpty()){
+		    client.setEmail(null);
+	    }
+    }
 	@Override
 	public List<String> getClientsEmails() {
 		return clientRepository.getClientsEmail();
@@ -108,8 +130,22 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.getFilteredClientsSNLinks(filteringCondition);
 	}
 
+	//TODO упростить
     @Override
     public void updateClient(Client client) {
+		setEmptyNull(client);
+	    if(client.getEmail()!=null) {
+		    Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
+		    if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
+			    throw new ClientExistsException();
+		    }
+	    }
+	    if(client.getPhoneNumber()!=null){
+		    Client clientByPhone =  clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+		    if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+			    throw new ClientExistsException();
+		    }
+	    }
         clientRepository.saveAndFlush(client);
     }
 }

@@ -98,7 +98,10 @@ function changeClient(id) {
 }
 
 function disableInputE() {
-    return event.keyCode !== 69;
+	var disMas = [69, 187, 189, 109];
+	if (disMas.indexOf(event.keyCode)!==-1) {
+		event.preventDefault()
+	}
 }
 
 $(document).on('click', 'td', (function (e) {
@@ -218,3 +221,16 @@ function selectOptions (element) {
         }
     });
 }
+
+$(function () {
+	$("#edit-client-age").on('keyup', function(e) {
+		var reg = new RegExp("^$|^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
+		if(!reg.test($("#edit-client-age").val())) {
+			$("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
+			$("#saveChanges")[0].setAttribute("disabled","disabled");
+		}else {
+			$("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "";
+			$("#saveChanges")[0].removeAttribute("disabled");
+		}
+	});
+});

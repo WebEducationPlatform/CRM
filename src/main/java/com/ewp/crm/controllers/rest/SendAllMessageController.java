@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,53 +39,21 @@ public class SendAllMessageController {
 
 	@RequestMapping(value = "/rest/messages", method = RequestMethod.POST)
 	public ResponseEntity sendSeveralMessage(@RequestParam("boxList") String boxList,
-	                                         @RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+	                                         @RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId, @RequestParam(value = "body",required = false) String body) {
+		Client client = clientService.getClientByID(clientId);
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
 		if (boxList.contains("vk")) {
-			Client client = clientService.getClientByID(clientId);
 			String vkText = MessageTemplateService.get(templateId).getOtherText();
-			String fullName = client.getName() + " " + client.getLastName();
-			Map<String, String> params = new HashMap<>();
-			params.put("%fullName%", fullName);
 			vkUtil.sendMessageToClient(client, vkText, params);
-
 		}
 		if (boxList.contains("facebook")) {
 			System.out.println("FBесть!");
 		}
 		if (boxList.contains("email")) {
-			Client client = clientService.getClientByID(clientId);
-			String fullName = client.getName() + " " + client.getLastName();
-			Map<String, String> params = new HashMap<>();
-			params.put("%fullName%", fullName);
 			mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
-					"emailStringTemplate");
-		}
-		if (boxList.contains("sms")) {
-			System.out.println("SMSесть!");
-		}
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
-
-	@RequestMapping(value = "/rest/messages/custom", method = RequestMethod.POST)
-	public ResponseEntity sendSeveralMessage(@RequestParam("boxList") String boxList,
-	                                         @RequestParam("clientId") Long clientId, @RequestParam("body") String body) {
-		if (boxList.contains("vk")) {
-			Client client = clientService.getClientByID(clientId);
-			String vkText = MessageTemplateService.get(1L).getOtherText();
-			Map<String, String> params = new HashMap<>();
-			params.put("%bodyText%", body);
-			vkUtil.sendMessageToClient(client, vkText, params);
-
-		}
-		if (boxList.contains("facebook")) {
-			System.out.println("FBесть!");
-		}
-		if (boxList.contains("email")) {
-			Client client = clientService.getClientByID(clientId);
-			Map<String, String> params = new HashMap<>();
-			params.put("%bodyText%", body);
-			mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(1L).getTemplateText(),
 					"emailStringTemplate");
 		}
 		if (boxList.contains("sms")) {
