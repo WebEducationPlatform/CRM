@@ -38,9 +38,13 @@ public class Message {
 	public enum Type {
 		VK("vk"),
 		EMAIL("email"),
-		FACEBOOK("facebook");
+		FACEBOOK("facebook"),
+		MESSAGE;
 
 		private String info;
+
+		Type(){
+		}
 
 		Type(String info) {
 			this.info = info;

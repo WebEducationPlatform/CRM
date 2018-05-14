@@ -94,6 +94,13 @@
                                          style="color: red"></span>
                                 </th:block>
                             </th:block>
+                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                                <th:block th:if="${notification_postpone.client == client}">
+                                   <span id="notification-postpone"
+                                         class="glyphicon glyphicon-calendar"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
                         </div>
                 </div>
                 <div class="btn-group">
@@ -115,7 +122,7 @@
                     <!-- SMS ERROR INFO BTN -->
                     <th:block th:each="notification_sms:${notifications_type_sms}">
                         <th:block th:if="${notification_sms.client == client}">
-                            <button type="button" style="color:red" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                            <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
                         </th:block>
                     </th:block>
                     <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">

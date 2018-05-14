@@ -72,7 +72,6 @@ public class ClientHistory {
 	public ClientHistory(Type type, User user, Message message) {
 		this(type, user);
 		this.message = message;
-		this.type = Type.SEND_MESSAGE;
 	}
 
 	public void setTitle(String title) {
@@ -159,8 +158,10 @@ public class ClientHistory {
 		SMS("отправил смс"),
 		CALL("позвонил клиенту"),
 		POSTPONE("скрыл клиента до"),
+		NOTIFICATION_POSTPONE("прочитал напоминание"),
 		SOCIAL_REQUEST("клиент поступил из"),
-		SEND_MESSAGE("отправил сообщение клиенту по");
+		SEND_MESSAGE("отправил сообщение клиенту по"),
+		DESCRIPTION("оставил комментарий на карточке");
 
 		private String title;
 

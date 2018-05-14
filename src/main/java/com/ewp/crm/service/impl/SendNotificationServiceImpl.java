@@ -55,8 +55,8 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 	}
 
 	@Override
-	public void sendNotification(String info, Client client, User user) {
-		Notification notification = new Notification(client,user, Notification.Type.SMS);
+	public void sendNotificationType(String info, Client client, User user, Notification.Type type) {
+		Notification notification = new Notification(client,user, type);
 		notification.setInformation(info);
 		notificationService.addNotification(notification);
 	}

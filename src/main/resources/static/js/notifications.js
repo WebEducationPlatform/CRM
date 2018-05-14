@@ -13,37 +13,21 @@ function clearClientSmsNotifications(id) {
     })
 }
 
-//Перенесено из comment.js
-function markAsRead(clientId) {
-    var url = "/user/notification/comment/clear/" + clientId;
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: url,
-        success: function () {
-            $('#info-client' + clientId).find(".notification").remove();
-            $('.menu' + clientId).remove();
-
-        },
-        error : function (error) {
-            console.log(error);
-        }
-    })
-}
-
-//Перенесено из comment.js
 function markAsReadMenu(clientId) {
-    var url = "/user/notification/comment/clear/" + clientId;
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: url,
-        success: function () {
-            $('#info-client' + clientId).find(".notification").remove();
-            $('.menu' + clientId).remove();
-        },
-        error : function (error) {
-            console.log(error);
-        }
-    })
+    if ($('.notify').length) {
+
+        var url = "/user/notification/comment/clear/" + clientId;
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: url,
+            success: function () {
+                $('#info-client' + clientId).find(".notification").remove();
+                $('.menu' + clientId).remove();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
 }

@@ -1,14 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -296,6 +289,7 @@ public class ClientRestController {
 			}
 			client.setPostponeDate(postponeDate.toDate());
 			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			client.setOwnerUser(principal);
 			client.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.POSTPONE, principal), client));
 			clientService.updateClient(client);
 			logger.info("{} has postponed client id:{} until {}", principal.getFullName(), client.getId(), date);
@@ -308,12 +302,16 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
 	                                             @RequestParam(name = "clientDescription") String clientDescription) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
 		}
 		client.setClientDescriptionComment(clientDescription);
+		Message message = new Message(Message.Type.MESSAGE, clientDescription);
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.DESCRIPTION, principal, message);
+		client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}

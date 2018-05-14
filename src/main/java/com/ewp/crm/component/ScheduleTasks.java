@@ -123,6 +123,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
+			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(),client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
 	}
@@ -138,7 +139,7 @@ public class ScheduleTasks {
 					sms.setDeliveryStatus("доставлено");
 				} else {
 					String deliveryStatus = determineStatusOfResponse(status);
-					sendNotificationService.sendNotification(deliveryStatus, sms.getClient(), sms.getUser());
+					sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
 					sms.setDeliveryStatus(deliveryStatus);
 				}
 				sms.setChecked(true);

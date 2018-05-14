@@ -58,6 +58,7 @@ public class UserRestController {
 		if (currentPhoto.isPresent() && !userPhoto.isPresent()) {
 			user.setPhoto(currentPhoto.get());
 		}
+		user.setNotifications(userService.get(user.getId()).getNotifications());
 		userService.update(user);
 		logger.info("{} has updated user: id {}, email {}", currentAdmin.getFullName(), user.getId(), user.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);

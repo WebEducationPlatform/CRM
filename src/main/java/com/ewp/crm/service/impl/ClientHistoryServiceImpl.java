@@ -49,6 +49,8 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case UPDATE_CLIENT:
 			case SMS:
 			case CALL:
+			case NOTIFICATION_POSTPONE:
+			case DESCRIPTION:
 				title = worker + " " + type.getTitle();
 				break;
 			case STATUS:

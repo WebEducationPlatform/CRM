@@ -1,14 +1,21 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.NotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user/notification")
@@ -16,10 +23,13 @@ public class NotificationRestController {
 
 	private final ClientService clientService;
 	private final NotificationService notificationService;
+	private final ClientHistoryService clientHistoryService;
 
-	public NotificationRestController(ClientService clientService, NotificationService notificationService) {
+	@Autowired
+	public NotificationRestController(ClientService clientService, NotificationService notificationService, ClientHistoryService clientHistoryService) {
 		this.clientService = clientService;
 		this.notificationService = notificationService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	@PostMapping("/sms/clear/{clientId}")
@@ -34,7 +44,17 @@ public class NotificationRestController {
 	public ResponseEntity markAsRead(@PathVariable("clientId") long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(id);
-		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT,client,userFromSession);
+		List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
+		for (Notification notification : notifications) {
+			if (notification.getType() == Notification.Type.POSTPONE) {
+				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.NOTIFICATION_POSTPONE, userFromSession);
+				clientHistory.setClient(client);
+				clientHistoryService.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+			}
+		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
+
 }

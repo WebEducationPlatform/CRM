@@ -13,4 +13,6 @@ public interface NotificationService {
 	List<Notification> getByUserToNotify(User user);
 
 	List<Notification> getByUserToNotifyAndType(User user, Notification.Type type);
+
+	List<Notification> getByUserToNotifyAndTypeAndClient(User user, Notification.Type type, Client client);
 }
