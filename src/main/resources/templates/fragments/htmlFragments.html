@@ -44,7 +44,7 @@
                             <th:block th:each="notification : ${notifications}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                     <li th:class="'menu' + ${notification.client.id}">
-                                    <a data-toggle="modal" class="link-cursor-pointer"
+                                    <a data-toggle="modal" class="link-cursor-pointer notify"
                                        th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
                                        th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                        th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
@@ -56,6 +56,15 @@
                                         <a data-toggle="modal" class="notification-header-btn"
                                            th:attrappend="data-target='#sms-error-modal_' + ${notification.client.id}"
                                            th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).POSTPONE}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
                                         </a>
                                     </li>
                                 </th:block>

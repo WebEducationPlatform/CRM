@@ -40,4 +40,9 @@ public class NotificationServiceImpl implements NotificationService {
 	public List<Notification> getByUserToNotifyAndType(User user, Notification.Type type) {
 		return notificationRepository.getByUserToNotifyAndType(user, type);
 	}
+
+	@Override
+	public List<Notification> getByUserToNotifyAndTypeAndClient(User user, Notification.Type type, Client client) {
+		return notificationRepository.getByUserToNotifyAndTypeAndClient(user, type, client);
+	}
 }
