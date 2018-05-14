@@ -118,10 +118,10 @@ public class DataInitializer {
 		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client 2", admin));
 		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client 3", admin));
 		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client 4", admin));
-		client1.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client1));
-		client2.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client2));
-		client3.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client3));
-		client4.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.SYSTEM), client4));
+		client1.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(), client1));
+		client2.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(), client2));
+		client3.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(), client3));
+		client4.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(), client4));
 		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),

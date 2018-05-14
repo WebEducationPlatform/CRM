@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.service.interfaces.MessageService;
 import com.ewp.crm.service.interfaces.SMSInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,10 +14,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class MessageInfoController {
 
 	private final SMSInfoService smsInfoService;
+	private final MessageService messageService;
 
 	@Autowired
-	public MessageInfoController(SMSInfoService smsInfoService) {
+	public MessageInfoController(SMSInfoService smsInfoService, MessageService messageService) {
 		this.smsInfoService = smsInfoService;
+		this.messageService = messageService;
 	}
 
 	@GetMapping("/info/sms/{smsInfoId}")
@@ -26,8 +29,10 @@ public class MessageInfoController {
 		return modelAndView;
 	}
 
-//	@GetMapping("/info/vk/{vkInfoId}")
-//	public ModelAndView showVkInfo(@PathVariable("vkInfoId") long id) {
-//
-//	}
+	@GetMapping("/info/others/{messageId}")
+	public ModelAndView showVkInfo(@PathVariable("messageId") long id) {
+		ModelAndView modelAndView = new ModelAndView("blank_message-info");
+		modelAndView.addObject("message", messageService.getById(id));
+		return modelAndView;
+	}
 }

@@ -296,17 +296,18 @@
                                         </div>
                                         <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
                                             <div class="panel-body">
-                                                <div class="history-list" th:id="'client-'+${client.id}+'history'">
-                                                    <table border="1" width="100%" class="client-history-table">
+                                                <table border="1" width="100%" class="client-history-table" th:id="'client-'+${client.id}+'history'">
                                                         <tr th:each="history : ${client.history}">
-                                                            <td><span th:text="${history.title}"></span></td>
-                                                            <td class="client-history-date"><span th:text="${history.date}"></span></td>
+                                                            <td th:text="${history.title}"></td>
+                                                            <td class="client-history-date" th:text="${history.date}"></td>
                                                             <th:block th:if="${history.link != null}">
                                                                 <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link}"></a></td>
                                                             </th:block>
+                                                            <th:block th:if="${history.message != null}">
+                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="'client/info/others/' + ${history.message.id}"></a></td>
+                                                            </th:block>
                                                         </tr>
-                                                    </table>
-                                                </div>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>

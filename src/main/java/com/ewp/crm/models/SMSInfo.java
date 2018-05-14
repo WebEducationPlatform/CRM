@@ -20,6 +20,7 @@ public class SMSInfo implements Serializable {
 	private String deliveryStatus;
 
 	@Basic
+	@Lob
 	private String message;
 
 	@Basic

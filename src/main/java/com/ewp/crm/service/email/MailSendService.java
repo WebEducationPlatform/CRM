@@ -2,19 +2,24 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -33,15 +38,19 @@ public class MailSendService {
 	private final JavaMailSender javaMailSender;
 	private final TemplateEngine htmlTemplateEngine;
 	private final ImageConfig imageConfig;
+	private final ClientService clientService;
+	private final ClientHistoryService clientHistoryService;
 	private String emailLogin;
 
 
 	@Autowired
 	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-	                       ImageConfig imageConfig, Environment environment) {
+	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService) {
 		this.javaMailSender = javaMailSender;
 		this.htmlTemplateEngine = htmlTemplateEngine;
 		this.imageConfig = imageConfig;
+		this.clientService = clientService;
+		this.clientHistoryService = clientHistoryService;
 		checkConfig(environment);
 	}
 
@@ -55,7 +64,6 @@ public class MailSendService {
 	}
 
 	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
-		recipient = emailLogin; //Удалить после тестов!!
 		final Context ctx = new Context();
 		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);
@@ -65,7 +73,7 @@ public class MailSendService {
 			mimeMessageHelper.setSubject("Java Mentor");
 			mimeMessageHelper.setTo(recipient);
 			mimeMessageHelper.setFrom(emailLogin);
-			StringBuilder htmlContent =  new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
+			StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
 			for (Map.Entry<String, String> entry : params.entrySet()) {
 				htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
 			}
@@ -77,9 +85,15 @@ public class MailSendService {
 			Matcher matcher = pattern.matcher(templateText);
 			while (matcher.find()) {
 				InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
-				mimeMessageHelper.addInline(matcher.group(), inputStreamSource,"image/jpeg");
+				mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
 			}
 			javaMailSender.send(mimeMessage);
+			Client client = clientService.getClientByEmail(recipient);
+			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			Message message = new Message(Message.Type.EMAIL, htmlContent.toString());
+			ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE, principal, message);
+			client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+			clientService.updateClient(client);
 		} catch (Exception e) {
 			logger.error("Can't send mail to {}", recipient);
 			throw new MessageTemplateException(e.getMessage());

@@ -3,8 +3,11 @@ package com.ewp.crm.component.util;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SMSInfo;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,13 +31,17 @@ public class SMSUtilImpl implements SMSUtil {
 
 	private final SMSConfig smsConfig;
 	private final RestTemplate restTemplate;
+	private final ClientService clientService;
+	private final ClientHistoryService clientHistoryService;
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
+		this.clientService = clientService;
+		this.clientHistoryService = clientHistoryService;
 	}
 
 	@Override
@@ -49,6 +56,14 @@ public class SMSUtilImpl implements SMSUtil {
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
+			clientService.updateClient(client);
+			Client forHistory = clientService.getClientByID(client.getId());
+			SMSInfo sms = forHistory.getSmsInfo().get(forHistory.getSmsInfo().size() - 1);
+			String link = "/client/info/sms/" + sms.getId();
+			ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SMS, sms.getUser(), link);
+			clientHistoryService.generateValidHistory(clientHistory, sms.getClient());
+			clientHistory.setClient(forHistory);
+			clientHistoryService.addHistory(clientHistory);
 		} catch (JSONException e) {
 			logger.error("Error to send message");
 		}

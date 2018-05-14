@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/edit-eTemplate.js}"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
+    <title>SMS Info</title>
+</head>
+<body style="background-color: #ccc3c6;">
+<fieldset>
+    <label for="body"></label>
+    <textarea readonly="readonly" id="body" required="required" th:text="${message.getContent()}">
+                            &lt;p&gt;
+                                Example template layout.
+                            &lt;/p&gt;
+    </textarea>
+</fieldset>
+</body>
+</html>

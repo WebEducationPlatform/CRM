@@ -31,7 +31,6 @@ public class SMSRestController {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(id);
 		smsUtil.sendSMS(client, message, principal);
-		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send");
 	}
 

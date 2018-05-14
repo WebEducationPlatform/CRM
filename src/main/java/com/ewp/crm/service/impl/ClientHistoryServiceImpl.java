@@ -35,6 +35,10 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return clientHistory;
 		}
 		String worker = clientHistory.getUser().getFullName();
+		if (type == ClientHistory.Type.SEND_MESSAGE) {
+			clientHistory.setTitle(worker + " " + type.getTitle() + " " + clientHistory.getMessage().getType().getInfo());
+			return clientHistory;
+		}
 		String title;
 		DateTime dateTime = null;
 		if (type == ClientHistory.Type.POSTPONE) {
@@ -42,25 +46,19 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		}
 		switch (type) {
 			case ADD_CLIENT:
-				title = worker + " добавил клиента вручную ";
-				break;
 			case UPDATE_CLIENT:
-				title = worker + " обновил информацию клиента ";
-				break;
 			case SMS:
-				title = worker + " отправил клиенту SMS ";
-				break;
 			case CALL:
-				title = worker + " позвонил ";
+				title = worker + " " + type.getTitle();
 				break;
 			case STATUS:
-				title = worker + " перевел клиента в статус " + client.getStatus().getName();
+				title = worker + " " + type.getTitle() + " " + client.getStatus().getName();
 				break;
 			case POSTPONE:
-				title = worker + " скрыл клиента до " + dateTime.toString("dd MMM yyyy 'года' HH:mm");
+				title = worker + " " + type.getTitle() + " " + dateTime.toString("dd MMM yyyy 'года' HH:mm");
 				break;
 			default:
-				title = "История инициализирована через пустой конструктор";
+				title = "неизвестная ошибка";
 		}
 		clientHistory.setTitle(title);
 		return clientHistory;
