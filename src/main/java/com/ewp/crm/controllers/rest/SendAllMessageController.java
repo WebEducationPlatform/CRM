@@ -28,7 +28,6 @@ public class SendAllMessageController {
 	private final SMSUtil smsUtil;
 	private final VKUtil vkUtil;
 
-
 	@Autowired
 	public SendAllMessageController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig, SMSUtil smsUtil, VKUtil vkUtil) {
 		this.mailSendService = mailSendService;
@@ -38,7 +37,6 @@ public class SendAllMessageController {
 		this.smsUtil = smsUtil;
 		this.vkUtil = vkUtil;
 	}
-
 
 	@RequestMapping(value = "/rest/messages", method = RequestMethod.POST)
 	public ResponseEntity sendSeveralMessage(@RequestParam("boxList") String boxList,
@@ -64,6 +62,7 @@ public class SendAllMessageController {
 			String text = replaceName(MessageTemplateService.get(templateId).getOtherText(), params);
 			smsUtil.sendSMS(client, text, principal);
 		}
+
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -74,5 +73,4 @@ public class SendAllMessageController {
 		}
 		return vkText;
 	}
-}
 }

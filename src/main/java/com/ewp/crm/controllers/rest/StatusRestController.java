@@ -53,7 +53,7 @@ public class StatusRestController {
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
-			return ResponseEntity.ok().build();
+			return ResponseEntity.badRequest().build();
 		}
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		currentClient.setStatus(statusService.get(statusId));
