@@ -48,6 +48,7 @@ public class EmailRestController {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 		mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),

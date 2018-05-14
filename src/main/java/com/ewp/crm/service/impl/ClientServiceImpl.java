@@ -97,11 +97,12 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.saveAndFlush(client);
     }
 
+	//TODO упростить
     private void setEmptyNull(Client client) {
-	    if(client.getPhoneNumber().isEmpty()){
+	    if(client.getPhoneNumber() !=null && client.getPhoneNumber().isEmpty()){
 		    client.setPhoneNumber(null);
 	    }
-	    if(client.getEmail().isEmpty()){
+	    if(client.getEmail() !=null && client.getEmail().isEmpty()){
 		    client.setEmail(null);
 	    }
     }
