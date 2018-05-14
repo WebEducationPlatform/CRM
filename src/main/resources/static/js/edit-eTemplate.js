@@ -18,10 +18,11 @@ $(document).ready(function () {
 
 function saveTemplate(templateId) {
     let url = '/admin/editMessageTemplate';
-
+	let text =  $('#textTemplateArea').val();
     let wrap = {
         templateId: templateId,
-        templateText: CKEDITOR.instances['body'].getData()
+        templateText: CKEDITOR.instances['body'].getData(),
+        otherTemplateText : text
     };
     var current = document.getElementById("message");
     $.ajax({
@@ -43,33 +44,6 @@ function saveTemplate(templateId) {
     });
 }
 
-function saveOtherTextTemplate(templateId) {
-    let text =  $('#textTemplateArea').val();
-    let url = '/admin/editOtherTemplate';
-
-    let wrap = {
-        templateId: templateId,
-        templateText: text
-    };
-    var current = document.getElementById("message");
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: wrap,
-        beforeSend: function(){
-            current.style.color = "darkorange";
-            current.textContent = "Загрузка...";
-
-        },
-        success: function (result) {
-            current.style.color = "limegreen";
-            current.textContent = "Сохранено";
-        },
-        error: function (e) {
-            setErrorMessage(e.responseText);
-        }
-    });
-}
 var file;
 
 function sendImg() {

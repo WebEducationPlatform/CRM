@@ -230,6 +230,37 @@ function addUser() {
             console.log(e.responseText);
         }
     });
+}
 
+$(function () {
+	$("#edit-user-age").on('keyup','click', function(e) {
+		var reg = new RegExp("^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
+		if(!reg.test($("#edit-user-age").val())) {
+			$("#edit-user-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
+			$("#saveChanges")[0].setAttribute("disabled","disabled");
+		}else {
+			$("#edit-user-age").siblings("div[class='help-block with-error']")[0].innerText = "";
+			$("#saveChanges")[0].removeAttribute("disabled");
+		}
+	});
+});
 
+$(function () {
+	$("#add-user-age").on('keyup', function(e) {
+		var reg = new RegExp("^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
+		if(!reg.test($("#add-user-age").val())) {
+			$("#add-user-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
+			$("#saveChanges")[0].setAttribute("disabled","disabled");
+		}else {
+			$("#add-user-age").siblings("div[class='help-block with-error']")[0].innerText = "";
+			$("#saveChanges")[0].removeAttribute("disabled");
+		}
+	});
+});
+
+function disableInputE() {
+	var disMas = [69, 187, 189, 109];
+	if (disMas.indexOf(event.keyCode)!==-1) {
+		event.preventDefault()
+	}
 }
