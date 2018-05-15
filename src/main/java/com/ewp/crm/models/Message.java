@@ -39,7 +39,7 @@ public class Message {
 		VK("vk"),
 		EMAIL("email"),
 		FACEBOOK("facebook"),
-		MESSAGE;
+		SMS("sms");
 
 		private String info;
 
