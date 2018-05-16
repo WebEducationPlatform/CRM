@@ -85,7 +85,12 @@ public class ClientServiceImpl implements ClientService {
 	//TODO упростить
 	@Override
     public void addClient(Client client) {
-		phoneNumberValidation(client);
+		if (client.getLastName() == null) {
+			client.setLastName("");
+		}
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
 		if(client.getEmail()!=null) {
 			if(clientRepository.findClientByEmail(client.getEmail())!=null) {
@@ -137,7 +142,9 @@ public class ClientServiceImpl implements ClientService {
 	//TODO упростить
     @Override
     public void updateClient(Client client) {
-		phoneNumberValidation(client);
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
 	    if(client.getEmail()!=null) {
 		    Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
