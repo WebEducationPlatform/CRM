@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -75,14 +77,14 @@ public class Status implements Serializable {
 		if (this == o) return true;
 		if (!(o instanceof Status)) return false;
 		Status status = (Status) o;
-		return (id != null ? id.equals(status.id) : status.id == null) && name.equals(status.name);
+		return Objects.equals(id, status.id) &&
+				Objects.equals(name, status.name) &&
+				Objects.equals(isInvisible, status.isInvisible);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + name.hashCode();
-		return result;
+		return Objects.hash(id, name, isInvisible);
 	}
 
 	@Override

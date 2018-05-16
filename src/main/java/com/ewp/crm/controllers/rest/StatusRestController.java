@@ -53,7 +53,7 @@ public class StatusRestController {
 	                                         @RequestParam(name = "clientId") Long clientId) {
 		Client currentClient = clientService.getClientByID(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body("Клиент уже находится на данном статусе");
 		}
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		currentClient.setStatus(statusService.get(statusId));
@@ -87,11 +87,15 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/admin/rest/status/hide")
-	public ResponseEntity hideStatus(@RequestParam("statusId") long statusId) {
+	@PostMapping("/admin/rest/status/visible/change")
+	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId, @RequestParam("invisible") boolean bool) {
 		Status status = statusService.get(statusId);
-		status.setInvisible(true);
+		if (status.getInvisible() == bool) {
+			logger.error("Статус уже " + (bool ? "невидимый" : "видимый"));
+			return ResponseEntity.badRequest().body("Статус уже " + (bool ? "невидимый" : "видимый"));
+		}
+		status.setInvisible(bool);
 		statusService.update(status);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok().body(status);
 	}
 }

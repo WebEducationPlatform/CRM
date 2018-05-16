@@ -121,7 +121,7 @@ public class ClientHistory {
 		UNASSIGN("открепил"),
 		CALL("совершил звонок"),
 		SEND_MESSAGE("отправил сообщение по"),
-		ADD("добаил вручную"),
+		ADD("добавил вручную"),
 		UPDATE("обновил информацию");
 
 		private String info;
