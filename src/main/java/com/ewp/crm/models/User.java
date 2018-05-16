@@ -321,4 +321,5 @@ public class User implements UserDetails {
 	public void setIpTelephony(boolean ipTelephony) {
 		this.ipTelephony = ipTelephony;
 	}
+
 }

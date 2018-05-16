@@ -22,6 +22,7 @@ public class IPUtilImpl implements IPUtil {
 
 	private String voximplantRuleId;
 
+
 	private static org.slf4j.Logger logger = LoggerFactory.getLogger(IPUtilImpl.class);
 
 
@@ -32,7 +33,7 @@ public class IPUtilImpl implements IPUtil {
 		voximplantRuleId = ipConfig.getVoximplantRuleId();
 	}
 
-	public void call(String from, String to) {
+	public void call(String from, String to, Long callId) {
 
 		String callVoximplant = "https://api.voximplant.com/platform_api/StartScenarios/" +
 				"?account_id=" +
@@ -44,7 +45,9 @@ public class IPUtilImpl implements IPUtil {
 				"&script_custom_data=" +
 				from +
 				"%3A" +
-				to;
+				to +
+				"%3A" +
+				callId;
 
 		try {
 			HttpGet callVox = new HttpGet(callVoximplant);
@@ -56,6 +59,8 @@ public class IPUtilImpl implements IPUtil {
 		} catch (IOException e) {
 			logger.error("Failed to connect to Voximplant server");
 		}
+
+
 	}
 
 	public void getRecordLink() {
