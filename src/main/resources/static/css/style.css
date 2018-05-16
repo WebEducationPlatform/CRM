@@ -578,3 +578,10 @@ span[id^="sendCustomEmailTemplateStatus"] {
 span[id^="sendTemplateStatus"] {
 	color: red;
 }
+
+div[id^="sendEmailTemplateStatus"] {
+	float: right;
+	margin-top: 4px;
+	width: 55%;
+	text-align: center;
+}

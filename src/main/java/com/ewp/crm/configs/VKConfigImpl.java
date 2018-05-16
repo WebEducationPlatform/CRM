@@ -53,14 +53,15 @@ public class VKConfigImpl implements VKConfig {
         return matcher.find();
     }
 
+
     private boolean configIsValid() {
-        if (clientId == null || "".equals(clientId)) return false;
-        if (clientSecret == null || "".equals(clientSecret)) return false;
-        if (username == null || "".equals(username)) return false;
-        if (password == null || "".equals(password)) return false;
+        if (clientId == null || clientId.isEmpty()) return false;
+        if (clientSecret == null || clientSecret.isEmpty()) return false;
+        if (username == null || username.isEmpty()) return false;
+        if (password == null || password.isEmpty()) return false;
         if (containsIllegals(password)) return false;
-        if (clubId == null || "".equals(clubId)) return false;
-        if (communityToken == null || "".equals(communityToken)) return false;
+        if (clubId == null || clubId.isEmpty()) return false;
+        if (communityToken == null || communityToken.isEmpty()) return false;
         return true;
     }
 
