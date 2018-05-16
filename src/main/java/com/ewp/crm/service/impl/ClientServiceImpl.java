@@ -9,10 +9,8 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,7 +83,12 @@ public class ClientServiceImpl implements ClientService {
 	//TODO упростить
 	@Override
     public void addClient(Client client) {
-		phoneNumberValidation(client);
+		if (client.getLastName() == null) {
+			client.setLastName("");
+		}
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
 		if(client.getEmail()!=null) {
 			if(clientRepository.findClientByEmail(client.getEmail())!=null) {
@@ -135,8 +138,8 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	//TODO упростить
-	@Override
-	public void updateClient(Client client) {
+    @Override
+    public void updateClient(Client client) {
 		if (client.getPhoneNumber() != null) {
 			phoneNumberValidation(client);
 		}
