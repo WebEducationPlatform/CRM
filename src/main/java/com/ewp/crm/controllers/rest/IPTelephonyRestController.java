@@ -44,10 +44,11 @@ public class IPTelephonyRestController {
 		Client client = clientService.getClientByPhoneNumber(to);
 		if (client.isCanCall() && principal.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL, principal);
-			ClientHistory clientHistoryFromDB = clientHistoryService.generateValidHistory(clientHistory, client);
-			client.addHistory(clientHistoryFromDB);
-			callRecord.setClientHistory(clientHistoryFromDB);
+			String link = "";
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, ClientHistory.Type.CALL, link);
+			ClientHistory fromDb = clientHistoryService.addHistory(clientHistory);
+			client.addHistory(fromDb);
+			callRecord.setClientHistory(fromDb);
 			CallRecord callRecordFromDB = callRecordService.add(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
