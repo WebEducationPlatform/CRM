@@ -224,11 +224,16 @@ ul.nav a:hover {
 	background: inherit;
 }
 
+#statuses_group {
+    border-bottom: 1px solid #cdcfd0;
+}
+
+
 #client_filter_group {
 	border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading, #user_group-heading {
+#client-filter-heading, #user_group-heading, #statuses-heading {
 	background: gainsboro;
 }
 
@@ -253,7 +258,7 @@ ul.nav a:hover {
 	margin-top: 10px;
 }
 
-#delete-status-icon{
+#delete-status-icon, #hide-status-icon{
 	cursor: pointer;
 }
 

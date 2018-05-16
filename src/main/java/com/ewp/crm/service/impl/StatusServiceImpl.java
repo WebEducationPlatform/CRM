@@ -18,12 +18,10 @@ import java.util.List;
 public class StatusServiceImpl implements StatusService {
 
 	private final StatusDAO statusDAO;
-	private final ClientRepository clientRepository;
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ClientRepository clientRepository) {
+	public StatusServiceImpl(StatusDAO statusDAO) {
 		this.statusDAO = statusDAO;
-		this.clientRepository = clientRepository;
 	}
 
 	@Override
@@ -79,7 +77,7 @@ public class StatusServiceImpl implements StatusService {
 
 	private void checkStatusUnique(Status status) {
 		Status statusFromDB = statusDAO.findStatusByName(status.getName());
-		if (statusFromDB != null) {
+		if (statusFromDB != null && !statusFromDB.equals(status)) {
 			throw new StatusExistsException("Статус с таким названием уже существует");
 		}
 	}
@@ -88,23 +86,30 @@ public class StatusServiceImpl implements StatusService {
 		if (id == 1L) {
 			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
 		}
+		if (statusDAO.findOne(id).getName().equals("default")) {
+			throw new StatusExistsException("Статус default нельзя удалить");
+		}
+	}
+
+	private void transferStatusClientsBeforeDelete (Status status) {
+		if (status.getClients() != null) {
+			Status defaultStatus = statusDAO.findStatusByName("default");
+			defaultStatus.getClients().addAll(status.getClients());
+			status.getClients().clear();
+			statusDAO.saveAndFlush(status);
+		}
 	}
 
 	@Override
 	public void delete(Status status) {
-		checkStatusId(status.getId());
-		statusDAO.delete(status);
+		delete(status.getId());
 	}
 
 	@Override
 	public void delete(Long id) {
 		checkStatusId(id);
 		Status statusFromDB = statusDAO.findOne(id);
-		for (Client client : statusFromDB.getClients()) {
-			client.setStatus(null);
-		}
-		statusFromDB.getClients().clear();
-		statusDAO.saveAndFlush(statusFromDB);
+		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
 	}
 

@@ -1,4 +1,3 @@
-//TODO add button in view after merge with Svyatoslav
 function deleteClientStatus(clientId) {
     let url = "/admin/rest/status/client/delete";
     let requestParam = {
@@ -66,21 +65,50 @@ function returnClientToStatus(clientId, statusId) {
     });
 }
 
-function hideStatus(statusId) {
-    let url = '/admin/rest/status/hide',
-        formData = {
-            statusId : statusId
-        };
+$(document).ready(function () {
+    $(".show-status-btn").on("click", function showStatus() {
+        let val = $(this).attr("value");
+        let
+            button = $(this),
+            url = '/admin/rest/status/visible/change',
+            formData = {
+                statusId: $(this).attr("value"),
+                invisible: false
+            };
 
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: formData,
-        success: function () {
-            location.reload();
-        },
-        error: function (error) {
-        }
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: formData,
+            success: function (status) {
+                $('#status-column'+ val).show();
+                button.parents("tr").hide();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
     });
+    $(".hide-status-btn").on("click", function hideStatus() {
+        let val = $(this).attr("value");
+        let
+            url = '/admin/rest/status/visible/change',
+            formData = {
+                statusId: val,
+                invisible: true
+            };
 
-}
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: formData,
+            success: function () {
+                $('#status-column'+ val).hide();
+                $('.show-status-btn[value='+ val +']').parents("tr").show();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    })
+});

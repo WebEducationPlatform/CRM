@@ -21,16 +21,16 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.invisible}">
+        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:style="${status.invisible ? 'display:none' : ''}">
             <div id="column-header">
-            <div class="btn-group" th:if="${isAdmin}">
+            <div class="btn-group" sec:authorize="hasAnyAuthority('ADMIN')">
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
                                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
                                    <li sec:authorize="hasAuthority('ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
-                                   <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название статуса</a></li>
-                                    <li sec:authorize="hasAuthority('ADMIN')"><a type="button" class="glyphicon glyphicon-eye-open" th:onclick="'hideStatus('+ ${status.id} +')'">Скрыть статус</a></li>
+                                   <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
+                                    <li sec:authorize="hasAuthority('ADMIN')"><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
                                </ul>
             </div>
             <h1 th:text="${status.name}"></h1>
@@ -343,6 +343,23 @@
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
+                <div id="statuses_group" sec:authorize="hasAnyAuthority('ADMIN')">
+                    <div class="panel-heading" id="statuses-heading">
+                        <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
+                           href="#collapseStatuses">Скрытые статусы</a>
+                    </div>
+                    <div id="collapseStatuses" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered">
+                                <tr th:each="status:${statuses}" th:style="${!status.invisible ? 'display:none' : ''}">
+                                    <td width="70%" th:text="${status.name}"></td>
+                                    <td><button type="button" class="show-status-btn btn" id="testIdIdId" th:value="${status.id}">показать</button></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="client_filter_group" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"

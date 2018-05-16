@@ -37,6 +37,9 @@ public class DataInitializer {
 
 	private void init() {
 
+		// ###DEFAULT STATUS FOR RELEASE###
+		Status defaultStatus = new Status("default", true);
+
 		Role roleAdmin = new Role("ADMIN");
 		Role roleUser = new Role("USER");
 		roleService.add(roleAdmin);
@@ -108,7 +111,6 @@ public class DataInitializer {
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
-		Status defaultStatus = new Status("default", true);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "89891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));

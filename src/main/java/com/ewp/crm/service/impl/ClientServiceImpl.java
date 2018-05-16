@@ -135,24 +135,26 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	//TODO упростить
-    @Override
-    public void updateClient(Client client) {
-		phoneNumberValidation(client);
+	@Override
+	public void updateClient(Client client) {
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
-	    if(client.getEmail()!=null) {
-		    Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
-		    if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
-			    throw new ClientExistsException();
-		    }
-	    }
-	    if(client.getPhoneNumber()!=null){
-		    Client clientByPhone =  clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
-		    if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
-			    throw new ClientExistsException();
-		    }
-	    }
-        clientRepository.saveAndFlush(client);
-    }
+		if (client.getEmail() != null) {
+			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
+			if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
+				throw new ClientExistsException();
+			}
+		}
+		if (client.getPhoneNumber() != null) {
+			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+			if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+				throw new ClientExistsException();
+			}
+		}
+		clientRepository.saveAndFlush(client);
+	}
 
     private void phoneNumberValidation(Client client) {
 		String phoneNumber = client.getPhoneNumber();
