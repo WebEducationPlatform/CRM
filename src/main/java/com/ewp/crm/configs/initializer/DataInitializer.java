@@ -104,11 +104,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate2);
 		MessageTemplateService.add(MessageTemplate3);
 
-		Status defaultStatus = new Status("default", true);
 		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
+		Status defaultStatus = new Status("default", true);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "89891352481", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -139,11 +139,11 @@ public class DataInitializer {
 		status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
 		status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
 		status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
-		statusService.add(defaultStatus);
 		statusService.add(status0);
 		statusService.add(status1);
 		statusService.add(status2);
 		statusService.add(status3);
+		statusService.add(defaultStatus);
 		//TEST SMS ERROR NOTIFICATION
 		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(1L), userService.get(1L), Notification.Type.SMS);
 		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(2L), userService.get(1L), Notification.Type.SMS);

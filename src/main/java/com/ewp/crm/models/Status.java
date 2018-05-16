@@ -19,7 +19,7 @@ public class Status implements Serializable {
 	private String name;
 
 	@Basic
-	private Boolean isDefault = false;
+	private Boolean isInvisible = false;
 
 	@JsonManagedReference
 	@OneToMany
@@ -28,9 +28,9 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	public Status(String name, Boolean isDefault) {
+	public Status(String name, Boolean isInvisible) {
 		this.name = name;
-		this.isDefault = isDefault;
+		this.isInvisible = isInvisible;
 	}
 
 	public Status(String name) {
@@ -90,11 +90,12 @@ public class Status implements Serializable {
 		return name;
 	}
 
-	public Boolean getDefault() {
-		return isDefault;
+
+	public Boolean getInvisible() {
+		return isInvisible;
 	}
 
-	public void setDefault(Boolean aDefault) {
-		isDefault = aDefault;
+	public void setInvisible(Boolean invisible) {
+		isInvisible = invisible;
 	}
 }

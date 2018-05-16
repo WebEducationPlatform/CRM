@@ -86,4 +86,12 @@ public class StatusRestController {
 		logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());
 		return ResponseEntity.ok().build();
 	}
+
+	@PostMapping("/admin/rest/status/hide")
+	public ResponseEntity hideStatus(@RequestParam("statusId") long statusId) {
+		Status status = statusService.get(statusId);
+		status.setInvisible(true);
+		statusService.update(status);
+		return ResponseEntity.ok().build();
+	}
 }
