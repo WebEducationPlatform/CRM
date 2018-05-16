@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
@@ -17,6 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -49,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void add(User user) {
+		phoneNumberValidation(user);
 		if (userDAO.getUserByEmail(user.getEmail()) != null) {
 			throw new UserExistsException();
 		}
@@ -57,6 +61,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void update(User user) {
+		phoneNumberValidation(user);
 		User currentUserByEmail;
 		if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
 			throw new UserExistsException();
@@ -99,5 +104,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User getUserByFirstNameAndLastName(String firstName, String lastName) {
 		return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
+	}
+
+	private void phoneNumberValidation(User user) {
+		String phoneNumber = user.getPhoneNumber();
+		Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			if (phoneNumber.startsWith("8")) {
+				phoneNumber = phoneNumber.replaceFirst("8", "7");
+			}
+			user.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
+					.replaceAll("\\s", ""));
+		}
 	}
 }

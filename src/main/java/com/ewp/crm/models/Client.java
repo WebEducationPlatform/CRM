@@ -52,6 +52,9 @@ public class Client implements Serializable {
 	@Column(name = "postponeDate")
 	private Date postponeDate;
 
+	@Column
+	private boolean canCall;
+
 	@Column(name = "client_state")
 	@Enumerated(EnumType.STRING)
 	private State state;
@@ -116,6 +119,10 @@ public class Client implements Serializable {
 	@Lob
 	@Column(name = "client_description_comment")
 	private String clientDescriptionComment;
+
+	@Column
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<CallRecord> callRecords;
 
 	public Client() {
 	}
@@ -376,6 +383,26 @@ public class Client implements Serializable {
 
 	public void setSmsInfo(List<SMSInfo> smsInfo) {
 		this.smsInfo = smsInfo;
+	}
+
+	public boolean isCanCall() {
+		return canCall;
+	}
+
+	public void setCanCall(boolean canCall) {
+		this.canCall = canCall;
+	}
+
+	public List<CallRecord> getCallRecords() {
+		return callRecords;
+	}
+
+	public void setCallRecords(List<CallRecord> callRecords) {
+		this.callRecords = callRecords;
+	}
+
+	public void addCallRecord(CallRecord callRecord) {
+		this.callRecords.add(callRecord);
 	}
 
 	public enum Sex {
