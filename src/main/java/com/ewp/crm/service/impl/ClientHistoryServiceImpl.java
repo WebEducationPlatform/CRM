@@ -30,8 +30,8 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public void addHistory(ClientHistory history) {
-		clientHistoryRepository.saveAndFlush(history);
+	public ClientHistory addHistory(ClientHistory history) {
+		return clientHistoryRepository.saveAndFlush(history);
 	}
 
 	@Override

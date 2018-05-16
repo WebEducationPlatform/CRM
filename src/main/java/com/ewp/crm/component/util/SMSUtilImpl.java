@@ -191,7 +191,7 @@ public class SMSUtilImpl implements SMSUtil {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.set("Authorization", encodeAuth);
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		httpHeaders.setAcceptCharset(Collections.singletonList(Charset.forName("UTF-8")));
+		httpHeaders.set("charset", "utf-8");
 		return httpHeaders;
 	}
 }

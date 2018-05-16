@@ -7,7 +7,7 @@ import com.ewp.crm.models.User;
 
 public interface ClientHistoryService {
 
-	void addHistory(ClientHistory history);
+	ClientHistory addHistory(ClientHistory history);
 
 	ClientHistory createHistory(String socialRequest);
 
