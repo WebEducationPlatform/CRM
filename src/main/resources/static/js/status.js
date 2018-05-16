@@ -65,3 +65,22 @@ function returnClientToStatus(clientId, statusId) {
         }
     });
 }
+
+function hideStatus(statusId) {
+    let url = '/admin/rest/status/hide',
+        formData = {
+            statusId : statusId
+        };
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function () {
+            location.reload();
+        },
+        error: function (error) {
+        }
+    });
+
+}

@@ -21,7 +21,7 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.default}">
+        <div id="status-column" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.invisible}">
             <div id="column-header">
             <div class="btn-group" th:if="${isAdmin}">
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
@@ -30,6 +30,7 @@
                                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
                                    <li sec:authorize="hasAuthority('ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
                                    <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название статуса</a></li>
+                                    <li sec:authorize="hasAuthority('ADMIN')"><a type="button" class="glyphicon glyphicon-eye-open" th:onclick="'hideStatus('+ ${status.id} +')'">Скрыть статус</a></li>
                                </ul>
             </div>
             <h1 th:text="${status.name}"></h1>
@@ -46,6 +47,9 @@
                             </li>
                             <li>
                                 <a th:onclick="'unassign('+ ${client.id} +')'">Unassign</a>
+                            </li>
+                            <li>
+                                <a th:onclick="'deleteClientStatus('+ ${client.id} +')'">delete</a>
                             </li>
                         </ul>
                     </div>
