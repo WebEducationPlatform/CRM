@@ -2,10 +2,7 @@ package com.ewp.crm.component.util;
 
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.inteface.SMSConfig;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.SMSInfo;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.json.JSONArray;
@@ -20,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,14 +55,9 @@ public class SMSUtilImpl implements SMSUtil {
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
+			Message forHistory = new Message(Message.Type.SMS, text);
+			client.addHistory(clientHistoryService.createHistory(sender, client, forHistory));
 			clientService.updateClient(client);
-			Client forHistory = clientService.getClientByID(client.getId());
-			SMSInfo sms = forHistory.getSmsInfo().get(forHistory.getSmsInfo().size() - 1);
-			String link = "/client/info/sms/" + sms.getId();
-			ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SMS, sms.getUser(), link);
-			clientHistoryService.generateValidHistory(clientHistory, sms.getClient());
-			clientHistory.setClient(forHistory);
-			clientHistoryService.addHistory(clientHistory);
 		} catch (JSONException e) {
 			logger.error("Error to send message");
 		}
@@ -197,6 +191,7 @@ public class SMSUtilImpl implements SMSUtil {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.set("Authorization", encodeAuth);
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.setAcceptCharset(Collections.singletonList(Charset.forName("UTF-8")));
 		return httpHeaders;
 	}
 }

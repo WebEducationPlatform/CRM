@@ -49,9 +49,9 @@ public class NotificationRestController {
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
 		for (Notification notification : notifications) {
 			if (notification.getType() == Notification.Type.POSTPONE) {
-				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.NOTIFICATION_POSTPONE, userFromSession);
+				ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
 				clientHistory.setClient(client);
-				clientHistoryService.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+				clientHistoryService.addHistory(clientHistory);
 			}
 		}
 		return ResponseEntity.ok(HttpStatus.OK);

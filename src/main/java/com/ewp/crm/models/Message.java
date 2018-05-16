@@ -39,7 +39,8 @@ public class Message {
 		VK("vk"),
 		EMAIL("email"),
 		FACEBOOK("facebook"),
-		SMS("sms");
+		SMS("sms"),
+		DATA();
 
 		private String info;
 

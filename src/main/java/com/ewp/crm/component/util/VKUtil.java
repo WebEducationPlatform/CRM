@@ -7,7 +7,9 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialNetworkService;
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 
 @Component
@@ -128,16 +131,17 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
+	//TODO не нарушать архитектуру
 	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-				long id = Long.parseLong(socialNetwork.getLink().replace("https://vk.com/id", ""));
+				String link =  validVkLink(socialNetwork.getLink());
+				long id = Long.parseLong(link.replace("https://vk.com/id", ""));
 				String vkText = replaceName(msg, params);
 				String responseMessage = sendMessageById(id, vkText);
 				Message message = new Message(Message.Type.VK, vkText);
-				ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE, principal, message);
-				client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+				client.addHistory(clientHistoryService.createHistory(principal, client, message));
 				clientService.updateClient(client);
 				return responseMessage;
 			}
@@ -307,6 +311,39 @@ public class VKUtil {
 		socialNetworks.add(socialNetwork);
 		client.setSocialNetworks(socialNetworks);
 		return client;
+	}
+
+	private String getIdByScreenName(String link) {
+		String screenName = link.replaceAll("^.+\\.(com/)", "");
+		String request = VK_API_METHOD_TEMPLATE + "utils.resolveScreenName?"
+				+ "screen_name=" + screenName
+				+ "&access_token=" + accessToken
+				+ "&v=" + version;
+		HttpGet httpGetClient = new HttpGet(request);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build()).build();
+		try {
+			HttpResponse response = httpClient.execute(httpGetClient);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject json = new JSONObject(result);
+			JSONObject responseObject = json.getJSONObject("response");
+			String vkId = responseObject.getString("object_id");
+			return "https://vk.com/id" + vkId;
+		} catch (JSONException e) {
+			logger.error("Can't take id by screen name {}", screenName);
+		} catch (IOException e) {
+			logger.error("Failed to connect to VK server");
+		}
+		return link;
+	}
+
+	private String validVkLink(String link) {
+		Pattern pattern = Pattern.compile(ValidationPattern.VK_LINK_PATTERN);
+		if (!pattern.matcher(link).matches()) {
+			return getIdByScreenName(link);
+		}
+		return link;
 	}
 
 	private String replaceName(String msg, Map<String, String> params) {

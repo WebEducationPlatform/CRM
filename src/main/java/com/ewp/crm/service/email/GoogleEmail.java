@@ -1,7 +1,9 @@
 package com.ewp.crm.service.email;
 
+import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.utils.converters.IncomeStringToClient;
@@ -47,12 +49,13 @@ public class GoogleEmail {
     private final ClientService clientService;
     private final StatusService statusService;
     private final IncomeStringToClient incomeStringToClient;
+    private final ClientHistoryService clientHistoryService;
 
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient) {
+    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKUtil vkUtil) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -66,6 +69,7 @@ public class GoogleEmail {
         protocol = mailConfig.getProtocol();
         debug = mailConfig.getDebug();
         imapServer = mailConfig.getImapServer();
+	    this.clientHistoryService = clientHistoryService;
     }
 
     private Properties javaMailProperties() {
@@ -109,7 +113,9 @@ public class GoogleEmail {
                 parser.parse();
                 Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
                 if (client != null) {
+                	//TODO добавлять в первый статус, сделать default статус не первым статусом
                     client.setStatus(statusService.get(1L));
+                    client.addHistory(clientHistoryService.createHistory("GMail"));
                     clientService.addClient(client);
                 }
             } catch (Exception e) {

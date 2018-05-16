@@ -60,9 +60,7 @@ public class ScheduleTasks {
 		newClient.setState(Client.State.NEW);
 		newClient.setDateOfRegistration(LocalDateTime.now().toDate());
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
-		ClientHistory clientHistory = new ClientHistory(socialNetworkTypeService.getByTypeName("vk"));
-		clientHistoryService.generateValidHistory(clientHistory, newClient);
-		newClient.addHistory(clientHistory);
+		newClient.addHistory(clientHistoryService.createHistory("vk"));
 		clientService.addClient(newClient);
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
@@ -74,8 +72,8 @@ public class ScheduleTasks {
 		updateClient.setEmail(newClient.getEmail());
 		updateClient.setAge(newClient.getAge());
 		updateClient.setSex(newClient.getSex());
+		updateClient.addHistory(clientHistoryService.createHistory("vk + информация обновлена"));
 		clientService.updateClient(updateClient);
-		// TODO добавлять историю ?
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
