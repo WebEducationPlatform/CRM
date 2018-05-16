@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ClientServiceImpl implements ClientService {
@@ -83,6 +85,7 @@ public class ClientServiceImpl implements ClientService {
 	//TODO упростить
 	@Override
     public void addClient(Client client) {
+		phoneNumberValidation(client);
 		setEmptyNull(client);
 		if(client.getEmail()!=null) {
 			if(clientRepository.findClientByEmail(client.getEmail())!=null) {
@@ -134,6 +137,7 @@ public class ClientServiceImpl implements ClientService {
 	//TODO упростить
     @Override
     public void updateClient(Client client) {
+		phoneNumberValidation(client);
 		setEmptyNull(client);
 	    if(client.getEmail()!=null) {
 		    Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
@@ -148,5 +152,21 @@ public class ClientServiceImpl implements ClientService {
 		    }
 	    }
         clientRepository.saveAndFlush(client);
+    }
+
+    private void phoneNumberValidation(Client client) {
+		String phoneNumber = client.getPhoneNumber();
+	    Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+	    Matcher matcher = pattern.matcher(phoneNumber);
+	    if (matcher.matches()) {
+	    	client.setCanCall(true);
+	    	if (phoneNumber.startsWith("8")) {
+	    		phoneNumber = phoneNumber.replaceFirst("8", "7");
+		    }
+		    client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
+				    .replaceAll("\\s", ""));
+	    } else {
+	    	client.setCanCall(false);
+	    }
     }
 }
