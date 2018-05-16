@@ -57,9 +57,7 @@ public class StatusRestController {
 		}
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		currentClient.setStatus(statusService.get(statusId));
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS, principal);
-		clientHistoryService.generateValidHistory(clientHistory, currentClient);
-		currentClient.addHistory(clientHistory);
+		currentClient.addHistory(clientHistoryService.createHistory(principal, currentClient, ClientHistory.Type.STATUS));
 		clientService.updateClient(currentClient);
 		logger.info("{} has changed status of client with id: {} to status id: {}", principal.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();
@@ -83,9 +81,7 @@ public class StatusRestController {
 		}
 		Status status = client.getStatus();
 		client.setStatus(statusService.get("default"));
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS, principal);
-		clientHistoryService.generateValidHistory(clientHistory, client);
-		client.addHistory(clientHistory);
+		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.STATUS));
 		clientService.updateClient(client);
 		logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());
 		return ResponseEntity.ok().build();

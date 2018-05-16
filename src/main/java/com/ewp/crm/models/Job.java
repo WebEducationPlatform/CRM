@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "job")
@@ -50,23 +51,18 @@ public class Job implements Serializable {
         this.position = position;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Job)) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Job)) return false;
+		Job job = (Job) o;
+		return Objects.equals(id, job.id)
+				&& Objects.equals(organization, job.organization)
+				&& Objects.equals(position, job.position);
+	}
 
-        Job job = (Job) o;
-
-        if (!id.equals(job.id)) return false;
-        if (!organization.equals(job.organization)) return false;
-        return position.equals(job.position);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + organization.hashCode();
-        result = 31 * result + position.hashCode();
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, organization, position);
+	}
 }

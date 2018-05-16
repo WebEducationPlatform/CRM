@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "client")
@@ -333,12 +334,19 @@ public class Client implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Client)) return false;
-
 		Client client = (Client) o;
-
-		if (id != null ? !id.equals(client.id) : client.id != null) return false;
-		if (phoneNumber != null ? !phoneNumber.equals(client.phoneNumber) : client.phoneNumber != null) return false;
-		return email != null ? email.equals(client.email) : client.email == null;
+		return age == client.age &&
+				Objects.equals(id, client.id) &&
+				Objects.equals(name, client.name) &&
+				Objects.equals(lastName, client.lastName) &&
+				Objects.equals(phoneNumber, client.phoneNumber) &&
+				Objects.equals(email, client.email) &&
+				sex == client.sex &&
+				Objects.equals(city, client.city) &&
+				Objects.equals(country, client.country) &&
+				state == client.state &&
+				Objects.equals(socialNetworks, client.socialNetworks) &&
+				Objects.equals(clientDescriptionComment, client.clientDescriptionComment);
 	}
 
 	@Override

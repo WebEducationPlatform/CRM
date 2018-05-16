@@ -91,8 +91,7 @@ public class MailSendService {
 			Client client = clientService.getClientByEmail(recipient);
 			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			Message message = new Message(Message.Type.EMAIL, htmlContent.toString());
-			ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE, principal, message);
-			client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+			client.addHistory(clientHistoryService.createHistory(principal, client, message));
 			clientService.updateClient(client);
 		} catch (Exception e) {
 			logger.error("Can't send mail to {}", recipient);

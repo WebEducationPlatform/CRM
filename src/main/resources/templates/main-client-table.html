@@ -309,10 +309,7 @@
                                                             <td th:text="${history.title}"></td>
                                                             <td class="client-history-date" th:text="${history.date}"></td>
                                                             <th:block th:if="${history.link != null}">
-                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link}"></a></td>
-                                                            </th:block>
-                                                            <th:block th:if="${history.message != null}">
-                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="'client/info/others/' + ${history.message.id}"></a></td>
+                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link} + ${history.message != null ? history.message.id : ''}"></a></td>
                                                             </th:block>
                                                         </tr>
                                                 </table>

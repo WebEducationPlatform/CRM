@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class ClientRestController {
 	private final StatusService statusService;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
@@ -59,21 +60,26 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body(null);
 		}
 		client.setOwnerUser(user);
+		client.addHistory(clientHistoryService.createHistory(user, client, ClientHistory.Type.ASSIGN));
 		clientService.updateClient(client);
 		logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
-	//TODO hasAnyAuthority('ADMIN')
 	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
-	public ResponseEntity<User> assignUser(@RequestParam(name = "clientId") Long clientId,
-	                                       @RequestParam(name = "userForAssign") Long userId) {
+	public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
+	                                 @RequestParam(name = "userForAssign") Long userId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User assignUser = userService.get(userId);
 		Client client = clientService.getClientByID(clientId);
 		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
 			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", principal.getEmail(), clientId, assignUser.getEmail());
-			return ResponseEntity.ok(client.getOwnerUser());
+			return ResponseEntity.badRequest().build();
+		}
+		if (principal.equals(assignUser)) {
+			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.ASSIGN));
+		} else {
+			client.addHistory(clientHistoryService.createHistory(principal, assignUser, client, ClientHistory.Type.ASSIGN));
 		}
 		client.setOwnerUser(assignUser);
 		clientService.updateClient(client);
@@ -83,15 +89,20 @@ public class ClientRestController {
 
 	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
 		if (client.getOwnerUser() == null) {
-			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", user.getEmail(), clientId);
+			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", principal.getEmail(), clientId);
 			return ResponseEntity.badRequest().build();
+		}
+		if (client.getOwnerUser().equals(principal)) {
+			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.UNASSIGN));
+		} else {
+			client.addHistory(clientHistoryService.createHistory(principal, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN));
 		}
 		client.setOwnerUser(null);
 		clientService.updateClient(client);
-		logger.info("User {} has unassigned client with id {}", user.getEmail(), clientId);
+		logger.info("User {} has unassigned client with id {}", principal.getEmail(), clientId);
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
@@ -110,9 +121,7 @@ public class ClientRestController {
 		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
 		currentClient.setNotifications(clientFromDB.getNotifications());
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.UPDATE_CLIENT, currentAdmin);
-		clientHistoryService.generateValidHistory(clientHistory, currentClient);
-		currentClient.addHistory(clientHistory);
+		currentClient.addHistory(clientHistoryService.createHistory(currentAdmin, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
 		clientService.updateClient(currentClient);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -136,9 +145,7 @@ public class ClientRestController {
 		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.ADD_CLIENT, principal);
-		clientHistoryService.generateValidHistory(clientHistory, client);
-		client.addHistory(clientHistory);
+		client.addHistory(clientHistoryService.createHistory(principal, new Client(null, null), client, ClientHistory.Type.ADD));
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
@@ -290,7 +297,7 @@ public class ClientRestController {
 			client.setPostponeDate(postponeDate.toDate());
 			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			client.setOwnerUser(principal);
-			client.addHistory(clientHistoryService.generateValidHistory(new ClientHistory(ClientHistory.Type.POSTPONE, principal), client));
+			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.POSTPONE));
 			clientService.updateClient(client);
 			logger.info("{} has postponed client id:{} until {}", principal.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
@@ -309,9 +316,7 @@ public class ClientRestController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
 		}
 		client.setClientDescriptionComment(clientDescription);
-		Message message = new Message(Message.Type.MESSAGE, clientDescription);
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.DESCRIPTION, principal, message);
-		client.addHistory(clientHistoryService.generateValidHistory(clientHistory, client));
+		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
