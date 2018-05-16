@@ -44,8 +44,7 @@ public class IPTelephonyRestController {
 		Client client = clientService.getClientByPhoneNumber(to);
 		if (client.isCanCall() && principal.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			String link = "";
-			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, ClientHistory.Type.CALL, link);
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, ClientHistory.Type.CALL, null);
 			ClientHistory fromDb = clientHistoryService.addHistory(clientHistory);
 			client.addHistory(fromDb);
 			callRecord.setClientHistory(fromDb);

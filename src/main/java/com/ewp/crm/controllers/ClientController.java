@@ -78,26 +78,6 @@ public class ClientController {
 		return modelAndView;
 	}
 
-//	@RequestMapping(value = "/client/addClient", method = RequestMethod.POST)
-//	public void addClient(Client client) {
-//		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.ADD_CLIENT, principal);
-//		clientHistoryService.generateValidHistory(clientHistory, client);
-//		client.addHistory(clientHistory);
-//		clientService.addClient(client);
-//		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
-//	}
-
-//	@RequestMapping(value = "/admin/client/updateClient", method = RequestMethod.POST)
-//	public void updateClient(Client client) {
-//		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.UPDATE_CLIENT, principal);
-//		clientHistoryService.generateValidHistory(clientHistory, client);
-//		client.addHistory(clientHistory);
-//		clientService.updateClient(client);
-//		logger.info("{} has updated client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
-//	}
-
 	@RequestMapping(value = "/admin/client/deleteClient", method = RequestMethod.POST)
 	public void deleteClient(Client client) {
 		clientService.deleteClient(client);
