@@ -181,7 +181,7 @@
                                                 <td>Электронная почта: </td>
                                                 <td th:text="${client.email}"></td>
                                                 <td><div class="btn-group">
-                                                    <a name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
+                                                    <a th:if="${client.email != null and client.email != ''}" name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
                                                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendTemplate(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
