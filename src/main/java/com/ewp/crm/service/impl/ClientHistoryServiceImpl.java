@@ -43,12 +43,14 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
-	//работник изменил статус на [статус]
-	//работник добавил description клиенту [описание]
-	//работник установил напоминание на [дата]
-	//работник прочитал нотификацию клиента
-	//работник прикрепился
-	//работник открепился
+	/*
+		worker change status on [status]
+		worker add description to client "[description]"
+		worker postpone client until [date]
+		worker check notification
+		worker assigned
+		worker unassigned
+	*/
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type) {
 		ClientHistory clientHistory = new ClientHistory(type);
@@ -59,7 +61,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ").append("\"").append(client.getClientDescriptionComment()).append("\"");
 				break;
 			case POSTPONE:
+				title.append("(");
 				title.append(" ").append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(")");
 				break;
 			case STATUS:
 				title.append(" ").append(client.getStatus());
@@ -74,10 +78,8 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	/*
-		Работник прикрепил Работника
-		Работник открепил Работника
-		Работник прикрепился
-		Работник открепился
+		admin assigned worker to client
+		admin unassigned worker on client
 	 */
 	@Override
 	public ClientHistory createHistory(User admin, User worker, Client client, ClientHistory.Type type) {
@@ -86,7 +88,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
-	// Работник совершил звонок
+	// worker call to client [link]
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link) {
 		ClientHistory clientHistory = new ClientHistory(type);
@@ -96,10 +98,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	/*
-	Работник отправил сообщение по sms link
-	Работник отправил сообщение по vk link
-	Работник отправил сообщение по facebook link
-	Работник отправил сообщение по email link
+		worker send message by email/vk/facebook/sms [link]
 	 */
 	@Override
 	public ClientHistory createHistory(User user, Client client, Message message) {
@@ -110,6 +109,10 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
+	/*
+		Worker add new client
+		Worker change client data [link]
+	 */
 	@Override
 	public ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
 		ClientHistory clientHistory = new ClientHistory(type);
@@ -118,7 +121,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return clientHistory;
 		}
 		try {
-			String buildChanges = parseChangesToHtml(findChanges(prev, current));
+			String buildChanges = transformChangesToHtml(findChanges(prev, current));
 			Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
 			clientHistory.setMessage(message);
 			clientHistory.setLink("/client/message/info/" + message.getId());
@@ -153,6 +156,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return changesBuild.toString();
 	}
 
+	/*
+		iterate collection and build changes
+	 */
 	private void iterateCollection(Object data1, Object data2, StringBuilder changesBuild) {
 		Collection<?> collection1 = ((Collection<?>) data1);
 		Collection<?> collection2 = ((Collection<?>) data2);
@@ -180,19 +186,21 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			changesBuild.append("{br}");
 		}
 	}
-
+	
 	private String getRow(Object obj1, Object obj2) {
 		return "{prev}" + obj1 + "{close} изменено на {current}" + obj2 + "{close}{br}";
 	}
 
-	private String parseChangesToHtml(String changes) {
+	//transform changes to html, use in CK editor
+	private String transformChangesToHtml(String changes) {
 		return changes.replaceAll("\\{prev}", "<span style=\"background-color:#DCDCDC\">")
 				.replaceAll("\\{current}","<span style=\"background-color:#90EE90\">")
 				.replaceAll("\\{close}","</span>")
 				.replaceAll("\\{br}","<br>");
 	}
 
-	private String parseChanges(String changes) {
+	//transform to normal String
+	private String transformChanges(String changes) {
 		return changes.replaceAll("\\{prev}", "")
 				.replaceAll("\\{current}","")
 				.replaceAll("\\{close}","")

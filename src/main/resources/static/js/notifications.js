@@ -24,6 +24,7 @@ function markAsReadMenu(clientId) {
             success: function () {
                 $('#info-client' + clientId).find(".notification").remove();
                 $('.menu' + clientId).remove();
+                $('#notification-postpone' + clientId).hide();
             },
             error: function (error) {
                 console.log(error);
