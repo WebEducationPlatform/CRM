@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,18 +21,16 @@ import java.util.Map;
 public class SendAllMessageController {
 
 	private final MailSendService mailSendService;
-	private final MessageTemplateServiceImpl MessageTemplateService;
+	private final MessageTemplateServiceImpl messageTemplateService;
 	private final ClientService clientService;
-	private final ImageConfig imageConfig;
 	private final SMSUtil smsUtil;
 	private final VKUtil vkUtil;
 
 	@Autowired
 	public SendAllMessageController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig, SMSUtil smsUtil, VKUtil vkUtil) {
 		this.mailSendService = mailSendService;
-		this.MessageTemplateService = MessageTemplateService;
+		this.messageTemplateService = MessageTemplateService;
 		this.clientService = clientService;
-		this.imageConfig = imageConfig;
 		this.smsUtil = smsUtil;
 		this.vkUtil = vkUtil;
 	}
@@ -48,18 +45,18 @@ public class SendAllMessageController {
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 		if (boxList.contains("vk")) {
-			String vkText = MessageTemplateService.get(templateId).getOtherText();
+			String vkText = messageTemplateService.get(templateId).getOtherText();
 			vkUtil.sendMessageToClient(client, vkText, params, principal);
 		}
 		if (boxList.contains("facebook")) {
 			System.out.println("FBесть!");
 		}
 		if (boxList.contains("email")) {
-			mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
+			mailSendService.prepareAndSend(client.getEmail(), params, messageTemplateService.get(templateId).getTemplateText(),
 					"emailStringTemplate");
 		}
 		if (boxList.contains("sms")) {
-			String text = replaceName(MessageTemplateService.get(templateId).getOtherText(), params);
+			String text = replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 			smsUtil.sendSMS(client, text, principal);
 		}
 

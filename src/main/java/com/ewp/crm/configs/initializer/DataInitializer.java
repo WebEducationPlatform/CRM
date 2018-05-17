@@ -71,7 +71,7 @@ public class DataInitializer {
 				"<head></head>\n" +
 				"<body>\n" +
 				"<p>Добрый день, %fullName%</p>\n" +
-				"<p>Мы не смогли до Вас дозвониться</p>\n" +
+				"<p>Мы не смогли до Вас дозвониться.</p>\n" +
 				"<p>Пожалуйста, свяжитесь с нами</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
@@ -82,7 +82,7 @@ public class DataInitializer {
 				"<head></head>\n" +
 				"<body>\n" +
 				"<p>Добрый день, %fullName%</p>\n" +
-				"<p>Напоминаем, что необходимо опатить обучение за следующий  месяц</p>\n" +
+				"<p>Напоминаем, что вам необходимо оплатить обучение за следующий месяц.</p>\n" +
 				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
 				"</body>\n" +
@@ -95,9 +95,9 @@ public class DataInitializer {
 				"</body>\n" +
 				"</html>";
 
-		String otherText3 = "Добрый день , %fullName%! \n Mы не смогли до Вас довзониться \n" +
-				"Пожалуйста, свяжитесь с нами \n" + "С наилучшими пожеланиями, команда JavaMentor";
-		String otherText2 = "Добрый день, %fullName%! \n  Напоминаем, что необходимо опатить обучение за следующий  месяц \n " +
+		String otherText3 = "Добрый день, %fullName%!\n Mы не смогли до Вас дозвониться.\n" +
+				"Пожалуйста, свяжитесь с нами.\n" + "С наилучшими пожеланиями, команда JavaMentor";
+		String otherText2 = "Добрый день, %fullName%!\nНапоминаем, что вам необходимо оплатить обучение за следующий месяц.\n" +
 				"С наилучшими пожеланиями, команда JavaMentor";
 		String otherText1 = "%bodyText%";
 

@@ -191,8 +191,7 @@ public class SMSUtilImpl implements SMSUtil {
 		String encodeAuth = new String(Base64.encode(auth.getBytes()));
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.set("Authorization", encodeAuth);
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		httpHeaders.set("charset", "utf-8");
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return httpHeaders;
 	}
 }
