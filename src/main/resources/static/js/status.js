@@ -34,31 +34,12 @@ function senReqOnChangeStatus(clientId, statusId) {
             $.get(url,
                 function (data) {
                     $('#client-' + data.id + 'history').prepend(
-                        "<li>" +
-                        "   <span>" + data.history[0].title + "</span>" +
-                        "</li>"
+                        "<tr>" +
+                        "   <td>" + data.history[0].title + "</td>" +
+                        "   <td class=\"client-history-date\">" + data.history[0].date + "</td>" +
+                        "</tr>"
                     );
                 });
-        },
-        error: function (error) {
-        }
-    });
-}
-
-function returnClientToStatus(clientId, statusId) {
-    let
-        url = '/rest/status/client/change',
-        formData = {
-            clientId: clientId,
-            statusId: statusId
-        };
-
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: formData,
-        success: function () {
-            $('#return-to-status-btn' + clientId).remove();
         },
         error: function (error) {
         }
@@ -89,6 +70,7 @@ $(document).ready(function () {
             }
         })
     });
+
     $(".hide-status-btn").on("click", function hideStatus() {
         let val = $(this).attr("value");
         let
@@ -110,5 +92,26 @@ $(document).ready(function () {
                 console.log(error);
             }
         })
-    })
+    });
+
+    $('.link-cursor-pointer').on("click", function returnClientToStatus() {
+        let
+            button = $(this),
+            url = '/rest/status/client/change',
+            formData = {
+                clientId: button.parents(".dropdown").children("button").attr("value"),
+                statusId: button.attr("value")
+            };
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: formData,
+            success: function () {
+                button.parents(".dropdown").children("button").removeClass().addClass("btn btn-secondary").attr("disabled","disabled").text("Добавлено");
+            },
+            error: function (error) {
+            }
+        });
+    });
 });
