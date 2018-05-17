@@ -14,9 +14,11 @@ import org.springframework.web.servlet.ModelAndView;
 public class MessageInfoController {
 
 	private final MessageService messageService;
+	private final SMSInfoService smsInfoService;
 
 	@Autowired
 	public MessageInfoController(SMSInfoService smsInfoService, MessageService messageService) {
+		this.smsInfoService = smsInfoService;
 		this.messageService = messageService;
 	}
 
@@ -24,6 +26,13 @@ public class MessageInfoController {
 	public ModelAndView showMessageInfo(@PathVariable("messageId") long id) {
 		ModelAndView modelAndView = new ModelAndView("blank_message-info");
 		modelAndView.addObject("message", messageService.getById(id));
+		return modelAndView;
+	}
+
+	@GetMapping("/sms/info/{smsId}")
+	public ModelAndView showSMSInfo(@PathVariable("smsId") long id) {
+		ModelAndView modelAndView = new ModelAndView("sms-info");
+		modelAndView.addObject("sms", smsInfoService.getById(id));
 		return modelAndView;
 	}
 }

@@ -116,7 +116,7 @@
                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
                             <a class="glyphicon glyphicon-plus" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
-                            <a th:if="${isAdmin}" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                            <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>
@@ -227,7 +227,7 @@
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendMessageVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
                                                             <a class="glyphicon glyphicon-plus" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
-                                                            <a th:if="${isAdmin}" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                            <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                                 <button
                                                                         type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                                                 </button>
@@ -257,7 +257,7 @@
                                                 </button>
                                             </th:block>
                                             <a th:href="'/admin/client/clientInfo/' +  ${client.id}">
-                                                <button th:if="${isAdmin}"
+                                                <button sec:authorize="hasAnyAuthority('ADMIN')"
                                                         th:id="'client-info' + ${client.id}"
                                                         class="btn btn-info btn-sm" rel="clientInfo">
                                                     Расширенная информация

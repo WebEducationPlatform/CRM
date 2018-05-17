@@ -6,6 +6,7 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +22,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-//TODO протестировать с async
 @Component
 public class SMSUtilImpl implements SMSUtil {
 
@@ -32,16 +32,18 @@ public class SMSUtilImpl implements SMSUtil {
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final SMSInfoService smsInfoService;
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.smsInfoService = smsInfoService;
 	}
 
 	@Override
@@ -55,9 +57,10 @@ public class SMSUtilImpl implements SMSUtil {
 			JSONObject body = new JSONObject(response.getBody());
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
-			client.addSMSInfo(smsInfo);
-			Message forHistory = messageService.addMessage(Message.Type.SMS, text);
-			client.addHistory(clientHistoryService.createHistory(sender, client, forHistory));
+			client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
+			ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+			clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
+			client.addHistory(clientHistory);
 			clientService.updateClient(client);
 		} catch (JSONException e) {
 			logger.error("Error to send message");

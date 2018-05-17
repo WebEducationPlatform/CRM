@@ -15,4 +15,6 @@ public interface SMSInfoService {
 	void updateSMSInfo(SMSInfo smsInfo);
 
 	void deleteSMSInfo(long id);
+
+	SMSInfo addSMSInfo(SMSInfo smsInfo);
 }
