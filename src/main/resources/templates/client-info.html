@@ -4,6 +4,7 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
+    <script type="text/javascript" th:src="@{/js/frameHistory.js}"></script>
     <script th:src="@{/js/validator.min.js}"></script>
 </head>
 <body>
@@ -112,18 +113,7 @@
         <div class="col-md-6" id="column2">
             <div>История клиента</div>
             <div class="span3 offset2">
-                <table style="position:relative" border="1" width="100%" class="client-history-table" th:id="'client-'+${client.id}+'history'">
-                    <tr th:each="history : ${client.history}">
-                        <td th:text="${history.title}"></td>
-                        <td class="client-history-date" th:text="${history.date}"></td>
-                        <th:block th:if="${history.link != null}">
-                            <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link}"></a></td>
-                        </th:block>
-                        <th:block th:if="${history.message != null}">
-                            <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="@{'/client/info/others/' + ${history.message.id}}"></a></td>
-                        </th:block>
-                    </tr>
-                </table>
+                <div th:replace="fragments/htmlFragments::clientHistoryForClientInfo"></div>
             </div>
         </div>
     </div>

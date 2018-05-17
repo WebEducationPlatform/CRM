@@ -11,10 +11,7 @@
 <body style="background-color: #ccc3c6;">
 <fieldset>
     <label for="body"></label>
-    <textarea readonly="readonly" id="body" required="required" th:text="${message.getContent()}">
-                            &lt;p&gt;
-                                Example template layout.
-                            &lt;/p&gt;
+    <textarea readonly="readonly" id="body" th:text="${message.getContent()}">
     </textarea>
 </fieldset>
 </body>
