@@ -68,6 +68,10 @@ $('#filtration').click(function (){
                 for(var j  = 0; j < res[i].socialNetworks.length; j++) {
                     socLink += res[i].socialNetworks[j].link + '\n';
                 }
+                var d = new Date(res[i].dateOfRegistration);
+                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+                    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
@@ -81,7 +85,7 @@ $('#filtration').click(function (){
                     '        <td>' + res[i].city + ' </td>' +
                     '        <td>' + res[i].country + ' </td>' +
                     '        <td>' + res[i].state + ' </td>' +
-                    '        <td>' + res[i].dateOfRegistration + ' </td>' +
+                    '        <td>' + dateOfRegistration + ' </td>' +
                     '    </tr>'
                 )
             }

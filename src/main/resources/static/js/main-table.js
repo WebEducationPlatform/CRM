@@ -1,3 +1,9 @@
+$(function(){
+    $(".hide-main-modal").click(function(){
+        $(".main-modal").hide();
+    });
+});
+
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.select_all').click(function() {
