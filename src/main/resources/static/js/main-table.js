@@ -246,7 +246,7 @@ function assign(id) {
                 "<button " +
                 "   id='unassign-client" + id +"' " +
                 "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
+                "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
@@ -289,7 +289,7 @@ function assignUser(id, user, principalId) {
                         "<button " +
                         "   id='unassign-client" + id +"' " +
                         "   onclick='unassign(" + id +")' " +
-                        "   class='btn btn-sm btn-warning'>отказаться от карточки</button>"
+                        "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
                     );
                 }
                 //If admin not assign himself, he don`t have unassign button
@@ -333,7 +333,7 @@ function unassign(id) {
                     "<button " +
                     "   id='assign-client" + id + "' " +
                     "   onclick='assign(" + id +")' " +
-                    "   class='btn btn-sm btn-info'>взять себе карточку</button>"
+                    "   class='btn btn-sm btn-info'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
             }else{
@@ -341,7 +341,7 @@ function unassign(id) {
                     "<button " +
                     "   id='assign-client" + id + "' " +
                     "   onclick='assign(" + id +")' " +
-                    "   class='btn btn-md btn-info'>взять себе карточку</button>"
+                    "   class='btn btn-md btn-info'>Взять себе карточку</button>"
                 );
             }
             fillFilterList();
@@ -404,7 +404,7 @@ function fillFilterList() {
         }
     }
     $.each(uniqueNames, function (i, el) {
-        $("#client_filter").append("<input type=\"checkbox\" id = checkbox_" + el.innerText + " value=" + el.innerText + "><label for=checkbox_" + el.innerText + ">" + el.getAttribute("value") + "</label></br>");
+        $("#client_filter").append("<input class='check'  type=\"checkbox\" id = checkbox_" + el.innerText + " value=" + el.innerText + " ><label for=checkbox_" + el.innerText + ">" + el.getAttribute("value") + "</label></br>");
     });
 }
 
