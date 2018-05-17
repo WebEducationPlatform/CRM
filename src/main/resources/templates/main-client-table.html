@@ -101,7 +101,7 @@
                             </th:block>
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
-                                   <span id="notification-postpone"
+                                   <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
                                          style="color: red"></span>
                                 </th:block>
