@@ -74,6 +74,7 @@ public class ClientController {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());
 		modelAndView.addObject("statuses", statusService.getAll());
+		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}

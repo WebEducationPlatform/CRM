@@ -74,33 +74,5 @@ public class UserController {
 		return new ModelAndView("redirect:/user/customize");
 	}
 
-	@RequestMapping(value = "/admin/user/socialNetworkTypes", method = RequestMethod.GET)
-	public ModelAndView socialNetworkTypes(ModelAndView modelAndView) {
-		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
-		modelAndView.addObject("socialNetworkTypes", socialNetworkTypes);
-		modelAndView.setViewName("socialNetworkTypes-table");
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		return modelAndView;
-	}
-
-	@RequestMapping(value = "/admin/user/deleteSocialNetworkType", method = RequestMethod.GET)
-	public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
-		socialNetworkTypeService.deleteType(Long.parseLong(id));
-		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-	}
-
-	@RequestMapping(value = "/admin/user/addSocialNetworkType", method = RequestMethod.POST)
-	public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-		socialNetworkTypeService.addType(socialNetworkType);
-		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-	}
-
-	@RequestMapping(value = "/admin/user/updateSocialNetworkType", method = RequestMethod.POST)
-	public ModelAndView updateSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-		socialNetworkTypeService.updateType(socialNetworkType);
-		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-	}
-
 
 }

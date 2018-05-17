@@ -180,6 +180,10 @@ ul.nav a:hover {
 	margin-top: 6px;
 }
 
+.check {
+	display: none;
+}
+
 #panel {
 	position: fixed;
 	top: 10%;
@@ -340,6 +344,7 @@ ul.nav a:hover {
 
 input[id^="checkbox-user"] { display: none; }
 input[id^="ipTel"] { display: none; }
+input[id^="client_filter"] { display: none; }
 
 
 input[type="checkbox"] + label {
