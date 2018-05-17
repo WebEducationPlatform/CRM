@@ -65,4 +65,9 @@ public class Job implements Serializable {
 	public int hashCode() {
 		return Objects.hash(id, organization, position);
 	}
+
+	@Override
+	public String toString() {
+		return this.organization + " " + this.position;
+	}
 }

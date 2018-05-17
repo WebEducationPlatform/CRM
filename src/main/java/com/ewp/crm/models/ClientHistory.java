@@ -45,7 +45,7 @@ public class ClientHistory {
 	}
 
 	public ClientHistory(Type type) {
-		super();
+		this();
 		this.type = type;
 	}
 

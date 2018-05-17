@@ -125,14 +125,17 @@ public class Client implements Serializable {
 	private List<CallRecord> callRecords;
 
 	public Client() {
+		this.state = State.NEW;
 	}
 
 	public Client(String name, String lastName) {
+		this();
 		this.name = name;
 		this.lastName = lastName;
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
+		this();
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -143,6 +146,7 @@ public class Client implements Serializable {
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
+		this();
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;

@@ -101,7 +101,7 @@
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
                                    <span id="notification-postpone"
-                                         class="glyphicon glyphicon-calendar"
+                                         class="glyphicon glyphicon-time"
                                          style="color: red"></span>
                                 </th:block>
                             </th:block>
@@ -185,7 +185,7 @@
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendTemplate(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
                                                             <a class="glyphicon glyphicon-plus" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
-                                                            <a th:if="${isAdmin}" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                            <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                                 <button
                                                                         type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                                                 </button>
@@ -210,7 +210,7 @@
                                             </tr>
                                             <tr>
                                                 <td>Возраст: </td>
-                                                <td th:text="${client.age}"></td>
+                                                <td th:if="${client.age > 0}" th:text="${client.age}"></td>
                                                 <td></td>
                                             </tr>
                                             <tr>
@@ -305,7 +305,7 @@
                                                             <td th:text="${history.title}"></td>
                                                             <td class="client-history-date" th:text="${history.date}"></td>
                                                             <th:block th:if="${history.link != null}">
-                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link} + ${history.message != null ? history.message.id : ''}"></a></td>
+                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link}"></a></td>
                                                             </th:block>
                                                         </tr>
                                                 </table>
