@@ -42,22 +42,24 @@
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
-                            <li th:each="worker : ${users}">
-                                <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
-                            </li>
+                                  <li class="dropdown-header">Назначить участника</li>
+                                         <li th:each="worker : ${users}">
+                                             <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                           </li>
+                                          <li class="divider"></li>
+                                          <li class="open-description-btn"  th:attr="data-id=${client.id}">
+                                                               <a>Добавить комментарий</a>
+                                                              </li>
+                                         <li>
+                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать участника с карточки</a>
+                                      </li>
                             <li>
-                                <a th:onclick="'unassign('+ ${client.id} +')'">Unassign</a>
-                            </li>
-                            <li>
-                                <a th:onclick="'deleteClientStatus('+ ${client.id} +')'">delete</a>
+                                <a th:onclick="'deleteClientStatus('+ ${client.id} +')'">Удалить клиента</a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-default btn-xs open-description-btn"  th:attr="data-id=${client.id}" >
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </button>
 
                     <div th:id="'TestModal'" class="modal" tabindex="-1">
                         <div class="modal-dialog modal-sm">
@@ -351,7 +353,7 @@
                     <div id="collapseFilter" class="panel-collapse collapse in">
                         <div class="panel-body" id="panel-filter-body">
                             <button type="button" id="showallbtn" onclick="showall()">Показать все</button>
-                            <div class="checkbox" id="client_filter">
+                            <div class="checkbox menucheck" id="client_filter">
                                 <br/>
                             </div>
                         </div>

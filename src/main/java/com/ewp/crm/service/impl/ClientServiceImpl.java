@@ -84,31 +84,37 @@ public class ClientServiceImpl implements ClientService {
 
 	//TODO упростить
 	@Override
-    public void addClient(Client client) {
-		phoneNumberValidation(client);
+	public void addClient(Client client) {
+		if (client.getLastName() == null) {
+			client.setLastName("");
+		}
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
-		if(client.getEmail()!=null) {
-			if(clientRepository.findClientByEmail(client.getEmail())!=null) {
+		if (client.getEmail() != null) {
+			if (clientRepository.findClientByEmail(client.getEmail()) != null) {
 				throw new ClientExistsException();
 			}
 		}
-		if(client.getPhoneNumber()!=null) {
-			if(clientRepository.findClientByPhoneNumber(client.getPhoneNumber())!=null) {
+		if (client.getPhoneNumber() != null) {
+			if (clientRepository.findClientByPhoneNumber(client.getPhoneNumber()) != null) {
 				throw new ClientExistsException();
 			}
 		}
-        clientRepository.saveAndFlush(client);
-    }
+		clientRepository.saveAndFlush(client);
+	}
 
-	//TODO упростить
-    private void setEmptyNull(Client client) {
-	    if(client.getPhoneNumber() !=null && client.getPhoneNumber().isEmpty()){
-		    client.setPhoneNumber(null);
-	    }
-	    if(client.getEmail() !=null && client.getEmail().isEmpty()){
-		    client.setEmail(null);
-	    }
-    }
+	//TODO сделать что-то с этим г***
+	private void setEmptyNull(Client client) {
+		if (client.getPhoneNumber() != null && client.getPhoneNumber().isEmpty()) {
+			client.setPhoneNumber(null);
+		}
+		if (client.getEmail() != null && client.getEmail().isEmpty()) {
+			client.setEmail(null);
+		}
+	}
+
 	@Override
 	public List<String> getClientsEmails() {
 		return clientRepository.getClientsEmail();
@@ -134,39 +140,41 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.getFilteredClientsSNLinks(filteringCondition);
 	}
 
-	//TODO упростить
-    @Override
-    public void updateClient(Client client) {
-		phoneNumberValidation(client);
+	//TODO сделать что-то с этим г***
+	@Override
+	public void updateClient(Client client) {
+		if (client.getPhoneNumber() != null) {
+			phoneNumberValidation(client);
+		}
 		setEmptyNull(client);
-	    if(client.getEmail()!=null) {
-		    Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
-		    if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
-			    throw new ClientExistsException();
-		    }
-	    }
-	    if(client.getPhoneNumber()!=null){
-		    Client clientByPhone =  clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
-		    if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
-			    throw new ClientExistsException();
-		    }
-	    }
-        clientRepository.saveAndFlush(client);
-    }
+		if (client.getEmail() != null) {
+			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
+			if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
+				throw new ClientExistsException();
+			}
+		}
+		if (client.getPhoneNumber() != null) {
+			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+			if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+				throw new ClientExistsException();
+			}
+		}
+		clientRepository.saveAndFlush(client);
+	}
 
-    private void phoneNumberValidation(Client client) {
+	private void phoneNumberValidation(Client client) {
 		String phoneNumber = client.getPhoneNumber();
-	    Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-	    Matcher matcher = pattern.matcher(phoneNumber);
-	    if (matcher.matches()) {
-	    	client.setCanCall(true);
-	    	if (phoneNumber.startsWith("8")) {
-	    		phoneNumber = phoneNumber.replaceFirst("8", "7");
-		    }
-		    client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-				    .replaceAll("\\s", ""));
-	    } else {
-	    	client.setCanCall(false);
-	    }
-    }
+		Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			client.setCanCall(true);
+			if (phoneNumber.startsWith("8")) {
+				phoneNumber = phoneNumber.replaceFirst("8", "7");
+			}
+			client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
+					.replaceAll("\\s", ""));
+		} else {
+			client.setCanCall(false);
+		}
+	}
 }

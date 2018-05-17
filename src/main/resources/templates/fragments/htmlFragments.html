@@ -244,8 +244,9 @@
                 </div>
                 <div class="modal-body">
                     <select class="form-control" id="selectType" name="selectType">
-                        <option id="vk" name="vk" th:value="vk">Вконтакте</option>
-                        <option id="fb" name="facebook" th:value="facebook">Facebook</option>
+                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
+                        <option th:value="${socialNetworkType.name}" th:text="${socialNetworkType.name}"></option>
+                            </th:block>
                         <option id="email" name="email" th:value="email">Email</option>
                         <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
                     </select>
@@ -269,7 +270,7 @@
                         <h5 class="modal-title">Подтвердите свое действие</h5>
                     </div>
                     <div class="modal-body">
-                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                        <h6>Вы уверены, что хотите деактивировать пользователя?</h6>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">Да</button>
@@ -278,6 +279,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </th:block>
 
