@@ -6,10 +6,10 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageService;
 import com.ewp.crm.service.interfaces.SocialNetworkService;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -49,9 +49,10 @@ public class VKUtil {
 	private final SocialNetworkService socialNetworkService;
 	private final ClientHistoryService clientHistoryService;
 	private final ClientService clientService;
+	private final MessageService messageService;
 
 	@Autowired
-	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService) {
 		clientId = vkConfig.getClientId();
 		clientSecret = vkConfig.getClientSecret();
 		username = vkConfig.getUsername();
@@ -62,6 +63,7 @@ public class VKUtil {
 		this.socialNetworkService = socialNetworkService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
+		this.messageService = messageService;
 	}
 
 	@PostConstruct
@@ -140,7 +142,7 @@ public class VKUtil {
 				long id = Long.parseLong(link.replace("https://vk.com/id", ""));
 				String vkText = replaceName(msg, params);
 				String responseMessage = sendMessageById(id, vkText);
-				Message message = new Message(Message.Type.VK, vkText);
+				Message message = messageService.addMessage(Message.Type.VK, vkText);
 				client.addHistory(clientHistoryService.createHistory(principal, client, message));
 				clientService.updateClient(client);
 				return responseMessage;

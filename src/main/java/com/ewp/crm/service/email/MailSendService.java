@@ -3,11 +3,11 @@ package com.ewp.crm.service.email;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,17 +40,19 @@ public class MailSendService {
 	private final ImageConfig imageConfig;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
+	private final MessageService messageService;
 	private String emailLogin;
 
 
 	@Autowired
 	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService) {
+	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService) {
 		this.javaMailSender = javaMailSender;
 		this.htmlTemplateEngine = htmlTemplateEngine;
 		this.imageConfig = imageConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
+		this.messageService = messageService;
 		checkConfig(environment);
 	}
 
@@ -90,7 +92,7 @@ public class MailSendService {
 			javaMailSender.send(mimeMessage);
 			Client client = clientService.getClientByEmail(recipient);
 			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			Message message = new Message(Message.Type.EMAIL, htmlContent.toString());
+			Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
 			client.addHistory(clientHistoryService.createHistory(principal, client, message));
 			clientService.updateClient(client);
 		} catch (Exception e) {

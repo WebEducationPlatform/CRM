@@ -5,6 +5,7 @@ import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,15 +31,17 @@ public class SMSUtilImpl implements SMSUtil {
 	private final RestTemplate restTemplate;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
+	private final MessageService messageService;
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
+		this.messageService = messageService;
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class SMSUtilImpl implements SMSUtil {
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
-			Message forHistory = new Message(Message.Type.SMS, text);
+			Message forHistory = messageService.addMessage(Message.Type.SMS, text);
 			client.addHistory(clientHistoryService.createHistory(sender, client, forHistory));
 			clientService.updateClient(client);
 		} catch (JSONException e) {

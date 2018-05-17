@@ -121,6 +121,7 @@ public class ClientRestController {
 		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
 		currentClient.setNotifications(clientFromDB.getNotifications());
+		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.addHistory(clientHistoryService.createHistory(currentAdmin, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
 		clientService.updateClient(currentClient);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
@@ -145,7 +146,7 @@ public class ClientRestController {
 		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(principal, new Client(null, null), client, ClientHistory.Type.ADD));
+		client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);

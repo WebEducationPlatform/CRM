@@ -15,6 +15,11 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	@Override
+	public Message addMessage(Message.Type type, String content) {
+		return messageRepository.saveAndFlush(new Message(type, content));
+	}
+
+	@Override
 	public Message getById(long id) {
 		return messageRepository.findOne(id);
 	}

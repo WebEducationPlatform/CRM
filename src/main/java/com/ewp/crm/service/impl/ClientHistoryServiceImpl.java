@@ -6,6 +6,7 @@ import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.MessageService;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
@@ -23,10 +23,12 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	private final ClientHistoryRepository clientHistoryRepository;
 
 	private static Logger logger = LoggerFactory.getLogger(ClientHistoryServiceImpl.class);
+	private final MessageService messageService;
 
 	@Autowired
-	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository) {
+	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService) {
 		this.clientHistoryRepository = clientHistoryRepository;
+		this.messageService = messageService;
 	}
 
 	@Override
@@ -103,7 +105,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	public ClientHistory createHistory(User user, Client client, Message message) {
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
 		clientHistory.setMessage(message);
-		clientHistory.setLink("/client/message/info/");
+		clientHistory.setLink("/client/message/info/" + message.getId());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
 		return clientHistory;
 	}
@@ -116,10 +118,10 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return clientHistory;
 		}
 		try {
-			String buildChanges = findChanges(prev, current);
-			Message message = new Message(Message.Type.DATA, buildChanges);
+			String buildChanges = parseChangesToHtml(findChanges(prev, current));
+			Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
 			clientHistory.setMessage(message);
-			clientHistory.setLink("/client/message/info/");
+			clientHistory.setLink("/client/message/info/" + message.getId());
 		} catch (IllegalAccessException e) {
 			logger.error("Reflection exception: Cant build client changes with id: {}", prev.getId());
 		}
@@ -142,12 +144,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			Object data2 = prevField.get(current);
 			if (data1 != null && data2 != null) {
 				if (data1 instanceof Collection) {
-					Collection<?> collection1 = ((Collection<?>) data1);
-					Collection<?> collection2 = ((Collection<?>) data2);
-					if (!collection1.containsAll(collection2)) {
-						changesBuild.append(getRow(collection1, collection2));
-
-					}
+					iterateCollection(data1, data2, changesBuild);
 				} else if (!data1.equals(data2)) {
 					changesBuild.append(getRow(data1, data2));
 				}
@@ -156,8 +153,49 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return changesBuild.toString();
 	}
 
-	private String getRow(Object obj1, Object obj2) {
-		return obj1 + " изменено на " + obj2 + "<br>";
+	private void iterateCollection(Object data1, Object data2, StringBuilder changesBuild) {
+		Collection<?> collection1 = ((Collection<?>) data1);
+		Collection<?> collection2 = ((Collection<?>) data2);
+		Iterator<?> iterator1 = collection1.iterator();
+		Iterator<?> iterator2 = collection2.iterator();
+		while (iterator1.hasNext() && iterator2.hasNext()) {
+			Object element1 = iterator1.next();
+			Object element2 = iterator2.next();
+			if(!element1.equals(element2)) {
+				changesBuild.append(getRow(element1,element2));
+			}
+		}
+		while (iterator1.hasNext()) {
+			changesBuild.append("{prev}");
+			changesBuild.append(iterator1.next());
+			changesBuild.append("{close}");
+			changesBuild.append(" удалено");
+			changesBuild.append("{br}");
+		}
+		while (iterator2.hasNext()) {
+			changesBuild.append("{current}");
+			changesBuild.append(iterator2.next());
+			changesBuild.append("{close}");
+			changesBuild.append(" добавлено");
+			changesBuild.append("{br}");
+		}
 	}
 
+	private String getRow(Object obj1, Object obj2) {
+		return "{prev}" + obj1 + "{close} изменено на {current}" + obj2 + "{close}{br}";
+	}
+
+	private String parseChangesToHtml(String changes) {
+		return changes.replaceAll("\\{prev}", "<span style=\"background-color:#DCDCDC\">")
+				.replaceAll("\\{current}","<span style=\"background-color:#90EE90\">")
+				.replaceAll("\\{close}","</span>")
+				.replaceAll("\\{br}","<br>");
+	}
+
+	private String parseChanges(String changes) {
+		return changes.replaceAll("\\{prev}", "")
+				.replaceAll("\\{current}","")
+				.replaceAll("\\{close}","")
+				.replaceAll("\\{br}","\n");
+	}
 }

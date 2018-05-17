@@ -60,6 +60,11 @@ public class SocialNetwork implements Serializable {
 		return Objects.hash(id, link, socialNetworkType);
 	}
 
+	@Override
+	public String toString() {
+		return this.link + " " + this.getSocialNetworkType();
+	}
+
 	public Long getId() {
 		return id;
 	}
