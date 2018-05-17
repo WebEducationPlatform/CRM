@@ -9,6 +9,7 @@
     <script type="text/javascript" th:src="@{/js/comments.js}"></script>
     <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
     <script type="text/javascript" th:src="@{/js/status.js}"></script>
+    <script type="text/javascript" th:src="@{/js/frameHistory.js}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -289,31 +290,7 @@
                                     </div>
                                 </div>
                             <div th:replace="fragments/htmlFragments::comments"></div>
-                            <!--<div th:replace="fragments/htmlFragments::clientHistory"></div>-->
-                            <div class="modal-header">
-                                <div class="panel-group" id="actionsAccordion">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#actionsAccordion" th:href="'#collapse'+${client.id}">Действия</a>
-                                            </h4>
-                                        </div>
-                                        <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
-                                            <div class="panel-body">
-                                                <table border="1" width="100%" class="client-history-table" th:id="'client-'+${client.id}+'history'">
-                                                        <tr th:each="history : ${client.history}">
-                                                            <td th:text="${history.title}"></td>
-                                                            <td class="client-history-date" th:text="${history.date}"></td>
-                                                            <th:block th:if="${history.link != null}">
-                                                                <td><a type="button" class="glyphicon glyphicon-paperclip" target="_blank" th:href="${history.link}"></a></td>
-                                                            </th:block>
-                                                        </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div th:replace="fragments/htmlFragments::clientHistory"></div>
                         </div>
                     </div>
                 </div>

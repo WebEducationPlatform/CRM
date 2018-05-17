@@ -37,8 +37,9 @@ public class DataInitializer {
 
 	private void init() {
 
-		// ###DEFAULT STATUS FOR RELEASE###
+		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
 		Status defaultStatus = new Status("default", true);
+		Status status0 = new Status("New clients");
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleUser = new Role("USER");
@@ -107,7 +108,6 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate2);
 		MessageTemplateService.add(MessageTemplate3);
 
-		Status status0 = new Status("New clients");
 		Status status1 = new Status("First status");
 		Status status2 = new Status("Second status");
 		Status status3 = new Status("Third status");
