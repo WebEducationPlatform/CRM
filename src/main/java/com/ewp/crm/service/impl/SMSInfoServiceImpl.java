@@ -40,4 +40,9 @@ public class SMSInfoServiceImpl implements SMSInfoService {
 	public void deleteSMSInfo(long id) {
 		smsInfoRepository.delete(id);
 	}
+
+	@Override
+	public SMSInfo addSMSInfo(SMSInfo smsInfo) {
+		return smsInfoRepository.saveAndFlush(smsInfo);
+	}
 }

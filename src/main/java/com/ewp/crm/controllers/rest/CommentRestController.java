@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/rest/comment")
-@EnableAsync
 public class CommentRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(CommentRestController.class);
