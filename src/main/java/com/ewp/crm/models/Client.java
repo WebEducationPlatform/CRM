@@ -414,7 +414,10 @@ public class Client implements Serializable {
 	}
 
 	public enum State {
-		REFUSED, FINISHED, LEARNING, NEW
+		NEW,
+		LEARNING,
+		FINISHED,
+		REFUSED
 	}
 
 }

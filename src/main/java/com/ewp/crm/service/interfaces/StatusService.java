@@ -25,6 +25,4 @@ public interface StatusService {
 	void delete(Status status);
 
 	void delete(Long id);
-
-	void changeClientStatus(Client client, Long statusId);
 }

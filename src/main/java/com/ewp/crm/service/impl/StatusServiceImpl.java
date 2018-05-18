@@ -56,11 +56,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status getFirstStatusForClient() {
-		Status check = statusDAO.findOne(2L);
-		if (check == null) {
-			return statusDAO.findOne(1L);
-		}
-		return check;
+		return statusDAO.findOne(1L);
 	}
 
 	@Override
@@ -112,10 +108,4 @@ public class StatusServiceImpl implements StatusService {
 		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
 	}
-
-	@Override
-	public void changeClientStatus(Client client, Long statusId) {
-		//TODO решить что делать
-	}
-
 }
