@@ -35,13 +35,15 @@ public class VkRestController {
 	}
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
-	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId) {
+	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
+	                                              @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
 		String vkText = MessageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
 
 		vkUtil.sendMessageToClient(client, vkText, params, principal);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");

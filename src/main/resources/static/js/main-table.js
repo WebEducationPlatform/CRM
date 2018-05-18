@@ -1,6 +1,6 @@
 $(function(){
-    $(".hide-main-modal").click(function(){
-        $(".main-modal").hide();
+    $(".hide-main-modal").click(function(e){
+        $(".main-modal .close").click()
     });
 });
 
@@ -532,7 +532,8 @@ function sendMessageVK(clientId, templateId) {
     let url = '/rest/vkontakte';
     let formData = {
         clientId: clientId,
-        templateId: templateId
+        templateId: templateId,
+        body: $('#custom-VKTemplate-body' + clientId + templateId).val()
     };
     var currentStatus = document.getElementById("sendSocialTemplateStatus" + clientId);
     $.ajax({
@@ -541,9 +542,64 @@ function sendMessageVK(clientId, templateId) {
         data: formData,
 
         success: function (result) {
+            $(".modal").modal('hide');
             currentStatus.style.color = "limegreen";
             currentStatus.textContent = "Отправлено";
 
+        },
+        error: function (e) {
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+}
+
+function sendCustomMessageVK(clientId, templateId) {
+    let url = '/rest/vkontakte';
+    let formData = {
+        clientId: clientId,
+        templateId: templateId,
+        body: $('#custom-VKTemplate-body' + clientId + templateId).val()
+    };
+    var currentStatus = document.getElementById("sendCustomSocialTemplateStatus" + clientId);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+
+        success: function (result) {
+            $(".modal").modal('hide');
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
+
+        },
+        error: function (e) {
+            currentStatus.style.color = "red";
+            currentStatus.textContent = "Ошибка";
+            console.log(e)
+        }
+    });
+}
+
+function sendCustomTemplate(clientId, templateId) {
+    let url = '/rest/sendEmail';
+    let formData = {
+        clientId: clientId,
+        templateId: templateId,
+        body: $('#custom-EmaileTemplate-body' + clientId + templateId).val()
+    };
+    var currentStatus = document.getElementById("sendCustomEmailTemplateStatus" + clientId);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+
+
+        success: function (result) {
+            $(".modal").modal('hide');
+            currentStatus.style.color = "limegreen";
+            currentStatus.textContent = "Отправлено";
         },
         error: function (e) {
             currentStatus.style.color = "red";
@@ -557,7 +613,8 @@ function sendTemplate(clientId, templateId) {
     let url = '/rest/sendEmail';
     let formData = {
         clientId: clientId,
-        templateId: templateId
+        templateId: templateId,
+        body: $('#custom-EmaileTemplate-body' + clientId + templateId).val()
     };
     var currentStatus = document.getElementById("sendEmailTemplateStatus" + clientId);
     $.ajax({
@@ -567,6 +624,7 @@ function sendTemplate(clientId, templateId) {
 
 
         success: function (result) {
+            $(".modal").modal('hide');
             currentStatus.style.color = "limegreen";
             currentStatus.textContent = "Отправлено";
         },

@@ -170,6 +170,8 @@
                 </div>
                 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
                 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+                <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
+                <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
                 <div th:id="'client-'+${client.id}+'-modal'" class="modal fade main-modal" role="dialog" data-keyboard="false">
                     <div class="modal-dialog modal-md">
                         <div class="modal-content">
@@ -192,7 +194,7 @@
                                                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendTemplate(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
-                                                            <a class="glyphicon glyphicon-plus  hide-main-modal" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
+                                                            <a class="glyphicon glyphicon-plus  hide-main-modal" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customEmailMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
                                                             <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                                 <button
                                                                         type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
@@ -238,7 +240,7 @@
                                                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendMessageVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
-                                                            <a class="glyphicon glyphicon-plus" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
+                                                            <a class="glyphicon glyphicon-plus hide-main-modal" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customVKMessageTemplate'+ ${client.id} + ${template.id}" th:text="' ' + ${template.name}"></a>
                                                             <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                                 <button
                                                                         type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">

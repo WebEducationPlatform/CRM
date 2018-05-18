@@ -585,6 +585,11 @@ span[id^="sendCustomEmailTemplateStatus"] {
 	float: left;
 }
 
+span[id^="sendCustomSocialTemplateStatus"] {
+	color: red;
+	float: left;
+}
+
 span[id^="sendTemplateStatus"] {
 	color: red;
 }
@@ -595,3 +600,21 @@ div[id^="sendEmailTemplateStatus"] {
 	width: 55%;
 	text-align: center;
 }
+
+.padding-top-bot {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.padding-bot {
+	padding-bottom: 3px;
+}
+
+#custom-VKTemplate-body {
+	resize: none;
+}
+
+#custom-EmaileTemplate-body {
+	resize: none;
+}
+
