@@ -45,9 +45,9 @@ public class IPTelephonyRestController {
 		if (client.isCanCall() && principal.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
 			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, ClientHistory.Type.CALL, null);
-			ClientHistory fromDb = clientHistoryService.addHistory(clientHistory);
-			client.addHistory(fromDb);
-			callRecord.setClientHistory(fromDb);
+			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
+			client.addHistory(historyFromDB);
+			callRecord.setClientHistory(historyFromDB);
 			CallRecord callRecordFromDB = callRecordService.add(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
@@ -56,9 +56,8 @@ public class IPTelephonyRestController {
 	}
 
 	@RequestMapping(value = "/setCallRecord", method = RequestMethod.GET)
-	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam String clientCallId) {
-		Long callId = Long.parseLong(clientCallId);
-		CallRecord callRecord = callRecordService.getCallRecord(callId);
+	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
+		CallRecord callRecord = callRecordService.getCallRecord(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			callRecord.setLink(url);
 			callRecord.getClientHistory().setLink(url);

@@ -87,7 +87,7 @@ public class StatusServiceImpl implements StatusService {
 		}
 	}
 
-	private void transferStatusClientsBeforeDelete (Status status) {
+	private void transferStatusClientsBeforeDelete(Status status) {
 		if (status.getClients() != null) {
 			Status defaultStatus = statusDAO.findStatusByName("default");
 			defaultStatus.getClients().addAll(status.getClients());

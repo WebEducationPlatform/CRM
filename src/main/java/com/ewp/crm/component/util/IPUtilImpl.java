@@ -62,11 +62,6 @@ public class IPUtilImpl implements IPUtil {
 
 
 	}
-
-	public void getRecordLink() {
-		String getRecordLink = "";
-	}
-
 }
 
 
