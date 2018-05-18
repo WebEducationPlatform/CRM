@@ -698,12 +698,12 @@ $(function () {
                 current.setAttribute("disabled", "true")
             },
             success: function (result) {
-				$(".modal").modal('hide');
-				current.textContent ="Да";
-				current.removeAttribute("disabled");
+                $(".modal").modal('hide');
+                current.textContent ="Отправить";
+                current.removeAttribute("disabled");
             },
             error: function (e) {
-                current.textContent = "Да";
+                current.textContent ="Отправить";
                 current.removeAttribute("disabled");
                 currentStatus.textContent = "Ошибка";
                 console.log(e)
