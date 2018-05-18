@@ -316,6 +316,10 @@ public class ClientRestController {
 			logger.error("Can`t add description, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
 		}
+		if (clientDescription.equals(client.getClientDescriptionComment())) {
+			logger.error("Worker {} try to update same description of client", principal.getFullName());
+			return ResponseEntity.ok().body(clientDescription);
+		}
 		client.setClientDescriptionComment(clientDescription);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));
 		clientService.updateClient(client);

@@ -24,7 +24,7 @@ public class ClientHistory {
 
 	//TODO потом переделать
 	@Basic
-	private String date = DateTime.now().toString("dd MMM 'в' HH:mm yyyy'г'");
+	private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
 
 	@Column(name = "history_type", nullable = false)
 	@Enumerated(EnumType.STRING)
