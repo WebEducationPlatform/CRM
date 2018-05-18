@@ -380,6 +380,53 @@
 </div>
 </th:block>
 
+<th:block th:fragment="emailMessageTemplateModal">
+    <div class="modal fade"  th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customEmailMessageTemplate'+ ${client.id} + ${template.id}"  role="dialog"  aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header padding-top-bot">
+                    <h5>Отправить сообщение на e-mail?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body padding-bot">
+                    <div class="form-group">
+                            <textarea th:id="'custom-EmaileTemplate-body' + ${client.id} + ${template.id}" class="form-control"
+                                      placeholder="Основной текст" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'sendCustomEmailTemplateStatus' + ${client.id}"></span>
+                    <button type="button" class="btn btn-primary" th:id = "'sendEmailTemplateBtn' + ${client.id} + ${template.id}"  th:onclick="'sendCustomTemplate(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="vkontakteMessageTemplateModal">
+    <div class="modal fade"  th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customVKMessageTemplate'+ ${client.id} + ${template.id}"  role="dialog"  aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header padding-top-bot">
+                    <h5>Отправить сообщение во вконтакте?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body padding-bot">
+                    <div class="form-group">
+                            <textarea th:id="'custom-VKTemplate-body' + ${client.id} + ${template.id}" class="form-control"
+                                      placeholder="Основной текст" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span th:id = "'sendCustomSocialTemplateStatus' + ${client.id}"></span>
+                    <button type="button" class="btn btn-primary" th:id = "'sendCustomTemplateBtn' + ${client.id} + ${template.id}"  th:onclick="'sendCustomMessageVK(' + ${client.id} + ',\'' +  ${template.id} + '\')'">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+
 <th:block th:fragment="customMessageTemplateModal">
     <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customMessageTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
