@@ -194,12 +194,18 @@ public class ClientRestController {
 			if (selected.equals("email")) {
 				List<String> emails = clientService.getClientsEmails();
 				for (String email : emails) {
+					if (email == null) {
+						email = "";
+					}
 					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (selected.equals("phoneNumber")) {
 				List<String> phoneNumbers = clientService.getClientsPhoneNumbers();
 				for (String phoneNumber : phoneNumbers) {
+					if (phoneNumber == null) {
+						phoneNumber = "";
+					}
 					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
@@ -237,9 +243,6 @@ public class ClientRestController {
 			FileWriter fileWriter = new FileWriter(file);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-
-			List<Client> clients = clientService.filteringClient(filteringCondition);
-
 			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
@@ -249,12 +252,19 @@ public class ClientRestController {
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {
+					if (email == null) {
+						email = "";
+					}
 					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (filteringCondition.getSelected().equals("phoneNumber")) {
-				for (Client client : clients) {
-					bufferedWriter.write(client.getPhoneNumber() + "\r\n");
+				List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
+				for (String phoneNumber : phoneNumbers) {
+					if (phoneNumber == null) {
+						phoneNumber = "";
+					}
+					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
 
@@ -285,7 +295,7 @@ public class ClientRestController {
 
 	}
 
-	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
+	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.getClientByID(clientId);
@@ -315,10 +325,6 @@ public class ClientRestController {
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
-		}
-		if (clientDescription.equals(client.getClientDescriptionComment())) {
-			logger.error("Worker {} try to update same description of client", principal.getFullName());
-			return ResponseEntity.ok().body(clientDescription);
 		}
 		client.setClientDescriptionComment(clientDescription);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));

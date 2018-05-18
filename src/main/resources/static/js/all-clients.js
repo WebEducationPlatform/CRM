@@ -72,13 +72,21 @@ $('#filtration').click(function (){
                 var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
+                var email = res[i].email;
+                var phoneNumber = res[i].phoneNumber;
+                if (email === null) {
+                    email = "";
+                }
+                if (phoneNumber === null) {
+                    phoneNumber = "";
+                }
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
                     '        <td>' + res[i].name + '</td>' +
                     '        <td>' + res[i].lastName + '</td>' +
-                    '        <td>' + res[i].phoneNumber + '</td>' +
-                    '        <td>' + res[i].email + '</td>' +
+                    '        <td>' + phoneNumber + '</td>' +
+                    '        <td>' + email + '</td>' +
                     '        <td>' + socLink + '</td>' +
                     '        <td>' + res[i].age + ' </td>' +
                     '        <td>' + res[i].sex + ' </td>' +
