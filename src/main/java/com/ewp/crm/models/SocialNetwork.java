@@ -62,7 +62,7 @@ public class SocialNetwork implements Serializable {
 
 	@Override
 	public String toString() {
-		return this.link + " " + this.getSocialNetworkType();
+		return this.link;
 	}
 
 	public Long getId() {

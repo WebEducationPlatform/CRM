@@ -23,7 +23,7 @@ $(function () {
 
 //Сохранить заметку на лицевой стороне карточки
 function saveDescription(id) {
-    let text =  $('#TestModal').find('textarea').val();
+    let text =  $('#TestModal'+ id).find('textarea').val();
     let
         url = 'rest/client/addDescription',
         formData = {
@@ -36,7 +36,7 @@ function saveDescription(id) {
         data: formData,
         success: function () {
             $("#info-client" + id).find('.client-description').text(text);
-            $('#TestModal').modal('hide');
+            $('#TestModal'+ id).modal('hide');
         },
         error: function (error) {
         }
@@ -566,12 +566,10 @@ $(function () {
         var id = $(this).data('id');
         var infoClient =  $('#info-client'+ id);
         var text = infoClient.find('.client-description').text();
-        var testModal = $('#TestModal');
+        var clientModal = $('#TestModal' + id);
 
-        testModal.find('textarea').val(text);
-        testModal.find('button').remove();
-        testModal.find('.modal-footer').append("<button type='button' class='btn btn-success btn-sm' onclick='saveDescription(" + id + ")'>Сохранить</button>");
-        testModal.modal('show');
+        clientModal.find('textarea').val(text);
+        clientModal.modal('show');
     });
 });
 
@@ -687,7 +685,7 @@ $(function () {
 });
 
 function hideClient(clientId) {
-    let url = 'admin/rest/client/postpone';
+    let url = 'rest/client/postpone';
     let formData = {
         clientId: clientId,
         date: $('#postponeDate' + clientId).val()

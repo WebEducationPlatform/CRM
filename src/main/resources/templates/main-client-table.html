@@ -39,30 +39,33 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div class="portlet" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'">
-                <div class="portlet-title" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div class="portlet-title" sec:authorize="hasAnyAuthority('ADMIN','USER')">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
-                                  <li class="dropdown-header">Назначить участника</li>
+                            <th:block sec:authorize="hasAnyAuthority('ADMIN')">
+                                  <li class="dropdown-header">Назначить работника</li>
                                          <li th:each="worker : ${users}">
                                              <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
                                            </li>
                                           <li class="divider"></li>
+                            </th:block>
                                           <li class="open-description-btn"  th:attr="data-id=${client.id}">
                                                                <a>Добавить комментарий</a>
                                                               </li>
+                            <th:block sec:authorize="hasAnyAuthority('ADMIN')">
                                          <li>
-                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать участника с карточки</a>
+                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с карточки</a>
                                       </li>
                             <li>
                                 <a th:onclick="'deleteClientStatus('+ ${client.id} +')'">Удалить клиента</a>
                             </li>
+                            </th:block>
                         </ul>
                     </div>
                 </div>
                 <div>
-
-                    <div th:id="'TestModal'" class="modal" tabindex="-1">
+                    <div th:id="'TestModal'+ ${client.id}" class="modal" tabindex="-1">
                         <div class="modal-dialog modal-sm">
                             <div class="modal-content">
                                 <div class="modal-body">
@@ -182,8 +185,10 @@
                                             <tr>
                                                 <td>Электронная почта: </td>
                                                 <td th:text="${client.email}"></td>
-                                                <td><div class="btn-group">
-                                                    <a th:if="${client.email != null and client.email != ''}" name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
+                                                <td>
+                                                    <th:block th:if="${client.email != null and client.email != ''}">
+                                                    <div class="btn-group">
+                                                    <a name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
                                                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                             <a class="glyphicon glyphicon-ok" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" th:onclick="'sendTemplate(' + ${client.id} + ',\'' +  ${template.id} + '\')'"  th:text="' ' + ${template.name}"></a>
@@ -196,7 +201,9 @@
 
                                                         </li>
                                                     </ul>
-                                                </div><div th:id = "'sendEmailTemplateStatus' + ${client.id}"></div></td>
+                                                </div><div th:id = "'sendEmailTemplateStatus' + ${client.id}"></div>
+                                                    </th:block>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Номер телефона: </td>
@@ -213,7 +220,10 @@
                                             </tr>
                                             <tr>
                                                 <td>Возраст: </td>
-                                                <td th:if="${client.age > 0}" th:text="${client.age}"></td>
+                                                <td>
+                                                    <th:block th:if="${client.age > 0}" th:text="${client.age}">
+                                                    </th:block>
+                                                </td>
                                                 <td></td>
                                             </tr>
                                             <tr>

@@ -61,8 +61,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ").append("\"").append(client.getClientDescriptionComment()).append("\"");
 				break;
 			case POSTPONE:
+				title.append(" ");
 				title.append("(");
-				title.append(" ").append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
 				title.append(")");
 				break;
 			case STATUS:
@@ -147,7 +148,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			Object data2 = prevField.get(current);
 			if (data1 != null && data2 != null) {
 				if (data1 instanceof Collection) {
-					iterateCollection(data1, data2, changesBuild);
+					if (!data1.equals(data2)) {
+						iterateCollection(data1, data2, changesBuild);
+					}
 				} else if (!data1.equals(data2)) {
 					changesBuild.append(getRow(data1, data2));
 				}
