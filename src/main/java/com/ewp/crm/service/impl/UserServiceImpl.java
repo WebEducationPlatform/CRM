@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
 	private void phoneNumberValidation(User user) {
 		String phoneNumber = user.getPhoneNumber();
-		Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+		Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
 		Matcher matcher = pattern.matcher(phoneNumber);
 		if (matcher.matches()) {
 			if (phoneNumber.startsWith("8")) {

@@ -61,7 +61,7 @@ function changeUser(id, authId) {
         success: function (result) {
             sendPhoto(id);
             if (authId === id) {
-                window.location.replace("http://localhost:9090/logout")
+                window.location.replace("/logout")
             }
         },
         error: function (e) {

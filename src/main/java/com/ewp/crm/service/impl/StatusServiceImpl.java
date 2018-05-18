@@ -56,11 +56,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status getFirstStatusForClient() {
-		Status check = statusDAO.findOne(2L);
-		if (check == null) {
-			return statusDAO.findOne(1L);
-		}
-		return check;
+		return statusDAO.findOne(1L);
 	}
 
 	@Override
@@ -91,7 +87,7 @@ public class StatusServiceImpl implements StatusService {
 		}
 	}
 
-	private void transferStatusClientsBeforeDelete (Status status) {
+	private void transferStatusClientsBeforeDelete(Status status) {
 		if (status.getClients() != null) {
 			Status defaultStatus = statusDAO.findStatusByName("default");
 			defaultStatus.getClients().addAll(status.getClients());
