@@ -106,7 +106,7 @@ $('#clientData').click(function (event) {
             url: url,
             data: {selected: $("#selectType").val()},
             success: function () {
-                window.location.replace("http://localhost:9090/rest/client/getClientsData")
+                window.location.replace("/rest/client/getClientsData")
             }
         });
     }
@@ -119,7 +119,7 @@ $('#clientData').click(function (event) {
             dataType: 'json',
             data: JSON.stringify(data),
             success: function () {
-                window.location.replace("http://localhost:9090/rest/client/getClientsData")
+                window.location.replace("/rest/client/getClientsData")
             }
         })
     }

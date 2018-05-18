@@ -162,7 +162,7 @@ public class ClientServiceImpl implements ClientService {
 
 	private void phoneNumberValidation(Client client) {
 		String phoneNumber = client.getPhoneNumber();
-		Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+		Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
 		Matcher matcher = pattern.matcher(phoneNumber);
 		if (matcher.matches()) {
 			client.setCanCall(true);
