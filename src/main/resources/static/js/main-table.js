@@ -262,6 +262,7 @@ function assign(id) {
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
+            getNewHistory(id);
         },
         error: function (error) {
         }
@@ -312,10 +313,25 @@ function assignUser(id, user, principalId) {
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
+            getNewHistory(id);
         },
         error: function (error) {
         }
     });
+}
+
+function getNewHistory(id) {
+    let
+        url = '/rest/client/' + id;
+    $.get(url,
+        function (data) {
+            $('#client-' + data.id + 'history').prepend(
+                "<tr>" +
+                "   <td>" + data.history[0].title + "</td>" +
+                "   <td class=\"client-history-date\">" + data.history[0].date + "</td>" +
+                "</tr>"
+            );
+        });
 }
 
 function unassign(id) {
@@ -351,6 +367,7 @@ function unassign(id) {
                 );
             }
             fillFilterList();
+            getNewHistory(id);
         },
         error: function (error) {
         }
