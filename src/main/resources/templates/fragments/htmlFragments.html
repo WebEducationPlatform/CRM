@@ -196,7 +196,6 @@
                     <h5 class="modal-title">Подтвердите свое действие</h5>
                 </div>
                 <div class="modal-body">
-                    <h6>Отправить сообщение пользователю?</h6>
                     <div class="form-сheck">
                         <form class="box-modal">
                             <label class="checkbox-inline" th:if="${client.email} != null">
@@ -221,8 +220,7 @@
                 </div>
                 <div class="modal-footer">
                     <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
-                    <button type="button" th:id ="'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}" class="btn btn-primary send-all-message"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Да</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    <button type="button" class="btn btn-primary send-all-message" th:id ="'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
                 </div>
             </div>
         </div>
