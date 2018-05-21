@@ -542,7 +542,6 @@ function sendMessageVK(clientId, templateId) {
         data: formData,
 
         success: function (result) {
-            $(".modal").modal('hide');
             currentStatus.style.color = "limegreen";
             currentStatus.textContent = "Отправлено";
 
