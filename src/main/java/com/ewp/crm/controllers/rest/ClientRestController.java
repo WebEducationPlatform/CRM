@@ -295,7 +295,7 @@ public class ClientRestController {
 
 	}
 
-	@RequestMapping(value = "admin/rest/client/postpone", method = RequestMethod.POST)
+	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.getClientByID(clientId);

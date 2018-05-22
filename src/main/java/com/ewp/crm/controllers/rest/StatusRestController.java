@@ -80,7 +80,7 @@ public class StatusRestController {
 			return ResponseEntity.notFound().build();
 		}
 		Status status = client.getStatus();
-		client.setStatus(statusService.get("default"));
+		client.setStatus(statusService.get("deleted"));
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.STATUS));
 		clientService.updateClient(client);
 		logger.info("{} delete client with id = {} in status {}", principal.getFullName(), client.getId(), status.getName());

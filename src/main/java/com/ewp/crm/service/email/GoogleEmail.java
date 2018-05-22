@@ -113,7 +113,6 @@ public class GoogleEmail {
                 parser.parse();
                 Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
                 if (client != null) {
-                	//TODO добавлять в первый статус, сделать default статус не первым статусом
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));
                     clientService.addClient(client);

@@ -82,14 +82,14 @@ public class StatusServiceImpl implements StatusService {
 		if (id == 1L) {
 			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
 		}
-		if (statusDAO.findOne(id).getName().equals("default")) {
-			throw new StatusExistsException("Статус default нельзя удалить");
+		if (statusDAO.findOne(id).getName().equals("deleted")) {
+			throw new StatusExistsException("Статус deleted нельзя удалить");
 		}
 	}
 
 	private void transferStatusClientsBeforeDelete(Status status) {
 		if (status.getClients() != null) {
-			Status defaultStatus = statusDAO.findStatusByName("default");
+			Status defaultStatus = statusDAO.findStatusByName("deleted");
 			defaultStatus.getClients().addAll(status.getClients());
 			status.getClients().clear();
 			statusDAO.saveAndFlush(status);

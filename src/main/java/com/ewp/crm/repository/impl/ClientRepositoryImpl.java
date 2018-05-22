@@ -35,7 +35,6 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 		return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
 	}
 
-	//TODO generics?
 	@Transactional
 	@Override
 	public void updateBatchClients(List<Client> clients) {
