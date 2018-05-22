@@ -7,15 +7,14 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
+import org.javers.core.Javers;
+import org.javers.core.diff.Change;
+import org.javers.core.diff.Diff;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
@@ -24,11 +23,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientHistoryServiceImpl.class);
 	private final MessageService messageService;
+	private final Javers javers;
 
 	@Autowired
-	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService) {
+	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService, Javers javers) {
 		this.clientHistoryRepository = clientHistoryRepository;
 		this.messageService = messageService;
+		this.javers = javers;
 	}
 
 	@Override
@@ -118,95 +119,26 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	public ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(admin.getFullName() + " " + type.getInfo());
+		// if user updated client, which have no changes.
 		if (prev.equals(current)) {
 			return clientHistory;
 		}
-		try {
-			String buildChanges = transformChangesToHtml(findChanges(prev, current));
-			Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
-			clientHistory.setMessage(message);
-			clientHistory.setLink("/client/message/info/" + message.getId());
-		} catch (IllegalAccessException e) {
-			logger.error("Reflection exception: Cant build client changes with id: {}", prev.getId());
-		}
+		String buildChanges = buildChanges(prev, current);
+		Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
+		clientHistory.setMessage(message);
+		clientHistory.setLink("/client/message/info/" + message.getId());
 		return clientHistory;
 	}
 
 
-	//TODO сделать лучше
-	private String findChanges(Client prev, Client current) throws IllegalAccessException {
-		StringBuilder changesBuild = new StringBuilder();
-		Field[] prevFields = prev.getClass().getDeclaredFields();
-		Field[] currentFields = current.getClass().getDeclaredFields();
-
-		for (int i = 0; i < prevFields.length; i++) {
-			Field prevField = prevFields[i];
-			Field currentField = currentFields[i];
-			prevField.setAccessible(true);
-			currentField.setAccessible(true);
-			Object data1 = prevField.get(prev);
-			Object data2 = prevField.get(current);
-			if (data1 != null && data2 != null) {
-				if (data1 instanceof Collection) {
-					if (!data1.equals(data2)) {
-						iterateCollection(data1, data2, changesBuild);
-					}
-				} else if (!data1.equals(data2)) {
-					changesBuild.append(getRow(data1, data2));
-				}
-			}
+	//Use Javers Library
+	private String buildChanges(Client prev, Client current) {
+		StringBuilder stringBuilder = new StringBuilder();
+		Diff diff = javers.compare(prev, current);
+		for (Change change : diff.getChanges()) {
+			stringBuilder.append(change);
+			stringBuilder.append("<br>");
 		}
-		return changesBuild.toString();
-	}
-
-	/*
-		iterate collection and build changes
-	 */
-	private void iterateCollection(Object data1, Object data2, StringBuilder changesBuild) {
-		Collection<?> collection1 = ((Collection<?>) data1);
-		Collection<?> collection2 = ((Collection<?>) data2);
-		Iterator<?> iterator1 = collection1.iterator();
-		Iterator<?> iterator2 = collection2.iterator();
-		while (iterator1.hasNext() && iterator2.hasNext()) {
-			Object element1 = iterator1.next();
-			Object element2 = iterator2.next();
-			if(!element1.equals(element2)) {
-				changesBuild.append(getRow(element1,element2));
-			}
-		}
-		while (iterator1.hasNext()) {
-			changesBuild.append("{prev}");
-			changesBuild.append(iterator1.next());
-			changesBuild.append("{close}");
-			changesBuild.append(" удалено");
-			changesBuild.append("{br}");
-		}
-		while (iterator2.hasNext()) {
-			changesBuild.append("{current}");
-			changesBuild.append(iterator2.next());
-			changesBuild.append("{close}");
-			changesBuild.append(" добавлено");
-			changesBuild.append("{br}");
-		}
-	}
-	
-	private String getRow(Object obj1, Object obj2) {
-		return "{prev}" + obj1 + "{close} изменено на {current}" + obj2 + "{close}{br}";
-	}
-
-	//transform changes to html, use in CK editor
-	private String transformChangesToHtml(String changes) {
-		return changes.replaceAll("\\{prev}", "<span style=\"background-color:#DCDCDC\">")
-				.replaceAll("\\{current}","<span style=\"background-color:#90EE90\">")
-				.replaceAll("\\{close}","</span>")
-				.replaceAll("\\{br}","<br>");
-	}
-
-	//transform to normal String
-	private String transformChanges(String changes) {
-		return changes.replaceAll("\\{prev}", "")
-				.replaceAll("\\{current}","")
-				.replaceAll("\\{close}","")
-				.replaceAll("\\{br}","\n");
+		return stringBuilder.toString();
 	}
 }

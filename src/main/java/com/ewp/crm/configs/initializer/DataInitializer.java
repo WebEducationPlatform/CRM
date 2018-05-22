@@ -38,7 +38,7 @@ public class DataInitializer {
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("default", true);
+		Status defaultStatus = new Status("deleted", true);
 		Status status0 = new Status("New clients");
 
 		Role roleAdmin = new Role("ADMIN");
