@@ -90,6 +90,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	// worker call to client [link]
+	// TODO зачем тут клиент?
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link) {
 		ClientHistory clientHistory = new ClientHistory(type);
@@ -97,6 +98,15 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		return clientHistory;
 	}
+
+	@Override
+	public ClientHistory createHistory(User user , String recordLink) {
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL);
+		clientHistory.setRecordLink(recordLink);
+		clientHistory.setTitle(user.getFullName() + " " + ClientHistory.Type.CALL.getInfo());
+		return clientHistory;
+	}
+
 
 	/*
 		worker send message by email/vk/facebook/sms [link]

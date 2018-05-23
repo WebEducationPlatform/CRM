@@ -30,12 +30,12 @@ public class Client implements Serializable {
 
 	private String lastName;
 
-	@Column(name = "phoneNumber", unique = true)
+	@Column(name = "phoneNumber")
 	private String phoneNumber;
 
 	@Size(max = 50)
 	@Email(regexp = ValidationPattern.EMAIL_PATTERN)
-	@Column(name = "email", length = 50, unique = true)
+	@Column(name = "email", length = 50)
 	private String email;
 
 	private byte age;
