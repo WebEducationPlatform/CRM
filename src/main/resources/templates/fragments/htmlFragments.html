@@ -41,7 +41,7 @@
                     <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
                     <ul class="dropdown-menu">
                         <th:block th:if="${notifications.size() > 0}">
-                            <th:block th:each="notification : ${notifications}">
+                            <th:block th:each="notification : ${notifications}" th:if="${!notification.client.status.invisible}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                     <li th:class="'menu' + ${notification.client.id}">
                                     <a data-toggle="modal" class="link-cursor-pointer notify"
@@ -529,7 +529,7 @@
                     <h5 class="modal-title">Скрыть клиента</h5>
                 </div>
                 <div class="modal-body">
-                    <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
+                    <h6>Вы уверены, что хотите удалить статус? Все клиенты статуса будут перемещены в архив</h6>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" th:onclick="'hideClient(\''+ ${client.id} +'\')'">OK</button>
