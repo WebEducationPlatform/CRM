@@ -34,8 +34,8 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
 	@Override
 	public void sendNotification(String content, Client client) {
-		String regexForContent = "\\B\\@\\w+";
-		String regexForSplit = "(?=[A-Z])";
+		String regexForContent = "\\B\\@\\p{L}+";
+		String regexForSplit = "(?=[A-ZА-Я])";
 		Pattern pattern = Pattern.compile(regexForContent);
 		Matcher matcher = pattern.matcher(content);
 

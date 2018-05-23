@@ -556,9 +556,22 @@
                             <tr th:each="history : ${client.history}">
                                 <td th:text="${history.title}"></td>
                                 <td class="client-history-date" th:text="${history.date}"></td>
-                                <th:block th:if="${history.link != null}">
-                                    <td><a class="btn btn-default glyphicon glyphicon-paperclip open-window-btn" th:href="${history.link}"></a></td>
-                                </th:block>
+                          <th:block th:if="${history.link != null}">
+                                                       <td><a class="btn btn-default glyphicon glyphicon-paperclip open-window-btn" th:href="${history.link}"></a></td>
+                            </th:block>
+                            <th:block th:if="${history.recordLink != null}">
+                                <td>
+                                <div class="dropdown">
+                                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuCallRecord" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Прослушать
+                                      </button>
+                                      <div class="dropdown-menu" aria-labelledby="dropdownMenuCallRecord">
+                                       <audio controls="controls" th:src="${history.recordLink}">
+                                           </audio>
+                                      </div>
+                                    </div>
+                                    </td>
+                             </th:block>
                             </tr>
                         </table>
                         </th:block>

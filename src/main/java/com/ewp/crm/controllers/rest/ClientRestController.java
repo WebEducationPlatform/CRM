@@ -232,7 +232,7 @@ public class ClientRestController {
 		try {
 			if (!file.exists()) {
 				if (!file.createNewFile()) {
-					logger.error("File for filtered clients not created!");
+					logger.error("Text file for filtered clients not created!");
 				}
 			}
 		} catch (IOException e) {

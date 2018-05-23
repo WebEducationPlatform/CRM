@@ -7,7 +7,7 @@
     </head>
 </head>
 <body>
-<div style="margin: 2.5%">
+<div style="margin: 3%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
 
@@ -26,22 +26,14 @@
         <tr>
             <td>#</td>
             <td>SocialNetwork Type</td>
-            <td>Update</td>
-            <td>Delete</td>
         </tr>
         </thead>
         <tbody>
         <tr th:each="socialNetworkType : ${socialNetworkTypes}">
             <td th:text="${socialNetworkType.id}"></td>
             <td th:text="${socialNetworkType.name}"></td>
-            <td><a class="btn btn-info" role="button"
-                   data-toggle="modal"
-                   th:attr="data-target='#' + ${socialNetworkType.id}"
-            >Update</a>
-                <div th:replace="fragments/htmlFragments::updateSocialNetworkType"></div>
-            </td>
-
         </tr>
+        <!-- Есть htmlFragment для UPDATE -->
         </tbody>
     </table>
 </div>

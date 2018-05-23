@@ -4,9 +4,11 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,12 @@ public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
 
+	private final StatusService statusService;
+
 	@Autowired
-	public ClientServiceImpl(ClientRepository clientRepository) {
+	public ClientServiceImpl(ClientRepository clientRepository, StatusService statusService) {
 		this.clientRepository = clientRepository;
+		this.statusService = statusService;
 	}
 
 	@Override
@@ -80,37 +85,34 @@ public class ClientServiceImpl implements ClientService {
 		clientRepository.updateBatchClients(clients);
 	}
 
-	//TODO упростить
 	@Override
 	public void addClient(Client client) {
+
 		if (client.getLastName() == null) {
 			client.setLastName("");
 		}
-		if (client.getPhoneNumber() != null) {
+
+		Status firstStatus = statusService.getFirstStatusForClient();
+
+		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 			phoneNumberValidation(client);
-		}
-		setEmptyNull(client);
-		if (client.getEmail() != null) {
-			if (clientRepository.findClientByEmail(client.getEmail()) != null) {
-				throw new ClientExistsException();
+			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+			if (clientByPhone != null) {
+				clientByPhone.setStatus(firstStatus);
+				clientRepository.saveAndFlush(clientByPhone);
+				return;
 			}
 		}
-		if (client.getPhoneNumber() != null) {
-			if (clientRepository.findClientByPhoneNumber(client.getPhoneNumber()) != null) {
-				throw new ClientExistsException();
+		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
+			Client clientByEmail = clientRepository.findClientByEmail(client.getEmail());
+			if (clientByEmail != null) {
+				clientByEmail.setStatus(firstStatus);
+				clientRepository.saveAndFlush(clientByEmail);
+				return;
 			}
 		}
 		clientRepository.saveAndFlush(client);
-	}
 
-	//TODO сделать что-то с этим г***
-	private void setEmptyNull(Client client) {
-		if (client.getPhoneNumber() != null && client.getPhoneNumber().isEmpty()) {
-			client.setPhoneNumber(null);
-		}
-		if (client.getEmail() != null && client.getEmail().isEmpty()) {
-			client.setEmail(null);
-		}
 	}
 
 	@Override
@@ -138,20 +140,16 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.getFilteredClientsSNLinks(filteringCondition);
 	}
 
-	//TODO упростить
-    @Override
-    public void updateClient(Client client) {
-		if (client.getPhoneNumber() != null) {
-			phoneNumberValidation(client);
-		}
-		setEmptyNull(client);
-		if (client.getEmail() != null) {
+	@Override
+	public void updateClient(Client client) {
+		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
 			if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
 				throw new ClientExistsException();
 			}
 		}
-		if (client.getPhoneNumber() != null) {
+		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+			phoneNumberValidation(client);
 			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
 			if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
 				throw new ClientExistsException();
