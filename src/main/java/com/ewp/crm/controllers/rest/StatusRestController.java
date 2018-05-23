@@ -91,8 +91,9 @@ public class StatusRestController {
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId, @RequestParam("invisible") boolean bool) {
 		Status status = statusService.get(statusId);
 		if (status.getInvisible() == bool) {
-			logger.error("Статус уже " + (bool ? "невидимый" : "видимый"));
-			return ResponseEntity.badRequest().body("Статус уже " + (bool ? "невидимый" : "видимый"));
+			String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
+			logger.error(reason);
+			return ResponseEntity.badRequest().body(reason);
 		}
 		status.setInvisible(bool);
 		statusService.update(status);

@@ -618,3 +618,6 @@ div[id^="sendEmailTemplateStatus"] {
 	resize: none;
 }
 
+.invisible-status {
+    background-color: #FAF0E6;
+}

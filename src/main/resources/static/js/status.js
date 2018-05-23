@@ -62,8 +62,9 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function (status) {
-                $('#status-column'+ val).show();
-                button.parents("tr").hide();
+                location.reload();
+                // $('#status-column'+ val).show();
+                // button.parents("tr").hide();
             },
             error: function (error) {
                 console.log(error);
@@ -85,8 +86,9 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function () {
-                $('#status-column'+ val).hide();
-                $('.show-status-btn[value='+ val +']').parents("tr").show();
+                location.reload();
+                // $('#status-column'+ val).hide();
+                // $('.show-status-btn[value='+ val +']').parents("tr").show();
             },
             error: function (error) {
                 console.log(error);
@@ -108,10 +110,31 @@ $(document).ready(function () {
             url: url,
             data: formData,
             success: function () {
-                button.parents(".dropdown").children("button").removeClass().addClass("btn btn-secondary").attr("disabled","disabled").text("Добавлено");
+                button.parents(".dropdown").children("button").removeClass().addClass("btn btn-secondary").attr("disabled","disabled").text("Выполнено");
             },
             error: function (error) {
             }
         });
     });
+
+    $('.invisible-status a').on("click", function toInvisibleStatus() {
+        let a = $(this),
+            url = '/rest/status/client/change',
+            clientid = a.data("clientid"),
+            formData = {
+                clientId: a.data("clientid"),
+                statusId: a.data("statusid")
+            };
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: formData,
+            success: function () {
+                $('.portlet[value="'+ clientid +'"]').remove();
+            },
+            error: function (error) {
+            }
+        });
+    })
 });
