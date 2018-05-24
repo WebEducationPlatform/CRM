@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
+import org.javers.core.diff.changetype.container.ListChange;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -122,12 +123,14 @@ public class ClientRestController {
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
 		currentClient.setNotifications(clientFromDB.getNotifications());
 		currentClient.setCanCall(clientFromDB.isCanCall());
+		currentClient.setCallRecords(clientFromDB.getCallRecords());
 		currentClient.addHistory(clientHistoryService.createHistory(currentAdmin, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
 		clientService.updateClient(currentClient);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	//TODO на удаление
 	@RequestMapping(value = "/admin/rest/client/delete/{id}", method = RequestMethod.POST)
 	public ResponseEntity deleteClient(@PathVariable Long id) {
 		clientService.deleteClient(id);

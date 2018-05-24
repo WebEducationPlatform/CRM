@@ -152,6 +152,9 @@ public class ScheduleTasks {
 			case "delivery error":
 				info = "Номер заблокирован или вне зоны";
 				break;
+			case "invalid mobile phone" :
+				info = "Неправильный формат номера";
+				break;
 			case "incorrect id":
 				info = "Неверный id сообщения";
 				break;

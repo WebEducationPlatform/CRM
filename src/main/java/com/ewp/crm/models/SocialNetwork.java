@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,11 +14,12 @@ public class SocialNetwork implements Serializable {
 	@Id
 	@GeneratedValue
 	@Column
-	private Long id;
+	private long id;
 
 	@Column
 	private String link;
 
+	@DiffIgnore
 	@JsonIgnore
 	@ManyToOne
 	@JoinTable(name = "client_social_network",
@@ -49,14 +51,13 @@ public class SocialNetwork implements Serializable {
 		if (this == o) return true;
 		if (!(o instanceof SocialNetwork)) return false;
 		SocialNetwork that = (SocialNetwork) o;
-		return Objects.equals(id, that.id) &&
+		return id == that.id &&
 				Objects.equals(link, that.link) &&
 				Objects.equals(socialNetworkType, that.socialNetworkType);
 	}
 
 	@Override
 	public int hashCode() {
-
 		return Objects.hash(id, link, socialNetworkType);
 	}
 
@@ -65,11 +66,11 @@ public class SocialNetwork implements Serializable {
 		return this.link;
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
