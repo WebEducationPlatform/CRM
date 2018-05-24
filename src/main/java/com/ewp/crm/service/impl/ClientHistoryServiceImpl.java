@@ -7,9 +7,11 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
+import org.javers.common.string.PrettyValuePrinter;
 import org.javers.core.Javers;
 import org.javers.core.diff.Change;
 import org.javers.core.diff.Diff;
+import org.javers.core.diff.changetype.container.CollectionChange;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,11 +120,18 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	@Override
 	public ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
 		ClientHistory clientHistory = new ClientHistory(type);
+		//This kostyl use because view represent null properties as empty string "".
+		if (current.getEmail().isEmpty()) {
+			current.setEmail(null);
+		}
+		if (current.getPhoneNumber().isEmpty()) {
+			current.setPhoneNumber(null);
+		}
 		clientHistory.setTitle(admin.getFullName() + " " + type.getInfo());
 		// if user updated client, which have no changes.
-		if (prev.equals(current)) {
+		if (current.equals(prev)) {
 			return clientHistory;
-		}
+	}
 		String buildChanges = buildChanges(prev, current);
 		Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
 		clientHistory.setMessage(message);
@@ -136,8 +145,10 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		StringBuilder stringBuilder = new StringBuilder();
 		Diff diff = javers.compare(prev, current);
 		for (Change change : diff.getChanges()) {
-			stringBuilder.append(change);
-			stringBuilder.append("<br>");
+			if(!(change instanceof CollectionChange)) {
+				stringBuilder.append(change.prettyPrint(PrettyValuePrinter.getDefault()));
+				stringBuilder.append("<br>");
+			}
 		}
 		return stringBuilder.toString();
 	}

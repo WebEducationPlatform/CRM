@@ -11,7 +11,7 @@ public class Job implements Serializable {
     @Id
     @Column(name = "job_id")
     @GeneratedValue
-    private Long id;
+    private long id;
 
     @Column
     private String organization;
@@ -27,11 +27,11 @@ public class Job implements Serializable {
         this.position = position;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -56,9 +56,9 @@ public class Job implements Serializable {
 		if (this == o) return true;
 		if (!(o instanceof Job)) return false;
 		Job job = (Job) o;
-		return Objects.equals(id, job.id)
-				&& Objects.equals(organization, job.organization)
-				&& Objects.equals(position, job.position);
+		return id == job.id &&
+				Objects.equals(organization, job.organization) &&
+				Objects.equals(position, job.position);
 	}
 
 	@Override

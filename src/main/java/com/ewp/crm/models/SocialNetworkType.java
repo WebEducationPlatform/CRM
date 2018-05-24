@@ -2,11 +2,11 @@ package com.ewp.crm.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
-import java.util.List;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.List;
 
 @Entity
 public class SocialNetworkType implements Serializable {
@@ -19,6 +19,7 @@ public class SocialNetworkType implements Serializable {
 	@Column
 	private String name;
 
+	@DiffIgnore
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "social_network_social_network_type",
@@ -49,24 +50,25 @@ public class SocialNetworkType implements Serializable {
 		this.name = name;
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof SocialNetworkType)) return false;
 		SocialNetworkType that = (SocialNetworkType) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(name, that.name);
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		return name != null ? name.equals(that.name) : that.name == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		return result;
 	}
 
 	@Override
 	public String toString() {
 		return this.name;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, name);
 	}
 
 	public List<SocialNetwork> getSocialNetworkList() {
