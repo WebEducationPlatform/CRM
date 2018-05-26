@@ -2,6 +2,7 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 
 import java.util.List;
@@ -23,10 +24,6 @@ public interface ClientService {
 
 	void updateClient(Client client);
 
-	void deleteClient(Long id);
-
-	void deleteClient(Client client);
-
 	List<Client> filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
@@ -34,6 +31,8 @@ public interface ClientService {
 	List<Client> findClientsByManyIds(List<Long> ids);
 
 	void updateBatchClients(List<Client> clients);
+
+	void addBatchClients(List<Client> clients);
 
 	List<String> getClientsEmails();
 
@@ -44,4 +43,6 @@ public interface ClientService {
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
+
+	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 }

@@ -130,6 +130,12 @@
             <artifactId>javers-core</artifactId>
             <version>3.9.7</version>
         </dependency>
+        <!-- For test -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.15</version>
+        </dependency>
 	</dependencies>
 
 	<build>
