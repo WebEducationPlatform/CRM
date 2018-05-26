@@ -2,6 +2,8 @@ package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ public interface ClientRepositoryCustom {
 
 	void updateBatchClients(List<Client> clients);
 
+	void addBatchClients(List<Client> clients);
+
 	List getClientsEmail();
 
 	List<String> getClientsPhoneNumber();
@@ -22,5 +26,7 @@ public interface ClientRepositoryCustom {
 	List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition);
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
+
+	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 }

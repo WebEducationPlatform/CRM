@@ -2,6 +2,8 @@ package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 
@@ -49,6 +52,20 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 		entityManager.clear();
 	}
 
+	@Transactional
+	@Override
+	public void addBatchClients(List<Client> clients) {
+		for (int i = 0; i < clients.size(); i++) {
+			entityManager.persist(clients.get(i));
+			if (i % batchSize == 0) {
+				entityManager.flush();
+				entityManager.clear();
+			}
+		}
+		entityManager.flush();
+		entityManager.clear();
+	}
+
 	@Override
 	public List<String> getClientsEmail() {
 		return entityManager.createQuery("SELECT email FROM Client").getResultList();
@@ -72,6 +89,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 	@Override
 	public List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition) {
 		return entityManager.createNativeQuery(queryForGetSNLinksFromFilteredClients(filteringCondition)).getResultList();
+	}
+
+	@Override
+	public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
+		TypedQuery<Client> query = entityManager.createQuery("from Client c where c.status = :status and (c.ownerUser in (:ownerUser) or c.ownerUser is NULL)", Client.class);
+		query.setParameter("status", status);
+		query.setParameter("ownerUser", ownUser);
+		return query.getResultList();
 	}
 
 

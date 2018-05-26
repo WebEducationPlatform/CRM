@@ -4,6 +4,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -44,20 +45,9 @@ public class ClientServiceImpl implements ClientService {
 		return clientRepository.findClientByPhoneNumber(phoneNumber);
 	}
 
-
 	@Override
 	public Client getClientByID(Long id) {
 		return clientRepository.findOne(id);
-	}
-
-	@Override
-	public void deleteClient(Long id) {
-		clientRepository.delete(id);
-	}
-
-	@Override
-	public void deleteClient(Client client) {
-		clientRepository.delete(client);
 	}
 
 	@Override
@@ -78,6 +68,11 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public void updateBatchClients(List<Client> clients) {
 		clientRepository.updateBatchClients(clients);
+	}
+
+	@Override
+	public void addBatchClients(List<Client> clients) {
+		clientRepository.addBatchClients(clients);
 	}
 
 	//TODO упростить
@@ -136,6 +131,11 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition) {
 		return clientRepository.getFilteredClientsSNLinks(filteringCondition);
+	}
+
+	@Override
+	public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
+		return clientRepository.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
 	}
 
 	//TODO упростить

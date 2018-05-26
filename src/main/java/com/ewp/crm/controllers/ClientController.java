@@ -76,14 +76,6 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	//TODO на удаление
-//	@RequestMapping(value = "/admin/client/deleteClient", method = RequestMethod.POST)
-//	public void deleteClient(Client client) {
-//		clientService.deleteClient(client);
-//		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		logger.info("{} has deleted client: id {}, email {}", currentAdmin.getFullName(), client.getId(), client.getEmail());
-//	}
-
 	@RequestMapping(value = "/admin/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

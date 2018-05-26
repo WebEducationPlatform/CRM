@@ -130,15 +130,6 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	//TODO на удаление
-	@RequestMapping(value = "/admin/rest/client/delete/{id}", method = RequestMethod.POST)
-	public ResponseEntity deleteClient(@PathVariable Long id) {
-		clientService.deleteClient(id);
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.info("{} has deleted client with id {}", currentAdmin.getFullName(), id);
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

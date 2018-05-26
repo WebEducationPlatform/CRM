@@ -1,27 +1,26 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
 public class StatusServiceImpl implements StatusService {
 
 	private final StatusDAO statusDAO;
+	private final ClientService clientService;
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO) {
+	public StatusServiceImpl(StatusDAO statusDAO, ClientService clientService) {
 		this.statusDAO = statusDAO;
+		this.clientService = clientService;
 	}
 
 	@Override
@@ -33,13 +32,7 @@ public class StatusServiceImpl implements StatusService {
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
 		List<Status> statuses = getAll();
 		for (Status status : statuses) {
-			List<Client> filteredClients = new ArrayList<>();
-			for (Client client : status.getClients()) {
-				if (client.getOwnerUser() == null || ownerUser.equals(client.getOwnerUser())) {
-					filteredClients.add(client);
-				}
-			}
-			status.setClients(filteredClients);
+			status.setClients(clientService.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
 		}
 		return statuses;
 	}
