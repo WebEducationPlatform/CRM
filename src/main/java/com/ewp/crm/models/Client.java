@@ -126,6 +126,7 @@ public class Client implements Serializable {
 
 	public Client() {
 		this.state = State.NEW;
+		this.dateOfRegistration = new Date();
 	}
 
 	public Client(String name, String lastName) {
@@ -156,6 +157,7 @@ public class Client implements Serializable {
 	}
 
 	public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, Date dateOfRegistration) {
+		this();
 		this.name = name;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
