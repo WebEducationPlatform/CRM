@@ -4,7 +4,7 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
-    <script type="text/javascript" th:src="@{/js/frameHistory.js}"></script>
+    <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
     <script th:src="@{/js/validator.min.js}"></script>
 </head>
 <body>
@@ -111,7 +111,22 @@
         </div>
         <div class="col-md-6" id="column2">
             <div><h2>История клиента</h2></div>
-            <div th:replace="fragments/htmlFragments::clientHistoryForClientInfo"></div>
+            <div class="modal-header" style="border-bottom:none;">
+                <div class="panel-group" id="actionsAccordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#actionsAccordion" class="upload-history collapsed" th:attrappend="data-id=${client.id}" th:href="'#collapse'+${client.id}">Действия</a>
+                            </h4>
+                        </div>
+                        <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div th:replace="fragments/htmlFragments::clientHistoryForClientInfo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

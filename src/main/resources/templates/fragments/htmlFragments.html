@@ -546,20 +546,14 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#actionsAccordion" th:href="'#collapse'+${client.id}">Действия</a>
+                        <a data-toggle="collapse" data-parent="#actionsAccordion" class="upload-history collapsed" th:attrappend="data-id=${client.id}" th:href="'#collapse'+${client.id}">Действия</a>
                     </h4>
                 </div>
                 <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
                     <div class="panel-body">
                         <th:block th:fragment="clientHistoryForClientInfo">
                         <table class="table table-bordered" width="100%" th:id="'client-'+${client.id}+'history'">
-                            <tr th:each="history : ${client.history}">
-                                <td th:text="${history.title}"></td>
-                                <td class="client-history-date" th:text="${history.date}"></td>
-                                <th:block th:if="${history.link != null}">
-                                    <td><a class="btn btn-default glyphicon glyphicon-paperclip open-window-btn" th:href="${history.link}"></a></td>
-                                </th:block>
-                            </tr>
+                          <tbody></tbody>
                         </table>
                         </th:block>
                     </div>

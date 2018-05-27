@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
 
@@ -37,6 +39,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	@Override
 	public ClientHistory addHistory(ClientHistory history) {
 		return clientHistoryRepository.saveAndFlush(history);
+	}
+
+	@Override
+	public List<ClientHistory> findByClientId(long id) {
+		return clientHistoryRepository.findByClientId(id);
 	}
 
 	@Override
