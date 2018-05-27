@@ -48,9 +48,7 @@ function senReqOnChangeStatus(clientId, statusId) {
 
 $(document).ready(function () {
     $(".show-status-btn").on("click", function showStatus() {
-        let val = $(this).attr("value");
         let
-            button = $(this),
             url = '/admin/rest/status/visible/change',
             formData = {
                 statusId: $(this).attr("value"),
@@ -63,8 +61,6 @@ $(document).ready(function () {
             data: formData,
             success: function (status) {
                 location.reload();
-                // $('#status-column'+ val).show();
-                // button.parents("tr").hide();
             },
             error: function (error) {
                 console.log(error);
@@ -87,8 +83,6 @@ $(document).ready(function () {
             data: formData,
             success: function () {
                 location.reload();
-                // $('#status-column'+ val).hide();
-                // $('.show-status-btn[value='+ val +']').parents("tr").show();
             },
             error: function (error) {
                 console.log(error);

@@ -357,7 +357,8 @@ public class Client implements Serializable {
 				Objects.equals(country, client.country) &&
 				state == client.state &&
 				Objects.equals(socialNetworks, client.socialNetworks) &&
-				Objects.equals(clientDescriptionComment, client.clientDescriptionComment);
+				Objects.equals(clientDescriptionComment, client.clientDescriptionComment) &&
+				Objects.equals(jobs, client.jobs);
 	}
 
 	@Override

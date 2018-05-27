@@ -124,6 +124,9 @@ public class ClientRestController {
 		currentClient.setNotifications(clientFromDB.getNotifications());
 		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.setCallRecords(clientFromDB.getCallRecords());
+		if (currentClient.equals(clientFromDB)) {
+			return ResponseEntity.noContent().build();
+		}
 		currentClient.addHistory(clientHistoryService.createHistory(currentAdmin, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
 		clientService.updateClient(currentClient);
 		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
@@ -325,5 +328,14 @@ public class ClientRestController {
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
+	}
+
+	@GetMapping("rest/client/getHistory/{clientId}")
+	public ResponseEntity getClientHistory(@PathVariable("clientId") long id) {
+		List<ClientHistory> clientHistory = clientHistoryService.findByClientId(id);
+		if (clientHistory == null || clientHistory.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(clientHistory);
 	}
 }

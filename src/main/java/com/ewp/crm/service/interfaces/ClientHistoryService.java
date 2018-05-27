@@ -5,6 +5,8 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
 
+import java.util.List;
+
 public interface ClientHistoryService {
 
 	ClientHistory addHistory(ClientHistory history);
@@ -20,4 +22,6 @@ public interface ClientHistoryService {
 	ClientHistory createHistory(User user, Client client, Message message);
 
 	ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type);
+
+	List<ClientHistory> findByClientId(long id);
 }
