@@ -140,7 +140,6 @@ public class ClientRestController {
 			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
 					socialNetwork.getSocialNetworkType().getName()).getId());
 		}
-		client.setDateOfRegistration(LocalDateTime.now().toDate());
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
 		client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));

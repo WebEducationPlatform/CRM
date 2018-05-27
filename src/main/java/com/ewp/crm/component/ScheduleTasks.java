@@ -58,7 +58,6 @@ public class ScheduleTasks {
 		Status newClientsStatus = statusService.getFirstStatusForClient();
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
-		newClient.setDateOfRegistration(LocalDateTime.now().toDate());
 		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
 		newClient.addHistory(clientHistoryService.createHistory("vk"));
 		clientService.addClient(newClient);
