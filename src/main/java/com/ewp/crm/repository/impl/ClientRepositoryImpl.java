@@ -32,7 +32,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
 	@Override
 	public List<Client> getChangeActiveClients() {
-		return entityManager.createQuery("select cl from Client cl where 1 = 1 and cl.postponeDate!=NULL and cl.postponeDate<=now()").getResultList();
+		return entityManager.createQuery("select cl from Client cl where  cl.postponeDate is not NULL and cl.postponeDate<=now()").getResultList();
 	}
 
 	//TODO generics?

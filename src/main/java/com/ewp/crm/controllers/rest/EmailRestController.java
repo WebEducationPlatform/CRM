@@ -29,7 +29,7 @@ import java.util.Map;
 public class EmailRestController {
 
 	private final MailSendService mailSendService;
-	private final MessageTemplateServiceImpl MessageTemplateService;
+	private final MessageTemplateServiceImpl messageTemplateService;
 	private final ClientService clientService;
 	private final ImageConfig imageConfig;
 
@@ -37,7 +37,7 @@ public class EmailRestController {
 	@Autowired
 	public EmailRestController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig) {
 		this.mailSendService = mailSendService;
-		this.MessageTemplateService = MessageTemplateService;
+		this.messageTemplateService = MessageTemplateService;
 		this.clientService = clientService;
 		this.imageConfig = imageConfig;
 	}
@@ -51,7 +51,7 @@ public class EmailRestController {
 		//TODO в конфиг
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
-		mailSendService.prepareAndSend(client.getEmail(), params, MessageTemplateService.get(templateId).getTemplateText(),
+		mailSendService.prepareAndSend(client.getEmail(), params, messageTemplateService.get(templateId).getTemplateText(),
 				"emailStringTemplate");
 		return ResponseEntity.ok().build();
 	}
@@ -63,10 +63,10 @@ public class EmailRestController {
 		if(templateText.contains("%bodyText%") ^ otherTemplateText.contains("%bodyText%")) {
 			throw new MessageTemplateException("%bodyText% должен присутствовать/остутствовать на обоих типах сообщения");
 		}
-		MessageTemplate MessageTemplate = MessageTemplateService.get(templateId);
+		MessageTemplate MessageTemplate = messageTemplateService.get(templateId);
 		MessageTemplate.setTemplateText(templateText);
 		MessageTemplate.setOtherText(otherTemplateText);
-		MessageTemplateService.update(MessageTemplate);
+		messageTemplateService.update(MessageTemplate);
 		return ResponseEntity.ok().build();
 	}
 

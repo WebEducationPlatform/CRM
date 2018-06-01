@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -330,5 +331,16 @@ public class ClientRestController {
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
+	}
+
+	@RequestMapping(value = "rest/client/socialnetworks", method = RequestMethod.GET)
+	public ResponseEntity getSocNetworks(@RequestParam(name = "clientId") Long clientId) {
+		Client client = clientService.getClientByID(clientId);
+		List<String> socNetworkName = new ArrayList<>();
+		for (SocialNetwork soc : client.getSocialNetworks()) {
+			socNetworkName.add(soc.getSocialNetworkType().getName());
+			System.out.println(socNetworkName);
+		}
+		return ResponseEntity.ok(socNetworkName);
 	}
 }
