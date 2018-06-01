@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MessageTemplateServiceImpl implements MessageTemplateService {
@@ -46,6 +47,16 @@ public class MessageTemplateServiceImpl implements MessageTemplateService {
 	@Override
 	public MessageTemplate getByName(String name) {
 		return MessageTemplateDAO.getByName(name);
+	}
+
+
+	@Override
+	public String replaceName(String msg, Map<String, String> params) {
+		String replaceText = msg;
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			replaceText = String.valueOf(new StringBuilder(replaceText.replaceAll(entry.getKey(), entry.getValue())));
+		}
+		return replaceText;
 	}
 
 

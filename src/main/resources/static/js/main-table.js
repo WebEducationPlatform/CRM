@@ -1,3 +1,31 @@
+// Отрисовка чекбоксов социальных сетей в модальном окне.
+$(function () {
+    $('.custom-modal').on('show.bs.modal', function () {
+        var currentForm = $(this).find('.box-modal');
+        var clientId = $(this).data('clientId');
+        let formData = {clientId: clientId};
+        $.ajax({
+            type: 'GET',
+            url: 'rest/client/socialnetworks',
+            data: formData,
+            beforeSend: function () {
+                if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+                    return false;
+                }
+            },
+            success: function(data) {
+                    for (let i = 0; i < data.length; i++) {
+                        currentForm.prepend("<label class='checkbox-inline'>" +
+                            "<input type='checkbox'  value=" + data[i] + "  class='my-checkbox-soc' />" + data[i] +
+                            "</label>");
+
+                }
+            }
+        });
+    });
+});
+
+
 $(function(){
     $(".hide-main-modal").click(function(e){
         $(".main-modal .close").click()
@@ -668,95 +696,125 @@ $(function () {
     })
 });
 
+//Отрпавка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-message').on('click', function (event) {
-            var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-                return $(el).val();
-            });
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
-        var boxList = JSON.stringify(sel.get());
-		var current = document.getElementById("sendTemplateBtn-" + templateId + "-" + clientId);
-		var currentStatus = document.getElementById("sendTemplateStatus-" + templateId + "-" + clientId);
-		if(sel.length===0) {
-			currentStatus.textContent = "Выберите куда отправить сообщение";
-			return false;
-		}
-        let formData = {
-            boxList: boxList,
-            clientId: clientId,
-            templateId: templateId
-        };
-        $.ajax({
-            type: "POST",
-            url: '/rest/messages',
-            data: formData,
-
+        var current = $(this);
+        var currentStatus = $(this).prev('.send-fixed-template');
+        var formData = {clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body' + clientId + templateId).val()};
+        var url = [];
+        var err = [];
+        $('input[type="checkbox"]:checked').each(function (el) {
+            var valuecheck = $( this ).val();
+            switch (valuecheck) {
+                case ('email'):
+                    url = '/rest/sendEmail';
+                    break;
+                case ('vk'):
+                    url = '/rest/vkontakte';
+                    break;
+                case ('sms'):
+                    url = '/user/sms/send/now/client';
+                    break;
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
             beforeSend: function () {
-                current.textContent = "Отправка..";
-                current.setAttribute("disabled", "true")
+                current.text("Отправка..");
+                current.attr("disabled", "true")
             },
             success: function (result) {
-                $(".modal").modal('hide');
-                current.textContent ="Отправить";
-                current.removeAttribute("disabled");
+                if (err.length === 0) {
+                    $(".modal").modal('hide');
+                    current.text("Отправить");
+                    current.removeAttr("disabled");
+                }
             },
             error: function (e) {
-                current.textContent ="Отправить";
-                current.removeAttribute("disabled");
-                currentStatus.textContent = "Ошибка";
+                err.push(valuecheck);
+                current.text("Отправить");
+                current.removeAttr("disabled");
+                currentStatus.text("Не удалось отправить сообщение " + err);
                 console.log(e)
             }
         });
     });
 });
-
-
-
+});
 $(function () {
-    $('.send-all-custom-message').on('click', function(event) {
-        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-            return $(el).val();
-        });
-        var boxList = JSON.stringify(sel.get());
-        var clientId = $(this).data('clientId');
-		var templateId = $(this).data('templateId');
-		var current = $("#sendCustomTemplateBtn" + clientId + templateId)[0];
-		var currentStatus = $("#sendCustomEmailTemplateStatus" + clientId + templateId)[0];
-		if(sel.length===0) {
-			currentStatus.textContent = "Выберите куда отправить сообщение";
-			return false;
-		}
-		let url = '/rest/messages';
-    let formData = {
-        clientId: clientId,
-        boxList: boxList,
-		templateId:templateId,
-        body: $('#custom-eTemplate-body' + clientId + templateId).val()
-	};
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        beforeSend: function(){
-            current.textContent ="Отправка..";
-            current.setAttribute("disabled", "true")
-        },
-        success: function (result) {
-			$(".modal").modal('hide');
-			$("#custom-eTemplate-body" + clientId + templateId).val("");
-			current.textContent ="Отправить";
-			current.removeAttribute("disabled");
-        },
-        error: function (e) {
-            current.textContent ="Отправить";
-            current.removeAttribute("disabled");
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+    $('.custom-modal').on('hide.bs.modal', function () {
+        var currentForm = $(this).find('.send-fixed-template');
+        currentForm.empty();
+        $("input[type=checkbox]").prop('checked', false);
     });
 });
+
+//Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
+$(function () {
+    $('.send-all-custom-message').on('click', function(event) {
+        var clientId = $(this).data('clientId');
+        var templateId = $(this).data('templateId');
+        var current = $(this);
+        var currentStatus = $(this).prev('.send-custom-template');
+        var formData = {clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body' + clientId + templateId).val()};
+        var url = [];
+        var err = [];
+        $('input[type="checkbox"]:checked').each(function (el) {
+            var valuecheck = $( this ).val();
+            switch ($( this ).val()) {
+                case ('email'):
+                    url = '/rest/sendEmail';
+                    break;
+                case ('vk'):
+                    url = '/rest/vkontakte';
+                    break;
+                case ('sms'):
+                    url = '/user/sms/send/now/client';
+                    break;
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                beforeSend: function(){
+                    current.text("Отправка..");
+                    current.attr("disabled", "true")
+                },
+                success: function (result) {
+                    if (err.length === 0) {
+                        $(".modal").modal('hide');
+                        $("#custom-eTemplate-body" + clientId + templateId).val("");
+                        current.text("Отправить");
+                        current.removeAttr("disabled");
+                    }
+                },
+                error: function (e) {
+                    err.push(valuecheck);
+                    current.text("Отправить");
+                    current.removeAttr("disabled");
+                    currentStatus.text("Не удалось отправить сообщение " + err);
+                    console.log(e);
+                }
+            });
+        });
+    });
 });
+
+$(function () {
+    $('.custom-modal').on('hide.bs.modal', function () {
+        var currentForm = $(this).find('.send-custom-template');
+        currentForm.empty();
+        $("input[type=checkbox]").prop('checked', false);
+    });
+});
+
+
 
 function hideClient(clientId) {
     let url = 'rest/client/postpone';
