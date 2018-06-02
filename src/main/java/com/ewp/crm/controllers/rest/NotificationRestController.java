@@ -57,4 +57,13 @@ public class NotificationRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@GetMapping("/sms/error/{clientId}")
+	public ResponseEntity getSMSErrorsByClient(@PathVariable("clientId")Long id) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Notification> list = notificationService.getByUserToNotifyAndTypeAndClient(principal, Notification.Type.SMS, clientService.getClientByID(id));
+		if (list == null || list.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(list);
+	}
 }

@@ -53,8 +53,7 @@
                                 </th:block>
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).SMS}">
                                     <li th:class="'menu' + ${notification.client.id}">
-                                        <a data-toggle="modal" class="notification-header-btn"
-                                           th:attrappend="data-target='#sms-error-modal_' + ${notification.client.id}"
+                                        <a data-toggle="modal" class="notification-header-btn sms-error-btn" th:attrappend="data-id=${notification.client.id}"
                                            th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
                                         </a>
                                     </li>
@@ -560,6 +559,31 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="sms_error_modal">
+    <div class="modal fade" role="dialog" id="sms_error_modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Ошибки sms</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- SMS INFO -->
+                    <table>
+                        <tbody></tbody>
+                    </table>
+                    <!--/ SMS INFO -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="clear_sms_errors">Очистить</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </th:block>

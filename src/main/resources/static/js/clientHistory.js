@@ -1,10 +1,4 @@
 $(document).ready(function () {
-    $('.open-window-btn').on("click", function openWindow(event) {
-        let url = $(this).attr("href");
-        window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
-        return false;
-        });
-
     $('.upload-more-history').on("click", function uploadMoreHistory() {
         let current = $(this);
         let clientId = current.data("clientid");
@@ -59,10 +53,10 @@ $(document).ready(function () {
 });
 
 function drawClientHistory(list, history_table) {
-    for (let i = 0; i < list.length ; i++) {
+    for (let i = 0; i < list.length; i++) {
         let $tdLink = "";
         if (list[i].link !== null) {
-            $tdLink = "<td><a class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\""+ list[i].link +"\"></a></td>"
+            $tdLink = "<td><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
         }
         history_table.append(
             "<tr>" +
@@ -72,10 +66,10 @@ function drawClientHistory(list, history_table) {
             "</tr>"
         );
     }
-    //Without this method, appended <a> don't work
-    $('.open-window-btn').on("click", function openWindow(event) {
-        let url = $(this).attr("href");
-        window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
-        return false;
-    });
+
+}
+
+function open_new_window(elem) {
+    let url = $(elem).attr("href");
+    window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
 }

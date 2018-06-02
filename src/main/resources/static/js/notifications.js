@@ -1,17 +1,18 @@
-function clearClientSmsNotifications(id) {
+var clearNotifications = function clearClientSmsNotifications(id) {
     let request = "/user/notification/sms/clear/" + id;
     $.ajax({
         type: "POST",
         dataType : "json",
         url : request,
         success: function () {
-            location.reload();
+            $(".sms-error-btn[data-id="+ id +"]").hide();
+            $('.menu' + id).remove();
         },
         error : function (error) {
             console.log(error);
         }
     })
-}
+};
 
 function markAsReadMenu(clientId) {
     if ($('.notify').length) {
