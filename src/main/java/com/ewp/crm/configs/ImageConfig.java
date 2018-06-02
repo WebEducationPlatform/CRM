@@ -26,7 +26,7 @@ public class ImageConfig {
 		try {
 			properties.load(new FileInputStream(new File("src\\main\\resources\\image.properties")));
 		} catch (IOException e) {
-			logger.error("Missing image config file 'image.properties'");
+			logger.error("Missing image config file 'image.properties'", e);
 			System.exit(-1);
 		}
 		pathForAvatar = properties.getProperty("pathForAvatar");

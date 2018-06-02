@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.io.*;
 import java.util.List;
 import java.util.Optional;
@@ -211,7 +210,7 @@ public class ClientRestController {
 
 			bufferedWriter.close();
 		} catch (IOException e) {
-			logger.error("File not created!");
+			logger.error("File not created! ", e);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -269,7 +268,7 @@ public class ClientRestController {
 
 			bufferedWriter.close();
 		} catch (IOException e) {
-			logger.error("File not created!");
+			logger.error("File not created! ", e);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -284,7 +283,7 @@ public class ClientRestController {
 		try {
 			resource = new InputStreamResource(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			logger.error("File not found!");
+			logger.error("File not found! ", e);
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION,
@@ -294,7 +293,6 @@ public class ClientRestController {
 
 	}
 
-	//TODO не забыть
 	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
