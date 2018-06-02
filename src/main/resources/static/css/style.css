@@ -592,6 +592,16 @@ span[id^="sendCustomEmailTemplateStatus"] {
 	float: left;
 }
 
+.send-custom-template{
+	color: red;
+	float: left;
+}
+
+.send-fixed-template{
+	color: red;
+	float: left;
+}
+
 span[id^="sendCustomSocialTemplateStatus"] {
 	color: red;
 	float: left;

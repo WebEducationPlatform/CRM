@@ -188,7 +188,7 @@
 </th:block>
 
 <th:block th:fragment="sendTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${!template.hasBody()}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade custom-modal" th:each="template : ${emailTmpl}" th:if="${!template.hasBody()}" th:id="'sendTemplateModal'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true" th:attr="data-client-id=${client.id}">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -200,11 +200,6 @@
                             <label class="checkbox-inline" th:if="${client.email} != null">
                                 <input type="checkbox" th:text="E-mail"  th:value="email"  class="my-checkbox"/>
                             </label>
-                            <th:block th:each="socNetwork : ${client.socialNetworks}">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
-                                </label>
-                            </th:block>
                             <label class="checkbox-inline" th:if="${client.phoneNumber} != null">
                                 <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
                             </label>
@@ -218,8 +213,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'sendTemplateStatus-' + ${template.id}+ '-' + ${client.id}"></span>
-                    <button type="button" class="btn btn-primary send-all-message" th:id ="'sendTemplateBtn-' + ${template.id} + '-' + ${client.id}"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
+                    <span class="send-fixed-template"></span>
+                    <button type="button" class="btn btn-primary send-all-message" th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
                 </div>
             </div>
         </div>
@@ -425,7 +420,7 @@
 
 
 <th:block th:fragment="customMessageTemplateModal">
-    <div class="modal fade" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customMessageTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade custom-modal" th:each="template : ${emailTmpl}" th:if="${template.hasBody()}"  th:id="'customMessageTemplate'+ ${client.id} + ${template.id}" tabindex="-1" role="dialog"  aria-hidden="true" th:attr="data-client-id=${client.id}">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body">
@@ -438,11 +433,6 @@
                             <label class="checkbox-inline" th:if="${client.email} != null">
                                 <input type="checkbox" th:text="E-mail"  th:value="email"  class="my-checkbox"/>
                             </label>
-                            <th:block th:each="socNetwork : ${client.socialNetworks}">
-                                <label class="checkbox-inline">
-                                    <input type="checkbox"   th:text="${socNetwork.socialNetworkType.name}"  th:value="${socNetwork.socialNetworkType.name}" class="my-checkbox"/>
-                                </label>
-                            </th:block>
                             <label class="checkbox-inline" th:if="${client.phoneNumber} != null">
                                 <input type="checkbox"  th:text="SMS" th:value="sms" class="my-checkbox"/>
                             </label>
@@ -456,8 +446,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span th:id = "'sendCustomEmailTemplateStatus' + ${client.id} + ${template.id}"></span>
-                    <button type="button" class="btn btn-primary send-all-custom-message" th:id = "'sendCustomTemplateBtn' + ${client.id} + ${template.id}"  th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
+                    <span class="send-custom-template"></span>
+                    <button type="button" class="btn btn-primary send-all-custom-message" th:attr="data-client-id=${client.id}, data-template-id=${template.id}">Отправить</button>
                 </div>
             </div>
         </div>
