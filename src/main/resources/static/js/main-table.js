@@ -121,6 +121,27 @@ $(document).ready(function () {
             }
             return $validCount === data.length;
         }).show();
+    });
+
+    $(".sms-error-btn").on("click", function smsInfoModalOpen() {
+        let modal = $("#sms_error_modal"),
+            btn = $(this),
+            url = '/user/notification/sms/error/' + btn.attr("data-id");
+        $.get(url, function(){}).done(function (notifications) {
+            let body = modal.find("tbody");
+            for (let i = 0; i < notifications.length; i++) {
+                body.append(
+                    "<tr><td>" + notifications[i].information + "</td></tr>"
+                )
+            }
+        });
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
+        modal.modal();
+    })
+
+    $("#sms_error_modal").on('hidden.bs.modal', function () {
+        let modal = $(this);
+        modal.find("tbody").empty();
     })
 });
 

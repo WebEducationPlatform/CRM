@@ -128,37 +128,9 @@
                     <!-- SMS ERROR INFO BTN -->
                     <th:block th:each="notification_sms:${notifications_type_sms}">
                         <th:block th:if="${notification_sms.client == client}">
-                            <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign" data-toggle="modal" th:attrappend="data-target='#sms-error-modal_' + ${client.id}"></button>
+                            <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign sms-error-btn" th:attrappend="data-id=${client.id}"></button>
                         </th:block>
                     </th:block>
-                    <div class="modal fade" th:id="'sms-error-modal_' + ${client.id}" role="dialog">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Ошибки sms</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- SMS INFO -->
-                                    <table>
-                                        <th:block th:each="notification_sms : ${notifications_type_sms}">
-                                        <tr>
-                                            <td th:if="${notification_sms.client == client}">
-                                                <span th:id="'sms_notification_id_' + ${notification_sms.id}" th:text="${notification_sms.information}"></span>
-                                            </td>
-                                        </tr>
-                                        </th:block>
-                                    </table>
-                                    <!--/ SMS INFO -->
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" th:onclick="'clearClientSmsNotifications('+ ${client.id} +')'" data-dismiss="modal">Очистить</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
                     <!--/ SMS ERROR INFO BTN -->
 
                 </div>
@@ -397,6 +369,7 @@
     </div>
 </div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
+<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
