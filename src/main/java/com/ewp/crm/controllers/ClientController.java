@@ -32,15 +32,18 @@ public class ClientController {
 
 	private final NotificationService notificationService;
 
+	private final RoleService roleService;
+
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService) {
+	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService, RoleService roleService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.MessageTemplateService = MessageTemplateService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
+		this.roleService = roleService;
 	}
 
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
@@ -48,9 +51,9 @@ public class ClientController {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
 		ModelAndView modelAndView = new ModelAndView("main-client-table");
-		if (userFromSession.getRole().contains(new Role("ADMIN"))) {
+		//TODO Сделать ещё адекватней
+		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN"))) {
 			statuses = statusService.getAll();
-			modelAndView.addObject("isAdmin", true);
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
