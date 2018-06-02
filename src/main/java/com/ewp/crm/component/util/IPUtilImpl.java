@@ -57,7 +57,7 @@ public class IPUtilImpl implements IPUtil {
 					.build();
 			httpClient.execute(callVox);
 		} catch (IOException e) {
-			logger.error("Failed to connect to Voximplant server");
+			logger.error("Failed to connect to Voximplant server ", e);
 		}
 
 
