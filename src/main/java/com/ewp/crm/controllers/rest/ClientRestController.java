@@ -212,7 +212,7 @@ public class ClientRestController {
 
 			bufferedWriter.close();
 		} catch (IOException e) {
-			logger.error("File not created!");
+			logger.error("File not created! ", e);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -270,7 +270,7 @@ public class ClientRestController {
 
 			bufferedWriter.close();
 		} catch (IOException e) {
-			logger.error("File not created!");
+			logger.error("File not created! ", e);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -285,7 +285,7 @@ public class ClientRestController {
 		try {
 			resource = new InputStreamResource(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			logger.error("File not found!");
+			logger.error("File not found! ", e);
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION,

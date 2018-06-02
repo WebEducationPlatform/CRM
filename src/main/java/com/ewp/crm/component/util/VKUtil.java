@@ -84,10 +84,10 @@ public class VKUtil {
 				JSONObject json = new JSONObject(result);
 				accessToken = json.getString("access_token");
 			} catch (JSONException e) {
-				logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken");
+				logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken ", e);
 			}
 		} catch (IOException e) {
-			logger.error("Failed to connect to VK server");
+			logger.error("Failed to connect to VK server ", e);
 		}
 	}
 
@@ -126,9 +126,9 @@ public class VKUtil {
 			httpClient.execute(httpMarkMessages);
 			return Optional.of(resultList);
 		} catch (JSONException e) {
-			logger.error("Can not read message from JSON");
+			logger.error("Can not read message from JSON ", e);
 		} catch (IOException e) {
-			logger.error("Failed to connect to VK server");
+			logger.error("Failed to connect to VK server ", e);
 		}
 		return Optional.empty();
 	}
@@ -172,9 +172,9 @@ public class VKUtil {
 			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
 			return determineResponse(jsonEntity);
 		} catch (JSONException e) {
-			logger.error("JSON couldn't parse response");
+			logger.error("JSON couldn't parse response ", e);
 		} catch (IOException e) {
-			logger.error("Failed connect to vk api");
+			logger.error("Failed connect to vk api ", e);
 		}
 		return "Failed to send message";
 	}
@@ -217,9 +217,9 @@ public class VKUtil {
 			}
 			return Optional.of(resultList);
 		} catch (JSONException e) {
-			logger.error("Can not read message from JSON");
+			logger.error("Can not read message from JSON ", e);
 		} catch (IOException e) {
-			logger.error("Failed to connect to VK server");
+			logger.error("Failed to connect to VK server ", e);
 		}
 		return Optional.empty();
 	}
@@ -251,9 +251,9 @@ public class VKUtil {
 			client.setSocialNetworks(socialNetworks);
 			return Optional.of(client);
 		} catch (JSONException e) {
-			logger.error("Can not read message from JSON");
+			logger.error("Can not read message from JSON ",e);
 		} catch (IOException e) {
-			logger.error("Failed to connect to VK server");
+			logger.error("Failed to connect to VK server ", e);
 		}
 
 		return Optional.empty();
@@ -335,7 +335,7 @@ public class VKUtil {
 		} catch (JSONException e) {
 			logger.error("Can't take id by screen name {}", screenName);
 		} catch (IOException e) {
-			logger.error("Failed to connect to VK server");
+			logger.error("Failed to connect to VK server ", e);
 		}
 		return link;
 	}

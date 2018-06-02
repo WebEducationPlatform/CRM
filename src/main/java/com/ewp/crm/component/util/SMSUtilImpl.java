@@ -63,7 +63,7 @@ public class SMSUtilImpl implements SMSUtil {
 			client.addHistory(clientHistory);
 			clientService.updateClient(client);
 		} catch (JSONException e) {
-			logger.error("Error to send message");
+			logger.error("Error to send message ", e);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class SMSUtilImpl implements SMSUtil {
 				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
 			}
 		} catch (JSONException e) {
-			logger.error("Error to send messages");
+			logger.error("Error to send messages ", e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class SMSUtilImpl implements SMSUtil {
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
 		} catch (JSONException e) {
-			logger.error("Error to send message");
+			logger.error("Error to send message ", e);
 		}
 	}
 
@@ -120,7 +120,7 @@ public class SMSUtilImpl implements SMSUtil {
 				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
 			}
 		} catch (JSONException e) {
-			logger.error("Error to send message");
+			logger.error("Error to send message ", e);
 		}
 	}
 
@@ -135,7 +135,7 @@ public class SMSUtilImpl implements SMSUtil {
 				JSONObject object = (JSONObject) jsonArray.get(0);
 				return object.getString("balance") + " " + object.getString("type");
 			} catch (JSONException e) {
-				logger.error("Can`t take balance, error authorization");
+				logger.error("Can`t take balance, error authorization ", e);
 			}
 		}
 		return "Error";
@@ -158,7 +158,7 @@ public class SMSUtilImpl implements SMSUtil {
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			return message.getString("status");
 		} catch (JSONException e) {
-			logger.error("Can`t take sms status, JSON parse error");
+			logger.error("Can`t take sms status, JSON parse error ", e);
 		}
 
 		return "Error";
