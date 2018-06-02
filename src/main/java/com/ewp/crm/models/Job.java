@@ -11,7 +11,7 @@ public class Job implements Serializable {
     @Id
     @Column(name = "job_id")
     @GeneratedValue
-    private long id;
+    private Long id;
 
     @Column
     private String organization;
@@ -31,7 +31,7 @@ public class Job implements Serializable {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
