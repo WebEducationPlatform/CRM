@@ -118,7 +118,7 @@ public class GoogleEmail {
                     clientService.addClient(client);
                 }
             } catch (Exception e) {
-                logger.error("MimeMessageParser can't parse income data");
+                logger.error("MimeMessageParser can't parse income data ", e);
             }
         });
         return directChannel;
@@ -129,7 +129,7 @@ public class GoogleEmail {
         try {
             internetAddress = Optional.of(new InternetAddress(mailFrom));
         } catch (AddressException e) {
-            logger.error("Can't parse email address \"from\"");
+            logger.error("Can't parse email address \"from\"", e);
         }
         FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
         return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
