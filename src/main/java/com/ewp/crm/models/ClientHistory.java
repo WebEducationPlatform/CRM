@@ -13,7 +13,7 @@ public class ClientHistory {
 	@Id
 	@GeneratedValue
 	@Column(name = "history_id")
-	private long id;
+	private Long id;
 
 	@Column(nullable = false)
 	private String title;
@@ -102,7 +102,7 @@ public class ClientHistory {
 		if (this == o) return true;
 		if (!(o instanceof ClientHistory)) return false;
 		ClientHistory that = (ClientHistory) o;
-		return id == that.id &&
+		return Objects.equals(id,that.id) &&
 				Objects.equals(date, that.date);
 	}
 
