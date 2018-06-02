@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import org.javers.core.diff.changetype.container.ListChange;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -11,12 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.io.*;
 import java.util.List;
@@ -330,8 +333,9 @@ public class ClientRestController {
 	}
 
 	@GetMapping("rest/client/getHistory/{clientId}")
-	public ResponseEntity getClientHistory(@PathVariable("clientId") long id) {
-		List<ClientHistory> clientHistory = clientHistoryService.findByClientId(id);
+	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page) {
+		Pageable pageable = new PageRequest(page, 10, new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
+		List<ClientHistory> clientHistory = clientHistoryService.findAllByClientId(id, pageable);
 		if (clientHistory == null || clientHistory.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}

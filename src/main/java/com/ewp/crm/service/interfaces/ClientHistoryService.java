@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -24,4 +25,6 @@ public interface ClientHistoryService {
 	ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type);
 
 	List<ClientHistory> findByClientId(long id);
+
+	List<ClientHistory> findAllByClientId(long id, Pageable pageable);
 }

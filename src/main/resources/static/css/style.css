@@ -621,3 +621,7 @@ div[id^="sendEmailTemplateStatus"] {
 .invisible-status {
     background-color: #FAF0E6;
 }
+
+button.upload-more-history {
+    width:100%;
+}

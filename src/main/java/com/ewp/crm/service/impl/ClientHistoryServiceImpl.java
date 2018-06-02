@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +45,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	@Override
 	public List<ClientHistory> findByClientId(long id) {
 		return clientHistoryRepository.findByClientId(id);
+	}
+
+	@Override
+	public List<ClientHistory> findAllByClientId(long id, Pageable pageable) {
+		return clientHistoryRepository.findAllByClientId(id, pageable);
 	}
 
 	@Override
@@ -138,7 +144,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		// if user updated client, which have no changes.
 		if (current.equals(prev)) {
 			return clientHistory;
-	}
+		}
 		String buildChanges = buildChanges(prev, current);
 		Message message = messageService.addMessage(Message.Type.DATA, buildChanges);
 		clientHistory.setMessage(message);
@@ -152,7 +158,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		StringBuilder stringBuilder = new StringBuilder();
 		Diff diff = javers.compare(prev, current);
 		for (Change change : diff.getChanges()) {
-			if(!(change instanceof CollectionChange)) {
+			if (!(change instanceof CollectionChange)) {
 				stringBuilder.append(change.prettyPrint(PrettyValuePrinter.getDefault()));
 				stringBuilder.append("<br>");
 			}
