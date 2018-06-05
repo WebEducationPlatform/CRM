@@ -7,11 +7,6 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
-import org.javers.common.string.PrettyValuePrinter;
-import org.javers.core.Javers;
-import org.javers.core.diff.Change;
-import org.javers.core.diff.Diff;
-import org.javers.core.diff.changetype.container.CollectionChange;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +26,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientHistoryServiceImpl.class);
 	private final MessageService messageService;
-	private final Javers javers;
 
 	@Autowired
-	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService, Javers javers) {
+	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService) {
 		this.clientHistoryRepository = clientHistoryRepository;
 		this.messageService = messageService;
-		this.javers = javers;
 	}
 
 	@Override
@@ -158,20 +151,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setMessage(message);
 		clientHistory.setLink("/client/message/info/" + message.getId());
 		return clientHistory;
-	}
-
-
-	//Use Javers Library
-	private String buildChanges(Client prev, Client current) {
-		StringBuilder stringBuilder = new StringBuilder();
-		Diff diff = javers.compare(prev, current);
-		for (Change change : diff.getChanges()) {
-			if (!(change instanceof CollectionChange)) {
-				stringBuilder.append(change.prettyPrint(PrettyValuePrinter.getDefault()));
-				stringBuilder.append("<br>");
-			}
-		}
-		return stringBuilder.toString();
 	}
 
 	//TODO сделать лучше

@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,7 +18,6 @@ public class SocialNetwork implements Serializable {
 	@Column
 	private String link;
 
-	@DiffIgnore
 	@JsonIgnore
 	@ManyToOne
 	@JoinTable(name = "client_social_network",
