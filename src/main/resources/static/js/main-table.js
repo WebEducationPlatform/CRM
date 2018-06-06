@@ -1,12 +1,12 @@
 // Отрисовка чекбоксов социальных сетей в модальном окне.
 $(function () {
-    $('.custom-modal').on('show.bs.modal', function () {
+    $('.fix-modal').on('show.bs.modal', function () {
         var currentForm = $(this).find('.box-modal');
-        var clientId = $(this).data('clientId');
+        var clientId = $(this).find('.send-all-message').data('clientId');
         let formData = {clientId: clientId};
         $.ajax({
             type: 'GET',
-            url: 'rest/client/socialnetworks',
+            url: 'rest/client/' + clientId,
             data: formData,
             beforeSend: function () {
                 if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
@@ -14,17 +14,67 @@ $(function () {
                 }
             },
             success: function(data) {
-                    for (let i = 0; i < data.length; i++) {
-                        currentForm.prepend("<label class='checkbox-inline'>" +
-                            "<input type='checkbox'  value=" + data[i] + "  class='my-checkbox-soc' />" + data[i] +
-                            "</label>");
+                var soc = data.socialNetworks;
+                var email = data.email;
+                var phoneNumber = data.phoneNumber;
 
+                for (let i = 0; i < soc.length; i++) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
+                        "</label>");
+                }
+                if(email !== null) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
+                        "</label>");
+                } if (phoneNumber !== null ) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
+                        "</label>");
                 }
             }
         });
     });
 });
 
+
+$(function () {
+    $('.custom-modal').on('show.bs.modal', function () {
+        var currentForm = $(this).find('.box-modal');
+        var clientId = $(this).find('.send-all-custom-message').data('clientId');
+        let formData = {clientId: clientId};
+        $.ajax({
+            type: 'GET',
+            url: 'rest/client/' + clientId,
+            data: formData,
+            beforeSend: function () {
+                if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+                    return false;
+                }
+            },
+            success: function(data) {
+                var soc = data.socialNetworks;
+                var email = data.email;
+                var phoneNumber = data.phoneNumber;
+
+                for (let i = 0; i < soc.length; i++) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
+                        "</label>");
+                }
+                if(email !== null) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
+                        "</label>");
+                } if (phoneNumber !== null ) {
+                    currentForm.prepend("<label class='checkbox-inline'>" +
+                        "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
+                        "</label>");
+                }
+            }
+        });
+    });
+});
 
 $(function(){
     $(".hide-main-modal").click(function(e){
@@ -36,7 +86,7 @@ $(function(){
 $(function () {
     $('.select_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
-        currentForm.find('.my-checkbox').prop('checked', true);
+        currentForm.find('.my-checkbox-soc').prop('checked', true);
         currentForm.find('.deselect_all').prop('checked', false);
     });
 });
@@ -44,7 +94,7 @@ $(function () {
 $(function () {
     $('.deselect_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
-        currentForm.find('.my-checkbox').prop('checked', false);
+        currentForm.find('.my-checkbox-soc').prop('checked', false);
     });
 });
 
@@ -603,59 +653,90 @@ function sendMessageVK(clientId, templateId) {
     });
 }
 
-function sendCustomMessageVK(clientId, templateId) {
-    let url = '/rest/vkontakte';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-VKTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendCustomSocialTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
 
-        success: function (result) {
-            $(".modal").modal('hide');
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
 
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+// Отправка кастомного сообщения в вк
+$(function () {
+    $('.send-vk-btn').on('click', function(event) {
+        var clientId = $(this).data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentStatus = $(this).prev('.send-custom-vk-status');
+        let url = '/rest/vkontakte';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-VKTemplate-body').val()
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+            success: function (result) {
+                $(".modal").modal('hide');
+                currentStatus.css('color','"limegreen""');
+                currentStatus.text("Отправлено");
+            },
+            error: function (e) {
+                currentStatus.css('color','red"');
+                currentStatus.text("Ошибка");
+                console.log(e)
+            }
+        });
     });
-}
-
-function sendCustomTemplate(clientId, templateId) {
-    let url = '/rest/sendEmail';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-EmaileTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendCustomEmailTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-
-
-        success: function (result) {
-            $(".modal").modal('hide');
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+});
+$(function () {
+    $('.сustom-vk-btn').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#customVKMessageTemplate');
+        var btn =  currentModal.find('.send-vk-btn');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
     });
-}
+});
+
+// Отправка кастомного сообщения в email
+$(function () {
+    $('.send-email-btn').on('click', function(event) {
+        var clientId = $(this).data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentStatus = $(this).prev('.send-email-err-status');
+        let url = '/rest/sendEmail';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-EmaileTemplate-body').val()
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+
+            success: function (result) {
+                $(".modal").modal('hide');
+                currentStatus.css('color','"limegreen""');
+                currentStatus.text("Отправлено");
+            },
+            error: function (e) {
+                currentStatus.css('color','red"');
+                currentStatus.text("Ошибка");
+                console.log(e)
+            }
+        });
+    });
+});
+$(function () {
+    $('.custom-email-btn').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#customEmailMessageTemplate');
+        var btn =  currentModal.find('.send-email-btn');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
+    });
+});
 
 function sendTemplate(clientId, templateId) {
     let url = '/rest/sendEmail';
@@ -716,6 +797,19 @@ $(function () {
     })
 });
 
+//Установка идентификаторов в модальное окно отправки сообщений с фиксированным текстом.
+$(function () {
+    $('.portlet-send-btn').on('click', function () {
+        var clientId = $(this).closest('.common-modal').data('cardId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#sendTemplateModal');
+        var btn = currentModal.find('.send-all-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
+    });
+});
+
+
 //Отрпавка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-message').on('click', function (event) {
@@ -723,8 +817,7 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-fixed-template');
-        var formData = {clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body' + clientId + templateId).val()};
+        var formData = {clientId: clientId, templateId: templateId};
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
@@ -766,11 +859,25 @@ $(function () {
     });
 });
 });
+
 $(function () {
     $('.custom-modal').on('hide.bs.modal', function () {
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
+    });
+});
+
+//Установка идентификаторов в модальное окно отправки сообщений с кастомным текстом.
+$(function () {
+    $('.portlet-custom-btn').on('click', function () {
+        var portlet = $(this).closest('.common-modal');
+        var clientId = portlet.data('cardId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#customMessageTemplate');
+        var btn =  currentModal.find('.send-all-custom-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
     });
 });
 
@@ -782,7 +889,7 @@ $(function () {
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
         var formData = {clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body' + clientId + templateId).val()};
+            body: $('#custom-eTemplate-body').val()};
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
