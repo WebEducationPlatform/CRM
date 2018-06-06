@@ -340,15 +340,4 @@ public class ClientRestController {
 		}
 		return ResponseEntity.ok(clientHistory);
 	}
-
-	@RequestMapping(value = "rest/client/socialnetworks", method = RequestMethod.GET)
-	public ResponseEntity getSocNetworks(@RequestParam(name = "clientId") Long clientId) {
-		Client client = clientService.getClientByID(clientId);
-		List<String> socNetworkName = new ArrayList<>();
-		for (SocialNetwork soc : client.getSocialNetworks()) {
-			socNetworkName.add(soc.getSocialNetworkType().getName());
-			System.out.println(socNetworkName);
-		}
-		return ResponseEntity.ok(socNetworkName);
-	}
 }
