@@ -21,12 +21,11 @@ public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
 
-	private final StatusService statusService;
+	private StatusService statusService;
 
 	@Autowired
-	public ClientServiceImpl(ClientRepository clientRepository, StatusService statusService) {
+	public ClientServiceImpl(ClientRepository clientRepository) {
 		this.clientRepository = clientRepository;
-		this.statusService = statusService;
 	}
 
 	@Override
@@ -167,5 +166,10 @@ public class ClientServiceImpl implements ClientService {
 		} else {
 			client.setCanCall(false);
 		}
+	}
+
+	@Autowired
+	private void setStatusService(StatusService statusService) {
+		this.statusService = statusService;
 	}
 }
