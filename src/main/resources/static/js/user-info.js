@@ -59,10 +59,7 @@ function changeUser(id, authId) {
 
         },
         success: function (result) {
-            sendPhoto(id);
-            if (authId === id) {
-                window.location.replace("/logout")
-            }
+            sendPhoto(id, authId);
         },
         error: function (e) {
             setErrorMessage(e.responseJSON.message);
@@ -115,12 +112,15 @@ function selectPhoto() {
     readURL(this);
 }
 
-function sendPhoto(id) {
+function sendPhoto(id, authId) {
 
     if (typeof file === 'undefined') {
         var current = document.getElementById("message");
         current.style.color = "limegreen";
         current.textContent = "Сохранено";
+        if (authId === id) {
+            window.location.replace("/logout")
+        }
         return;
     }
 
@@ -145,6 +145,9 @@ function sendPhoto(id) {
             var current = document.getElementById("message");
             current.style.color = "limegreen";
             current.textContent = data.msg;
+            if (authId === id) {
+                window.location.replace("/logout")
+            }
         },
         error: function (data) {
             setErrorMessage(data.responseJSON.message)
