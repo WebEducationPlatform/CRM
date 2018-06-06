@@ -69,7 +69,7 @@ public class ClientController {
 	}
 
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
-	public ModelAndView allUsersPage() {
+	public ModelAndView allClientsPage() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClients());

@@ -122,8 +122,10 @@
                         th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить
                 </button>
             </div>
-            <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
-                <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
+           <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
+
+           <!-- IN COMMENT.JS NOW !!! -->
+            <!--  <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
                     th:if="${comment.mainComment == null}">
                     <div th:id="'comment' + ${comment.id}" th:class="comment">
                         <span class="comment-name"
@@ -154,8 +156,10 @@
                                 </button>
                             </div>
                         </div>
+                        //////////////////////////////////////////
                         <ul class="answer-list comment-item"
                             th:id="'comment-'+${comment.id}+'answers'">
+
                             <li th:each="answer : ${comment.answers}">
                                 <div th:id="'comment' + ${answer.id}" th:class="comment">
                                     <span class="comment-name"
@@ -174,13 +178,13 @@
                                             <button class="btn btn-md btn-success comment-button"
                                                     th:onclick="'editComment(' + ${answer.id} + ')'">Отредактировать
                                             </button>
-                                        </div>
+                                       </div>
                                     </div>
                                 </div>
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>
