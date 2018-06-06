@@ -139,7 +139,7 @@ public class VKUtil {
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
-				long id = Long.parseLong(link.replace("https://vk.com/id", ""));
+				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
 				String responseMessage = sendMessageById(id, vkText);
 				Message message = messageService.addMessage(Message.Type.VK, vkText);
