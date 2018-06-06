@@ -110,6 +110,15 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
+	@Override
+	public ClientHistory createHistory(User user , String recordLink) {
+		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL);
+		clientHistory.setRecordLink(recordLink);
+		clientHistory.setTitle(user.getFullName() + " " + ClientHistory.Type.CALL.getInfo());
+		return clientHistory;
+	}
+
+
 	/*
 		worker send message by email/vk/facebook/sms [link]
 	 */

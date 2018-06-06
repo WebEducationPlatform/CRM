@@ -2,20 +2,17 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.CommentAnswer;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -32,12 +29,15 @@ public class CommentRestController {
 
 	private SendNotificationService sendNotificationService;
 
+	private CommentAnswerService commentAnswerService;
+
 	@Autowired
-	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, SendNotificationService sendNotificationService) {
+	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, SendNotificationService sendNotificationService, CommentAnswerService commentAnswerService) {
 		this.clientService = clientService;
 		this.commentService = commentService;
 		this.userService = userService;
 		this.sendNotificationService = sendNotificationService;
+		this.commentAnswerService = commentAnswerService;
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -56,15 +56,41 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/add/answer", method = RequestMethod.POST)
-	public ResponseEntity<Comment> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
+	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User fromDB = userService.get(userFromSession.getId());
 		Comment comment = commentService.getById(commentId);
 		Client client = comment.getClient();
 		sendNotificationService.sendNotification(content, client);
-		Comment answer = new Comment(fromDB, client, comment, content);
-		commentService.add(answer);
+		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
+		CommentAnswer answer = commentAnswerService.add(commentAnswer);
+		comment.addAnswer(answer);
+		commentService.update(comment);
 		return ResponseEntity.status(HttpStatus.OK).body(answer);
+	}
+
+	@RequestMapping(value = "/delete/answer", method = RequestMethod.POST)
+	public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
+			commentAnswerService.delete(id);
+			return ResponseEntity.ok(HttpStatus.OK);
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+	}
+
+	@RequestMapping(value = "/edit/answer", method = RequestMethod.POST)
+	public ResponseEntity editCommentAnswer(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
+			CommentAnswer commentAnswer = commentAnswerService.getById(id);
+			commentAnswer.setContent(content);
+			commentAnswerService.update(commentAnswer);
+			return ResponseEntity.ok(HttpStatus.OK);
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
@@ -89,6 +115,12 @@ public class CommentRestController {
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
+	}
+
+	@RequestMapping(value = "/getComments/{clientId}", method = RequestMethod.GET)
+	public ResponseEntity<List<Comment>> getComments(@PathVariable Long clientId) {
+		List<Comment> comments = commentService.getAllByClient(clientService.getClientByID(clientId));
+		return ResponseEntity.ok(comments);
 	}
 
 }

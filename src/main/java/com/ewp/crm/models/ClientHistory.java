@@ -22,6 +22,9 @@ public class ClientHistory {
 	@Lob
 	private String link;
 
+	@Column
+	private String recordLink;
+
 	//TODO потом переделать
 	@Basic
 	private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
@@ -109,6 +112,14 @@ public class ClientHistory {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, date);
+	}
+
+	public String getRecordLink() {
+		return recordLink;
+	}
+
+	public void setRecordLink(String recordLink) {
+		this.recordLink = recordLink;
 	}
 
 	public enum Type {

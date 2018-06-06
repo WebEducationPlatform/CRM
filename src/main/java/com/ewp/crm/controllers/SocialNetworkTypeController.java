@@ -38,6 +38,7 @@ public class SocialNetworkTypeController {
 		return modelAndView;
 	}
 
+	//TODO не используется. удалить или нет?
 	@RequestMapping(value = "/admin/user/deleteSocialNetworkType", method = RequestMethod.GET)
 	public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
 		socialNetworkTypeService.deleteType(Long.parseLong(id));
@@ -50,6 +51,7 @@ public class SocialNetworkTypeController {
 		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
 	}
 
+	//TODO не используется. удалить или нет?
 	@RequestMapping(value = "/admin/user/updateSocialNetworkType", method = RequestMethod.POST)
 	public ModelAndView updateSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
 		List<SocialNetwork> socialNetworks = socialNetworkTypeService.getById(socialNetworkType.getId()).getSocialNetworkList();
