@@ -587,7 +587,12 @@ a.link-cursor-pointer{
     background-color: #cccccc;
 }
 
-span[id^="sendCustomEmailTemplateStatus"] {
+.send-email-err-status{
+	color: red;
+	float: left;
+}
+
+.send-custom-vk-status{
 	color: red;
 	float: left;
 }
@@ -600,22 +605,6 @@ span[id^="sendCustomEmailTemplateStatus"] {
 .send-fixed-template{
 	color: red;
 	float: left;
-}
-
-span[id^="sendCustomSocialTemplateStatus"] {
-	color: red;
-	float: left;
-}
-
-span[id^="sendTemplateStatus"] {
-	color: red;
-}
-
-div[id^="sendEmailTemplateStatus"] {
-	float: right;
-	margin-top: 4px;
-	width: 55%;
-	text-align: center;
 }
 
 .padding-top-bot {
