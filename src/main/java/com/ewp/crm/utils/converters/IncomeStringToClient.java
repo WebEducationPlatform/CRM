@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
-import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
@@ -24,118 +23,99 @@ public class IncomeStringToClient {
         this.socialNetworkTypeService = socialNetworkTypeService;
     }
 
-    public Client convert(String income) {
-        Client client = null;
-        if (income != null && !income.isEmpty()) {
-            String[] workArr = getArrayFromIncomeData(income);
-            if (income.contains("Name 3:")) {
-                client = firstPlainTextTemplate(workArr);
-            } else if (income.contains("Name:")) {
-                client = secondPlainTextTemplate(workArr);
-            } else if (income.contains("Имя:")) {
-                client = thirdPlainTextTemplate(workArr);
-            } else {
-                logger.error("The incoming email does not match any of the templates!!!");
-            }
-        }
+    //TODO Переделать как только Никита изменит форму.
+	public Client convert(String income) {
+		Client client = null;
+		if (income != null && !income.isEmpty()) {
+			String workString = prepareForm(income);
+			if (income.contains("Форма: Начать обучение")) {
+				client = parseClientFormOne(workString);
+			} else if (income.contains("Форма: Месяц в подарок")) {
+				client = parseClientFormOne(workString);
+			} else if (income.contains("Форма: Остались вопросы")) {
+				client = parseClientFormTwo(workString);
+			} else if (income.contains("Форма: Java Test")) {
+				client = parseClientFormFour(workString);
+			} else {
+				logger.error("The incoming email does not match any of the templates!!!");
+			}
+		}
+		return client;
+	}
 
-        return client;
-    }
+	private static String prepareForm(String text) {
+		if (text.contains("<br>")) {
+			text = text.replaceAll("<br>", "");
+		}
+		if (text.contains("Имя: ")) {
+			return text.substring(text.indexOf("Имя: "));
+		}
+		return text.substring(text.indexOf("Name "), text.length()).replaceAll("(\r\n|\n)", "");
+	}
 
-    private static String[] getArrayFromIncomeData(String income) {
-        if (income.contains("<br>")) {
-            String[] temp = income.replaceAll("<br><br>", "<br>").split("<br>");
-            System.arraycopy(temp, 1, temp, 0, temp.length - 1);
-            return temp;
-        } else {
-            return income.split("\r\n");
-        }
-    }
+	private Client parseClientFormOne(String form) {
+		Client client = new Client();
+		String[] result = form.split(":\\s");
+		setClientName(client, result[1].substring(0, result[1].indexOf(" Соц ")));
+		client.setSocialNetworks(Collections.singletonList(getSocialNetwork(result[2].substring(0, result[2].indexOf(" Телефон")))));
+		client.setPhoneNumber(result[3].substring(0, result[3].indexOf(" Страна")));
+		client.setCountry(result[4].substring(0, result[4].indexOf(" Город")));
+		client.setCity(result[5].substring(0, result[5].indexOf(" Email")));
+		if (form.contains("Согласен")) {
+			client.setEmail(result[6].substring(0, result[6].indexOf(" Согласен")));
+		} else {
+			client.setEmail(result[6]);
+			client.setClientDescriptionComment("На пробные 3 дня");
+		}
+		return client;
+	}
 
-    private Client firstPlainTextTemplate(String[] workArr) {
-        Client resultClient = new Client();
-        Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
-        if (parsedName.isPresent()) {
-            resultClient.setName(parsedName.get()[0]);
-            resultClient.setLastName(parsedName.get()[1]);
-        } else {
-            resultClient.setName(getValueOfField(workArr[0]));
-        }
-        resultClient.setSocialNetworks(Collections.singletonList(getSocialNetwork(getValueOfField(workArr[1]))));
-        resultClient.setPhoneNumber(getValueOfField(workArr[2]));
-        resultClient.setEmail(getValueOfField(workArr[3]));
-        resultClient.setComment(getValueOfField(workArr[4]));
-        return resultClient;
-    }
+	private Client parseClientFormTwo(String form) {
+		Client client = new Client();
+		String[] result = form.split(":\\s");
+		setClientName(client, result[1].substring(0, result[1].indexOf(" Social")));
+		client.setSocialNetworks(Collections.singletonList(getSocialNetwork(result[2].substring(0, result[2].indexOf(" Phone")))));
+		client.setPhoneNumber(result[3].substring(0, result[3].indexOf(" Email")));
+		client.setEmail(result[4].substring(0, result[4].indexOf(" Vopros")));
+		client.setClientDescriptionComment(result[5]);
+		return client;
+	}
 
-    private Client secondPlainTextTemplate(String[] workArr) {
-        Client resultClient = new Client();
-        Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
-        if (parsedName.isPresent()) {
-            resultClient.setName(parsedName.get()[0]);
-            resultClient.setLastName(parsedName.get()[1]);
-        } else {
-            resultClient.setName(getValueOfField(workArr[0]));
-        }
-        resultClient.setSocialNetworks(Collections.singletonList(getSocialNetwork(getValueOfField(workArr[1]))));
-        resultClient.setEmail(getValueOfField(workArr[2]));
-        resultClient.setPhoneNumber(getValueOfField(workArr[3]));
-        resultClient.setCity(getValueOfField(workArr[4]));
-        resultClient.setComment(getValueOfField(workArr[5]));
-        return resultClient;
-    }
+	private Client parseClientFormFour(String form) {
+		Client client = new Client();
+		String[] result = form.split(":\\s");
+		setClientName(client, result[1].substring(0, result[1].indexOf(" Social")));
+		client.setSocialNetworks(Collections.singletonList(getSocialNetwork(result[2].substring(0, result[2].indexOf(" Phone")))));
+		client.setPhoneNumber(result[3].substring(0, result[3].indexOf(" City")));
+		client.setCountry(result[4].substring(0, result[4].indexOf(" Email")));
+		client.setEmail(result[5]);
+		client.setClientDescriptionComment("Проходил Тест");
+		return client;
+	}
 
-    private Client thirdPlainTextTemplate(String[] workArr) {
+	private SocialNetwork getSocialNetwork(String link) {
+		if (link.startsWith("https://")) {
+			link = link.substring(8);
+		}
+		SocialNetwork socialNetwork = new SocialNetwork();
 
-        Client resultClient = new Client();
-        Optional<String[]> parsedName = parseName(getValueOfField(workArr[6]));
-        if (parsedName.isPresent()) {
-            resultClient.setName(parsedName.get()[0]);
-            resultClient.setLastName(parsedName.get()[1]);
-        } else {
-            resultClient.setName(getValueOfField(workArr[6]));
-        }
-        resultClient.setSocialNetworks(Collections.singletonList(getSocialNetwork(getValueOfField(workArr[7]))));
-        resultClient.setPhoneNumber(getValueOfField(workArr[8]));
-        resultClient.setCity(getValueOfField(workArr[9]));
-        resultClient.setEmail(getValueOfField(workArr[10]));
-        return resultClient;
-    }
+		if (link.startsWith("vk.com") || link.startsWith("m.vk.com")) {
+			socialNetwork.setLink(link);
+			socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
+		} else if (link.startsWith("www.facebook.com") || link.startsWith("m.facebook.com")) {
+			socialNetwork.setLink(link);
+			socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));
+		}
+		return socialNetwork;
+	}
 
-    private static Optional<String[]> parseName(String fullName) {
-        if (StringUtils.countOccurrencesOf(fullName, " ") == 1) {
-            return Optional.of(fullName.split(" ", 2));
-        }
-        return Optional.empty();
-
-    }
-
-
-    private SocialNetwork getSocialNetwork(String link) {
-        if (link.startsWith("https://")) {
-            link = link.substring(8);
-        }
-        SocialNetwork socialNetwork = new SocialNetwork();
-
-        if (link.startsWith("vk.com") || link.startsWith("m.vk.com")) {
-            socialNetwork.setLink(link);
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
-        } else if (link.startsWith("www.facebook.com") || link.startsWith("m.facebook.com")) {
-            socialNetwork.setLink(link);
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));
-        }
-        return socialNetwork;
-    }
-
-    private static String getValueOfField(String fullString) {
-        String result;
-        try {
-            result = fullString.substring(fullString.indexOf(":") + 2);
-        } catch (IndexOutOfBoundsException e) {
-            result = "";
-        }
-        return result;
-    }
-
-
+	private void setClientName(Client client, String fullName) {
+		if (StringUtils.countOccurrencesOf(fullName, " ") == 1) {
+			String[] full = fullName.split(" ");
+			client.setName(full[0]);
+			client.setLastName(full[1]);
+		} else {
+			client.setName(fullName);
+		}
+	}
 }
