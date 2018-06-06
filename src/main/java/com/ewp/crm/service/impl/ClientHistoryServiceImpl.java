@@ -90,7 +90,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	// worker call to client [link]
-	// TODO зачем тут клиент?
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link) {
 		ClientHistory clientHistory = new ClientHistory(type);
