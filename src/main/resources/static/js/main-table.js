@@ -95,6 +95,7 @@ $(function () {
     $('.deselect_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', false);
+        currentForm.find('.select_all').prop('checked', false);
     });
 });
 
@@ -851,20 +852,20 @@ $(function () {
             error: function (e) {
                 err.push(valuecheck);
                 current.text("Отправить");
-                current.removeAttr("disabled");
                 currentStatus.text("Не удалось отправить сообщение " + err);
+                current.attr("disabled", "true")
                 console.log(e)
             }
         });
     });
 });
 });
-
 $(function () {
-    $('.custom-modal').on('hide.bs.modal', function () {
+    $('.fix-modal').on('hide.bs.modal', function () {
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
+        $(this).find('.send-all-message').removeAttr("disabled");
     });
 });
 
@@ -893,7 +894,7 @@ $(function () {
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
-            var valuecheck = $( this ).val();
+            var valuecheck = $(this).val();
             switch ($( this ).val()) {
                 case ('email'):
                     url = '/rest/sendEmail';
@@ -916,7 +917,7 @@ $(function () {
                 success: function (result) {
                     if (err.length === 0) {
                         $(".modal").modal('hide');
-                        $("#custom-eTemplate-body" + clientId + templateId).val("");
+                        $('#custom-eTemplate-body').val("");
                         current.text("Отправить");
                         current.removeAttr("disabled");
                     }
@@ -924,7 +925,6 @@ $(function () {
                 error: function (e) {
                     err.push(valuecheck);
                     current.text("Отправить");
-                    current.removeAttr("disabled");
                     currentStatus.text("Не удалось отправить сообщение " + err);
                     console.log(e);
                 }
@@ -932,12 +932,12 @@ $(function () {
         });
     });
 });
-
 $(function () {
     $('.custom-modal').on('hide.bs.modal', function () {
         var currentForm = $(this).find('.send-custom-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
+        $(this).find('.send-all-custom-message').removeAttr("disabled");
     });
 });
 
