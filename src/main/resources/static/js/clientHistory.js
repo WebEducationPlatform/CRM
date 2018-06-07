@@ -58,6 +58,18 @@ function drawClientHistory(list, history_table) {
         if (list[i].link !== null) {
             $tdLink = "<td><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
         }
+        if (list[i].recordLink != null) {
+            $tdLink = "<td>" +
+                "<div class=\"dropdown\">\n" +
+                "<button class=\"btn btn-secondary dropdown-toggle\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
+                "Прослушать" +
+                "</button>" +
+                "<div class=\"dropdown-menu\" aria-labelledby=\"dropdownMenuCallRecord\">" +
+                "<audio controls=\"controls\" src=\"" + list[i].recordLink + "\"></audio>" +
+                "</div>" +
+                "</div>" +
+                "</td>"
+        }
         history_table.append(
             "<tr>" +
             "   <td>" + list[i].title + "</td>" +
