@@ -14,7 +14,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -34,15 +32,11 @@ import java.util.regex.Pattern;
 @Component
 public class VKUtil {
 
-	private static String accessToken;
 	private static Logger logger = LoggerFactory.getLogger(VKUtil.class);
-	private String clientId;
-	private String clientSecret;
-	private String username;
-	private String password;
 	private String clubId;
 	private String version;
 	private String communityToken;
+	private String applicationToken;
 
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
 
@@ -53,58 +47,30 @@ public class VKUtil {
 
 	@Autowired
 	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService) {
-		clientId = vkConfig.getClientId();
-		clientSecret = vkConfig.getClientSecret();
-		username = vkConfig.getUsername();
-		password = vkConfig.getPassword();
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
+		applicationToken = vkConfig.getApplicationToken();
 		this.socialNetworkService = socialNetworkService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.messageService = messageService;
 	}
 
-	@PostConstruct
-	private void initAccessToken() {
-		String uri = "https://oauth.vk.com/token" +
-				"?grant_type=password" +
-				"&client_id=" + clientId +
-				"&client_secret=" + clientSecret +
-				"&username=" + username +
-				"&password=" + password;
-
-		HttpGet httpGet = new HttpGet(uri);
-		try {
-			HttpClient httpClient = new DefaultHttpClient();
-			HttpResponse response = httpClient.execute(httpGet);
-			String result = EntityUtils.toString(response.getEntity());
-			try {
-				JSONObject json = new JSONObject(result);
-				accessToken = json.getString("access_token");
-			} catch (JSONException e) {
-				logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken ", e);
-			}
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-		}
-	}
-
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
-		if (accessToken == null) {
+		if (applicationToken == null) {
 			throw new VKAccessTokenException("VK access token has not got");
 		}
 		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
 				"?user_id=" + clubId +
 				"&rev=1" +
 				"&version=" + version +
-				"&access_token=" + accessToken;
+				"&access_token=" + applicationToken;
 
 		String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
 				"?peer_id=" + clubId +
 				"&version=" + version +
-				"&access_token=" + accessToken;
+				"&access_token=" + applicationToken;
 		try {
 			HttpGet httpGetMessages = new HttpGet(uriGetMassages);
 			HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
@@ -160,7 +126,7 @@ public class VKUtil {
 				"?user_id=" + id +
 				"&v=" + version +
 				"&message=" + uriMsg +
-				"&access_token=" + accessToken;
+				"&access_token=" + communityToken;
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
@@ -228,7 +194,7 @@ public class VKUtil {
 		String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
 				"version=" + version +
 				"&user_id=" + id +
-				"&access_token=" + accessToken;
+				"&access_token=" + applicationToken;
 
 		HttpGet httpGetClient = new HttpGet(uriGetClient);
 		HttpClient httpClient = HttpClients.custom()
@@ -319,7 +285,7 @@ public class VKUtil {
 		String screenName = link.replaceAll("^.+\\.(com/)", "");
 		String request = VK_API_METHOD_TEMPLATE + "utils.resolveScreenName?"
 				+ "screen_name=" + screenName
-				+ "&access_token=" + accessToken
+				+ "&access_token=" + applicationToken
 				+ "&v=" + version;
 		HttpGet httpGetClient = new HttpGet(request);
 		HttpClient httpClient = HttpClients.custom()
