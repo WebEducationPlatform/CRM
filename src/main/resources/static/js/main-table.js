@@ -426,9 +426,9 @@ function getNewHistory(id) {
     $.get(url,
         function (data) {
             $('#client-' + data.id + 'history').prepend(
-                "<tr>" +
-                "   <td>" + data.history[0].title + "</td>" +
-                "   <td class=\"client-history-date\">" + data.history[0].date + "</td>" +
+                "<tr class='remove-history'>" +
+                "   <td class='remove-history'>" + data.history[0].title + "</td>" +
+                "   <td class=\"client-history-date remove-history\">" + data.history[0].date + "</td>" +
                 "</tr>"
             );
         });
@@ -980,45 +980,130 @@ $(document).ready(function () {
         startDate: minDate
     });
 });
+// $(function () {
+//     $('.portlet-body').on('click', function (e) {
+//         if (e.target.className.startsWith("portlet-body") === true) {
+//             var clientId = $(this).parents('.common-modal').data('cardId');
+//             var currentModal =  $('#main-modal-window');
+//             currentModal.data('clientId', clientId);
+//             currentModal.modal('show');
+// 			markAsReadMenu($(e.target).attr('client-id'))
+//         }
+//     });
+// });
+
 $(function () {
     $('.portlet-body').on('click', function (e) {
         if (e.target.className.startsWith("portlet-body") === true) {
             $('#' + $(e.target).attr('name')).modal('show');
-			markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'))
         }
     });
 });
 
 $(function () {
     $('.portlet-header').on('click', function (e) {
-        var modalName = $(e.target).parents(".portlet-body").attr('name');
-        if (e.target.className.startsWith("portlet-header") !== -1) {
-            $($('#' + modalName)).modal('show');
-        }
+        var clientId = $(this).parents('.common-modal').data('cardId');
+        var currentModal =  $('#main-modal-window');
+        currentModal.data('clientId', clientId);
+        currentModal.modal('show');
     });
 });
 
 $(function () {
     $('.portlet-content').on('click', function (e) {
-        var modalName = $(e.target).parents(".portlet-body").attr('name');
-        if (e.target.className.startsWith("portlet-content") !== -1) {
-            $($('#' + modalName)).modal('show');
-        }
+        var clientId = $(this).parents('.common-modal').data('cardId');
+        var currentModal =  $('#main-modal-window');
+        currentModal.data('clientId', clientId);
+        currentModal.modal('show');
     });
 });
 
-function callToClient(userPhone, clientPhone) {
-    var url = "/user/rest/call/voximplant";
-    var formData = {
-        from: userPhone,
-        to: clientPhone
-    };
-    $.ajax({
-        type: 'post',
-        url: url,
-        data: formData,
-        error: function (error) {
-            console.log(error);
-        }
+$(function () {
+    $('#main-modal-window').on('show.bs.modal', function () {
+        var currentModal = $(this);
+        var clientId = $(this).data('clientId');
+        let formData = {clientId: clientId};
+        $.ajax({
+            type: 'GET',
+            url: 'rest/client/' + clientId,
+            data: formData,
+            success: function(client) {
+                $.get('rest/client/getPrincipal', function (user) {
+                    var clientPhoneTag = $('#client-phone');
+                    clientPhoneTag.attr('clientPhone', client.phoneNumber);
+                    clientPhoneTag.attr('userPhone', user.phoneNumber);
+                    currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
+                    $('#client-email').text(client.email);
+                    clientPhoneTag.text(client.phoneNumber);
+                    if(client.canCall && user.ipTelephony) {
+                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client">' + '<span class="glyphicon glyphicon-earphone">'+ '</span>' + '</a>' + '</td>');
+                    }
+
+                    if (client.age > 0) {
+                        $('#client-age').text(client.age);
+                    }
+                    $('#client-sex').text(client.sex);
+                    var btnBlock = $('div#assign-unassign-btns');
+                    if (client.ownerUser === null) {
+                        btnBlock.append('<button class="btn btn-sm btn-info" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                    }
+                    if (client.ownerUser !== null) {
+                        btnBlock.prepend('<button class="btn btn-sm btn-warning" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                    }
+                    btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
+                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+                });
+                $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
+                $('#postponeDate').attr('id','postponeDate'+ client.id);
+                $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
+                $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
+                $('.textcomplete').attr('id','new-text-for-client'+ client.id );
+                $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id +'"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
+                $('.main-modal-comment').attr('id','client-'+ client.id + 'comments');
+                $('.upload-history').attr('data-id',client.id).attr('href','#collapse'+ client.id);
+                $('.client-collapse').attr('id','collapse'+ client.id);
+                $('.history-line').attr('id','client-'+ client.id + 'history');
+                $('.upload-more-history').attr('data-clientid',client.id);
+            }
+        });
     });
-}
+});
+
+$(function () {
+    $('#main-modal-window').on('hidden.bs.modal', function () {
+       $('div#assign-unassign-btns').html('');
+        $('.remove-element').remove();
+        $('.hide-client-collapse').attr('id','hideClientCollapse');
+        $('.postpone-date').attr('id','postponeDate');
+        $('.textcomplete').removeAttr('id');
+        $('.main-modal-comment').removeAttr('id');
+        $('.remove-tag').remove();
+        // $('.upload-history').removeAttr('data-Id').removeAttr('href');
+        // $('.client-collapse').removeAttr('id');
+        $('.client-collapse').collapse('hide');
+        $('.remove-history').remove();
+        // $('.upload-more-history').removeAttr('data-clientid');
+});
+});
+
+
+$(function () {
+    $('.call-to-client').on('click', function (event) {
+        var url = "/user/rest/call/voximplant";
+        var clientPhone = $(this).find('#client-phone').data('clientPhone');
+        var userPhone = $(this).find('#client-phone').data('userPhone');
+        var formData = {
+            from: userPhone,
+            to: clientPhone
+        };
+        $.ajax({
+            type: 'post',
+            url: url,
+            data: formData,
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+});
