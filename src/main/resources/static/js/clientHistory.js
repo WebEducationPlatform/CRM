@@ -71,7 +71,7 @@ function drawClientHistory(list, history_table) {
                 "</td>"
         }
         history_table.append(
-            "<tr>" +
+            "<tr class='remove-history'>" +
             "   <td>" + list[i].title + "</td>" +
             "   <td class=\"client-history-date\">" + list[i].date + "</td>" +
             $tdLink +
