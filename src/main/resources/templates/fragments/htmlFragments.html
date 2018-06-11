@@ -114,14 +114,14 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
             <span><h4>Комментарии:</h4></span>
-            <div class="form-group">
-                <textarea class="form-control textcomplete" th:id="'new-text-for-client' + ${client.id}"
+            <div class="form-group comment-div">
+                <textarea class="form-control textcomplete" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
-                <button class="btn btn-sm btn-success comment-button"
-                        th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить
-                </button>
+                <!--<button class="btn btn-sm btn-success comment-button"-->
+                        <!--th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить-->
+                <!--</button>-->
             </div>
-           <ul class="list-group" th:id="'client-'+${client.id}+'comments'">
+           <ul class="list-group main-modal-comment">
 
            <!-- IN COMMENT.JS NOW !!! -->
             <!--  <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
@@ -513,16 +513,16 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#actionsAccordion" class="upload-history collapsed" th:attrappend="data-id=${client.id}" th:href="'#collapse'+${client.id}">Действия</a>
+                        <a data-toggle="collapse" data-parent="#actionsAccordion" class="upload-history collapsed">Действия</a>
                     </h4>
                 </div>
-                <div th:id="'collapse'+${client.id}" class="panel-collapse collapse">
+                <div th:id="'collapse'" class="panel-collapse collapse client-collapse">
                     <div class="panel-body">
                         <th:block th:fragment="clientHistoryForClientInfo">
-                        <table class="table table-bordered" width="100%" th:id="'client-'+${client.id}+'history'">
+                        <table class="table table-bordered history-line" width="100%" th:id="'client-string-history'">
                           <tbody></tbody>
                         </table>
-                            <button type="button" data-page="1" th:attrappend="data-clientid=${client.id}" class="btn upload-more-history">Загрузить ещё</button>
+                            <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>
                         </th:block>
                     </div>
                 </div>

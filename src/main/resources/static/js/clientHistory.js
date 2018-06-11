@@ -59,7 +59,7 @@ function drawClientHistory(list, history_table) {
             $tdLink = "<td><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
         }
         history_table.append(
-            "<tr>" +
+            "<tr class='remove-history'>" +
             "   <td>" + list[i].title + "</td>" +
             "   <td class=\"client-history-date\">" + list[i].date + "</td>" +
             $tdLink +
