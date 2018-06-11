@@ -155,23 +155,23 @@ public class DataInitializer {
 		notificationService.addNotification(smsErrorNotificationExampleToClient3more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient4more);
 
-		//TODO удалить после теста
-		Faker faker = new Faker();
-		List<Client> list = new LinkedList<>();
-		for (int i = 0; i < 350; i++) {
-			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"teststatususer" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("First Status"));
-			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-			list.add(client);
-		}
-		clientService.addBatchClients(list);
-		list.clear();
-
-		for (int i = 0; i < 1150; i++) {
-			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"testclient" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("deleted"));
-			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-			list.add(client);
-		}
-		clientService.addBatchClients(list);
+//		//TODO удалить после теста
+//		Faker faker = new Faker();
+//		List<Client> list = new LinkedList<>();
+//		for (int i = 0; i < 350; i++) {
+//			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"teststatususer" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("First Status"));
+//			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+//			list.add(client);
+//		}
+//		clientService.addBatchClients(list);
+//		list.clear();
+//
+//		for (int i = 0; i < 1150; i++) {
+//			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"testclient" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("deleted"));
+//			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+//			list.add(client);
+//		}
+//		clientService.addBatchClients(list);
 	}
 
 

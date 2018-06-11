@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -339,5 +340,11 @@ public class ClientRestController {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(clientHistory);
+	}
+
+	@GetMapping("rest/client/getPrincipal")
+	public ResponseEntity getPrinciapal() {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return ResponseEntity.ok(user);
 	}
 }
