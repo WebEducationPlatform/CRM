@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +'); openClientComments(\''+ ${client.id} +'\' ,\'' + ${user.id} + '\' )'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="portlet-content">
@@ -135,10 +135,6 @@
 
                 </div>
                 </div>
-                <!--//TODO Удалить-->
-                <!--/ MAIN MODAL -->
-                <!--<div th:replace="fragments/mainModal::mainModalWindow"></div> -->
-                <!--/ MAIN MODAL -->
             </div>
         </div>
         <div class="create-new-status-column">
@@ -231,7 +227,7 @@
         </div>
     </div>
 </div>
-<div th:replace="fragments/testModal::testModal"></div>
+<div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
