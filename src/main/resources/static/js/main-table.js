@@ -1024,14 +1024,14 @@ $(function () {
             data: formData,
             success: function(client) {
                 $.get('rest/client/getPrincipal', function (user) {
-                    var clientPhoneTag = $('#client-phone');
-                    clientPhoneTag.attr('clientPhone', client.phoneNumber);
-                    clientPhoneTag.attr('userPhone', user.phoneNumber);
+                    $(this).data('userId', user.id);
+                    // $('#main-modal-window').attr("onClick", "openClientComments("+ user.phoneNumber+','+ client.phoneNumber +")");
+
                     currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
                     $('#client-email').text(client.email);
-                    clientPhoneTag.text(client.phoneNumber);
+                    $('#client-phone').text(client.phoneNumber);
                     if(client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client">' + '<span class="glyphicon glyphicon-earphone">'+ '</span>' + '</a>' + '</td>');
+                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone">'+ '</span>' + '</a>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1052,7 +1052,7 @@ $(function () {
                 $('#postponeDate').attr('id','postponeDate'+ client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
-                $('.textcomplete').attr('id','new-text-for-client'+ client.id );
+                $('.textcomplete').attr('id','new-text-for-client'+ client.id);
                 $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id +'"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
                 $('.main-modal-comment').attr('id','client-'+ client.id + 'comments');
                 $('.upload-history').attr('data-id',client.id).attr('href','#collapse'+ client.id);
@@ -1089,23 +1089,19 @@ $(function () {
     });
 });
 
-
-$(function () {
-    $('.call-to-client').on('click', function (event) {
-        var url = "/user/rest/call/voximplant";
-        var clientPhone = $(this).find('#client-phone').data('clientPhone');
-        var userPhone = $(this).find('#client-phone').data('userPhone');
-        var formData = {
-            from: userPhone,
-            to: clientPhone
-        };
-        $.ajax({
-            type: 'post',
-            url: url,
-            data: formData,
-            error: function (error) {
-                console.log(error);
-            }
-        });
+function callToClient(userPhone, clientPhone) {
+    var url = "/user/rest/call/voximplant";
+    var formData = {
+        from: userPhone,
+        to: clientPhone
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        error: function (error) {
+            console.log(error);
+        }
     });
-});
+}
+
