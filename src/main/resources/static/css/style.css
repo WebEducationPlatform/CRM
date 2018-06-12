@@ -631,3 +631,11 @@ a.link-cursor-pointer{
 button.upload-more-history {
     width:100%;
 }
+
+.history-row {
+    background-color: #ebebe0;
+}
+
+.open-history {
+    width:100%;
+}

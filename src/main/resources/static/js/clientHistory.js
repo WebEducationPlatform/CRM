@@ -3,7 +3,7 @@ $(document).ready(function () {
         let current = $(this);
         let clientId = current.data("clientid");
         let page = current.attr("data-page");
-        let url = '/rest/client/getHistory/' + clientId;
+        let url = '/client/history/rest/getHistory/' + clientId;
         let params = {
             page: page
         };
@@ -27,7 +27,7 @@ $(document).ready(function () {
         let current = $(this);
         let isHistory = current.attr("class").includes('collapse');
         let client_id = current.attr("data-id");
-        let url = '/rest/client/getHistory/' + client_id;
+        let url = '/client/history/rest/getHistory/' + client_id;
         let params = {
             page: "0"
         };
@@ -50,7 +50,36 @@ $(document).ready(function () {
             })
         }
     });
+
+    //Better way
+    let collapseObject = $("#collapse-history");
+    collapseObject.on("show.bs.collapse", function () {
+        let collapse = $(this);
+        let client_id = collapse.attr("data-clientid");
+        let url = '/client/history/rest/getHistory/' + client_id;
+        let data = {
+            page: 0
+        };
+        $.get(url, data, function (history) {
+            let tbody = collapse.find('tbody');
+            if (history.length >= 10) {
+                collapse.find("button.upload-more-history").show();
+            }
+            drawClientHistory(history, tbody);
+        })
+    });
+
+    collapseObject.on("shown.bs.collapse", function () {
+        $(this).height("600px");
+    });
+
+    collapseObject.on("hidden.bs.collapse", function () {
+        $(this).find("tbody").empty();
+        $(this).find("button.upload-more-history").attr("data-page", 1);
+    })
 });
+
+
 
 function drawClientHistory(list, history_table) {
     for (let i = 0; i < list.length; i++) {
@@ -78,10 +107,11 @@ function drawClientHistory(list, history_table) {
             "</tr>"
         );
     }
-
 }
 
 function open_new_window(elem) {
     let url = $(elem).attr("href");
     window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
 }
+
+
