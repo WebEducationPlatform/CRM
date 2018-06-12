@@ -37,7 +37,7 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
+                <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                     <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
                     <ul class="dropdown-menu">
                         <th:block th:if="${notifications.size() > 0}">
@@ -518,17 +518,19 @@
                 </div>
                 <div th:id="'collapse'" class="panel-collapse collapse client-collapse">
                     <div class="panel-body">
-                        <th:block th:fragment="clientHistoryForClientInfo">
                         <table class="table table-bordered history-line" width="100%" th:id="'client-string-history'">
                           <tbody></tbody>
                         </table>
                             <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>
-                        </th:block>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</th:block>
+
+<th:block th:fragment="clientHistoryForClientInfo">
+
 </th:block>
 
 <th:block th:fragment="sms_error_modal">
