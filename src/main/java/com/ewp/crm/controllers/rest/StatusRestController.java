@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class StatusRestController {
 		this.clientHistoryService = clientHistoryService;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
 		statusService.add(new Status(statusName));
@@ -38,6 +40,7 @@ public class StatusRestController {
 		return ResponseEntity.ok("Успешно добавлено");
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/status/edit", method = RequestMethod.POST)
 	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName, @RequestParam(name = "oldStatusId") Long oldStatusId) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -48,6 +51,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/status/client/change", method = RequestMethod.POST)
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
@@ -63,6 +67,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/status/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -71,6 +76,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("/admin/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -87,6 +93,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("/admin/rest/status/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId, @RequestParam("invisible") boolean bool) {
 		Status status = statusService.get(statusId);
