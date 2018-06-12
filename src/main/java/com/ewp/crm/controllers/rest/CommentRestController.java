@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +43,7 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@Secured(value = {"ROLE_USER"})
 	public ResponseEntity<Comment> addComment(@RequestParam(name = "clientId") Long clientId,
 	                                          @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -56,6 +59,7 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/add/answer", method = RequestMethod.POST)
+	@Secured(value = {"ROLE_USER"})
 	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User fromDB = userService.get(userFromSession.getId());
@@ -70,6 +74,7 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/delete/answer", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
@@ -81,6 +86,7 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/edit/answer", method = RequestMethod.POST)
+	@Secured(value = {"ROLE_USER"})
 	public ResponseEntity editCommentAnswer(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
@@ -93,6 +99,7 @@ public class CommentRestController {
 		}
 	}
 
+	@PreAuthorize("hasAuthority('USER')")
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteComment(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -105,6 +112,7 @@ public class CommentRestController {
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+	@Secured(value = {"ROLE_USER"})
 	public ResponseEntity editComment(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (commentService.getById(id).getUser().equals(userFromSession)) {
@@ -117,6 +125,7 @@ public class CommentRestController {
 		}
 	}
 
+	@PreAuthorize("hasAuthority('USER')")
 	@RequestMapping(value = "/getComments/{clientId}", method = RequestMethod.GET)
 	public ResponseEntity<List<Comment>> getComments(@PathVariable Long clientId) {
 		List<Comment> comments = commentService.getAllByClient(clientService.getClientByID(clientId));
