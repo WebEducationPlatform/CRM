@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
+@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 @RequestMapping("/user/rest/call")
 public class IPTelephonyRestController {
 

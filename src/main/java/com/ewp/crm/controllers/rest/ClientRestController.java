@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,16 +46,19 @@ public class ClientRestController {
 		this.statusService = statusService;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAll() {
 		return ResponseEntity.ok(clientService.getAllClients());
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.getClientByID(id));
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/assign", method = RequestMethod.POST)
 	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -70,6 +74,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
 	public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
 	                                 @RequestParam(name = "userForAssign") Long userId) {
@@ -91,6 +96,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -110,6 +116,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
 	public ResponseEntity updateClient(@RequestBody Client currentClient) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -136,6 +143,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
 	public ResponseEntity addClient(@RequestBody Client client) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -151,12 +159,14 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
 		List<Client> clients = clientService.filteringClient(filteringCondition);
 		return ResponseEntity.ok(clients);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
@@ -216,6 +226,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/createFileFilter", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
 
@@ -274,6 +285,7 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
 	public ResponseEntity<InputStreamResource> getClientsData() {
 
@@ -294,6 +306,7 @@ public class ClientRestController {
 
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
@@ -316,6 +329,7 @@ public class ClientRestController {
 		}
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
 	                                             @RequestParam(name = "clientDescription") String clientDescription) {
@@ -331,6 +345,7 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@GetMapping("rest/client/getHistory/{clientId}")
 	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page) {
 		Pageable pageable = new PageRequest(page, 10, new Sort(new Sort.Order(Sort.Direction.DESC,"id")));

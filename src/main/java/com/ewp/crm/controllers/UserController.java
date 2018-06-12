@@ -5,6 +5,7 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,7 @@ public class UserController {
 		this.notificationService = notificationService;
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/user/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
@@ -48,6 +50,7 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/user/add", method = RequestMethod.GET)
 	public ModelAndView addUser() {
 		ModelAndView modelAndView = new ModelAndView("add-user");
@@ -58,6 +61,7 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/user/customize", method = RequestMethod.GET)
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
@@ -66,6 +70,7 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

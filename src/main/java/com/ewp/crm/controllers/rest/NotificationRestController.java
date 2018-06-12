@@ -10,6 +10,7 @@ import com.ewp.crm.service.interfaces.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @RestController
+@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 @RequestMapping("/user/notification")
 public class NotificationRestController {
 
