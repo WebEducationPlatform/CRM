@@ -362,7 +362,6 @@ function assign(id) {
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
-            getNewHistory(id);
         },
         error: function (error) {
         }
@@ -413,26 +412,12 @@ function assignUser(id, user, principalId) {
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
             fillFilterList()
-            getNewHistory(id);
         },
         error: function (error) {
         }
     });
 }
 
-function getNewHistory(id) {
-    let
-        url = '/rest/client/' + id;
-    $.get(url,
-        function (data) {
-            $('#client-' + data.id + 'history').prepend(
-                "<tr class='remove-history'>" +
-                "   <td class='remove-history'>" + data.history[0].title + "</td>" +
-                "   <td class=\"client-history-date remove-history\">" + data.history[0].date + "</td>" +
-                "</tr>"
-            );
-        });
-}
 
 function unassign(id) {
     let
@@ -467,7 +452,6 @@ function unassign(id) {
                 );
             }
             fillFilterList();
-            getNewHistory(id);
         },
         error: function (error) {
         }
@@ -853,7 +837,7 @@ $(function () {
                 err.push(valuecheck);
                 current.text("Отправить");
                 currentStatus.text("Не удалось отправить сообщение " + err);
-                current.attr("disabled", "true")
+                current.attr("disabled", "true");
                 console.log(e)
             }
         });

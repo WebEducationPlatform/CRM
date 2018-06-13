@@ -22,7 +22,7 @@ public class ClientHistoryRestController {
 
 	private final ClientHistoryService clientHistoryService;
 
-	@Value("${project.pagination.page-size}")
+	@Value("${project.pagination.page-size.client-history}")
 	private int pageSize;
 
 	@Autowired

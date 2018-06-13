@@ -5,6 +5,8 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +35,9 @@ public class ClientController {
 	private final NotificationService notificationService;
 
 	private final RoleService roleService;
+
+	@Value("${project.pagination.page-size.clients}")
+	private int pageSize;
 
 	@Autowired
 	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
@@ -70,12 +75,9 @@ public class ClientController {
 
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.getAllClients());
+		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
-		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 

@@ -66,7 +66,7 @@ public class Client implements Serializable {
 	@Column(name = "date")
 	private Date dateOfRegistration;
 
-	@JsonBackReference
+	@JsonManagedReference
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	@JoinTable(name = "status_clients",
