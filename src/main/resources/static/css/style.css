@@ -639,3 +639,7 @@ button.upload-more-history {
 .open-history {
     width:100%;
 }
+
+.head-table {
+    background-color: #eae1e4;
+}

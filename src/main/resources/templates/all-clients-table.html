@@ -10,13 +10,13 @@
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div class="col-md-8 col-md-offset-1">
+    <div class="container-fluid">
         <div><h1>Таблица всех пользователей</h1></div>
         <div class="row">
             <div class="col-md-4">
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>
             </div>
-            <div class="col-md-7 offset-1"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/>
+            <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/>
             </div>
         </div>
         <div id="filter" class="collapse filter">
@@ -88,21 +88,22 @@
             <div th:replace="fragments/htmlFragments::downloadModal"></div>
 
         </div>
-        <table class="table table-hover" id="clients-table">
+        <table class="table table-hover table-fixed" id="clients-table" width="100%">
             <thead id="thead-table-clients">
-            <tr>
-                <td>#</td>
-                <td>Имя</td>
-                <td>Фамилия</td>
-                <td>Телефон</td>
-                <td>Email</td>
-                <td>Социальная сеть</td>
-                <td>Возраст</td>
-                <td>Пол</td>
-                <td>Город</td>
-                <td>Страна</td>
-                <td>Статус</td>
-                <td>Дата регистрации</td>
+            <tr class="head-table">
+                <th>#</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Социальная сеть</th>
+                <th>Возраст</th>
+                <th>Пол</th>
+                <th>Город</th>
+                <th>Страна</th>
+                <th>Статус</th>
+                <th>Дата регистрации</th>
+                <th>Скрыт?</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -121,14 +122,10 @@
                     <td th:text="${client.country}"></td>
                     <td th:text="${client.state}"></td>
                     <td th:text="${client.dateOfRegistration}"></td>
-                    <td th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('ADMIN')">
-                        <div class="dropdown">
-                            <button type="button" class="btn btn-info" data-toggle="dropdown" th:id="'return-to-status-btn' + ${client.id}" th:value="${client.id}">Вернуть</button>
-                            <ul class="dropdown-menu">
-                                <li th:each="status:${statuses}" th:if="${!status.invisible}">
-                                    <a th:if="${status.name != 'deleted'}" class="link-cursor-pointer" th:text="${status.name}" th:value="${status.id}"></a>
-                                </li>
-                            </ul>
+                    <td>
+                        <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('ADMIN')">
+                            <button type="button" class="btn btn-info" data-toggle="dropdown" th:attrappend="data-client=${client.id}">Вернуть</button>
+                            <ul class="dropdown-menu statuses-content"></ul>
                         </div>
                     </td>
                 </tr>
@@ -137,17 +134,15 @@
 
             </tfoot>
         </table>
-    </div>
-</div>
 
-<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            ...
+        <div id="statuses-list" style="display:none">
+            <li th:each="status:${statuses}" th:if="${!status.invisible}">
+                <a th:if="${status.name != 'deleted'}" class="link-cursor-pointer return-to-visible-status" th:text="${status.name}" th:value="${status.id}" onclick=""></a>
+            </li>
         </div>
     </div>
 </div>
+
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
 </body>
 </html>

@@ -80,6 +80,16 @@ $('#filtration').click(function (){
                 if (phoneNumber === null) {
                     phoneNumber = "";
                 }
+
+                let returnBtn = '';
+                if (isAdmin) {
+                    returnBtn =
+                        '<div class="dropdown statuses-by-dropdown">' +
+                        ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        '<ul class="dropdown-menu statuses-content"></ul>' +
+                        '</div>'
+                }
+
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
@@ -94,6 +104,7 @@ $('#filtration').click(function (){
                     '        <td>' + res[i].country + ' </td>' +
                     '        <td>' + res[i].state + ' </td>' +
                     '        <td>' + dateOfRegistration + ' </td>' +
+                    '        <td>' + returnBtn + ' </td>' +
                     '    </tr>'
                 )
             }
@@ -132,3 +143,82 @@ $('#clientData').click(function (event) {
         })
     }
 });
+
+
+let isAdmin;
+$.get('/rest/client/getPrincipal', function (user) {
+    $.each(user.role, function (i,v) {
+        if (v.roleName === 'ADMIN') {
+            isAdmin = true;
+        }
+    })
+});
+
+$(document).ready(function () {
+    var win = $(window);
+    let page = 1;
+
+
+    win.scroll(function () {
+        if ($(document).height() - win.height() < win.scrollTop() + 50) {
+            $("#loading").show();
+
+            $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
+                let table = $("#clients-table").find("tbody");
+                drawClients(table, clients, page);
+                page++;
+                $("#loading").hide();
+            })
+        }
+    });
+
+
+
+    function drawClients(table, res, page) {
+        let index = res.length * page;
+        for (let i = 0; i < res.length; i++) {
+            let socLink = '';
+            for(let j  = 0; j < res[i].socialNetworks.length; j++) {
+                socLink += res[i].socialNetworks[j].link + '\n';
+            }
+            let d = new Date(res[i].dateOfRegistration);
+            let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+
+            let email = res[i].email === null ? '' : res[i].email,
+                phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
+                city = res[i].city === null ? '' : res[i].city,
+                country = res[i].country === null ? '' : res[i].country;
+
+            let returnBtn = '';
+            if (isAdmin) {
+                returnBtn =
+                    '<div class="dropdown statuses-by-dropdown">' +
+                    ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                    '<ul class="dropdown-menu statuses-content"></ul>' +
+                    '</div>'
+            }
+
+
+            table.append(
+                '    <tr>' +
+                '        <td>' + ++index + '</td>' +
+                '        <td>' + res[i].name + '</td>' +
+                '        <td>' + res[i].lastName + '</td>' +
+                '        <td>' + phoneNumber + '</td>' +
+                '        <td>' + email + '</td>' +
+                '        <td>' + socLink + '</td>' +
+                '        <td>' + res[i].age + ' </td>' +
+                '        <td>' + res[i].sex + ' </td>' +
+                '        <td>' + city + ' </td>' +
+                '        <td>' + country + ' </td>' +
+                '        <td>' + res[i].state + ' </td>' +
+                '        <td>' + dateOfRegistration + ' </td>' +
+                '        <td>' + returnBtn + ' </td>' +
+
+                '    </tr>'
+            )
+        }
+    }
+    }
+);
