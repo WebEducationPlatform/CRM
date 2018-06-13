@@ -45,10 +45,12 @@ function sendComment(id) {
             console.log(error);
         }
     });
-
 }
 
-function openClientComments(client_id, user_id) {
+$(function () {
+    $('#main-modal-window').on('shown.bs.modal', function (event) {
+        var client_id = $(this).data('clientId');
+        var user_id = $(this).data('userId');
     let url = '/rest/comment/getComments/' + client_id;
     let ulComments = $('#client-' + client_id + 'comments');
     let removeComment = "";
@@ -137,7 +139,8 @@ function openClientComments(client_id, user_id) {
             console.log(error);
         }
     });
-}
+    });
+});
 
 function sendAnswer(id) {
     var url = '/rest/comment/add/answer';

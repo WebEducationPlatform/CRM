@@ -10,6 +10,8 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -132,6 +134,11 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
 		return clientRepository.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
+	}
+
+	@Override
+	public List<Client> findAllByPage(Pageable pageable) {
+		return clientRepository.findAll(pageable).getContent();
 	}
 
 	@Override
