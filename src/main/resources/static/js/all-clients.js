@@ -66,27 +66,23 @@ $('#filtration').click(function (){
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
                 for(var j  = 0; j < res[i].socialNetworks.length; j++) {
-                    socLink += res[i].socialNetworks[j].link + '\n';
+                    socLink += res[i].socialNetworks[j].link + '<br>';
                 }
                 var d = new Date(res[i].dateOfRegistration);
                 var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
-                var email = res[i].email;
-                var phoneNumber = res[i].phoneNumber;
-                if (email === null) {
-                    email = "";
-                }
-                if (phoneNumber === null) {
-                    phoneNumber = "";
-                }
+                let email = res[i].email === null ? '' : res[i].email,
+                    phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
+                    city = res[i].city === null ? '' : res[i].city,
+                    country = res[i].country === null ? '' : res[i].country;
 
                 let returnBtn = '';
                 if (isAdmin) {
                     if (res[i].status.invisible) {
                         returnBtn =
                             '<div class="dropdown statuses-by-dropdown">' +
-                            ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                            ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
                             '<ul class="dropdown-menu statuses-content"></ul>' +
                             '</div>'
                     }
@@ -102,8 +98,8 @@ $('#filtration').click(function (){
                     '        <td>' + socLink + '</td>' +
                     '        <td>' + res[i].age + ' </td>' +
                     '        <td>' + res[i].sex + ' </td>' +
-                    '        <td>' + res[i].city + ' </td>' +
-                    '        <td>' + res[i].country + ' </td>' +
+                    '        <td>' + city + ' </td>' +
+                    '        <td>' + country + ' </td>' +
                     '        <td>' + res[i].state + ' </td>' +
                     '        <td>' + dateOfRegistration + ' </td>' +
                     '        <td>' + returnBtn + ' </td>' +
@@ -181,7 +177,7 @@ $(document).ready(function () {
         for (let i = 0; i < res.length; i++) {
             let socLink = '';
             for(let j  = 0; j < res[i].socialNetworks.length; j++) {
-                socLink += res[i].socialNetworks[j].link + '\n';
+                socLink += res[i].socialNetworks[j].link + '<br>';
             }
             let d = new Date(res[i].dateOfRegistration);
             let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
@@ -197,7 +193,7 @@ $(document).ready(function () {
                 if (res[i].status.invisible) {
                     returnBtn =
                         '<div class="dropdown statuses-by-dropdown">' +
-                        ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
                         '<ul class="dropdown-menu statuses-content"></ul>' +
                         '</div>'
                 }
@@ -218,8 +214,7 @@ $(document).ready(function () {
                 '        <td>' + country + ' </td>' +
                 '        <td>' + res[i].state + ' </td>' +
                 '        <td>' + dateOfRegistration + ' </td>' +
-                '        <td>' + returnBtn + ' </td>' +
-
+                '        <td class="no-fix">' + returnBtn + ' </td>' +
                 '    </tr>'
             )
         }

@@ -88,7 +88,7 @@
             <div th:replace="fragments/htmlFragments::downloadModal"></div>
 
         </div>
-        <table class="table table-hover table-fixed" id="clients-table" width="100%">
+        <table class="table table-hover table-fixed" id="clients-table">
             <thead id="thead-table-clients">
             <tr class="head-table">
                 <th>#</th>
@@ -114,17 +114,20 @@
                     <td th:text="${client.phoneNumber}"></td>
                     <td th:text="${client.email}"></td>
                     <td>
-                        <p th:each="soc : ${client.socialNetworks}" th:text="${soc.link}"></p>
+                        <th:block th:each="soc : ${client.socialNetworks}">
+                            <th:block th:text="${soc.link}"></th:block>
+                            <br/>
+                        </th:block>
                     </td>
                     <td th:text="${client.age}"></td>
                     <td th:text="${client.sex}"></td>
                     <td th:text="${client.city}"></td>
                     <td th:text="${client.country}"></td>
                     <td th:text="${client.state}"></td>
-                    <td th:text="${client.dateOfRegistration}"></td>
-                    <td>
+                    <td th:text="${client.dateOfRegistration.toLocaleString()}"></td>
+                    <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('ADMIN')">
-                            <button type="button" class="btn btn-info" data-toggle="dropdown" th:attrappend="data-client=${client.id}">Вернуть</button>
+                            <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}">Вернуть</button>
                             <ul class="dropdown-menu statuses-content"></ul>
                         </div>
                     </td>

@@ -643,3 +643,19 @@ button.upload-more-history {
 .head-table {
     background-color: #eae1e4;
 }
+
+.table-fixed {
+    width: 100%;
+    max-width: 100%;
+}
+
+.table-fixed td{
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-fixed td.no-fix {
+    overflow :initial;
+}
