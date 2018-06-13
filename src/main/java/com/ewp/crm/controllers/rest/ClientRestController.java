@@ -9,10 +9,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +33,9 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
+
+	@Value("${project.pagination.page-size.clients}")
+	private int pageSize;
 
 	@Autowired
 	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil) {
@@ -331,13 +332,20 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 
-	@GetMapping("rest/client/getHistory/{clientId}")
-	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page) {
-		Pageable pageable = new PageRequest(page, 10, new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
-		List<ClientHistory> clientHistory = clientHistoryService.findAllByClientId(id, pageable);
-		if (clientHistory == null || clientHistory.isEmpty()) {
-			return ResponseEntity.notFound().build();
+	//TODO тут тебе не место
+	@GetMapping("rest/client/getPrincipal")
+	public ResponseEntity getPrinciapal() {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return ResponseEntity.ok(user);
+	}
+
+	@GetMapping("rest/client/pagination/get")
+	public ResponseEntity getClients(@RequestParam int page) {
+		List<Client> clients = clientService.findAllByPage(new PageRequest(page, pageSize));
+		if (clients == null || clients.isEmpty()) {
+			logger.error("No more clients");
+			return ResponseEntity.noContent().build();
 		}
-		return ResponseEntity.ok(clientHistory);
+		return ResponseEntity.ok(clients);
 	}
 }

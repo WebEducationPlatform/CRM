@@ -46,6 +46,12 @@ function senReqOnChangeStatus(clientId, statusId) {
     });
 }
 
+$(document).on("show.bs.dropdown",".statuses-by-dropdown", function () {
+        let data = $("#statuses-list");
+        $(this).find(".statuses-content").html(data.html());
+});
+
+
 $(document).ready(function () {
     $(".show-status-btn").on("click", function showStatus() {
         let
@@ -90,12 +96,12 @@ $(document).ready(function () {
         })
     });
 
-    $('.link-cursor-pointer').on("click", function returnClientToStatus() {
+    $(document).on("click", '.return-to-visible-status', function returnClientToStatus() {
         let
             button = $(this),
             url = '/rest/status/client/change',
             formData = {
-                clientId: button.parents(".dropdown").children("button").attr("value"),
+                clientId: button.parents(".dropdown").children("button").attr("data-client"),
                 statusId: button.attr("value")
             };
 
