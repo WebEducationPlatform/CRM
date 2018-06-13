@@ -83,11 +83,13 @@ $('#filtration').click(function (){
 
                 let returnBtn = '';
                 if (isAdmin) {
-                    returnBtn =
-                        '<div class="dropdown statuses-by-dropdown">' +
-                        ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
-                        '<ul class="dropdown-menu statuses-content"></ul>' +
-                        '</div>'
+                    if (res[i].status.invisible) {
+                        returnBtn =
+                            '<div class="dropdown statuses-by-dropdown">' +
+                            ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                            '<ul class="dropdown-menu statuses-content"></ul>' +
+                            '</div>'
+                    }
                 }
 
                 $("#table-body").append(
@@ -192,11 +194,13 @@ $(document).ready(function () {
 
             let returnBtn = '';
             if (isAdmin) {
-                returnBtn =
-                    '<div class="dropdown statuses-by-dropdown">' +
-                    ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
-                    '<ul class="dropdown-menu statuses-content"></ul>' +
-                    '</div>'
+                if (res[i].status.invisible) {
+                    returnBtn =
+                        '<div class="dropdown statuses-by-dropdown">' +
+                        ' <button type="button" class="btn btn-info" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        '<ul class="dropdown-menu statuses-content"></ul>' +
+                        '</div>'
+                }
             }
 
 
