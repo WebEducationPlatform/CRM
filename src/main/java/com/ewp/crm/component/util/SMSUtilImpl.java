@@ -47,24 +47,20 @@ public class SMSUtilImpl implements SMSUtil {
 	}
 
 	@Override
-	public void sendSMS(Client client, String text, User sender) {
+	public void sendSMS(Client client, String text, User sender) throws JSONException {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), text);
 		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		try {
-			JSONObject body = new JSONObject(response.getBody());
-			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
-			client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-			ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
-			clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
-			client.addHistory(clientHistory);
-			clientService.updateClient(client);
-		} catch (JSONException e) {
-			logger.error("Error to send message ", e);
-		}
+		JSONObject body = new JSONObject(response.getBody());
+		JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
+		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
+		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
+		ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
+		client.addHistory(clientHistory);
+		clientService.updateClient(client);
 	}
 
 	@Override
