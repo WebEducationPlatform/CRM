@@ -36,6 +36,10 @@ public class VKUtil {
 	private String clubId;
 	private String version;
 	private String communityToken;
+	private String applicationId;
+	private String display;
+	private String redirectUri;
+	private String scope;
 	private String applicationToken;
 
 	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
@@ -50,11 +54,26 @@ public class VKUtil {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
-		applicationToken = vkConfig.getApplicationToken();
+		applicationId = vkConfig.getApplicationId();
+		display = vkConfig.getDisplay();
+		redirectUri = vkConfig.getRedirectUri();
+		scope = vkConfig.getScope();
 		this.socialNetworkService = socialNetworkService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.messageService = messageService;
+	}
+
+	public String receivingTokenUri(){
+		String uriGetToken = "https://oauth.vk.com/authorize" +
+				"?client_id=" + applicationId +
+				"&display=" + display +
+				"&redirect_uri=" + redirectUri +
+				"&scope=" + scope +
+				"&response_type=token" +
+				"&v" + version;
+
+		return uriGetToken;
 	}
 
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
@@ -63,7 +82,7 @@ public class VKUtil {
 		}
 		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
 				"?user_id=" + clubId +
-				"&rev=1" +
+				"&rev=0" +
 				"&version=" + version +
 				"&access_token=" + applicationToken;
 
@@ -126,7 +145,7 @@ public class VKUtil {
 				"?user_id=" + id +
 				"&v=" + version +
 				"&message=" + uriMsg +
-				"&access_token=" + communityToken;
+				"&access_token=" + applicationToken;
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
@@ -320,6 +339,10 @@ public class VKUtil {
 			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
 		}
 		return vkText;
+	}
+
+	public void setApplicationToken(String applicationToken) {
+		this.applicationToken = applicationToken;
 	}
 }
 
