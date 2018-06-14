@@ -18,7 +18,13 @@ public class VKConfigImpl implements VKConfig {
 
     private String communityToken;
 
-    private String applicationToken;
+    private String applicationId;
+
+    private String display;
+
+    private String redirectUri;
+
+    private String scope;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
@@ -27,7 +33,10 @@ public class VKConfigImpl implements VKConfig {
         clubId = env.getProperty("vk.club.id");
         version = env.getProperty("vk.version");
         communityToken = env.getProperty("vk.community.token");
-        applicationToken = env.getProperty("vk.app.token");
+        applicationId = env.getProperty("vk.app.id");
+        display = env.getProperty("vk.app.display");
+        redirectUri = env.getProperty("vk.app.redirect_uri");
+        scope = env.getProperty("vk.app.scope");
 
         if (!configIsValid()) {
             logger.error("VK configs have not initialized. Check vk.properties file");
@@ -37,8 +46,12 @@ public class VKConfigImpl implements VKConfig {
 
 	private boolean configIsValid() {
 		if (clubId == null || clubId.isEmpty()) return false;
+		if (version== null || version.isEmpty()) return false;
 		if (communityToken == null || communityToken.isEmpty()) return false;
-		if (applicationToken == null || applicationToken.isEmpty()) return false;
+		if (applicationId == null || applicationId.isEmpty()) return false;
+		if (display == null || display.isEmpty()) return false;
+		if (redirectUri == null || redirectUri.isEmpty()) return false;
+		if (scope == null || scope.isEmpty()) return false;
 		return true;
 	}
 
@@ -54,7 +67,19 @@ public class VKConfigImpl implements VKConfig {
         return communityToken;
     }
 
-    public String getApplicationToken() {
-        return applicationToken;
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public String getDisplay() {
+        return display;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }
