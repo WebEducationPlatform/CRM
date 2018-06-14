@@ -37,7 +37,7 @@ $(function () {
     });
 });
 
-
+// Отрисовка чекбоксов социальных сетей в модальном окне.
 $(function () {
     $('.custom-modal').on('show.bs.modal', function () {
         var currentForm = $(this).find('.box-modal');
@@ -612,31 +612,37 @@ function deleteUser(id) {
     });
 }
 
-function sendMessageVK(clientId, templateId) {
-    let url = '/rest/vkontakte';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-VKTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendSocialTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
+//Отправка фиксированного сообщения во вконтакте из расширенной модалки.
+$(function () {
+    $('.internal-vkontakte-message').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        let url = '/rest/vkontakte';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-VKTemplate-body').val()
+        };
+        var currentStatus = document.getElementById("sendSocialTemplateStatus");
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
 
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
 
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+            },
+            error: function (e) {
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
     });
-}
+});
+
 
 
 
@@ -723,31 +729,36 @@ $(function () {
     });
 });
 
-function sendTemplate(clientId, templateId) {
-    let url = '/rest/sendEmail';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-EmaileTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendEmailTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
+//Отправка  фиксированного сообщения на email из расширенной модалки
+$(function () {
+    $('.internal-send-email').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        let url = '/rest/sendEmail';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-EmaileTemplate-body').val()
+        };
+        var currentStatus = document.getElementById("sendEmailTemplateStatus");
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
 
 
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
+            },
+            error: function (e) {
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
     });
-}
+});
 
 $(function () {
     $('.open-description-btn').on('click', function(event) {
@@ -889,6 +900,10 @@ $(function () {
                 case ('sms'):
                     url = '/user/sms/send/now/client';
                     break;
+                    //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                case ('facebook'):
+                    url = '/temporary blank';
+                    break;
             }
             $.ajax({
                 type: "POST",
@@ -990,7 +1005,7 @@ $(function () {
 
 $(function () {
     $('.portlet-content').on('click', function (e) {
-        var clientId = $(this).parents('.common-modal').data('cardId');
+        var clientId = $(this).parents('с').data('cardId');
         var currentModal =  $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
@@ -1008,7 +1023,7 @@ $(function () {
             data: formData,
             success: function(client) {
                 $.get('rest/client/getPrincipal', function (user) {
-                    $(this).data('userId', user.id);
+                    $('#main-modal-window').data('userId', user.id);
                     // $('#main-modal-window').attr("onClick", "openClientComments("+ user.phoneNumber+','+ client.phoneNumber +")");
 
                     currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
