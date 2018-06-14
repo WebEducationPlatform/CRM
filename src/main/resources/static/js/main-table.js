@@ -1138,7 +1138,7 @@ function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';
     var uri_regex = new RegExp(redirect_uri);
-    var url = 'http://localhost:9090/vk-auth';
+    var url = '/vk-auth';
     win = vk_popup({
         width:620,
         height:370,
