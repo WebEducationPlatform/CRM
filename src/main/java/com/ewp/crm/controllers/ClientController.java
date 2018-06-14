@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,7 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -73,6 +75,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
@@ -82,6 +85,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -95,7 +99,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
 	public ModelAndView addClient(@PathVariable String statusName) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -108,6 +112,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
