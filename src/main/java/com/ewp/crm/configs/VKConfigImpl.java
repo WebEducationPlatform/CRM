@@ -8,20 +8,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Component
 @PropertySource("classpath:vk.properties")
 public class VKConfigImpl implements VKConfig {
-
-    private String clientId;
-
-    private String clientSecret;
-
-    private String username;
-
-    private String password;
 
     private String clubId;
 
@@ -29,17 +18,25 @@ public class VKConfigImpl implements VKConfig {
 
     private String communityToken;
 
+    private String applicationId;
+
+    private String display;
+
+    private String redirectUri;
+
+    private String scope;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
     public VKConfigImpl(Environment env) {
-        clientId = env.getProperty("vk.app.clientId");
-        clientSecret = env.getProperty("vk.app.clientSecret");
-        username = env.getProperty("vk.profile.username");
-        password = env.getProperty("vk.profile.password");
         clubId = env.getProperty("vk.club.id");
         version = env.getProperty("vk.version");
         communityToken = env.getProperty("vk.community.token");
+        applicationId = env.getProperty("vk.app.id");
+        display = env.getProperty("vk.app.display");
+        redirectUri = env.getProperty("vk.app.redirect_uri");
+        scope = env.getProperty("vk.app.scope");
 
         if (!configIsValid()) {
             logger.error("VK configs have not initialized. Check vk.properties file");
@@ -47,38 +44,16 @@ public class VKConfigImpl implements VKConfig {
         }
     }
 
-    private boolean containsIllegals(String communityToken) {
-        Pattern pattern = Pattern.compile("[!~#@*+%{}<>,№;:\\[\\]|\"\\_^]");
-        Matcher matcher = pattern.matcher(communityToken);
-        return matcher.find();
-    }
-
 	private boolean configIsValid() {
-		if (clientId == null || clientId.isEmpty()) return false;
-		if (clientSecret == null || clientSecret.isEmpty()) return false;
-		if (username == null || username.isEmpty()) return false;
-		if (password == null || password.isEmpty()) return false;
-		if (containsIllegals(password)) return false;
 		if (clubId == null || clubId.isEmpty()) return false;
+		if (version== null || version.isEmpty()) return false;
 		if (communityToken == null || communityToken.isEmpty()) return false;
+		if (applicationId == null || applicationId.isEmpty()) return false;
+		if (display == null || display.isEmpty()) return false;
+		if (redirectUri == null || redirectUri.isEmpty()) return false;
+		if (scope == null || scope.isEmpty()) return false;
 		return true;
 	}
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 
     public String getClubId() {
         return clubId;
@@ -90,5 +65,21 @@ public class VKConfigImpl implements VKConfig {
 
     public String getCommunityToken() {
         return communityToken;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public String getDisplay() {
+        return display;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }
