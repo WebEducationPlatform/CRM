@@ -1,11 +1,15 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.component.util.SMSUtilImpl;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,8 @@ public class SMSRestController {
 	private final SMSUtil smsUtil;
 	private final ClientService clientService;
 	private final MessageTemplateServiceImpl messageTemplateService;
+
+	private static Logger logger = LoggerFactory.getLogger(SMSRestController.class);
 
 
 	@Autowired
@@ -43,8 +49,13 @@ public class SMSRestController {
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
-		smsUtil.sendSMS(client, smsText, principal);
-		return ResponseEntity.status(HttpStatus.OK).body("Message send");
+		try {
+			smsUtil.sendSMS(client, smsText, principal);
+			return ResponseEntity.status(HttpStatus.OK).body("Message send");
+		} catch (JSONException e) {
+			logger.error("Error to send message ", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message send");
+		}
 	}
 
 	@PostMapping("/send/planned/client/{clientId}")
