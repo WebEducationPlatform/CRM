@@ -346,13 +346,6 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 
-	//TODO тут тебе не место
-	@GetMapping("rest/client/getPrincipal")
-	public ResponseEntity getPrinciapal() {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return ResponseEntity.ok(user);
-	}
-
 	@GetMapping("rest/client/pagination/get")
 	public ResponseEntity getClients(@RequestParam int page) {
 		List<Client> clients = clientService.findAllByPage(new PageRequest(page, pageSize));

@@ -530,6 +530,11 @@ button[name|="emailTmplList"] {
 	float: left;
 }
 
+#sendEmailTemplateStatus {
+	float: right;
+}
+
+
 span[id^="sendTemplateStatus"] {
 	float: left;
 }
