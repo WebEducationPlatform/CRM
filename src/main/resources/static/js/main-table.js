@@ -1015,7 +1015,7 @@ $(function () {
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if(client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone">'+ '</span>' + '</a>' + '</td>');
+                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone call-icon">'+ '</span>' + '</a>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1079,10 +1079,17 @@ function callToClient(userPhone, clientPhone) {
         from: userPhone,
         to: clientPhone
     };
+    let icon = $(".call-icon");
     $.ajax({
         type: 'post',
         url: url,
         data: formData,
+        success: function() {
+            icon.parent("a").css("background","green");
+            icon.css("color","white");
+            icon.parent("a").attr("disabled","disabled");
+
+        },
         error: function (error) {
             console.log(error);
         }
