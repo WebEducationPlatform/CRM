@@ -588,7 +588,7 @@ a.link-cursor-pointer{
 }
 
 .send-email-err-status{
-	color: red;
+	color: forestgreen;
 	float: left;
 }
 

@@ -72,14 +72,16 @@ function changeClient(id) {
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
         socialNetworks: SN,
+        status : {},
         jobs: Job
     };
     var current = document.getElementById("message");
+    let data = JSON.stringify(wrap);
     $.ajax({
         type: "POST",
         url: url,
         contentType: "application/json; charset=utf-8",
-        data: JSON.stringify(wrap),
+        data: data,
         beforeSend: function(){
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";

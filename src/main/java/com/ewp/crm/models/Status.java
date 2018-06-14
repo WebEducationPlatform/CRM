@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table
@@ -24,7 +23,7 @@ public class Status implements Serializable {
 	@Basic
 	private Boolean isInvisible = false;
 
-	@JsonBackReference
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},

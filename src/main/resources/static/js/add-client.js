@@ -54,7 +54,11 @@ function addClient() {
 	} catch (e) {
 		return;
 	}
-		var phoneNumber = $('#edit-client-phone-number').val();
+
+	let status = {
+	    name : $('#client-status').val(),
+    };
+
     let url = '/admin/rest/client/add';
 	let wrap = {
 		name: $('#edit-client-first-name').val(),
@@ -66,16 +70,17 @@ function addClient() {
 		state:  $('#edit-client-state').val(),
 		country: $('#edit-client-country').val(),
 		city: $('#edit-client-city').val(),
-		status: $('#client-status').val(),
+		status: status,
 		socialNetworks: SN,
 		jobs: Job
 	};
+	let data = JSON.stringify(wrap);
 	var current = document.getElementById("message");
 	$.ajax({
 		type: "POST",
 		url: url,
 		contentType: "application/json; charset=utf-8",
-		data: JSON.stringify(wrap),
+		data: data,
 		beforeSend: function(){
 			current.style.color = "darkorange";
 			current.textContent = "Загрузка...";

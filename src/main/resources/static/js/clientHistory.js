@@ -90,11 +90,12 @@ function drawClientHistory(list, history_table) {
         if (list[i].recordLink != null) {
             $tdLink = "<td>" +
                 "<div class=\"dropdown\">\n" +
-                "<button class=\"btn btn-secondary dropdown-toggle\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
-                "Прослушать" +
+                "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-paperclip\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                 "</button>" +
-                "<div class=\"dropdown-menu\" aria-labelledby=\"dropdownMenuCallRecord\">" +
-                "<audio controls=\"controls\" src=\"" + list[i].recordLink + "\"></audio>" +
+                "<div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">" +
+                "<audio controls>" +
+                "<source type=\"audio/wav\" src=\"" + list[i].recordLink + "\">" +
+                "</audio>" +
                 "</div>" +
                 "</div>" +
                 "</td>"
