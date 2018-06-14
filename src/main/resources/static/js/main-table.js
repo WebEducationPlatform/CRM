@@ -644,8 +644,6 @@ $(function () {
 });
 
 
-
-
 // Отправка кастомного сообщения в вк
 $(function () {
     $('.send-vk-btn').on('click', function(event) {
@@ -665,11 +663,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','"limegreen""');
+                currentStatus.css('color','limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red"');
+                currentStatus.css('color','red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -684,6 +682,12 @@ $(function () {
         var btn =  currentModal.find('.send-vk-btn');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
+    });
+});
+$(function () {
+    $('#customVKMessageTemplate').on('hidden.bs.modal', function () {
+        var currentStatus = $(this).find('.send-custom-vk-status');
+        currentStatus.empty();
     });
 });
 
@@ -707,11 +711,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','"limegreen""');
+                currentStatus.css('color','limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red"');
+                currentStatus.css('color','red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -726,6 +730,12 @@ $(function () {
         var btn =  currentModal.find('.send-email-btn');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
+    });
+});
+$(function () {
+    $('#customEmailMessageTemplate').on('hidden.bs.modal', function () {
+        var currentStatus = $(this).find('.send-email-err-status');
+        currentStatus.empty();
     });
 });
 
@@ -771,6 +781,8 @@ $(function () {
         clientModal.modal('show');
     });
 });
+
+
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -1073,6 +1085,8 @@ $(function () {
         $('.main-modal-comment').removeAttr('id');
         $('.remove-tag').remove();
         $('.history-line').find("tbody").empty();
+        $('#sendEmailTemplateStatus').empty();
+        $('#sendSocialTemplateStatus').empty();
         // $('.upload-history').removeAttr('data-Id').removeAttr('href');
         // $('.client-collapse').removeAttr('id');
         $('.client-collapse').collapse('hide');
