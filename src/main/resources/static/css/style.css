@@ -631,3 +631,31 @@ a.link-cursor-pointer{
 button.upload-more-history {
     width:100%;
 }
+
+.history-row {
+    background-color: #ebebe0;
+}
+
+.open-history {
+    width:100%;
+}
+
+.head-table {
+    background-color: #eae1e4;
+}
+
+.table-fixed {
+    width: 100%;
+    max-width: 100%;
+}
+
+.table-fixed td{
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-fixed td.no-fix {
+    overflow :initial;
+}
