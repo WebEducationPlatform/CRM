@@ -840,6 +840,10 @@ $(function () {
                 case ('sms'):
                     url = '/user/sms/send/now/client';
                     break;
+                //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                case ('facebook'):
+                    url = '/temporary blank';
+                    break;
             }
             $.ajax({
                 type: "POST",
@@ -1056,9 +1060,10 @@ $(function () {
                     if (client.ownerUser !== null) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
-                    btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
-                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+                    // btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
+                    //     '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
+                $('.extended-information-btn').attr('href','/admin/client/clientInfo/'+ client.id);
                 $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
                 $('#postponeDate').attr('id','postponeDate'+ client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
@@ -1070,6 +1075,7 @@ $(function () {
                 $('.client-collapse').attr('id','collapse'+ client.id);
                 $('.history-line').attr('id','client-'+ client.id + 'history');
                 $('.upload-more-history').attr('data-clientid',client.id);
+
             }
         });
     });
