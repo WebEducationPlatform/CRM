@@ -5,5 +5,8 @@ public interface VKConfig {
     String getClubId();
     String getVersion();
     String getCommunityToken();
-    String getApplicationToken();
+    String getApplicationId();
+    String getDisplay();
+    String getRedirectUri();
+    String getScope();
 }
