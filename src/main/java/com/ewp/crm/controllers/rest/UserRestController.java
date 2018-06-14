@@ -103,4 +103,10 @@ public class UserRestController {
         Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");
         return Files.readAllBytes(fileLocation);
     }
+
+	@GetMapping("rest/client/getPrincipal")
+	public ResponseEntity getPrinciapal() {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return ResponseEntity.ok(user);
+	}
 }
