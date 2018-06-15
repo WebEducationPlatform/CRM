@@ -37,7 +37,7 @@ $(function () {
     });
 });
 
-
+// Отрисовка чекбоксов социальных сетей в модальном окне.
 $(function () {
     $('.custom-modal').on('show.bs.modal', function () {
         var currentForm = $(this).find('.box-modal');
@@ -87,16 +87,11 @@ $(function () {
     $('.select_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', true);
-        currentForm.find('.deselect_all').prop('checked', false);
     });
 });
-
-$(function () {
     $('.deselect_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', false);
-        currentForm.find('.select_all').prop('checked', false);
-    });
 });
 
 
@@ -612,32 +607,36 @@ function deleteUser(id) {
     });
 }
 
-function sendMessageVK(clientId, templateId) {
-    let url = '/rest/vkontakte';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-VKTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendSocialTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
+//Отправка фиксированного сообщения во вконтакте из расширенной модалки.
+$(function () {
+    $('.internal-vkontakte-message').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        let url = '/rest/vkontakte';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-VKTemplate-body').val()
+        };
+        var currentStatus = document.getElementById("sendSocialTemplateStatus");
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
 
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
 
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+            },
+            error: function (e) {
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
     });
-}
-
+});
 
 
 // Отправка кастомного сообщения в вк
@@ -659,11 +658,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','"limegreen""');
+                currentStatus.css('color','limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red"');
+                currentStatus.css('color','red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -678,6 +677,12 @@ $(function () {
         var btn =  currentModal.find('.send-vk-btn');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
+    });
+});
+$(function () {
+    $('#customVKMessageTemplate').on('hidden.bs.modal', function () {
+        var currentStatus = $(this).find('.send-custom-vk-status');
+        currentStatus.empty();
     });
 });
 
@@ -701,11 +706,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','"limegreen""');
+                currentStatus.css('color','limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red"');
+                currentStatus.css('color','red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -722,32 +727,43 @@ $(function () {
         btn.data('templateId', templateId);
     });
 });
-
-function sendTemplate(clientId, templateId) {
-    let url = '/rest/sendEmail';
-    let formData = {
-        clientId: clientId,
-        templateId: templateId,
-        body: $('#custom-EmaileTemplate-body' + clientId + templateId).val()
-    };
-    var currentStatus = document.getElementById("sendEmailTemplateStatus" + clientId);
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-
-
-        success: function (result) {
-            currentStatus.style.color = "limegreen";
-            currentStatus.textContent = "Отправлено";
-        },
-        error: function (e) {
-            currentStatus.style.color = "red";
-            currentStatus.textContent = "Ошибка";
-            console.log(e)
-        }
+$(function () {
+    $('#customEmailMessageTemplate').on('hidden.bs.modal', function () {
+        var currentStatus = $(this).find('.send-email-err-status');
+        currentStatus.empty();
     });
-}
+});
+
+//Отправка  фиксированного сообщения на email из расширенной модалки
+$(function () {
+    $('.internal-send-email').on('click', function () {
+        var clientId = $(this).parents('.main-modal').data('clientId');
+        var templateId = $(this).data('templateId');
+        let url = '/rest/sendEmail';
+        let formData = {
+            clientId: clientId,
+            templateId: templateId,
+            body: $('#custom-EmaileTemplate-body').val()
+        };
+        var currentStatus = document.getElementById("sendEmailTemplateStatus");
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+
+            success: function (result) {
+                currentStatus.style.color = "limegreen";
+                currentStatus.textContent = "Отправлено";
+            },
+            error: function (e) {
+                currentStatus.style.color = "red";
+                currentStatus.textContent = "Ошибка";
+                console.log(e)
+            }
+        });
+    });
+});
 
 $(function () {
     $('.open-description-btn').on('click', function(event) {
@@ -760,6 +776,8 @@ $(function () {
         clientModal.modal('show');
     });
 });
+
+
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -816,6 +834,10 @@ $(function () {
                     break;
                 case ('sms'):
                     url = '/user/sms/send/now/client';
+                    break;
+                //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                case ('facebook'):
+                    url = '/temporary blank';
                     break;
             }
             $.ajax({
@@ -888,6 +910,10 @@ $(function () {
                     break;
                 case ('sms'):
                     url = '/user/sms/send/now/client';
+                    break;
+                    //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                case ('facebook'):
+                    url = '/temporary blank';
                     break;
             }
             $.ajax({
@@ -990,7 +1016,7 @@ $(function () {
 
 $(function () {
     $('.portlet-content').on('click', function (e) {
-        var clientId = $(this).parents('.common-modal').data('cardId');
+        var clientId = $(this).parents('с').data('cardId');
         var currentModal =  $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
@@ -1008,14 +1034,14 @@ $(function () {
             data: formData,
             success: function(client) {
                 $.get('rest/client/getPrincipal', function (user) {
-                    $(this).data('userId', user.id);
+                    $('#main-modal-window').data('userId', user.id);
                     // $('#main-modal-window').attr("onClick", "openClientComments("+ user.phoneNumber+','+ client.phoneNumber +")");
 
                     currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if(client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone">'+ '</span>' + '</a>' + '</td>');
+                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone call-icon">'+ '</span>' + '</a>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1024,14 +1050,15 @@ $(function () {
                     $('#client-sex').text(client.sex);
                     var btnBlock = $('div#assign-unassign-btns');
                     if (client.ownerUser === null) {
-                        btnBlock.append('<button class="btn btn-sm btn-info" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                        btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                     }
                     if (client.ownerUser !== null) {
-                        btnBlock.prepend('<button class="btn btn-sm btn-warning" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                        btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
-                    btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
-                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+                    // btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
+                    //     '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
+                $('.extended-information-btn').attr('href','/admin/client/clientInfo/'+ client.id);
                 $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
                 $('#postponeDate').attr('id','postponeDate'+ client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
@@ -1043,6 +1070,7 @@ $(function () {
                 $('.client-collapse').attr('id','collapse'+ client.id);
                 $('.history-line').attr('id','client-'+ client.id + 'history');
                 $('.upload-more-history').attr('data-clientid',client.id);
+
             }
         });
     });
@@ -1050,7 +1078,6 @@ $(function () {
 
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
-       $('div#assign-unassign-btns').html('');
         $('.remove-element').remove();
         $('.hide-client-collapse').attr('id','hideClientCollapse');
         $('.postpone-date').attr('id','postponeDate');
@@ -1058,6 +1085,8 @@ $(function () {
         $('.main-modal-comment').removeAttr('id');
         $('.remove-tag').remove();
         $('.history-line').find("tbody").empty();
+        $('#sendEmailTemplateStatus').empty();
+        $('#sendSocialTemplateStatus').empty();
         // $('.upload-history').removeAttr('data-Id').removeAttr('href');
         // $('.client-collapse').removeAttr('id');
         $('.client-collapse').collapse('hide');
@@ -1074,16 +1103,26 @@ $(function () {
 });
 
 function callToClient(userPhone, clientPhone) {
+    console.log("TRY TO CALL"); //TODO убрать
     var url = "/user/rest/call/voximplant";
     var formData = {
         from: userPhone,
         to: clientPhone
     };
+    let icon = $(".call-icon");
     $.ajax({
         type: 'post',
         url: url,
         data: formData,
+        success: function() {
+            console.log("SUCCESS CALL");
+            icon.parent("a").css("background","green");
+            icon.css("color","white");
+            icon.parent("a").attr("disabled","disabled");
+
+        },
         error: function (error) {
+            console.log("ERROR CALL");
             console.log(error);
         }
     });
@@ -1113,7 +1152,7 @@ function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';
     var uri_regex = new RegExp(redirect_uri);
-    var url = 'http://localhost:9090/vk-auth';
+    var url = '/vk-auth';
     win = vk_popup({
         width:620,
         height:370,

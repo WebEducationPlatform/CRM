@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class UserRestController {
         this.socialNetworkTypeService = socialNetworkTypeService;
     }
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAll() {
 		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,6 +52,7 @@ public class UserRestController {
 		return ResponseEntity.ok(users);
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
 	public ResponseEntity updateUser(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -65,7 +68,7 @@ public class UserRestController {
 	}
 
 	//Workers will be deactivated, not deleted
-
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
 	public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
 		User user = userService.get(id);
@@ -73,6 +76,7 @@ public class UserRestController {
 		return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = {"/user/socialNetworkTypes"}, method = RequestMethod.GET)
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
@@ -83,7 +87,7 @@ public class UserRestController {
 		return ResponseEntity.ok(socialTypeNames);
 	}
 
-
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
 	public ResponseEntity addUser(@RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -93,9 +97,16 @@ public class UserRestController {
 	}
 
     @ResponseBody
+	@PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
     public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");
         return Files.readAllBytes(fileLocation);
     }
+
+	@GetMapping("rest/client/getPrincipal")
+	public ResponseEntity getPrinciapal() {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return ResponseEntity.ok(user);
+	}
 }

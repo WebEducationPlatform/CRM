@@ -88,7 +88,7 @@ public class IncomeStringToClient {
 		client.setSocialNetworks(Collections.singletonList(getSocialNetwork(result[2].substring(0, result[2].indexOf(" Phone")))));
 		client.setPhoneNumber(result[3].substring(0, result[3].indexOf(" City")));
 		client.setCountry(result[4].substring(0, result[4].indexOf(" Email")));
-		client.setEmail(result[5]);
+		client.setEmail(result[5].substring(0, result[5].indexOf("\r")));
 		client.setClientDescriptionComment("Проходил Тест");
 		return client;
 	}

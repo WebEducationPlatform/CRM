@@ -65,15 +65,14 @@ public class VKUtil {
 	}
 
 	public String receivingTokenUri(){
-		String uriGetToken = "https://oauth.vk.com/authorize" +
+
+		return "https://oauth.vk.com/authorize" +
 				"?client_id=" + applicationId +
 				"&display=" + display +
 				"&redirect_uri=" + redirectUri +
 				"&scope=" + scope +
 				"&response_type=token" +
 				"&v" + version;
-
-		return uriGetToken;
 	}
 
 	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
