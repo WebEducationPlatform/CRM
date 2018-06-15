@@ -137,9 +137,9 @@ public class VKUtil {
 	}
 
 	private String sendMessageById(long id, String msg) {
-		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
-		String replaceQuotes = replaceCarriage.replaceAll("\"|\'", "%22");
-		String uriMsg = replaceQuotes.replaceAll("\\s", "%20");
+		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
+                .replaceAll("\"|\'", "%22");
+		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
 		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
 				"?user_id=" + id +
@@ -342,7 +342,12 @@ public class VKUtil {
 	}
 
 	public void setApplicationToken(String applicationToken) {
-		this.applicationToken = applicationToken;
+        this.applicationToken = replaceApplicationTokenFromUri(applicationToken);
+	}
+
+	private String replaceApplicationTokenFromUri(String uri){
+        return uri.replaceAll(".+(access_token=)","")
+				.replaceAll("&.+","");
 	}
 }
 
