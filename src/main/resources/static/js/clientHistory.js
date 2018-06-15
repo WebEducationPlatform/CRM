@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('.upload-more-history').on("click", function uploadMoreHistory() {
         let current = $(this);
-        let clientId = current.data("clientid");
+        let clientId = current.attr("data-clientid");
         let page = current.attr("data-page");
         let url = '/client/history/rest/getHistory/' + clientId;
         let params = {
@@ -85,10 +85,10 @@ function drawClientHistory(list, history_table) {
     for (let i = 0; i < list.length; i++) {
         let $tdLink = "";
         if (list[i].link !== null) {
-            $tdLink = "<td><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
+            $tdLink = "<td style='width: 10%'><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
         }
         if (list[i].recordLink != null) {
-            $tdLink = "<td>" +
+            $tdLink = "<td style='width: 10%'>" +
                 "<div class=\"dropdown\">\n" +
                 "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-paperclip\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                 "</button>" +

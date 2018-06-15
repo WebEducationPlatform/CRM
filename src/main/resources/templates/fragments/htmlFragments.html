@@ -510,7 +510,7 @@
                 </div>
                 <div th:id="'collapse'" class="panel-collapse collapse client-collapse">
                     <div class="panel-body">
-                        <table class="table table-bordered history-line" width="100%" th:id="'client-string-history'">
+                        <table class="table table-bordered history-line" th:id="'client-string-history'">
                           <tbody></tbody>
                         </table>
                             <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>
@@ -543,6 +543,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal" id="clear_sms_errors">Очистить</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="client_description_modal">
+    <div id="clientDescriptionModal" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <h5>Введите заметку</h5>
+                            <textarea class="form-control" id="content-area" rows="4"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-sm" id="save-description">Сохранить</button>
                 </div>
             </div>
         </div>

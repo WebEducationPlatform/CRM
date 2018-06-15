@@ -120,7 +120,7 @@ public class Client implements Serializable {
 	private List<SMSInfo> smsInfo = new ArrayList<>();
 
 	@Lob
-	@Column(name = "client_description_comment")
+	@Column(name = "client_description_comment", length = 1500)
 	private String clientDescriptionComment;
 
 	@Column
