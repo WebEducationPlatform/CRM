@@ -1050,10 +1050,10 @@ $(function () {
                     $('#client-sex').text(client.sex);
                     var btnBlock = $('div#assign-unassign-btns');
                     if (client.ownerUser === null) {
-                        btnBlock.append('<button class="btn btn-sm btn-info" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                        btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                     }
                     if (client.ownerUser !== null) {
-                        btnBlock.prepend('<button class="btn btn-sm btn-warning" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                        btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
                     // btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
                     //     '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
@@ -1078,7 +1078,6 @@ $(function () {
 
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
-       $('div#assign-unassign-btns').html('');
         $('.remove-element').remove();
         $('.hide-client-collapse').attr('id','hideClientCollapse');
         $('.postpone-date').attr('id','postponeDate');
