@@ -10,6 +10,7 @@ import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class EmailRestController {
 		this.imageConfig = imageConfig;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/sendEmail", method = RequestMethod.POST)
 	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                @RequestParam(value = "body",required = false) String body) {
@@ -56,6 +58,7 @@ public class EmailRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = {"/admin/editMessageTemplate"}, method = RequestMethod.POST)
 	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText,
 	                                    @RequestParam String otherTemplateText) {
@@ -71,6 +74,7 @@ public class EmailRestController {
 	}
 
 	@ResponseBody
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/savePicture", method = RequestMethod.POST)
 	public ResponseEntity savePicture(@RequestParam("0") MultipartFile file) throws IOException {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -82,6 +86,7 @@ public class EmailRestController {
 	}
 
 	@ResponseBody
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/image/{file}", method = RequestMethod.GET)
 	public byte[] getImage(@PathVariable("file") String file) throws IOException {
 		Path fileLocation = Paths.get(imageConfig.getPathForImages() + file + ".png");

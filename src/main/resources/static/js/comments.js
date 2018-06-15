@@ -50,7 +50,10 @@ function sendComment(id) {
 $(function () {
     $('#main-modal-window').on('shown.bs.modal', function (event) {
         var client_id = $(this).data('clientId');
-        var user_id = $(this).data('userId');
+        let user_id;
+        $.get('rest/client/getPrincipal', function (user) {
+            user_id = user.id + '';
+        });
     let url = '/rest/comment/getComments/' + client_id;
     let ulComments = $('#client-' + client_id + 'comments');
     let removeComment = "";

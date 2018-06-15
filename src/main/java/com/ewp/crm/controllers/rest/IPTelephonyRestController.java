@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,10 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
+/*
+	Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
+	Не секьюритить
+ */
 @RequestMapping("/user/rest/call")
 public class IPTelephonyRestController {
 
@@ -45,6 +50,7 @@ public class IPTelephonyRestController {
 		this.downloadCallRecordService = downloadCallRecordService;
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN, USER')")
 	@RequestMapping(value = "/voximplant", method = RequestMethod.POST)
 	public void voximplantCall(@RequestParam String from, @RequestParam String to) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -74,6 +80,7 @@ public class IPTelephonyRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('ADMIN, USER')")
 	@ResponseBody
 	@RequestMapping(value = "/record/{file}", method = RequestMethod.GET)
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {

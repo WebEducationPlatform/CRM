@@ -155,23 +155,28 @@ public class DataInitializer {
 		notificationService.addNotification(smsErrorNotificationExampleToClient3more);
 		notificationService.addNotification(smsErrorNotificationExampleToClient4more);
 
-//		//TODO удалить после теста
-//		Faker faker = new Faker();
-//		List<Client> list = new LinkedList<>();
-//		for (int i = 0; i < 350; i++) {
-//			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"teststatususer" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("First Status"));
-//			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-//			list.add(client);
-//		}
-//		clientService.addBatchClients(list);
-//		list.clear();
-//
-//		for (int i = 0; i < 1150; i++) {
-//			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"testclient" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("deleted"));
-//			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-//			list.add(client);
-//		}
-//		clientService.addBatchClients(list);
+		//TODO удалить после теста
+		Faker faker = new Faker();
+		List<Client> list = new LinkedList<>();
+		for (int i = 0; i < 300; i++) {
+			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"teststatususer" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("First Status"));
+			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+			list.add(client);
+		}
+		clientService.addBatchClients(list);
+		list.clear();
+
+		for (int i = 0; i < 2000; i++) {
+			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"testclient" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("deleted"));
+			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+			client.setDateOfRegistration(new Date(Calendar.getInstance().getTimeInMillis() - (int)(Math.random() * 300_000_000_000L)));
+			List<SocialNetwork> soc = new ArrayList<>();
+			soc.add(new SocialNetwork(faker.internet().url(), socialNetworkTypeService.getByTypeName("vk")));
+			soc.add(new SocialNetwork(faker.internet().url(), socialNetworkTypeService.getByTypeName("facebook")));
+			client.setSocialNetworks(soc);
+			list.add(client);
+		}
+		clientService.addBatchClients(list);
 	}
 
 
