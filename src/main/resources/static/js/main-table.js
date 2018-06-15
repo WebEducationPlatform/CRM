@@ -87,16 +87,11 @@ $(function () {
     $('.select_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', true);
-        currentForm.find('.deselect_all').prop('checked', false);
     });
 });
-
-$(function () {
     $('.deselect_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', false);
-        currentForm.find('.select_all').prop('checked', false);
-    });
 });
 
 
