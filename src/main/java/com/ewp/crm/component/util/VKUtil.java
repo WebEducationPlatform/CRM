@@ -138,7 +138,8 @@ public class VKUtil {
 
 	private String sendMessageById(long id, String msg) {
 		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
-		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
+		String replaceQuotes = replaceCarriage.replaceAll("\"|\'", "%22");
+		String uriMsg = replaceQuotes.replaceAll("\\s", "%20");
 
 		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
 				"?user_id=" + id +
