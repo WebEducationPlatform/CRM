@@ -337,8 +337,12 @@ public class ClientRestController {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
 		if (client == null) {
-			logger.error("Can`t add description, client with id {} not found", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found");
+			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+		}
+		if (client.getClientDescriptionComment() != null && client.getClientDescriptionComment().equals(clientDescription)) {
+			logger.error("Client has same description");
+			return ResponseEntity.badRequest().body("Client has same description");
 		}
 		client.setClientDescriptionComment(clientDescription);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));

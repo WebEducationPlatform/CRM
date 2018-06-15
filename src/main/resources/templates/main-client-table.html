@@ -59,25 +59,6 @@
                         </ul>
                     </div>
                 </div>
-                <div>
-                    <div th:id="'TestModal'+ ${client.id}" class="modal" tabindex="-1">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <form role="form">
-                                        <div class="form-group">
-                                            <h5>Введите заметку</h5>
-                                            <textarea class="form-control" th:id="'textArea' + ${client.id}" rows="4"></textarea>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-success btn-sm" th:id="'btnClose'" th:onclick="'saveDescription('+ ${client.id} +')'" >Сохранить</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
@@ -270,6 +251,7 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>

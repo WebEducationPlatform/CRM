@@ -95,9 +95,10 @@ $(function () {
 });
 
 
-//Сохранить заметку на лицевой стороне карточки
-function saveDescription(id) {
-    let text =  $('#TestModal'+ id).find('textarea').val();
+//Сохранить комментарий на лицевой стороне карточки
+$("#save-description").on("click", function saveDescription() {
+    let text = $('#clientDescriptionModal').find('textarea').val();
+    let id = $(this).attr("data-id");
     let
         url = 'rest/client/addDescription',
         formData = {
@@ -110,12 +111,15 @@ function saveDescription(id) {
         data: formData,
         success: function () {
             $("#info-client" + id).find('.client-description').text(text);
-            $('#TestModal'+ id).modal('hide');
+            $('#clientDescriptionModal').modal('hide');
         },
         error: function (error) {
+            console.log(error.responseText);
+            $('#clientDescriptionModal').modal('hide');
         }
-    });
-}
+    })
+});
+
 
 
 
@@ -347,7 +351,7 @@ function assign(id) {
                 "<button " +
                 "   id='unassign-client" + id +"' " +
                 "   onclick='unassign(" + id +")' " +
-                "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
+                "   class='btn btn-sm btn-warning remove-tag'>Отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
@@ -383,20 +387,20 @@ function assignUser(id, user, principalId) {
             info_client.find(".user-icon").remove();
 
             //If admin assigned himself
-            if(principalId === user){
-                //If admin assigned himself second time
-                if(unassign_btn.length === 0){
-                    target_btn.before(
-                        "<button " +
-                        "   id='unassign-client" + id +"' " +
-                        "   onclick='unassign(" + id +")' " +
-                        "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
-                    );
-                }
+            // if(principalId === user){
+            //     //If admin assigned himself second time
+            //     if(unassign_btn.length === 0){
+            //         target_btn.before(
+            //             "<button " +
+            //             "   id='unassign-client" + id +"' " +
+            //             "   onclick='unassign(" + id +")' " +
+            //             "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
+            //         );
+            //     }
                 //If admin not assign himself, he don`t have unassign button
-            }else {
-                unassign_btn.remove();
-            }
+            // }else {
+            //     unassign_btn.remove();
+            // }
             assignBtn.remove();
 
             //Add Worker icon and info for search by worker
@@ -435,16 +439,9 @@ function unassign(id) {
                     "<button " +
                     "   id='assign-client" + id + "' " +
                     "   onclick='assign(" + id +")' " +
-                    "   class='btn btn-sm btn-info'>Взять себе карточку</button>"
+                    "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
-            }else{
-                $("a[href='/admin/client/clientInfo/"+ id +"']").before(
-                    "<button " +
-                    "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id +")' " +
-                    "   class='btn btn-md btn-info'>Взять себе карточку</button>"
-                );
             }
             fillFilterList();
         },
@@ -770,7 +767,8 @@ $(function () {
         var id = $(this).data('id');
         var infoClient =  $('#info-client'+ id);
         var text = infoClient.find('.client-description').text();
-        var clientModal = $('#TestModal' + id);
+        var clientModal = $('#clientDescriptionModal');
+        $("#save-description").attr("data-id", id);
 
         clientModal.find('textarea').val(text);
         clientModal.modal('show');
@@ -1016,7 +1014,7 @@ $(function () {
 
 $(function () {
     $('.portlet-content').on('click', function (e) {
-        var clientId = $(this).parents('с').data('cardId');
+        var clientId = $(this).parents('.common-modal').data('cardId');
         var currentModal =  $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
@@ -1055,8 +1053,6 @@ $(function () {
                     if (client.ownerUser !== null) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
-                    // btnBlock.prepend('<a href="/admin/client/clientInfo/' + client.id +'">' +
-                    //     '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
                 $('.extended-information-btn').attr('href','/admin/client/clientInfo/'+ client.id);
                 $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
@@ -1087,11 +1083,10 @@ $(function () {
         $('.history-line').find("tbody").empty();
         $('#sendEmailTemplateStatus').empty();
         $('#sendSocialTemplateStatus').empty();
-        // $('.upload-history').removeAttr('data-Id').removeAttr('href');
-        // $('.client-collapse').removeAttr('id');
         $('.client-collapse').collapse('hide');
         $('.remove-history').remove();
-        // $('.upload-more-history').removeAttr('data-clientid');
+        $('.upload-more-history').removeAttr('data-clientid');
+        $('.upload-more-history').attr("data-page", 1);
 });
 });
 
