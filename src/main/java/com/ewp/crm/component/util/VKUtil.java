@@ -4,10 +4,7 @@ import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MessageService;
-import com.ewp.crm.service.interfaces.SocialNetworkService;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -48,9 +45,10 @@ public class VKUtil {
 	private final ClientHistoryService clientHistoryService;
 	private final ClientService clientService;
 	private final MessageService messageService;
+	private final SocialNetworkTypeService socialNetworkTypeService;
 
 	@Autowired
-	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
@@ -62,6 +60,7 @@ public class VKUtil {
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.messageService = messageService;
+		this.socialNetworkTypeService = socialNetworkTypeService;
 	}
 
 	public String receivingTokenUri(){
@@ -248,56 +247,30 @@ public class VKUtil {
 		if (!message.startsWith("Новая заявка")) {
 			throw new ParseClientException("Invalid message format");
 		}
-
-		String requestInfo = message.substring(0, message.indexOf("Q:"));
-
-		message = message.replaceFirst(requestInfo, "");
-		message = message.replace("<br>", "");
-		message = message.replace(" ", "");
-
-		String name;
-		String lastName;
-		String phoneNumber;
-		String email;
-		byte age;
-		Client.Sex sex;
-		String vkLink;
+		String[] fields = message.replaceAll("<br>", "").split("Q:");
+		Client client = new Client();
 		try {
-			String sM = message.substring(message.indexOf("vk.com/id"));
-			vkLink = sM.substring(0, sM.indexOf("Диалог:"));
-
-			String subMessage = message.substring(message.indexOf("Q:Имя:A:") + 8);
-			name = subMessage.substring(0, subMessage.indexOf("Q:Фамилия:"));
-			subMessage = message.substring(message.indexOf("Q:Фамилия:A:") + 12);
-			lastName = subMessage.substring(0, subMessage.indexOf("Q:Возраст:"));
-			subMessage = message.substring(message.indexOf("Q:Возраст:A:") + 12);
-			age = Byte.parseByte(subMessage.substring(0, subMessage.indexOf("Q:Телефон:")));
-			subMessage = message.substring(message.indexOf("Q:Телефон:A:") + 12);
-			phoneNumber = subMessage.substring(0, subMessage.indexOf("Q:Электроннаяпочта:"));
-			subMessage = message.substring(message.indexOf("Q:Электроннаяпочта:A:") + 21);
-			email = subMessage.substring(0, subMessage.indexOf("Q:Вашпол:"));
-			subMessage = message.substring(message.indexOf("Q:Вашпол:A:") + 11);
-			String strSex = subMessage.toLowerCase();
-			switch (strSex) {
-				case "мужской":
-					sex = Client.Sex.MALE;
-					break;
-				case "женский":
-					sex = Client.Sex.FEMALE;
-					break;
-				default:
-					throw new ParseClientException("Couldn't parse sex");
+			client.setName(getValue(fields[1]));
+			client.setLastName(getValue(fields[2]));
+			client.setPhoneNumber(getValue(fields[3]));
+			client.setEmail(getValue(fields[4].replaceAll("\\s+", "")));
+			client.setClientDescriptionComment(getValue(fields[5]));
+			client.setSex(fields[6].contains("Мужской") ? Client.Sex.MALE : Client.Sex.FEMALE);
+			if (message.contains("Ваши пожелания по заявке")) {
+				client.setClientDescriptionComment(getValue(fields[7]));
 			}
+			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
+			String social = fields[0];
+			SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
+			client.setSocialNetworks(Collections.singletonList(socialNetwork));
 		} catch (Exception e) {
-			throw new ParseClientException("Couldn't parse vk message", e);
+			logger.error("Parse error, can't parse income string", e);
 		}
-
-		Client client = new Client(name, lastName, phoneNumber, email, age, sex);
-		SocialNetwork socialNetwork = new SocialNetwork(vkLink);
-		List<SocialNetwork> socialNetworks = new ArrayList<>();
-		socialNetworks.add(socialNetwork);
-		client.setSocialNetworks(socialNetworks);
 		return client;
+	}
+
+	private static String getValue(String field) {
+		return field.substring(field.indexOf("A: ") + 3);
 	}
 
 	private String getIdByScreenName(String link) {
