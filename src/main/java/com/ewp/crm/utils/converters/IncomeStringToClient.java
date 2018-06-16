@@ -23,7 +23,6 @@ public class IncomeStringToClient {
         this.socialNetworkTypeService = socialNetworkTypeService;
     }
 
-    //TODO Переделать как только Никита изменит форму.
 	public Client convert(String income) {
 		Client client = null;
 		if (income != null && !income.isEmpty()) {

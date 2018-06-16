@@ -20,7 +20,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Collection;
 
-
 @Service
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 

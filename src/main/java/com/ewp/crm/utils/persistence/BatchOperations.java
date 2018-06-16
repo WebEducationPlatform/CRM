@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.Collection;
 
-//TODO использовать
 @Repository
 public abstract class BatchOperations<E> {
 

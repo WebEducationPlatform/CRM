@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.SocialNetwork;
 import com.ewp.crm.models.SocialNetworkType;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -40,25 +38,9 @@ public class SocialNetworkTypeController {
 		return modelAndView;
 	}
 
-	//TODO не используется. удалить или нет?
-	@RequestMapping(value = "/admin/user/deleteSocialNetworkType", method = RequestMethod.GET)
-	public ModelAndView deleteSocialNetworkType(@RequestParam String id) {
-		socialNetworkTypeService.deleteType(Long.parseLong(id));
-		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-	}
-
 	@RequestMapping(value = "/admin/user/addSocialNetworkType", method = RequestMethod.POST)
 	public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
 		socialNetworkTypeService.addType(socialNetworkType);
-		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
-	}
-
-	//TODO не используется. удалить или нет?
-	@RequestMapping(value = "/admin/user/updateSocialNetworkType", method = RequestMethod.POST)
-	public ModelAndView updateSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-		List<SocialNetwork> socialNetworks = socialNetworkTypeService.getById(socialNetworkType.getId()).getSocialNetworkList();
-		socialNetworkType.setSocialNetworkList(socialNetworks);
-		socialNetworkTypeService.updateType(socialNetworkType);
 		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
 	}
 }

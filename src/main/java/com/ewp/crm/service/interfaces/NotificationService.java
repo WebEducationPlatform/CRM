@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
 import java.util.List;
+
 public interface NotificationService {
 
 	void addNotification(Notification notification);

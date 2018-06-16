@@ -1,9 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.component.util.VKUtil;
-import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 @RestController
 @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

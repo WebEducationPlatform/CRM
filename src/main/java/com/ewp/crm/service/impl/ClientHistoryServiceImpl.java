@@ -162,7 +162,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
-	//TODO сделать лучше
 	private String findChanges(Client prev, Client current) throws IllegalAccessException {
 		StringBuilder changesBuild = new StringBuilder();
 		Field[] prevFields = prev.getClass().getDeclaredFields();

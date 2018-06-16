@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.component.util.SMSUtilImpl;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;

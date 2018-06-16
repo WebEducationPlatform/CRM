@@ -6,7 +6,6 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,6 @@ public class ScheduleTasks {
 		updateClient.setEmail(newClient.getEmail());
 		updateClient.setAge(newClient.getAge());
 		updateClient.setSex(newClient.getSex());
-		updateClient.addHistory(clientHistoryService.createHistory("vk + информация обновлена"));
 		clientService.updateClient(updateClient);
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}

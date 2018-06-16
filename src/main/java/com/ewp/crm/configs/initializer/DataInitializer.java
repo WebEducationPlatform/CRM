@@ -2,11 +2,12 @@ package com.ewp.crm.configs.initializer;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
 
 public class DataInitializer {
 
@@ -27,9 +28,6 @@ public class DataInitializer {
 
 	@Autowired
 	private SocialNetworkTypeService socialNetworkTypeService;
-
-	@Autowired
-	private NotificationService notificationService;
 
 	@Autowired
 	private ClientHistoryService clientHistoryService;
@@ -145,38 +143,6 @@ public class DataInitializer {
 		statusService.add(status2);
 		statusService.add(status3);
 		statusService.add(defaultStatus);
-		//TEST SMS ERROR NOTIFICATION
-		Notification smsErrorNotificationExampleToClient1more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(1L), userService.get(1L), Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient2more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(2L), userService.get(1L), Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient3more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(3L), userService.get(1L), Notification.Type.SMS);
-		Notification smsErrorNotificationExampleToClient4more = new Notification("Абонент вне зоны действия сети", clientService.getClientByID(4L), userService.get(1L), Notification.Type.SMS);
-		notificationService.addNotification(smsErrorNotificationExampleToClient1more);
-		notificationService.addNotification(smsErrorNotificationExampleToClient2more);
-		notificationService.addNotification(smsErrorNotificationExampleToClient3more);
-		notificationService.addNotification(smsErrorNotificationExampleToClient4more);
-
-		//TODO удалить после теста
-		Faker faker = new Faker();
-		List<Client> list = new LinkedList<>();
-		for (int i = 0; i < 300; i++) {
-			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"teststatususer" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("First Status"));
-			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-			list.add(client);
-		}
-		clientService.addBatchClients(list);
-		list.clear();
-
-		for (int i = 0; i < 2000; i++) {
-			Client client = new Client(faker.name().firstName(),faker.name().lastName(),faker.phoneNumber().phoneNumber(),"testclient" + i + "@gmail.com",(byte)20, Client.Sex.MALE, statusService.get("deleted"));
-			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-			client.setDateOfRegistration(new Date(Calendar.getInstance().getTimeInMillis() - (int)(Math.random() * 300_000_000_000L)));
-			List<SocialNetwork> soc = new ArrayList<>();
-			soc.add(new SocialNetwork(faker.internet().url(), socialNetworkTypeService.getByTypeName("vk")));
-			soc.add(new SocialNetwork(faker.internet().url(), socialNetworkTypeService.getByTypeName("facebook")));
-			client.setSocialNetworks(soc);
-			list.add(client);
-		}
-		clientService.addBatchClients(list);
 	}
 
 
