@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 </head>
 <body>
-<div style="margin: 4%">
+<div  style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
@@ -137,7 +137,7 @@
                 </div>
             </div>
         </div>
-        <div class="create-new-status-column">
+        <div class="create-new-status-column" sec:authorize="hasAnyAuthority('ADMIN')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">

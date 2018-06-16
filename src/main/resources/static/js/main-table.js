@@ -603,8 +603,8 @@ function reAviableUser(id) {
         type: "POST",
         url: url,
         data: formData,
-        success: function (result) {
-
+        success: function () {
+            $("#deleteUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {
