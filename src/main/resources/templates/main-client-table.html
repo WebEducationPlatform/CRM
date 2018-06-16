@@ -201,7 +201,14 @@
                         <div class="panel-body" id="user_group-body">
                             <table class="table table-bordered">
                                 <tr th:each="usr : ${users}">
-                                    <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                    <div th:switch="${usr.isEnabled}">
+                                        <p th:case="true">
+                                            <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                        <p th:case="false">
+                                            <td class="unEnabledUser" th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                    </div>
                                     <td class="editUserButtons">
                                         <a th:href="'/admin/user/' +  ${usr.id}">
                                             <button type="button" class="glyphicon glyphicon glyphicon-edit"></button>

@@ -96,6 +96,16 @@ public class UserRestController {
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@RequestMapping(value = "/admin/rest/user/reaviable", method = RequestMethod.POST)
+	public ResponseEntity reAviableUser(@RequestParam Long deleteId){
+    	User currentUser = userService.get(deleteId);
+		currentUser.setEnabled(!currentUser.isEnabled());
+    	userService.update(currentUser);
+		logger.info("{} has deleted user: id {}, email {}", currentUser.getFullName(), currentUser.getId(), currentUser.getEmail());
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
     @ResponseBody
 	@PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
