@@ -3,7 +3,6 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;

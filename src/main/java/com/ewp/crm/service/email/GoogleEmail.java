@@ -111,7 +111,6 @@ public class GoogleEmail {
             MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
             try {
                 parser.parse();
-                //TODO попробовать всегда брать html content, потому что PlaintContent теперь приходит без переходов на новую строку.
                 Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
                 if (client != null) {
                     client.setStatus(statusService.get(1L));

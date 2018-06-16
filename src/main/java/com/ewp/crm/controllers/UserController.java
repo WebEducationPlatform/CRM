@@ -1,22 +1,22 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.List;
-
-import com.ewp.crm.configs.ImageConfig;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class UserController {
@@ -26,15 +26,13 @@ public class UserController {
 	private final UserService userService;
 	private final RoleService roleService;
 	private final ImageConfig imageConfig;
-	private final SocialNetworkTypeService socialNetworkTypeService;
 	private final NotificationService notificationService;
 
 	@Autowired
-	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService) {
+	public UserController(UserService userService, RoleService roleService, ImageConfig imageConfig, NotificationService notificationService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
-		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
 	}
 
@@ -78,6 +76,5 @@ public class UserController {
 		userService.update(user);
 		return new ModelAndView("redirect:/user/customize");
 	}
-
 
 }

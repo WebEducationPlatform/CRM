@@ -116,7 +116,6 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	//TODO не нарушать архитектуру
 	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
@@ -253,7 +252,7 @@ public class VKUtil {
 			client.setName(getValue(fields[1]));
 			client.setLastName(getValue(fields[2]));
 			client.setPhoneNumber(getValue(fields[3]));
-			client.setEmail(getValue(fields[4].replaceAll("\\s+", "")));
+			client.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
 			client.setClientDescriptionComment(getValue(fields[5]));
 			client.setSex(fields[6].contains("Мужской") ? Client.Sex.MALE : Client.Sex.FEMALE);
 			if (message.contains("Ваши пожелания по заявке")) {

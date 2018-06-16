@@ -1,7 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.configs.ImageConfig;
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetworkType;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
@@ -21,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

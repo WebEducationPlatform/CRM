@@ -4,7 +4,6 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

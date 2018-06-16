@@ -1098,7 +1098,7 @@ $(function () {
 });
 
 function callToClient(userPhone, clientPhone) {
-    console.log("TRY TO CALL"); //TODO убрать
+    console.log("TRY TO CALL");
     var url = "/user/rest/call/voximplant";
     var formData = {
         from: userPhone,
@@ -1110,7 +1110,7 @@ function callToClient(userPhone, clientPhone) {
         url: url,
         data: formData,
         success: function() {
-            console.log("SUCCESS CALL");
+            console.log("PROCESS CALL");
             icon.parent("a").css("background","green");
             icon.css("color","white");
             icon.parent("a").attr("disabled","disabled");
