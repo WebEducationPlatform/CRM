@@ -84,8 +84,8 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
-	@RequestMapping(value = "/admin/client/clientInfo/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("client-info");
