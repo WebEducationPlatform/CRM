@@ -672,3 +672,12 @@ button.upload-more-history {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+#notification-buttons{
+	margin-top: 50px;
+	text-align: center;
+}
+
+#change-profile-button{
+	padding-bottom: 1px;
+}
