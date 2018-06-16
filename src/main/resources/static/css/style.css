@@ -669,6 +669,5 @@ button.upload-more-history {
 
 .history-line td{
     max-width: 0;
-    overflow: hidden;
     text-overflow: ellipsis;
 }
