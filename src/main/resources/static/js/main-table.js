@@ -593,8 +593,8 @@ $(document).ready(function () {
         }])
 });
 
-function deleteUser(id) {
-    let url = '/admin/rest/user/delete';
+function reAviableUser(id) {
+    let url = '/admin/rest/user/reaviable';
     let formData = {
         deleteId: id
     };
@@ -604,6 +604,7 @@ function deleteUser(id) {
         url: url,
         data: formData,
         success: function (result) {
+
             location.reload();
         },
         error: function (e) {

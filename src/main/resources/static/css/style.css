@@ -664,3 +664,7 @@ button.upload-more-history {
 .table-fixed td.no-fix {
     overflow :initial;
 }
+
+.unEnabledUser {
+	color: #9c9c9c;
+}
