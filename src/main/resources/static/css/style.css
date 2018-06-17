@@ -673,6 +673,10 @@ button.upload-more-history {
     text-overflow: ellipsis;
 }
 
+.unEnabledUser {
+	color: #9c9c9c;
+}
+
 #notification-buttons{
 	margin-top: 50px;
 	text-align: center;

@@ -31,7 +31,7 @@ public class StatusRestController {
 		this.clientHistoryService = clientHistoryService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('ADMIN')")
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
 		statusService.add(new Status(statusName));
@@ -76,8 +76,8 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
-	@PostMapping("/admin/rest/status/client/delete")
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PostMapping("/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);

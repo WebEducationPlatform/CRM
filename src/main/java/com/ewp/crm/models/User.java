@@ -63,6 +63,9 @@ public class User implements UserDetails {
 	@Column
 	private boolean ipTelephony;
 
+	@Column
+	private boolean isEnabled;
+
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
@@ -85,6 +88,7 @@ public class User implements UserDetails {
 	private List<Role> role = new ArrayList<>();
 
 	public User() {
+		this.isEnabled = true;
 	}
 
 	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role, boolean ipTelephony) {
@@ -102,6 +106,7 @@ public class User implements UserDetails {
 		this.salary = salary;
 		this.role = role;
 		this.ipTelephony = ipTelephony;
+		this.isEnabled = true;
 	}
 
 	public Long getId() {
@@ -256,7 +261,7 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return true;
+		return isEnabled;
 	}
 
 	@Override
@@ -266,7 +271,7 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return isEnabled;
 	}
 
 	public List<Client> getOwnedClients() {
@@ -320,6 +325,10 @@ public class User implements UserDetails {
 
 	public void setIpTelephony(boolean ipTelephony) {
 		this.ipTelephony = ipTelephony;
+	}
+
+	public void  setEnabled(boolean availability){
+		this.isEnabled = availability;
 	}
 
 }
