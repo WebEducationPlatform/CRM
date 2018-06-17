@@ -31,7 +31,7 @@ public class StatusRestController {
 		this.clientHistoryService = clientHistoryService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('ADMIN')")
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
 		statusService.add(new Status(statusName));

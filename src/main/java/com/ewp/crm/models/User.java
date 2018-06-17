@@ -274,11 +274,6 @@ public class User implements UserDetails {
 		return isEnabled;
 	}
 
-	//plug for Thymeleafe method
-	public boolean getIsEnabled() {
-		return isEnabled;
-	}
-
 	public List<Client> getOwnedClients() {
 		return ownedClients;
 	}

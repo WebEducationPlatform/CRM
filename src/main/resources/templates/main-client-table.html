@@ -182,7 +182,7 @@
                         <div class="panel-body" id="user_group-body">
                             <table class="table table-bordered">
                                 <tr th:each="usr : ${users}">
-                                    <div th:switch="${usr.isEnabled}">
+                                    <div th:switch="${usr.enabled}">
                                         <p th:case="true">
                                             <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
                                         </p>
