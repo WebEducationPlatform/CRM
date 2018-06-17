@@ -76,8 +76,8 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
-	@PostMapping("/admin/rest/status/client/delete")
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PostMapping("/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);

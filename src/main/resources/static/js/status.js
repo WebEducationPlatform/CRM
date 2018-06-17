@@ -1,5 +1,5 @@
 function deleteClientStatus(clientId) {
-    let url = "/admin/rest/status/client/delete";
+    let url = "/rest/status/client/delete";
     let requestParam = {
         clientId: clientId
     };
