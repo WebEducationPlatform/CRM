@@ -585,8 +585,8 @@ $(document).ready(function () {
         }])
 });
 
-function deleteUser(id) {
-    let url = '/admin/rest/user/delete';
+function reAviableUser(id) {
+    let url = '/admin/rest/user/reaviable';
     let formData = {
         deleteId: id
     };
@@ -595,7 +595,8 @@ function deleteUser(id) {
         type: "POST",
         url: url,
         data: formData,
-        success: function (result) {
+        success: function () {
+            $("#deleteUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 </head>
 <body>
-<div style="margin: 4%">
+<div  style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id = "status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
@@ -118,7 +118,7 @@
                 </div>
             </div>
         </div>
-        <div class="create-new-status-column">
+        <div class="create-new-status-column" sec:authorize="hasAnyAuthority('ADMIN')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
@@ -182,7 +182,14 @@
                         <div class="panel-body" id="user_group-body">
                             <table class="table table-bordered">
                                 <tr th:each="usr : ${users}">
-                                    <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                    <div th:switch="${usr.isEnabled}">
+                                        <p th:case="true">
+                                            <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                        <p th:case="false">
+                                            <td class="unEnabledUser" th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                    </div>
                                     <td class="editUserButtons">
                                         <a th:href="'/admin/user/' +  ${usr.id}">
                                             <button type="button" class="glyphicon glyphicon glyphicon-edit"></button>
