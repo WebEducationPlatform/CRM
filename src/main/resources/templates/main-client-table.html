@@ -206,55 +206,11 @@
                             </a>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#vkAuthModal">
-                        Авторизация Вконтакте
-                    </button>
                 </div>
             </div>
         </div>
         <div id="panel-sticker">
             <span>Меню</span>
-        </div>
-    </div>
-    <!-- Модальное окно для получения токена -->
-    <div class="modal fade" id="vkAuthModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="myModalLabel">Инструкция получения токена</h4>
-                </div>
-                <div class="modal-body">
-                    <div>
-                        1. Нажать на кнопку:
-                    </div>
-                    <div>
-                        <button onclick="doLogin()">Получить токен</button>
-                    </div>
-                    &nbsp;
-                    <div>
-                        2. Скопировать <b>всю строчку URL</b> в поле ниже и закрыть окно авторизации.
-                    </div>
-                    <form class="form" method="post" action="/vk-auth">
-                        <div class="form-group">
-                            <input id="name" type="text" class="form-control"
-                                   name="token"/>
-                        </div>
-                        <div class="modal-footer">
-                            <input class="btn-primary btn-sm" type="submit"
-                                   role="button"
-                                   value="Save"/>
-                            &nbsp;
-                            <button type="button" class="btn btn-default"
-                                    data-dismiss="modal">Close
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 </div>

@@ -590,6 +590,7 @@ a.link-cursor-pointer{
 }
 
 .client-history-date {
+    width:30%;
     background-color: #cccccc;
 }
 
@@ -668,9 +669,19 @@ button.upload-more-history {
 
 .history-line td{
     max-width: 0;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .unEnabledUser {
 	color: #9c9c9c;
+}
+
+#notification-buttons{
+	margin-top: 50px;
+	text-align: center;
+}
+
+#change-profile-button{
+	padding-bottom: 1px;
 }
