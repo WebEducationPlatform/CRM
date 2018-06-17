@@ -381,7 +381,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/admin/client/clientInfo/"+ id +"']"),
+                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -585,8 +585,8 @@ $(document).ready(function () {
         }])
 });
 
-function deleteUser(id) {
-    let url = '/admin/rest/user/delete';
+function reAviableUser(id) {
+    let url = '/admin/rest/user/reaviable';
     let formData = {
         deleteId: id
     };
@@ -595,7 +595,8 @@ function deleteUser(id) {
         type: "POST",
         url: url,
         data: formData,
-        success: function (result) {
+        success: function () {
+            $("#deleteUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {
@@ -1053,8 +1054,9 @@ $(function () {
                     if (client.ownerUser !== null) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
+                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id +'">' +
+                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
-                $('.extended-information-btn').attr('href','/admin/client/clientInfo/'+ client.id);
                 $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
                 $('#postponeDate').attr('id','postponeDate'+ client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
@@ -1074,6 +1076,7 @@ $(function () {
 
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
+        $('div#assign-unassign-btns').empty();
         $('.remove-element').remove();
         $('.hide-client-collapse').attr('id','hideClientCollapse');
         $('.postpone-date').attr('id','postponeDate');

@@ -15,10 +15,10 @@
             <div class="col-md-8" id="column1">
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
+                        <button sec:authorize="hasAuthority('ADMIN')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
                             Редактировать
                         </button>
-                        <button type="submit" class="btn btn-primary" id="saveChanges"
+                        <button sec:authorize="hasAuthority('ADMIN')" type="submit" class="btn btn-primary" id="saveChanges"
                                 th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                         </button>
                         <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
