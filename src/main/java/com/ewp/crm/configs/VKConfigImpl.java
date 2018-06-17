@@ -56,7 +56,7 @@ public class VKConfigImpl implements VKConfig {
 	}
 
     public String getClubId() {
-        return clubId;
+        return "-" + clubId;
     }
 
     public String getVersion() {
