@@ -145,5 +145,4 @@ public class DataInitializer {
 		statusService.add(defaultStatus);
 	}
 
-
 }
