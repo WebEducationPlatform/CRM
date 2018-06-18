@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:vk.properties")
+@PropertySource("file:./vk.properties")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;
