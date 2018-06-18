@@ -5,11 +5,11 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-CRM</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>
-	<description>Demo project for Spring Boot</description>
+	<description>CRM for JavaMentor</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -124,6 +124,12 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.9.1</version>
 		</dependency>
+        <!-- If app run in Java 9-->
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.1</version>
+        </dependency>
 	</dependencies>
 
 	<build>

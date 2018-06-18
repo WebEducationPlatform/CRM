@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@PropertySource("classpath:sms.properties")
+@PropertySource("file:./sms.properties")
 public class SMSConfigImpl implements SMSConfig {
 
 	private final String login;
