@@ -3,15 +3,18 @@ package com.ewp.crm.configs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
 
 @Component
+@PropertySources( value = {
+		@PropertySource("classpath:application.properties"),
+		@PropertySource("classpath:image.properties")
+})
 public class ImageConfig {
 
 	private static Logger logger = LoggerFactory.getLogger(ImageConfig.class);
@@ -22,15 +25,8 @@ public class ImageConfig {
 	@Autowired
 	public ImageConfig(Environment environment) {
 		maxImageSize = parseSize(environment.getProperty("spring.http.multipart.max-file-size"));
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(new File("src\\main\\resources\\image.properties")));
-		} catch (IOException e) {
-			logger.error("Missing image config file 'image.properties'", e);
-			System.exit(-1);
-		}
-		pathForAvatar = properties.getProperty("pathForAvatar");
-		pathForImages = properties.getProperty("pathForImages");
+		pathForAvatar = environment.getProperty("pathForAvatar");
+		pathForImages = environment.getProperty("pathForImages");
 		checkConfig();
 	}
 
