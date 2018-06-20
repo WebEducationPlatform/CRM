@@ -78,7 +78,14 @@ public class ClientController {
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize * 2)));
+		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		//TODO postfilter spring
+		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN"))) {
+			modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize * 2)));
+		} else {
+			modelAndView.addObject("allClients",
+					clientService.findAllByOwnerUser(new PageRequest(0, pageSize * 2), userFromSession));
+		}
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;

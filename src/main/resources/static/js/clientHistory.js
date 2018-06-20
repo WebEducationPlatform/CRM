@@ -90,7 +90,7 @@ function drawClientHistory(list, history_table) {
         if (list[i].recordLink != null) {
             $tdLink = "<td style='width: 10%'>" +
                 "<div class=\"dropdown\">\n" +
-                "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-paperclip\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
+                "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-play\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                 "</button>" +
                 "<div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">" +
                 "<audio controls>" +
