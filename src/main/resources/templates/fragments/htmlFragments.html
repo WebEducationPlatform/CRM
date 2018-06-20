@@ -15,7 +15,7 @@
 </th:block>
 
 <th:block th:fragment="top-navigation-panel">
-    <div class="container">
+    <div id="not-bar" class="container">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="navbar-header">
             <div class="navbar-collapse collapse">
@@ -315,7 +315,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
-                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" placeholder="Название статуса"/>
+                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" placeholder="Название статуса"/>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                 <button type="button" class="btn btn-primary" th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить</button>

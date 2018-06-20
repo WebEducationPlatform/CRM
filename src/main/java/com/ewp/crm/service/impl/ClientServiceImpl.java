@@ -142,6 +142,12 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
+	public List<Client> findAllByOwnerUser(Pageable pageable, User clientOwner) {
+		List<Client> list = clientRepository.findAllByOwnerUser(pageable, clientOwner).getContent();
+		return list;
+	}
+
+	@Override
 	public void updateClient(Client client) {
 		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
