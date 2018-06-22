@@ -123,7 +123,7 @@
                     <td th:text="${client.sex}"></td>
                     <td th:text="${client.city}"></td>
                     <td th:text="${client.country}"></td>
-                    <td th:text="${client.state}"></td>
+                    <td th:text="${client.status}"></td>
                     <td th:text="${client.dateOfRegistration.toLocaleString()}"></td>
                     <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('ADMIN')">
