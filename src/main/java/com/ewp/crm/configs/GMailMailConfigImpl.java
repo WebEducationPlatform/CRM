@@ -25,30 +25,23 @@ public class GMailMailConfigImpl implements MailConfig {
 
     @Autowired
     public GMailMailConfigImpl(Environment env) {
-        login = env.getProperty("google.mail.login").replaceAll("@", "%40");
-        password = env.getProperty("google.mail.password");
-        mailFrom = env.getProperty("mail.from");
-        socketFactoryClass = env.getProperty("mail.imap.socketFactory.class");
-        socketFactoryFallback = env.getProperty("mail.imap.socketFactory.fallback");
-        protocol = env.getProperty("mail.store.protocol");
-        debug = env.getProperty("mail.debug");
-        imapServer = env.getProperty("mail.imap.server");
-        if (!configIsValid()) {
+        try {
+            login = env.getRequiredProperty("google.mail.login").replaceAll("@", "%40");
+            password = env.getRequiredProperty("google.mail.password");
+            mailFrom = env.getRequiredProperty("mail.from");
+            socketFactoryClass = env.getRequiredProperty("mail.imap.socketFactory.class");
+            socketFactoryFallback = env.getRequiredProperty("mail.imap.socketFactory.fallback");
+            protocol = env.getRequiredProperty("mail.store.protocol");
+            debug = env.getRequiredProperty("mail.debug");
+            imapServer = env.getRequiredProperty("mail.imap.server");
+            if (login.isEmpty() || password.isEmpty() || mailFrom.isEmpty() || socketFactoryClass.isEmpty() ||
+                    socketFactoryFallback.isEmpty() || protocol.isEmpty() || debug.isEmpty() || imapServer.isEmpty()) {
+                throw new NullPointerException();
+            }
+        } catch (IllegalStateException | NullPointerException e) {
             logger.error("GMail configs have not initialized. Check gmail.properties file");
             System.exit(-1);
         }
-    }
-
-    private boolean configIsValid() {
-        if (login == null || "".equals(login)) return false;
-        if (password == null || "".equals(password)) return false;
-        if (mailFrom == null || "".equals(mailFrom)) return false;
-        if (socketFactoryClass == null || "".equals(socketFactoryClass)) return false;
-        if (socketFactoryFallback == null || "".equals(socketFactoryFallback)) return false;
-        if (protocol == null || "".equals(protocol)) return false;
-        if (debug == null || "".equals(debug)) return false;
-        if (imapServer == null || "".equals(imapServer)) return false;
-        return true;
     }
 
     public String getLogin() {
