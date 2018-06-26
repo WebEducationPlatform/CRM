@@ -93,17 +93,15 @@ public class IncomeStringToClient {
 	}
 
 	private SocialNetwork getSocialNetwork(String link) {
-		if (link.startsWith("https://")) {
-			link = link.substring(8);
-		}
 		SocialNetwork socialNetwork = new SocialNetwork();
-
-		if (link.startsWith("vk.com") || link.startsWith("m.vk.com")) {
+		if (link.contains("vk.com") || link.contains("m.vk.com")) {
 			socialNetwork.setLink(link);
 			socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
 		} else if (link.startsWith("www.facebook.com") || link.startsWith("m.facebook.com")) {
 			socialNetwork.setLink(link);
 			socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));
+		} else {
+			socialNetwork = null;
 		}
 		return socialNetwork;
 	}
