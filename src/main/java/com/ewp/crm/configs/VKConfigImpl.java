@@ -43,7 +43,7 @@ public class VKConfigImpl implements VKConfig {
                 throw new NullPointerException();
             }
         } catch (IllegalStateException | NullPointerException e) {
-            logger.error("VK configs have not initialized. Check vk.properties file");
+            logger.error("VK configs have no1t initialized. Check vk.properties file", e);
             System.exit(-1);
         }
     }
