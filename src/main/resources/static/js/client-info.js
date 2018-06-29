@@ -71,6 +71,7 @@ function changeClient(id) {
         state:  $('#edit-client-state').val(),
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
+        skype: $('#edit-client-skype').val(),
         socialNetworks: SN,
         status : {},
         jobs: Job
