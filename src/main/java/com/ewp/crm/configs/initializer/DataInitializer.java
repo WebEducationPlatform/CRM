@@ -1,6 +1,8 @@
 package com.ewp.crm.configs.initializer;
 
+import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +34,14 @@ public class DataInitializer {
 	@Autowired
 	private ClientHistoryService clientHistoryService;
 
-	private void init() {
+	@Autowired
+	private FacebookServiceImpl facebookService;
+
+
+
+	private void init() throws FBAccessTokenException {
+
+//		System.out.println(facebookService.getFacebookMessages());
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
 		Status defaultStatus = new Status("deleted", true);
