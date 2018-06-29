@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @PreAuthorize("hasAuthority('ADMIN')")
 @Controller
 public class VkController {
+
     private VKUtil vkUtil;
 
     @Autowired
@@ -28,18 +29,5 @@ public class VkController {
     public String vkGetAccessToken(@RequestParam("token") String token) {
         vkUtil.setApplicationToken(token);
         return "redirect:/client";
-    }
-
-    @RequestMapping(value = "/vk-create-group", method = RequestMethod.GET)
-    public String vkCreateTargetingGroup(@RequestParam("token") String token) {
-        String uri = vkUtil.createGroup(token);
-        return "redirect:" + uri;
-    }
-
-    @RequestMapping(value = "/vk-add-users", method = RequestMethod.GET)
-    public String vkAddUsers(@RequestParam("token") String token) {
-        String list = "220499433, 320803898";
-        String uri = vkUtil.addUsers(token, list);
-        return "redirect:" + uri;
     }
 }
