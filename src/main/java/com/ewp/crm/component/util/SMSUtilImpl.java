@@ -31,18 +31,16 @@ public class SMSUtilImpl implements SMSUtil {
 	private final RestTemplate restTemplate;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
-	private final MessageService messageService;
 	private final SMSInfoService smsInfoService;
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
-		this.messageService = messageService;
 		this.smsInfoService = smsInfoService;
 	}
 
