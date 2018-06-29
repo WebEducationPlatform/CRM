@@ -80,6 +80,11 @@
                                th:value="${client.city}"/>
                     </div>
                     <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control"  disabled="disabled" id="edit-client-skype"
+                        th:value="${client.skype}"/>
+                    </div>
+                    <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">
                             <thead class="thead-inverse">
