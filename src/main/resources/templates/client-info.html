@@ -49,6 +49,11 @@
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control"  disabled="disabled" id="edit-client-skype"
+                               th:value="${client.skype}"/>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-client-age">Возраст</label>
                         <input type="number" class="form-control" min="0" max="127" disabled="disabled"
                                title="Диапазон от 0 до 127" onkeydown="disableInputE()" id="edit-client-age"
@@ -78,11 +83,6 @@
                         <label for="edit-client-city">Город</label>
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
                                th:value="${client.city}"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-client-skype">Skype</label>
-                        <input type="text" class="form-control"  disabled="disabled" id="edit-client-skype"
-                        th:value="${client.skype}"/>
                     </div>
                     <div class="form-group">
                         <label>Социальные сети</label>
