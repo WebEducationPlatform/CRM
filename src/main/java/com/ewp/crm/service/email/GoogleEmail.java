@@ -89,14 +89,14 @@ public class GoogleEmail {
         mailReceiver.setShouldDeleteMessages(false);
 
         mailReceiver.setShouldMarkMessagesAsRead(true);
-        mailReceiver.setCancelIdleInterval(3600);
+        mailReceiver.setCancelIdleInterval(60);
         mailReceiver.setBeanFactory(beanFactory);
         mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
         mailReceiver.afterPropertiesSet();
 
         ImapIdleChannelAdapter imapIdleChannelAdapter = new ImapIdleChannelAdapter(mailReceiver);
         imapIdleChannelAdapter.setAutoStartup(true);
-        imapIdleChannelAdapter.setReconnectDelay(300000);
+        imapIdleChannelAdapter.setReconnectDelay(1000);
         imapIdleChannelAdapter.setShouldReconnectAutomatically(true);
         imapIdleChannelAdapter.setOutputChannel(directChannel());
         imapIdleChannelAdapter.afterPropertiesSet();

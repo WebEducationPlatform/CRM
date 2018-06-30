@@ -78,7 +78,7 @@ public class ClientController {
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize * 2)));
+		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;
