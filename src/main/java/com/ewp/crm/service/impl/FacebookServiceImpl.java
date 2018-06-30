@@ -46,7 +46,7 @@ public class FacebookServiceImpl implements FacebookService {
 			throw new FBAccessTokenException("Facebook access token has not got");
 		}
 		String uriGetMassages = FB_API_METHOD_TEMPLATE  + version + "/" + pageId + "/" +
-				"?fields=about,conversations%7Bmessages%7Bmessage%7D%7D" +
+				"?fields=about,conversations%7Bmessages%7Bfrom,message%7D%7D" +
 				"&access_token=" + pageToken;
 		try {
 			HttpGet httpGetMessages = new HttpGet(uriGetMassages);
@@ -59,16 +59,23 @@ public class FacebookServiceImpl implements FacebookService {
 			JSONObject json = new JSONObject(result);
 			JSONObject conversations = (JSONObject) json.get("conversations");
 			JSONArray jsonData = conversations.getJSONArray("data");
-			JSONObject jsonDataObj = jsonData.getJSONObject(0);
-			JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
-			JSONArray nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
 			List<String> resultList = new ArrayList<>();
-			for (int i = nestedDatajsonjMessages.length() - 1; i !=0; i--) {
-				JSONObject jsonMessage = nestedDatajsonjMessages.getJSONObject(i);
-				System.out.println(jsonMessage.getString("message"));
-				resultList.add(jsonMessage.getString("message"));
+			int count = 0;
+			while (jsonData.length() != 0) {
+
+				JSONObject jsonDataObj = jsonData.getJSONObject(count);
+				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
+				JSONArray nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
+				count++;
+				for (int i = nestedDatajsonjMessages.length() - 1; i != 0; i--) {
+					JSONObject jsonMessage = nestedDatajsonjMessages.getJSONObject(i);
+					String name = jsonMessage.getJSONObject("from").getString("name");
+					String message = jsonMessage.getString("message");
+					System.out.println(name + ": " + message);
+					resultList.add(jsonMessage.getString("message"));
+				}
 			}
-			return Optional.of(resultList);
+				return Optional.of(resultList);
 		} catch (JSONException e) {
 			logger.error("Can not read message from JSON ", e);
 		} catch (IOException e) {

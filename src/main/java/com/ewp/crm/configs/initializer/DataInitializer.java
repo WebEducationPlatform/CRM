@@ -41,7 +41,7 @@ public class DataInitializer {
 
 	private void init() throws FBAccessTokenException {
 
-//		System.out.println(facebookService.getFacebookMessages());
+
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
 		Status defaultStatus = new Status("deleted", true);
