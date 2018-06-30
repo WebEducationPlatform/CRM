@@ -158,22 +158,19 @@ $(document).ready(function () {
 
 
     win.scroll(function () {
-        if ($(document).height() - win.height() < win.scrollTop() + 50) {
-            $("#loading").show();
+        if ($(document).height() - win.height() < win.scrollTop() + 10) {
 
             $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
                 let table = $("#clients-table").find("tbody");
                 drawClients(table, clients, page);
                 page++;
-                $("#loading").hide();
             })
         }
     });
 
 
 
-    function drawClients(table, res, page) {
-        let index = res.length * page;
+    function drawClients(table, res) {
         for (let i = 0; i < res.length; i++) {
             let socLink = '';
             for(let j  = 0; j < res[i].socialNetworks.length; j++) {
@@ -186,7 +183,8 @@ $(document).ready(function () {
             let email = res[i].email === null ? '' : res[i].email,
                 phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
                 city = res[i].city === null ? '' : res[i].city,
-                country = res[i].country === null ? '' : res[i].country;
+                country = res[i].country === null ? '' : res[i].country,
+                sex = res[i].sex === null ? '' : res[i].sex;
 
             let returnBtn = '';
             if (isAdmin) {
@@ -202,14 +200,14 @@ $(document).ready(function () {
 
             table.append(
                 '    <tr>' +
-                '        <td>' + ++index + '</td>' +
+                '        <td>' + res[i].id + '</td>' +
                 '        <td>' + res[i].name + '</td>' +
                 '        <td>' + res[i].lastName + '</td>' +
                 '        <td>' + phoneNumber + '</td>' +
                 '        <td>' + email + '</td>' +
                 '        <td>' + socLink + '</td>' +
                 '        <td>' + res[i].age + ' </td>' +
-                '        <td>' + res[i].sex + ' </td>' +
+                '        <td>' + sex + ' </td>' +
                 '        <td>' + city + ' </td>' +
                 '        <td>' + country + ' </td>' +
                 '        <td>' + res[i].state + ' </td>' +
