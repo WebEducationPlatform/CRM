@@ -61,21 +61,9 @@
                                 <tr>
                                     <td>Социальные сети: </td>
                                     <td><div class="btn-group">
-                                        <a name= "emailTmplList" data-toggle="dropdown" class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
-                                        <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                                            <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                                                <a class="glyphicon glyphicon-ok internal-vkontakte-message" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}"  th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                <a class="glyphicon glyphicon-plus hide-main-modal сustom-vk-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customVKMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
-                                                    <button
-                                                            type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
-                                                    </button>
-                                                </a>
-
-                                            </li>
-                                        </ul>
+                                        <a  id="vk-href" target="_blank" name= "emailTmplList"  class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
                                     </div>
-                                        <a class="btn btn-social-icon btn-facebook btn-sm"><span class="fa fa-facebook"></span></a></td>
+                                        <a  id ="fb-href" target="_blank"  class="btn btn-social-icon btn-facebook btn-sm"><span class="fa fa-facebook"></span></a></td>
                                     <td><div th:id = "'sendSocialTemplateStatus'"></div></td>
                                 </tr>
                                 </tbody>
