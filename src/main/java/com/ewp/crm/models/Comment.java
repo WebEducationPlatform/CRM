@@ -31,6 +31,7 @@ public class Comment {
 	private Date date = new Date();
 
 	@Column(name = "content")
+	@Lob
 	private String content;
 
 	@OrderBy("date DESC")

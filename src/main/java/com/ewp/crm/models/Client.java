@@ -42,6 +42,9 @@ public class Client implements Serializable {
 	@Column(name = "email", length = 50)
 	private String email;
 
+	@Column(name = "skype")
+	private String skype;
+
 	private byte age;
 
 	@Enumerated(EnumType.STRING)
@@ -200,6 +203,14 @@ public class Client implements Serializable {
 
 	public void setClientDescriptionComment(String clientDescriptionComment) {
 		this.clientDescriptionComment = clientDescriptionComment;
+	}
+
+	public String getSkype() {
+		return skype;
+	}
+
+	public void setSkype(String skype) {
+		this.skype = skype;
 	}
 
 	public void setId(Long id) {
@@ -362,16 +373,15 @@ public class Client implements Serializable {
 				Objects.equals(country, client.country) &&
 				state == client.state &&
 				Objects.equals(socialNetworks, client.socialNetworks) &&
-				Objects.equals(clientDescriptionComment, client.clientDescriptionComment) &&
-				Objects.equals(jobs, client.jobs);
+				Objects.equals(jobs, client.jobs) &&
+				Objects.equals(skype,client.skype);
+
 	}
 
 	@Override
 	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
-		result = 31 * result + (email != null ? email.hashCode() : 0);
-		return result;
+		return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
+				 state, jobs, socialNetworks);
 	}
 
 	@Override
