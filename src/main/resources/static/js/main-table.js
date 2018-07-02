@@ -1088,12 +1088,17 @@ $(function () {
 
                     $('#client-sex').text(client.sex);
                     // здесь вставка ссылок в кнопки вк и фб
+                    $('#vk-href').hide();
+                    $('#fb-href').hide();
+
                     for (var i = 0; i < client.socialNetworks.length; i++) {
                         if (client.socialNetworks[i].socialNetworkType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialNetworks[i].link);
+                            $('#vk-href').show();
                         }
                         if (client.socialNetworks[i].socialNetworkType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialNetworks[i].link);
+                            $('#fb-href').show();
                         }
                     }
                     var btnBlock = $('div#assign-unassign-btns');
