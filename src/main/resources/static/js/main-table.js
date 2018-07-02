@@ -123,6 +123,9 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
+
+
+
 $(document).ready(function () {
     $(".column").sortable({
         delay: 100,
@@ -166,38 +169,22 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-    /* $("#new-status-form").focusout(
-         function () {
-             $(this).hide();
-             $("#create-new-status-span").show();
-         });*/
+   /* $("#new-status-form").focusout(
+        function () {
+            $(this).hide();
+            $("#create-new-status-span").show();
+        });*/
 
-    //Search clients in main
+   //Search clients in main
     $("#search-clients").keyup(function () {
-        //split input data by space
-        let data = this.value.toLowerCase().split(" ");
-        //take portlet data
-        let portletArr = $(".portlet");
-        //if input data is empty: show all and return
-        if (this.value.trim() === '') {
-            portletArr.show();
-            return;
-        }
-        portletArr.hide();
-        //filtering array of portlet
-        portletArr.filter(function () {
-            //filtering by data in portlet body
-            let portlet = $(this).find(".portlet-body");
-            let temp = portlet.clone();
-            temp.text(temp.text().toLowerCase());
-            let $validCount = 0;
-            for (let i = 0; i < data.length; i++) {
-                if (temp.is(":contains('" + data[i] + "')")) {
-                    $validCount++;
-                }
+        let jo = $(".portlet");
+        let jo2 = jo.find($(".portlet-header"));
+        this.value.localeCompare("") == 0 ? jo.show : jo.hide();
+        for (let i = 0; i < jo2.length; i++) {
+            if (jo2[i].innerText.includes(this.value)) {
+                jo[i].style.display = 'block';
             }
-            return $validCount === data.length;
-        }).show();
+        }
     });
 
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
@@ -226,7 +213,6 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
-
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
@@ -319,7 +305,6 @@ function changeStatusName(id) {
         }
     });
 }
-
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -368,7 +353,6 @@ function assign(id) {
         }
     });
 }
-
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
@@ -408,8 +392,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -437,11 +421,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if (unassignBtn.length !== 0) {
+            if(unassignBtn.length !== 0){
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id + ")' " +
+                    "   onclick='assign(" + id +")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -780,6 +764,7 @@ $(function () {
 });
 
 
+
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.save_value').on('click', function (event) {
@@ -991,6 +976,7 @@ $(function () {
 });
 
 
+
 function hideClient(clientId) {
     let url = 'rest/client/postpone';
     let formData = {
@@ -1085,7 +1071,6 @@ $(function () {
                     if (client.age > 0) {
                         $('#client-age').text(client.age);
                     }
-
                     $('#client-sex').text(client.sex);
                     // здесь вставка ссылок в кнопки вк и фб
                     $('#vk-href').hide();
@@ -1203,7 +1188,6 @@ function vk_popup(options) {
         );
     return window.open(options.url, 'vk_oauth', features);
 }
-
 function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';

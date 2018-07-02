@@ -23,6 +23,7 @@ function markAsReadMenu(clientId) {
             dataType: 'json',
             url: url,
             success: function () {
+                $('#not-bar').load(location.href + ' #not-bar');
                 $('#info-client' + clientId).find(".notification").remove();
                 $('.menu' + clientId).remove();
                 $('#notification-postpone' + clientId).hide();
