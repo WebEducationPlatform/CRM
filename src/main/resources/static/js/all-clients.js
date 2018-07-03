@@ -47,8 +47,8 @@ $('#filtration').click(function (){
     data['country'] = $('#country').val();
     data['dateFrom'] = $('#dateFrom').val();
     data['dateTo'] = $('#dateTo').val();
-    if ($('#state').val() !== "") {
-        data['state'] = $('#state').val();
+    if ($('#status').val() !== "") {
+        data['status'] = $('#status').val();
     }
     $.ajax({
         type: 'POST',
@@ -75,7 +75,8 @@ $('#filtration').click(function (){
                 let email = res[i].email === null ? '' : res[i].email,
                     phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
                     city = res[i].city === null ? '' : res[i].city,
-                    country = res[i].country === null ? '' : res[i].country;
+                    country = res[i].country === null ? '' : res[i].country,
+                    sex = res[i].sex === null ? '' : res[i].sex;
 
                 let returnBtn = '';
                 if (isAdmin) {
@@ -97,10 +98,10 @@ $('#filtration').click(function (){
                     '        <td>' + email + '</td>' +
                     '        <td>' + socLink + '</td>' +
                     '        <td>' + res[i].age + ' </td>' +
-                    '        <td>' + res[i].sex + ' </td>' +
+                    '        <td>' + sex + ' </td>' +
                     '        <td>' + city + ' </td>' +
                     '        <td>' + country + ' </td>' +
-                    '        <td>' + res[i].state + ' </td>' +
+                    '        <td>' + res[i].status.name + ' </td>' +
                     '        <td>' + dateOfRegistration + ' </td>' +
                     '        <td>' + returnBtn + ' </td>' +
                     '    </tr>'
@@ -210,7 +211,7 @@ $(document).ready(function () {
                 '        <td>' + sex + ' </td>' +
                 '        <td>' + city + ' </td>' +
                 '        <td>' + country + ' </td>' +
-                '        <td>' + res[i].state + ' </td>' +
+                '        <td>' + res[i].status.name + ' </td>' +
                 '        <td>' + dateOfRegistration + ' </td>' +
                 '        <td class="no-fix">' + returnBtn + ' </td>' +
                 '    </tr>'
