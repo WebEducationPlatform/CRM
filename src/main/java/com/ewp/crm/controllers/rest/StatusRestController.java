@@ -31,7 +31,7 @@ public class StatusRestController {
 		this.clientHistoryService = clientHistoryService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName) {
 		statusService.add(new Status(statusName));
@@ -40,7 +40,7 @@ public class StatusRestController {
 		return ResponseEntity.ok("Успешно добавлено");
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/status/edit", method = RequestMethod.POST)
 	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName, @RequestParam(name = "oldStatusId") Long oldStatusId) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -51,7 +51,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/status/client/change", method = RequestMethod.POST)
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
@@ -67,7 +67,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/status/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -76,7 +76,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@PostMapping("/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -93,7 +93,7 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@PostMapping("/admin/rest/status/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId, @RequestParam("invisible") boolean bool) {
 		Status status = statusService.get(statusId);

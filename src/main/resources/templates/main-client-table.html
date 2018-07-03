@@ -15,14 +15,14 @@
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
         <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.invisible}">
             <div id="column-header">
-            <div class="btn-group" sec:authorize="hasAnyAuthority('ADMIN')">
+            <div class="btn-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                 <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
                 </button>
                 <ul class="dropdown-menu">
                                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
-                                   <li sec:authorize="hasAuthority('ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
-                                   <li sec:authorize="hasAuthority('ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
-                                    <li sec:authorize="hasAuthority('ADMIN')"><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
+                                   <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
+                                   <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
+                                    <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')"><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
                                </ul>
             </div>
             <h1 th:text="${status.name}"></h1>
@@ -30,11 +30,11 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
-                <div class="portlet-title" sec:authorize="hasAnyAuthority('ADMIN','USER')">
+                <div class="portlet-title" sec:authorize="hasAnyAuthority('OWNER','ADMIN','USER')">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
-                            <th:block sec:authorize="hasAnyAuthority('ADMIN')">
+                            <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                                   <li class="dropdown-header">Назначить работника</li>
                                          <li th:each="worker : ${users}">
                                              <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
@@ -50,7 +50,7 @@
                                           <li class="open-description-btn"  th:attr="data-id=${client.id}">
                                                                <a>Добавить комментарий</a>
                                                               </li>
-                            <th:block sec:authorize="hasAnyAuthority('ADMIN')">
+                            <th:block sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                                          <li>
                                         <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с карточки</a>
                                       </li>
@@ -99,7 +99,7 @@
                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                             <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
                             <a class="glyphicon glyphicon-plus portlet-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                            <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                            <a sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>
@@ -120,7 +120,7 @@
                 </div>
             </div>
         </div>
-        <div class="create-new-status-column" sec:authorize="hasAnyAuthority('ADMIN')">
+        <div class="create-new-status-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
@@ -144,7 +144,7 @@
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-                <div id="statuses_group" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div id="statuses_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                     <div class="panel-heading" id="statuses-heading">
                         <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
                            href="#collapseStatuses">Скрытые статусы</a>
@@ -161,7 +161,7 @@
                     </div>
                 </div>
 
-                <div id="client_filter_group" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div id="client_filter_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseFilter">Фильтр клиентов</a>
@@ -175,7 +175,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="user_group" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div id="user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseUser">Список сотрудников</a>

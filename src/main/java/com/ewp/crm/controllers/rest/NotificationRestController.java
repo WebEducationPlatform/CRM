@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 @RequestMapping("/user/notification")
 public class NotificationRestController {
 

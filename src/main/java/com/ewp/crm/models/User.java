@@ -49,6 +49,9 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
+	@Column(name = "vk_token")
+	private String vk_token;
+
 	@Column
 	private boolean ipTelephony;
 
@@ -204,6 +207,14 @@ public class User implements UserDetails {
 
 	public void setPhotoType(String photoType) {
 		this.photoType = photoType;
+	}
+
+	public String getVk_token() {
+		return vk_token;
+	}
+
+	public void setVk_token(String vk_token) {
+		this.vk_token = vk_token;
 	}
 
 	@Override

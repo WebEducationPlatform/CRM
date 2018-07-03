@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 public class VkRestController {
 
 	private final VKUtil vkUtil ;
