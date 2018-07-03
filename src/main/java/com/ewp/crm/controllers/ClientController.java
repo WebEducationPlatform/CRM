@@ -51,14 +51,14 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
 		ModelAndView modelAndView = new ModelAndView("main-client-table");
 		//TODO Сделать ещё адекватней
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN"))) {
+		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
 			statuses = statusService.getAll();
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
@@ -74,7 +74,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
@@ -84,7 +84,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -98,7 +98,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
 	public ModelAndView addClient(@PathVariable String statusName) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -111,7 +111,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
