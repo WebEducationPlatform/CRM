@@ -142,8 +142,8 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 			query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
 		}
 
-		if (filteringCondition.getState() != null) {
-			query.append(" and cl.state = '").append(filteringCondition.getState()).append("'");
+		if (filteringCondition.getStatus() != null) {
+			query.append(" and cl.status.name = '").append(filteringCondition.getStatus()).append("')");
 		}
 
 		return query.toString();
@@ -187,8 +187,8 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 			query.append(" and client.date <= '").append(filteringCondition.getDateTo()).append("'");
 		}
 
-		if (filteringCondition.getState() != null) {
-			query.append(" and client.client_state = '").append(filteringCondition.getState()).append("'");
+		if (filteringCondition.getStatus() != null) {
+			query.append(" and client.client_id in (select c2.client_id from client c2 join status_clients sc1 on sc1.user_id = c2.client_id where sc1.status_id in (select s1.status_id from status s1 where s1.status_name = '").append(filteringCondition.getStatus()).append("'))");
 		}
 
 		return query.toString();

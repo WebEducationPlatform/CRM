@@ -68,11 +68,11 @@
 
                 </div>
                 <div class="col-xs-3 offset-4">
-                    <label class="control-label" for="state">Закончил обучение: </label>
-                    <select class="form-control" id="state" size="1">
+                    <label class="control-label" for="status">Статус: </label>
+                    <select class="form-control" id="status" size="1">
                         <option></option>
-                        <option th:each="state : ${T(com.ewp.crm.models.Client.State).values()}" th:value="${state}"
-                                th:text="${state}"></option>
+                        <option th:each="status : ${statuses}" th:value="${status}"
+                                th:text="${status.name}"></option>
                     </select>
 
                 </div>
@@ -124,7 +124,7 @@
                     <td th:text="${client.sex}"></td>
                     <td th:text="${client.city}"></td>
                     <td th:text="${client.country}"></td>
-                    <td th:text="${client.state}"></td>
+                    <td th:text="${client.status.name}"></td>
                     <td th:text="${client.dateOfRegistration.toLocaleString()}"></td>
                     <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('ADMIN')">
