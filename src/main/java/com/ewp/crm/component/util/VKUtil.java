@@ -116,14 +116,14 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal) {
+	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
-				String responseMessage = sendMessageById(id, vkText);
+				String responseMessage = sendMessageById(id, vkText, token);
 				Message message = messageService.addMessage(Message.Type.VK, vkText);
 				client.addHistory(clientHistoryService.createHistory(principal, client, message));
 				clientService.updateClient(client);
@@ -134,7 +134,7 @@ public class VKUtil {
 		return client.getName() + " hasn't vk social network";
 	}
 
-	private String sendMessageById(long id, String msg) {
+	private String sendMessageById(long id, String msg, String token) {
 		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
 		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -143,7 +143,7 @@ public class VKUtil {
 				"?user_id=" + id +
 				"&v=" + version +
 				"&message=" + uriMsg +
-				"&access_token=" + applicationToken;
+				"&access_token=" + token;
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
@@ -242,31 +242,32 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public Client parseClientFromMessage(String message) throws ParseClientException {
-		if (!message.startsWith("Новая заявка")) {
-			throw new ParseClientException("Invalid message format");
-		}
-		String[] fields = message.replaceAll("<br>", "").split("Q:");
-		Client client = new Client();
-		try {
-			client.setName(getValue(fields[1]));
-			client.setLastName(getValue(fields[2]));
-			client.setPhoneNumber(getValue(fields[3]));
-			client.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
-			client.setClientDescriptionComment(getValue(fields[5]));
-			client.setSex(fields[6].contains("Мужской") ? Client.Sex.MALE : Client.Sex.FEMALE);
-			if (message.contains("Ваши пожелания по заявке")) {
-				client.setClientDescriptionComment(getValue(fields[7]));
-			}
-			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
-			String social = fields[0];
-			SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
-			client.setSocialNetworks(Collections.singletonList(socialNetwork));
-		} catch (Exception e) {
-			logger.error("Parse error, can't parse income string", e);
-		}
-		return client;
-	}
+    public Client parseClientFromMessage(String message) throws ParseClientException {
+        if (!message.startsWith("Новая заявка")) {
+            throw new ParseClientException("Invalid message format");
+        }
+        String[] fields = message.replaceAll("<br>", "").split("Q:");
+        Client newClient = new Client();
+        try {
+            newClient.setName(getValue(fields[1]));
+            newClient.setLastName(getValue(fields[2]));
+            newClient.setPhoneNumber(getValue(fields[3]));
+            newClient.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
+            StringBuilder description = new StringBuilder(getValue(fields[5]));
+            if (message.contains("Ваши пожелания по заявке")) {
+                description.append(" ");
+                description.append(getValue(fields[6]));
+            }
+            newClient.setClientDescriptionComment(description.toString());
+            SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
+            String social = fields[0];
+            SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
+            newClient.setSocialNetworks(Collections.singletonList(socialNetwork));
+        } catch (Exception e) {
+            logger.error("Parse error, can't parse income string", e);
+        }
+        return newClient;
+    }
 
 	private static String getValue(String field) {
 		return field.substring(field.indexOf("A: ") + 3);
@@ -314,10 +315,10 @@ public class VKUtil {
 	}
 
 	public void setApplicationToken(String applicationToken) {
-        this.applicationToken = replaceApplicationTokenFromUri(applicationToken);
+        this.applicationToken = applicationToken;
 	}
 
-	private String replaceApplicationTokenFromUri(String uri){
+	public String replaceApplicationTokenFromUri(String uri){
         return uri.replaceAll(".+(access_token=)","")
 				.replaceAll("&.+","");
 	}

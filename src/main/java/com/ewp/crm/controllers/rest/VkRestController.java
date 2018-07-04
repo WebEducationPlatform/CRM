@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,14 @@ public class VkRestController {
 	private final VKUtil vkUtil ;
 	private final ClientService clientService;
 	private final MessageTemplateServiceImpl MessageTemplateService;
+	private final UserService userService;
 
 	@Autowired
-	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKUtil vkUtil1) {
+	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKUtil vkUtil1, UserService userService) {
 		this.vkUtil = vkUtil1;
 		this.clientService = clientService;
 		this.MessageTemplateService = MessageTemplateService;
+		this.userService = userService;
 	}
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
@@ -44,7 +47,9 @@ public class VkRestController {
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 
-		vkUtil.sendMessageToClient(client, vkText, params, principal);
+		User user = userService.get(principal.getId());
+		String token = user.getVk_token();
+		vkUtil.sendMessageToClient(client, vkText, params, principal, token);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 }
