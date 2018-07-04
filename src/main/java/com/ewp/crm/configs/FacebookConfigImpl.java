@@ -16,10 +16,6 @@ public class FacebookConfigImpl implements FacebookConfig {
     private String pageToken;
     private String pageId;
 
-//    private String applicationId;
-//    private String redirectUri;
-//    private String scope;
-
     private static Logger logger = LoggerFactory.getLogger(FacebookConfigImpl.class);
 
     @Autowired
@@ -27,9 +23,6 @@ public class FacebookConfigImpl implements FacebookConfig {
         version = env.getProperty("fb.version");
         pageToken = env.getProperty("fb.page.token");
         pageId = env.getProperty("fb.page.Id");
-//        applicationId = env.getProperty("fb.app.id");
-//        redirectUri = env.getProperty("fb.app.redirect_uri");
-//        scope = env.getProperty("vk.app.scope");
         if (!configIsValid()) {
             logger.error("Facebook configs have not initialized. Check fb.properties file");
             System.exit(-1);
@@ -39,9 +32,7 @@ public class FacebookConfigImpl implements FacebookConfig {
 	private boolean configIsValid() {
 		if (version== null || version.isEmpty()) return false;
 		if (pageToken == null || pageToken.isEmpty()) return false;
-//		if (applicationId == null || applicationId.isEmpty()) return false;
-//		if (redirectUri == null || redirectUri.isEmpty()) return false;
-//		if (scope == null || scope.isEmpty()) return false;
+		if (pageId == null || pageId.isEmpty()) return false;
 		return true;
 	}
 
@@ -54,21 +45,7 @@ public class FacebookConfigImpl implements FacebookConfig {
         return pageToken;
     }
 
-    @Override
     public String getPageId() {
         return  pageId;
     }
-
-//    public String getApplicationId() {
-//        return applicationId;
-//    }
-
-
-//    public String getRedirectUri() {
-//        return redirectUri;
-//    }
-
-//    public String getScope() {
-//        return scope;
-//    }
 }
