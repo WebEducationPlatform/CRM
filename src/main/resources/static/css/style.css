@@ -696,11 +696,11 @@ button.upload-more-history {
     visibility: visible;
 }
 
-.dropdown:hover .dropdown-menu {
+li.dropdown:hover .dropdown-menu {
     display: block;
 }
 
-.navbar .sub-menu:before {
+.sub-menu:before {
     border-bottom: 7px solid transparent;
     border-left: none;
     border-right: 7px solid rgba(0, 0, 0, 0.2);
@@ -709,7 +709,7 @@ button.upload-more-history {
     top: 10px;
 }
 
-.navbar .sub-menu:after {
+.sub-menu:after {
     border-top: 6px solid transparent;
     border-left: none;
     border-right: 6px solid #fff;
