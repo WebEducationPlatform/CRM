@@ -1183,3 +1183,24 @@ function doLogin() {
         }
     }, 100);
 }
+
+$(".change-status-position").on('click', function () {
+    let destinationId = $(this).attr("value");
+    let sourceId = $(this).parents(".column").attr("value");
+    let url = "/rest/status/position/change";
+    let formData = {
+        sourceId : sourceId,
+        destinationId : destinationId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function() {
+            location.reload();
+        },
+        error: function (error) {
+
+        }
+    });
+});

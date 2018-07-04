@@ -106,4 +106,20 @@ public class StatusRestController {
 		statusService.update(status);
 		return ResponseEntity.ok().body(status);
 	}
+
+	@PreAuthorize("isAuthenticated()")
+	@PostMapping("/rest/status/position/change")
+	public ResponseEntity changePositionOfTwoStatuses(@RequestParam("sourceId") long sourceId, @RequestParam("destinationId") long destinationId) {
+		Status sourceStatus = statusService.get(sourceId);
+		Status destinationStatus = statusService.get(destinationId);
+		if (sourceStatus == null || destinationStatus == null) {
+			return ResponseEntity.notFound().build();
+		}
+		Long tempPosition = sourceStatus.getPosition();
+		sourceStatus.setPosition(destinationStatus.getPosition());
+		destinationStatus.setPosition(tempPosition);
+		statusService.update(sourceStatus);
+		statusService.update(destinationStatus);
+		return ResponseEntity.ok().build();
+	}
 }
