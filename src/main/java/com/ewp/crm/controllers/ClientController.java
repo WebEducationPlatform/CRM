@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -63,6 +64,7 @@ public class ClientController {
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
+		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
