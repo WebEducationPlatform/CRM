@@ -176,9 +176,10 @@ public class VKUtil {
 	}
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
+		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getConversations" +
 				"?v=" + version +
-				"&unread=1" +
+				"&filter=unread" +
+				"&group_id=" + clubId.replaceAll("-","") +
 				"&access_token=" +
 				communityToken;
 
@@ -195,8 +196,8 @@ public class VKUtil {
 			JSONArray jsonUsers = responseObject.getJSONArray("items");
 			List<Long> resultList = new ArrayList<>();
 			for (int i = 0; i < jsonUsers.length(); i++) {
-				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
-				resultList.add(jsonMessage.getLong("user_id"));
+				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("last_message");
+				resultList.add(jsonMessage.getLong("from_id"));
 			}
 			return Optional.of(resultList);
 		} catch (JSONException e) {
