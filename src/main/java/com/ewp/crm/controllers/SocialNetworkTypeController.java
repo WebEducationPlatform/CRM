@@ -40,7 +40,7 @@ public class SocialNetworkTypeController {
 
 	@RequestMapping(value = "/admin/user/addSocialNetworkType", method = RequestMethod.POST)
 	public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-		socialNetworkTypeService.addType(socialNetworkType);
+		socialNetworkTypeService.add(socialNetworkType);
 		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
 	}
 }

@@ -7,14 +7,14 @@ import java.io.Serializable;
 @Table(name = "sms_info")
 public class SMSInfo implements Serializable {
 
-	private static final long serialVersionUID = -1897381471234461980L;
+	private static final Long serialVersionUID = -1897381471234461980L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	@Column(name = "sms_id")
-	private long smsId;
+	private Long smsId;
 
 	@Column(name = "delivery_status")
 	private String deliveryStatus;
@@ -41,7 +41,7 @@ public class SMSInfo implements Serializable {
 	public SMSInfo() {
 	}
 
-	public SMSInfo(long smsId, String message, User whoSend) {
+	public SMSInfo(Long smsId, String message, User whoSend) {
 		this.smsId = smsId;
 		this.message = message;
 		this.user = whoSend;
@@ -64,11 +64,11 @@ public class SMSInfo implements Serializable {
 		this.message = message;
 	}
 
-	public long getSmsId() {
+	public Long getSmsId() {
 		return smsId;
 	}
 
-	public void setSmsId(long smsId) {
+	public void setSmsId(Long smsId) {
 		this.smsId = smsId;
 	}
 

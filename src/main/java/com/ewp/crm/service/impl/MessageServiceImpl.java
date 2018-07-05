@@ -6,7 +6,7 @@ import com.ewp.crm.service.interfaces.MessageService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MessageServiceImpl implements MessageService {
+public class MessageServiceImpl extends CommonServiceImpl<Message> implements MessageService {
 
 	private final MessageRepository messageRepository;
 
@@ -17,10 +17,5 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public Message addMessage(Message.Type type, String content) {
 		return messageRepository.saveAndFlush(new Message(type, content));
-	}
-
-	@Override
-	public Message getById(long id) {
-		return messageRepository.findOne(id);
 	}
 }

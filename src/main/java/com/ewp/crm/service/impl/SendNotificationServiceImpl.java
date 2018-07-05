@@ -7,22 +7,18 @@ import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 
 @Service
 public class SendNotificationServiceImpl implements SendNotificationService {
-
 	private final UserService userService;
-
 	private final MailSendService mailSendService;
-
 	private final NotificationService notificationService;
 
 	@Autowired
@@ -48,7 +44,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 						mailSendService.sendNotificationMessage(userToNotify);
 					}
 					Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
-					notificationService.addNotification(notification);
+					notificationService.add(notification);
 				}
 			}
 		}
@@ -58,6 +54,6 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 	public void sendNotificationType(String info, Client client, User user, Notification.Type type) {
 		Notification notification = new Notification(client, user, type);
 		notification.setInformation(info);
-		notificationService.addNotification(notification);
+		notificationService.add(notification);
 	}
 }

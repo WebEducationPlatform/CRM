@@ -138,7 +138,7 @@ public class ScheduleTasks {
 					sms.setDeliveryStatus(deliveryStatus);
 				}
 				sms.setChecked(true);
-				smsInfoService.updateSMSInfo(sms);
+				smsInfoService.update(sms);
 			}
 		}
 	}
