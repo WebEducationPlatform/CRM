@@ -11,23 +11,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CommentServiceImpl implements CommentService {
+public class CommentServiceImpl extends CommonServiceImpl<Comment> implements CommentService {
 
     private CommentDAO commentDAO;
 
     @Autowired
     public CommentServiceImpl(CommentDAO commentDAO) {
         this.commentDAO = commentDAO;
-    }
-
-    @Override
-    public List<Comment> getAll() {
-        return commentDAO.findAll();
-    }
-
-    @Override
-    public Comment getById(Long id) {
-        return commentDAO.getOne(id);
     }
 
     @Override
@@ -38,20 +28,5 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Comment> getAllByUser(User user) {
         return commentDAO.getAllByUser(user);
-    }
-
-    @Override
-    public void add(Comment comment) {
-        commentDAO.saveAndFlush(comment);
-    }
-
-    @Override
-    public void update(Comment comment) {
-        commentDAO.saveAndFlush(comment);
-    }
-
-    @Override
-    public void delete(Long id) {
-        commentDAO.delete(id);
     }
 }

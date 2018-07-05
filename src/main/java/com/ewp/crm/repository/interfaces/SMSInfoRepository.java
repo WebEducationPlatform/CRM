@@ -1,11 +1,10 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.SMSInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface SMSInfoRepository extends JpaRepository<SMSInfo, Long> {
+public interface SMSInfoRepository extends CommonGenericRepository<SMSInfo> {
 
 	List<SMSInfo> findByIsChecked(Boolean isDelivered);
 

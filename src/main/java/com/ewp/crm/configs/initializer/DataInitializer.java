@@ -45,8 +45,8 @@ public class DataInitializer {
 
 		SocialNetworkType VK = new SocialNetworkType("vk");
 		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
-		socialNetworkTypeService.addType(VK);
-		socialNetworkTypeService.addType(FACEBOOK);
+		socialNetworkTypeService.add(VK);
+		socialNetworkTypeService.add(FACEBOOK);
 
 		User admin = new User("Stanislav", "Sorokin", "79331558899", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), (byte) 22, "Moscow", "Russia", "Mentor",
@@ -113,10 +113,10 @@ public class DataInitializer {
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
 		Client client3 = new Client("Александра", "Соловьева", "89677345632", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
 		Client client4 = new Client("Иван", "Федоров", "89637745632", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
-		client1.addSMSInfo(new SMSInfo(123456789, "SMS Message to client 1", admin));
-		client2.addSMSInfo(new SMSInfo(12345678, "SMS Message to client 2", admin));
-		client3.addSMSInfo(new SMSInfo(1234567, "SMS Message to client 3", admin));
-		client4.addSMSInfo(new SMSInfo(123456, "SMS Message to client 4", admin));
+		client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
+		client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
+		client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));
+		client4.addSMSInfo(new SMSInfo(123456L, "SMS Message to client 4", admin));
 		client1.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
