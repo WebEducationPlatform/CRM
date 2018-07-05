@@ -20,9 +20,9 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
-                    <li sec:authorize="hasAuthority('OWNER','ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
-                    <li sec:authorize="hasAuthority('OWNER','ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
-                    <li sec:authorize="hasAuthority('OWNER','ADMIN')"><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
+                    <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:attrappend="data-target='#deleteStatusModal' + ${status.id}">Удалить статус</a></li>
+                    <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')"><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
+                    <li sec:authorize="hasAnyAuthority('OWNER','ADMIN')"><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
                     <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i class="glyphicon glyphicon-chevron-right"></i></a>
                         <ul class="dropdown-menu sub-menu">
                             <li class="link-cursor-pointer" th:each="st:${statuses}" th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-status-position" th:value="${st.id}" th:text="${st.name}"></a></li>
