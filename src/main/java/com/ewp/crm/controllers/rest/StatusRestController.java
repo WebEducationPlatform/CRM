@@ -119,7 +119,6 @@ public class StatusRestController {
 		sourceStatus.setPosition(destinationStatus.getPosition());
 		destinationStatus.setPosition(tempPosition);
 		statusService.update(sourceStatus);
-		statusService.update(destinationStatus);
 		return ResponseEntity.ok().build();
 	}
 }
