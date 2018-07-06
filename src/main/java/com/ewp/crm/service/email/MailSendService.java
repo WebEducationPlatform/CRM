@@ -26,6 +26,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import javax.validation.constraints.Null;
 import java.io.File;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -59,9 +60,13 @@ public class MailSendService {
 	}
 
 	private void checkConfig(Environment environment) {
-		this.emailLogin = environment.getProperty("spring.mail.username");
-		String password = environment.getProperty("spring.mail.password");
-		if (emailLogin == null || "".equals(emailLogin) || (password == null || "".equals(password))) {
+		try {
+			this.emailLogin = environment.getRequiredProperty("spring.mail.username");
+			String password = environment.getRequiredProperty("spring.mail.password");
+			if (emailLogin.isEmpty() || password.isEmpty()) {
+				throw new NullPointerException();
+			}
+		} catch (IllegalStateException | NullPointerException e) {
 			logger.error("Mail configs have not initialized. Check application.properties file");
 			System.exit(-1);
 		}

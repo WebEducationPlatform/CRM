@@ -14,7 +14,6 @@ import java.nio.channels.ReadableByteChannel;
 
 @Service
 public class DownloadCallRecordServiceImpl implements DownloadCallRecordService {
-
 	private static Logger logger = LoggerFactory.getLogger(DownloadCallRecordServiceImpl.class);
 
 	@Override

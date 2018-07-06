@@ -61,7 +61,7 @@ public class IPTelephonyRestController {
 			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
 			client.addHistory(historyFromDB);
 			callRecord.setClientHistory(historyFromDB);
-			CallRecord callRecordFromDB = callRecordService.add(callRecord);
+			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
 			ipUtil.call(from, to, callRecordFromDB.getId());
@@ -70,7 +70,7 @@ public class IPTelephonyRestController {
 
 	@RequestMapping(value = "/setCallRecord", method = RequestMethod.GET)
 	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
-		CallRecord callRecord = callRecordService.getCallRecord(clientCallId);
+		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
 			callRecord.setLink(downloadLink);

@@ -7,7 +7,7 @@ public class Message {
 
 	@Id
 	@GeneratedValue
-	private long id;
+	private Long id;
 
 	@Lob
 	private String content;
@@ -31,7 +31,7 @@ public class Message {
 		return type;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
