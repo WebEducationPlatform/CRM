@@ -34,17 +34,8 @@ public class DataInitializer {
 	@Autowired
 	private ClientHistoryService clientHistoryService;
 
-	@Autowired
-	private FacebookServiceImpl facebookService;
 
-
-
-	private void init() throws FBAccessTokenException {
-
-
-		System.out.println(facebookService.getFacebookMessages() + "HOBO");
-
-
+	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
 		Status defaultStatus = new Status("deleted", true);

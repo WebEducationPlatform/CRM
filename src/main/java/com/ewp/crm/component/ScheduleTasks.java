@@ -3,8 +3,10 @@ package com.ewp.crm.component;
 import com.ewp.crm.component.util.VKUtil;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.exceptions.parse.ParseClientException;
+import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +40,12 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private FacebookServiceImpl facebookService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, FacebookServiceImpl facebookService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -51,6 +55,7 @@ public class ScheduleTasks {
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.facebookService = facebookService;
 	}
 
 	private void addClient(Client newClient) {
@@ -122,6 +127,17 @@ public class ScheduleTasks {
 			clientService.updateClient(client);
 		}
 	}
+
+
+	@Scheduled(fixedRate = 600_000)
+	private void addFacebookMessageToDatabase() {
+		try {
+			facebookService.getFacebookMessages();
+		} catch (FBAccessTokenException e) {
+			logger.error("Facebook access token has not got", e);
+		}
+	}
+
 
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
