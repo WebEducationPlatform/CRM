@@ -135,6 +135,7 @@ public class ClientRestController {
 		currentClient.setNotifications(clientFromDB.getNotifications());
 		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.setCallRecords(clientFromDB.getCallRecords());
+		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
 		if (currentClient.equals(clientFromDB)) {
 			return ResponseEntity.noContent().build();
 		}
