@@ -1,37 +1,45 @@
 package com.ewp.crm.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "message_dialog")
 public class MessageDialog {
-
-
-//	Диалог который ииеет id
-//  Содержит в себе лист сообщений диалога
-//	Каждое оообщение имеет всремя создания, и собственно текст
-//
-
 
 	@Id
 	@GeneratedValue
+	@Column(name = "id")
+	private Long id;
+
 	@Column(name = "dialog_id")
-	private long dialogId;
+	private String dialogId;
 
-	@Column(name = "from")
-	String from;
+	@OneToMany(mappedBy = "messagesDialog")
+	private List<FacebookMessage> messages = new ArrayList<>();
 
-	@Column(name = "to")
-	String to;
+	public Long getId() {
+		return id;
+	}
 
-	@Column(name = "created_time")
-	long createdTime;
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-	@Column(name = "dialog_messages")
-	List<String> dialogMessages;
+	public String getDialogId() {
+		return dialogId;
+	}
 
+	public void setDialogId(String dialogId) {
+		this.dialogId = dialogId;
+	}
 
+	public List<FacebookMessage> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<FacebookMessage> messages) {
+		this.messages = messages;
+	}
 }
