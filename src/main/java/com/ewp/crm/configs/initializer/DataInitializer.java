@@ -39,9 +39,11 @@ public class DataInitializer {
 		Status status0 = new Status("New clients");
 
 		Role roleAdmin = new Role("ADMIN");
+		Role roleOwner = new Role("OWNER");
 		Role roleUser = new Role("USER");
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
+		roleService.add(roleOwner);
 
 		SocialNetworkType VK = new SocialNetworkType("vk");
 		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
@@ -50,7 +52,7 @@ public class DataInitializer {
 
 		User admin = new User("Stanislav", "Sorokin", "79331558899", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), (byte) 22, "Moscow", "Russia", "Mentor",
-				2000D, Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN")), true);
+				2000D, Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
 @RequestMapping("/user/sms")
 public class SMSRestController {
 
