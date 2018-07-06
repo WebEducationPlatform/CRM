@@ -1,14 +1,15 @@
 package com.ewp.crm.models;
 
-import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table
@@ -66,6 +67,9 @@ public class User implements UserDetails {
 	@Column
 	private boolean isEnabled;
 
+	@Column(name = "vkToken")
+	private String vkToken;
+
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
@@ -107,6 +111,14 @@ public class User implements UserDetails {
 		this.role = role;
 		this.ipTelephony = ipTelephony;
 		this.isEnabled = true;
+	}
+
+	public String getVkToken() {
+		return vkToken;
+	}
+
+	public void setVkToken(String vkToken) {
+		this.vkToken = vkToken;
 	}
 
 	public Long getId() {
