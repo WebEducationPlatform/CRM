@@ -123,6 +123,9 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
+
+
+
 $(document).ready(function () {
     $(".column").sortable({
         delay: 100,
@@ -166,6 +169,13 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
+   /* $("#new-status-form").focusout(
+        function () {
+            $(this).hide();
+            $("#create-new-status-span").show();
+        });*/
+
+   //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
         let jo2 = jo.find($(".portlet-header"));
@@ -203,7 +213,6 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
-
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
@@ -296,7 +305,6 @@ function changeStatusName(id) {
         }
     });
 }
-
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -345,7 +353,6 @@ function assign(id) {
         }
     });
 }
-
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
@@ -385,8 +392,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -414,11 +421,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if (unassignBtn.length !== 0) {
+            if(unassignBtn.length !== 0){
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id + ")' " +
+                    "   onclick='assign(" + id +")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -757,6 +764,7 @@ $(function () {
 });
 
 
+
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.save_value').on('click', function (event) {
@@ -789,9 +797,22 @@ $(function () {
         btn.data('templateId', templateId);
     });
 });
+$(function () {
+    $('.test-fix-btn').on('click', function () {
+        var portlet = $(this).closest('#main-modal-window');
+        var clientId = portlet.data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#sendTemplateModal');
+        var btn = currentModal.find('.send-all-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
+
+    });
+
+});
 
 
-//Отрпавка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
+//Отправка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
@@ -865,8 +886,31 @@ $(function () {
         btn.data('templateId', templateId);
     });
 });
+$(function () {
+    $('.test-custom-btn').on('click', function () {
+        var portlet = $(this).closest('#main-modal-window');
+        var clientId = portlet.data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#customMessageTemplate');
+        var btn = currentModal.find('.send-all-custom-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
 
-//Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
+    });
+
+});
+// Кнопка  вк
+// $(function () {
+//     $(function (client) {
+//
+//  var clientId = client.age;
+//
+//     $('#vk-href').attr('href', clientId);
+//     });
+// });
+
+
+//Отправка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-custom-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
@@ -930,6 +974,7 @@ $(function () {
         $(this).find('.send-all-custom-message').removeAttr("disabled");
     });
 });
+
 
 
 function hideClient(clientId) {
@@ -1027,6 +1072,20 @@ $(function () {
                         $('#client-age').text(client.age);
                     }
                     $('#client-sex').text(client.sex);
+                    // здесь вставка ссылок в кнопки вк и фб
+                    $('#vk-href').hide();
+                    $('#fb-href').hide();
+
+                    for (var i = 0; i < client.socialNetworks.length; i++) {
+                        if (client.socialNetworks[i].socialNetworkType.name == 'vk') {
+                            $('#vk-href').attr('href', client.socialNetworks[i].link);
+                            $('#vk-href').show();
+                        }
+                        if (client.socialNetworks[i].socialNetworkType.name == 'facebook') {
+                            $('#fb-href').attr('href', client.socialNetworks[i].link);
+                            $('#fb-href').show();
+                        }
+                    }
                     var btnBlock = $('div#assign-unassign-btns');
                     if (client.ownerUser === null) {
                         btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
@@ -1037,6 +1096,9 @@ $(function () {
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
+
+                $('.send-all-custom-message').attr('clientId', clientId);
+                $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
@@ -1126,7 +1188,6 @@ function vk_popup(options) {
         );
     return window.open(options.url, 'vk_oauth', features);
 }
-
 function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';
