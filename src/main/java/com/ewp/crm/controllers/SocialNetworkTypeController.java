@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 
 @Controller
-@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
 public class SocialNetworkTypeController {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;

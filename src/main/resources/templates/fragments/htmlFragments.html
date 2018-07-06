@@ -83,7 +83,7 @@
                    <ul class="dropdown-menu">
                                            <li><a href="/user/customize">Настройки</a></li>
 
-                                           <li sec:authorize="hasAuthority('ADMIN')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
+                                           <li sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
                                            <li><a href="/logout">Выход</a></li>
                                       </ul>
                 </li>
