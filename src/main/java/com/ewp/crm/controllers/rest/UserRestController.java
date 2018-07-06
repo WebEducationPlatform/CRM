@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +53,7 @@ public class UserRestController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
-	public ResponseEntity updateUser(@RequestBody User user) {
+	public ResponseEntity updateUser(@Valid @RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Optional<String> userPhoto = Optional.ofNullable(user.getPhoto());
 		Optional<String> currentPhoto = Optional.ofNullable(userService.get(user.getId()).getPhoto());
@@ -87,7 +88,8 @@ public class UserRestController {
 
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
-	public ResponseEntity addUser(@RequestBody User user) {
+	public ResponseEntity addUser(@Valid @RequestBody User user) {
+
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		userService.add(user);
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
