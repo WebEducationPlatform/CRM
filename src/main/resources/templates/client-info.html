@@ -23,7 +23,7 @@
                         <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" type="submit" class="btn btn-primary" id="saveChanges"
                                 th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                         </button>
-                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <a href="/client" class="btn btn-primary back-btn" id="backToMain">Назад</a>
                     </div>
                     <p><span id="message"></span></p>
                     <div class="form-group">
