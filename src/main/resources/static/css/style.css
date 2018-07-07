@@ -7,6 +7,10 @@
 	resize: none;
 }
 
+.line-decoration{
+	text-decoration: underline;
+	color: #132580;
+}
 
 #textTemplateArea {
 	width: 100%;

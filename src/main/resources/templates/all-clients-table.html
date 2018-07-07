@@ -110,7 +110,7 @@
             <tbody id="table-body">
                 <tr th:each="client : ${allClients}">
                     <td th:text="${client.id}"></td>
-                    <td th:text="${client.name}"></td>
+                    <td class="line-decoration" ><a th:text="${client.name}" th:href="@{'/client/clientInfo/' + ${client.id}}"></a></td>
                     <td th:text="${client.lastName}"></td>
                     <td th:text="${client.phoneNumber}"></td>
                     <td th:text="${client.email}"></td>
