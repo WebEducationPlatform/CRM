@@ -344,7 +344,7 @@ public class VKUtil {
         return groupId;
     }
 
-    public void addUsersToAudience(String groupId, String contacts) throws Exception {
+    public String addUsersToAudience(String groupId, String contacts) throws Exception {
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.GET, addContactsToGroup);
@@ -354,6 +354,7 @@ public class VKUtil {
         request.addParameter("v", version);
         service.signRequest(accessToken, request);
         Response response = service.execute(request);
+        return addContactsToGroup;
     }
 
     /*public String createNewAudience() {
