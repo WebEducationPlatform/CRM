@@ -92,7 +92,7 @@ $('#filtration').click(function (){
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
-                    '        <td>' + res[i].name + '</td>' +
+                    '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
                     '        <td>' + res[i].lastName + '</td>' +
                     '        <td>' + phoneNumber + '</td>' +
                     '        <td>' + email + '</td>' +
@@ -202,7 +202,7 @@ $(document).ready(function () {
             table.append(
                 '    <tr>' +
                 '        <td>' + res[i].id + '</td>' +
-                '        <td>' + res[i].name + '</td>' +
+                '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
                 '        <td>' + res[i].lastName + '</td>' +
                 '        <td>' + phoneNumber + '</td>' +
                 '        <td>' + email + '</td>' +
