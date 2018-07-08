@@ -1,6 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
@@ -23,14 +23,14 @@ import java.util.Map;
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 public class VkRestController {
 
-	private final VKUtil vkUtil ;
+	private final VKService vkService;
 	private final ClientService clientService;
 	private final MessageTemplateServiceImpl MessageTemplateService;
 	private final UserService userService;
 
 	@Autowired
-	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKUtil vkUtil1, UserService userService) {
-		this.vkUtil = vkUtil1;
+	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKService vkService1, UserService userService) {
+		this.vkService = vkService1;
 		this.clientService = clientService;
 		this.MessageTemplateService = MessageTemplateService;
 		this.userService = userService;
@@ -49,7 +49,7 @@ public class VkRestController {
 
 		User user = userService.get(principal.getId());
 		String token = user.getVkToken();
-		vkUtil.sendMessageToClient(client, vkText, params, principal, token);
+		vkService.sendMessageToClient(client, vkText, params, principal, token);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 }
