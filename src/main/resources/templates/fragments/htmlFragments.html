@@ -129,7 +129,7 @@
                     <div th:id="'comment' + ${comment.id}" th:class="comment">
                         <span class="comment-name"
                               th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                        <span th:if="${user == comment.user}" class="glyphicon glyphicon-remove comment-functional"
+                        <span th:if="${user == comment.user}" class="glyphicon glyphicon-removeUsersFromAudience comment-functional"
                               th:onclick="'deleteComment('+ ${comment.id} + ')'"></span>
                         <span th:if="${user == comment.user}"
                               class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
@@ -163,7 +163,7 @@
                                     <span class="comment-name"
                                           th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
                                     <span th:if="${user == answer.user}"
-                                          class="glyphicon glyphicon-remove comment-functional"
+                                          class="glyphicon glyphicon-removeUsersFromAudience comment-functional"
                                           th:onclick="'deleteComment('+ ${answer.id} + ')'"></span>
                                     <span th:if="${user == answer.user}"
                                           class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
