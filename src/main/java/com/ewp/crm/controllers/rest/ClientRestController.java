@@ -34,17 +34,19 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
+	private final SendNotificationService sendNotificationService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil, SendNotificationService sendNotificationService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
+		this.sendNotificationService = sendNotificationService;
 	}
 
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -154,7 +156,7 @@ public class ClientRestController {
 		}
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
+			client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);

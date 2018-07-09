@@ -230,24 +230,7 @@ function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
 
-function deleteStatus(id) {
-    let url = '/admin/rest/status/delete';
-    let formData = {
-        deleteId: id
-    };
 
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            location.reload();
-        },
-        error: function (e) {
-
-        }
-    });
-}
 
 function createNewUser() {
     let url = '/rest/user/addUser';

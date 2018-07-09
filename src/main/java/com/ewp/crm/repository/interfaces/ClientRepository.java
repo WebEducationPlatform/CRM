@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import java.util.List;
 public interface ClientRepository extends JpaRepository<Client, Long>, ClientRepositoryCustom {
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
+	List<Client> findAllByStatus(Status status);
 
 	Client findClientByEmail(String Email);
 

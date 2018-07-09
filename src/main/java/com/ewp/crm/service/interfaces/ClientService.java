@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public interface ClientService {
-
+	List<Client> findAllByStatus(Status status);
 	List<Client> getAllClients();
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
