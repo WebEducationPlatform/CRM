@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FacebookServiceImpl implements FacebookService {
@@ -50,15 +52,18 @@ public class FacebookServiceImpl implements FacebookService {
 		if (pageToken == null) {
 			throw new FBAccessTokenException("Facebook access token has not got");
 		}
-		URI uri = URI.create(FB_API_METHOD_TEMPLATE  + version + "/" + pageId + "/" +
+		URI uri = URI.create(FB_API_METHOD_TEMPLATE + version + "/" + pageId + "/" +
 				"?fields=about,conversations%7Bmessages%7Bmessage,created_time,from,to%7D%7D" +
 				"&access_token=" + pageToken);
 		try {
+			Date lastMessageDate = facebookMessageService.findMaxDate();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 			ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, null, String.class);
 			JSONObject json = new JSONObject(result.getBody());
 			JSONObject conversations = (JSONObject) json.get("conversations");
 			JSONArray jsonData = conversations.getJSONArray("data");
 			int count = 0;
+			List<FacebookMessage> listMessages = new ArrayList<>();
 			while (count != jsonData.length()) {
 				MessageDialog messageDialog = new MessageDialog();
 				JSONObject jsonDataObj = jsonData.getJSONObject(count);
@@ -66,22 +71,34 @@ public class FacebookServiceImpl implements FacebookService {
 				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
 				JSONArray nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
 				count++;
-				for (int i = nestedDatajsonjMessages.length() - 1; i != 0; i--) {
+				boolean isWriteDialog = false;
+				for (int i = nestedDatajsonjMessages.length() - 1; i >= 0; i--) {
 					JSONObject jsonMessage = nestedDatajsonjMessages.getJSONObject(i);
-					String message = jsonMessage.getString("message");
-					String from = jsonMessage.getJSONObject("from").getString("name");
 					String createdTime = jsonMessage.getString("created_time");
-					String to = jsonMessage.getJSONObject("to").getJSONArray("data").getJSONObject(0).getString("name");
-					FacebookMessage facebookMessage = new FacebookMessage(message,from,to,createdTime,messageDialog);
-					facebookDialogService.addDialog(messageDialog);
-					facebookMessageService.addFacebookMessage(facebookMessage);
+					Date date = sdf.parse(createdTime);
+					if (lastMessageDate == null || date.after(lastMessageDate)) {
+						isWriteDialog = false;
+						FacebookMessage facebookMessage = new FacebookMessage();
+						facebookMessage.setCreatedTime(date);
+						facebookMessage.setTextMessage(jsonMessage.getString("message"));
+						facebookMessage.setFrom(jsonMessage.getJSONObject("from").getString("name"));
+						facebookMessage.setTo(jsonMessage.getJSONObject("to").getJSONArray("data").getJSONObject(0).getString("name"));
+						facebookMessage.setMessagesDialog(messageDialog);
+						listMessages.add(facebookMessage);
+					} else {
+						isWriteDialog = true;
+					}
 				}
-				logger.info("All Facebook messages add to database ");
+				if (!isWriteDialog) {
+					facebookDialogService.addDialog(messageDialog);
+				}
 			}
-		} catch (JSONException e) {
-			logger.error("Can not read message from JSON ", e);
+			facebookMessageService.addBatchMessages(listMessages);
+
+			logger.info("All Facebook messages add to database");
+		} catch (ParseException | JSONException e) {
+			logger.info("Can't parse Facebook messages", e);
 		}
 	}
 }
-
 
