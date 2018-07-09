@@ -70,6 +70,7 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
 		modelAndView.addObject("emailTmpl", MessageTemplateService.getall());
 		return modelAndView;
 	}

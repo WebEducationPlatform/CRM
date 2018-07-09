@@ -3,6 +3,8 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -25,8 +27,8 @@ public class CommentAnswer {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))})
 	private Client client;
 
-	@Column
-	private Date date = new Date();
+	@Column(name = "date")
+	private String dateFormat;
 
 	@Column
 	private String content;
@@ -46,6 +48,10 @@ public class CommentAnswer {
 		this.user = user;
 		this.content = content;
 		this.client = client;
+
+		Date date = new Date(System.currentTimeMillis());
+		DateFormat dateFormater = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		setDateFormat(dateFormater.format(date));
 	}
 
 	public Long getId() {
@@ -54,14 +60,6 @@ public class CommentAnswer {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
 	}
 
 	public String getContent() {
@@ -94,5 +92,13 @@ public class CommentAnswer {
 
 	public void setClient(Client client) {
 		this.client = client;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
 	}
 }

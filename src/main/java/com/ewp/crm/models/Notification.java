@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -101,12 +103,13 @@ public class Notification implements Serializable {
 	public Type getType() {
 		return type;
 	}
+	public List<Type> getTypes(){ return Arrays.asList(Type.values());}
 
 	public void setType(Type type) {
 		this.type = type;
 	}
 
 	public enum Type{
-		COMMENT, SMS, POSTPONE
+		COMMENT, SMS, POSTPONE, NEW_USER
 	}
 }

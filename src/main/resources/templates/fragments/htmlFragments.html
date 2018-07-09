@@ -67,6 +67,15 @@
                                         </a>
                                     </li>
                                 </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
                             </th:block>
                         </th:block>
                         <th:block th:if="${notifications.size() == 0}">
@@ -323,9 +332,28 @@
     </div>
 </div>
 </th:block>
+<th:block th:fragment="deleteNotifications">
+<div id="delete-client-modal" class="modal" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтвердите свое действие</h5>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить карточк - у(ки), на котор - ой(ых) есть непрочитанные уведомления? Если выбирете "да", то все уведомления будут удалены.</p>
+            </div>
+            <div class="modal-footer">
+                <button  id ="delete-client-btn"   type="button" class="btn btn-primary" data-dismiss="modal">Да</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
 <th:block th:fragment="deleteStatusModal">
-<div class="modal fade" th:id="'deleteStatusModal' + ${status.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+<div class="modal fade" id="deleteStatusModal" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -335,7 +363,7 @@
                 <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" th:onclick="'deleteStatus(\''+ ${status.id} +'\')'">Да</button>
+                <button id="delete-status-btn" type="button" class="btn btn-primary" >Да</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
             </div>
         </div>
