@@ -1,21 +1,15 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.FacebookMessage;
-import com.ewp.crm.models.MessageDialog;
 
+import java.util.Date;
 import java.util.List;
 
-public interface FacebookMessageServie {
+public interface FacebookMessageServie extends CommonService<FacebookMessage> {
+
+	Date findMaxDate();
 
 	FacebookMessage addFacebookMessage(FacebookMessage facebookMessage);
 
-	List<FacebookMessage> getAllFacebookMessages();
-
-	FacebookMessage getFacebookMessage(Long id);
-
-	void deleteFacebookMessage(FacebookMessage messageDialog);
-
-	void deleteFacebookMessage(Long id);
-
-	void updateFacebookMessage(FacebookMessage messageDialog);
+	void addBatchMessages(List<FacebookMessage> clients);
 }
