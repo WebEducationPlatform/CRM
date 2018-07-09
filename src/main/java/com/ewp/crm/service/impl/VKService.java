@@ -329,11 +329,11 @@ public class VKService {
                 .replaceAll("&.+", "");
     }
 
-    public String createNewAudience(String groupName) throws Exception {
+    public String createNewAudience(String groupName, String idVkCabinet) throws Exception {
         String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.GET, createGroup);
-        request.addParameter("account_id", "1604697686");
+        request.addParameter("account_id", idVkCabinet);
         request.addParameter("name", groupName);
         request.addParameter("v", version);
         service.signRequest(accessToken, request);
