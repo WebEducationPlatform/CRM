@@ -10,7 +10,6 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -19,20 +18,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class ClientServiceImpl implements ClientService {
-
+public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 	private final ClientRepository clientRepository;
-
 	private StatusService statusService;
 
 	@Autowired
 	public ClientServiceImpl(ClientRepository clientRepository) {
 		this.clientRepository = clientRepository;
-	}
-
-	@Override
-	public List<Client> getAllClients() {
-		return clientRepository.findAll();
 	}
 
 	@Override
@@ -48,11 +40,6 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public Client getClientByPhoneNumber(String phoneNumber) {
 		return clientRepository.findClientByPhoneNumber(phoneNumber);
-	}
-
-	@Override
-	public Client getClientByID(Long id) {
-		return clientRepository.findOne(id);
 	}
 
 	@Override
@@ -139,6 +126,12 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<Client> findAllByPage(Pageable pageable) {
 		return clientRepository.findAll(pageable).getContent();
+	}
+
+	@Override
+	public List<Client> findAllByOwnerUser(Pageable pageable, User clientOwner) {
+		List<Client> list = clientRepository.findAllByOwnerUser(pageable, clientOwner).getContent();
+		return list;
 	}
 
 	@Override

@@ -16,105 +16,82 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends CommonServiceImpl<User> implements UserService {
+    private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UserDAO userDAO;
+    private final ImageConfig imageConfig;
 
-	private final UserDAO userDAO;
-	private final ImageConfig imageConfig;
+    @Autowired
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
+        this.userDAO = userDAO;
+        this.imageConfig = imageConfig;
+    }
 
-	private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    @Override
+    public User getByEmailOrPhone(String email, String phone) {
+        return userDAO.getUserByEmailOrPhoneNumber(email, phone);
+    }
 
-	@Autowired
-	public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
-		this.userDAO = userDAO;
-		this.imageConfig = imageConfig;
-	}
+    @Override
+    public void add(User user) {
+        phoneNumberValidation(user);
+        if (userDAO.getUserByEmail(user.getEmail()) != null) {
+            throw new UserExistsException();
+        }
+        userDAO.saveAndFlush(user);
+    }
 
-	@Override
-	public List<User> getAll() {
-		return userDAO.findAll();
-	}
+    @Override
+    public void update(User user) {
+        phoneNumberValidation(user);
+        User currentUserByEmail;
+        if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
+            throw new UserExistsException();
+        }
+        userDAO.saveAndFlush(user);
+    }
 
-	@Override
-	public User get(Long id) {
-		return userDAO.findOne(id);
-	}
+    @Override
+    public void addPhoto(MultipartFile file, User user) {
+        if (!file.isEmpty()) {
+            try {
+                BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
+                String fileName = "user-" + user.getId() + "-avatar.png";
+                File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
+                ImageIO.write(image, "png", outputFile);
+                user.setPhoto("/admin/avatar/" + fileName);
+                update(user);
+            } catch (Exception e) {
+                logger.error("Error during saving photo: " + e.getMessage());
+                throw new UserPhotoException();
+            }
+        }
+    }
 
-	@Override
-	public User getByEmailOrPhone(String email, String phone) {
-		return userDAO.getUserByEmailOrPhoneNumber(email, phone);
-	}
+    @Override
+    public User getUserByEmail(String email) {
+        return userDAO.getUserByEmail(email);
+    }
 
-	@Override
-	public void add(User user) {
-		phoneNumberValidation(user);
-		if (userDAO.getUserByEmail(user.getEmail()) != null) {
-			throw new UserExistsException();
-		}
-		userDAO.saveAndFlush(user);
-	}
+    @Override
+    public User getUserByFirstNameAndLastName(String firstName, String lastName) {
+        return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
+    }
 
-	@Override
-	public void update(User user) {
-		phoneNumberValidation(user);
-		User currentUserByEmail;
-		if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
-			throw new UserExistsException();
-		}
-		userDAO.saveAndFlush(user);
-	}
-
-	@Override
-	public void delete(Long id) {
-		userDAO.delete(id);
-	}
-
-	@Override
-	public void delete(User user) {
-		userDAO.delete(user);
-	}
-
-	@Override
-	public void addPhoto(MultipartFile file, User user) {
-		if (!file.isEmpty()) {
-			try {
-				BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
-				String fileName = "user-" + user.getId() + "-avatar.png";
-				File outputFile = new File(imageConfig.getPathForAvatar() + fileName);
-				ImageIO.write(image, "png", outputFile);
-				user.setPhoto("/admin/avatar/" + fileName);
-				update(user);
-			}catch (Exception e){
-				logger.error("Error during saving photo: " + e.getMessage());
-				throw new UserPhotoException();
-			}
-		}
-	}
-
-	@Override
-	public User getUserByEmail(String email) {
-		return userDAO.getUserByEmail(email);
-	}
-
-	@Override
-	public User getUserByFirstNameAndLastName(String firstName, String lastName) {
-		return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
-	}
-
-	private void phoneNumberValidation(User user) {
-		String phoneNumber = user.getPhoneNumber();
-		Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-		Matcher matcher = pattern.matcher(phoneNumber);
-		if (matcher.matches()) {
-			if (phoneNumber.startsWith("8")) {
-				phoneNumber = phoneNumber.replaceFirst("8", "7");
-			}
-			user.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-					.replaceAll("\\s", ""));
-		}
-	}
+    private void phoneNumberValidation(User user) {
+        String phoneNumber = user.getPhoneNumber();
+        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        if (matcher.matches()) {
+            if (phoneNumber.startsWith("8")) {
+                phoneNumber = phoneNumber.replaceFirst("8", "7");
+            }
+            user.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
+                    .replaceAll("\\s", ""));
+        }
+    }
 }

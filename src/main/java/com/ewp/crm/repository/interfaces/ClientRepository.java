@@ -4,11 +4,10 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClientRepository extends JpaRepository<Client, Long>, ClientRepositoryCustom {
+public interface ClientRepository extends CommonGenericRepository<Client>, ClientRepositoryCustom {
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
@@ -19,4 +18,6 @@ public interface ClientRepository extends JpaRepository<Client, Long>, ClientRep
 	List<Client> findByIdIn(List<Long> ids);
 
 	Page<Client> findAll(Pageable pageable);
+
+	Page<Client> findAllByOwnerUser(Pageable pageable, User clientOwner);
 }

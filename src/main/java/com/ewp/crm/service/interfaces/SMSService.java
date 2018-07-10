@@ -1,4 +1,4 @@
-package com.ewp.crm.component.util.interfaces;
+package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
@@ -6,7 +6,7 @@ import org.json.JSONException;
 
 import java.util.List;
 
-public interface SMSUtil {
+public interface SMSService {
 	void sendSMS(Client client, String text, User sender) throws JSONException;
 	void sendSMS(List<Client> clients, String text, User sender);
 	void plannedSMS(Client client, String text, String date, User sender);
