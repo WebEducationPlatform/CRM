@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CommentAnswerServiceImpl implements CommentAnswerService {
-
+public class CommentAnswerServiceImpl extends CommonServiceImpl<CommentAnswer> implements CommentAnswerService {
 	private final CommentAnswerRepository commentAnswerRepository;
 
 	@Autowired
@@ -17,22 +16,7 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 	}
 
 	@Override
-	public CommentAnswer add(CommentAnswer commentAnswer) {
-		return commentAnswerRepository.saveAndFlush(commentAnswer);
-	}
-
-	@Override
-	public void update(CommentAnswer commentAnswer) {
-		commentAnswerRepository.saveAndFlush(commentAnswer);
-	}
-
-	@Override
-	public void delete(Long id) {
-		commentAnswerRepository.delete(id);
-	}
-
-	@Override
-	public CommentAnswer getById(Long id) {
-		return commentAnswerRepository.getById(id);
-	}
+    public CommentAnswer addCommentAnswer(CommentAnswer commentAnswer){
+	    return commentAnswerRepository.saveAndFlush(commentAnswer);
+    }
 }

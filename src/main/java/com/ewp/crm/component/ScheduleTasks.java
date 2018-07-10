@@ -1,7 +1,7 @@
 package com.ewp.crm.component;
 
-import com.ewp.crm.component.util.VKUtil;
-import com.ewp.crm.component.util.interfaces.SMSUtil;
+import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @EnableScheduling
 public class ScheduleTasks {
 
-	private final VKUtil vkUtil;
+	private final VKService vkService;
 
 	private final ClientService clientService;
 
@@ -30,7 +30,7 @@ public class ScheduleTasks {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
-	private final SMSUtil smsUtil;
+	private final SMSService smsService;
 
 	private final SMSInfoService smsInfoService;
 
@@ -41,13 +41,13 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
-		this.vkUtil = vkUtil;
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
+		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
-		this.smsUtil = smsUtil;
+		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
@@ -77,11 +77,11 @@ public class ScheduleTasks {
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
 		try {
-			Optional<List<String>> newMassages = vkUtil.getNewMassages();
+			Optional<List<String>> newMassages = vkService.getNewMassages();
 			if (newMassages.isPresent()) {
 				for (String message : newMassages.get()) {
 					try {
-						Client newClient = vkUtil.parseClientFromMessage(message);
+						Client newClient = vkService.parseClientFromMessage(message);
 						SocialNetwork socialNetwork = newClient.getSocialNetworks().get(0);
 						if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
 							updateClient(newClient);
@@ -100,10 +100,10 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVkCommunityMessages() {
-		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
+		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
 			for (Long id : newUsers.get()) {
-				Optional<Client> newClient = vkUtil.getClientFromVkId(id);
+				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
 					SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
 					if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
@@ -128,7 +128,7 @@ public class ScheduleTasks {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
-			String status = smsUtil.getStatusMessage(sms.getSmsId());
+			String status = smsService.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
 				if (status.equals("delivered")) {
 					sms.setDeliveryStatus("доставлено");
@@ -138,7 +138,7 @@ public class ScheduleTasks {
 					sms.setDeliveryStatus(deliveryStatus);
 				}
 				sms.setChecked(true);
-				smsInfoService.updateSMSInfo(sms);
+				smsInfoService.update(sms);
 			}
 		}
 	}
