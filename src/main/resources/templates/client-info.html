@@ -13,18 +13,8 @@
 <div style="margin-top: 3%">
     <div id="client-info-container" class="container-fluid">
         <div class="row-fluid">
-            <div class="col-md-8" id="column1">
+            <div class="col-md-6" id="column1">
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
-                    <div class="btn-group">
-                        <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
-                            Редактировать
-                        </button>
-                        <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary" id="saveChanges"
-                                th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
-                        </button>
-                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
-                    </div>
-                    <p><span id="message"></span></p>
                     <div class="form-group">
                         <label for="edit-client-first-name">Имя</label>
                         <input class="form-control" required="required" disabled="disabled" id="edit-client-first-name"
@@ -135,9 +125,19 @@
                 <button class="btn btn-md btn-info" disabled="disabled" id="addNewJob" th:onclick="'addNewJob()'">
                     Добавить работу
                 </button>
+                <div class="btn-group client-info-edit-save-back-btns">
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
+                        Редактировать
+                    </button>
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary" id="saveChanges"
+                            th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
+                    </button>
+                    <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                    <p><span id="message"></span></p>
+                </div>
             </div>
             <!-- Client History -->
-            <div class="col-md-4 history-row" id="column2">
+            <div class="col-md-6 history-row" id="column2">
                 <div><h2>История клиента</h2></div>
                 <button type="button" data-toggle="collapse" data-target="#collapse-history"
                         class="btn btn-primary open-history">Открыть историю
