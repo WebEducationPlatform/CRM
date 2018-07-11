@@ -82,9 +82,9 @@ public class StatusRestController {
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Status status = statusService.get(deleteId);
-		List<Client> clients_status =  status.getClients();
-		for (Client clients_statu : clients_status) {
-			notificationService.deleteNotificationsByClient(clients_statu);
+		List<Client> clients =  status.getClients();
+		for (Client client : clients) {
+			notificationService.deleteNotificationsByClient(client);
 		}
 		statusService.delete(deleteId);
 
@@ -119,9 +119,9 @@ public class StatusRestController {
 			logger.error(reason);
 			return ResponseEntity.badRequest().body(reason);
 		}
-		 List<Client> clients_status =  status.getClients();
-		for (Client clients_s : clients_status) {
-			notificationService.deleteNotificationsByClient(clients_s);
+		 List<Client> clients =  status.getClients();
+		for (Client client : clients) {
+			notificationService.deleteNotificationsByClient(client);
 		}
 		status.setInvisible(bool);
 		statusService.update(status);
