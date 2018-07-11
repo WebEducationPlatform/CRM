@@ -17,15 +17,15 @@ import java.util.List;
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
-    private final EntityManager entityManager;
+	private final EntityManager entityManager;
 
-    @Value("${project.jpa.batch-size}")
-    private int batchSize;
+	@Value("${project.jpa.batch-size}")
+	private int batchSize;
 
-    @Autowired
-    public ClientRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+	@Autowired
+	public ClientRepositoryImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 	@Override
 	public List<Client> filteringClient(FilteringCondition filteringCondition) {
@@ -110,7 +110,6 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 	private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
 		return "select phoneNumber from Client cl where 1 = 1" + filterQuery(filteringCondition);
 	}
-
 	private String filterQuery(FilteringCondition filteringCondition) {
 		StringBuilder query = new StringBuilder();
 

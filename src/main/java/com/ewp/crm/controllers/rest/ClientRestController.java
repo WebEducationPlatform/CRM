@@ -156,7 +156,7 @@ public class ClientRestController {
 		}
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
-			client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
+		client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
 		clientService.addClient(client);
 		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
