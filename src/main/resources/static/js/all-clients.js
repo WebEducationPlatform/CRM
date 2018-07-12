@@ -159,7 +159,7 @@ $(document).ready(function () {
 
 
     win.scroll(function () {
-        if ($(document).height() - win.height() < win.scrollTop() + 10) {
+        if ($(document).height() - win.height() === win.scrollTop()) {
 
             $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
                 let table = $("#clients-table").find("tbody");
