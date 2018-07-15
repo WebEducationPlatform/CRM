@@ -104,6 +104,7 @@ public class ClientServiceImpl implements ClientService {
                 return;
             }
         }
+        checkSocialLinks(client);
         if (client.getEmail() != null && !client.getEmail().isEmpty()) {
             Client clientByEmail = clientRepository.findClientByEmail(client.getEmail());
             if (clientByEmail != null) {
@@ -112,6 +113,7 @@ public class ClientServiceImpl implements ClientService {
                 return;
             }
         }
+
         clientRepository.saveAndFlush(client);
         sendNotificationService.sendNotificationsAllUsers(client);
     }
@@ -166,6 +168,9 @@ public class ClientServiceImpl implements ClientService {
                 throw new ClientExistsException();
             }
         }
+        checkSocialLinks(client);
+
+
         clientRepository.saveAndFlush(client);
     }
 
@@ -184,6 +189,19 @@ public class ClientServiceImpl implements ClientService {
             client.setCanCall(false);
         }
     }
+    private  void checkSocialLinks(Client client){
+        String regexp = "^(https:\\/\\/)+([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
+        Pattern pattern = Pattern.compile(regexp);
+        for (int i = 0; i < client.getSocialNetworks().size(); i++) {
+            String link = client.getSocialNetworks().get(i).getLink();
+            Matcher matcher = pattern.matcher(link);
+            if (!matcher.matches()){
+                link = "https://" +  client.getSocialNetworks().get(i).getLink();
+                client.getSocialNetworks().get(i).setLink(link);
+            }
+        }
+    }
+
     @Autowired
     public void setSendNotificationService(SendNotificationService sendNotificationService) {
         this.sendNotificationService = sendNotificationService;

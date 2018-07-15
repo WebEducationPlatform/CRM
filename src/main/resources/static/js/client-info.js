@@ -156,10 +156,7 @@ function addNewSN() {
         return;
     }
 	var size =  ($("#SN-table-body")[0]).rows.length;
-	$("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td>  <input type=\"text\" class=\"form-control\"  data-error=\"Неверный формат ссылки\"\n" +
-        "                                           pattern=\"https://[A-Za-z0-9-.-/]*$\"\n" +
-        "                                           id=\"edit-client-social-link\"/>\n" +
-        "                                    <div class=\"help-block with-errors\"></div></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+	$("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function addNewJob() {
