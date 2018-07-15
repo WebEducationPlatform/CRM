@@ -97,11 +97,7 @@
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialNetworks}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td>
-                                    <input type="text" class="form-control" disabled="disabled" data-error="Неверный формат ссылки"
-                                           pattern="https://[A-Za-z0-9-.-/]*$"
-                                           id="edit-client-social-link" th:value="${socials.link}" />
-                                    <div class="help-block with-errors"></div>
+                                <td th:value="${socials.link}" th:text="${socials.link}">
                                 </td>
                                 <td th:value="${socials.socialNetworkType.id}"  th:text="${socials.socialNetworkType.name}">
 
