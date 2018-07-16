@@ -13,6 +13,8 @@ public interface ClientService {
 
 	List<Client> getAllClients();
 
+	List<Client> getTimeOfSkypeCall();
+
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	Client getClientByEmail(String name);

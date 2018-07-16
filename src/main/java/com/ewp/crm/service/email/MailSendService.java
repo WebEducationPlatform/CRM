@@ -8,6 +8,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,18 +45,20 @@ public class MailSendService {
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final MessageTemplateService messageTemplateService;
 	private String emailLogin;
 
 
 	@Autowired
 	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService) {
+	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MessageTemplateService messageTemplateService) {
 		this.javaMailSender = javaMailSender;
 		this.htmlTemplateEngine = htmlTemplateEngine;
 		this.imageConfig = imageConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.messageTemplateService = messageTemplateService;
 		checkConfig(environment);
 	}
 
@@ -67,8 +71,17 @@ public class MailSendService {
 		}
 	}
 
-	public void prepareAndSend(String recipient, Map<String, String> params, String templateText, String templateFile) {
+	public void prepareAndSend(Long clientId, Long templateId, String body) {
+		String templateFile = "emailStringTemplate";
+		Client client = clientService.getClientByID(clientId);
+		String recipient = client.getEmail();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
 		final Context ctx = new Context();
+		String templateText = messageTemplateService.get(templateId).getTemplateText();
 		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);
 		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -92,10 +105,54 @@ public class MailSendService {
 				mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
 			}
 			javaMailSender.send(mimeMessage);
-			Client client = clientService.getClientByEmail(recipient);
+			Client clientEmail = clientService.getClientByEmail(recipient);
 			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-			client.addHistory(clientHistoryService.createHistory(principal, client, message));
+			client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
+			clientService.updateClient(client);
+		} catch (Exception e) {
+			logger.error("Can't send mail to {}", recipient);
+			throw new MessageTemplateException(e.getMessage());
+		}
+	}
+
+	public void scheduleSendEmail(Long clientId, Long templateId, String body) {
+		String templateFile = "emailStringTemplate";
+		Client client = clientService.getClientByID(clientId);
+		String recipient = client.getEmail();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+		final Context ctx = new Context();
+		String templateText = messageTemplateService.get(templateId).getTemplateText();
+		templateText = templateText.replaceAll("\n", "");
+		ctx.setVariable("templateText", templateText);
+		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		try {
+			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Java Mentor");
+			mimeMessageHelper.setTo(recipient);
+			mimeMessageHelper.setFrom(emailLogin);
+			StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
+			for (Map.Entry<String, String> entry : params.entrySet()) {
+				htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
+			}
+			mimeMessageHelper.setText(htmlContent.toString(), true);
+			Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
+			//inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
+			//Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
+			//Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
+			Matcher matcher = pattern.matcher(templateText);
+			while (matcher.find()) {
+				InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
+				mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+			}
+			javaMailSender.send(mimeMessage);
+			Client clientEmail = clientService.getClientByEmail(recipient);
+			Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+			client.addHistory(clientHistoryService.createHistory(clientEmail, message));
 			clientService.updateClient(client);
 		} catch (Exception e) {
 			logger.error("Can't send mail to {}", recipient);

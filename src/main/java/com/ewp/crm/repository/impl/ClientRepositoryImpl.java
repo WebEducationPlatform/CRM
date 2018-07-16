@@ -32,6 +32,10 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 		return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
 	}
 
+	public List<Client> getTimeOfSkypeCall() {
+		return entityManager.createQuery("select cl from Client cl where now() BETWEEN cl.remindBeforeSkypeCall AND cl.dateOfSkypeCall").getResultList();
+	}
+
 	@Override
 	public List<Client> getChangeActiveClients() {
 		return entityManager.createQuery("select cl from Client cl where  cl.postponeDate is not NULL and cl.postponeDate<=now()").getResultList();

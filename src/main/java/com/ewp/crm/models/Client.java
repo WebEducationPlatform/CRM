@@ -59,6 +59,15 @@ public class Client implements Serializable {
 	@Column(name = "postponeDate")
 	private Date postponeDate;
 
+	@Column(name = "dateOfSkypeCall")
+	private Date dateOfSkypeCall;
+
+	@Column(name = "remindBeforeSkypeCall")
+	private Date remindBeforeSkypeCall;
+
+	@Column(name = "select_networks")
+	private String selectNetworks;
+
 	@Column
 	private boolean canCall;
 
@@ -95,7 +104,8 @@ public class Client implements Serializable {
 	private List<Notification> notifications;
 
 	@JsonManagedReference
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "history_client",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
@@ -116,7 +126,8 @@ public class Client implements Serializable {
 	private List<SocialNetwork> socialNetworks;
 
 	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "client_sms_info",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
@@ -209,6 +220,14 @@ public class Client implements Serializable {
 		return skype;
 	}
 
+	public Date getRemindBeforeSkypeCall() {
+		return remindBeforeSkypeCall;
+	}
+
+	public void setRemindBeforeSkypeCall(Date remindBeforeSkypeCall) {
+		this.remindBeforeSkypeCall = remindBeforeSkypeCall;
+	}
+
 	public void setSkype(String skype) {
 		this.skype = skype;
 	}
@@ -259,6 +278,14 @@ public class Client implements Serializable {
 
 	public boolean isActive() {
 		return getPostponeDate()==null;
+	}
+
+	public Date getDateOfSkypeCall() {
+		return dateOfSkypeCall;
+	}
+
+	public void setDateOfSkypeCall(Date dateOfSkypeCall) {
+		this.dateOfSkypeCall = dateOfSkypeCall;
 	}
 
 	public byte getAge() {
@@ -319,6 +346,14 @@ public class Client implements Serializable {
 
 	public List<Comment> getComments() {
 		return comments;
+	}
+
+	public String getSelectNetworks() {
+		return selectNetworks;
+	}
+
+	public void setSelectNetworks(String selectNetworks) {
+		this.selectNetworks = selectNetworks;
 	}
 
 	public void setComments(List<Comment> comments) {

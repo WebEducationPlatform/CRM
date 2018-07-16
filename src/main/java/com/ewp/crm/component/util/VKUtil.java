@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -45,10 +46,12 @@ public class VKUtil {
 	private final ClientHistoryService clientHistoryService;
 	private final ClientService clientService;
 	private final MessageService messageService;
+	private final MessageTemplateService messageTemplateService;
 	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final UserService userService;
 
 	@Autowired
-	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
+	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, MessageTemplateService messageTemplateService, SocialNetworkTypeService socialNetworkTypeService, UserService userService) {
 		clubId = vkConfig.getClubId();
 		version = vkConfig.getVersion();
 		communityToken = vkConfig.getCommunityToken();
@@ -60,7 +63,9 @@ public class VKUtil {
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.messageService = messageService;
+		this.messageTemplateService = messageTemplateService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.userService = userService;
 	}
 
 	public String receivingTokenUri(){
@@ -116,16 +121,50 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
+	public String sendMessageToClient(Long clientId, Long templateId, String body) {
+		Client client = clientService.getClientByID(clientId);
+		String msg = messageTemplateService.get(templateId).getOtherText();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
+				User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				User user = userService.get(principal.getId());
+				String token = user.getVk_token();
 				String responseMessage = sendMessageById(id, vkText, token);
 				Message message = messageService.addMessage(Message.Type.VK, vkText);
 				client.addHistory(clientHistoryService.createHistory(principal, client, message));
+				clientService.updateClient(client);
+				return responseMessage;
+			}
+		}
+		logger.error("{} hasn't vk social network", client.getEmail());
+		return client.getName() + " hasn't vk social network";
+	}
+
+
+	public String schedulerSendMessageVk(Long clientId, Long templateId, String body) {
+		Client client = clientService.getClientByID(clientId);
+		String msg = messageTemplateService.get(templateId).getOtherText();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
+		for (SocialNetwork socialNetwork : socialNetworks) {
+			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
+				String link =  validVkLink(socialNetwork.getLink());
+				long id = Long.parseLong(link.replaceAll(".+id", ""));
+				String vkText = replaceName(msg, params);
+				String responseMessage = sendMessageById(id, vkText, communityToken);
+				Message message = messageService.addMessage(Message.Type.VK, vkText);
+				client.addHistory(clientHistoryService.createHistory(client, message));
 				clientService.updateClient(client);
 				return responseMessage;
 			}
