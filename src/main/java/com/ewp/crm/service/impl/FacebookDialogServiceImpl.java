@@ -21,4 +21,9 @@ public class FacebookDialogServiceImpl extends CommonServiceImpl<MessageDialog> 
 	public MessageDialog addDialog(MessageDialog messageDialog) {
 		return facebookDialogDAO.saveAndFlush(messageDialog);
 	}
+
+	@Override
+	public MessageDialog findByDialogId(String id) {
+		return facebookDialogDAO.findByDialogId(id);
+	}
 }

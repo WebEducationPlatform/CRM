@@ -129,7 +129,7 @@ public class ScheduleTasks {
 	}
 
 
-	@Scheduled(fixedRate = 600_000)
+	@Scheduled(fixedRate = 6_000)
 	private void addFacebookMessageToDatabase() {
 		try {
 			facebookService.getFacebookMessages();
