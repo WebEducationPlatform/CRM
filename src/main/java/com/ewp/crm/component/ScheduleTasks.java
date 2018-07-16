@@ -5,12 +5,15 @@ import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.*;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,6 +37,8 @@ public class ScheduleTasks {
 
 	private final SMSInfoService smsInfoService;
 
+	private final MailSendService mailSendService;
+
 	private final SendNotificationService sendNotificationService;
 
 	private final ClientHistoryService clientHistoryService;
@@ -41,7 +46,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
+	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, MailSendService mailSendService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
 		this.vkUtil = vkUtil;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -49,6 +54,7 @@ public class ScheduleTasks {
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.smsUtil = smsUtil;
 		this.smsInfoService = smsInfoService;
+		this.mailSendService = mailSendService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
 	}
@@ -72,6 +78,36 @@ public class ScheduleTasks {
 		updateClient.setSex(newClient.getSex());
 		clientService.updateClient(updateClient);
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
+	}
+
+
+	@Scheduled(fixedRate = 6_000)
+	private void checkTimeSkypeCall() {
+		for (Client client : clientService.getTimeOfSkypeCall()) {
+			client.setDateOfSkypeCall(null);
+			client.setRemindBeforeSkypeCall(null);
+			String selectNetworks = client.getSelectNetworks();
+			Long clientId = client.getId();
+			String body = null;
+
+			if(selectNetworks.contains("vk")){
+				vkUtil.schedulerSendMessageVk(clientId, 4L, body);
+			}
+			if(selectNetworks.contains("sms")) {
+				try {
+					smsUtil.schedulerSendSMS(clientId,4L,body);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			if(selectNetworks.contains("email")){
+				mailSendService.scheduleSendEmail(clientId,4L,body);
+			}
+			client.setDateOfSkypeCall(null);
+			client.setRemindBeforeSkypeCall(null);
+			client.setSelectNetworks(null);
+			clientService.updateClient(client);
+		}
 	}
 
 	@Scheduled(fixedRate = 6_000)

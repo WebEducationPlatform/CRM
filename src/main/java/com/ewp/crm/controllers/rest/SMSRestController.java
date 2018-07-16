@@ -42,20 +42,12 @@ public class SMSRestController {
 	@PostMapping("/send/now/client")
 	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                      @RequestParam(value = "body",required = false) String body) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
-		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 		try {
-			smsUtil.sendSMS(client, smsText, principal);
-			return ResponseEntity.status(HttpStatus.OK).body("Message send");
+			smsUtil.sendSMS(clientId, templateId, body);
+			return ResponseEntity.status(HttpStatus.OK).body("Message sent");
 		} catch (JSONException e) {
 			logger.error("Error to send message ", e);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message send");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message not sent");
 		}
 	}
 

@@ -11,6 +11,8 @@ public interface ClientRepositoryCustom {
 
 	List filteringClient(FilteringCondition filteringCondition);
 
+	List<Client> getTimeOfSkypeCall();
+
 	List<Client> getChangeActiveClients();
 
 	void updateBatchClients(List<Client> clients);

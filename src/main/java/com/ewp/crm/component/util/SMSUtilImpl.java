@@ -3,10 +3,7 @@ package com.ewp.crm.component.util;
 import com.ewp.crm.component.util.interfaces.SMSUtil;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MessageService;
-import com.ewp.crm.service.interfaces.SMSInfoService;
+import com.ewp.crm.service.interfaces.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,13 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SMSUtilImpl implements SMSUtil {
@@ -33,31 +33,66 @@ public class SMSUtilImpl implements SMSUtil {
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
 	private final SMSInfoService smsInfoService;
+	private final MessageTemplateService messageTemplateService;
+
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService) {
+	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
 		this.smsInfoService = smsInfoService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	@Override
-	public void sendSMS(Client client, String text, User sender) throws JSONException {
+	public void sendSMS(Long clientId, Long templateId, String body) throws JSONException {
+		Client client = clientService.getClientByID(clientId);
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
-		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), text);
+		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
 		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		JSONObject body = new JSONObject(response.getBody());
-		JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
+		JSONObject jsonBody = new JSONObject(response.getBody());
+		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
+		User sender = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, sender);
 		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
 		ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
+		client.addHistory(clientHistory);
+		clientService.updateClient(client);
+	}
+
+	@Override
+	public void schedulerSendSMS(Long clientId, Long templateId, String body) throws JSONException {
+		Client client = clientService.getClientByID(clientId);
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
+		URI uri = URI.create(TEMPLATE_URI + "/send.json");
+		JSONObject jsonRequest = new JSONObject();
+		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
+		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+		JSONObject jsonBody = new JSONObject(response.getBody());
+		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
+		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText);
+		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
+		ClientHistory clientHistory = clientHistoryService.createHistory(client, new Message(Message.Type.SMS, smsInfo.getMessage()));
 		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
 		client.addHistory(clientHistory);
 		clientService.updateClient(client);

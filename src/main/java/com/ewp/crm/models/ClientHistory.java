@@ -133,7 +133,8 @@ public class ClientHistory {
 		CALL("совершил звонок"),
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
-		UPDATE("обновил информацию");
+		UPDATE("обновил информацию"),
+		SKYPE("назначил беседу по скайп на");
 
 		private String info;
 

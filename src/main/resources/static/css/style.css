@@ -1,3 +1,41 @@
+.skype-notification {
+	text-align: center;
+}
+
+.select_all_skype_boxes {
+	margin-left: 5px;
+}
+
+.skype-text {
+	text-align: center;
+	color: #229922;
+}
+
+.skype-panel {
+	width: 50%;
+	text-align: center;
+	margin: auto;
+	margin-top: 5px;
+}
+
+.send-skype-message {
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+
+.skype-postpone-date {
+	display: table-caption;
+	margin-top: 5px;
+	text-align: center;
+	width: 80%;
+}
+
+.skype-footer {
+	background-color: #e8e8e8;
+}
+
+
 #show-area {
 	padding-left: 0px;
 	margin-top: 15px;

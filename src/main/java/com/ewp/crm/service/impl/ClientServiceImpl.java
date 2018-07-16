@@ -36,6 +36,11 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
+	public List<Client> getTimeOfSkypeCall() {
+		return clientRepository.getTimeOfSkypeCall();
+	}
+
+	@Override
 	public List<Client> getClientsByOwnerUser(User ownerUser) {
 		return clientRepository.getClientsByOwnerUser(ownerUser);
 	}
