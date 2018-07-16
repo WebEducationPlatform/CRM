@@ -158,18 +158,15 @@ $(document).ready(function () {
 
 
     win.scroll(function () {
-        if ($(document).height() - win.height() < win.scrollTop() + 50) {
-            $("#loading").show();
+        if ($(document).height() - win.height() === win.scrollTop()) {
 
             $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
                 let table = $("#clients-table").find("tbody");
                 drawClients(table, clients, page);
                 page++;
-                $("#loading").hide();
             })
         }
     });
-
 
 
     function drawClients(table, res, page) {
