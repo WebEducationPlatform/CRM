@@ -396,7 +396,7 @@ input[type="checkbox"]:checked + label:before {
 	transform: rotate(45deg);
 }
 
-#showallbtn, #addNewUser {
+#showallbtn, #addNewUser, #vkClubList {
 	width: 100%;
 	margin-bottom: 10px;
 	border-radius: 5px;

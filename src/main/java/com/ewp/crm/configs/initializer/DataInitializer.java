@@ -1,6 +1,8 @@
 package com.ewp.crm.configs.initializer;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -8,6 +10,7 @@ import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 
 public class DataInitializer {
 
@@ -31,6 +34,18 @@ public class DataInitializer {
 
 	@Autowired
 	private ClientHistoryService clientHistoryService;
+
+	@Autowired
+	private VkTrackedClubService vkTrackedClubService;
+
+	@Autowired
+	private VKConfig vkConfig;
+
+	@Autowired
+	private VkMemberService vkMemberService;
+
+	@Autowired
+	private VKService vkService;
 
 	private void init() {
 
@@ -145,6 +160,15 @@ public class DataInitializer {
 		statusService.add(status2);
 		statusService.add(status3);
 		statusService.add(defaultStatus);
+		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId())*(-1),
+				vkConfig.getCommunityToken(),
+				"JavaMentorTest",
+				Long.parseLong(vkConfig.getApplicationId())));
+		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
+			vkMemberService.addAllMembers(memberList);
+		}
 	}
 
 }

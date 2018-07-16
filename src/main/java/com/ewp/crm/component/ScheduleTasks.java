@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,10 +40,14 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private final VkTrackedClubService vkTrackedClubService;
+
+	private final VkMemberService vkMemberService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -51,6 +57,8 @@ public class ScheduleTasks {
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.vkTrackedClubService = vkTrackedClubService;
+		this.vkMemberService = vkMemberService;
 	}
 
 	private void addClient(Client newClient) {
@@ -95,6 +103,22 @@ public class ScheduleTasks {
 			}
 		} catch (VKAccessTokenException ex) {
 			logger.error(ex.getMessage());
+		}
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void findNewMembersAndSendFirstMessage(){
+		String firstContactMessage = "Привет, интересуешься Java?";
+		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
+		List<VkMember> lastMemberList = vkMemberService.getAll();
+		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
+			for (VkMember vkMember : freshMemberList){
+				if(!lastMemberList.contains(vkMember)){
+					vkService.sendMessageById(vkMember.getVkId(), firstContactMessage, vkTrackedClub.getToken());
+					vkMemberService.add(vkMember);
+				}
+			}
 		}
 	}
 
@@ -160,4 +184,13 @@ public class ScheduleTasks {
 		}
 		return info;
 	}
+
+//	@PostConstruct()
+//	private void initVKMembers(){
+//		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+//		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+//			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
+//			vkMemberService.addAllMembers(memberList);
+//		}
+//	}
 }
