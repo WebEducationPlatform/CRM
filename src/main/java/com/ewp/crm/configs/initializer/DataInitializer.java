@@ -1,6 +1,7 @@
 package com.ewp.crm.configs.initializer;
 
 import com.ewp.crm.configs.inteface.VKConfig;
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
@@ -166,7 +167,8 @@ public class DataInitializer {
 				Long.parseLong(vkConfig.getApplicationId())));
 		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
-			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
+			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+												 .orElseThrow(NotFoundMemberList::new);
 			vkMemberService.addAllMembers(memberList);
 		}
 	}
