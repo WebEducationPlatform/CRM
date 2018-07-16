@@ -116,7 +116,7 @@ public class MailSendService {
 		}
 	}
 
-	public void scheduleSendEmail(Long clientId, Long templateId, String body) {
+	public void scheduleSendEmail(Long clientId, Long templateId) {
 		String templateFile = "emailStringTemplate";
 		Client client = clientService.getClientByID(clientId);
 		String recipient = client.getEmail();
@@ -124,7 +124,6 @@ public class MailSendService {
 		Map<String, String> params = new HashMap<>();
 		//TODO в конфиг
 		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
 		final Context ctx = new Context();
 		String templateText = messageTemplateService.get(templateId).getTemplateText();
 		templateText = templateText.replaceAll("\n", "");

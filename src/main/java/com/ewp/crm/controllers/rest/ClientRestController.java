@@ -331,30 +331,30 @@ public class ClientRestController {
 		}
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/assignSkype", method = RequestMethod.POST)
-	public ResponseEntity assignSkypecall(@RequestParam Long clientId, @RequestParam String date) {
-		try {
-			Client client = clientService.getClientByID(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
-			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
-			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
-				logger.info("Incorrect date set: {}", date);
-				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
-			}
-			client.setDateOfSkypeCall(dateOfSkypeCall.toDate());
-			client.setRemindBeforeSkypeCall(remindBeforeSkypeCall.toDate());
-			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			client.setOwnerUser(principal);
-			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
-			clientService.updateClient(client);
-			logger.info("{} assign skype client id:{} until {}", principal.getFullName(), client.getId(), date);
-			return ResponseEntity.ok(HttpStatus.OK);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Произошла ошибка");
-		}
-	}
+//	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+//	@RequestMapping(value = "rest/client/assignSkype", method = RequestMethod.POST)
+//	public ResponseEntity assignSkypecall(@RequestParam Long clientId, @RequestParam String date) {
+//		try {
+//			Client client = clientService.getClientByID(clientId);
+//			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+//			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
+//			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
+//			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
+//				logger.info("Incorrect date set: {}", date);
+//				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
+//			}
+//			client.setDateOfSkypeCall(dateOfSkypeCall.toDate());
+//			client.setRemindBeforeSkypeCall(remindBeforeSkypeCall.toDate());
+//			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//			client.setOwnerUser(principal);
+//			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
+//			clientService.updateClient(client);
+//			logger.info("{} assign skype client id:{} until {}", principal.getFullName(), client.getId(), date);
+//			return ResponseEntity.ok(HttpStatus.OK);
+//		} catch (Exception e) {
+//			return ResponseEntity.badRequest().body("Произошла ошибка");
+//		}
+//	}
 
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
