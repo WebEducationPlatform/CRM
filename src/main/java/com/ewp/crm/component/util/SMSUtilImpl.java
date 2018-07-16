@@ -75,13 +75,12 @@ public class SMSUtilImpl implements SMSUtil {
 	}
 
 	@Override
-	public void schedulerSendSMS(Long clientId, Long templateId, String body) throws JSONException {
+	public void schedulerSendSMS(Long clientId, Long templateId) throws JSONException {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		//TODO в конфиг
 		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
 		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();

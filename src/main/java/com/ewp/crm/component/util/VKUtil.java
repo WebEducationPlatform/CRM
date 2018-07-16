@@ -149,13 +149,12 @@ public class VKUtil {
 	}
 
 
-	public String schedulerSendMessageVk(Long clientId, Long templateId, String body) {
+	public String schedulerSendMessageVk(Long clientId, Long templateId) {
 		Client client = clientService.getClientByID(clientId);
 		String msg = messageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {

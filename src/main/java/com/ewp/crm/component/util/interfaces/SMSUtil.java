@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface SMSUtil {
 	void sendSMS(Long clientId, Long templateId, String body) throws JSONException;
-	void schedulerSendSMS(Long clientId, Long templateId, String body) throws JSONException;
+	void schedulerSendSMS(Long clientId, Long templateId) throws JSONException;
 	void sendSMS(List<Client> clients, String text, User sender);
 	void plannedSMS(Client client, String text, String date, User sender);
 	void plannedSMS(List<Client> client, String text, String date, User sender);

@@ -59,12 +59,6 @@ public class Client implements Serializable {
 	@Column(name = "postponeDate")
 	private Date postponeDate;
 
-	@Column(name = "dateOfSkypeCall")
-	private Date dateOfSkypeCall;
-
-	@Column(name = "remindBeforeSkypeCall")
-	private Date remindBeforeSkypeCall;
-
 	@Column(name = "select_networks")
 	private String selectNetworks;
 
@@ -77,6 +71,12 @@ public class Client implements Serializable {
 
 	@Column(name = "date")
 	private Date dateOfRegistration;
+
+	@OneToMany
+	@JoinTable(name = "client_skype_call",
+			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL_CLIENT"))},
+			inverseJoinColumns = {@JoinColumn(name = "skype_call_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL"))})
+	private List <SkypeCall> clentSkypeCall;
 
 	@ManyToOne
 	@JoinColumn(name = "status_id")
@@ -220,13 +220,7 @@ public class Client implements Serializable {
 		return skype;
 	}
 
-	public Date getRemindBeforeSkypeCall() {
-		return remindBeforeSkypeCall;
-	}
 
-	public void setRemindBeforeSkypeCall(Date remindBeforeSkypeCall) {
-		this.remindBeforeSkypeCall = remindBeforeSkypeCall;
-	}
 
 	public void setSkype(String skype) {
 		this.skype = skype;
@@ -278,14 +272,6 @@ public class Client implements Serializable {
 
 	public boolean isActive() {
 		return getPostponeDate()==null;
-	}
-
-	public Date getDateOfSkypeCall() {
-		return dateOfSkypeCall;
-	}
-
-	public void setDateOfSkypeCall(Date dateOfSkypeCall) {
-		this.dateOfSkypeCall = dateOfSkypeCall;
 	}
 
 	public byte getAge() {

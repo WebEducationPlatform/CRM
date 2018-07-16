@@ -58,6 +58,12 @@ public class User implements UserDetails {
 	@Column
 	private boolean isEnabled;
 
+	@OneToMany
+	@JoinTable(name = "user_skype_call",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "skype_call_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL"))})
+	private List<SkypeCall> userSkypeCall;
+
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
