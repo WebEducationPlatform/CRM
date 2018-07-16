@@ -62,22 +62,27 @@ public class FacebookServiceImpl implements FacebookService {
 			JSONObject json = new JSONObject(result.getBody());
 			JSONObject conversations = (JSONObject) json.get("conversations");
 			JSONArray jsonData = conversations.getJSONArray("data");
+			JSONArray nestedDatajsonjMessages;
 			int count = 0;
 			List<FacebookMessage> listMessages = new ArrayList<>();
 			while (count != jsonData.length()) {
-				MessageDialog messageDialog = new MessageDialog();
 				JSONObject jsonDataObj = jsonData.getJSONObject(count);
-				messageDialog.setDialogId(jsonDataObj.getString("id"));
 				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
-				JSONArray nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
+				MessageDialog messageDialog = facebookDialogService.findByDialogId(jsonDataObj.getString("id"));
+				if (messageDialog == null) {
+					messageDialog = new MessageDialog();
+					messageDialog.setDialogId(jsonDataObj.getString("id"));
+					nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
+				} else {
+					messageDialog.setDialogId(jsonDataObj.getString("id"));
+					nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
+				}
 				count++;
-				boolean isWriteDialog = false;
 				for (int i = nestedDatajsonjMessages.length() - 1; i >= 0; i--) {
 					JSONObject jsonMessage = nestedDatajsonjMessages.getJSONObject(i);
 					String createdTime = jsonMessage.getString("created_time");
 					Date date = sdf.parse(createdTime);
 					if (lastMessageDate == null || date.after(lastMessageDate)) {
-						isWriteDialog = false;
 						FacebookMessage facebookMessage = new FacebookMessage();
 						facebookMessage.setCreatedTime(date);
 						facebookMessage.setTextMessage(jsonMessage.getString("message"));
@@ -85,13 +90,9 @@ public class FacebookServiceImpl implements FacebookService {
 						facebookMessage.setTo(jsonMessage.getJSONObject("to").getJSONArray("data").getJSONObject(0).getString("name"));
 						facebookMessage.setMessagesDialog(messageDialog);
 						listMessages.add(facebookMessage);
-					} else {
-						isWriteDialog = true;
 					}
 				}
-				if (!isWriteDialog) {
-					facebookDialogService.addDialog(messageDialog);
-				}
+				facebookDialogService.addDialog(messageDialog);
 			}
 			facebookMessageService.addBatchMessages(listMessages);
 
