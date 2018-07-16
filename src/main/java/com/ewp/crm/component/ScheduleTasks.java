@@ -1,5 +1,6 @@
 package com.ewp.crm.component;
 
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
@@ -107,17 +108,22 @@ public class ScheduleTasks {
 	}
 
 	@Scheduled(fixedRate = 60_000)
-	private void findNewMembersAndSendFirstMessage(){
-		String firstContactMessage = "Привет, интересуешься Java?";
+	private void findNewMembersAndSendFirstMessage() {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
-			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
-			for (VkMember vkMember : freshMemberList){
+			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+														   .orElseThrow(NotFoundMemberList::new);
+			int countNewMembers = 0;
+			for (VkMember vkMember : freshMemberList) {
 				if(!lastMemberList.contains(vkMember)){
-					vkService.sendMessageById(vkMember.getVkId(), firstContactMessage, null);
+					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
 					vkMemberService.add(vkMember);
+					countNewMembers++;
 				}
+			}
+			if (countNewMembers > 0) {
+				logger.info("{} new VK members has signed in {} club", countNewMembers, vkTrackedClub.getGroupName());
 			}
 		}
 	}
@@ -184,13 +190,4 @@ public class ScheduleTasks {
 		}
 		return info;
 	}
-
-//	@PostConstruct()
-//	private void initVKMembers(){
-//		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
-//		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
-//			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
-//			vkMemberService.addAllMembers(memberList);
-//		}
-//	}
 }

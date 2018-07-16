@@ -8,8 +8,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+
 @Component
-@PropertySource("classpath:vk.properties")
+@PropertySource(value = "classpath:vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;
@@ -34,6 +36,8 @@ public class VKConfigImpl implements VKConfig {
 
     private String robotPassword;
 
+    private String firstContactMessage;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -50,6 +54,8 @@ public class VKConfigImpl implements VKConfig {
             robotUsername = env.getRequiredProperty("vk.robot.profile.username");
             robotPassword = env.getRequiredProperty("vk.robot.profile.password");
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
+            firstContactMessage = env.getProperty("vk.robot.message.firstContact");
+
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
                 throw new NullPointerException();
@@ -103,4 +109,9 @@ public class VKConfigImpl implements VKConfig {
     public String getRobotPassword() {
         return robotPassword;
     }
+
+    public String getFirstContactMessage() {
+        return firstContactMessage;
+    }
+
 }
