@@ -111,7 +111,7 @@ public class GoogleEmail {
             try {
                 logger.info("start parsing income email", parser.getHtmlContent());
                 parser.parse();
-                Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
+                Client client = incomeStringToClient.convert(parser.getHtmlContent());
                 if (client != null) {
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));

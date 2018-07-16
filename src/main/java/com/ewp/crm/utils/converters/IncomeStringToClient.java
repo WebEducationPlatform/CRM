@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
@@ -52,23 +51,23 @@ public class IncomeStringToClient {
 
     private Client parseClientFormOne(String form) {
         Client client = new Client();
-        String s2 = form.substring(form.indexOf("Name"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
                 .replaceAll("Name[0-9]", "Name")
                 .replaceAll("Email[0-9]", "Email");
-        String[] res = s2.split("<br/>");
-        Map<String, String> map = ClientData(res);
-        setClientName(client, map.get("Name"));
-        client.setPhoneNumber(map.get("Телефон"));
-        client.setCountry(map.get("Страна"));
-        client.setCity(map.get("Город"));
-        if (map.containsKey("Соцсеть")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(map.get("Соцсеть"))));
+        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+        setClientName(client, clientData.get("Name"));
+        client.setPhoneNumber(clientData.get("Телефон"));
+        client.setCountry(clientData.get("Страна"));
+        client.setCity(clientData.get("Город"));
+        if (clientData.containsKey("Соцсеть")) {
+            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Соцсеть"))));
         }
         if (form.contains("Согласен")) {
-            client.setEmail(map.get("Email"));
+            client.setEmail(clientData.get("Email"));
         } else {
-            client.setEmail(map.get("Email"));
+            client.setEmail(clientData.get("Email"));
             client.setClientDescriptionComment("На пробные 3 дня");
         }
         return client;
@@ -76,34 +75,34 @@ public class IncomeStringToClient {
 
     private Client parseClientFormTwo(String form) {
         Client client = new Client();
-        String s2 = form.substring(form.indexOf("Name"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
                 .replaceAll("Name[0-9]", "Name")
                 .replaceAll("Email[0-9]", "Email");
-        String[] res = s2.split("<br/>");
-        Map<String, String> map = ClientData(res);
-        setClientName(client, map.get("Name"));
-        client.setPhoneNumber(map.get("Phone"));
-        client.setClientDescriptionComment(map.get("Vopros"));
-        if (map.containsKey("Social")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(map.get("Social"))));
+        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+        setClientName(client, clientData.get("Name"));
+        client.setPhoneNumber(clientData.get("Phone"));
+        client.setClientDescriptionComment(clientData.get("Vopros"));
+        if (clientData.containsKey("Social")) {
+            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Social"))));
         }
         return client;
     }
 
     private Client parseClientFormFour(String form) {
         Client client = new Client();
-        String s = form.replaceAll(" ", "");
-        String s2 = s.substring(s.indexOf("Имя"), s.length());
-        String[] res = s2.split("<br/>");
-        Map<String, String> map = ClientData(res);
-        setClientName(client, map.get("Имя"));
-        if (map.containsKey("Social2")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(map.get("Social2"))));
+        String replaceSpaceInString = form.replaceAll(" ", "");
+        String removeExtraCharacters = replaceSpaceInString.substring(replaceSpaceInString.indexOf("Имя"), replaceSpaceInString.length());
+        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+        setClientName(client, clientData.get("Имя"));
+        if (clientData.containsKey("Social2")) {
+            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Social2"))));
         }
-        client.setPhoneNumber(map.get("Phone6"));
-        client.setCountry(map.get("City6"));
-        client.setEmail(map.get("Email2"));
+        client.setPhoneNumber(clientData.get("Phone6"));
+        client.setCountry(clientData.get("City6"));
+        client.setEmail(clientData.get("Email2"));
         client.setClientDescriptionComment("Проходил Тест");
         return client;
     }
@@ -122,14 +121,14 @@ public class IncomeStringToClient {
         return socialNetwork;
     }
 
-    private Map<String, String> ClientData(String[] res) {
-        Map<String, String> map = new HashMap<>();
+    private Map<String, String> createMapFromClientData(String[] res) {
+        Map<String, String> clientData = new HashMap<>();
         for (int i = 0; i < res.length; i++) {
             String name = res[i].substring(0, res[i].indexOf(":"));
             String value = res[i].substring(res[i].indexOf(":") + 1, res[i].length());
-            map.put(name, value);
+            clientData.put(name, value);
         }
-        return map;
+        return clientData;
     }
 
     private void setClientName(Client client, String fullName) {
