@@ -29,92 +29,94 @@ import java.util.regex.Pattern;
 @Component
 public class VKUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(VKUtil.class);
-	private String clubId;
-	private String version;
-	private String communityToken;
-	private String applicationId;
-	private String display;
-	private String redirectUri;
-	private String scope;
-	private String applicationToken;
+    private static Logger logger = LoggerFactory.getLogger(VKUtil.class);
+    private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
+    private final SocialNetworkService socialNetworkService;
+    private final ClientHistoryService clientHistoryService;
+    private final ClientService clientService;
+    private final MessageService messageService;
+    private final SocialNetworkTypeService socialNetworkTypeService;
+    private String clubId;
+    private String version;
+    private String communityToken;
+    private String applicationId;
+    private String display;
+    private String redirectUri;
+    private String scope;
+    private String applicationToken;
 
-	private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
+    @Autowired
+    public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
+        clubId = vkConfig.getClubId();
+        version = vkConfig.getVersion();
+        communityToken = vkConfig.getCommunityToken();
+        applicationId = vkConfig.getApplicationId();
+        display = vkConfig.getDisplay();
+        redirectUri = vkConfig.getRedirectUri();
+        scope = vkConfig.getScope();
+        this.socialNetworkService = socialNetworkService;
+        this.clientHistoryService = clientHistoryService;
+        this.clientService = clientService;
+        this.messageService = messageService;
+        this.socialNetworkTypeService = socialNetworkTypeService;
+    }
 
-	private final SocialNetworkService socialNetworkService;
-	private final ClientHistoryService clientHistoryService;
-	private final ClientService clientService;
-	private final MessageService messageService;
-	private final SocialNetworkTypeService socialNetworkTypeService;
+    private static String getValue(String field) {
+        return field.substring(field.indexOf("A: ") + 3);
+    }
 
-	@Autowired
-	public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
-		clubId = vkConfig.getClubId();
-		version = vkConfig.getVersion();
-		communityToken = vkConfig.getCommunityToken();
-		applicationId = vkConfig.getApplicationId();
-		display = vkConfig.getDisplay();
-		redirectUri = vkConfig.getRedirectUri();
-		scope = vkConfig.getScope();
-		this.socialNetworkService = socialNetworkService;
-		this.clientHistoryService = clientHistoryService;
-		this.clientService = clientService;
-		this.messageService = messageService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
-	}
+    public String receivingTokenUri() {
 
-	public String receivingTokenUri(){
+        return "https://oauth.vk.com/authorize" +
+                "?client_id=" + applicationId +
+                "&display=" + display +
+                "&redirect_uri=" + redirectUri +
+                "&scope=" + scope +
+                "&response_type=token" +
+                "&v" + version;
+    }
 
-		return "https://oauth.vk.com/authorize" +
-				"?client_id=" + applicationId +
-				"&display=" + display +
-				"&redirect_uri=" + redirectUri +
-				"&scope=" + scope +
-				"&response_type=token" +
-				"&v" + version;
-	}
+    public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
+        if (applicationToken == null) {
+            throw new VKAccessTokenException("VK access token has not got");
+        }
+        String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
+                "?user_id=" + clubId +
+                "&rev=0" +
+                "&version=" + version +
+                "&access_token=" + applicationToken;
 
-	public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
-		if (applicationToken == null) {
-			throw new VKAccessTokenException("VK access token has not got");
-		}
-		String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
-				"?user_id=" + clubId +
-				"&rev=0" +
-				"&version=" + version +
-				"&access_token=" + applicationToken;
-
-		String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
-				"?peer_id=" + clubId +
-				"&version=" + version +
-				"&access_token=" + applicationToken;
-		try {
-			HttpGet httpGetMessages = new HttpGet(uriGetMassages);
-			HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
-			HttpClient httpClient = HttpClients.custom()
-					.setDefaultRequestConfig(RequestConfig.custom()
-							.setCookieSpec(CookieSpecs.STANDARD).build())
-					.build();
-			HttpResponse response = httpClient.execute(httpGetMessages);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject json = new JSONObject(result);
-			JSONArray jsonMessages = json.getJSONArray("response");
-			List<String> resultList = new ArrayList<>();
-			for (int i = 1; i < jsonMessages.length(); i++) {
-				JSONObject jsonMessage = jsonMessages.getJSONObject(i);
-				if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-					resultList.add(jsonMessage.getString("body"));
-				}
-			}
-			httpClient.execute(httpMarkMessages);
-			return Optional.of(resultList);
-		} catch (JSONException e) {
-			logger.error("Can not read message from JSON ", e);
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-		}
-		return Optional.empty();
-	}
+        String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
+                "?peer_id=" + clubId +
+                "&version=" + version +
+                "&access_token=" + applicationToken;
+        try {
+            HttpGet httpGetMessages = new HttpGet(uriGetMassages);
+            HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
+            HttpClient httpClient = HttpClients.custom()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            HttpResponse response = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray jsonMessages = json.getJSONArray("response");
+            List<String> resultList = new ArrayList<>();
+            for (int i = 1; i < jsonMessages.length(); i++) {
+                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
+                if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
+                    resultList.add(jsonMessage.getString("body"));
+                }
+            }
+            httpClient.execute(httpMarkMessages);
+            return Optional.of(resultList);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
 
 	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
@@ -137,7 +139,7 @@ public class VKUtil {
 	private String sendMessageById(long id, String msg, String token) {
 		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
-		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
+        String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
 		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
 				"?user_id=" + id +
@@ -145,35 +147,35 @@ public class VKUtil {
 				"&message=" + uriMsg +
 				"&access_token=" + token;
 
-		HttpGet request = new HttpGet(sendMsgRequest);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build())
-				.build();
-		try {
-			HttpResponse response = httpClient.execute(request);
-			JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
-			return determineResponse(jsonEntity);
-		} catch (JSONException e) {
-			logger.error("JSON couldn't parse response ", e);
-		} catch (IOException e) {
-			logger.error("Failed connect to vk api ", e);
-		}
-		return "Failed to send message";
-	}
+        HttpGet request = new HttpGet(sendMsgRequest);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+        try {
+            HttpResponse response = httpClient.execute(request);
+            JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
+            return determineResponse(jsonEntity);
+        } catch (JSONException e) {
+            logger.error("JSON couldn't parse response ", e);
+        } catch (IOException e) {
+            logger.error("Failed connect to vk api ", e);
+        }
+        return "Failed to send message";
+    }
 
-	// Determine text, which varies depending of the success of the sending message
-	private String determineResponse(JSONObject jsonObject) throws JSONException {
-		try {
-			jsonObject.getInt("response");
-			return "Message sent";
-		} catch (JSONException e) {
-			JSONObject jsonError = jsonObject.getJSONObject("error");
-			String errorMessage = jsonError.getString("error_msg");
-			logger.error(errorMessage);
-			return errorMessage;
-		}
-	}
+    // Determine text, which varies depending of the success of the sending message
+    private String determineResponse(JSONObject jsonObject) throws JSONException {
+        try {
+            jsonObject.getInt("response");
+            return "Message sent";
+        } catch (JSONException e) {
+            JSONObject jsonError = jsonObject.getJSONObject("error");
+            String errorMessage = jsonError.getString("error_msg");
+            logger.error(errorMessage);
+            return errorMessage;
+        }
+    }
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
 		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getConversations" +
@@ -208,40 +210,40 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public Optional<Client> getClientFromVkId(Long id) {
-		String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
-				"version=" + version +
-				"&user_id=" + id +
-				"&access_token=" + applicationToken;
+    public Optional<Client> getClientFromVkId(Long id) {
+        String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
+                "version=" + version +
+                "&user_id=" + id +
+                "&access_token=" + applicationToken;
 
-		HttpGet httpGetClient = new HttpGet(uriGetClient);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build())
-				.build();
-		try {
-			HttpResponse response = httpClient.execute(httpGetClient);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject json = new JSONObject(result);
-			JSONArray jsonUsers = json.getJSONArray("response");
-			JSONObject jsonUser = jsonUsers.getJSONObject(0);
-			String name = jsonUser.getString("first_name");
-			String lastName = jsonUser.getString("last_name");
-			String vkLink = "vk.com/id" + id;
-			Client client = new Client(name, lastName);
-			SocialNetwork socialNetwork = new SocialNetwork(vkLink);
-			List<SocialNetwork> socialNetworks = new ArrayList<>();
-			socialNetworks.add(socialNetwork);
-			client.setSocialNetworks(socialNetworks);
-			return Optional.of(client);
-		} catch (JSONException e) {
-			logger.error("Can not read message from JSON ",e);
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-		}
+        HttpGet httpGetClient = new HttpGet(uriGetClient);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray jsonUsers = json.getJSONArray("response");
+            JSONObject jsonUser = jsonUsers.getJSONObject(0);
+            String name = jsonUser.getString("first_name");
+            String lastName = jsonUser.getString("last_name");
+            String vkLink = "vk.com/id" + id;
+            Client client = new Client(name, lastName);
+            SocialNetwork socialNetwork = new SocialNetwork(vkLink);
+            List<SocialNetwork> socialNetworks = new ArrayList<>();
+            socialNetworks.add(socialNetwork);
+            client.setSocialNetworks(socialNetworks);
+            return Optional.of(client);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
 
-		return Optional.empty();
-	}
+        return Optional.empty();
+    }
 
 	public Client parseClientFromMessage(String message) throws ParseClientException {
 		if (!message.startsWith("Новая заявка")) {
@@ -274,46 +276,46 @@ public class VKUtil {
 		return field.substring(field.indexOf("A: ") + 3);
 	}
 
-	private String getIdByScreenName(String link) {
-		String screenName = link.replaceAll("^.+\\.(com/)", "");
-		String request = VK_API_METHOD_TEMPLATE + "utils.resolveScreenName?"
-				+ "screen_name=" + screenName
-				+ "&access_token=" + applicationToken
-				+ "&v=" + version;
-		HttpGet httpGetClient = new HttpGet(request);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build()).build();
-		try {
-			HttpResponse response = httpClient.execute(httpGetClient);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject json = new JSONObject(result);
-			JSONObject responseObject = json.getJSONObject("response");
-			String vkId = responseObject.getString("object_id");
-			return "https://vk.com/id" + vkId;
-		} catch (JSONException e) {
-			logger.error("Can't take id by screen name {}", screenName);
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-		}
-		return link;
-	}
+    private String getIdByScreenName(String link) {
+        String screenName = link.replaceAll("^.+\\.(com/)", "");
+        String request = VK_API_METHOD_TEMPLATE + "utils.resolveScreenName?"
+                + "screen_name=" + screenName
+                + "&access_token=" + applicationToken
+                + "&v=" + version;
+        HttpGet httpGetClient = new HttpGet(request);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build()).build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject responseObject = json.getJSONObject("response");
+            String vkId = responseObject.getString("object_id");
+            return "https://vk.com/id" + vkId;
+        } catch (JSONException e) {
+            logger.error("Can't take id by screen name {}", screenName);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return link;
+    }
 
-	private String validVkLink(String link) {
-		Pattern pattern = Pattern.compile(ValidationPattern.VK_LINK_PATTERN);
-		if (!pattern.matcher(link).matches()) {
-			return getIdByScreenName(link);
-		}
-		return link;
-	}
+    private String validVkLink(String link) {
+        Pattern pattern = Pattern.compile(ValidationPattern.VK_LINK_PATTERN);
+        if (!pattern.matcher(link).matches()) {
+            return getIdByScreenName(link);
+        }
+        return link;
+    }
 
-	private String replaceName(String msg, Map<String, String> params) {
-		String vkText = msg;
-		for (Map.Entry<String, String> entry : params.entrySet()) {
-			vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
-		}
-		return vkText;
-	}
+    private String replaceName(String msg, Map<String, String> params) {
+        String vkText = msg;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            vkText = String.valueOf(new StringBuilder(vkText.replaceAll(entry.getKey(), entry.getValue())));
+        }
+        return vkText;
+    }
 
 	public void setApplicationToken(String applicationToken) {
         this.applicationToken = applicationToken;

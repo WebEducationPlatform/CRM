@@ -41,12 +41,11 @@ public class VkController {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.get(userFromSession.getId());
         String applicationToken = vkUtil.replaceApplicationTokenFromUri(token);
-        user.setVk_token(applicationToken);
+        user.setVkToken(applicationToken);
         userService.update(user);
-        if (user.getAuthorities().contains(new Role("OWNER"))){
+        if (user.getAuthorities().contains(new Role("OWNER"))) {
             vkUtil.setApplicationToken(applicationToken);
         }
-        logger.info("Token of " + user.getFullName() + " is: " + vkUtil.replaceApplicationTokenFromUri(token));
         return "redirect:/client";
     }
 }

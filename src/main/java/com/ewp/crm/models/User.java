@@ -6,6 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.*;
 
 @Entity
@@ -49,14 +53,14 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
-	@Column(name = "vk_token")
-	private String vk_token;
-
 	@Column
 	private boolean ipTelephony;
 
 	@Column
 	private boolean isEnabled;
+
+	@Column(name = "vkToken")
+	private String vkToken;
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
@@ -96,6 +100,14 @@ public class User implements UserDetails {
 		this.role = role;
 		this.ipTelephony = ipTelephony;
 		this.isEnabled = true;
+	}
+
+	public String getVkToken() {
+		return vkToken;
+	}
+
+	public void setVkToken(String vkToken) {
+		this.vkToken = vkToken;
 	}
 
 	public Long getId() {
@@ -207,14 +219,6 @@ public class User implements UserDetails {
 
 	public void setPhotoType(String photoType) {
 		this.photoType = photoType;
-	}
-
-	public String getVk_token() {
-		return vk_token;
-	}
-
-	public void setVk_token(String vk_token) {
-		this.vk_token = vk_token;
 	}
 
 	@Override
