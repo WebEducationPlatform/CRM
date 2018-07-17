@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
 @Controller
@@ -424,6 +425,71 @@ public class VkController {
             "161001099, " +
             "161001100";
 
+    String remove = "161001028, " +
+            "161001029, " +
+            "161001030, " +
+            "161001031, " +
+            "161001032, " +
+            "161001033, " +
+            "161001034, " +
+            "161001035, " +
+            "161001036, " +
+            "161001037, " +
+            "161001038, " +
+            "161001039, " +
+            "161001040, " +
+            "161001041, " +
+            "161001042, " +
+            "161001043, " +
+            "161001044, " +
+            "161001045, " +
+            "161001046, " +
+            "161001047, " +
+            "161001048, " +
+            "161001049, " +
+            "161001051, " +
+            "161001052, " +
+            "161001053, " +
+            "161001055, " +
+            "161001056, " +
+            "161001057, " +
+            "161001058, " +
+            "161001060, " +
+            "161001061, " +
+            "161001063, " +
+            "161001064, " +
+            "161001066, " +
+            "161001067, " +
+            "161001069, " +
+            "161001071, " +
+            "161001072, " +
+            "161001073, " +
+            "161001074, " +
+            "161001075, " +
+            "161001076, " +
+            "161001077, " +
+            "161001078, " +
+            "161001079, " +
+            "161001080, " +
+            "161001081, " +
+            "161001082, " +
+            "161001084, " +
+            "161001085, " +
+            "161001087, " +
+            "161001088, " +
+            "161001089, " +
+            "161001090, " +
+            "161001091, " +
+            "161001092, " +
+            "161001093, " +
+            "161001094, " +
+            "161001095, " +
+            "161001096, " +
+            "161001097, " +
+            "161001098, " +
+            "161001099, " +
+            "161001100";
+
     @RequestMapping(value = "/vk-auth", method = RequestMethod.POST)
     public String vkGetAccessToken(@RequestParam("token") String token) {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -438,23 +504,23 @@ public class VkController {
     }
 
     //TODO delete after testing vk targeting
+    @ResponseBody
     @RequestMapping(value = "/vk-test", method = RequestMethod.GET)
     public String testVkTargeting() throws Exception {
-        String groupId24 = vkUtil.createNewAudience("next");
-        return "redirect:/clint";
+        return vkUtil.createNewAudience("next");
     }
 
     //TODO delete after testing vk targeting
     @RequestMapping(value = "/vk-test2", method = RequestMethod.GET)
-    public String addUsersToAudience() throws Exception {
-        vkUtil.addUsersToAudience("27221429", cont);
+    public String addUsersToAudience(@RequestParam("id") String id) throws Exception {
+        vkUtil.addUsersToAudience(id, cont);
         return "redirect:/client";
     }
 
     //TODO delete after testing vk targeting
     @RequestMapping(value = "/vk-test3", method = RequestMethod.GET)
-    public String removeUsersFromAudience() throws Exception {
-        vkUtil.removeUsersFromAudience("27221429", cont);
+    public String removeUsersFromAudience(@RequestParam("id") String id) throws Exception {
+        vkUtil.removeUsersFromAudience(id, remove);
         return "redirect:/client";
     }
 }
