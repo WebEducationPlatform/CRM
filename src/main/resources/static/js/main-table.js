@@ -212,7 +212,6 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
-
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
@@ -288,7 +287,6 @@ function changeStatusName(id) {
         }
     });
 }
-
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -337,7 +335,6 @@ function assign(id) {
         }
     });
 }
-
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
@@ -377,8 +374,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -749,6 +746,7 @@ $(function () {
 });
 
 
+
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.save_value').on('click', function (event) {
@@ -958,6 +956,7 @@ $(function () {
 });
 
 
+
 function hideClient(clientId) {
     let url = 'rest/client/postpone';
     let formData = {
@@ -1056,7 +1055,6 @@ $(function () {
                     if (client.age > 0) {
                         $('#client-age').text(client.age);
                     }
-
                     $('#client-sex').text(client.sex);
                     // здесь вставка ссылок в кнопки вк и фб
                     $('#vk-href').hide();
@@ -1174,7 +1172,6 @@ function vk_popup(options) {
         );
     return window.open(options.url, 'vk_oauth', features);
 }
-
 function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';
