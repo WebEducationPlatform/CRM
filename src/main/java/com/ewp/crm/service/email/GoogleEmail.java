@@ -1,6 +1,6 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
@@ -55,7 +55,7 @@ public class GoogleEmail {
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKUtil vkUtil) {
+    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;

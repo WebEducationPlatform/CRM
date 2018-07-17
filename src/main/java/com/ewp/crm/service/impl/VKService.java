@@ -1,4 +1,4 @@
-package com.ewp.crm.component.util;
+package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
@@ -34,9 +34,8 @@ import java.util.regex.Pattern;
 
 
 @Component
-public class VKUtil {
-
-    private static Logger logger = LoggerFactory.getLogger(VKUtil.class);
+public class VKService {
+    private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
     private final SocialNetworkService socialNetworkService;
     private final ClientHistoryService clientHistoryService;
@@ -54,7 +53,7 @@ public class VKUtil {
     private OAuth20Service service;
 
     @Autowired
-    public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
+    public VKService(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
         clubId = vkConfig.getClubId();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();

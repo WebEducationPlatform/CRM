@@ -1,6 +1,6 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.UserService;
@@ -18,22 +18,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
 @Controller
 public class VkController {
-
-    private static Logger logger = LoggerFactory.getLogger(VkController.class);
-
-    private final VKUtil vkUtil;
-
     private final UserService userService;
+    private VKService vkService;
 
     @Autowired
-    public VkController(VKUtil vkUtil, UserService userService) {
-        this.vkUtil = vkUtil;
+    public VkController(VKService vkService, UserService userService) {
+        this.vkService = vkService;
         this.userService = userService;
     }
 
     @RequestMapping(value = "/vk-auth", method = RequestMethod.GET)
     public String vkAuthPage() {
-        String uri = vkUtil.receivingTokenUri();
+        String uri = vkService.receivingTokenUri();
         return "redirect:" + uri;
     }
 
@@ -494,11 +490,11 @@ public class VkController {
     public String vkGetAccessToken(@RequestParam("token") String token) {
         User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.get(userFromSession.getId());
-        String applicationToken = vkUtil.replaceApplicationTokenFromUri(token);
+        String applicationToken = vkService.replaceApplicationTokenFromUri(token);
         user.setVkToken(applicationToken);
         userService.update(user);
         if (user.getAuthorities().contains(new Role("OWNER"))) {
-            vkUtil.setApplicationToken(applicationToken);
+            vkService.setApplicationToken(applicationToken);
         }
         return "redirect:/client";
     }
@@ -507,20 +503,20 @@ public class VkController {
     @ResponseBody
     @RequestMapping(value = "/vk-test", method = RequestMethod.GET)
     public String testVkTargeting() throws Exception {
-        return vkUtil.createNewAudience("next");
+        return vkService.createNewAudience("next");
     }
 
     //TODO delete after testing vk targeting
     @RequestMapping(value = "/vk-test2", method = RequestMethod.GET)
     public String addUsersToAudience(@RequestParam("id") String id) throws Exception {
-        vkUtil.addUsersToAudience(id, cont);
+        vkService.addUsersToAudience(id, cont);
         return "redirect:/client";
     }
 
     //TODO delete after testing vk targeting
     @RequestMapping(value = "/vk-test3", method = RequestMethod.GET)
     public String removeUsersFromAudience(@RequestParam("id") String id) throws Exception {
-        vkUtil.removeUsersFromAudience(id, remove);
+        vkService.removeUsersFromAudience(id, remove);
         return "redirect:/client";
     }
 }
