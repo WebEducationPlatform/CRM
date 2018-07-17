@@ -28,10 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -160,42 +158,42 @@ public class VKService {
 		return client.getName() + " hasn't vk social network";
 	}
 
-	private String sendMessageById(long id, String msg, String token) {
-    	String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
+//	private String sendMessageById(long id, String msg, String token) {
+//		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
+//    }
 
-    public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset){
-        if (groupId==null){
-            groupId = Long.parseLong(clubId)*(-1);
-        }
-        String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
-                "?group_id=" + groupId +
-//                "&sort=time_asc" +
-                "&offset=" + offset +
-                "&version=" + version +
-                "&access_token=" + communityToken;
-//                accessToken;
-        try {
-            HttpGet httpGetMessages = new HttpGet(urlGetMessages);
-            HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
-                    .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
-            HttpResponse httpResponse = httpClient.execute(httpGetMessages);
-            String result = EntityUtils.toString(httpResponse.getEntity());
-            JSONObject json = new JSONObject(result);
-            JSONObject responeJson = json.getJSONObject("response");
-            JSONArray jsonArray = responeJson.getJSONArray("users");
-            ArrayList<VkMember> vkMembers = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++ ){
-                vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
-            }
-            return Optional.of(vkMembers);
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server");
-        } catch (JSONException e) {
-            logger.error("Can not read message from JSON");
-        }
-        return Optional.empty();
-    }
+		public Optional<ArrayList<VkMember>> getAllVKMembers (Long groupId, Long offset){
+			if (groupId == null) {
+				groupId = Long.parseLong(clubId) * (-1);
+			}
+			String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
+					"?group_id=" + groupId +
+					"&offset=" + offset +
+					"&version=" + version +
+					"&access_token=" + communityToken;
+			try {
+				HttpGet httpGetMessages = new HttpGet(urlGetMessages);
+				HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+						.build();
+				HttpResponse httpResponse = httpClient.execute(httpGetMessages);
+				String result = EntityUtils.toString(httpResponse.getEntity());
+				JSONObject json = new JSONObject(result);
+				JSONObject responeJson = json.getJSONObject("response");
+				JSONArray jsonArray = responeJson.getJSONArray("users");
+				ArrayList<VkMember> vkMembers = new ArrayList<>();
+				for (int i = 0; i < jsonArray.length(); i++) {
+					vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
+				}
+				return Optional.of(vkMembers);
+			} catch (IOException e) {
+				logger.error("Failed to connect to VK server");
+			} catch (JSONException e) {
+				logger.error("Can not read message from JSON");
+			}
+			return Optional.empty();
+		}
+
 
     public String sendMessageById(long id, String msg) {
         return sendMessageById(id, msg, robotAccessToken);
