@@ -26,6 +26,14 @@ public class VKConfigImpl implements VKConfig {
 
     private String scope;
 
+    private String robotClientSecret;
+
+    private String robotClientId;
+
+    private String robotUsername;
+
+    private String robotPassword;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -38,6 +46,10 @@ public class VKConfigImpl implements VKConfig {
             display = env.getRequiredProperty("vk.app.display");
             redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
             scope = env.getRequiredProperty("vk.app.scope");
+            robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
+            robotUsername = env.getRequiredProperty("vk.robot.profile.username");
+            robotPassword = env.getRequiredProperty("vk.robot.profile.password");
+            robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
                 throw new NullPointerException();
@@ -74,5 +86,21 @@ public class VKConfigImpl implements VKConfig {
 
     public String getScope() {
         return scope;
+    }
+
+    public String getRobotClientSecret() {
+        return robotClientSecret;
+    }
+
+    public String getRobotClientId() {
+        return robotClientId;
+    }
+
+    public String getRobotUsername() {
+        return robotUsername;
+    }
+
+    public String getRobotPassword() {
+        return robotPassword;
     }
 }

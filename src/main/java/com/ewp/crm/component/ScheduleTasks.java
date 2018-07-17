@@ -115,7 +115,7 @@ public class ScheduleTasks {
 			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L).get();
 			for (VkMember vkMember : freshMemberList){
 				if(!lastMemberList.contains(vkMember)){
-					vkService.sendMessageById(vkMember.getVkId(), firstContactMessage, vkTrackedClub.getToken());
+					vkService.sendMessageById(vkMember.getVkId(), firstContactMessage, null);
 					vkMemberService.add(vkMember);
 				}
 			}
