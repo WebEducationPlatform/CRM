@@ -6,6 +6,13 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.github.scribejava.apis.VkontakteApi;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -44,6 +51,7 @@ public class VKUtil {
     private String redirectUri;
     private String scope;
     private String applicationToken;
+    private OAuth20Service service;
 
     @Autowired
     public VKUtil(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
@@ -59,6 +67,7 @@ public class VKUtil {
         this.clientService = clientService;
         this.messageService = messageService;
         this.socialNetworkTypeService = socialNetworkTypeService;
+        this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
     }
 
     private static String getValue(String field) {
@@ -321,9 +330,48 @@ public class VKUtil {
         this.applicationToken = applicationToken;
 	}
 
-	public String replaceApplicationTokenFromUri(String uri){
-        return uri.replaceAll(".+(access_token=)","")
-				.replaceAll("&.+","");
-	}
+    public String replaceApplicationTokenFromUri(String uri) {
+        return uri.replaceAll(".+(access_token=)", "")
+                .replaceAll("&.+", "");
+    }
+
+    public String createNewAudience(String groupName) throws Exception {
+        String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.GET, createGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("name", groupName);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
+        String resp = new JSONObject(response.getBody()).get("response").toString();
+        String groupId = new JSONObject(resp).get("id").toString();
+        return groupId;
+    }
+
+    public void addUsersToAudience(String groupId, String contacts) throws Exception {
+        String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.GET, addContactsToGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("target_group_id", groupId);
+        request.addParameter("contacts", contacts);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
+    }
+
+    public String addUsersToAudience24(String groupId, String contacts) {
+        String createTargetingGroup = "https://api.vk.com/method/" +
+                "%s?" +
+                "account_id=%s&" +
+                "target_group_id=%s&" +
+                "contacts=%s&" +
+                "access_token=%s&" +
+                "v=%s";
+        return String.format(createTargetingGroup,
+                "ads.importTargetContacts", "1604697686", groupId, contacts, applicationToken, version
+        );
+    }
 }
 
