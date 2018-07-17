@@ -141,7 +141,44 @@ public class VKService {
 	}
 
 	private String sendMessageById(long id, String msg, String token) {
-		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
+    	String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
+
+    public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset){
+        if (groupId==null){
+            groupId = Long.parseLong(clubId)*(-1);
+        }
+        String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
+                "?group_id=" + groupId +
+//                "&sort=time_asc" +
+                "&offset=" + offset +
+                "&version=" + version +
+                "&access_token=" + communityToken;
+//                accessToken;
+        try {
+            HttpGet httpGetMessages = new HttpGet(urlGetMessages);
+            HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+                    .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            HttpResponse httpResponse = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(httpResponse.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject responeJson = json.getJSONObject("response");
+            JSONArray jsonArray = responeJson.getJSONArray("users");
+            ArrayList<VkMember> vkMembers = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++ ){
+                vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
+            }
+            return Optional.of(vkMembers);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server");
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON");
+        }
+        return Optional.empty();
+    }
+
+    public String sendMessageById(long id, String msg, String token) {
+        String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
