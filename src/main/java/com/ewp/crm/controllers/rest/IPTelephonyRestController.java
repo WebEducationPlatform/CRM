@@ -57,7 +57,7 @@ public class IPTelephonyRestController {
 		Client client = clientService.getClientByPhoneNumber(to);
 		if (client.isCanCall() && principal.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = clientHistoryService.createHistory(principal, null);
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, "http://www.google.com");
 			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
 			client.addHistory(historyFromDB);
 			callRecord.setClientHistory(historyFromDB);

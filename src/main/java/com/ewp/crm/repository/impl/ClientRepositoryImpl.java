@@ -11,25 +11,34 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
-	private final EntityManager entityManager;
+    private final EntityManager entityManager;
 
-	@Value("${project.jpa.batch-size}")
-	private int batchSize;
+    @Value("${project.jpa.batch-size}")
+    private int batchSize;
 
-	@Autowired
-	public ClientRepositoryImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+	@Value("${project.pagination.page-size.clients}")
+	private int pageSize;
+
+    @Autowired
+    public ClientRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
 	@Override
 	public List<Client> filteringClient(FilteringCondition filteringCondition) {
-		return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+		Query query = entityManager.createQuery(createQuery(filteringCondition));
+		int pageNumber = 1;
+		query.setFirstResult((pageNumber - 1) * pageSize);
+		query.setMaxResults(pageSize);
+		List<Client> fooList = query.getResultList();
+		return fooList;
 	}
 
 	@Override
@@ -110,6 +119,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 	private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
 		return "select phoneNumber from Client cl where 1 = 1" + filterQuery(filteringCondition);
 	}
+
 	private String filterQuery(FilteringCondition filteringCondition) {
 		StringBuilder query = new StringBuilder();
 
