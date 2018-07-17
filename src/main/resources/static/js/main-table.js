@@ -79,21 +79,21 @@ $(function () {
 });
 
 $(function () {
-    $(".hide-main-modal").click(function (e) {
+    $(".hide-main-modal").click(function(e) {
         $(".main-modal .close").click()
     });
 });
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.select_all').click(function () {
+    $('.select_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', true);
     });
 });
-$('.deselect_all').click(function () {
-    var currentForm = $(this).parents('.box-modal');
-    currentForm.find('.my-checkbox-soc').prop('checked', false);
+    $('.deselect_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
 
 
@@ -123,10 +123,13 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
+
+
+
 $(document).ready(function () {
     $(".column").sortable({
-        delay: 100,
-        items: '> .portlet',
+    delay:100,
+	items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -142,9 +145,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function () {
-        $("#new-status-name").keypress(function (e) {
-            if (e.keyCode === 13) {
+    $(document).ready(function(){
+        $("#new-status-name").keypress(function(e){
+            if(e.keyCode===13){
                 createNewStatus();
             }
         });
@@ -166,6 +169,13 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
+   /* $("#new-status-form").focusout(
+        function () {
+            $(this).hide();
+            $("#create-new-status-span").show();
+        });*/
+
+   //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
         let jo2 = jo.find($(".portlet-header"));
@@ -181,8 +191,7 @@ $(document).ready(function () {
         let modal = $("#sms_error_modal"),
             btn = $(this),
             url = '/user/notification/sms/error/' + btn.attr("data-id");
-        $.get(url, function () {
-        }).done(function (notifications) {
+        $.get(url, function(){}).done(function (notifications) {
             let body = modal.find("tbody");
             for (let i = 0; i < notifications.length; i++) {
                 body.append(
@@ -190,7 +199,7 @@ $(document).ready(function () {
                 )
             }
         });
-        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
         modal.modal();
     })
 
@@ -334,7 +343,7 @@ function assignUser(id, user, principalId) {
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign: user
+            userForAssign : user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -344,7 +353,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
+                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -397,11 +406,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if (unassignBtn.length !== 0) {
+            if(unassignBtn.length !== 0){
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id + ")' " +
+                    "   onclick='assign(" + id +")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -421,14 +430,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data = [];
-        for (var w = 0; w < allChecks.length; ++w) {
-            if (allChecks[w].checked) {
-                data[data.length] = allChecks[w].value;
+        var data=[];
+        for (var w = 0; w < allChecks.length; ++w){
+            if(allChecks[w].checked){
+                data[data.length]=allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length === 0) {
+        if (data.length===0) {
             jo.show();
             return;
         }
@@ -772,9 +781,22 @@ $(function () {
         btn.data('templateId', templateId);
     });
 });
+$(function () {
+    $('.test-fix-btn').on('click', function () {
+        var portlet = $(this).closest('#main-modal-window');
+        var clientId = portlet.data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#sendTemplateModal');
+        var btn = currentModal.find('.send-all-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
+
+    });
+
+});
 
 
-//Отрпавка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
+//Отправка сообщений с фиксированнм текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
@@ -848,18 +870,39 @@ $(function () {
         btn.data('templateId', templateId);
     });
 });
+$(function () {
+    $('.test-custom-btn').on('click', function () {
+        var portlet = $(this).closest('#main-modal-window');
+        var clientId = portlet.data('clientId');
+        var templateId = $(this).data('templateId');
+        var currentModal = $('#customMessageTemplate');
+        var btn = currentModal.find('.send-all-custom-message');
+        btn.data('clientId', clientId);
+        btn.data('templateId', templateId);
 
-//Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
+    });
+
+});
+// Кнопка  вк
+// $(function () {
+//     $(function (client) {
+//
+//  var clientId = client.age;
+//
+//     $('#vk-href').attr('href', clientId);
+//     });
+// });
+
+
+//Отправка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-custom-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        var formData = {
-            clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()
-        };
+        var formData = {clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body').val()};
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
@@ -1013,6 +1056,7 @@ $(function () {
                     if (client.age > 0) {
                         $('#client-age').text(client.age);
                     }
+
                     $('#client-sex').text(client.sex);
                     // здесь вставка ссылок в кнопки вк и фб
                     $('#vk-href').hide();
@@ -1038,6 +1082,9 @@ $(function () {
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
+
+                $('.send-all-custom-message').attr('clientId', clientId);
+                $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
