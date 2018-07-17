@@ -344,11 +344,11 @@ public class VKService {
         return groupId;
     }
 
-    public void addUsersToAudience(String groupId, String contacts) throws Exception {
+    public void addUsersToAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
-        request.addParameter("account_id", "1604697686");
+        request.addParameter("account_id", idVkCabinet);
         request.addParameter("target_group_id", groupId);
         request.addParameter("contacts", contacts);
         request.addParameter("v", version);
@@ -356,11 +356,11 @@ public class VKService {
         Response response = service.execute(request);
     }
 
-    public void removeUsersFromAudience(String groupId, String contacts) throws Exception {
+    public void removeUsersFromAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
-        request.addParameter("account_id", "1604697686");
+        request.addParameter("account_id", idVkCabinet);
         request.addParameter("target_group_id", groupId);
         request.addParameter("contacts", contacts);
         request.addParameter("v", version);
