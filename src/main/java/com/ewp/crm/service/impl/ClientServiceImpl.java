@@ -12,6 +12,7 @@ import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class ClientServiceImpl implements ClientService {
-
+public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 	private final ClientRepository clientRepository;
 
     private StatusService statusService;

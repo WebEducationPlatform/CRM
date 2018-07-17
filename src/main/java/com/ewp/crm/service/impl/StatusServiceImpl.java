@@ -13,7 +13,6 @@ import java.util.List;
 
 @Service
 public class StatusServiceImpl implements StatusService {
-
 	private final StatusDAO statusDAO;
 	private final ClientService clientService;
 

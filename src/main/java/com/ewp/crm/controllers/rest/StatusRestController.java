@@ -64,7 +64,7 @@ public class StatusRestController {
 	@RequestMapping(value = "/rest/status/client/change", method = RequestMethod.POST)
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId) {
-		Client currentClient = clientService.getClientByID(clientId);
+		Client currentClient = clientService.get(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
 			return ResponseEntity.badRequest().body("Клиент уже находится на данном статусе");
 		}
@@ -96,7 +96,7 @@ public class StatusRestController {
 	@PostMapping("/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t delete client status, client with id = {} not found", clientId);
 			return ResponseEntity.notFound().build();

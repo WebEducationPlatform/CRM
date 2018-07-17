@@ -40,7 +40,7 @@ public class VkRestController {
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                              @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		String vkText = MessageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();

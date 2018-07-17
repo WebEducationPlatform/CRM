@@ -11,18 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class NotificationServiceImpl implements NotificationService {
-
+public class NotificationServiceImpl extends CommonServiceImpl<Notification> implements NotificationService {
 	private final NotificationRepository notificationRepository;
 
 	@Autowired
 	public NotificationServiceImpl(NotificationRepository notificationRepository) {
 		this.notificationRepository = notificationRepository;
-	}
-
-	@Override
-	public void addNotification(Notification notification) {
-		notificationRepository.saveAndFlush(notification);
 	}
 
 	@Override
