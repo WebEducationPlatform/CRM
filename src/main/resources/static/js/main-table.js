@@ -9,11 +9,11 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             beforeSend: function () {
-                if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+                if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
                     return false;
                 }
             },
-            success: function(data) {
+            success: function (data) {
                 var soc = data.socialNetworks;
                 var email = data.email;
                 var phoneNumber = data.phoneNumber;
@@ -23,11 +23,12 @@ $(function () {
                         "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
                         "</label>");
                 }
-                if(email !== null) {
+                if (email !== null) {
                     currentForm.prepend("<label class='checkbox-inline'>" +
                         "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
                         "</label>");
-                } if (phoneNumber !== null ) {
+                }
+                if (phoneNumber !== null) {
                     currentForm.prepend("<label class='checkbox-inline'>" +
                         "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
                         "</label>");
@@ -48,11 +49,11 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             beforeSend: function () {
-                if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+                if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
                     return false;
                 }
             },
-            success: function(data) {
+            success: function (data) {
                 var soc = data.socialNetworks;
                 var email = data.email;
                 var phoneNumber = data.phoneNumber;
@@ -62,11 +63,12 @@ $(function () {
                         "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
                         "</label>");
                 }
-                if(email !== null) {
+                if (email !== null) {
                     currentForm.prepend("<label class='checkbox-inline'>" +
                         "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
                         "</label>");
-                } if (phoneNumber !== null ) {
+                }
+                if (phoneNumber !== null) {
                     currentForm.prepend("<label class='checkbox-inline'>" +
                         "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
                         "</label>");
@@ -76,22 +78,22 @@ $(function () {
     });
 });
 
-$(function(){
-    $(".hide-main-modal").click(function(e){
+$(function () {
+    $(".hide-main-modal").click(function (e) {
         $(".main-modal .close").click()
     });
 });
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.select_all').click(function() {
+    $('.select_all').click(function () {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', true);
     });
 });
-    $('.deselect_all').click(function() {
-        var currentForm = $(this).parents('.box-modal');
-        currentForm.find('.my-checkbox-soc').prop('checked', false);
+$('.deselect_all').click(function () {
+    var currentForm = $(this).parents('.box-modal');
+    currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
 
 
@@ -121,13 +123,10 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
-
-
-
 $(document).ready(function () {
     $(".column").sortable({
-    delay:100,
-	items: '> .portlet',
+        delay: 100,
+        items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -143,9 +142,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function(){
-        $("#new-status-name").keypress(function(e){
-            if(e.keyCode===13){
+    $(document).ready(function () {
+        $("#new-status-name").keypress(function (e) {
+            if (e.keyCode === 13) {
                 createNewStatus();
             }
         });
@@ -167,45 +166,23 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-   /* $("#new-status-form").focusout(
-        function () {
-            $(this).hide();
-            $("#create-new-status-span").show();
-        });*/
-
-   //Search clients in main
     $("#search-clients").keyup(function () {
-        //split input data by space
-        let data = this.value.toLowerCase().split(" ");
-        //take portlet data
-        let portletArr = $(".portlet");
-        //if input data is empty: show all and return
-        if(this.value.trim() === ''){
-            portletArr.show();
-            return;
-        }
-        portletArr.hide();
-        //filtering array of portlet
-        portletArr.filter(function () {
-            //filtering by data in portlet body
-            let portlet = $(this).find(".portlet-body");
-            let temp = portlet.clone();
-            temp.text(temp.text().toLowerCase());
-            let $validCount = 0;
-            for (let i = 0; i < data.length; i++){
-                if(temp.is(":contains('"+ data[i] +"')")){
-                    $validCount++;
-                }
+        let jo = $(".portlet");
+        let jo2 = jo.find($(".portlet-header"));
+        this.value.localeCompare("") == 0 ? jo.show : jo.hide();
+        for (let i = 0; i < jo2.length; i++) {
+            if (jo2[i].innerText.includes(this.value)) {
+                jo[i].style.display = 'block';
             }
-            return $validCount === data.length;
-        }).show();
+        }
     });
 
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
         let modal = $("#sms_error_modal"),
             btn = $(this),
             url = '/user/notification/sms/error/' + btn.attr("data-id");
-        $.get(url, function(){}).done(function (notifications) {
+        $.get(url, function () {
+        }).done(function (notifications) {
             let body = modal.find("tbody");
             for (let i = 0; i < notifications.length; i++) {
                 body.append(
@@ -213,7 +190,7 @@ $(document).ready(function () {
                 )
             }
         });
-        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
         modal.modal();
     })
 
@@ -226,6 +203,7 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
+
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
@@ -261,8 +239,8 @@ function createNewUser() {
 
 function createNewStatus() {
     let url = '/rest/status/add';
-    let statusName = $('#new-status-name').val() ||  $('#default-status-name').val();
-    if(typeof statusName === "undefined" || statusName === "") return;
+    let statusName = $('#new-status-name').val() || $('#default-status-name').val();
+    if (typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
@@ -286,7 +264,7 @@ function changeStatusName(id) {
     let statusName = $("#change-status-name" + id).val();
     let formData = {
         statusName: statusName,
-        oldStatusId:id
+        oldStatusId: id
     };
 
     $.ajax({
@@ -301,6 +279,7 @@ function changeStatusName(id) {
         }
     });
 }
+
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -332,14 +311,14 @@ function assign(id) {
         success: function (owner) {
             assignBtn.before(
                 "<button " +
-                "   id='unassign-client" + id +"' " +
-                "   onclick='unassign(" + id +")' " +
+                "   id='unassign-client" + id + "' " +
+                "   onclick='unassign(" + id + ")' " +
                 "   class='btn btn-sm btn-warning remove-tag'>Отказаться от карточки</button>"
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
-                    owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -349,12 +328,13 @@ function assign(id) {
         }
     });
 }
+
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign : user
+            userForAssign: user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -364,7 +344,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
+                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -380,7 +360,7 @@ function assignUser(id, user, principalId) {
             //             "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
             //         );
             //     }
-                //If admin not assign himself, he don`t have unassign button
+            //If admin not assign himself, he don`t have unassign button
             // }else {
             //     unassign_btn.remove();
             // }
@@ -388,8 +368,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -417,11 +397,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if(unassignBtn.length !== 0){
+            if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id +")' " +
+                    "   onclick='assign(" + id + ")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -441,14 +421,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data=[];
-        for (var w = 0; w < allChecks.length; ++w){
-            if(allChecks[w].checked){
-                data[data.length]=allChecks[w].value;
+        var data = [];
+        for (var w = 0; w < allChecks.length; ++w) {
+            if (allChecks[w].checked) {
+                data[data.length] = allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length===0) {
+        if (data.length === 0) {
             jo.show();
             return;
         }
@@ -472,7 +452,7 @@ function fillFilterList() {
     var names = $("#status-columns").find($(".user-icon"));
     if (names.length === 0) {
         $("#client_filter_group").hide();
-    }else {
+    } else {
         $("#client_filter_group").show();
     }
     var uniqueNames = [];
@@ -526,7 +506,7 @@ $(document).ready(function () {
     $("#createDefaultStatus").modal({
         backdrop: 'static',
         keyboard: false
-    },'show');
+    }, 'show');
 });
 
 $(document).ready(fillFilterList);
@@ -539,13 +519,13 @@ $(document).ready(function () {
     $.ajax({
         type: 'get',
         url: url,
-        dataType : 'json',
+        dataType: 'json',
         success: function (res) {
             for (var i = 0; i < res.length; i++) {
                 userNames[i] = res[i].firstName + res[i].lastName;
             }
         },
-        error : function (error) {
+        error: function (error) {
             console.log(error);
         }
     });
@@ -622,7 +602,7 @@ $(function () {
 
 // Отправка кастомного сообщения в вк
 $(function () {
-    $('.send-vk-btn').on('click', function(event) {
+    $('.send-vk-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-custom-vk-status');
@@ -639,11 +619,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -655,7 +635,7 @@ $(function () {
         var clientId = $(this).parents('.main-modal').data('clientId');
         var templateId = $(this).data('templateId');
         var currentModal = $('#customVKMessageTemplate');
-        var btn =  currentModal.find('.send-vk-btn');
+        var btn = currentModal.find('.send-vk-btn');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
     });
@@ -669,7 +649,7 @@ $(function () {
 
 // Отправка кастомного сообщения в email
 $(function () {
-    $('.send-email-btn').on('click', function(event) {
+    $('.send-email-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-email-err-status');
@@ -687,11 +667,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -703,7 +683,7 @@ $(function () {
         var clientId = $(this).parents('.main-modal').data('clientId');
         var templateId = $(this).data('templateId');
         var currentModal = $('#customEmailMessageTemplate');
-        var btn =  currentModal.find('.send-email-btn');
+        var btn = currentModal.find('.send-email-btn');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
     });
@@ -747,9 +727,9 @@ $(function () {
 });
 
 $(function () {
-    $('.open-description-btn').on('click', function(event) {
+    $('.open-description-btn').on('click', function (event) {
         var id = $(this).data('id');
-        var infoClient =  $('#info-client'+ id);
+        var infoClient = $('#info-client' + id);
         var text = infoClient.find('.client-description').text();
         var clientModal = $('#clientDescriptionModal');
         $("#save-description").attr("data-id", id);
@@ -760,22 +740,21 @@ $(function () {
 });
 
 
-
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.save_value').on('click', function(event) {
+    $('.save_value').on('click', function (event) {
         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
             return $(el).val();
         });
-        var boxList =sel.get();
+        var boxList = sel.get();
         console.log(sel.get());
 
         $.ajax({
             contentType: "application/json",
             type: 'POST',
             data: JSON.stringify(boxList),
-            url:"/rest/sendSeveralMessage",
-            success:function(result){
+            url: "/rest/sendSeveralMessage",
+            success: function (result) {
                 alert('sucess')
             }
         });
@@ -806,7 +785,7 @@ $(function () {
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
-            var valuecheck = $( this ).val();
+            var valuecheck = $(this).val();
             switch (valuecheck) {
                 case ('email'):
                     url = '/rest/sendEmail';
@@ -826,27 +805,27 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: formData,
-            beforeSend: function () {
-                current.text("Отправка..");
-                current.attr("disabled", "true")
-            },
-            success: function (result) {
-                if (err.length === 0) {
-                    $(".modal").modal('hide');
+                beforeSend: function () {
+                    current.text("Отправка..");
+                    current.attr("disabled", "true")
+                },
+                success: function (result) {
+                    if (err.length === 0) {
+                        $(".modal").modal('hide');
+                        current.text("Отправить");
+                        current.removeAttr("disabled");
+                    }
+                },
+                error: function (e) {
+                    err.push(valuecheck);
                     current.text("Отправить");
-                    current.removeAttr("disabled");
+                    currentStatus.text("Не удалось отправить сообщение " + err);
+                    current.attr("disabled", "true");
+                    console.log(e)
                 }
-            },
-            error: function (e) {
-                err.push(valuecheck);
-                current.text("Отправить");
-                currentStatus.text("Не удалось отправить сообщение " + err);
-                current.attr("disabled", "true");
-                console.log(e)
-            }
+            });
         });
     });
-});
 });
 $(function () {
     $('.fix-modal').on('hide.bs.modal', function () {
@@ -864,7 +843,7 @@ $(function () {
         var clientId = portlet.data('cardId');
         var templateId = $(this).data('templateId');
         var currentModal = $('#customMessageTemplate');
-        var btn =  currentModal.find('.send-all-custom-message');
+        var btn = currentModal.find('.send-all-custom-message');
         btn.data('clientId', clientId);
         btn.data('templateId', templateId);
     });
@@ -872,18 +851,20 @@ $(function () {
 
 //Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
-    $('.send-all-custom-message').on('click', function(event) {
+    $('.send-all-custom-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        var formData = {clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()};
+        var formData = {
+            clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body').val()
+        };
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
             var valuecheck = $(this).val();
-            switch ($( this ).val()) {
+            switch ($(this).val()) {
                 case ('email'):
                     url = '/rest/sendEmail';
                     break;
@@ -893,7 +874,7 @@ $(function () {
                 case ('sms'):
                     url = '/user/sms/send/now/client';
                     break;
-                    //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
+                //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
                 case ('facebook'):
                     url = '/temporary blank';
                     break;
@@ -902,7 +883,7 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: formData,
-                beforeSend: function(){
+                beforeSend: function () {
                     current.text("Отправка..");
                     current.attr("disabled", "true")
                 },
@@ -934,7 +915,6 @@ $(function () {
 });
 
 
-
 function hideClient(clientId) {
     let url = 'rest/client/postpone';
     let formData = {
@@ -958,8 +938,8 @@ function hideClient(clientId) {
 
 $(document).ready(function () {
     var nowDate = new Date();
-    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
-    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
+    var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
@@ -978,10 +958,10 @@ $(function () {
     $('.portlet-body').on('click', function (e) {
         if (e.target.className.startsWith("portlet-body") === true) {
             var clientId = $(this).parents('.common-modal').data('cardId');
-            var currentModal =  $('#main-modal-window');
+            var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-			markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'))
         }
     });
 });
@@ -990,7 +970,7 @@ $(function () {
 $(function () {
     $('.portlet-header').on('click', function (e) {
         var clientId = $(this).parents('.common-modal').data('cardId');
-        var currentModal =  $('#main-modal-window');
+        var currentModal = $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
     });
@@ -999,7 +979,7 @@ $(function () {
 $(function () {
     $('.portlet-content').on('click', function (e) {
         var clientId = $(this).parents('.common-modal').data('cardId');
-        var currentModal =  $('#main-modal-window');
+        var currentModal = $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
     });
@@ -1014,7 +994,7 @@ $(function () {
             type: 'GET',
             url: 'rest/client/' + clientId,
             data: formData,
-            success: function(client) {
+            success: function (client) {
                 $.get('rest/client/getPrincipal', function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
@@ -1026,8 +1006,8 @@ $(function () {
                     currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
-                    if(client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', '+ client.phoneNumber +')">' + '<span class="glyphicon glyphicon-earphone call-icon">'+ '</span>' + '</a>' + '</td>');
+                    if (client.canCall && user.ipTelephony) {
+                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</a>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1055,20 +1035,20 @@ $(function () {
                     if (client.ownerUser !== null && owenerName === adminName) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
-                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id +'">' +
+                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
-                $('#hideClientCollapse').attr('id','hideClientCollapse'+ client.id );
-                $('#postponeDate').attr('id','postponeDate'+ client.id);
-                $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse'+ client.id +'" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
+                $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
+                $('#postponeDate').attr('id', 'postponeDate' + client.id);
+                $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
-                $('.textcomplete').attr('id','new-text-for-client'+ client.id);
-                $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id +'"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
-                $('.main-modal-comment').attr('id','client-'+ client.id + 'comments');
-                $('.upload-history').attr('data-id',client.id).attr('href','#collapse'+ client.id);
-                $('.client-collapse').attr('id','collapse'+ client.id);
-                $('.history-line').attr('id','client-'+ client.id + 'history');
-                $('.upload-more-history').attr('data-clientid',client.id);
+                $('.textcomplete').attr('id', 'new-text-for-client' + client.id);
+                $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id + '"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
+                $('.main-modal-comment').attr('id', 'client-' + client.id + 'comments');
+                $('.upload-history').attr('data-id', client.id).attr('href', '#collapse' + client.id);
+                $('.client-collapse').attr('id', 'collapse' + client.id);
+                $('.history-line').attr('id', 'client-' + client.id + 'history');
+                $('.upload-more-history').attr('data-clientid', client.id);
 
             }
         });
@@ -1079,8 +1059,8 @@ $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
         $('div#assign-unassign-btns').empty();
         $('.remove-element').remove();
-        $('.hide-client-collapse').attr('id','hideClientCollapse');
-        $('.postpone-date').attr('id','postponeDate');
+        $('.hide-client-collapse').attr('id', 'hideClientCollapse');
+        $('.postpone-date').attr('id', 'postponeDate');
         $('.textcomplete').removeAttr('id');
         $('.main-modal-comment').removeAttr('id');
         $('.remove-tag').remove();
@@ -1091,13 +1071,14 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
-});
+    });
 });
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var clean = $('.history-line').find("tbody");
-        clean.empty();;
+        clean.empty();
+        ;
     });
 });
 
@@ -1113,11 +1094,11 @@ function callToClient(userPhone, clientPhone) {
         type: 'post',
         url: url,
         data: formData,
-        success: function() {
+        success: function () {
             console.log("PROCESS CALL");
-            icon.parent("a").css("background","green");
-            icon.css("color","white");
-            icon.parent("a").attr("disabled","disabled");
+            icon.parent("a").css("background", "green");
+            icon.css("color", "white");
+            icon.parent("a").attr("disabled", "disabled");
 
         },
         error: function (error) {
@@ -1128,8 +1109,7 @@ function callToClient(userPhone, clientPhone) {
 }
 
 //авторизация Вконтакте
-function vk_popup(options)
-{
+function vk_popup(options) {
     var
         screenX = typeof window.screenX != 'undefined' ? window.screenX : window.screenLeft,
         screenY = typeof window.screenY != 'undefined' ? window.screenY : window.screenTop,
@@ -1147,15 +1127,16 @@ function vk_popup(options)
         );
     return window.open(options.url, 'vk_oauth', features);
 }
+
 function doLogin() {
     var win;
     var redirect_uri = 'https://oauth.vk.com/blank.html';
     var uri_regex = new RegExp(redirect_uri);
     var url = '/vk-auth';
     win = vk_popup({
-        width:620,
-        height:370,
-        url:url
+        width: 620,
+        height: 370,
+        url: url
     });
     var watch_timer = setInterval(function () {
         try {
