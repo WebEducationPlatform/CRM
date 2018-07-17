@@ -1,6 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -40,7 +40,7 @@ public class ClientRestController {
 	private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil, SendNotificationService sendNotificationService) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKService vkService, SendNotificationService sendNotificationService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
