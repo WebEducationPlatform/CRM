@@ -48,4 +48,5 @@ public interface ClientService {
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 	List<Client> findAllByPage(Pageable pageable);
+
 }

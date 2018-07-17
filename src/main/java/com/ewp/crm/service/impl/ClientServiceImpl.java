@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @Service
 public class ClientServiceImpl implements ClientService {
 
-    private final ClientRepository clientRepository;
+	private final ClientRepository clientRepository;
 
     private StatusService statusService;
     private  SendNotificationService sendNotificationService;
@@ -118,15 +118,15 @@ public class ClientServiceImpl implements ClientService {
         sendNotificationService.sendNotificationsAllUsers(client);
     }
 
-    @Override
-    public List<String> getClientsEmails() {
-        return clientRepository.getClientsEmail();
-    }
+	@Override
+	public List<String> getClientsEmails() {
+		return clientRepository.getClientsEmail();
+	}
 
-    @Override
-    public List<String> getClientsPhoneNumbers() {
-        return clientRepository.getClientsPhoneNumber();
-    }
+	@Override
+	public List<String> getClientsPhoneNumbers() {
+		return clientRepository.getClientsPhoneNumber();
+	}
 
     @Override
     public List<String> getFilteredClientsEmail(FilteringCondition filteringCondition) {
