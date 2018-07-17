@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 
-public interface ClientService {
+public interface ClientService extends CommonService<Client> {
 	List<Client> findAllByStatus(Status status);
 	List<Client> getAllClients();
 
@@ -49,4 +49,5 @@ public interface ClientService {
 
 	List<Client> findAllByPage(Pageable pageable);
 
+	List<Client> findAllByOwnerUser(Pageable pageable, User clientOwner);
 }

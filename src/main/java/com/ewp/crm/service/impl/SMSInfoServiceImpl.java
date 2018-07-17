@@ -8,12 +8,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class SMSInfoServiceImpl implements SMSInfoService {
-
+public class SMSInfoServiceImpl extends CommonServiceImpl<SMSInfo> implements SMSInfoService {
 	private final SMSInfoRepository smsInfoRepository;
 
 	public SMSInfoServiceImpl(SMSInfoRepository smsInfoRepository) {
 		this.smsInfoRepository = smsInfoRepository;
+	}
+
+	@Override
+	public SMSInfo addSMSInfo(SMSInfo smsInfo) {
+		return smsInfoRepository.saveAndFlush(smsInfo);
 	}
 
 	@Override
@@ -24,25 +28,5 @@ public class SMSInfoServiceImpl implements SMSInfoService {
 	@Override
 	public List<SMSInfo> getBySMSIsChecked(boolean isChecked) {
 		return smsInfoRepository.findByIsChecked(isChecked);
-	}
-
-	@Override
-	public SMSInfo getById(long id) {
-		return smsInfoRepository.findOne(id);
-	}
-
-	@Override
-	public void updateSMSInfo(SMSInfo smsInfo) {
-		smsInfoRepository.save(smsInfo);
-	}
-
-	@Override
-	public void deleteSMSInfo(long id) {
-		smsInfoRepository.delete(id);
-	}
-
-	@Override
-	public SMSInfo addSMSInfo(SMSInfo smsInfo) {
-		return smsInfoRepository.saveAndFlush(smsInfo);
 	}
 }

@@ -43,7 +43,7 @@ public class SMSRestController {
 	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                      @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		//TODO в конфиг
@@ -64,7 +64,7 @@ public class SMSRestController {
 	                                         @RequestParam("message") String message,
 	                                         @RequestParam("date") String date) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(id);
+		Client client = clientService.get(id);
 		DateTime utc = DateTime.parse(date);
 		smsUtil.plannedSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), principal);
 		clientService.updateClient(client);
