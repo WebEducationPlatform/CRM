@@ -170,7 +170,6 @@ $(document).ready(function () {
     });
 
 
-
     function drawClients(table, res) {
         for (let i = 0; i < res.length; i++) {
             let socLink = '';
