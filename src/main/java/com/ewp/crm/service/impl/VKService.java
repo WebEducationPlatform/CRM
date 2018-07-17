@@ -18,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -42,6 +44,7 @@ public class VKService {
     private final ClientService clientService;
     private final MessageService messageService;
     private final SocialNetworkTypeService socialNetworkTypeService;
+    private String robotAccessToken;
     private String clubId;
     private String version;
     private String communityToken;
@@ -51,6 +54,10 @@ public class VKService {
     private String scope;
     private String applicationToken;
     private OAuth20Service service;
+    private String robotClientSecret;
+    private String robotClientId;
+    private String robotUsername;
+    private String robotPassword;
 
     @Autowired
     public VKService(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
@@ -67,6 +74,10 @@ public class VKService {
         this.messageService = messageService;
         this.socialNetworkTypeService = socialNetworkTypeService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
+        this.robotClientSecret = vkConfig.getRobotClientSecret();
+        this.robotClientId = vkConfig.getRobotClientId();
+        this.robotUsername = vkConfig.getRobotUsername();
+        this.robotPassword = vkConfig.getRobotPassword();
     }
 
     public String receivingTokenUri() {
@@ -152,7 +163,7 @@ public class VKService {
 //                "&sort=time_asc" +
                 "&offset=" + offset +
                 "&version=" + version +
-                "&access_token=" + communityToken;
+                "&access_token=" + robotAccessToken;
 //                accessToken;
         try {
             HttpGet httpGetMessages = new HttpGet(urlGetMessages);
@@ -178,6 +189,9 @@ public class VKService {
     }
 
     public String sendMessageById(long id, String msg, String token) {
+        if (token == null){
+            token = robotAccessToken;
+        }
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -403,6 +417,32 @@ public class VKService {
         request.addParameter("v", version);
         service.signRequest(accessToken, request);
         Response response = service.execute(request);
+    }
+
+    @PostConstruct
+    private void initAccessToken() {
+        String uri = "https://oauth.vk.com/token" +
+                "?grant_type=password" +
+                "&client_id=" + robotClientId +
+                "&client_secret=" + robotClientSecret +
+                "&username=" + robotUsername +
+                "&password=" + robotPassword;
+
+        HttpGet httpGet = new HttpGet(uri);
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpResponse response = httpClient.execute(httpGet);
+            String result = EntityUtils.toString(response.getEntity());
+            try {
+                JSONObject json = new JSONObject(result);
+                this.robotAccessToken = json.getString("access_token");
+            } catch (JSONException e) {
+                logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken");
+            }
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server");
+        }
+
     }
 }
 
