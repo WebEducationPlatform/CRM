@@ -1016,6 +1016,10 @@ $(function () {
             data: formData,
             success: function(client) {
                 $.get('rest/client/getPrincipal', function (user) {
+                    if (client.ownerUser != null) {
+                        var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+                    }
+                    var adminName = user.firstName + ' ' + user.lastName;
                     $('#main-modal-window').data('userId', user.id);
                     // $('#main-modal-window').attr("onClick", "openClientComments("+ user.phoneNumber+','+ client.phoneNumber +")");
 
@@ -1048,7 +1052,7 @@ $(function () {
                     if (client.ownerUser === null) {
                         btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                     }
-                    if (client.ownerUser !== null) {
+                    if (client.ownerUser !== null && owenerName === adminName) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id +'">' +
@@ -1166,3 +1170,24 @@ function doLogin() {
         }
     }, 100);
 }
+
+$(".change-status-position").on('click', function () {
+    let destinationId = $(this).attr("value");
+    let sourceId = $(this).parents(".column").attr("value");
+    let url = "/rest/status/position/change";
+    let formData = {
+        sourceId : sourceId,
+        destinationId : destinationId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function() {
+            location.reload();
+        },
+        error: function (error) {
+
+        }
+    });
+});

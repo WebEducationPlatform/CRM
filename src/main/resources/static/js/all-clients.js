@@ -92,7 +92,7 @@ $('#filtration').click(function (){
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
-                    '        <td>' + res[i].name + '</td>' +
+                    '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
                     '        <td>' + res[i].lastName + '</td>' +
                     '        <td>' + phoneNumber + '</td>' +
                     '        <td>' + email + '</td>' +
@@ -147,7 +147,7 @@ $('#clientData').click(function (event) {
 let isAdmin;
 $.get('/rest/client/getPrincipal', function (user) {
     $.each(user.role, function (i,v) {
-        if (v.roleName === 'ADMIN') {
+        if (v.roleName === 'ADMIN' || v.roleName === 'OWNER' ) {
             isAdmin = true;
         }
     })
@@ -159,7 +159,7 @@ $(document).ready(function () {
 
 
     win.scroll(function () {
-        if ($(document).height() - win.height() < win.scrollTop() + 10) {
+        if ($(document).height() - win.height() === win.scrollTop()) {
 
             $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
                 let table = $("#clients-table").find("tbody");
@@ -202,7 +202,7 @@ $(document).ready(function () {
             table.append(
                 '    <tr>' +
                 '        <td>' + res[i].id + '</td>' +
-                '        <td>' + res[i].name + '</td>' +
+                '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
                 '        <td>' + res[i].lastName + '</td>' +
                 '        <td>' + phoneNumber + '</td>' +
                 '        <td>' + email + '</td>' +
