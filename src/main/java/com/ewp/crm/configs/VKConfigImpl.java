@@ -30,30 +30,23 @@ public class VKConfigImpl implements VKConfig {
 
     @Autowired
     public VKConfigImpl(Environment env) {
-        clubId = env.getProperty("vk.club.id");
-        version = env.getProperty("vk.version");
-        communityToken = env.getProperty("vk.community.token");
-        applicationId = env.getProperty("vk.app.id");
-        display = env.getProperty("vk.app.display");
-        redirectUri = env.getProperty("vk.app.redirect_uri");
-        scope = env.getProperty("vk.app.scope");
-
-        if (!configIsValid()) {
+        try {
+            clubId = env.getRequiredProperty("vk.club.id");
+            version = env.getRequiredProperty("vk.version");
+            communityToken = env.getRequiredProperty("vk.community.token");
+            applicationId = env.getRequiredProperty("vk.app.id");
+            display = env.getRequiredProperty("vk.app.display");
+            redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
+            scope = env.getRequiredProperty("vk.app.scope");
+            if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
+                    display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
+                throw new NullPointerException();
+            }
+        } catch (IllegalStateException | NullPointerException e) {
             logger.error("VK configs have not initialized. Check vk.properties file");
             System.exit(-1);
         }
     }
-
-	private boolean configIsValid() {
-		if (clubId == null || clubId.isEmpty()) return false;
-		if (version== null || version.isEmpty()) return false;
-		if (communityToken == null || communityToken.isEmpty()) return false;
-		if (applicationId == null || applicationId.isEmpty()) return false;
-		if (display == null || display.isEmpty()) return false;
-		if (redirectUri == null || redirectUri.isEmpty()) return false;
-		if (scope == null || scope.isEmpty()) return false;
-		return true;
-	}
 
     public String getClubId() {
         return "-" + clubId;
