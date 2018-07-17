@@ -70,10 +70,6 @@ public class VKUtil {
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
     }
 
-    private static String getValue(String field) {
-        return field.substring(field.indexOf("A: ") + 3);
-    }
-
     public String receivingTokenUri() {
 
         return "https://oauth.vk.com/authorize" +
@@ -349,30 +345,28 @@ public class VKUtil {
         return groupId;
     }
 
-    public String addUsersToAudience(String groupId, String contacts) throws Exception {
+    public void addUsersToAudience(String groupId, String contacts) throws Exception {
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
-        OAuthRequest request = new OAuthRequest(Verb.GET, addContactsToGroup);
+        OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
         request.addParameter("account_id", "1604697686");
         request.addParameter("target_group_id", groupId);
         request.addParameter("contacts", contacts);
         request.addParameter("v", version);
         service.signRequest(accessToken, request);
         Response response = service.execute(request);
-        return addContactsToGroup;
     }
 
-    public String addUsersToAudience24(String groupId, String contacts) {
-        String createTargetingGroup = "https://api.vk.com/method/" +
-                "%s?" +
-                "account_id=%s&" +
-                "target_group_id=%s&" +
-                "contacts=%s&" +
-                "access_token=%s&" +
-                "v=%s";
-        return String.format(createTargetingGroup,
-                "ads.importTargetContacts", "1604697686", groupId, contacts, applicationToken, version
-        );
+    public void removeUsersFromAudience(String groupId, String contacts) throws Exception {
+        String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("target_group_id", groupId);
+        request.addParameter("contacts", contacts);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
     }
 }
 
