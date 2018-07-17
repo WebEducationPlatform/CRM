@@ -13,4 +13,5 @@ public interface VKConfig {
     String getRobotClientId();
     String getRobotUsername();
     String getRobotPassword();
+    String getFirstContactMessage();
 }
