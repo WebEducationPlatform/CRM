@@ -116,14 +116,14 @@ public class VKUtil {
 		return Optional.empty();
 	}
 
-	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal) {
+	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
-				String responseMessage = sendMessageById(id, vkText);
+				String responseMessage = sendMessageById(id, vkText, token);
 				Message message = messageService.addMessage(Message.Type.VK, vkText);
 				client.addHistory(clientHistoryService.createHistory(principal, client, message));
 				clientService.updateClient(client);
@@ -134,7 +134,7 @@ public class VKUtil {
 		return client.getName() + " hasn't vk social network";
 	}
 
-	private String sendMessageById(long id, String msg) {
+	private String sendMessageById(long id, String msg, String token) {
 		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
 		String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -143,7 +143,7 @@ public class VKUtil {
 				"?user_id=" + id +
 				"&v=" + version +
 				"&message=" + uriMsg +
-				"&access_token=" + applicationToken;
+				"&access_token=" + token;
 
 		HttpGet request = new HttpGet(sendMsgRequest);
 		HttpClient httpClient = HttpClients.custom()
@@ -176,9 +176,10 @@ public class VKUtil {
 	}
 
 	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
+		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getConversations" +
 				"?v=" + version +
-				"&unread=1" +
+				"&filter=unread" +
+				"&group_id=" + clubId.replaceAll("-","") +
 				"&access_token=" +
 				communityToken;
 
@@ -195,8 +196,8 @@ public class VKUtil {
 			JSONArray jsonUsers = responseObject.getJSONArray("items");
 			List<Long> resultList = new ArrayList<>();
 			for (int i = 0; i < jsonUsers.length(); i++) {
-				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
-				resultList.add(jsonMessage.getLong("user_id"));
+				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("last_message");
+				resultList.add(jsonMessage.getLong("from_id"));
 			}
 			return Optional.of(resultList);
 		} catch (JSONException e) {
@@ -315,10 +316,10 @@ public class VKUtil {
 	}
 
 	public void setApplicationToken(String applicationToken) {
-        this.applicationToken = replaceApplicationTokenFromUri(applicationToken);
+        this.applicationToken = applicationToken;
 	}
 
-	private String replaceApplicationTokenFromUri(String uri){
+	public String replaceApplicationTokenFromUri(String uri){
         return uri.replaceAll(".+(access_token=)","")
 				.replaceAll("&.+","");
 	}

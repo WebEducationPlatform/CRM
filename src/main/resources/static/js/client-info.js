@@ -1,3 +1,11 @@
+$(function () {
+    $('.back-btn').click(function(){
+        history.back();
+        return false;
+    });
+});
+
+
 $(document).ready(function () {
     selectOptions($("#edit-client-state"));
     selectOptions($("#edit-client-sex"));
