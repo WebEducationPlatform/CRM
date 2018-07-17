@@ -48,6 +48,4 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 	List<Client> findAllByPage(Pageable pageable);
-
-	List<Client> findAllByOwnerUser(Pageable pageable, User clientOwner);
 }

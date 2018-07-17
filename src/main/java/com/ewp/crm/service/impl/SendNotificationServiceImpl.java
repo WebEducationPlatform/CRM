@@ -39,7 +39,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         List<Notification> notifications = new ArrayList<>();
         for (int i = 0; i < usersToNotify.size(); i++) {
             notifications.add(new Notification(client, usersToNotify.get(i), Notification.Type.NEW_USER));
-            notificationService.addNotification(notifications.get(i));
+            notificationService.add(notifications.get(i));
         }
     }
 
