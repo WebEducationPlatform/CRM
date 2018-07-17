@@ -29,7 +29,7 @@
                                                 <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                     <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
                                                     <a class="glyphicon glyphicon-plus test-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                                         </button>

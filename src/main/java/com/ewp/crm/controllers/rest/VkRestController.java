@@ -38,7 +38,7 @@ public class VkRestController {
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
-	                                              @RequestParam(value = "body",required = false) String body) {
+												  @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.get(clientId);
 		String vkText = MessageTemplateService.get(templateId).getOtherText();
@@ -48,7 +48,7 @@ public class VkRestController {
 		params.put("%bodyText%", body);
 
 		User user = userService.get(principal.getId());
-		String token = user.getVk_token();
+		String token = user.getVkToken();
 		vkUtil.sendMessageToClient(client, vkText, params, principal, token);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}

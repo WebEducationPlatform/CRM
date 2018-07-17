@@ -97,11 +97,9 @@
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialNetworks}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td th:value="${socials.link}" th:text="${socials.link}">
-                                </td>
-                                <td th:value="${socials.socialNetworkType.id}"  th:text="${socials.socialNetworkType.name}">
-
-                                </td>
+                                <td th:value="${socials.link}" th:text="${socials.link}"></td>
+                                <td th:value="${socials.socialNetworkType.id}"
+                                    th:text="${socials.socialNetworkType.name}"></td>
                                 <td>
                                     <button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>

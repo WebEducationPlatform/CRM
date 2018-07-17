@@ -131,66 +131,7 @@
             </div>
            <ul class="list-group main-modal-comment">
 
-           <!-- IN COMMENT.JS NOW !!! -->
-            <!--  <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
-                    th:if="${comment.mainComment == null}">
-                    <div th:id="'comment' + ${comment.id}" th:class="comment">
-                        <span class="comment-name"
-                              th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                        <span th:if="${user == comment.user}" class="glyphicon glyphicon-remove comment-functional"
-                              th:onclick="'deleteComment('+ ${comment.id} + ')'"></span>
-                        <span th:if="${user == comment.user}"
-                              class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                        <span class="hide-show glyphicon glyphicon-comment comment-functional"></span>
-                        <p class="comment-text" th:text="${comment.getContent()}"></p>
-                        <div class="form-answer">
-                            <div class="form-group">
-                                <textarea class="form-control textcomplete"
-                                          th:id="'new-answer-for-comment' + ${comment.id}"
-                                          placeholder="Напишите ответ"></textarea>
-                                <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'">Cохранить
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-edit">
-                            <div class="form-group">
-                                <textarea class="form-control edit-textarea textcomplete"
-                                          th:id="'edit-comment' + ${comment.id}"
-                                          placeholder="Редактор"></textarea>
-                                <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'editComment(' + ${comment.id} + ')'">Отредактировать
-                                </button>
-                            </div>
-                        </div>
-                        <ul class="answer-list comment-item"
-                            th:id="'comment-'+${comment.id}+'answers'">
 
-                            <li th:each="answer : ${comment.answers}">
-                                <div th:id="'comment' + ${answer.id}" th:class="comment">
-                                    <span class="comment-name"
-                                          th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
-                                    <span th:if="${user == answer.user}"
-                                          class="glyphicon glyphicon-remove comment-functional"
-                                          th:onclick="'deleteComment('+ ${answer.id} + ')'"></span>
-                                    <span th:if="${user == answer.user}"
-                                          class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                                    <p class="comment-text" th:text="${answer.getContent()}"></p>
-                                    <div class="form-edit">
-                                        <div class="form-group">
-                                            <textarea class="form-control edit-textarea textcomplete"
-                                                      th:id="'edit-comment' + ${answer.id}"
-                                                      placeholder="Редактор"></textarea>
-                                            <button class="btn btn-md btn-success comment-button"
-                                                    th:onclick="'editComment(' + ${answer.id} + ')'">Отредактировать
-                                            </button>
-                                       </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li> -->
             </ul>
         </div>
     </div>

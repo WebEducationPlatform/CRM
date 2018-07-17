@@ -23,53 +23,53 @@ import java.util.Collection;
 @Service
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private static Logger logger = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	public void onAuthenticationSuccess(HttpServletRequest request,
-	                                    HttpServletResponse response, Authentication authentication) throws IOException {
-		handle(request, response, authentication);
-		clearAuthenticationAttributes(request);
-	}
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response, Authentication authentication) throws IOException {
+        handle(request, response, authentication);
+        clearAuthenticationAttributes(request);
+    }
 
-	protected void handle(HttpServletRequest request,
-	                      HttpServletResponse response, Authentication authentication) throws IOException {
-		String targetUrl = determineTargetUrl(authentication);
+    protected void handle(HttpServletRequest request,
+                          HttpServletResponse response, Authentication authentication) throws IOException {
+        String targetUrl = determineTargetUrl(authentication);
 
-		redirectStrategy.sendRedirect(request, response, targetUrl);
-	}
+        redirectStrategy.sendRedirect(request, response, targetUrl);
+    }
 
-	protected String determineTargetUrl(Authentication authentication) {
-		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (authorities.contains(new Role("ADMIN"))) {
-			logger.info(user.getEmail() + " has been logged in like ADMIN");
-			return "/client";
-		} else if (authorities.contains(new Role("USER"))) {
-			logger.info(user.getEmail() + " has been logged in like USER");
-			return "/client";
-		} else if (authorities.contains(new Role("OWNER"))) {
-			logger.info(user.getEmail() + " has been logged in like OWNER");
-			return "/client";
-		} else {
-			throw new IllegalStateException();
-		}
-	}
+    protected String determineTargetUrl(Authentication authentication) {
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authorities.contains(new Role("ADMIN"))) {
+            logger.info(user.getEmail() + " has been logged in like ADMIN");
+            return "/client";
+        } else if (authorities.contains(new Role("USER"))) {
+            logger.info(user.getEmail() + " has been logged in like USER");
+            return "/client";
+        } else if (authorities.contains(new Role("OWNER"))) {
+            logger.info(user.getEmail() + " has been logged in like OWNER");
+            return "/client";
+        } else {
+            throw new IllegalStateException();
+        }
+    }
 
-	protected void clearAuthenticationAttributes(HttpServletRequest request) {
-		HttpSession session = request.getSession(false);
-		if (session == null) {
-			return;
-		}
-		session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-	}
+    protected void clearAuthenticationAttributes(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+    }
 
-	protected RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
-	}
+    protected RedirectStrategy getRedirectStrategy() {
+        return redirectStrategy;
+    }
 
-	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-		this.redirectStrategy = redirectStrategy;
-	}
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        this.redirectStrategy = redirectStrategy;
+    }
 }
