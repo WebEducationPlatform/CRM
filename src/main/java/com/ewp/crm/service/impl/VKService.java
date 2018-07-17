@@ -330,6 +330,42 @@ public class VKService {
                 .replaceAll("&.+", "");
     }
 
+    public String createNewAudience(String groupName) throws Exception {
+        String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.GET, createGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("name", groupName);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
+        String resp = new JSONObject(response.getBody()).get("response").toString();
+        String groupId = new JSONObject(resp).get("id").toString();
+        return groupId;
+    }
 
+    public void addUsersToAudience(String groupId, String contacts) throws Exception {
+        String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("target_group_id", groupId);
+        request.addParameter("contacts", contacts);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
+    }
+
+    public void removeUsersFromAudience(String groupId, String contacts) throws Exception {
+        String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
+        OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
+        request.addParameter("account_id", "1604697686");
+        request.addParameter("target_group_id", groupId);
+        request.addParameter("contacts", contacts);
+        request.addParameter("v", version);
+        service.signRequest(accessToken, request);
+        Response response = service.execute(request);
+    }
 }
 
