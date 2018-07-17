@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
 @Controller
@@ -835,11 +834,10 @@ public class VkController {
         return "redirect:" + query;
     }
 
-    @ResponseBody
     @RequestMapping(value = "/add-to-audience", method = RequestMethod.GET)
     public String addUsersToAudience() throws Exception {
         String groupId24 = vkUtil.createNewAudience("oldVersion");
-        String uri = vkUtil.addUsersToAudience24(groupId24, contacts);
+        String uri = vkUtil.addUsersToAudience24(groupId24, cont);
         return "redirect:" + uri;
     }
 
