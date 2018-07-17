@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -44,12 +45,18 @@ public class VKService {
     private final ClientService clientService;
     private final MessageService messageService;
     private final SocialNetworkTypeService socialNetworkTypeService;
+    //Токен аккаунта, отправляющего сообщения
     private String robotAccessToken;
+    //Айди группы
     private String clubId;
+    //Версия API ВК
     private String version;
+    //Токен доступа от имени сообщества
     private String communityToken;
+    //Айди приложения (Может изменяться на релизе)
     private String applicationId;
     private String display;
+    //URL, на который приходит
     private String redirectUri;
     private String scope;
     private String applicationToken;
@@ -58,6 +65,7 @@ public class VKService {
     private String robotClientId;
     private String robotUsername;
     private String robotPassword;
+    private String firstContactMessage;
 
     @Autowired
     public VKService(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
@@ -78,6 +86,7 @@ public class VKService {
         this.robotClientId = vkConfig.getRobotClientId();
         this.robotUsername = vkConfig.getRobotUsername();
         this.robotPassword = vkConfig.getRobotPassword();
+        this.firstContactMessage = vkConfig.getFirstContactMessage();
     }
 
     public String receivingTokenUri() {
@@ -163,7 +172,7 @@ public class VKService {
 //                "&sort=time_asc" +
                 "&offset=" + offset +
                 "&version=" + version +
-                "&access_token=" + robotAccessToken;
+                "&access_token=" + communityToken;
 //                accessToken;
         try {
             HttpGet httpGetMessages = new HttpGet(urlGetMessages);
@@ -188,10 +197,11 @@ public class VKService {
         return Optional.empty();
     }
 
+    public String sendMessageById(long id, String msg) {
+        return sendMessageById(id, msg, robotAccessToken);
+    }
+
     public String sendMessageById(long id, String msg, String token) {
-        if (token == null){
-            token = robotAccessToken;
-        }
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -443,6 +453,10 @@ public class VKService {
             logger.error("Failed to connect to VK server");
         }
 
+    }
+
+    public String getFirstContactMessage() {
+        return firstContactMessage;
     }
 }
 
