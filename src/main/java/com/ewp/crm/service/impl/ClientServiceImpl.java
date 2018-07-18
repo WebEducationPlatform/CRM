@@ -190,6 +190,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
     }
     private  void checkSocialLinks(Client client){
+        if (client.getSocialNetworks().isEmpty() ||  client.getSocialNetworks() == null ) {
+            return;
+        }
         String regexp = "^(https:\\/\\/)+([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
         Pattern pattern = Pattern.compile(regexp);
         for (int i = 0; i < client.getSocialNetworks().size(); i++) {
