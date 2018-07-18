@@ -20,7 +20,7 @@ public class FilteringCondition {
 
     private Date dateTo;
 
-    private Client.State state;
+    private Status status;
 
     private String selected;
 
@@ -83,12 +83,12 @@ public class FilteringCondition {
         this.dateTo = dateTo;
     }
 
-    public Client.State getState() {
-        return state;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setState(Client.State state) {
-        this.state = state;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getCountry() {

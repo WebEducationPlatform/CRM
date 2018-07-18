@@ -8,10 +8,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
 
 @Component
-@PropertySource(value = "classpath:vk.properties", encoding = "windows-1251")
+@PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;

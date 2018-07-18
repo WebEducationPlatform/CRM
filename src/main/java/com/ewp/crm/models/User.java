@@ -1,15 +1,18 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.*;
 
 @Entity
 @Table
@@ -20,9 +23,11 @@ public class User implements UserDetails {
 	@Column (name = "user_id")
 	private Long id;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String firstName;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String lastName;
 
@@ -41,19 +46,10 @@ public class User implements UserDetails {
 	private String sex;
 
 	@Column(nullable = false)
-	private byte age;
-
-	@Column(nullable = false)
 	private String city;
 
 	@Column(nullable = false)
 	private String country;
-
-	@Column(nullable = false)
-	private String vacancy;
-
-	@Column(nullable = false)
-	private double salary;
 
 	@Column(name = "photo")
 	private String photo;
@@ -95,7 +91,7 @@ public class User implements UserDetails {
 		this.isEnabled = true;
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex, byte age, String city, String country, String vacancy, double salary, List<Role> role, boolean ipTelephony) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -103,11 +99,8 @@ public class User implements UserDetails {
 		this.password = password;
 		this.vk = vk;
 		this.sex = sex;
-		this.age = age;
 		this.city = city;
 		this.country = country;
-		this.vacancy = vacancy;
-		this.salary = salary;
 		this.role = role;
 		this.ipTelephony = ipTelephony;
 		this.isEnabled = true;
@@ -186,14 +179,6 @@ public class User implements UserDetails {
 		this.sex = sex;
 	}
 
-	public byte getAge() {
-		return age;
-	}
-
-	public void setAge(byte age) {
-		this.age = age;
-	}
-
 	public String getCity() {
 		return city;
 	}
@@ -208,22 +193,6 @@ public class User implements UserDetails {
 
 	public void setCountry(String country) {
 		this.country = country;
-	}
-
-	public String getVacancy() {
-		return vacancy;
-	}
-
-	public void setVacancy(String vacancy) {
-		this.vacancy = vacancy;
-	}
-
-	public double getSalary() {
-		return salary;
-	}
-
-	public void setSalary(double salary) {
-		this.salary = salary;
 	}
 
 	public List<Role> getRole() {
@@ -307,11 +276,20 @@ public class User implements UserDetails {
 		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
+//	@Override
+//	public int hashCode() {
+//		int result = id.hashCode();
+//		result = 31 * result + phoneNumber.hashCode();
+//		result = 31 * result + email.hashCode();
+//		return result;
+//	}
+
+
 	@Override
 	public int hashCode() {
-		int result = id.hashCode();
-		result = 31 * result + phoneNumber.hashCode();
-		result = 31 * result + email.hashCode();
+		int result = getId() != null ? getId().hashCode() : 0;
+		result = 31 * result + (getPhoneNumber() != null ? getPhoneNumber().hashCode() : 0);
+		result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
 		return result;
 	}
 

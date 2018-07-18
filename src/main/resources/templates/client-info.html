@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
     <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
@@ -16,13 +17,13 @@
             <div class="col-md-8" id="column1">
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
-                        <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
+                        <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
                             Редактировать
                         </button>
-                        <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary" id="saveChanges"
+                        <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" type="submit" class="btn btn-primary" id="saveChanges"
                                 th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                         </button>
-                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <a href="/client" class="btn btn-primary back-btn" id="backToMain">Назад</a>
                     </div>
                     <p><span id="message"></span></p>
                     <div class="form-group">
@@ -46,6 +47,11 @@
                                pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$"
                                disabled="disabled" id="edit-client-email" th:value="${client.email}"/>
                         <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control"  disabled="disabled" id="edit-client-skype"
+                               th:value="${client.skype}"/>
                     </div>
                     <div class="form-group">
                         <label for="edit-client-age">Возраст</label>

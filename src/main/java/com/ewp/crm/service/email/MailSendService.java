@@ -109,10 +109,10 @@ public class MailSendService {
 	}
 
 	@Async
-	public void sendNotificationMessage(User userToNotify) {
+	public void sendNotificationMessage(User userToNotify, String notificationMessage) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setSubject("Оповещение из CRM");
-		message.setText("Вас упомянули в комментариях под карточкой");
+		message.setText(notificationMessage);
 		message.setFrom(emailLogin);
 		message.setTo(userToNotify.getEmail());
 		javaMailSender.send(message);
