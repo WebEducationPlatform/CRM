@@ -29,7 +29,7 @@
                                                 <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                     <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
                                                     <a class="glyphicon glyphicon-plus test-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                                         </button>
@@ -56,6 +56,8 @@
                                 <tr>
                                     <td>Возраст: </td>
                                     <td id="client-age">
+                                        <th:block>
+                                        </th:block>
                                     </td>
                                     <td></td>
                                 </tr>
@@ -67,10 +69,9 @@
                                 <tr>
                                     <td>Социальные сети: </td>
                                     <td><div class="btn-group">
-                                            <a   id ="vk-href" target="_blank" name= "emailTmplList" class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
-
+                                        <a  id="vk-href" target="_blank" name= "emailTmplList"  class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
                                     </div>
-                                        <a  id="fb-href" target="_blank" class="btn btn-social-icon btn-facebook btn-sm" ><span class="fa fa-facebook"></span></a></td>
+                                        <a  id ="fb-href" target="_blank"  class="btn btn-social-icon btn-facebook btn-sm"><span class="fa fa-facebook"></span></a></td>
                                     <td><div th:id = "'sendSocialTemplateStatus'"></div></td>
                                 </tr>
                                 </tbody>

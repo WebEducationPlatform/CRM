@@ -13,7 +13,6 @@ import java.util.List;
 
 @Service
 public class StatusServiceImpl implements StatusService {
-
 	private final StatusDAO statusDAO;
 	private final ClientService clientService;
 
@@ -55,6 +54,8 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public void add(Status status) {
 		checkStatusUnique(status);
+		Long position = statusDAO.findMaxPosition() + 1L;
+		status.setPosition(position);
 		statusDAO.saveAndFlush(status);
 	}
 
@@ -100,5 +101,10 @@ public class StatusServiceImpl implements StatusService {
 		Status statusFromDB = statusDAO.findOne(id);
 		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
+	}
+
+	@Override
+	public Long findMaxPosition() {
+		return statusDAO.findMaxPosition();
 	}
 }

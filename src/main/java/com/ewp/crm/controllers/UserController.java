@@ -4,7 +4,6 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class UserController {
 		this.notificationService = notificationService;
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/user/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
@@ -48,7 +47,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/user/add", method = RequestMethod.GET)
 	public ModelAndView addUser() {
 		ModelAndView modelAndView = new ModelAndView("add-user");
@@ -59,7 +58,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/user/customize", method = RequestMethod.GET)
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
@@ -68,7 +67,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

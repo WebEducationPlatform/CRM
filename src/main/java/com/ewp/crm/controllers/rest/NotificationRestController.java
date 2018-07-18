@@ -14,12 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 @RequestMapping("/user/notification")
 public class NotificationRestController {
 
@@ -37,7 +35,7 @@ public class NotificationRestController {
 	@PostMapping("/sms/clear/{clientId}")
 	public ResponseEntity clearClientSmsNotifications(@PathVariable("clientId") long id) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(id);
+		Client client = clientService.get(id);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.SMS, client, principal);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -45,10 +43,11 @@ public class NotificationRestController {
 	@RequestMapping(value = "/comment/clear/{clientId}", method = RequestMethod.POST)
 	public ResponseEntity markAsRead(@PathVariable("clientId") long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(id);
+		Client client = clientService.get(id);
 		List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
 		for (Notification notification : notifications) {
 			if (notification.getType() == Notification.Type.POSTPONE) {
 				ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
@@ -62,7 +61,7 @@ public class NotificationRestController {
 	@GetMapping("/sms/error/{clientId}")
 	public ResponseEntity getSMSErrorsByClient(@PathVariable("clientId")Long id) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Notification> list = notificationService.getByUserToNotifyAndTypeAndClient(principal, Notification.Type.SMS, clientService.getClientByID(id));
+		List<Notification> list = notificationService.getByUserToNotifyAndTypeAndClient(principal, Notification.Type.SMS, clientService.get(id));
 		if (list == null || list.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}

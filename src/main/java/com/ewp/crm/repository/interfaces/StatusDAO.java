@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
     List<Status> getStatusesByClientsOwnerUser(User ownerUser);
 
 	List<Status> findAllByOrderByIdAsc();
+
+	@Query("SELECT MAX(s.position) from Status s")
+	Long findMaxPosition();
 }

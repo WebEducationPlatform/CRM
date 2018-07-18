@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="utf-8"/>
+    <meta charset="UTF-8" />
 	<div th:replace="fragments/htmlFragments::header"></div>
 	<link rel="stylesheet" href="/css/style.css"/>
 	<script type="text/javascript" th:src="@{/js/add-client.js}"></script>
@@ -15,8 +15,8 @@
 			<div class="col-md-6" id="column1">
 				<form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
 					<div class="btn-group">
-						<button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'addClient()'">Сохранить</button>
-						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'addClient()'">Сохранить</button>
 					</div>
 					<p><span id = "message"></span></p>
 
@@ -42,6 +42,10 @@
 						<input type="email" class="form-control" data-error="Неверный формат Email" pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$" id="edit-client-email"/>
 						<div class="help-block with-errors"></div>
 					</div>
+                    <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control" id="edit-client-skype"/>
+                    </div>
 					<div class="form-group">
 						<label for="edit-client-age">Возраст</label>
 						<input type="number" class="form-control" min="0" max="127" title = "Диапазон от 0 до 127" onkeydown="disableInputE()"  id="edit-client-age"/>
@@ -75,7 +79,7 @@
 							<tr>
 								<th hidden="hidden" abbr="id">id</th>
 								<th abbr="link">Link</th>
-								<th abbr="socialNetworkType">Type</th>
+							 	<th abbr="socialNetworkType">Type</th>
 							</tr>
 							</thead>
 							<tbody id = "SN-table-body">

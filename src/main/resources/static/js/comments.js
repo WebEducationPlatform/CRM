@@ -13,6 +13,7 @@ function sendComment(id) {
             content: text
         },
         success: function (comment) {
+
             $('#new-text-for-client' + id).val("");
             $('#client-' + id + 'comments').prepend(
                 '<li class="list-group-item comment-item">' +
@@ -21,7 +22,8 @@ function sendComment(id) {
                 '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + comment.id + ')"></span>' +
                 '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>' +
                 '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
-                '<p class="comment-text" ">' + comment.content + '</p>' +
+                '<span  class="comment-functional">'+ comment.dateFormat +'</span>' +
+                '<p class="comment-text">' + comment.content + '</p>' +
                 '<div class="form-answer">' +
                 '<div class="form-group">' +
                 '<textarea class="form-control textcomplete" id="new-answer-for-comment' + comment.id + '" placeholder="Напишите ответ"></textarea>' +
@@ -60,6 +62,7 @@ $(function () {
     let editComment = "";
     let removeAnswer = "";
     let editAnswer = "";
+    let dateCommit = "";
     let html = "";
     ulComments.empty();
     $.ajax({
@@ -73,9 +76,11 @@ $(function () {
                     if (user_id === list[i].user.id + '') {
                         removeComment = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + list[i].id + ')"></span>'
                         editComment = '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>'
+
                     } else {
                         removeComment = '';
                         editComment = '';
+
                     }
                     html +=
                         '<li class="list-group-item comment-item">' +
@@ -84,6 +89,7 @@ $(function () {
                         removeComment +
                         editComment +
                         '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
+                        '<span  class="comment-functional">'+ list[i].dateFormat +'</span>' +
                         '<p class="comment-text" ">' + list[i].content + '</p>' +
                         '<div class="form-answer">' +
                         '<div class="form-group">' +
@@ -116,13 +122,14 @@ $(function () {
                           '<span class="comment-name">' + answers[i].user.lastName + ' ' + answers[i].user.firstName + '</span>' +
                             removeAnswer +
                             editAnswer +
+                            '<span  class="comment-functional">'+ answers[i].dateFormat +'</span>' +
                             //comment-text
                            '<p class="comment-text" ">' + answers[i].content + '</p>' +
                             '<div class="form-edit">' +
                             '<div class="form-group">' +
                             '<textarea class="form-control edit-textarea textcomplete" ' +
                             //edit-comment
-                     ' id="edit-answer' + answers[i].id + '" placeholder="Редактор"></textarea>' +
+                            ' id="edit-answer' + answers[i].id + '" placeholder="Редактор"></textarea>' +
                             '<button class="btn btn-md btn-success comment-button" onclick="editCommentAnswer(' + answers[i].id + ')"> Отредактировать </button>' +
                             '                                </div>\n' +
                             '                            </div>\n' +
@@ -169,6 +176,7 @@ function sendAnswer(id) {
                 "   <span class='glyphicon glyphicon-remove comment-functional' onclick='deleteCommentAnswer(" + answer.id + ")'></span>" +
                 //edit-comment
                 "   <span class='edit-answer glyphicon glyphicon-pencil comment-functional'></span>" +
+                '   <span  class="comment-functional">'+ answer.dateFormat +'</span>' +
                 //comment-text
                 "   <p class='comment-text '>" + answer.content + "</p>" +
                 "   <div class='form-edit'>" +

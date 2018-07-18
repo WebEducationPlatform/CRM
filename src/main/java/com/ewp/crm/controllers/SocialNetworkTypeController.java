@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 
 @Controller
-@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class SocialNetworkTypeController {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
@@ -40,7 +40,7 @@ public class SocialNetworkTypeController {
 
 	@RequestMapping(value = "/admin/user/addSocialNetworkType", method = RequestMethod.POST)
 	public ModelAndView addSocialNetworkType(@ModelAttribute SocialNetworkType socialNetworkType) {
-		socialNetworkTypeService.addType(socialNetworkType);
+		socialNetworkTypeService.add(socialNetworkType);
 		return new ModelAndView("redirect:/admin/user/socialNetworkTypes");
 	}
 }

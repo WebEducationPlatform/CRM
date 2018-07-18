@@ -42,7 +42,7 @@ public class UserRestController {
         this.socialNetworkTypeService = socialNetworkTypeService;
     }
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAll() {
 		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -51,7 +51,7 @@ public class UserRestController {
 		return ResponseEntity.ok(users);
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
 	public ResponseEntity updateUser(@Valid @RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -67,7 +67,7 @@ public class UserRestController {
 	}
 
 	//Workers will be deactivated, not deleted
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
 	public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
 		User user = userService.get(id);
@@ -75,7 +75,7 @@ public class UserRestController {
 		return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = {"/user/socialNetworkTypes"}, method = RequestMethod.GET)
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
@@ -86,7 +86,7 @@ public class UserRestController {
 		return ResponseEntity.ok(socialTypeNames);
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
 	public ResponseEntity addUser(@Valid @RequestBody User user) {
 
@@ -96,7 +96,7 @@ public class UserRestController {
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/reaviable", method = RequestMethod.POST)
 	public ResponseEntity reAviableUser(@RequestParam Long deleteId){
     	User currentUser = userService.get(deleteId);
@@ -107,7 +107,7 @@ public class UserRestController {
 	}
 
     @ResponseBody
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
     public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");

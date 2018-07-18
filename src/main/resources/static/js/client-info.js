@@ -1,3 +1,11 @@
+$(function () {
+    $('.back-btn').click(function(){
+        history.back();
+        return false;
+    });
+});
+
+
 $(document).ready(function () {
     selectOptions($("#edit-client-state"));
     selectOptions($("#edit-client-sex"));
@@ -71,6 +79,7 @@ function changeClient(id) {
         state:  $('#edit-client-state').val(),
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
+        skype: $('#edit-client-skype').val(),
         socialNetworks: SN,
         status : {},
         jobs: Job

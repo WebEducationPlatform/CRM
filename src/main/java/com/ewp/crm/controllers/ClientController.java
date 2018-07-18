@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -51,18 +52,19 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
 	@RequestMapping(value = "/client", method = RequestMethod.GET)
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
 		ModelAndView modelAndView = new ModelAndView("main-client-table");
 		//TODO Сделать ещё адекватней
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN"))) {
+		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
 			statuses = statusService.getAll();
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
+		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
@@ -70,33 +72,27 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-		modelAndView.addObject("emailTmpl", MessageTemplateService.getall());
+		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		//TODO postfilter spring
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN"))) {
-			modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize * 2)));
-		} else {
-			modelAndView.addObject("allClients",
-					clientService.findAllByOwnerUser(new PageRequest(0, pageSize * 2), userFromSession));
-		}
+		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("client-info");
-		modelAndView.addObject("client", clientService.getClientByID(id));
+		modelAndView.addObject("client", clientService.get(id));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
@@ -105,7 +101,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
 	public ModelAndView addClient(@PathVariable String statusName) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -118,7 +114,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
