@@ -43,11 +43,11 @@ public class EmailRestController {
 		this.imageConfig = imageConfig;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/sendEmail", method = RequestMethod.POST)
 	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                @RequestParam(value = "body",required = false) String body) {
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		//TODO в конфиг
@@ -58,7 +58,7 @@ public class EmailRestController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = {"/admin/editMessageTemplate"}, method = RequestMethod.POST)
 	public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId, @RequestParam("templateText") String templateText,
 	                                    @RequestParam String otherTemplateText) {
@@ -74,7 +74,7 @@ public class EmailRestController {
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/savePicture", method = RequestMethod.POST)
 	public ResponseEntity savePicture(@RequestParam("0") MultipartFile file) throws IOException {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -86,7 +86,7 @@ public class EmailRestController {
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/image/{file}", method = RequestMethod.GET)
 	public byte[] getImage(@PathVariable("file") String file) throws IOException {
 		Path fileLocation = Paths.get(imageConfig.getPathForImages() + file + ".png");

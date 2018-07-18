@@ -24,4 +24,6 @@ public interface StatusService {
 	void delete(Status status);
 
 	void delete(Long id);
+
+	Long findMaxPosition();
 }

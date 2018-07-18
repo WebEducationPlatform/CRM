@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@PropertySource("classpath:ip.properties")
+@PropertySource("file:./ip.properties")
 public class IPConfigImpl implements IPConfig {
 
 	private String voximplantApiKey;

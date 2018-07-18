@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 @RequestMapping("/client")
 public class MessageInfoController {
 
@@ -27,14 +27,14 @@ public class MessageInfoController {
 	@GetMapping("message/info/{messageId}")
 	public ModelAndView showMessageInfo(@PathVariable("messageId") long id) {
 		ModelAndView modelAndView = new ModelAndView("blank_message-info");
-		modelAndView.addObject("message", messageService.getById(id));
+		modelAndView.addObject("message", messageService.get(id));
 		return modelAndView;
 	}
 
 	@GetMapping("/sms/info/{smsId}")
 	public ModelAndView showSMSInfo(@PathVariable("smsId") long id) {
 		ModelAndView modelAndView = new ModelAndView("sms-info");
-		modelAndView.addObject("sms", smsInfoService.getById(id));
+		modelAndView.addObject("sms", smsInfoService.get(id));
 		return modelAndView;
 	}
 }

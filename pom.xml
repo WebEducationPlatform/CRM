@@ -5,11 +5,11 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-CRM</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>
-	<description>Demo project for Spring Boot</description>
+	<description>CRM for JavaMentor</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -48,6 +48,17 @@
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.scribejava</groupId>
+			<artifactId>scribejava-apis</artifactId>
+			<version>5.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.scribejava</groupId>
+			<artifactId>scribejava-core</artifactId>
+			<version>5.5.0</version>
 		</dependency>
 
 		<dependency>

@@ -36,14 +36,11 @@ function changeUser(id, authId) {
         phoneNumber: $('#edit-user-phone-number').val(),
         ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#edit-user-email').val(),
-        age: $('#edit-user-age').val(),
         sex: $('#edit-user-sex').find('option:selected').text(),
         country: $('#edit-user-country').val(),
         city: $('#edit-user-city').val(),
-        salary: $('#edit-user-salary').val(),
         vk:$('#edit-user-VKid').val(),
         password:$('#edit-user-password').val(),
-        vacancy: $("#edit-user-vacancy").val(),
         role:myRows
     };
 
@@ -203,14 +200,11 @@ function addUser() {
         phoneNumber: $('#add-user-phone-number').val(),
         ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#add-user-email').val(),
-        age: $('#add-user-age').val(),
         sex: $('#add-user-sex').find('option:selected').text(),
         country: $('#add-user-country').val(),
         city: $('#add-user-city').val(),
-        salary: $('#add-user-salary').val(),
         vk:$('#add-user-VKid').val(),
         password:$('#add-user-password').val(),
-        vacancy: $("#add-user-vacancy").val(),
         role:myRows
     };
 
@@ -235,31 +229,7 @@ function addUser() {
     });
 }
 
-$(function () {
-	$("#edit-user-age").on('keyup','click', function(e) {
-		var reg = new RegExp("^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
-		if(!reg.test($("#edit-user-age").val())) {
-			$("#edit-user-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
-			$("#saveChanges")[0].setAttribute("disabled","disabled");
-		}else {
-			$("#edit-user-age").siblings("div[class='help-block with-error']")[0].innerText = "";
-			$("#saveChanges")[0].removeAttribute("disabled");
-		}
-	});
-});
 
-$(function () {
-	$("#add-user-age").on('keyup', function(e) {
-		var reg = new RegExp("^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
-		if(!reg.test($("#add-user-age").val())) {
-			$("#add-user-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
-			$("#saveChanges")[0].setAttribute("disabled","disabled");
-		}else {
-			$("#add-user-age").siblings("div[class='help-block with-error']")[0].innerText = "";
-			$("#saveChanges")[0].removeAttribute("disabled");
-		}
-	});
-});
 
 function disableInputE() {
 	var disMas = [69, 187, 189, 109];
