@@ -38,10 +38,14 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private final YoutubeService youtubeService;
+
+	private final YoutubeClientService youtubeClientService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, YoutubeService youtubeService, YoutubeClientService youtubeClientService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -51,6 +55,8 @@ public class ScheduleTasks {
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.youtubeService = youtubeService;
+		this.youtubeClientService = youtubeClientService;
 	}
 
 	private void addClient(Client newClient) {
@@ -159,5 +165,25 @@ public class ScheduleTasks {
 				info = "Неизвестная ошибка";
 		}
 		return info;
+	}
+
+	@Scheduled(fixedRate = 6_000)
+	private void handleYoutubeLiveStreams() {
+		if (youtubeService.isLiveStreamNotInAction()) {
+			youtubeService.handleYoutubeLiveChatMessages();
+		} else {
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			if (youtubeClient.isPresent()) {
+				for (YoutubeClient client : youtubeClient.get()) {
+					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
+					if (newClient.isPresent()) {
+						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
+						if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
+							addClient(newClient.get());
+						}
+					}
+				}
+			}
+		}
 	}
 }
