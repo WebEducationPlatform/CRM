@@ -9,4 +9,5 @@ public interface VKConfig {
     String getDisplay();
     String getRedirectUri();
     String getScope();
+    String getTargetVkGroup();
 }
