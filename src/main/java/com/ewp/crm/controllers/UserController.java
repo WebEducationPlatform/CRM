@@ -35,7 +35,7 @@ public class UserController {
 		this.notificationService = notificationService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/user/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
@@ -47,7 +47,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/user/add", method = RequestMethod.GET)
 	public ModelAndView addUser() {
 		ModelAndView modelAndView = new ModelAndView("add-user");
@@ -58,7 +58,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/user/customize", method = RequestMethod.GET)
 	public ModelAndView getUserCustomize() {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
@@ -67,7 +67,7 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/user/enableNotifications", method = RequestMethod.POST)
 	public ModelAndView enableNotifications(@RequestParam boolean notifications) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -23,6 +23,9 @@ public class Status implements Serializable {
 	@Basic
 	private Boolean isInvisible = false;
 
+	@Basic
+	private Long position;
+
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "status_clients",
@@ -41,6 +44,15 @@ public class Status implements Serializable {
 
 	public Status() {
 	}
+
+	public Long getPosition() {
+		return position;
+	}
+
+	public void setPosition(Long position) {
+		this.position = position;
+	}
+
 	public Long getId() {
 		return id;
 	}

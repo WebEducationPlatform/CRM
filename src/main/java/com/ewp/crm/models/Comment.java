@@ -1,7 +1,10 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -28,9 +31,11 @@ public class Comment {
 	private Client client;
 
 	@Column(name = "date")
-	private Date date = new Date();
+	private String dateFormat;
+
 
 	@Column(name = "content")
+	@Lob
 	private String content;
 
 	@OrderBy("date DESC")
@@ -48,7 +53,10 @@ public class Comment {
 		this.user = user;
 		this.client = client;
 		this.content = content;
-		this.date = new Date(System.currentTimeMillis());
+
+		Date date = new Date(System.currentTimeMillis());
+        DateFormat dateFormater = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        setDateFormat(dateFormater.format(date));
 	}
 
 	public Long getId() {
@@ -75,13 +83,6 @@ public class Comment {
 		this.client = client;
 	}
 
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
 
 	public String getContent() {
 		return content;
@@ -91,17 +92,24 @@ public class Comment {
 		this.content = content;
 	}
 
+	public String  getDateFormat() {
+		return dateFormat;
+	}
+
+	private void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
 		Comment comment = (Comment) o;
-
 		if (id != null ? !id.equals(comment.id) : comment.id != null) return false;
 		if (user != null ? !user.equals(comment.user) : comment.user != null) return false;
 		if (client != null ? !client.equals(comment.client) : comment.client != null) return false;
-		if (date != null ? !date.equals(comment.date) : comment.date != null) return false;
+		if (dateFormat != null ? !dateFormat.equals(comment.dateFormat) : comment.dateFormat != null) return false;
 		return content != null ? content.equals(comment.content) : comment.content == null;
 	}
 
@@ -110,7 +118,7 @@ public class Comment {
 		int result = id != null ? id.hashCode() : 0;
 		result = 31 * result + (user != null ? user.hashCode() : 0);
 		result = 31 * result + (client != null ? client.hashCode() : 0);
-		result = 31 * result + (date != null ? date.hashCode() : 0);
+		result = 31 * result + (dateFormat != null ? dateFormat.hashCode() : 0);
 		result = 31 * result + (content != null ? content.hashCode() : 0);
 		return result;
 	}

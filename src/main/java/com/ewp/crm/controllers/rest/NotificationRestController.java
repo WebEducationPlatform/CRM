@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 @RequestMapping("/user/notification")
 public class NotificationRestController {
 
@@ -47,6 +47,7 @@ public class NotificationRestController {
 		List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
 		for (Notification notification : notifications) {
 			if (notification.getType() == Notification.Type.POSTPONE) {
 				ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
