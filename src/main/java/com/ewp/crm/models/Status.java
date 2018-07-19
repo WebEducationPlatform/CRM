@@ -33,9 +33,10 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	public Status(String name, Boolean isInvisible) {
+	public Status(String name, Boolean isInvisible, Long position) {
 		this.name = name;
 		this.isInvisible = isInvisible;
+		this.position = position;
 	}
 
 	public Status(String name) {
