@@ -52,4 +52,9 @@ public class VkMemberServiceImpl implements VkMemberService {
     public void addAllMembers(List<VkMember> vkMembers){
         vkMemberRepository.save(vkMembers);
     }
+
+    @Override
+    public List<VkMember> getAllMembersByGroupId(Long id) {
+        return vkMemberRepository.findAllByGroupId(id);
+    }
 }
