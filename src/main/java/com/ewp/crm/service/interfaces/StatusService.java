@@ -19,6 +19,8 @@ public interface StatusService {
 
 	void add(Status status);
 
+	void addInit(Status status);
+
 	void update(Status status);
 
 	void delete(Status status);
