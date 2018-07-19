@@ -23,22 +23,17 @@ public class IPConfigImpl implements IPConfig {
 
 	@Autowired
 	public IPConfigImpl(Environment environment) {
-		voximplantApiKey = environment.getProperty("voximplant.api.key");
-		voximplantAccountId = environment.getProperty("voximplant.account.id");
-		voximplantRuleId = environment.getProperty("voximplant.rule.id");
-
-		if (!configIsValid()) {
+		try {
+			voximplantApiKey = environment.getRequiredProperty("voximplant.api.key");
+			voximplantAccountId = environment.getRequiredProperty("voximplant.account.id");
+			voximplantRuleId = environment.getRequiredProperty("voximplant.rule.id");
+			if (voximplantApiKey.isEmpty() || voximplantAccountId.isEmpty() || voximplantRuleId.isEmpty()) {
+				throw new NullPointerException();
+			}
+		} catch (IllegalStateException | NullPointerException e) {
 			logger.error("IP configs have not initialized. Check ip.properties file");
 			System.exit(-1);
 		}
-	}
-
-
-	private boolean configIsValid() {
-		if (voximplantApiKey == null || voximplantApiKey.isEmpty()) return false;
-		if (voximplantAccountId == null || voximplantAccountId.isEmpty()) return false;
-		if (voximplantRuleId == null || voximplantRuleId.isEmpty()) return false;
-		return true;
 	}
 
 	@Override

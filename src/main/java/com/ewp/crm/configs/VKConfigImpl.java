@@ -8,8 +8,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+
 @Component
-@PropertySource("file:./vk.properties")
+@PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;
@@ -26,34 +27,43 @@ public class VKConfigImpl implements VKConfig {
 
     private String scope;
 
+    private String robotClientSecret;
+
+    private String robotClientId;
+
+    private String robotUsername;
+
+    private String robotPassword;
+
+    private String firstContactMessage;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
     public VKConfigImpl(Environment env) {
-        clubId = env.getProperty("vk.club.id");
-        version = env.getProperty("vk.version");
-        communityToken = env.getProperty("vk.community.token");
-        applicationId = env.getProperty("vk.app.id");
-        display = env.getProperty("vk.app.display");
-        redirectUri = env.getProperty("vk.app.redirect_uri");
-        scope = env.getProperty("vk.app.scope");
+        try {
+            clubId = env.getRequiredProperty("vk.club.id");
+            version = env.getRequiredProperty("vk.version");
+            communityToken = env.getRequiredProperty("vk.community.token");
+            applicationId = env.getRequiredProperty("vk.app.id");
+            display = env.getRequiredProperty("vk.app.display");
+            redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
+            scope = env.getRequiredProperty("vk.app.scope");
+            robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
+            robotUsername = env.getRequiredProperty("vk.robot.profile.username");
+            robotPassword = env.getRequiredProperty("vk.robot.profile.password");
+            robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
+            firstContactMessage = env.getProperty("vk.robot.message.firstContact");
 
-        if (!configIsValid()) {
+            if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
+                    display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
+                throw new NullPointerException();
+            }
+        } catch (IllegalStateException | NullPointerException e) {
             logger.error("VK configs have not initialized. Check vk.properties file");
             System.exit(-1);
         }
     }
-
-	private boolean configIsValid() {
-		if (clubId == null || clubId.isEmpty()) return false;
-		if (version== null || version.isEmpty()) return false;
-		if (communityToken == null || communityToken.isEmpty()) return false;
-		if (applicationId == null || applicationId.isEmpty()) return false;
-		if (display == null || display.isEmpty()) return false;
-		if (redirectUri == null || redirectUri.isEmpty()) return false;
-		if (scope == null || scope.isEmpty()) return false;
-		return true;
-	}
 
     public String getClubId() {
         return "-" + clubId;
@@ -82,4 +92,25 @@ public class VKConfigImpl implements VKConfig {
     public String getScope() {
         return scope;
     }
+
+    public String getRobotClientSecret() {
+        return robotClientSecret;
+    }
+
+    public String getRobotClientId() {
+        return robotClientId;
+    }
+
+    public String getRobotUsername() {
+        return robotUsername;
+    }
+
+    public String getRobotPassword() {
+        return robotPassword;
+    }
+
+    public String getFirstContactMessage() {
+        return firstContactMessage;
+    }
+
 }

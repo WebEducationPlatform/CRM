@@ -1,8 +1,11 @@
 package com.ewp.crm.component;
 
-import com.ewp.crm.component.util.VKUtil;
-import com.ewp.crm.component.util.interfaces.SMSUtil;
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
+import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
+import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.email.MailSendService;
@@ -16,6 +19,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +28,7 @@ import java.util.Optional;
 @EnableScheduling
 public class ScheduleTasks {
 
-	private final VKUtil vkUtil;
+	private final VKService vkService;
 
 	private final ClientService clientService;
 
@@ -33,7 +38,7 @@ public class ScheduleTasks {
 
 	private final SocialNetworkTypeService socialNetworkTypeService;
 
-	private final SMSUtil smsUtil;
+	private final SMSService smsService;
 
 	private final SMSInfoService smsInfoService;
 
@@ -43,20 +48,29 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private FacebookServiceImpl facebookService;
+
+	private final VkTrackedClubService vkTrackedClubService;
+
+	private final VkMemberService vkMemberService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKUtil vkUtil, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSUtil smsUtil, SMSInfoService smsInfoService, MailSendService mailSendService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService) {
-		this.vkUtil = vkUtil;
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, MailSendService mailSendService) {
+		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialNetworkService = socialNetworkService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
-		this.smsUtil = smsUtil;
+		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.mailSendService = mailSendService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.facebookService = facebookService;
+		this.vkTrackedClubService = vkTrackedClubService;
+		this.vkMemberService = vkMemberService;
 	}
 
 	private void addClient(Client newClient) {
@@ -110,11 +124,11 @@ public class ScheduleTasks {
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
 		try {
-			Optional<List<String>> newMassages = vkUtil.getNewMassages();
+			Optional<List<String>> newMassages = vkService.getNewMassages();
 			if (newMassages.isPresent()) {
 				for (String message : newMassages.get()) {
 					try {
-						Client newClient = vkUtil.parseClientFromMessage(message);
+						Client newClient = vkService.parseClientFromMessage(message);
 						SocialNetwork socialNetwork = newClient.getSocialNetworks().get(0);
 						if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
 							updateClient(newClient);
@@ -131,12 +145,33 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(fixedRate = 60_000)
+	private void findNewMembersAndSendFirstMessage() {
+		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
+		List<VkMember> lastMemberList = vkMemberService.getAll();
+		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+														   .orElseThrow(NotFoundMemberList::new);
+			int countNewMembers = 0;
+			for (VkMember vkMember : freshMemberList) {
+				if(!lastMemberList.contains(vkMember)){
+					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
+					vkMemberService.add(vkMember);
+					countNewMembers++;
+				}
+			}
+			if (countNewMembers > 0) {
+				logger.info("{} new VK members has signed in {} club", countNewMembers, vkTrackedClub.getGroupName());
+			}
+		}
+	}
+
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVkCommunityMessages() {
-		Optional<List<Long>> newUsers = vkUtil.getUsersIdFromCommunityMessages();
+		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {
 			for (Long id : newUsers.get()) {
-				Optional<Client> newClient = vkUtil.getClientFromVkId(id);
+				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
 					SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
 					if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
@@ -156,12 +191,23 @@ public class ScheduleTasks {
 		}
 	}
 
+
+	@Scheduled(fixedRate = 600_000)
+	private void addFacebookMessageToDatabase() {
+		try {
+			facebookService.getFacebookMessages();
+		} catch (FBAccessTokenException e) {
+			logger.error("Facebook access token has not got", e);
+		}
+	}
+
+
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
-			String status = smsUtil.getStatusMessage(sms.getSmsId());
+			String status = smsService.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
 				if (status.equals("delivered")) {
 					sms.setDeliveryStatus("доставлено");
@@ -171,7 +217,7 @@ public class ScheduleTasks {
 					sms.setDeliveryStatus(deliveryStatus);
 				}
 				sms.setChecked(true);
-				smsInfoService.updateSMSInfo(sms);
+				smsInfoService.update(sms);
 			}
 		}
 	}

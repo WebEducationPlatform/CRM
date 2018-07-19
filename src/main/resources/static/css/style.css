@@ -438,7 +438,7 @@ input[type="checkbox"]:checked + label:before {
 	transform: rotate(45deg);
 }
 
-#showallbtn, #addNewUser {
+#showallbtn, #addNewUser, #vkClubList {
 	width: 100%;
 	margin-bottom: 10px;
 	border-radius: 5px;
@@ -468,6 +468,7 @@ input[type="checkbox"]:checked + label:before {
 
 .comment-name {
 	font-size: large;
+	padding-left: 3px;
 }
 
 .comment-item {
@@ -485,7 +486,6 @@ input[type="checkbox"]:checked + label:before {
 	padding: 2px;
 	color: #9c9c9c;
 }
-
 .form-edit {
 	display: none;
 }

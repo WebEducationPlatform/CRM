@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.jpa.batch-size}")
     private int batchSize;
 
+	@Value("${project.pagination.page-size.clients}")
+	private int pageSize;
+
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -29,7 +33,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
 	@Override
 	public List<Client> filteringClient(FilteringCondition filteringCondition) {
-		return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+		Query query = entityManager.createQuery(createQuery(filteringCondition));
+		int pageNumber = 1;
+		query.setFirstResult((pageNumber - 1) * pageSize);
+		query.setMaxResults(pageSize);
+		List<Client> fooList = query.getResultList();
+		return fooList;
 	}
 
 	public List<Client> getTimeOfSkypeCall() {

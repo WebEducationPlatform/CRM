@@ -11,8 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class NotificationServiceImpl implements NotificationService {
-
+public class NotificationServiceImpl extends CommonServiceImpl<Notification> implements NotificationService {
 	private final NotificationRepository notificationRepository;
 
 	@Autowired
@@ -21,14 +20,18 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	public void addNotification(Notification notification) {
-		notificationRepository.saveAndFlush(notification);
-	}
-
-	@Override
 	@Transactional
 	public void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user) {
 		notificationRepository.deleteByTypeAndClientAndUserToNotify(type, client, user);
+	}
+
+
+
+
+	@Override
+	@Transactional
+	public void deleteNotificationsByClient(Client client) {
+		notificationRepository.deleteNotificationsByClient(client);
 	}
 
 	@Override

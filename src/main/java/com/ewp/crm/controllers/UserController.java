@@ -4,7 +4,6 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

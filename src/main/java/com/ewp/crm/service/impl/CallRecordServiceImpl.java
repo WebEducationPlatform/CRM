@@ -7,32 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CallRecordServiceImpl implements CallRecordService {
+public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> implements CallRecordService {
+    private final CallRecordRepository callRecordRepository;
 
-	private final CallRecordRepository callRecordRepository;
+    @Autowired
+    public CallRecordServiceImpl(CallRecordRepository callRecordRepository) {
+        this.callRecordRepository = callRecordRepository;
+    }
 
-	@Autowired
-	public CallRecordServiceImpl(CallRecordRepository callRecordRepository) {
-		this.callRecordRepository = callRecordRepository;
-	}
-
-	@Override
-	public CallRecord add(CallRecord callRecord) {
-		return callRecordRepository.saveAndFlush(callRecord);
-	}
-
-	@Override
-	public void update(CallRecord callRecord) {
-		callRecordRepository.saveAndFlush(callRecord);
-	}
-
-	@Override
-	public void delete(CallRecord callRecord) {
-		callRecordRepository.delete(callRecord);
-	}
-
-	@Override
-	public CallRecord getCallRecord(Long id) {
-		return callRecordRepository.getCallRecordById(id);
-	}
+    @Override
+    public CallRecord addCallRecord(CallRecord callRecord) {
+        return callRecordRepository.saveAndFlush(callRecord);
+    }
 }
