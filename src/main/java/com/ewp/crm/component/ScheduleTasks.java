@@ -169,7 +169,7 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleYoutubeLiveStreams() {
-		if (youtubeService.isLiveStreamNotInAction()) {
+		if (!youtubeService.checkLiveStreamStatus()) {
 			youtubeService.handleYoutubeLiveChatMessages();
 		} else {
 			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());

@@ -4,7 +4,5 @@ public interface YoutubeService {
 
     void handleYoutubeLiveChatMessages();
 
-    boolean isLiveStreamNotInAction();
-
-    void setLiveStreamNotInAction(boolean liveStreamNotInAction);
+    boolean checkLiveStreamStatus();
 }
