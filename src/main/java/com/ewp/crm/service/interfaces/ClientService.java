@@ -10,12 +10,16 @@ import java.util.List;
 
 
 public interface ClientService extends CommonService<Client> {
+	List<Client> findAllByStatus(Status status);
+	List<Client> getAllClients();
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	Client getClientByEmail(String name);
 
 	Client getClientByPhoneNumber(String phoneNumber);
+
+	Client getClientByID(Long id);
 
 	void addClient(Client client);
 
@@ -44,6 +48,4 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 	List<Client> findAllByPage(Pageable pageable);
-
-	List<Client> findAllByOwnerUser(Pageable pageable, User clientOwner);
 }

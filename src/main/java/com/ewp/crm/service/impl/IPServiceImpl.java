@@ -1,6 +1,6 @@
-package com.ewp.crm.component.util;
+package com.ewp.crm.service.impl;
 
-import com.ewp.crm.component.util.interfaces.IPUtil;
+import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.configs.inteface.IPConfig;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class IPUtilImpl implements IPUtil {
+public class IPServiceImpl implements IPService {
 
 	private String voximplantApiKey;
 
@@ -23,11 +23,11 @@ public class IPUtilImpl implements IPUtil {
 	private String voximplantRuleId;
 
 
-	private static org.slf4j.Logger logger = LoggerFactory.getLogger(IPUtilImpl.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(IPServiceImpl.class);
 
 
 	@Autowired
-	public IPUtilImpl(IPConfig ipConfig) {
+	public IPServiceImpl(IPConfig ipConfig) {
 		voximplantApiKey = ipConfig.getVoximplantApiKey();
 		voximplantAccountId = ipConfig.getVoximplantAccountId();
 		voximplantRuleId = ipConfig.getVoximplantRuleId();

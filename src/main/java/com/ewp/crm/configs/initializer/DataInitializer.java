@@ -1,8 +1,9 @@
 package com.ewp.crm.configs.initializer;
 
-import com.ewp.crm.exceptions.util.FBAccessTokenException;
+import com.ewp.crm.configs.inteface.VKConfig;
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.impl.FacebookServiceImpl;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,8 +11,21 @@ import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 
 public class DataInitializer {
+
+	@Autowired
+	private VkTrackedClubService vkTrackedClubService;
+
+	@Autowired
+	private VKConfig vkConfig;
+
+	@Autowired
+	private VkMemberService vkMemberService;
+
+	@Autowired
+	private VKService vkService;
 
 	@Autowired
 	private StatusService statusService;
@@ -34,12 +48,11 @@ public class DataInitializer {
 	@Autowired
 	private ClientHistoryService clientHistoryService;
 
-
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("deleted", true);
-		Status status0 = new Status("New clients");
+		Status defaultStatus = new Status("deleted", true, 5L);
+		Status status0 = new Status("New clients", false, 1L);
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
@@ -54,18 +67,15 @@ public class DataInitializer {
 		socialNetworkTypeService.add(FACEBOOK);
 
 		User admin = new User("Stanislav", "Sorokin", "79331558899", "admin@mail.ru",
-				"admin", null, Client.Sex.MALE.toString(), (byte) 22, "Moscow", "Russia", "Mentor",
-				2000D, Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
+				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), (byte) 28, "Minsk", "Belarus", "Manager",
-				1001D, Collections.singletonList(roleService.getByRoleName("USER")), true);
+				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user1);
 
 		User user2 = new User("Petr", "Petrov", "79129876543", "user2@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), (byte) 24, "Tver", "Russia", "Manager",
-				500D, Collections.singletonList(roleService.getByRoleName("USER")), true);
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user2);
 
 		String templateText3 = "<!DOCTYPE html>\n" +
@@ -110,9 +120,9 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate2);
 		MessageTemplateService.add(MessageTemplate3);
 
-		Status status1 = new Status("First status");
-		Status status2 = new Status("Second status");
-		Status status3 = new Status("Third status");
+		Status status1 = new Status("First status", false, 2L);
+		Status status2 = new Status("Second status", false , 3L);
+		Status status3 = new Status("Third status", false, 4L);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -135,6 +145,17 @@ public class DataInitializer {
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
 				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
+
+		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
+				vkConfig.getCommunityToken(),
+				"JavaMentorTest",
+				Long.parseLong(vkConfig.getApplicationId())));
+		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+					.orElseThrow(NotFoundMemberList::new);
+			vkMemberService.addAllMembers(memberList);
+		}
 		clientService.addClient(client1);
 		clientService.addClient(client2);
 		clientService.addClient(client3);
@@ -143,11 +164,11 @@ public class DataInitializer {
 		status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
 		status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
 		status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
-		statusService.add(status0);
-		statusService.add(status1);
-		statusService.add(status2);
-		statusService.add(status3);
-		statusService.add(defaultStatus);
+		statusService.addInit(status0);
+		statusService.addInit(status1);
+		statusService.addInit(status2);
+		statusService.addInit(status3);
+		statusService.addInit(defaultStatus);
 	}
 
 }

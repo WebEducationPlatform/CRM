@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +42,7 @@ public class UserRestController {
         this.socialNetworkTypeService = socialNetworkTypeService;
     }
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAll() {
 		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,9 +51,9 @@ public class UserRestController {
 		return ResponseEntity.ok(users);
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/update", method = RequestMethod.POST)
-	public ResponseEntity updateUser(@RequestBody User user) {
+	public ResponseEntity updateUser(@Valid @RequestBody User user) {
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Optional<String> userPhoto = Optional.ofNullable(user.getPhoto());
 		Optional<String> currentPhoto = Optional.ofNullable(userService.get(user.getId()).getPhoto());
@@ -66,7 +67,7 @@ public class UserRestController {
 	}
 
 	//Workers will be deactivated, not deleted
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
 	public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
 		User user = userService.get(id);
@@ -74,7 +75,7 @@ public class UserRestController {
 		return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = {"/user/socialNetworkTypes"}, method = RequestMethod.GET)
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
@@ -85,16 +86,17 @@ public class UserRestController {
 		return ResponseEntity.ok(socialTypeNames);
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
-	public ResponseEntity addUser(@RequestBody User user) {
+	public ResponseEntity addUser(@Valid @RequestBody User user) {
+
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		userService.add(user);
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/reaviable", method = RequestMethod.POST)
 	public ResponseEntity reAviableUser(@RequestParam Long deleteId){
     	User currentUser = userService.get(deleteId);
@@ -105,7 +107,7 @@ public class UserRestController {
 	}
 
     @ResponseBody
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)
     public byte[] getPhoto(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForAvatar() + file + ".png");

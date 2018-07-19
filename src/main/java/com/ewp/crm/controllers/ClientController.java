@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -63,6 +64,7 @@ public class ClientController {
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
+		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
 		modelAndView.addObject("users", userService.getAll());
@@ -70,28 +72,22 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
 		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		//TODO postfilter spring
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
-			modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize * 2)));
-		} else {
-			modelAndView.addObject("allClients",
-					clientService.findAllByOwnerUser(new PageRequest(0, pageSize * 2), userFromSession));
-		}
+		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN','OWNER','USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -105,7 +101,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
 	public ModelAndView addClient(@PathVariable String statusName) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -118,7 +114,7 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");

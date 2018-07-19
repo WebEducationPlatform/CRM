@@ -1,6 +1,6 @@
-package com.ewp.crm.component.util;
+package com.ewp.crm.service.impl;
 
-import com.ewp.crm.component.util.interfaces.SMSUtil;
+import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class SMSUtilImpl implements SMSUtil {
+public class SMSServiceImpl implements SMSService {
 
-	private static Logger logger = LoggerFactory.getLogger(SMSUtilImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(SMSServiceImpl.class);
 
 	private final SMSConfig smsConfig;
 	private final RestTemplate restTemplate;
@@ -36,7 +36,7 @@ public class SMSUtilImpl implements SMSUtil {
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService) {
+	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;

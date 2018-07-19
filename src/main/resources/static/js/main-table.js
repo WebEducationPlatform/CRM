@@ -79,21 +79,21 @@ $(function () {
 });
 
 $(function () {
-    $(".hide-main-modal").click(function (e) {
+    $(".hide-main-modal").click(function(e) {
         $(".main-modal .close").click()
     });
 });
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.select_all').click(function () {
+    $('.select_all').click(function() {
         var currentForm = $(this).parents('.box-modal');
         currentForm.find('.my-checkbox-soc').prop('checked', true);
     });
 });
-$('.deselect_all').click(function () {
-    var currentForm = $(this).parents('.box-modal');
-    currentForm.find('.my-checkbox-soc').prop('checked', false);
+    $('.deselect_all').click(function() {
+        var currentForm = $(this).parents('.box-modal');
+        currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
 
 
@@ -128,8 +128,8 @@ $("#save-description").on("click", function saveDescription() {
 
 $(document).ready(function () {
     $(".column").sortable({
-        delay: 100,
-        items: '> .portlet',
+    delay:100,
+	items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -145,9 +145,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function () {
-        $("#new-status-name").keypress(function (e) {
-            if (e.keyCode === 13) {
+    $(document).ready(function(){
+        $("#new-status-name").keypress(function(e){
+            if(e.keyCode===13){
                 createNewStatus();
             }
         });
@@ -191,8 +191,7 @@ $(document).ready(function () {
         let modal = $("#sms_error_modal"),
             btn = $(this),
             url = '/user/notification/sms/error/' + btn.attr("data-id");
-        $.get(url, function () {
-        }).done(function (notifications) {
+        $.get(url, function(){}).done(function (notifications) {
             let body = modal.find("tbody");
             for (let i = 0; i < notifications.length; i++) {
                 body.append(
@@ -200,7 +199,7 @@ $(document).ready(function () {
                 )
             }
         });
-        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
         modal.modal();
     })
 
@@ -217,24 +216,7 @@ function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
 
-function deleteStatus(id) {
-    let url = '/admin/rest/status/delete';
-    let formData = {
-        deleteId: id
-    };
 
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            location.reload();
-        },
-        error: function (e) {
-
-        }
-    });
-}
 
 function createNewUser() {
     let url = '/rest/user/addUser';
@@ -358,7 +340,7 @@ function assignUser(id, user, principalId) {
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign: user
+            userForAssign : user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -368,7 +350,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
+                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -445,14 +427,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data = [];
-        for (var w = 0; w < allChecks.length; ++w) {
-            if (allChecks[w].checked) {
-                data[data.length] = allChecks[w].value;
+        var data=[];
+        for (var w = 0; w < allChecks.length; ++w){
+            if(allChecks[w].checked){
+                data[data.length]=allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length === 0) {
+        if (data.length===0) {
             jo.show();
             return;
         }
@@ -917,10 +899,8 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        var formData = {
-            clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()
-        };
+        var formData = {clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body').val()};
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
@@ -1058,6 +1038,10 @@ $(function () {
             data: formData,
             success: function (client) {
                 $.get('rest/client/getPrincipal', function (user) {
+                    if (client.ownerUser != null) {
+                        var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+                    }
+                    var adminName = user.firstName + ' ' + user.lastName;
                     $('#main-modal-window').data('userId', user.id);
                     // $('#main-modal-window').attr("onClick", "openClientComments("+ user.phoneNumber+','+ client.phoneNumber +")");
 
@@ -1090,7 +1074,7 @@ $(function () {
                     if (client.ownerUser === null) {
                         btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                     }
-                    if (client.ownerUser !== null) {
+                    if (client.ownerUser !== null && owenerName === adminName) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '"onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
@@ -1211,3 +1195,24 @@ function doLogin() {
         }
     }, 100);
 }
+
+$(".change-status-position").on('click', function () {
+    let destinationId = $(this).attr("value");
+    let sourceId = $(this).parents(".column").attr("value");
+    let url = "/rest/status/position/change";
+    let formData = {
+        sourceId : sourceId,
+        destinationId : destinationId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function() {
+            location.reload();
+        },
+        error: function (error) {
+
+        }
+    });
+});
