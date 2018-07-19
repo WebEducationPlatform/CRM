@@ -67,6 +67,15 @@
                                         </a>
                                     </li>
                                 </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
                             </th:block>
                         </th:block>
                         <th:block th:if="${notifications.size() == 0}">
@@ -83,7 +92,7 @@
                    <ul class="dropdown-menu">
                                            <li><a href="/user/customize">Настройки</a></li>
 
-                                           <li sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
+                                           <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
                                            <li><a href="/logout">Выход</a></li>
                                       </ul>
                 </li>
@@ -104,7 +113,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
     <script th:src="@{/js/jquery-3.2.0.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.min.js}" type="text/javascript"></script>
-
     <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
 </th:block>
 
@@ -117,72 +125,8 @@
             <div class="form-group comment-div">
                 <textarea class="form-control textcomplete" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
-                <!--<button class="btn btn-sm btn-success comment-button"-->
-                        <!--th:onclick="'sendComment(' + ${client.id} + ', \'test_message\')'">Cохранить-->
-                <!--</button>-->
             </div>
            <ul class="list-group main-modal-comment">
-
-           <!-- IN COMMENT.JS NOW !!! -->
-            <!--  <li class="list-group-item comment-item" th:each="comment : ${client.comments}"
-                    th:if="${comment.mainComment == null}">
-                    <div th:id="'comment' + ${comment.id}" th:class="comment">
-                        <span class="comment-name"
-                              th:text="@{__${comment.user.lastName}__ __${comment.user.firstName}__}"></span>
-                        <span th:if="${user == comment.user}" class="glyphicon glyphicon-remove comment-functional"
-                              th:onclick="'deleteComment('+ ${comment.id} + ')'"></span>
-                        <span th:if="${user == comment.user}"
-                              class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                        <span class="hide-show glyphicon glyphicon-comment comment-functional"></span>
-                        <p class="comment-text" th:text="${comment.getContent()}"></p>
-                        <div class="form-answer">
-                            <div class="form-group">
-                                <textarea class="form-control textcomplete"
-                                          th:id="'new-answer-for-comment' + ${comment.id}"
-                                          placeholder="Напишите ответ"></textarea>
-                                <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'sendAnswer(' + ${comment.id} + ', \'test_message\')'">Cохранить
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-edit">
-                            <div class="form-group">
-                                <textarea class="form-control edit-textarea textcomplete"
-                                          th:id="'edit-comment' + ${comment.id}"
-                                          placeholder="Редактор"></textarea>
-                                <button class="btn btn-md btn-success comment-button"
-                                        th:onclick="'editComment(' + ${comment.id} + ')'">Отредактировать
-                                </button>
-                            </div>
-                        </div>
-                        <ul class="answer-list comment-item"
-                            th:id="'comment-'+${comment.id}+'answers'">
-
-                            <li th:each="answer : ${comment.answers}">
-                                <div th:id="'comment' + ${answer.id}" th:class="comment">
-                                    <span class="comment-name"
-                                          th:text="@{__${answer.user.lastName}__ __${answer.user.firstName}__}"></span>
-                                    <span th:if="${user == answer.user}"
-                                          class="glyphicon glyphicon-remove comment-functional"
-                                          th:onclick="'deleteComment('+ ${answer.id} + ')'"></span>
-                                    <span th:if="${user == answer.user}"
-                                          class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>
-                                    <p class="comment-text" th:text="${answer.getContent()}"></p>
-                                    <div class="form-edit">
-                                        <div class="form-group">
-                                            <textarea class="form-control edit-textarea textcomplete"
-                                                      th:id="'edit-comment' + ${answer.id}"
-                                                      placeholder="Редактор"></textarea>
-                                            <button class="btn btn-md btn-success comment-button"
-                                                    th:onclick="'editComment(' + ${answer.id} + ')'">Отредактировать
-                                            </button>
-                                       </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li> -->
             </ul>
         </div>
     </div>
@@ -269,9 +213,117 @@
     </div>
 </th:block>
 
+<th:block th:fragment="deleteVkTrackedClub">
+    <div th:each="club : ${vkTrackedClub}">
+        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Да</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</th:block>
+
+<th:block th:fragment="deleteVkTrackedClub">
+    <div th:each="club : ${vkTrackedClub}">
+        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Удалить</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="updateVkTrackedClub">
+    <div th:each="club : ${vkTrackedClub}">
+        <div class="modal fade" th:id="'updateVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Изменить данные сообщества</h5>
+                    </div>
+                    <div class="modal-body">
+                        <label for="groupName">Name</label>
+                        <input type="text" id="groupName" name="groupName"
+                               class="form-control"
+                               th:value="${club.groupName}"/>
+                        <label for="groupId">GroupId</label>
+                        <input type="text" id="groupId" name="groupId"
+                               class="form-control" disabled="disabled"
+                               th:value="${club.groupId}"/>
+                        <label for="token">token</label>
+                        <input type="text" id="token" name="token"
+                               class="form-control"
+                               th:value="${club.token}"/>
+                        <label for="clientId">clientId</label>
+                        <input type="text" id="clientId" name="clientId"
+                               class="form-control" disabled="disabled"
+                               th:value="${club.clientId}"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'updateVkTrackedClub('+ ${club.id} + ')'">Обновить</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="addVkTrackedClub">
+        <div class="modal fade" th:id="addVkTrackedClubModal" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Добавить новое отслеживаемое сообщество</h5>
+                    </div>
+                    <div class="modal-body">
+                        <label for="groupName">Name</label>
+                        <input type="text" id="newGroupName" name="groupName"
+                               class="form-control" />
+                        <label for="groupId">GroupId</label>
+                        <input type="text" id="newGroupId" name="groupId"
+                               class="form-control" />
+                        <label for="token">token</label>
+                        <input type="text" id="newToken" name="token"
+                               class="form-control" />
+                        <label for="clientId">clientId</label>
+                        <input type="text" id="newClientId" name="clientId"
+                               class="form-control" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'addVkTrackedClub()'">Добавить</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</th:block>
+
 <th:block th:fragment="addSocialNetworkType">
     <div id="addSocialType" class="modal fade" role="dialog">
-
         <div class="modal-dialog">
             <form role="form" id="addTypeForm" th:action="@{/admin/user/addSocialNetworkType}" method="post">
                 <div class="modal-content">
@@ -324,9 +376,28 @@
     </div>
 </div>
 </th:block>
+<th:block th:fragment="deleteNotifications">
+<div id="delete-client-modal" class="modal" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтвердите свое действие</h5>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить карточк - у(ки), на котор - ой(ых) есть непрочитанные уведомления? Если выбирете "да", то все уведомления будут удалены.</p>
+            </div>
+            <div class="modal-footer">
+                <button  id ="delete-client-btn"   type="button" class="btn btn-primary" data-dismiss="modal">Да</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block>
 <th:block th:fragment="deleteStatusModal">
-<div class="modal fade" th:id="'deleteStatusModal' + ${status.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+<div class="modal fade" id="deleteStatusModal" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -336,7 +407,7 @@
                 <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" th:onclick="'deleteStatus(\''+ ${status.id} +'\')'">Да</button>
+                <button id="delete-status-btn" type="button" class="btn btn-primary" >Да</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
             </div>
         </div>

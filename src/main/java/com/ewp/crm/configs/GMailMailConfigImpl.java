@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:gmail.properties")
+@PropertySource("file:./gmail.properties")
 public class GMailMailConfigImpl implements MailConfig {
 
     private String login;
