@@ -23,10 +23,9 @@ public class SearchLive {
 
     private static Logger logger = LoggerFactory.getLogger(SearchLive.class);
 
-    public String getVideoIdByChannelId(String apiKey, String channelId) {
+    public List<String> getListOfLiveStreamByChannelId(String apiKey, String channelId) {
 
-        String videoId = null;
-
+        List<String> stringList = new ArrayList<>();
         try {
             // This object is used to make YouTube Data API requests. The last
             // argument is required, but since we don't need anything
@@ -63,24 +62,17 @@ public class SearchLive {
             }
 
             SearchListResponse response = searchListLiveEventsRequest.execute();
-
-            List<String> stringList = getResults(response);
-            try {
-                videoId = stringList.get(0);
-            } catch (IndexOutOfBoundsException e) {
-                logger.error("Live events in Youtube channel is not existing");
-            }
+            stringList = getResults(response);
 
         } catch (GoogleJsonResponseException e) {
             logger.error("There was a service error: ", e);
         } catch (IOException e) {
             logger.error("Live events in Youtube channel problem with execute", e);
         }
-        return videoId;
+        return stringList;
     }
 
-    private List<String> getResults(SearchListResponse searchResponse)
-    {
+    private List<String> getResults(SearchListResponse searchResponse) {
         List<String> urls = new ArrayList<>();
 
         List<SearchResult> searchResultList = searchResponse.getItems();

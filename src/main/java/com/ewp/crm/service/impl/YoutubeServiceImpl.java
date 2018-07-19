@@ -14,7 +14,6 @@ public class YoutubeServiceImpl implements YoutubeService {
 
     private String apiKey;
     private String channelId;
-    private boolean isLiveStreamNotInAction = true;
     private final SearchLive searchLive;
     private final ListLiveChatMessages listLive;
     private static Logger logger = LoggerFactory.getLogger(YoutubeServiceImpl.class);
@@ -27,21 +26,20 @@ public class YoutubeServiceImpl implements YoutubeService {
         this.listLive = listLive;
     }
 
+    public boolean checkLiveStreamStatus() {
+        return listLive.isLiveStreamInAction();
+    }
+
     public void handleYoutubeLiveChatMessages() {
-        String videoId = searchLive.getVideoIdByChannelId(apiKey, channelId);
+        try {
+            String videoId = searchLive.getListOfLiveStreamByChannelId(apiKey, channelId).get(0);
 
-        if (videoId != null) {
-            isLiveStreamNotInAction = false;
-            logger.info("Live stream is in action");
-            listLive.getNamesAndMessagesFromYoutubeLiveStreamByVideoId(apiKey, videoId);
+            if (videoId != null) {
+                listLive.getNamesAndMessagesFromYoutubeLiveStreamByVideoId(apiKey, videoId);
+                logger.info("Live stream is in action");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            logger.error("Live events in Youtube channel isn't existing");
         }
-    }
-
-    public boolean isLiveStreamNotInAction() {
-        return isLiveStreamNotInAction;
-    }
-
-    public void setLiveStreamNotInAction(boolean liveStreamNotInAction) {
-        isLiveStreamNotInAction = liveStreamNotInAction;
     }
 }
