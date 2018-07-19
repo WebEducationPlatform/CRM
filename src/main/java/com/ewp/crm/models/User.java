@@ -1,11 +1,17 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.*;
 
 @Entity
@@ -17,9 +23,11 @@ public class User implements UserDetails {
 	@Column (name = "user_id")
 	private Long id;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String firstName;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String lastName;
 
@@ -49,14 +57,14 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
-	@Column(name = "vk_token")
-	private String vk_token;
-
 	@Column
 	private boolean ipTelephony;
 
 	@Column
 	private boolean isEnabled;
+
+	@Column(name = "vkToken")
+	private String vkToken;
 
 	@OneToMany
 	@JoinTable(name = "user_skype_call",
@@ -102,6 +110,14 @@ public class User implements UserDetails {
 		this.role = role;
 		this.ipTelephony = ipTelephony;
 		this.isEnabled = true;
+	}
+
+	public String getVkToken() {
+		return vkToken;
+	}
+
+	public void setVkToken(String vkToken) {
+		this.vkToken = vkToken;
 	}
 
 	public Long getId() {
@@ -215,14 +231,6 @@ public class User implements UserDetails {
 		this.photoType = photoType;
 	}
 
-	public String getVk_token() {
-		return vk_token;
-	}
-
-	public void setVk_token(String vk_token) {
-		this.vk_token = vk_token;
-	}
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.synchronizedList(role);
@@ -274,11 +282,20 @@ public class User implements UserDetails {
 		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
+//	@Override
+//	public int hashCode() {
+//		int result = id.hashCode();
+//		result = 31 * result + phoneNumber.hashCode();
+//		result = 31 * result + email.hashCode();
+//		return result;
+//	}
+
+
 	@Override
 	public int hashCode() {
-		int result = id.hashCode();
-		result = 31 * result + phoneNumber.hashCode();
-		result = 31 * result + email.hashCode();
+		int result = getId() != null ? getId().hashCode() : 0;
+		result = 31 * result + (getPhoneNumber() != null ? getPhoneNumber().hashCode() : 0);
+		result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
 		return result;
 	}
 

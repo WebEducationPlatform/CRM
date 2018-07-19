@@ -27,6 +27,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import javax.validation.constraints.Null;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,9 +64,13 @@ public class MailSendService {
 	}
 
 	private void checkConfig(Environment environment) {
-		this.emailLogin = environment.getProperty("spring.mail.username");
-		String password = environment.getProperty("spring.mail.password");
-		if (emailLogin == null || "".equals(emailLogin) || (password == null || "".equals(password))) {
+		try {
+			this.emailLogin = environment.getRequiredProperty("spring.mail.username");
+			String password = environment.getRequiredProperty("spring.mail.password");
+			if (emailLogin.isEmpty() || password.isEmpty()) {
+				throw new NullPointerException();
+			}
+		} catch (IllegalStateException | NullPointerException e) {
 			logger.error("Mail configs have not initialized. Check application.properties file");
 			System.exit(-1);
 		}
@@ -160,10 +165,10 @@ public class MailSendService {
 	}
 
 	@Async
-	public void sendNotificationMessage(User userToNotify) {
+	public void sendNotificationMessage(User userToNotify, String notificationMessage) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setSubject("Оповещение из CRM");
-		message.setText("Вас упомянули в комментариях под карточкой");
+		message.setText(notificationMessage);
 		message.setFrom(emailLogin);
 		message.setTo(userToNotify.getEmail());
 		javaMailSender.send(message);

@@ -1,6 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.component.util.VKUtil;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -34,36 +34,38 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
+	private final SendNotificationService sendNotificationService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKUtil vkUtil) {
+	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKService vkService, SendNotificationService sendNotificationService) {
 		this.clientService = clientService;
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
+		this.sendNotificationService = sendNotificationService;
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAll() {
-		return ResponseEntity.ok(clientService.getAllClients());
+		return ResponseEntity.ok(clientService.getAll());
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
-		return ResponseEntity.ok(clientService.getClientByID(id));
+		return ResponseEntity.ok(clientService.get(id));
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/rest/client/assign", method = RequestMethod.POST)
 	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() != null) {
 			logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
 			return ResponseEntity.badRequest().body(null);
@@ -81,7 +83,7 @@ public class ClientRestController {
 	                                 @RequestParam(name = "userForAssign") Long userId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User assignUser = userService.get(userId);
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
 			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", principal.getEmail(), clientId, assignUser.getEmail());
 			return ResponseEntity.badRequest().build();
@@ -101,7 +103,7 @@ public class ClientRestController {
 	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() == null) {
 			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", principal.getEmail(), clientId);
 			return ResponseEntity.badRequest().build();
@@ -125,7 +127,7 @@ public class ClientRestController {
 			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
 					socialNetwork.getSocialNetworkType().getName()).getId());
 		}
-		Client clientFromDB = clientService.getClientByID(currentClient.getId());
+		Client clientFromDB = clientService.get(currentClient.getId());
 		currentClient.setHistory(clientFromDB.getHistory());
 		currentClient.setComments(clientFromDB.getComments());
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
@@ -312,7 +314,7 @@ public class ClientRestController {
 	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
-			Client client = clientService.getClientByID(clientId);
+			Client client = clientService.get(clientId);
 			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
 			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
 			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
@@ -372,7 +374,7 @@ public class ClientRestController {
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
 	                                             @RequestParam(name = "clientDescription") String clientDescription) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");

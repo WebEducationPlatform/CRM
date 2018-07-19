@@ -1,6 +1,6 @@
-package com.ewp.crm.component.util;
+package com.ewp.crm.service.impl;
 
-import com.ewp.crm.component.util.interfaces.SMSUtil;
+import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class SMSUtilImpl implements SMSUtil {
+public class SMSServiceImpl implements SMSService {
 
-	private static Logger logger = LoggerFactory.getLogger(SMSUtilImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(SMSServiceImpl.class);
 
 	private final SMSConfig smsConfig;
 	private final RestTemplate restTemplate;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
-	private final MessageService messageService;
 	private final SMSInfoService smsInfoService;
 	private final MessageTemplateService messageTemplateService;
 
@@ -39,12 +38,11 @@ public class SMSUtilImpl implements SMSUtil {
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSUtilImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
+	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
-		this.messageService = messageService;
 		this.smsInfoService = smsInfoService;
 		this.messageTemplateService = messageTemplateService;
 	}
@@ -96,6 +94,7 @@ public class SMSUtilImpl implements SMSUtil {
 		client.addHistory(clientHistory);
 		clientService.updateClient(client);
 	}
+
 
 	@Override
 	public void sendSMS(List<Client> clients, String text, User sender) {

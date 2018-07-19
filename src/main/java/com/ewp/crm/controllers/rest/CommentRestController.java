@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -46,7 +48,7 @@ public class CommentRestController {
 	public ResponseEntity<Comment> addComment(@RequestParam(name = "clientId") Long clientId,
 	                                          @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Client client = clientService.getClientByID(clientId);
+		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add comment, client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -62,11 +64,11 @@ public class CommentRestController {
 	public ResponseEntity<CommentAnswer> addAnswer(@RequestParam(name = "content") String content, @RequestParam(name = "commentId") Long commentId) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User fromDB = userService.get(userFromSession.getId());
-		Comment comment = commentService.getById(commentId);
+		Comment comment = commentService.get(commentId);
 		Client client = comment.getClient();
 		sendNotificationService.sendNotification(content, client);
 		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
-		CommentAnswer answer = commentAnswerService.add(commentAnswer);
+		CommentAnswer answer = commentAnswerService.addCommentAnswer(commentAnswer);
 		comment.addAnswer(answer);
 		commentService.update(comment);
 		return ResponseEntity.status(HttpStatus.OK).body(answer);
@@ -76,7 +78,7 @@ public class CommentRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity deleteCommentAnswer(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
+		if (commentAnswerService.get(id).getUser().equals(userFromSession)) {
 			commentAnswerService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
@@ -88,8 +90,8 @@ public class CommentRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity editCommentAnswer(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (commentAnswerService.getById(id).getUser().equals(userFromSession)) {
-			CommentAnswer commentAnswer = commentAnswerService.getById(id);
+		if (commentAnswerService.get(id).getUser().equals(userFromSession)) {
+			CommentAnswer commentAnswer = commentAnswerService.get(id);
 			commentAnswer.setContent(content);
 			commentAnswerService.update(commentAnswer);
 			return ResponseEntity.ok(HttpStatus.OK);
@@ -102,7 +104,7 @@ public class CommentRestController {
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public ResponseEntity deleteComment(@RequestParam(name = "id") Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (commentService.getById(id).getUser().equals(userFromSession)) {
+		if (commentService.get(id).getUser().equals(userFromSession)) {
 			commentService.delete(id);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} else {
@@ -114,8 +116,8 @@ public class CommentRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity editComment(@RequestParam(name = "id") Long id, @RequestParam(name = "content") String content) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (commentService.getById(id).getUser().equals(userFromSession)) {
-			Comment comment = commentService.getById(id);
+		if (commentService.get(id).getUser().equals(userFromSession)) {
+			Comment comment = commentService.get(id);
 			comment.setContent(content);
 			commentService.update(comment);
 			return ResponseEntity.ok(HttpStatus.OK);
@@ -127,7 +129,7 @@ public class CommentRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/getComments/{clientId}", method = RequestMethod.GET)
 	public ResponseEntity<List<Comment>> getComments(@PathVariable Long clientId) {
-		List<Comment> comments = commentService.getAllByClient(clientService.getClientByID(clientId));
+		List<Comment> comments = commentService.getAllByClient(clientService.get(clientId));
 		return ResponseEntity.ok(comments);
 	}
 

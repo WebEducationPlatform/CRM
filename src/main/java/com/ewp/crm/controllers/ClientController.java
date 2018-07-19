@@ -72,7 +72,8 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-		modelAndView.addObject("emailTmpl", MessageTemplateService.getall());
+		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
 		return modelAndView;
 	}
 
@@ -91,7 +92,7 @@ public class ClientController {
 	public ModelAndView clientInfo(@PathVariable Long id) {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelAndView = new ModelAndView("client-info");
-		modelAndView.addObject("client", clientService.getClientByID(id));
+		modelAndView.addObject("client", clientService.get(id));
 		modelAndView.addObject("states", Client.State.values());
 		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
