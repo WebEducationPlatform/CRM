@@ -64,6 +64,8 @@ public class IPTelephonyRestController {
 			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
+			callRecordFromDB.setClient(client);
+			callRecordService.update(callRecordFromDB);
 			ipService.call(from, to, callRecordFromDB.getId());
 		}
 	}
@@ -72,7 +74,25 @@ public class IPTelephonyRestController {
 	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
 		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
-			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
+//			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
+//			callRecord.setLink(downloadLink);
+			callRecord.getClientHistory().setRecordLink(url);
+			callRecordService.update(callRecord);
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/downloadRecord", method = RequestMethod.GET)
+	public ResponseEntity downloadLastRecord(){
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		CallRecord callRecord = callRecordService.getCallRecordWithMaxId();
+		if (callRecord.getLink() == null) {
+			String downloadLink = downloadCallRecordService.downloadRecord(callRecord.getClientHistory().getRecordLink(),
+					callRecord.getClient().getId(), callRecord.getClientHistory().getId());
 			callRecord.setLink(downloadLink);
 			callRecord.getClientHistory().setRecordLink(downloadLink);
 			callRecordService.update(callRecord);
