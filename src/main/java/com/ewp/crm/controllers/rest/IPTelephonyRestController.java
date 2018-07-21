@@ -74,37 +74,15 @@ public class IPTelephonyRestController {
 	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
 		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
-			/* Эти две строки должены работать вместо метода downloadLastRecord(),
-			* но пока что без адекватной реализации события StopRecord на
-			* Voximplant будет такой хардкод*/
-//			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
-//			callRecord.setLink(downloadLink);
+			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
+			callRecord.setLink(downloadLink);
 			callRecord.getClientHistory().setRecordLink(url);
 			callRecordService.update(callRecord);
-			logger.info("Voice call with id {} has started", clientCallId);
+			logger.info("CallRecord to client id {} has download", clientCallId);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/downloadRecord", method = RequestMethod.GET)
-	public ResponseEntity downloadLastRecord(){
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			logger.error("Thread has awakened, CallRecord can be shorter to 1-4 second");
-		}
-		CallRecord callRecord = callRecordService.getCallRecordWithMaxId();
-		if (callRecord.getLink() == null) {
-			String downloadLink = downloadCallRecordService.downloadRecord(callRecord.getClientHistory().getRecordLink(),
-					callRecord.getClient().getId(), callRecord.getClientHistory().getId());
-			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setRecordLink(downloadLink);
-			callRecordService.update(callRecord);
-			logger.info("CallRecord id {} to client id {}, name {} has download", callRecord.getId(),
-									callRecord.getClient().getId(), callRecord.getClient().getName());
-		}
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	@ResponseBody

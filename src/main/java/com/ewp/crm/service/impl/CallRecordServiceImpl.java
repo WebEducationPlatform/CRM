@@ -20,8 +20,4 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
         return callRecordRepository.saveAndFlush(callRecord);
     }
 
-    @Override
-    public CallRecord getCallRecordWithMaxId() {
-        return callRecordRepository.findCallRecordMaxId();
-    }
 }
