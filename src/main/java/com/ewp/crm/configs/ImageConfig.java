@@ -18,8 +18,8 @@ import java.nio.file.Paths;
 
 @Component
 @PropertySources(value = {
-        @PropertySource("classpath:application.properties"),
-        @PropertySource("classpath:image.properties")
+		@PropertySource("classpath:application.properties"),
+		@PropertySource("file:./image.properties")
 })
 public class ImageConfig {
 

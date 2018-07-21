@@ -89,14 +89,13 @@ public class GoogleEmail {
         mailReceiver.setShouldDeleteMessages(false);
 
         mailReceiver.setShouldMarkMessagesAsRead(true);
-        mailReceiver.setCancelIdleInterval(3600);
+        mailReceiver.setCancelIdleInterval(1200);
         mailReceiver.setBeanFactory(beanFactory);
         mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
         mailReceiver.afterPropertiesSet();
 
         ImapIdleChannelAdapter imapIdleChannelAdapter = new ImapIdleChannelAdapter(mailReceiver);
         imapIdleChannelAdapter.setAutoStartup(true);
-        imapIdleChannelAdapter.setReconnectDelay(300000);
         imapIdleChannelAdapter.setShouldReconnectAutomatically(true);
         imapIdleChannelAdapter.setOutputChannel(directChannel());
         imapIdleChannelAdapter.afterPropertiesSet();
@@ -110,8 +109,9 @@ public class GoogleEmail {
         directChannel.subscribe(message -> {
             MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
             try {
+                logger.info("start parsing income email", parser.getHtmlContent());
                 parser.parse();
-                Client client = incomeStringToClient.convert(parser.getPlainContent() != null ? parser.getPlainContent() : parser.getHtmlContent());
+                Client client = incomeStringToClient.convert(parser.getHtmlContent());
                 if (client != null) {
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));

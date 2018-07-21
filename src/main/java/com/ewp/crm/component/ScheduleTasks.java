@@ -1,8 +1,11 @@
 package com.ewp.crm.component;
 
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
+import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
@@ -13,6 +16,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +43,12 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private FacebookServiceImpl facebookService;
+
+	private final VkTrackedClubService vkTrackedClubService;
+
+	private final VkMemberService vkMemberService;
+
 	private final YoutubeService youtubeService;
 
 	private final YoutubeClientService youtubeClientService;
@@ -45,7 +56,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, YoutubeService youtubeService, YoutubeClientService youtubeClientService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -55,6 +66,9 @@ public class ScheduleTasks {
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.facebookService = facebookService;
+		this.vkTrackedClubService = vkTrackedClubService;
+		this.vkMemberService = vkMemberService;
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
 	}
@@ -104,6 +118,27 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(fixedRate = 60_000)
+	private void findNewMembersAndSendFirstMessage() {
+		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
+		List<VkMember> lastMemberList = vkMemberService.getAll();
+		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+														   .orElseThrow(NotFoundMemberList::new);
+			int countNewMembers = 0;
+			for (VkMember vkMember : freshMemberList) {
+				if(!lastMemberList.contains(vkMember)){
+					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
+					vkMemberService.add(vkMember);
+					countNewMembers++;
+				}
+			}
+			if (countNewMembers > 0) {
+				logger.info("{} new VK members has signed in {} club", countNewMembers, vkTrackedClub.getGroupName());
+			}
+		}
+	}
+
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
@@ -128,6 +163,17 @@ public class ScheduleTasks {
 			clientService.updateClient(client);
 		}
 	}
+
+
+	@Scheduled(fixedRate = 600_000)
+	private void addFacebookMessageToDatabase() {
+		try {
+			facebookService.getFacebookMessages();
+		} catch (FBAccessTokenException e) {
+			logger.error("Facebook access token has not got", e);
+		}
+	}
+
 
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {

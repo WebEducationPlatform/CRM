@@ -9,7 +9,9 @@ import java.util.List;
 public interface NotificationService extends CommonService<Notification> {
     void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user);
 
-    List<Notification> getByUserToNotify(User user);
+	void deleteNotificationsByClient(Client client);
+
+	List<Notification> getByUserToNotify(User user);
 
     List<Notification> getByUserToNotifyAndType(User user, Notification.Type type);
 

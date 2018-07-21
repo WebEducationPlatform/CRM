@@ -50,7 +50,7 @@ public class IPTelephonyRestController {
 		this.downloadCallRecordService = downloadCallRecordService;
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	@RequestMapping(value = "/voximplant", method = RequestMethod.POST)
 	public void voximplantCall(@RequestParam String from, @RequestParam String to) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -80,7 +80,7 @@ public class IPTelephonyRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@PreAuthorize("hasAnyAuthority('ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	@ResponseBody
 	@RequestMapping(value = "/record/{file}", method = RequestMethod.GET)
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
