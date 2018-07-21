@@ -18,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -27,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -42,15 +43,27 @@ public class VKService {
     private final ClientService clientService;
     private final MessageService messageService;
     private final SocialNetworkTypeService socialNetworkTypeService;
+    //Токен аккаунта, отправляющего сообщения
+    private String robotAccessToken;
+    //Айди группы
     private String clubId;
+    //Версия API ВК
     private String version;
+    //Токен доступа от имени сообщества
     private String communityToken;
+    //Айди приложения (Может изменяться на релизе)
     private String applicationId;
     private String display;
+    //URL, на который приходит
     private String redirectUri;
     private String scope;
     private String applicationToken;
     private OAuth20Service service;
+    private String robotClientSecret;
+    private String robotClientId;
+    private String robotUsername;
+    private String robotPassword;
+    private String firstContactMessage;
     private String targetVkGroup;
 
     @Autowired
@@ -69,10 +82,11 @@ public class VKService {
         this.messageService = messageService;
         this.socialNetworkTypeService = socialNetworkTypeService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
-    }
-
-    private static String getValue(String field) {
-        return field.substring(field.indexOf("A: ") + 3);
+        this.robotClientSecret = vkConfig.getRobotClientSecret();
+        this.robotClientId = vkConfig.getRobotClientId();
+        this.robotUsername = vkConfig.getRobotUsername();
+        this.robotPassword = vkConfig.getRobotPassword();
+        this.firstContactMessage = vkConfig.getFirstContactMessage();
     }
 
     public String receivingTokenUri() {
@@ -128,34 +142,75 @@ public class VKService {
         return Optional.empty();
     }
 
-    public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
-        List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
-        for (SocialNetwork socialNetwork : socialNetworks) {
-            if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-                String link = validVkLink(socialNetwork.getLink());
-                long id = Long.parseLong(link.replaceAll(".+id", ""));
-                String vkText = replaceName(msg, params);
-                String responseMessage = sendMessageById(id, vkText, token);
-                Message message = messageService.addMessage(Message.Type.VK, vkText);
-                client.addHistory(clientHistoryService.createHistory(principal, client, message));
-                clientService.updateClient(client);
-                return responseMessage;
-            }
-        }
-        logger.error("{} hasn't vk social network", client.getEmail());
-        return client.getName() + " hasn't vk social network";
+	public String sendMessageToClient(Client client, String msg, Map<String, String> params, User principal, String token) {
+		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
+		for (SocialNetwork socialNetwork : socialNetworks) {
+			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
+				String link =  validVkLink(socialNetwork.getLink());
+				long id = Long.parseLong(link.replaceAll(".+id", ""));
+				String vkText = replaceName(msg, params);
+				String responseMessage = sendMessageById(id, vkText, token);
+				Message message = messageService.addMessage(Message.Type.VK, vkText);
+				client.addHistory(clientHistoryService.createHistory(principal, client, message));
+				clientService.updateClient(client);
+				return responseMessage;
+			}
+		}
+		logger.error("{} hasn't vk social network", client.getEmail());
+		return client.getName() + " hasn't vk social network";
+	}
+
+//	private String sendMessageById(long id, String msg, String token) {
+//		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
+//    }
+
+		public Optional<ArrayList<VkMember>> getAllVKMembers (Long groupId, Long offset){
+			if (groupId == null) {
+				groupId = Long.parseLong(clubId) * (-1);
+			}
+			String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
+					"?group_id=" + groupId +
+					"&offset=" + offset +
+					"&version=" + version +
+					"&access_token=" + communityToken;
+			try {
+				HttpGet httpGetMessages = new HttpGet(urlGetMessages);
+				HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+						.build();
+				HttpResponse httpResponse = httpClient.execute(httpGetMessages);
+				String result = EntityUtils.toString(httpResponse.getEntity());
+				JSONObject json = new JSONObject(result);
+				JSONObject responeJson = json.getJSONObject("response");
+				JSONArray jsonArray = responeJson.getJSONArray("users");
+				ArrayList<VkMember> vkMembers = new ArrayList<>();
+				for (int i = 0; i < jsonArray.length(); i++) {
+					vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
+				}
+				return Optional.of(vkMembers);
+			} catch (IOException e) {
+				logger.error("Failed to connect to VK server");
+			} catch (JSONException e) {
+				logger.error("Can not read message from JSON");
+			}
+			return Optional.empty();
+		}
+
+
+    public String sendMessageById(long id, String msg) {
+        return sendMessageById(id, msg, robotAccessToken);
     }
 
-    private String sendMessageById(long id, String msg, String token) {
+    public String sendMessageById(long id, String msg, String token) {
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
-        String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
-                "?user_id=" + id +
-                "&v=" + version +
-                "&message=" + uriMsg +
-                "&access_token=" + token;
+		String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+				"?user_id=" + id +
+				"&v=" + version +
+				"&message=" + uriMsg +
+				"&access_token=" + token;
 
         HttpGet request = new HttpGet(sendMsgRequest);
         HttpClient httpClient = HttpClients.custom()
@@ -187,37 +242,38 @@ public class VKService {
         }
     }
 
-    public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-        String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
-                "?v=" + version +
-                "&unread=1" +
-                "&access_token=" +
-                communityToken;
+	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
+		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getConversations" +
+				"?v=" + version +
+				"&filter=unread" +
+				"&group_id=" + clubId.replaceAll("-","") +
+				"&access_token=" +
+				communityToken;
 
-        HttpGet httpGetDialog = new HttpGet(uriGetDialog);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
-        try {
-            HttpResponse response = httpClient.execute(httpGetDialog);
-            String result = EntityUtils.toString(response.getEntity());
-            JSONObject json = new JSONObject(result);
-            JSONObject responseObject = json.getJSONObject("response");
-            JSONArray jsonUsers = responseObject.getJSONArray("items");
-            List<Long> resultList = new ArrayList<>();
-            for (int i = 0; i < jsonUsers.length(); i++) {
-                JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
-                resultList.add(jsonMessage.getLong("user_id"));
-            }
-            return Optional.of(resultList);
-        } catch (JSONException e) {
-            logger.error("Can not read message from JSON ", e);
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server ", e);
-        }
-        return Optional.empty();
-    }
+		HttpGet httpGetDialog = new HttpGet(uriGetDialog);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build())
+				.build();
+		try {
+			HttpResponse response = httpClient.execute(httpGetDialog);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject json = new JSONObject(result);
+			JSONObject responseObject = json.getJSONObject("response");
+			JSONArray jsonUsers = responseObject.getJSONArray("items");
+			List<Long> resultList = new ArrayList<>();
+			for (int i = 0; i < jsonUsers.length(); i++) {
+				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("last_message");
+				resultList.add(jsonMessage.getLong("from_id"));
+			}
+			return Optional.of(resultList);
+		} catch (JSONException e) {
+			logger.error("Can not read message from JSON ", e);
+		} catch (IOException e) {
+			logger.error("Failed to connect to VK server ", e);
+		}
+		return Optional.empty();
+	}
 
     public Optional<Client> getClientFromVkId(Long id) {
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
@@ -254,32 +310,36 @@ public class VKService {
         return Optional.empty();
     }
 
-    public Client parseClientFromMessage(String message) throws ParseClientException {
-        if (!message.startsWith("Новая заявка")) {
-            throw new ParseClientException("Invalid message format");
-        }
-        String[] fields = message.replaceAll("<br>", "").split("Q:");
-        Client newClient = new Client();
-        try {
-            newClient.setName(getValue(fields[1]));
-            newClient.setLastName(getValue(fields[2]));
-            newClient.setPhoneNumber(getValue(fields[3]));
-            newClient.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
-            StringBuilder description = new StringBuilder(getValue(fields[5]));
-            if (message.contains("Ваши пожелания по заявке")) {
-                description.append(" ");
-                description.append(getValue(fields[6]));
-            }
-            newClient.setClientDescriptionComment(description.toString());
-            SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
-            String social = fields[0];
-            SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
-            newClient.setSocialNetworks(Collections.singletonList(socialNetwork));
-        } catch (Exception e) {
-            logger.error("Parse error, can't parse income string", e);
-        }
-        return newClient;
-    }
+	public Client parseClientFromMessage(String message) throws ParseClientException {
+		if (!message.startsWith("Новая заявка")) {
+			throw new ParseClientException("Invalid message format");
+		}
+		String[] fields = message.replaceAll("<br>", "").split("Q:");
+		Client newClient = new Client();
+		try {
+			newClient.setName(getValue(fields[1]));
+			newClient.setLastName(getValue(fields[2]));
+			newClient.setPhoneNumber(getValue(fields[3]));
+			newClient.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
+			StringBuilder description = new StringBuilder(getValue(fields[5]));
+			if (message.contains("Ваши пожелания по заявке")) {
+				description.append(" ");
+				description.append(getValue(fields[6]));
+			}
+			newClient.setClientDescriptionComment(description.toString());
+			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
+			String social = fields[0];
+			SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
+			newClient.setSocialNetworks(Collections.singletonList(socialNetwork));
+		} catch (Exception e) {
+			logger.error("Parse error, can't parse income string", e);
+		}
+		return newClient;
+	}
+
+	private static String getValue(String field) {
+		return field.substring(field.indexOf("A: ") + 3);
+	}
 
     private String getIdByScreenName(String link) {
         String screenName = link.replaceAll("^.+\\.(com/)", "");
@@ -322,9 +382,9 @@ public class VKService {
         return vkText;
     }
 
-    public void setApplicationToken(String applicationToken) {
+	public void setApplicationToken(String applicationToken) {
         this.applicationToken = applicationToken;
-    }
+	}
 
     public String replaceApplicationTokenFromUri(String uri) {
         return uri.replaceAll(".+(access_token=)", "")
@@ -367,6 +427,36 @@ public class VKService {
         request.addParameter("v", version);
         service.signRequest(accessToken, request);
         Response response = service.execute(request);
+    }
+
+    @PostConstruct
+    private void initAccessToken() {
+        String uri = "https://oauth.vk.com/token" +
+                "?grant_type=password" +
+                "&client_id=" + robotClientId +
+                "&client_secret=" + robotClientSecret +
+                "&username=" + robotUsername +
+                "&password=" + robotPassword;
+
+        HttpGet httpGet = new HttpGet(uri);
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpResponse response = httpClient.execute(httpGet);
+            String result = EntityUtils.toString(response.getEntity());
+            try {
+                JSONObject json = new JSONObject(result);
+                this.robotAccessToken = json.getString("access_token");
+            } catch (JSONException e) {
+                logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken");
+            }
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server");
+        }
+
+    }
+
+    public String getFirstContactMessage() {
+        return firstContactMessage;
     }
 
     public Optional<Client> getClientFromYoutubeLiveStreamByName(String name) {

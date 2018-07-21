@@ -2,6 +2,7 @@ function addClient() {
 	if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
 		return;
 	}
+	$("#saveChanges").hide();
 	var SN = [];
 	var $th = $('#SocialNetworks').find('th');
 	try {
@@ -70,6 +71,7 @@ function addClient() {
 		state:  $('#edit-client-state').val(),
 		country: $('#edit-client-country').val(),
 		city: $('#edit-client-city').val(),
+		skype: $('#edit-client-skype').val(),
 		status: status,
 		socialNetworks: SN,
 		jobs: Job

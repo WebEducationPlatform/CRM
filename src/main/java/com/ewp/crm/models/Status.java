@@ -23,6 +23,9 @@ public class Status implements Serializable {
 	@Basic
 	private Boolean isInvisible = false;
 
+	@Basic
+	private Long position;
+
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "status_clients",
@@ -30,9 +33,10 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	public Status(String name, Boolean isInvisible) {
+	public Status(String name, Boolean isInvisible, Long position) {
 		this.name = name;
 		this.isInvisible = isInvisible;
+		this.position = position;
 	}
 
 	public Status(String name) {
@@ -41,6 +45,15 @@ public class Status implements Serializable {
 
 	public Status() {
 	}
+
+	public Long getPosition() {
+		return position;
+	}
+
+	public void setPosition(Long position) {
+		this.position = position;
+	}
+
 	public Long getId() {
 		return id;
 	}

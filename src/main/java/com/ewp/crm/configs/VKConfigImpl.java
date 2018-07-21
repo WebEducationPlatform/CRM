@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:vk.properties")
+@PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;
@@ -26,6 +26,16 @@ public class VKConfigImpl implements VKConfig {
 
     private String scope;
 
+    private String robotClientSecret;
+
+    private String robotClientId;
+
+    private String robotUsername;
+
+    private String robotPassword;
+
+    private String firstContactMessage;
+
     private String targetVkGroup;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
@@ -40,6 +50,12 @@ public class VKConfigImpl implements VKConfig {
             display = env.getRequiredProperty("vk.app.display");
             redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
             scope = env.getRequiredProperty("vk.app.scope");
+            robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
+            robotUsername = env.getRequiredProperty("vk.robot.profile.username");
+            robotPassword = env.getRequiredProperty("vk.robot.profile.password");
+            robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
+            firstContactMessage = env.getProperty("vk.robot.message.firstContact");
+
             targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -78,6 +94,27 @@ public class VKConfigImpl implements VKConfig {
     public String getScope() {
         return scope;
     }
+
+    public String getRobotClientSecret() {
+        return robotClientSecret;
+    }
+
+    public String getRobotClientId() {
+        return robotClientId;
+    }
+
+    public String getRobotUsername() {
+        return robotUsername;
+    }
+
+    public String getRobotPassword() {
+        return robotPassword;
+    }
+
+    public String getFirstContactMessage() {
+        return firstContactMessage;
+    }
+
 
     public String getTargetVkGroup() {
         return targetVkGroup;
