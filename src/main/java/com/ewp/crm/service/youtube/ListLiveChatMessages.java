@@ -69,10 +69,8 @@ public class ListLiveChatMessages {
             listChatMessages(liveChatId, null, 100);
         } catch (GoogleJsonResponseException e) {
             logger.error("GoogleJsonResponseException code: ", e);
-            isLiveStreamInAction = false;
         } catch (IOException e) {
             logger.error("IOException: ", e);
-
         }
     }
 
@@ -116,9 +114,10 @@ public class ListLiveChatMessages {
                                     response.getNextPageToken(),
                                     response.getPollingIntervalMillis());
                         } catch (GoogleJsonResponseException e) {
+                            isLiveStreamInAction = false;
                             logger.error("Youtube Live stream is not in action any more", e);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            logger.error("Failed to get list of live names and messages", e);
                         }
                     }
                 }, delayMs);
@@ -150,6 +149,12 @@ public class ListLiveChatMessages {
         }
     }
 
+    /**
+     * Clear all emoji from a string.
+     * Taken from: https://stackoverflow.com/questions/24840667/what-is-the-regex-to-extract-all-the-emojis-from-a-string
+     *
+     * @param message    The message from youtube live chat.
+     */
     private String clearYoutubeMessageOfEmoji(String message) {
         return message.replaceAll("(?:[\uD83C\uDF00-\uD83D\uDDFF]|[\uD83E\uDD00-\uD83E\uDDFF]|[\uD83D\uDE00-\uD83D\uDE4F]|" +
                 "[\uD83D\uDE80-\uD83D\uDEFF]|[\u2600-\u26FF]\uFE0F?|[\u2700-\u27BF]\uFE0F?|\u24C2\uFE0F?|" +

@@ -370,7 +370,7 @@ public class VKService {
     }
 
     public Optional<Client> getClientFromYoutubeLiveStreamByName(String name) {
-        String fullName = name.replaceAll("\\W+", "%20");
+        String fullName = name.replaceAll("(?U)[\\pP\\s]", "%20");
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
                 "q=" + fullName +
                 "&count=1" +
@@ -387,19 +387,24 @@ public class VKService {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
-            JSONObject responseObject = json.getJSONObject("response");
-            JSONArray jsonUsers = responseObject.getJSONArray("items");
-            JSONObject jsonUser = jsonUsers.getJSONObject(0);
-            long id = jsonUser.getLong("id");
-            String firstName = jsonUser.getString("first_name");
-            String lastName = jsonUser.getString("last_name");
-            String vkLink = "vk.com/id" + id;
-            Client client = new Client(firstName, lastName);
-            SocialNetwork socialNetwork = new SocialNetwork(vkLink);
-            List<SocialNetwork> socialNetworks = new ArrayList<>();
-            socialNetworks.add(socialNetwork);
-            client.setSocialNetworks(socialNetworks);
-            return Optional.of(client);
+
+            if (json.getJSONObject("response").getString("count").equals("0")) {
+                return Optional.empty();
+            } else {
+                JSONObject responseObject = json.getJSONObject("response");
+                JSONArray jsonUsers = responseObject.getJSONArray("items");
+                JSONObject jsonUser = jsonUsers.getJSONObject(0);
+                long id = jsonUser.getLong("id");
+                String firstName = jsonUser.getString("first_name");
+                String lastName = jsonUser.getString("last_name");
+                String vkLink = "vk.com/id" + id;
+                Client client = new Client(firstName, lastName);
+                SocialNetwork socialNetwork = new SocialNetwork(vkLink);
+                List<SocialNetwork> socialNetworks = new ArrayList<>();
+                socialNetworks.add(socialNetwork);
+                client.setSocialNetworks(socialNetworks);
+                return Optional.of(client);
+            }
         } catch (JSONException e) {
             logger.error("Can not read message from JSON or YoutubeClient don't exist in VK group",e);
         } catch (IOException e) {
