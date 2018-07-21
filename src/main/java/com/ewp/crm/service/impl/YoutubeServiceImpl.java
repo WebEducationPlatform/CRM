@@ -39,7 +39,7 @@ public class YoutubeServiceImpl implements YoutubeService {
                 logger.info("Live stream is in action");
             }
         } catch (IndexOutOfBoundsException e) {
-            logger.error("Live events in Youtube channel isn't existing");
-        }
+            logger.error("Live events in Youtube channel don't exist");
+            }
     }
 }
