@@ -39,7 +39,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                     <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu notification-dropdown">
                         <th:block th:if="${notifications.size() > 0}">
                             <th:block th:each="notification : ${notifications}" th:if="${!notification.client.status.invisible}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
