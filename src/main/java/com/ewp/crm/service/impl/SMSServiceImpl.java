@@ -31,7 +31,6 @@ public class SMSServiceImpl implements SMSService {
 	private final RestTemplate restTemplate;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
-	private final MessageService messageService;
 	private final SMSInfoService smsInfoService;
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
@@ -42,7 +41,6 @@ public class SMSServiceImpl implements SMSService {
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
-		this.messageService = messageService;
 		this.smsInfoService = smsInfoService;
 	}
 

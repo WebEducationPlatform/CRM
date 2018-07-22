@@ -64,6 +64,7 @@ public class VKService {
     private String robotUsername;
     private String robotPassword;
     private String firstContactMessage;
+    private String targetVkGroup;
 
     @Autowired
     public VKService(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService) {
@@ -74,6 +75,7 @@ public class VKService {
         display = vkConfig.getDisplay();
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
+        targetVkGroup = vkConfig.getTargetVkGroup();
         this.socialNetworkService = socialNetworkService;
         this.clientHistoryService = clientHistoryService;
         this.clientService = clientService;
@@ -322,8 +324,12 @@ public class VKService {
 			StringBuilder description = new StringBuilder(getValue(fields[5]));
 			if (message.contains("Ваши пожелания по заявке")) {
 				description.append(" ");
-				description.append(getValue(fields[6]));
+				String  wishes = getValue(fields[6]);
+				if (!wishes.contains("аши пожелания по заявке:A:")){
+					description.append(wishes);
+				}
 			}
+
 			newClient.setClientDescriptionComment(description.toString());
 			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
 			String social = fields[0];
@@ -332,7 +338,7 @@ public class VKService {
 		} catch (Exception e) {
 			logger.error("Parse error, can't parse income string", e);
 		}
-		return newClient;
+			return newClient;
 	}
 
 	private static String getValue(String field) {
@@ -455,6 +461,50 @@ public class VKService {
 
     public String getFirstContactMessage() {
         return firstContactMessage;
+    }
+
+    public Optional<Client> getClientFromYoutubeLiveStreamByName(String name) {
+        String fullName = name.replaceAll("(?U)[\\pP\\s]", "%20");
+        String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
+                "q=" + fullName +
+                "&count=1" +
+                "&group_id=" + targetVkGroup +
+                "&v=" + version +
+                "&access_token=" + applicationToken;
+
+        HttpGet httpGetClient = new HttpGet(uriGetClient);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+
+            if (!json.has("id")) {
+                return Optional.empty();
+            } else {
+                JSONObject responseObject = json.getJSONObject("response");
+                JSONArray jsonUsers = responseObject.getJSONArray("items");
+                JSONObject jsonUser = jsonUsers.getJSONObject(0);
+                long id = jsonUser.getLong("id");
+                String firstName = jsonUser.getString("first_name");
+                String lastName = jsonUser.getString("last_name");
+                String vkLink = "vk.com/id" + id;
+                Client client = new Client(firstName, lastName);
+                SocialNetwork socialNetwork = new SocialNetwork(vkLink);
+                List<SocialNetwork> socialNetworks = new ArrayList<>();
+                socialNetworks.add(socialNetwork);
+                client.setSocialNetworks(socialNetworks);
+                return Optional.of(client);
+            }
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON or YoutubeClient don't exist in VK group",e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
     }
 }
 
