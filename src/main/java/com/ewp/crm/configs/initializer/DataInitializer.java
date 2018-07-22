@@ -48,7 +48,6 @@ public class DataInitializer {
 	@Autowired
 	private ClientHistoryService clientHistoryService;
 
-
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE

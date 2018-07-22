@@ -1,9 +1,11 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
+import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
@@ -41,14 +43,20 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
+	private FacebookServiceImpl facebookService;
+
 	private final VkTrackedClubService vkTrackedClubService;
 
 	private final VkMemberService vkMemberService;
 
+	private final YoutubeService youtubeService;
+
+	private final YoutubeClientService youtubeClientService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -58,8 +66,11 @@ public class ScheduleTasks {
 		this.smsInfoService = smsInfoService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
+		this.facebookService = facebookService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
+		this.youtubeService = youtubeService;
+		this.youtubeClientService = youtubeClientService;
 	}
 
 	private void addClient(Client newClient) {
@@ -153,6 +164,17 @@ public class ScheduleTasks {
 		}
 	}
 
+
+	@Scheduled(fixedRate = 600_000)
+	private void addFacebookMessageToDatabase() {
+		try {
+			facebookService.getFacebookMessages();
+		} catch (FBAccessTokenException e) {
+			logger.error("Facebook access token has not got", e);
+		}
+	}
+
+
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
@@ -189,5 +211,25 @@ public class ScheduleTasks {
 				info = "Неизвестная ошибка";
 		}
 		return info;
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void handleYoutubeLiveStreams() {
+		if (!youtubeService.checkLiveStreamStatus()) {
+			youtubeService.handleYoutubeLiveChatMessages();
+		} else {
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			if (youtubeClient.isPresent()) {
+				for (YoutubeClient client : youtubeClient.get()) {
+					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
+					if (newClient.isPresent()) {
+						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
+						if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
+							addClient(newClient.get());
+						}
+					}
+				}
+			}
+		}
 	}
 }
