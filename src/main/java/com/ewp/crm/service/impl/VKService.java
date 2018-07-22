@@ -27,7 +27,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -145,22 +144,25 @@ public class VKService {
         return Optional.empty();
     }
 
-	public String sendMessageToClient(Long clientId, Long templateId, String body) {
+	public String sendMessageToClient(Long clientId, Long templateId, String body, User principal) {
 		Client client = clientService.getClientByID(clientId);
 		String msg = messageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
+		params.put("%dateOfSkypeCall%", body);
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
-				User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 				User user = userService.get(principal.getId());
 				String token = user.getVkToken();
+				if(token == null) {
+					token = communityToken;
+				}
 				String responseMessage = sendMessageById(id, vkText, token);
 				Message message = messageService.addMessage(Message.Type.VK, vkText);
 				client.addHistory(clientHistoryService.createHistory(principal, client, message));
@@ -171,6 +173,7 @@ public class VKService {
 		logger.error("{} hasn't vk social network", client.getEmail());
 		return client.getName() + " hasn't vk social network";
 	}
+
 
 //	private String sendMessageById(long id, String msg, String token) {
 //		String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A");
@@ -462,7 +465,7 @@ public class VKService {
                 logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken");
             }
         } catch (IOException e) {
-            logger.error("Failed to connect to VK server");
+            logger.error("Failed to connect to VK server", e);
         }
 
     }

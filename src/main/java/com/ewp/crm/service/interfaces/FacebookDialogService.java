@@ -4,7 +4,7 @@ import com.ewp.crm.models.MessageDialog;
 
 public interface FacebookDialogService extends CommonService<MessageDialog> {
 
-	MessageDialog addDialog(MessageDialog messageDialog);
+	void addDialog(MessageDialog messageDialog);
 
 	MessageDialog findByDialogId(String id);
 }

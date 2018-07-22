@@ -868,29 +868,6 @@ $(function () {
 //     });
 // });
 
-$('.confirm-skype-interceptor').on('click','.send-skype-message', function (e) {
-    var clientId = $(this).parents('#main-modal-window').data('clientId');
-    var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
-        return $(el).val();
-    });
-    var boxList =sel.get();
-    var formData = {clientId: clientId, selectNetwork: JSON.stringify(boxList)};
-
-    $.ajax({
-        type: "POST",
-        url: 'rest/client/select',
-        data: formData,
-        success: function (result) {
-            $('.skype-panel').remove();
-            if (boxList.length === 0) {
-                $('.assign-skype-call-btn').after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
-            } else {
-                $('.assign-skype-call-btn').after('<h5 class="skype-text">' + 'Клиент будет уведомлен за час до созвона по ' + boxList + '</h5>');
-            }
-        }
-    })
-});
-
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
     $('.save_value').on('click', function(event) {
@@ -1054,32 +1031,48 @@ $('.confirm-skype-interceptor').on('click','.confirm-skype-btn', function (e) {
     var skypeBtn = $('.skype-postpone-date');
     var skypeBtn2 = $('.confirm-skype-btn');
     var clientId = $(this).parents('#main-modal-window').data('clientId');
-    var currentBtn = $(this);
 
-    let url = 'rest/client/assignSkype';
-    let formData = {
-        clientId: clientId,
-        date: $('#skypePostpone'+ clientId).val()
-    };
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            skypeBtn.remove();
-            skypeBtn2.remove();
-            $('.skype-panel-head').text("Напомнить клиенту за час до созвона");
-            currentForm.append('<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>');
-            currentForm.after('<button type="button" class="btn btn-primary btn-xs send-skype-message">Подтвердить</button>');
-            drawCheckbox(currentForm, clientId);
-        },
-        error: function (e) {
-            var currentStatus = $("skype-notification" + clientId)[0];
-            currentStatus.text("Произошла ошибка");
-            console.log(e.responseText)
-        }
-    })
+    skypeBtn.hide();
+    skypeBtn2.remove();
+    $('.skype-panel-head').text("Напомнить клиенту за час до созвона");
+    currentForm.append('<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>');
+    currentForm.after('<button type="button" class="btn btn-primary btn-xs send-skype-message">Подтвердить</button>');
+    drawCheckbox(currentForm, clientId);
 });
+
+    $('.confirm-skype-interceptor').on('click','.send-skype-message', function (e) {
+        var clientId = $(this).parents('#main-modal-window').data('clientId');
+        var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+            return $(el).val();
+        });
+
+        var boxList =sel.get();
+
+        let url = 'rest/skype/assignSkype';
+        let formData = {
+            clientId: clientId,
+            date: $('#skypePostpone'+ clientId).val(),
+            selectNetwork: JSON.stringify(boxList)
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (result) {
+                $('.skype-panel').remove();
+                if (boxList.length === 0) {
+                    $('.assign-skype-call-btn').after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
+                } else {
+                    $('.assign-skype-call-btn').after('<h5 class="skype-text">' + 'Клиент будет уведомлен за час до созвона по ' + boxList + '</h5>');
+                }
+            },
+            error: function (e) {
+                var currentStatus = $("skype-notification" + clientId)[0];
+                currentStatus.text("Произошла ошибка");
+                console.log(e.responseText)
+            }
+        })
+    });
 
 
 $('.assign-skype-call-btn').on('click', function (e) {
@@ -1096,17 +1089,18 @@ $('.assign-skype-call-btn').on('click', function (e) {
         data: formData,
         success: function (client) {
             var clientSkype = client.skype;
-            if(clientSkype === "") {
+            if(clientSkype === null) {
                 currentStatus.text("Skype пользователя не указан");
             } else {
                 currentBtn.attr("disabled", "true");
                 currentBtn.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
                     '<div class="panel-body">' + '<input type="text" class="form-control skype-postpone-date" name="skypePostponeDate" id="skypePostpone' + client.id +'"> </input>' +
                     '<button class="btn btn-info btn-sm confirm-skype-btn">ОК</button>' + ' <form class="box-window"></form>' +'</div></div>');
+                date = $('#skypePostpone'+ clientId).val();
                 $('input[name="skypePostponeDate"]').daterangepicker({
                     singleDatePicker: true,
                     timePicker: true,
-                    timePickerIncrement: 10,
+                    timePickerIncrement: 5,
                     timePicker24Hour: true,
                     locale: {
                         format: 'DD.MM.YYYY H:mm'
@@ -1141,7 +1135,7 @@ $(function () {
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<a class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</a>' + '</td>');
+                        $('#client-phone').after('<td class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1228,17 +1222,16 @@ function callToClient(userPhone, clientPhone) {
         from: userPhone,
         to: clientPhone
     };
-    let icon = $(".call-icon");
+    let icon = $(".call-to-client");
     $.ajax({
         type: 'post',
         url: url,
         data: formData,
         success: function() {
             console.log("PROCESS CALL");
-            icon.parent("a").css("background", "green");
+            icon.css("background", "green");
             icon.css("color", "white");
-            icon.parent("a").attr("disabled", "disabled");
-
+            icon.attr("disabled", "true");
         },
         error: function (error) {
             console.log("ERROR CALL");

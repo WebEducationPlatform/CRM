@@ -76,7 +76,7 @@ public class MailSendService {
 		}
 	}
 
-	public void prepareAndSend(Long clientId, Long templateId, String body) {
+	public void prepareAndSend(Long clientId, Long templateId, String body, User principal) {
 		String templateFile = "emailStringTemplate";
 		Client client = clientService.getClientByID(clientId);
 		String recipient = client.getEmail();
@@ -85,6 +85,7 @@ public class MailSendService {
 		//TODO в конфиг
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
+		params.put("%dateOfSkypeCall%", body);
 		final Context ctx = new Context();
 		String templateText = messageTemplateService.get(templateId).getTemplateText();
 		templateText = templateText.replaceAll("\n", "");
@@ -111,7 +112,6 @@ public class MailSendService {
 			}
 			javaMailSender.send(mimeMessage);
 			Client clientEmail = clientService.getClientByEmail(recipient);
-			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
 			client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
 			clientService.updateClient(client);
@@ -121,48 +121,6 @@ public class MailSendService {
 		}
 	}
 
-	public void scheduleSendEmail(Long clientId, Long templateId) {
-		String templateFile = "emailStringTemplate";
-		Client client = clientService.getClientByID(clientId);
-		String recipient = client.getEmail();
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		final Context ctx = new Context();
-		String templateText = messageTemplateService.get(templateId).getTemplateText();
-		templateText = templateText.replaceAll("\n", "");
-		ctx.setVariable("templateText", templateText);
-		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-		try {
-			final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			mimeMessageHelper.setSubject("Java Mentor");
-			mimeMessageHelper.setTo(recipient);
-			mimeMessageHelper.setFrom(emailLogin);
-			StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
-			for (Map.Entry<String, String> entry : params.entrySet()) {
-				htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
-			}
-			mimeMessageHelper.setText(htmlContent.toString(), true);
-			Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
-			//inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
-			//Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
-			//Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
-			Matcher matcher = pattern.matcher(templateText);
-			while (matcher.find()) {
-				InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
-				mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
-			}
-			javaMailSender.send(mimeMessage);
-			Client clientEmail = clientService.getClientByEmail(recipient);
-			Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-			client.addHistory(clientHistoryService.createHistory(clientEmail, message));
-			clientService.updateClient(client);
-		} catch (Exception e) {
-			logger.error("Can't send mail to {}", recipient);
-			throw new MessageTemplateException(e.getMessage());
-		}
-	}
 
 	@Async
 	public void sendNotificationMessage(User userToNotify, String notificationMessage) {

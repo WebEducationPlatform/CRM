@@ -33,18 +33,12 @@ public class VkRestController {
 	private static Logger logger = LoggerFactory.getLogger(VkRestController.class);
 
 	private final VKService vkService;
-	private final ClientService clientService;
-	private final MessageTemplateServiceImpl MessageTemplateService;
-	private final UserService userService;
 	private final VkTrackedClubService vkTrackedClubService;
 	private final VkMemberService vkMemberService;
 
 	@Autowired
-	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKService vkService1, UserService userService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
+	public VkRestController(VKService vkService1, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
 		this.vkService = vkService1;
-		this.clientService = clientService;
-		this.MessageTemplateService = MessageTemplateService;
-		this.userService = userService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
 	}
@@ -52,7 +46,8 @@ public class VkRestController {
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                              @RequestParam(value = "body",required = false) String body) {
-		vkService.sendMessageToClient(clientId, templateId, body);
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		vkService.sendMessageToClient(clientId, templateId, body, principal);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 
