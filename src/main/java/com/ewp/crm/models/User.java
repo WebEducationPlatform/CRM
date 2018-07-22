@@ -1,11 +1,13 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,9 +23,11 @@ public class User implements UserDetails {
 	@Column (name = "user_id")
 	private Long id;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String firstName;
 
+	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(nullable = false)
 	private String lastName;
 
@@ -272,11 +276,20 @@ public class User implements UserDetails {
 		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
+//	@Override
+//	public int hashCode() {
+//		int result = id.hashCode();
+//		result = 31 * result + phoneNumber.hashCode();
+//		result = 31 * result + email.hashCode();
+//		return result;
+//	}
+
+
 	@Override
 	public int hashCode() {
-		int result = id.hashCode();
-		result = 31 * result + phoneNumber.hashCode();
-		result = 31 * result + email.hashCode();
+		int result = getId() != null ? getId().hashCode() : 0;
+		result = 31 * result + (getPhoneNumber() != null ? getPhoneNumber().hashCode() : 0);
+		result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
 		return result;
 	}
 
