@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:youtube.properties")
+@PropertySource("file:./youtube.properties")
 public class YoutubeConfigImpl implements YoutubeConfig {
 
     private String apiKey;

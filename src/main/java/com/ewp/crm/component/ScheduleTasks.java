@@ -213,7 +213,7 @@ public class ScheduleTasks {
 		return info;
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 60_000)
 	private void handleYoutubeLiveStreams() {
 		if (!youtubeService.checkLiveStreamStatus()) {
 			youtubeService.handleYoutubeLiveChatMessages();
