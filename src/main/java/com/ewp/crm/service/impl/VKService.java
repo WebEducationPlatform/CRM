@@ -324,8 +324,12 @@ public class VKService {
 			StringBuilder description = new StringBuilder(getValue(fields[5]));
 			if (message.contains("Ваши пожелания по заявке")) {
 				description.append(" ");
-				description.append(getValue(fields[6]));
+				String  wishes = getValue(fields[6]);
+				if (!wishes.contains("аши пожелания по заявке:A:")){
+					description.append(wishes);
+				}
 			}
+
 			newClient.setClientDescriptionComment(description.toString());
 			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
 			String social = fields[0];
@@ -334,7 +338,7 @@ public class VKService {
 		} catch (Exception e) {
 			logger.error("Parse error, can't parse income string", e);
 		}
-		return newClient;
+			return newClient;
 	}
 
 	private static String getValue(String field) {
