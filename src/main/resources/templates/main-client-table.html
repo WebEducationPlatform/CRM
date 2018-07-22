@@ -107,6 +107,14 @@
                                 </th:block>
                             </th:block>
 
+                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                                <th:block th:if="${notification_assign_skype.client == client}">
+                                   <span th:id="'notification-postpone'+${client.id}"
+                                         class="glyphicon glyphicon-time"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
+
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
@@ -121,10 +129,10 @@
                         <button name= "emailTmplList" type="button" class="glyphicon glyphicon-envelope" data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
+                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template, count : ${emailTmpl}">
+                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody() and template.id != 4}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
                             <a class="glyphicon glyphicon-plus portlet-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                            <a sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                            <a sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:if="${template.id != 4}" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>

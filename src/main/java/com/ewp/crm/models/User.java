@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.*;
 
 @Entity
 @Table
@@ -66,11 +65,12 @@ public class User implements UserDetails {
 	@Column(name = "vkToken")
 	private String vkToken;
 
+	@JsonIgnore
 	@OneToMany
-	@JoinTable(name = "user_skype_call",
-			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL_USER"))},
-			inverseJoinColumns = {@JoinColumn(name = "skype_call_id", foreignKey = @ForeignKey(name = "FK_SKYPE_CALL"))})
-	private List<SkypeCall> userSkypeCall;
+	@JoinTable(name = "assign_user_skype_call",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))})
+	private List<AssignSkypeCall> userAssignSkypeCall;
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)

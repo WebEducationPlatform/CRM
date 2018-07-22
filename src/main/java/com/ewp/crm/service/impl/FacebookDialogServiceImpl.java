@@ -18,8 +18,8 @@ public class FacebookDialogServiceImpl extends CommonServiceImpl<MessageDialog> 
 	}
 
 	@Override
-	public MessageDialog addDialog(MessageDialog messageDialog) {
-		return facebookDialogDAO.saveAndFlush(messageDialog);
+	public void addDialog(MessageDialog messageDialog) {
+		facebookDialogDAO.saveAndFlush(messageDialog);
 	}
 
 	@Override

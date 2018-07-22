@@ -10,17 +10,20 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.*;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,10 +57,12 @@ public class ScheduleTasks {
 
 	private final VkMemberService vkMemberService;
 
+	private final AssignSkypeCallService assignSkypeCallService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, MailSendService mailSendService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, MailSendService mailSendService, AssignSkypeCallService assignSkypeCallService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -71,6 +76,7 @@ public class ScheduleTasks {
 		this.facebookService = facebookService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
+		this.assignSkypeCallService = assignSkypeCallService;
 	}
 
 	private void addClient(Client newClient) {
@@ -95,31 +101,44 @@ public class ScheduleTasks {
 	}
 
 
-//	@Scheduled(fixedRate = 6_000)
-//	private void checkTimeSkypeCall() {
-//		for (Client client : clientService.getTimeOfSkypeCall()) {
-//			String selectNetworks = client.getSelectNetworks();
-//			Long clientId = client.getId();
-//
-//			if(selectNetworks.contains("vk")){
-//				vkUtil.schedulerSendMessageVk(clientId, 4L);
-//			}
-//			if(selectNetworks.contains("sms")) {
-//				try {
-//					smsUtil.schedulerSendSMS(clientId,4L);
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			if(selectNetworks.contains("email")){
-//				mailSendService.scheduleSendEmail(clientId,4L);
-//			}
-//			client.setDateOfSkypeCall(null);
-//			client.setRemindBeforeSkypeCall(null);
-//			client.setSelectNetworks(null);
-//			clientService.updateClient(client);
-//		}
-//	}
+	@Scheduled(fixedRate = 6_000)
+	private void checkTimeSkypeCall() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
+			Client client = assignSkypeCall.getToAssignSkypeCall();
+			User principal = assignSkypeCall.getFromAssignSkypeCall();
+			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
+			Long clientId = client.getId();
+			LocalDateTime trasnfromDate = LocalDateTime.fromDateFields(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm");
+			String dateOfSkypeCall = dateFormat.format(trasnfromDate.toDate());
+
+			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
+
+			if (selectNetworks.contains("vk")) {
+				try {
+					vkService.sendMessageToClient(clientId, 4L, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.info("VK message not sent", e);
+				}
+			}
+			if (selectNetworks.contains("sms")) {
+				try {
+					smsService.sendSMS(clientId, 4L, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.info("SMS message not sent", e);
+				}
+			}
+			if (selectNetworks.contains("email")) {
+				try {
+					mailSendService.prepareAndSend(clientId, 4L, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.info("E-mail message not sent");
+				}
+			}
+				assignSkypeCallService.delete(assignSkypeCall);
+				clientService.updateClient(client);
+			}
+		}
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {

@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ public class ClientRestController {
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
 	private final SendNotificationService sendNotificationService;
+
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -307,7 +309,6 @@ public class ClientRestController {
 						"attachment;filename=" + file.getName())
 				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
 				.body(resource);
-
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -331,41 +332,6 @@ public class ClientRestController {
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
-	}
-
-//	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-//	@RequestMapping(value = "rest/client/assignSkype", method = RequestMethod.POST)
-//	public ResponseEntity assignSkypecall(@RequestParam Long clientId, @RequestParam String date) {
-//		try {
-//			Client client = clientService.getClientByID(clientId);
-//			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-//			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
-//			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
-//			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
-//				logger.info("Incorrect date set: {}", date);
-//				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
-//			}
-//			client.setDateOfSkypeCall(dateOfSkypeCall.toDate());
-//			client.setRemindBeforeSkypeCall(remindBeforeSkypeCall.toDate());
-//			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//			client.setOwnerUser(principal);
-//			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
-//			clientService.updateClient(client);
-//			logger.info("{} assign skype client id:{} until {}", principal.getFullName(), client.getId(), date);
-//			return ResponseEntity.ok(HttpStatus.OK);
-//		} catch (Exception e) {
-//			return ResponseEntity.badRequest().body("Произошла ошибка");
-//		}
-//	}
-
-
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/select", method = RequestMethod.POST)
-	public void addSelectNetworks(@RequestParam(name = "clientId") Long clientId,
-	                                             @RequestParam String selectNetwork) {
-		Client client = clientService.getClientByID(clientId);
-		client.setSelectNetworks(selectNetwork);
-		clientService.updateClient(client);
 	}
 
 

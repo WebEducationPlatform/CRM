@@ -62,7 +62,6 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public void addInit(Status status) {
 		checkStatusUnique(status);
-//		status.setPosition(position);
 		statusDAO.saveAndFlush(status);
 	}
 

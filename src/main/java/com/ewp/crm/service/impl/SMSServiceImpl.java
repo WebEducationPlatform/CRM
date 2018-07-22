@@ -48,13 +48,14 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
-	public void sendSMS(Long clientId, Long templateId, String body) throws JSONException {
+	public void sendSMS(Long clientId, Long templateId, String body, User principal) throws JSONException {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		//TODO в конфиг
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
+		params.put("%dateOfSkypeCall%", body);
 		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
@@ -63,38 +64,13 @@ public class SMSServiceImpl implements SMSService {
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 		JSONObject jsonBody = new JSONObject(response.getBody());
 		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
-		User sender = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, sender);
+		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
 		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-		ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+		ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
 		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
 		client.addHistory(clientHistory);
 		clientService.updateClient(client);
 	}
-
-	@Override
-	public void schedulerSendSMS(Long clientId, Long templateId) throws JSONException {
-		Client client = clientService.getClientByID(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
-		URI uri = URI.create(TEMPLATE_URI + "/send.json");
-		JSONObject jsonRequest = new JSONObject();
-		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
-		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		JSONObject jsonBody = new JSONObject(response.getBody());
-		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
-		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText);
-		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-		ClientHistory clientHistory = clientHistoryService.createHistory(client, new Message(Message.Type.SMS, smsInfo.getMessage()));
-		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
-		client.addHistory(clientHistory);
-		clientService.updateClient(client);
-	}
-
 
 	@Override
 	public void sendSMS(List<Client> clients, String text, User sender) {

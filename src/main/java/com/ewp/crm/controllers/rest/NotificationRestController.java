@@ -48,6 +48,7 @@ public class NotificationRestController {
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
 		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
+		notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.ASSIGN_SKYPE, client, userFromSession);
 		for (Notification notification : notifications) {
 			if (notification.getType() == Notification.Type.POSTPONE) {
 				ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);

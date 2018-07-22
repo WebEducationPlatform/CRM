@@ -73,6 +73,7 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
 		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+		modelAndView.addObject("notifications_type_assign_skype",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.ASSIGN_SKYPE));
 		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
 		return modelAndView;
 	}
