@@ -696,6 +696,12 @@ button.upload-more-history {
     margin-top: -1px;
 }
 
+.notification-dropdown {
+	max-height: 100px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
 .dropdown-menu li:hover .sub-menu {
     visibility: visible;
 }
@@ -758,4 +764,23 @@ li.dropdown:hover .dropdown-menu {
 
 .f-18 {
 	font-size: 18px;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
 }
