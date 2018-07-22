@@ -521,7 +521,7 @@ button[name|="emailTmplList"] {
 	border-radius: 40px;
 	padding: 12px;
 	background: #f1f1f1;
-	color: #9c9c9c;
+	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
 }
@@ -721,4 +721,41 @@ li.dropdown:hover .dropdown-menu {
     left: 10px;
     top: 11px;
     left: -6px;
+}
+
+@font-face {
+	font-family: 'icomoon';
+	src:  url('../fonts/icomoon.eot?rdtdjs');
+	src:  url('../fonts/icomoon.eot?rdtdjs#iefix') format('embedded-opentype'),
+	url('../fonts/icomoon.ttf?rdtdjs') format('truetype'),
+	url('../fonts/icomoon.woff?rdtdjs') format('woff'),
+	url('../fonts/icomoon.svg?rdtdjs#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	position: relative;
+	top: 1px;
+	display: inline-block;
+	font-family: 'icomoon' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-email-card:before {
+	content: "\e900";
+}
+
+.f-18 {
+	font-size: 18px;
 }

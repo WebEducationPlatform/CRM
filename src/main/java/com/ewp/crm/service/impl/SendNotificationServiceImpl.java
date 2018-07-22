@@ -16,6 +16,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 
 @Service
 public class SendNotificationServiceImpl implements SendNotificationService {
@@ -50,13 +54,17 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         Pattern pattern = Pattern.compile(regexForContent);
         Matcher matcher = pattern.matcher(content);
 
+		User contentCreator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String notificationMessage = String.format("Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"",
+				contentCreator.getFullName(), client.getLastName(), client.getName(), content);
+
 		while (matcher.find()) {
 			String[] fullName = matcher.group().split(regexForSplit);
 			if (fullName.length == 3) {
 				User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
 				if (Optional.ofNullable(userToNotify).isPresent()) {
 					if (userToNotify.isEnableMailNotifications()) {
-						mailSendService.sendNotificationMessage(userToNotify);
+						mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
 					}
 					Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
 					notificationService.add(notification);

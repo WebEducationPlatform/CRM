@@ -1,5 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.Client;
@@ -7,6 +9,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VkMemberService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +37,16 @@ public class VkRestController {
 	private final MessageTemplateServiceImpl MessageTemplateService;
 	private final UserService userService;
 	private final VkTrackedClubService vkTrackedClubService;
+	private final VkMemberService vkMemberService;
 
 	@Autowired
-	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKService vkService1, UserService userService, VkTrackedClubService vkTrackedClubService) {
+	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKService vkService1, UserService userService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
 		this.vkService = vkService1;
 		this.clientService = clientService;
 		this.MessageTemplateService = MessageTemplateService;
 		this.userService = userService;
 		this.vkTrackedClubService = vkTrackedClubService;
+		this.vkMemberService = vkMemberService;
 	}
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
@@ -95,13 +100,30 @@ public class VkRestController {
 										   @RequestParam String groupName,
 										   @RequestParam String token,
 										   @RequestParam String clientId) {
-		VkTrackedClub newVkclub = new VkTrackedClub(Long.parseLong(groupId),
+		VkTrackedClub newVkClub = new VkTrackedClub(Long.parseLong(groupId),
 													token, groupName,
 													Long.parseLong(clientId));
+		int countNewMembers = 0;
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		vkTrackedClubService.add(newVkclub);
-		logger.info("{} has added vkTrackedClub: group id {}, group name {}", currentAdmin.getFullName(),
-					newVkclub.getGroupId(), newVkclub.getGroupName());
+		List<VkMember> memberList = vkMemberService.getAllMembersByGroupId(newVkClub.getGroupId());
+		List<VkMember> newMemberList = vkService.getAllVKMembers(newVkClub.getGroupId(), 0L)
+				.orElseThrow(NotFoundMemberList::new);
+		if (memberList.isEmpty()) {
+			vkMemberService.addAllMembers(newMemberList);
+
+			logger.info("{} has added vkTrackedClub: group id {}, group name {}", currentAdmin.getFullName(),
+					newVkClub.getGroupId(), newVkClub.getGroupName());
+		} else {
+			for (VkMember newVkMember : newMemberList) {
+				if(!memberList.contains(newVkMember)){
+					vkMemberService.add(newVkMember);
+					countNewMembers++;
+				}
+			}
+			logger.info("{} has reloaded vkTrackedClub: group id {}, group name {} with {} new VKMembers", currentAdmin.getFullName(),
+					newVkClub.getGroupId(), newVkClub.getGroupName(), countNewMembers);
+		}
+		vkTrackedClubService.add(newVkClub);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 }
