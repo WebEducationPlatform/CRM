@@ -100,7 +100,7 @@ public class ListLiveChatMessages {
                                     .setFields(LIVE_CHAT_FIELDS)
                                     .execute();
 
-                            // Display messages and super chat details
+                            // Iterate messages and add it to DB
                             List<LiveChatMessage> messages = response.getItems();
                             for (int i = 0; i < messages.size(); i++) {
                                 LiveChatMessage message = messages.get(i);

@@ -478,7 +478,7 @@ public class VKService {
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
 
-            if (json.getJSONObject("response").getString("count").equals("0")) {
+            if (!json.has("id")) {
                 return Optional.empty();
             } else {
                 JSONObject responseObject = json.getJSONObject("response");
