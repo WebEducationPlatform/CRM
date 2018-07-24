@@ -63,8 +63,10 @@ public class DataInitializer {
 
 		SocialNetworkType VK = new SocialNetworkType("vk");
 		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
+		SocialNetworkType UNKNOWN = new SocialNetworkType("unknown");
 		socialNetworkTypeService.add(VK);
 		socialNetworkTypeService.add(FACEBOOK);
+		socialNetworkTypeService.add(UNKNOWN);
 
 		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
@@ -74,7 +76,7 @@ public class DataInitializer {
 				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user1);
 
-		User user2 = new User("Petr", "Petrov", "79129876543", "user2@mail.ru",
+		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true);
 		userService.add(user2);
 

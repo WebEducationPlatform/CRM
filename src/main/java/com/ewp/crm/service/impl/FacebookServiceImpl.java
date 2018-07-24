@@ -6,6 +6,13 @@ import com.ewp.crm.models.FacebookMessage;
 import com.ewp.crm.models.MessageDialog;
 import com.ewp.crm.service.interfaces.FacebookDialogService;
 import com.ewp.crm.service.interfaces.FacebookService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -95,10 +103,36 @@ public class FacebookServiceImpl implements FacebookService {
 				facebookDialogService.addDialog(messageDialog);
 			}
 			facebookMessageService.addBatchMessages(listMessages);
-
 			logger.info("All Facebook messages add to database");
 		} catch (ParseException | JSONException e) {
 			logger.info("Can't parse Facebook messages", e);
+		}
+	}
+
+	public String refactorAndValidFbLink(String link){
+		String userName = link.replaceAll("^.+\\.(com/)", "");
+		String request = FB_API_METHOD_TEMPLATE + version + "/" + userName +
+				"&access_token=" + pageToken;
+		HttpGet httpGetClient = new HttpGet(request);
+		HttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD).build()).build();
+		try {
+			HttpResponse response = httpClient.execute(httpGetClient);
+			String result = EntityUtils.toString(response.getEntity());
+			JSONObject json = new JSONObject(result);
+			String fbId = json.getString("id");
+//			if (vkUserJson.has("deactivated")){
+//				logger.error("VkUser with id {} don't validate", fbId);
+//				return "undefined";
+//			}
+			return "https://www.facebook.com/" + fbId;
+		} catch (JSONException e) {
+//			logger.error("Can't take id by screen name {}", );
+			return "undefined";
+		} catch (IOException e) {
+			logger.error("Failed to connect to VK server ", e);
+			return link;
 		}
 	}
 }
