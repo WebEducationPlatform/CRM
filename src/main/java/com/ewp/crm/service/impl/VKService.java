@@ -242,38 +242,53 @@ public class VKService {
         }
     }
 
-	public Optional<List<Long>> getUsersIdFromCommunityMessages() {
-		String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getConversations" +
-				"?v=" + version +
-				"&filter=unread" +
-				"&group_id=" + clubId.replaceAll("-","") +
-				"&access_token=" +
-				communityToken;
+    public Optional<List<Long>> getUsersIdFromCommunityMessages() {
+        String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
+                "?v=" + version +
+                "&unread=1" +
+                "&access_token=" +
+                communityToken;
 
-		HttpGet httpGetDialog = new HttpGet(uriGetDialog);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build())
-				.build();
-		try {
-			HttpResponse response = httpClient.execute(httpGetDialog);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject json = new JSONObject(result);
-			JSONObject responseObject = json.getJSONObject("response");
-			JSONArray jsonUsers = responseObject.getJSONArray("items");
-			List<Long> resultList = new ArrayList<>();
-			for (int i = 0; i < jsonUsers.length(); i++) {
-				JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("last_message");
-				resultList.add(jsonMessage.getLong("from_id"));
-			}
-			return Optional.of(resultList);
-		} catch (JSONException e) {
-			logger.error("Can not read message from JSON ", e);
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-		}
-		return Optional.empty();
-	}
+        HttpGet httpGetDialog = new HttpGet(uriGetDialog);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetDialog);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject responseObject = json.getJSONObject("response");
+            JSONArray jsonUsers = responseObject.getJSONArray("items");
+            List<Long> resultList = new ArrayList<>();
+            for (int i = 0; i < jsonUsers.length(); i++) {
+                JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
+                resultList.add(jsonMessage.getLong("user_id"));
+                markAsRead(jsonMessage.getLong("user_id"), httpClient);
+            }
+            return Optional.of(resultList);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
+
+    private void markAsRead(long userId, HttpClient httpClient) {
+
+        String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
+                "?peer_id=" + userId +
+                "&version=" + version +
+                "&access_token=" + communityToken;
+
+        HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
+        try {
+            httpClient.execute(httpMarkMessages);
+        } catch (IOException e) {
+            logger.error("Failed to mark as read message from community", e);
+        }
+    }
 
     public Optional<Client> getClientFromVkId(Long id) {
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
@@ -294,7 +309,7 @@ public class VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
             String name = jsonUser.getString("first_name");
             String lastName = jsonUser.getString("last_name");
-            String vkLink = "vk.com/id" + id;
+            String vkLink = "https://vk.com/id" + id;
             Client client = new Client(name, lastName);
             SocialNetwork socialNetwork = new SocialNetwork(vkLink);
             List<SocialNetwork> socialNetworks = new ArrayList<>();
