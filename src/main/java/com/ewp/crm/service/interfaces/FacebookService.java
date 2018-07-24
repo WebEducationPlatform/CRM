@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface FacebookService {
 
 	void getFacebookMessages() throws FBAccessTokenException;
+	String refactorAndValidFbLink(String link);
 }
 

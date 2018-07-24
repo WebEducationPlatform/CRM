@@ -146,7 +146,7 @@ public class VKService {
 		List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
 		for (SocialNetwork socialNetwork : socialNetworks) {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-				String link =  validVkLink(socialNetwork.getLink());
+				String link = socialNetwork.getLink();
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
 				String vkText = replaceName(msg, params);
 				String responseMessage = sendMessageById(id, vkText, token);
@@ -247,8 +247,7 @@ public class VKService {
 				"?v=" + version +
 				"&filter=unread" +
 				"&group_id=" + clubId.replaceAll("-","") +
-				"&access_token=" +
-				communityToken;
+				"&access_token=" + communityToken;
 
 		HttpGet httpGetDialog = new HttpGet(uriGetDialog);
 		HttpClient httpClient = HttpClients.custom()
@@ -345,11 +344,12 @@ public class VKService {
 		return field.substring(field.indexOf("A: ") + 3);
 	}
 
-    private String getIdByScreenName(String link) {
-        String screenName = link.replaceAll("^.+\\.(com/)", "");
-        String request = VK_API_METHOD_TEMPLATE + "utils.resolveScreenName?"
-                + "screen_name=" + screenName
-                + "&access_token=" + applicationToken
+    public String refactorAndValidateVkLink(String link){
+        String userName = link.replaceAll("^.+\\.(com/)", "");
+        String request = VK_API_METHOD_TEMPLATE + "users.get?"
+                + "user_ids=" + userName
+                + "&fields=first_name"
+                + "&access_token=" + communityToken
                 + "&v=" + version;
         HttpGet httpGetClient = new HttpGet(request);
         HttpClient httpClient = HttpClients.custom()
@@ -359,23 +359,21 @@ public class VKService {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
-            JSONObject responseObject = json.getJSONObject("response");
-            String vkId = responseObject.getString("object_id");
+            JSONArray responseArray = json.getJSONArray("response");
+            JSONObject vkUserJson = responseArray.getJSONObject(0);
+            String vkId = vkUserJson.getString("id");
+            if (vkUserJson.has("deactivated")){
+                logger.error("VkUser with id {} don't validate", vkId);
+                return "undefined";
+            }
             return "https://vk.com/id" + vkId;
         } catch (JSONException e) {
-            logger.error("Can't take id by screen name {}", screenName);
+            logger.error("Can't take id by screen name {}", userName);
+            return "undefined";
         } catch (IOException e) {
             logger.error("Failed to connect to VK server ", e);
+            return link;
         }
-        return link;
-    }
-
-    private String validVkLink(String link) {
-        Pattern pattern = Pattern.compile(ValidationPattern.VK_LINK_PATTERN);
-        if (!pattern.matcher(link).matches()) {
-            return getIdByScreenName(link);
-        }
-        return link;
     }
 
     private String replaceName(String msg, Map<String, String> params) {
