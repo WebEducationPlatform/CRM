@@ -348,7 +348,7 @@ public class VKService {
 			newClient.setClientDescriptionComment(description.toString());
 			SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
 			String social = fields[0];
-			SocialNetwork socialNetwork = new SocialNetwork(social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
+			SocialNetwork socialNetwork = new SocialNetwork("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
 			newClient.setSocialNetworks(Collections.singletonList(socialNetwork));
 		} catch (Exception e) {
 			logger.error("Parse error, can't parse income string", e);
