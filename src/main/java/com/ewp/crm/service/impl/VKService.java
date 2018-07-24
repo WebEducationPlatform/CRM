@@ -109,14 +109,8 @@ public class VKService {
                 "&rev=0" +
                 "&version=" + version +
                 "&access_token=" + applicationToken;
-
-        String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
-                "?peer_id=" + clubId +
-                "&version=" + version +
-                "&access_token=" + applicationToken;
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
-            HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
             HttpClient httpClient = HttpClients.custom()
                     .setDefaultRequestConfig(RequestConfig.custom()
                             .setCookieSpec(CookieSpecs.STANDARD).build())
@@ -132,7 +126,7 @@ public class VKService {
                     resultList.add(jsonMessage.getString("body"));
                 }
             }
-            httpClient.execute(httpMarkMessages);
+            markAsRead(Long.parseLong(clubId), httpClient, applicationToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -264,7 +258,7 @@ public class VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient);
+                markAsRead(jsonMessage.getLong("user_id"), httpClient, applicationToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -275,12 +269,12 @@ public class VKService {
         return Optional.empty();
     }
 
-    private void markAsRead(long userId, HttpClient httpClient) {
+    private void markAsRead(long userId, HttpClient httpClient, String token) {
 
         String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
                 "?peer_id=" + userId +
                 "&version=" + version +
-                "&access_token=" + communityToken;
+                "&access_token=" + token;
 
         HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
         try {
