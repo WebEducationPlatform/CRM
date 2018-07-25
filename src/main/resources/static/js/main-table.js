@@ -1056,7 +1056,15 @@ $(function () {
                         $('#client-age').text(client.age);
                     }
                     $('#client-sex').text(client.sex);
+
+                    if (client.email == null) {
+                        $('#email-href').hide();
+                    } else {
+                        $('#email-href').show();
+                    }
                     // здесь вставка ссылок в кнопки вк и фб
+
+
                     $('#vk-href').hide();
                     $('#fb-href').hide();
 
