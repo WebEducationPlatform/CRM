@@ -510,7 +510,7 @@ $(document).ready(function () {
         }
     });
 
-    $('.textcomplete').textcomplete([
+    $('#main-modal-window  .textcomplete').textcomplete([
         {
             replace: function (mention) {
                 return '@' + mention + ' ';
@@ -527,6 +527,8 @@ $(document).ready(function () {
             index: 1
         }])
 });
+
+
 
 function reAviableUser(id) {
     let url = '/admin/rest/user/reaviable';
