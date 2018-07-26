@@ -142,7 +142,12 @@
 			<artifactId>google-api-services-youtube</artifactId>
 			<version>${project.youtube.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.15</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

@@ -133,6 +133,7 @@ public class Client implements Serializable {
 	@Column(name = "client_description_comment", length = 1500)
 	private String clientDescriptionComment;
 
+	@JsonIgnore
 	@Column
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<CallRecord> callRecords;

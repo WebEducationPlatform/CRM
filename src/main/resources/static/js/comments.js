@@ -1,6 +1,36 @@
+function commentsList(comment) {
+    return '<li class="list-group-item comment-item">' +
+        '<div id="comment' + comment.id + '" class="comment">' +
+        '<span class="comment-name">' + comment.user.firstName + ' ' + comment.user.lastName + '</span>' +
+        '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + comment.id + ')"></span>' +
+        '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>' +
+        '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
+        '<span  class="comment-functional">'+ comment.dateFormat +'</span>' +
+        '<p class="comment-text">' + comment.content + '</p>' +
+        '<div class="form-answer">' +
+        '<div class="form-group">' +
+        '<textarea class="form-control textcomplete" id="new-answer-for-comment' + comment.id + '" placeholder="Напишите ответ"></textarea>' +
+        '<button class="btn btn-md btn-success comment-button" onclick="sendAnswer(' + comment.id + ', \'test_message\')"> Сохранить </button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="form-edit">' +
+        '<div class="form-group">' +
+        '<textarea class="form-control edit-textarea"' +
+        ' id="edit-comment' + comment.id + '" placeholder="Редактор"></textarea>' +
+        '<button class="btn btn-md btn-success comment-button" onclick="editComment(' + comment.id + ')"> Отредактировать </button>' +
+        '</div>' +
+        '</div>' +
+        '<ul class="answer-list comment-item" id="comment-' + comment.id + 'answers">' +
+        '</ul>' +
+        '</div>' +
+        '</li>'
+}
+
+
 function sendComment(id) {
     var url = '/rest/comment/add';
     var text = $('#new-text-for-client' + id).val();
+    var formData = {clientId: id, content: text};
     if (text === "") {
         return;
     }
@@ -8,46 +38,38 @@ function sendComment(id) {
         type: 'POST',
         dataType: 'json',
         url: url,
-        data: {
-            clientId: id,
-            content: text
-        },
+        data: formData
+        ,
         success: function (comment) {
-
+            var drawComments = $(commentsList(comment));
             $('#new-text-for-client' + id).val("");
-            $('#client-' + id + 'comments').prepend(
-                '<li class="list-group-item comment-item">' +
-                '<div id="comment' + comment.id + '" class="comment">' +
-                '<span class="comment-name">' + comment.user.lastName + ' ' + comment.user.firstName + '</span>' +
-                '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + comment.id + ')"></span>' +
-                '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>' +
-                '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
-                '<span  class="comment-functional">'+ comment.dateFormat +'</span>' +
-                '<p class="comment-text">' + comment.content + '</p>' +
-                '<div class="form-answer">' +
-                '<div class="form-group">' +
-                '<textarea class="form-control textcomplete" id="new-answer-for-comment' + comment.id + '" placeholder="Напишите ответ"></textarea>' +
-                '<button class="btn btn-md btn-success comment-button" onclick="sendAnswer(' + comment.id + ', \'test_message\')"> Сохранить </button>' +
-                '</div>' +
-                '</div>' +
-                '<div class="form-edit">' +
-                '<div class="form-group">' +
-                '<textarea class="form-control edit-textarea"' +
-                ' id="edit-comment' + comment.id + '" placeholder="Редактор"></textarea>' +
-                '<button class="btn btn-md btn-success comment-button" onclick="editComment(' + comment.id + ')"> Отредактировать </button>' +
-                '</div>' +
-                '</div>' +
-                '<ul class="answer-list comment-item" id="comment-' + comment.id + 'answers">' +
-                '</ul>' +
-                '</div>' +
-                '</li>'
-            );
-        },
-        error: function (error) {
-            console.log(error);
+            $('#client-' + id + 'comments').prepend(drawComments);
+            $.get('/rest/user', function (res) {
+                var userNames = [];
+                for (var i = 0; i < res.length; i++) {
+                    userNames[i] = res[i].firstName + res[i].lastName;
+                }
+
+                drawComments.find('.textcomplete').textcomplete([
+                    {
+                        replace: function (mention) {
+                            return '@' + mention + ' ';
+                        },
+                        mentions: userNames,
+                        match: /\B@(\w*)$/,
+                        search: function (term, callback) {
+                            callback($.map(this.mentions, function (mention) {
+                                $('.textcomplete-dropdown').css('z-index', '999999');
+                                return mention.indexOf(term) === 0 ? mention : null;
+                            }));
+                        },
+                        index: 1
+                    }])
+            });
         }
     });
 }
+
 
 $(function () {
     $('#main-modal-window').on('shown.bs.modal', function (event) {
@@ -85,7 +107,7 @@ $(function () {
                     html +=
                         '<li class="list-group-item comment-item">' +
                         '<div id="comment' + list[i].id + '" class="comment">' +
-                        '<span class="comment-name">' + list[i].user.lastName + ' ' + list[i].user.firstName + '</span>' +
+                        '<span class="comment-name">' + list[i].user.firstName + ' ' + list[i].user.lastName + '</span>' +
                         removeComment +
                         editComment +
                         '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
@@ -119,7 +141,7 @@ $(function () {
                             //comment
                             '<div id="answer' + answers[i].id + '" class="answer">\n' +
                             //comment-name
-                          '<span class="comment-name">' + answers[i].user.lastName + ' ' + answers[i].user.firstName + '</span>' +
+                          '<span class="comment-name">' + answers[i].user.firstName + ' ' + answers[i].user.lastName + '</span>' +
                             removeAnswer +
                             editAnswer +
                             '<span  class="comment-functional">'+ answers[i].dateFormat +'</span>' +

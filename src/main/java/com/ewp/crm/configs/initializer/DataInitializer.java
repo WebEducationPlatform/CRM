@@ -5,13 +5,11 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
+import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class DataInitializer {
 
@@ -136,7 +134,7 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate4);
 
 		Status status1 = new Status("First status", false, 2L);
-		Status status2 = new Status("Second status", false , 3L);
+		Status status2 = new Status("Second status", false, 3L);
 		Status status3 = new Status("Third status", false, 4L);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
@@ -184,6 +182,24 @@ public class DataInitializer {
 		statusService.addInit(status2);
 		statusService.addInit(status3);
 		statusService.addInit(defaultStatus);
-	}
 
+		//TODO удалить после теста
+		Faker faker = new Faker();
+		List<Client> list = new LinkedList<>();
+		for (int i = 0; i < 40; i++) {
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("First Status"));
+			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+			list.add(client);
+		}
+		clientService.addBatchClients(list);
+		list.clear();
+
+		for (int i = 0; i < 10; i++) {
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("deleted"));
+			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+			list.add(client);
+		}
+		clientService.addBatchClients(list);
+
+	}
 }
