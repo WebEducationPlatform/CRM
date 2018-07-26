@@ -11,9 +11,6 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,12 +53,16 @@ public class ScheduleTasks {
 
 	private final VkMemberService vkMemberService;
 
+	private final YoutubeService youtubeService;
+
+	private final YoutubeClientService youtubeClientService;
+
 	private final AssignSkypeCallService assignSkypeCallService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, MailSendService mailSendService, AssignSkypeCallService assignSkypeCallService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -76,6 +76,8 @@ public class ScheduleTasks {
 		this.facebookService = facebookService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
+		this.youtubeService = youtubeService;
+		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
 	}
 
@@ -257,5 +259,25 @@ public class ScheduleTasks {
 				info = "Неизвестная ошибка";
 		}
 		return info;
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void handleYoutubeLiveStreams() {
+		if (!youtubeService.checkLiveStreamStatus()) {
+			youtubeService.handleYoutubeLiveChatMessages();
+		} else {
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			if (youtubeClient.isPresent()) {
+				for (YoutubeClient client : youtubeClient.get()) {
+					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
+					if (newClient.isPresent()) {
+						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
+						if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
+							addClient(newClient.get());
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -64,6 +64,8 @@ public class IPTelephonyRestController {
 			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
+			callRecordFromDB.setClient(client);
+			callRecordService.update(callRecordFromDB);
 			ipService.call(from, to, callRecordFromDB.getId());
 		}
 	}
@@ -74,11 +76,13 @@ public class IPTelephonyRestController {
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
 			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setRecordLink(downloadLink);
+			callRecord.getClientHistory().setRecordLink(url);
 			callRecordService.update(callRecord);
+			logger.info("CallRecord to client id {} has download", clientCallId);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
+
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	@ResponseBody

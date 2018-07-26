@@ -126,7 +126,7 @@
                 </div>
                 <div class="btn-group">
                     <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name= "emailTmplList" type="button" class="glyphicon glyphicon-envelope" data-toggle="dropdown">
+                        <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                         <li th:id  = "'eTemplate' + ${template.id}" th:each="template, count : ${emailTmpl}">

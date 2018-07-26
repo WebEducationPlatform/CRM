@@ -1,3 +1,6 @@
+var selectedImage;
+var file;
+var current;
 
 
 function switchTemplate() {
@@ -5,31 +8,61 @@ function switchTemplate() {
     if (selected === 'email') {
         $('#field').show();
         $('#show-area').hide();
-    } else if (selected === 'vk'){
+    } else if (selected === 'vk') {
         $('#field').hide();
         $('#show-area').show();
     }
 }
 
-var current;
+
 $(document).ready(function () {
+    $("#input").cleditor();
     current = document.getElementById("message");
+    let iframe = document.getElementsByTagName('iframe')[0];
+    let idoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    $(idoc.body).click(function (event) {
+        if (event == null) {
+            return;
+        }
+        let img = event.target;
+        if (img.tagName == 'IMG') {
+            if (selectedImage !== img && selectedImage != null) {
+                selectedImage.style.opacity = "1";
+                selectedImage = null;
+                img.style.opacity = "0.5";
+            }
+            if (selectedImage == null) {
+                selectedImage = img;
+                img.style.opacity = "0.5";
+            } else {
+                selectedImage = null;
+                img.style.opacity = "1";
+            }
+        }
+    });
+
+    $(".cleditorMain iframe").contents().find('body').keyup(function () {
+        let tId = $('#templateId').val();
+        saveTemplate(tId);
+    });
 });
 
 function saveTemplate(templateId) {
     let url = '/admin/editMessageTemplate';
-	let text =  $('#textTemplateArea').val();
+    let text = $('#textTemplateArea').val();
+    let body = $(".cleditorMain iframe").contents().find('body').html();
     let wrap = {
         templateId: templateId,
-        templateText: CKEDITOR.instances['body'].getData(),
-        otherTemplateText : text
+        templateText: body,
+        otherTemplateText: text
     };
     var current = document.getElementById("message");
     $.ajax({
         type: "POST",
         url: url,
         data: wrap,
-        beforeSend: function(){
+        beforeSend: function () {
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
 
@@ -44,15 +77,12 @@ function saveTemplate(templateId) {
     });
 }
 
-var file;
-
 function sendImg() {
-
     file = $("#imgBtn")[0].files[0];
-     if(file.size >  $("#imgBtn").attr("max")){
-         setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
-         return;
-     }
+    if (file.size > $("#imgBtn").attr("max")) {
+        setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
+        return;
+    }
     $("#imgBtn").val("");
     var dataValue = new FormData();
     dataValue.append("0", file);
@@ -69,20 +99,19 @@ function sendImg() {
             insertNewPicture(userId);
         },
         error: function (data) {
-            if(typeof data.responseJSON === 'undefined') {
+            if (typeof data.responseJSON === 'undefined') {
                 setErrorMessage();
             }
-           setErrorMessage(data.responseJSON.message);
+            setErrorMessage(data.responseJSON.message);
         }
-
     });
 }
 
 function setErrorMessage(message) {
-    if(typeof message === 'undefined'){
+    if (typeof message === 'undefined') {
         current.textContent = "Ошибка сохранения";
         current.style.color = "red";
-    }else {
+    } else {
         current.textContent = message;
         current.style.color = "red";
     }
@@ -91,25 +120,23 @@ function setErrorMessage(message) {
 
 function insertNewPicture(userId) {
     filename = file.name.replace(/\.[^.]+$/, "");
-    text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + userId + '_' +filename + "|\" src=\"/admin/image/" + userId + '_' + filename + ".png\"/>");
-    CKEDITOR.instances.body.insertElement(text);
+    let img = $(".cleditorMain iframe").contents().find('body');
+    img.append("<img src=\"/admin/image/" + userId + '_' + filename + ".png\"/>");
+    let tId = $('#templateId').val();
+    saveTemplate(tId);
 }
 
-$(document).ready(function () {
-    editor = CKEDITOR.replace('body', {
-        allowedContent: true,
-        height: '600px'
-    });
+function editImage() {
+    let h = $('#heightImage').val();
+    let w = $('#widthImage').val();
+    let img = selectedImage;
 
-    editor.addCommand("infoCommend", {
-        exec: function(edt) {
-            $("#infoModal").modal('show');
-        }
-    });
-    editor.ui.addButton('SuperButton', {
-        label: "Info",
-        command: 'infoCommend',
-        toolbar: 'styles',
-        icon: 'info.png'
-    });
-});
+    img.height == 0 ? img.setAttribute('height', img.height) : img.setAttribute('height', h);
+    img.width == 0 ? img.setAttribute('width', img.width) : img.setAttribute('width', w);
+    selectedImage.style.opacity = "1";
+    selectedImage = null;
+    $('#heightImage').val("");
+    $('#widthImage').val("");
+    let tId = $('#templateId').val();
+    saveTemplate(tId);
+};
