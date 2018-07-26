@@ -23,9 +23,11 @@ import java.util.regex.Pattern;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
+
 	private final ClientRepository clientRepository;
 
 	private StatusService statusService;
+
 	private SendNotificationService sendNotificationService;
 
 	@Autowired
@@ -164,6 +166,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				throw new ClientExistsException();
 			}
 		}
+
 		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 			phoneNumberValidation(client);
 			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());

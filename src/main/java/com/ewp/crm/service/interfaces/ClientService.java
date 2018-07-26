@@ -11,9 +11,8 @@ import java.util.List;
 
 public interface ClientService extends CommonService<Client> {
 	List<Client> findAllByStatus(Status status);
-	List<Client> getAllClients();
 
-	List<Client> getTimeOfSkypeCall();
+	List<Client> getAllClients();
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
