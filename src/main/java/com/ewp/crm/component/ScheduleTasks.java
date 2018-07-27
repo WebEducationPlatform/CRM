@@ -272,7 +272,9 @@ public class ScheduleTasks {
 					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
 					if (newClient.isPresent()) {
 						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
-						if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
+						if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
+							updateClient(newClient.get());
+						} else {
 							addClient(newClient.get());
 						}
 					}
