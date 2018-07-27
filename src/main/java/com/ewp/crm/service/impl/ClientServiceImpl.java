@@ -170,7 +170,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
         checkSocialLinks(client);
 
-
         clientRepository.saveAndFlush(client);
     }
 
