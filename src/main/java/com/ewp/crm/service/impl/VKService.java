@@ -507,17 +507,17 @@ public class VKService {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
+            JSONObject responseObject = json.getJSONObject("response");
 
-            if (!json.has("id")) {
+            if (responseObject.getString("count").equals("0")) {
                 return Optional.empty();
             } else {
-                JSONObject responseObject = json.getJSONObject("response");
                 JSONArray jsonUsers = responseObject.getJSONArray("items");
                 JSONObject jsonUser = jsonUsers.getJSONObject(0);
                 long id = jsonUser.getLong("id");
                 String firstName = jsonUser.getString("first_name");
                 String lastName = jsonUser.getString("last_name");
-                String vkLink = "vk.com/id" + id;
+                String vkLink = "https://vk.com/id" + id;
                 Client client = new Client(firstName, lastName);
                 SocialNetwork socialNetwork = new SocialNetwork(vkLink);
                 List<SocialNetwork> socialNetworks = new ArrayList<>();
