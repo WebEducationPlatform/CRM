@@ -6,28 +6,13 @@
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" href="/cleditor/jquery.cleditor.css"/>
-    <script src="/cleditor/jquery.min.js"></script>
-    <script src="/cleditor/jquery.cleditor.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $("#input").cleditor();
-        });
-        $.cleditor.defaultOptions.width = 1200;
-        $.cleditor.defaultOptions.height = 600;
-        $("#input").cleditor();
-        $(document).ready(function () {
-            $("#input").cleditor();
-        });
-        $.cleditor.defaultOptions.width = 1200;
-        $.cleditor.defaultOptions.height = 600;
-        $("#input").cleditor();
-    </script>
     <script type="text/javascript" th:src="@{/js/edit-eTemplate.js}"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
 </head>
 <body>
 <div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
     <div class="container head-padding">
         <div class="container head-padding">
             <label style="font-size: 20px" for="socNetworkChoose">Редактирование шаблона </label>
@@ -36,41 +21,38 @@
                 <option value="vk">vk,sms,facebook</option>
             </select>
         </div>
+
         <div class="container">
             <fieldset id="field">
                 <div class="btn-group">
-                    <input accept="image/*" th:max="${maxSize}" type="file" id='imgBtn' onchange="sendImg()"
-                           style="display: none"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' onchange="sendImg()" style="display: none"/>
                     <label for="imgBtn">
                         <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
                     </label>
-                    <label for="createTableBtn">
-                        <span id="createTableBtn" data-toggle="modal" data-target="#newTable" class="btn btn-primary">Ред. картинку</span>
-                    </label>
                 </div>
-                <input type="hidden" id="templateId" th:value="${template.id}"/>
-                <textarea id="input" name="input" required="required" th:text="${template.templateText}">
-                    &lt;p&gt;
-                    Example template layout.
-                    &lt;/p&gt;
-                </textarea>
+                <label for="body"></label>
+                <textarea id="body" required="required" th:text="${template.templateText}">
+                             &lt;p&gt;
+                                 Example template layout.
+                             &lt;/p&gt;
+                         </textarea>
                 <br/>
             </fieldset>
+
             <div class="col-md-12 content" style="display: none;" id="show-area">
-                <textarea th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
+                <textarea  th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
             </div>
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary" id="saveTemplate"
-                        th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить
-                </button>
+                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
                 <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
             </div>
-            <p><span id="message"></span></p>
+            <p><span id = "message"></span></p>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="infoModal" role="dialog" aria-hidden="true">
+
+<div class="modal fade" id="infoModal"  role="dialog"  aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -87,29 +69,8 @@
                     <li>%fullName% - Фамилия и имя клиента;</li>
                 </ul>
                 <ul>
-                    <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого
-                        текста;
-                    </li>
+                    <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого текста;</li>
                 </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="newTable" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Краткая информация о редакторе</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                Длина:<br/>
-                <input id="heightImage" type="text" name="colsTable"/><br/>
-                Ширина:<br/>
-                <input id="widthImage" type="text" name="rowTable"/>
-                <br/>
-                <button class="btn btn-default" data-dismiss="modal" onclick="editImage()">Ok</button>
             </div>
         </div>
     </div>
