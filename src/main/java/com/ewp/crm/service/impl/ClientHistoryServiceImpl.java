@@ -124,7 +124,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	public ClientHistory createHistory(User user, Client client, Message message) {
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
 		clientHistory.setMessage(message);
-		clientHistory.setLink("/client/message/info/" + message.getId());
+		clientHistory.setLink(message.getId().toString());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
 		return clientHistory;
 	}
@@ -144,20 +144,20 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
         }
 
         clientHistory.setTitle(admin.getFullName() + " " + type.getInfo());
-        //TODO почему массивы с социальными сетями указывают на разные массивы???
+
 		DiffResult diffs = prev.diff(current);
 
         StringBuilder content = new StringBuilder();
 
 		diffs.getDiffs().stream().map(
 				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
-				.forEach(str -> content.append(str).append("<br/>"));
+				.forEach(str -> content.append(str).append("\n"));
 
 		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
 
 		clientHistory.setMessage(message);
 
-		clientHistory.setLink("/client/message/info/" + message.getId());
+		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
 }
