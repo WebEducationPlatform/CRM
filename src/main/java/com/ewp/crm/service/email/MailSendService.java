@@ -76,6 +76,16 @@ public class MailSendService {
 		}
 	}
 
+	public void sendMail(String from, String to, String subject, String msg) {
+		SimpleMailMessage message = new SimpleMailMessage();
+
+		message.setFrom(from);
+		message.setTo(to);
+		message.setSubject(subject);
+		message.setText(msg);
+		javaMailSender.send(message);
+	}
+
 	public void prepareAndSend(Long clientId, Long templateId, String body, User principal) {
 		String templateFile = "emailStringTemplate";
 		Client client = clientService.getClientByID(clientId);
