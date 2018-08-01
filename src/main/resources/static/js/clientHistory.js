@@ -89,16 +89,15 @@ function drawClientHistory(list, history_table) {
         }
         if (list[i].recordLink != null) {
             $tdLink = "<td style='width: 10%'>" +
-                "<div class=\"dropdown\">\n" +
-                "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-play\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
-                "</button>" +
-                "<div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">" +
+                "<div tabindex=\"0\" class=\"onclick-menu btn btn-secondary dropdown-toggle glyphicon glyphicon-play\">\n" +
+                "<ul class=\"onclick-menu-content dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">\n" +
+                "<li>\n" +
                 "<audio controls>" +
                 "<source type=\"audio/wav\" src=\"" + list[i].recordLink + "\">" +
                 "</audio>" +
-                "</div>" +
-                "</div>" +
-                "</td>"
+                "</li>\n" +
+                "</ul>\n" +
+                "</div>"
         }
         history_table.append(
             "<tr class='remove-history'>" +
