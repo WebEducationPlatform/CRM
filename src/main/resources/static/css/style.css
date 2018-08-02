@@ -464,6 +464,12 @@ input[type="checkbox"]:checked + label:before {
 	padding: 9px 11px;
 	background: white;
 	border-radius: 10px;
+
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .comment-name {
@@ -829,4 +835,22 @@ li.dropdown:hover .dropdown-menu {
 	white-space: -pre-wrap; /* Opera 4-6 */
 	white-space: -o-pre-wrap; /* Opera 7 */
 	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.onclick-menu {
+	position: relative;
+	display: inline-block;
+}
+.onclick-menu:before {
+	display: inline-block;
+	width: 100%;
+}
+.onclick-menu:focus .onclick-menu-content {
+	display: block;
+}
+.onclick-menu-content {
+	position: absolute;
+	z-index: 1;
+
+	display: none;
 }
