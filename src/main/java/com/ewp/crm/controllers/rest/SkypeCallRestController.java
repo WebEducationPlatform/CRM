@@ -46,7 +46,7 @@ public class SkypeCallRestController {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Client client = clientService.getClientByID(clientId);
 		try {
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
 			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
 			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
 			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
@@ -62,7 +62,6 @@ public class SkypeCallRestController {
 			clientAssignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
 			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
-//			clientService.updateClient(client);
 			logger.info("{} assign skype client id:{} until {}", principal.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
