@@ -111,7 +111,7 @@ public class ScheduleTasks {
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
 			LocalDateTime trasnfromDate = LocalDateTime.fromDateFields(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm по МСК");
 			String dateOfSkypeCall = dateFormat.format(trasnfromDate.toDate());
 
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);

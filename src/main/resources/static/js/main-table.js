@@ -983,16 +983,17 @@ $(document).ready(function () {
     var nowDate = new Date();
     var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
+    var startDate = moment(minDate).utcOffset(180);
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY H:mm'
+            format: 'DD.MM.YYYY H:mm МСК'
         },
-        minDate: minDate,
-        startDate: minDate
+        minDate: startDate,
+        startDate: startDate
     });
 });
 
@@ -1085,6 +1086,7 @@ $('.assign-skype-call-btn').on('click', function (e) {
     var nowDate = new Date();
     var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
+    var startDate = moment(minDate).utcOffset(180);
     $.ajax({
         type: 'GET',
         url: 'rest/client/' + clientId,
@@ -1105,10 +1107,10 @@ $('.assign-skype-call-btn').on('click', function (e) {
                     timePickerIncrement: 5,
                     timePicker24Hour: true,
                     locale: {
-                        format: 'DD.MM.YYYY H:mm'
+                        format: 'DD.MM.YYYY H:mm МСК'
                     },
-                    minDate: minDate,
-                    startDate: minDate
+                    minDate: startDate,
+                    startDate: startDate
             });
             }
         }
