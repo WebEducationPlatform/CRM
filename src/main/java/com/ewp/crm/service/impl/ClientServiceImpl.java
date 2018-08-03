@@ -105,7 +105,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			if (clientByPhone != null) {
 				clientByPhone.setStatus(firstStatus);
 				clientRepository.saveAndFlush(clientByPhone);
-				sendNotificationService.sendNotificationsAllUsers(client);
+				sendNotificationService.sendNotificationsAllUsers(clientByPhone);
 				return;
 			}
 		}
@@ -114,7 +114,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			if (clientByEmail != null) {
 				clientByEmail.setStatus(firstStatus);
 				clientRepository.saveAndFlush(clientByEmail);
-				sendNotificationService.sendNotificationsAllUsers(client);
+				sendNotificationService.sendNotificationsAllUsers(clientByEmail);
 				return;
 			}
 		}
