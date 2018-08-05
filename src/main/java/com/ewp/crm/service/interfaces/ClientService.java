@@ -14,6 +14,8 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getAllClients();
 
+	Client findClientBySkype(String skypeLogin);
+
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	Client getClientByEmail(String name);

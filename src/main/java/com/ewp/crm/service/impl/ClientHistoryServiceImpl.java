@@ -117,6 +117,14 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
+	public ClientHistory createInfoHistory(User user, Client client, ClientHistory.Type type, String info) {
+		ClientHistory clientHistory = new ClientHistory(type);
+		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
+		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + info);
+		return clientHistory;
+	}
+
+	@Override
 	public ClientHistory createHistory(User user , String recordLink) {
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL);
 		clientHistory.setRecordLink(recordLink);

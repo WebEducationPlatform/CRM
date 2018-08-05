@@ -1,5 +1,15 @@
 .skype-notification {
 	text-align: center;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.confirm-skype-interceptor {
+	text-align: center;
+}
+
+.confirm-skype-login {
+	text-align: center;
 }
 
 .select_all_skype_boxes {

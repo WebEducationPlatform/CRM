@@ -20,6 +20,8 @@ public interface ClientHistoryService {
 
 	ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link);
 
+	ClientHistory createInfoHistory(User user, Client client, ClientHistory.Type type, String info);
+
 	ClientHistory createHistory(User user, String recordLink);
 
 	ClientHistory createHistory(User user, Client client, Message message);

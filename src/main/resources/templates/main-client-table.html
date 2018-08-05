@@ -109,8 +109,8 @@
 
                             <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
                                 <th:block th:if="${notification_assign_skype.client == client}">
-                                   <span th:id="'notification-postpone'+${client.id}"
-                                         class="glyphicon glyphicon-time"
+                                   <span id="notification-new"
+                                         class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
                                 </th:block>
                             </th:block>

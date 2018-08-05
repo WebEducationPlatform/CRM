@@ -11,7 +11,10 @@ import java.util.List;
 public interface ClientRepository extends CommonGenericRepository<Client>, ClientRepositoryCustom {
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
+
 	List<Client> findAllByStatus(Status status);
+
+	Client findClientBySkype(String skypeLogin);
 
 	Client findClientByEmail(String Email);
 
