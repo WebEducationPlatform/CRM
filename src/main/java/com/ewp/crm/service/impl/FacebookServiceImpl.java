@@ -108,32 +108,5 @@ public class FacebookServiceImpl implements FacebookService {
 			logger.info("Can't parse Facebook messages", e);
 		}
 	}
-
-	public String refactorAndValidFbLink(String link){
-		String userName = link.replaceAll("^.+\\.(com/)", "");
-		String request = FB_API_METHOD_TEMPLATE + version + "/" + userName +
-				"&access_token=" + pageToken;
-		HttpGet httpGetClient = new HttpGet(request);
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(RequestConfig.custom()
-						.setCookieSpec(CookieSpecs.STANDARD).build()).build();
-		try {
-			HttpResponse response = httpClient.execute(httpGetClient);
-			String result = EntityUtils.toString(response.getEntity());
-			JSONObject json = new JSONObject(result);
-			String fbId = json.getString("id");
-//			if (vkUserJson.has("deactivated")){
-//				logger.error("VkUser with id {} don't validate", fbId);
-//				return "undefined";
-//			}
-			return "https://www.facebook.com/" + fbId;
-		} catch (JSONException e) {
-//			logger.error("Can't take id by screen name {}", );
-			return "undefined";
-		} catch (IOException e) {
-			logger.error("Failed to connect to VK server ", e);
-			return link;
-		}
-	}
 }
 
