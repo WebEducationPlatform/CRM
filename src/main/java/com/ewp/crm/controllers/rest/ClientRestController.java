@@ -355,6 +355,27 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "rest/client/setSkypeLogin", method = RequestMethod.POST)
+	public ResponseEntity<String> setClientSkypeLogin(@RequestParam(name = "clientId") Long clientId,
+	                                             @RequestParam(name = "skypeLogin") String skypeLogin) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Client client = clientService.get(clientId);
+		Client checkDuplicateLogin = clientService.findClientBySkype(skypeLogin);
+		if (client == null) {
+			logger.error("Client with id {} not found", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+		}
+		if (checkDuplicateLogin != null && checkDuplicateLogin.getSkype().equals(skypeLogin)) {
+			logger.error("client with this skype login already exists");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
+		}
+		client.setSkype(skypeLogin);
+		client.addHistory(clientHistoryService.createInfoHistory(principal, client, ClientHistory.Type.UPDATE, "skype login"));
+		clientService.updateClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
+	}
+
 	@GetMapping("rest/client/pagination/get")
 	public ResponseEntity getClients(@RequestParam int page) {
 		List<Client> clients = clientService.findAllByPage(new PageRequest(page, pageSize));

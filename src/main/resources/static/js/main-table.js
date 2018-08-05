@@ -1063,6 +1063,7 @@ $('.confirm-skype-interceptor').on('click','.confirm-skype-btn', function (e) {
             data: formData,
             success: function (result) {
                 $('.skype-panel').remove();
+                $('.skype-notification').hide();
                 if (boxList.length === 0) {
                     $('.assign-skype-call-btn').after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
                 } else {
@@ -1081,6 +1082,7 @@ $('.confirm-skype-interceptor').on('click','.confirm-skype-btn', function (e) {
 $('.assign-skype-call-btn').on('click', function (e) {
     var clientId = $(this).parents('#main-modal-window').data('clientId');
     var currentBtn =  $(this);
+    currentBtn.attr("disabled", "true");
     var currentStatus = $('.skype-notification');
     var formData = {clientId: clientId};
     var nowDate = new Date();
@@ -1093,18 +1095,20 @@ $('.assign-skype-call-btn').on('click', function (e) {
         data: formData,
         success: function (client) {
             var clientSkype = client.skype;
-            if(clientSkype === null) {
-                currentStatus.text("Skype пользователя не указан");
+            if(clientSkype === null || 0 === clientSkype.length) {
+                currentStatus.css('color', '#333');
+                currentStatus.text("Введите Skype пользователя");
+                currentStatus.after('<input class="enter-skype-login"> </input>');
+                $('.enter-skype-login').after('<button type="button" class="btn btn-info btn-sm confirm-skype-login">OK</button>');
             } else {
                 currentBtn.attr("disabled", "true");
                 currentBtn.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
                     '<div class="panel-body">' + '<input type="text" class="form-control skype-postpone-date" name="skypePostponeDate" id="skypePostpone' + client.id +'"> </input>' +
                     '<button class="btn btn-info btn-sm confirm-skype-btn">ОК</button>' + ' <form class="box-window"></form>' +'</div></div>');
-                date = $('#skypePostpone'+ clientId).val();
                 $('input[name="skypePostponeDate"]').daterangepicker({
                     singleDatePicker: true,
                     timePicker: true,
-                    timePickerIncrement: 5,
+                    timePickerIncrement: 1,
                     timePicker24Hour: true,
                     locale: {
                         format: 'DD.MM.YYYY H:mm МСК'
@@ -1113,10 +1117,59 @@ $('.assign-skype-call-btn').on('click', function (e) {
                     startDate: startDate
             });
             }
-        }
+        },
+        error: function (error) {
+            console.log(error);
+            currentStatus.css('color','#229922');
+            currentStatus.text(error);
+    }
     });
 });
 
+
+$('.confirm-skype-interceptor').on('click','.confirm-skype-login', function (e) {
+    var clientId = $(this).parents('#main-modal-window').data('clientId');
+    var currentBtn =  $('.assign-skype-call-btn');
+    currentBtn.attr("disabled", "true");
+    var currentStatus = $('.skype-notification');
+    var nowDate = new Date();
+    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
+    var startDate = moment(minDate).utcOffset(180);
+    var skypeLogin = $('.enter-skype-login').val();
+    var formData = {clientId: clientId, skypeLogin: skypeLogin};
+    $.ajax({
+        type: 'POST',
+        url: 'rest/client/setSkypeLogin',
+        data: formData,
+        success: function (client) {
+            currentStatus.css('color', '#229922');
+            currentStatus.text("Логин Skype успешно добавлен");
+            $('.confirm-skype-login').remove();
+            $('.enter-skype-login').remove();
+            //
+            currentBtn.attr("disabled", "true");
+            currentBtn.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
+                '<div class="panel-body">' + '<input type="text" class="form-control skype-postpone-date" name="skypePostponeDate" id="skypePostpone' + clientId + '"> </input>' +
+                '<button class="btn btn-info btn-sm confirm-skype-btn">ОК</button>' + ' <form class="box-window"></form>' + '</div></div>');
+            $('input[name="skypePostponeDate"]').daterangepicker({
+                singleDatePicker: true,
+                timePicker: true,
+                timePickerIncrement: 1,
+                timePicker24Hour: true,
+                locale: {
+                    format: 'DD.MM.YYYY H:mm МСК'
+                },
+                minDate: startDate,
+                startDate: startDate
+            });
+        },
+            error: function (error) {
+                currentStatus.css('color','#229922');
+                currentStatus.text("Клиент с таким логином уже существует");
+            }
+    });
+});
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
@@ -1202,6 +1255,8 @@ $(function () {
         $('.assign-skype-call-btn').removeAttr("disabled");
         $('div#assign-unassign-btns').empty();
         $('.skype-notification').empty();
+        $('.confirm-skype-login').remove();
+        $('.enter-skype-login').remove();
         $('.skype-panel').remove();
         $('.skype-text').empty();
         $('.remove-element').remove();
