@@ -18,6 +18,7 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
+import org.thymeleaf.context.Context;
 
 
 import javax.mail.Flags;
@@ -29,10 +30,7 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,8 +118,7 @@ public class GoogleEmail {
                 Client client = incomeStringToClient.convert(parser.getHtmlContent());
                 if (client != null) {
                     if (parser.getHtmlContent().contains("Java Test")) {
-                        Double list = validatorTestResult(parser.getPlainContent());
-                        prepareAndSend.sendMail("Java-Mentor.ru", client.getEmail(), "Test complete!",  String.format("Результаты пройденого теста \n\nпроцент правильных ответов %1$,.0f", list));
+                        prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));
@@ -134,38 +131,7 @@ public class GoogleEmail {
         return directChannel;
     }
 
-    private Double validatorTestResult(String parseContent) {
-        Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
-        Matcher m = pattern2.matcher(parseContent);
 
-        Map<Integer, Integer> rightAnswer = new HashMap<>();
-        rightAnswer.put(1, 2);
-        rightAnswer.put(2, 1);
-        rightAnswer.put(3, 3);
-        rightAnswer.put(4, 2);
-        rightAnswer.put(5, 3);
-        rightAnswer.put(6, 4);
-
-        Map<Integer, Integer> user = new HashMap<>();
-        while (m.find()) {
-            String tmp = m.group();
-            String index = tmp.substring(0, tmp.indexOf(":"));
-            tmp = tmp.replaceAll("([0-9][:])|\\s", "");
-            user.put(Integer.valueOf(index), Integer.valueOf(tmp));
-        }
-
-        int countOfRight = 0;
-        for(Map.Entry<Integer, Integer> map : user.entrySet()) {
-            boolean ans = map.getValue().equals(rightAnswer.get(map.getKey()));
-            if(ans) {
-                countOfRight++;
-            }
-        }
-
-        double allAnswer = rightAnswer.size();
-        double procentOfRigthAnswers = (countOfRight / allAnswer) * 100;
-        return procentOfRigthAnswers;
-    }
 
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
         Optional<InternetAddress> internetAddress = Optional.empty();

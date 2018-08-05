@@ -9,6 +9,8 @@ import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MessageService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.validation.constraints.Null;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -76,15 +78,80 @@ public class MailSendService {
 		}
 	}
 
-	public void sendMail(String from, String to, String subject, String msg) {
-		SimpleMailMessage message = new SimpleMailMessage();
+	public void validatorTestResult(String parseContent, Client client) throws MessagingException {
+		Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
+		Matcher m = pattern2.matcher(parseContent);
 
-		message.setFrom(from);
-		message.setTo(to);
-		message.setSubject(subject);
-		message.setText(msg);
-		javaMailSender.send(message);
+
+        Multimap<Integer, String> allQuestions = MultimapBuilder.treeKeys().linkedListValues().build();
+
+		Map<Integer, Integer> rightAnswer = new HashMap<>();
+		rightAnswer.put(1, 2);
+		rightAnswer.put(2, 1);
+		rightAnswer.put(3, 3);
+		rightAnswer.put(4, 2);
+		rightAnswer.put(5, 3);
+		rightAnswer.put(6, 4);
+
+		Map<Integer, String> rightQuestionText = new HashMap<>();
+		rightQuestionText.put(1, "Какой класс является родительским для всех классов в Java?");
+		rightQuestionText.put(2, "Вам нужно создать строку «2».Каким способом этого нельзя сделать?");
+		rightQuestionText.put(3, "Выберите неверное утверждениепро метод .hashCode()");
+		rightQuestionText.put(4, "Что такое Generic?");
+		rightQuestionText.put(5, "Вы получили  объект resultSet, в котором 7 колонок и 2 строки.Как получить доступ к полю записанному в центре последней строки?");
+		rightQuestionText.put(6, "Куда лучше поместить данные, чтобы они были доступны в следующих запросах одного пользователя?");
+
+		Map<Integer, String> rightQuestionExplanation = new HashMap<>();
+		rightQuestionExplanation.put(1, "Explan1");
+		rightQuestionExplanation.put(2, "Explan2");
+		rightQuestionExplanation.put(3, "Explan3");
+		rightQuestionExplanation.put(4, "Explan4");
+		rightQuestionExplanation.put(5, "Explan5");
+		rightQuestionExplanation.put(6, "Explan6");
+
+
+		Map<Integer, Integer> wrong = new HashMap<>();
+		int countOfRight = 0;
+		while (m.find()) {
+			String tmp = m.group();
+			String indexString = tmp.substring(0, tmp.indexOf(":"));
+			tmp = tmp.replaceAll("([0-9][:])|\\s", "");
+
+			int index = Integer.valueOf(indexString);
+			int answer = Integer.valueOf(tmp);
+
+			boolean ans = (answer == rightAnswer.get(index));
+			if(!ans) {
+				wrong.put(index, answer);
+			} else {
+				countOfRight++;
+			}
+
+		}
+
+		double fdf = (countOfRight / 6.0) * 100;
+		String percentage = String.format("%1$,.0f", fdf);
+
+		final Context ctx = new Context();
+		ctx.setVariable("name", client.getName());
+		ctx.setVariable("percentageOfRightAnswer", percentage);
+		ctx.setVariable("mapOfWrongAnswer", wrong);
+		ctx.setVariable("rightQuestionText", rightQuestionText);
+		ctx.setVariable("rightQuestionExplanation", rightQuestionExplanation);
+		final String htmlContent = htmlTemplateEngine.process("check-test-email-template", ctx);
+
+
+		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+		mimeMessageHelper.setFrom("Java-Mentor.ru");
+		mimeMessageHelper.setTo(client.getEmail());
+		mimeMessageHelper.setSubject("Test complete!");
+		mimeMessageHelper.setText(htmlContent, true);
+
+
+		javaMailSender.send(mimeMessage);
 	}
+
 
 	public void prepareAndSend(Long clientId, Long templateId, String body, User principal) {
 		String templateFile = "emailStringTemplate";
