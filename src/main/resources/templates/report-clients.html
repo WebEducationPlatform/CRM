@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <script th:src="@{/js/validator.min.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+    <div id="user-info-container" class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-3" style="width: 20%; padding:30px;">
+                <form id="formCreate" action="/last-days" method="get">
+                    <div class="form-group">
+                        <label class="p-user">Сколько пришло людей за последний N?</label>
+                        <input class="form-control input-sm form-control-report" name="days"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="p-user">Сколько учится?</label>
+                        <input class="form-control input-sm form-control-report" name="learning"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="p-user"> Сколько закончило обучение за N?</label>
+                        <input class="form-control input-sm form-control-report" name="finish"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="p-user">Сколько бросило обучение за N?</label>
+                        <input class="form-control input-sm form-control-report" name="out"/>
+                    </div>
+                </form>
+
+                <div class="pos-f-t">
+                    <nav class="navbar navbar-dark bg-dark">
+                        <span class="navbar-toggler" data-toggle="collapse"
+                              data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
+                              aria-expanded="false" aria-label="Toggle navigation">Дополнительные</span>
+                    </nav>
+                    <div class="collapse" id="navbarToggleExternalContent">
+                        <div class="bg-dark p-4">
+                            <form>
+                                <div class="form-group">
+                                    <label class="p-user">начало обучение</label>
+                                    <select class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">пороходит обучение</label>
+                                    <select class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">закончили обучение</label>
+                                    <select class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">бросили обучение</label>
+                                    <select class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="createChart()">Отчет</button>
+                <a href="/client">
+                    <button class="btn btn-primary">Назад</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="application/javascript" src="/js/report.js"></script>
+</body>
+</html>

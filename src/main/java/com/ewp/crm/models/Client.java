@@ -3,8 +3,6 @@ package com.ewp.crm.models;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -66,13 +64,6 @@ public class Client implements Serializable {
 	@Column(name = "date")
 	private Date dateOfRegistration;
 
-	@OneToMany
-	@JsonIgnore
-	@JoinTable(name = "assign_client_skype_call",
-			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))},
-			inverseJoinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))})
-	private List <AssignSkypeCall> clientAssignSkypeCall;
-
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	@JoinTable(name = "status_clients",
@@ -99,8 +90,7 @@ public class Client implements Serializable {
 	private List<Notification> notifications;
 
 	@JsonManagedReference
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "history_client",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
@@ -114,16 +104,14 @@ public class Client implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
 	private List<Job> jobs;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "client_social_network",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
 	private List<SocialNetwork> socialNetworks;
 
 	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "client_sms_info",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
@@ -133,7 +121,6 @@ public class Client implements Serializable {
 	@Column(name = "client_description_comment", length = 1500)
 	private String clientDescriptionComment;
 
-	@JsonIgnore
 	@Column
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<CallRecord> callRecords;
@@ -431,14 +418,6 @@ public class Client implements Serializable {
 
 	public void addCallRecord(CallRecord callRecord) {
 		this.callRecords.add(callRecord);
-	}
-
-	public List<AssignSkypeCall> getClientAssignSkypeCall() {
-		return clientAssignSkypeCall;
-	}
-
-	public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
-		this.clientAssignSkypeCall = clientAssignSkypeCall;
 	}
 
 	public enum Sex {

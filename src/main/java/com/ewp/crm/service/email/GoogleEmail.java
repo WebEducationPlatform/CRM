@@ -29,12 +29,8 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Configuration
 @EnableIntegration
@@ -54,18 +50,16 @@ public class GoogleEmail {
     private final StatusService statusService;
     private final IncomeStringToClient incomeStringToClient;
     private final ClientHistoryService clientHistoryService;
-    private final MailSendService prepareAndSend;
 
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
+    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
         this.incomeStringToClient = incomeStringToClient;
-        this.prepareAndSend = prepareAndSend;
 
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
@@ -95,7 +89,7 @@ public class GoogleEmail {
         mailReceiver.setShouldDeleteMessages(false);
 
         mailReceiver.setShouldMarkMessagesAsRead(true);
-        mailReceiver.setCancelIdleInterval(300);
+        mailReceiver.setCancelIdleInterval(1200);
         mailReceiver.setBeanFactory(beanFactory);
         mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
         mailReceiver.afterPropertiesSet();
@@ -119,10 +113,6 @@ public class GoogleEmail {
                 parser.parse();
                 Client client = incomeStringToClient.convert(parser.getHtmlContent());
                 if (client != null) {
-                    if (parser.getHtmlContent().contains("Java Test")) {
-                        Double list = validatorTestResult(parser.getPlainContent());
-                        prepareAndSend.sendMail("Java-Mentor.ru", client.getEmail(), "Test complete!",  String.format("Результаты пройденого теста \n\nпроцент правильных ответов %1$,.0f", list));
-                    }
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));
                     clientService.addClient(client);
@@ -132,39 +122,6 @@ public class GoogleEmail {
             }
         });
         return directChannel;
-    }
-
-    private Double validatorTestResult(String parseContent) {
-        Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
-        Matcher m = pattern2.matcher(parseContent);
-
-        Map<Integer, Integer> rightAnswer = new HashMap<>();
-        rightAnswer.put(1, 2);
-        rightAnswer.put(2, 1);
-        rightAnswer.put(3, 3);
-        rightAnswer.put(4, 2);
-        rightAnswer.put(5, 3);
-        rightAnswer.put(6, 4);
-
-        Map<Integer, Integer> user = new HashMap<>();
-        while (m.find()) {
-            String tmp = m.group();
-            String index = tmp.substring(0, tmp.indexOf(":"));
-            tmp = tmp.replaceAll("([0-9][:])|\\s", "");
-            user.put(Integer.valueOf(index), Integer.valueOf(tmp));
-        }
-
-        int countOfRight = 0;
-        for(Map.Entry<Integer, Integer> map : user.entrySet()) {
-            boolean ans = map.getValue().equals(rightAnswer.get(map.getKey()));
-            if(ans) {
-                countOfRight++;
-            }
-        }
-
-        double allAnswer = rightAnswer.size();
-        double procentOfRigthAnswers = (countOfRight / allAnswer) * 100;
-        return procentOfRigthAnswers;
     }
 
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {

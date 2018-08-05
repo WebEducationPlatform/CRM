@@ -16,7 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -41,12 +43,19 @@ public class SMSRestController {
 	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                      @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Client client = clientService.get(clientId);
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		//TODO в конфиг
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
 		try {
-			smsService.sendSMS(clientId, templateId, body, principal);
-			return ResponseEntity.status(HttpStatus.OK).body("Message sent");
+			smsService.sendSMS(client, smsText, principal);
+			return ResponseEntity.status(HttpStatus.OK).body("Message send");
 		} catch (JSONException e) {
 			logger.error("Error to send message ", e);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message not sent");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message send");
 		}
 	}
 

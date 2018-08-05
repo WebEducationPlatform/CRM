@@ -107,14 +107,6 @@
                                 </th:block>
                             </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
-                                   <span th:id="'notification-postpone'+${client.id}"
-                                         class="glyphicon glyphicon-time"
-                                         style="color: red"></span>
-                                </th:block>
-                            </th:block>
-
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
@@ -129,10 +121,10 @@
                         <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template, count : ${emailTmpl}">
-                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody() and template.id != 4}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
+                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
                             <a class="glyphicon glyphicon-plus portlet-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                            <a sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:if="${template.id != 4}" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                            <a sec:authorize="hasAnyAuthority('OWNER','ADMIN')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                 <button
                                     type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
                                 </button>
@@ -201,7 +193,7 @@
                     </div>
                     <div id="collapseFilter" class="panel-collapse collapse in">
                         <div class="panel-body" id="panel-filter-body">
-                            <button type="button" id="showallbtn" onclick="showall()">Показать все</button>
+                            <button class="btn-style" type="button" id="showallbtn" onclick="showall()">Показать все</button>
                             <div class="checkbox menucheck" id="client_filter">
                                 <br/>
                             </div>
@@ -237,11 +229,15 @@
                                 </tr>
                             </table>
                             <p><a href="/admin/user/add">
-                                <button type="button" id="addNewUser">Добавить пользователя</button>
+                                <button class="btn-style" type="button" id="addNewUser">Добавить пользователя</button>
                             </a></p>
                             <p><a href="/admin/vkontakte/trackedclub">
-                                <button type="button" id="vkClubList">Отслеживаемые группы VK</button>
+                                <button class="btn-style" type="button" id="vkClubList">Отслеживаемые группы VK</button>
                             </a></p>
+                            <p><a href="/report">
+                                <button class="btn-style" type="button" id="report">Отчет</button>
+                            </a></p>
+
                         </div>
                     </div>
                 </div>
@@ -270,6 +266,6 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
-<script type="text/javascript" src="/js/moment-timezone.js"></script>
+
 </body>
 </html>
