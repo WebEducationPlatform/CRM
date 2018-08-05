@@ -29,16 +29,16 @@ function drawCheckbox(currentForm, clientId) {
             var phoneNumber = data.phoneNumber;
 
             for (let i = 0; i < soc.length; i++) {
-                currentForm.prepend("<label class='checkbox-inline'>" +
+                currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
                     "</label>");
             }
             if(email !== null) {
-                currentForm.prepend("<label class='checkbox-inline'>" +
+                currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
                     "</label>");
             } if (phoneNumber !== null ) {
-                currentForm.prepend("<label class='checkbox-inline'>" +
+                currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
                     "</label>");
             }
@@ -826,11 +826,12 @@ $(function () {
 });
 });
 $(function () {
-    $('.fix-modal').on('hide.bs.modal', function () {
+    $('.fix-modal').on('hidden.bs.modal', function () {
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
         $(this).find('.send-all-message').removeAttr("disabled");
+        $(".soc-network-box").remove();
     });
 });
 

@@ -371,7 +371,7 @@ public class ClientRestController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
 		}
 		client.setSkype(skypeLogin);
-		client.addHistory(clientHistoryService.createInfoHistory(principal, client, ClientHistory.Type.UPDATE, "skype login"));
+		client.addHistory(clientHistoryService.createInfoHistory(principal, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
 	}
