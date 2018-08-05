@@ -11,7 +11,9 @@
         <br />
         <br />
         <tr th:each="instance, stat : ${mapOfWrongAnswer}">
-            <span th:text="${stat.count}"></span>) В вопросе №<td th:text="${instance.key}"></td> <span th:text="${rightQuestionText.get(instance.key)}"></span>, вы ответили<span th:text="${instance.value}"></span>, правильным ответом является<span th:text="${instance.key}"></span>, т.к. <span th:text="${rightQuestionExplanation.get(instance.key)}"></span>.
+            <div th:with="answer=${rightAnswer.get(instance.key)}">
+                <span th:text="${stat.count}"></span>) В вопросе № <span th:text="${instance.key}"></span> "<span th:text="${rightQuestionText.get(instance.key)}"></span>", вы ответили "<span th:text="${allQuestions.get(instance.key).get(instance.value)}"></span>", правильным ответом является "<span th:text="${allQuestions.get(instance.key).get(answer)}"></span>" , т.к. <span th:text="${rightQuestionExplanation.get(instance.key)}"></span>.
+            </div>
         </tr>
     </th:block>
     <th:block th:if="${mapOfWrongAnswer.size() == 0}">
