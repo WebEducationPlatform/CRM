@@ -1,17 +1,13 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.FilteringCondition;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ClientRepositoryCustom {
 
 	List filteringClient(FilteringCondition filteringCondition);
-
-	List<Client> getTimeOfSkypeCall();
 
 	List<Client> getChangeActiveClients();
 
@@ -31,4 +27,9 @@ public interface ClientRepositoryCustom {
 
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
+	List<ClientHistory> getClientByTimeInterval2(int days);
+
+	List<Client> getClientByTimeInterval(int days);
+
+	Long countByDate(String date);
 }

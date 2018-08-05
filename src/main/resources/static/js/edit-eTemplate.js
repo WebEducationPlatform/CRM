@@ -91,8 +91,7 @@ function setErrorMessage(message) {
 
 function insertNewPicture(userId) {
     filename = file.name.replace(/\.[^.]+$/, "");
-    let xx = CKEDITOR.dom;
-    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + userId + '_' +filename + "|\" src=\"/admin/image/" + userId + '_' + filename + ".png\"/>");
+    text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + userId + '_' +filename + "|\" src=\"/admin/image/" + userId + '_' + filename + ".png\"/>");
     CKEDITOR.instances.body.insertElement(text);
 }
 

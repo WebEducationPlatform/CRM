@@ -3,7 +3,10 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,16 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class SMSServiceImpl implements SMSService {
@@ -32,41 +32,30 @@ public class SMSServiceImpl implements SMSService {
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final SMSInfoService smsInfoService;
-	private final MessageTemplateService messageTemplateService;
-
 
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
+	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, SMSInfoService smsInfoService) {
 		this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.smsInfoService = smsInfoService;
-		this.messageTemplateService = messageTemplateService;
 	}
 
 	@Override
-	public void sendSMS(Long clientId, Long templateId, String body, User principal) throws JSONException {
-		Client client = clientService.getClientByID(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
-		params.put("%dateOfSkypeCall%", body);
-		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
+	public void sendSMS(Client client, String text, User sender) throws JSONException {
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
-		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
+		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), text);
 		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		JSONObject jsonBody = new JSONObject(response.getBody());
-		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
-		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
+		JSONObject body = new JSONObject(response.getBody());
+		JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
+		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-		ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+		ClientHistory clientHistory = clientHistoryService.createHistory(sender, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
 		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
 		client.addHistory(clientHistory);
 		clientService.updateClient(client);

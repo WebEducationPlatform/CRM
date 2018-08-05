@@ -33,21 +33,36 @@ public class VkRestController {
 	private static Logger logger = LoggerFactory.getLogger(VkRestController.class);
 
 	private final VKService vkService;
+	private final ClientService clientService;
+	private final MessageTemplateServiceImpl MessageTemplateService;
+	private final UserService userService;
 	private final VkTrackedClubService vkTrackedClubService;
 	private final VkMemberService vkMemberService;
 
 	@Autowired
-	public VkRestController(VKService vkService1, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
+	public VkRestController(ClientService clientService, MessageTemplateServiceImpl MessageTemplateService, VKService vkService1, UserService userService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
 		this.vkService = vkService1;
+		this.clientService = clientService;
+		this.MessageTemplateService = MessageTemplateService;
+		this.userService = userService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
 	}
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
-	                                              @RequestParam(value = "body",required = false) String body) {
+												  @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		vkService.sendMessageToClient(clientId, templateId, body, principal);
+		Client client = clientService.get(clientId);
+		String vkText = MessageTemplateService.get(templateId).getOtherText();
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", body);
+
+		User user = userService.get(principal.getId());
+		String token = user.getVkToken();
+		vkService.sendMessageToClient(client, vkText, params, principal, token);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 

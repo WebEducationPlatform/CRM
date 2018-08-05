@@ -76,17 +76,7 @@
                                         </a>
                                     </li>
                                 </th:block>
-                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
-                                    <li th:class="'menu' + ${notification.client.id}">
-                                        <a data-toggle="modal" class="link-cursor-pointer notify"
-                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                           th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
-                                        </a>
-                                    </li>
-                                </th:block>
                             </th:block>
-
                         </th:block>
                         <th:block th:if="${notifications.size() == 0}">
                             <li><a>У вас нет новых оповещений</a></li>
@@ -133,7 +123,7 @@
                 <div class="panel-heading">
             <span><h4>Комментарии:</h4></span>
             <div class="form-group comment-div">
-                <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
+                <textarea class="form-control textcomplete" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
             </div>
            <ul class="list-group main-modal-comment">
@@ -649,5 +639,12 @@
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="status_name_in_selection">
+    <div th:each="status : ${statuses}">
+        <option th:text="${status.name}"></option>
+    </div>
+</th:block>
+
 </body>
 </html>

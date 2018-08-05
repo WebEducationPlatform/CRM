@@ -21,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +35,6 @@ public class ClientRestController {
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
 	private final SendNotificationService sendNotificationService;
-
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -309,6 +307,7 @@ public class ClientRestController {
 						"attachment;filename=" + file.getName())
 				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
 				.body(resource);
+
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -333,7 +332,6 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
 	}
-
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
