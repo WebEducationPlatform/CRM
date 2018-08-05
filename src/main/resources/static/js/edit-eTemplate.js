@@ -15,13 +15,13 @@ var defaltText;
 var count = 0;
 $(document).ready(function () {
     current = document.getElementById("message");
-    exit = true;
 });
 
 var timerId = setInterval(function () {
     if (count == 0) {
         defaltText = CKEDITOR.instances['body'].getData();
         count++;
+        exit = true;
     }
     if (defaltText != CKEDITOR.instances['body'].getData()) {
         exit = false;
