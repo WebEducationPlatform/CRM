@@ -134,7 +134,8 @@ public class ClientHistory {
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
 		UPDATE("обновил информацию"),
-		SKYPE("назначил беседу по скайп на");
+		SKYPE("назначил беседу по скайп на"),
+		ADD_LOGIN("установил клиенту логин в skype - ");
 
 		private String info;
 
