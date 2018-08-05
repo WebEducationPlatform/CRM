@@ -1,0 +1,22 @@
+<html xmlns:th="httspan://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>fdfd</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+    <th:block th:if="${mapOfWrongAnswer.size() > 0}">
+        Добрый день, <span th:text="${name}"></span>, вы прошли тест на знание Java на сайте java-mentor.com и ответили верно на
+        <span th:text="${percentageOfRightAnswer}"></span> % вопросов. Давайте разберёмся во всём по порядку:
+        <br />
+        <br />
+        <tr th:each="instance, stat : ${mapOfWrongAnswer}">
+            <span th:text="${stat.count}"></span>) В вопросе №<td th:text="${instance.key}"></td> <span th:text="${rightQuestionText.get(instance.key)}"></span>, вы ответили<span th:text="${instance.value}"></span>, правильным ответом является<span th:text="${instance.key}"></span>, т.к. <span th:text="${rightQuestionExplanation.get(instance.key)}"></span>.
+        </tr>
+    </th:block>
+    <th:block th:if="${mapOfWrongAnswer.size() == 0}">
+        Вы прошли тест на знание Java без ошибок, это значит, что с базовыми конструкциями языка вы уже знакомы.
+        Мы рады помочь вам поднять ваши знания на новый уровень и скоро с вами обязательно свяжемся
+    </th:block>
+</body>
+</html>
