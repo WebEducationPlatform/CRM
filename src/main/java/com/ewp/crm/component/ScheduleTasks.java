@@ -14,6 +14,8 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ import java.util.Optional;
 
 @Component
 @EnableScheduling
+@PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
 public class ScheduleTasks {
 
 	private final VKService vkService;
@@ -59,10 +62,12 @@ public class ScheduleTasks {
 
 	private final AssignSkypeCallService assignSkypeCallService;
 
+	private Environment env;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -79,6 +84,7 @@ public class ScheduleTasks {
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
+		this.env = env;
 	}
 
 	private void addClient(Client newClient) {
@@ -107,6 +113,7 @@ public class ScheduleTasks {
 	private void checkTimeSkypeCall() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
+			String skypeTemplate = env.getRequiredProperty("skype.template");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
@@ -118,21 +125,21 @@ public class ScheduleTasks {
 
 			if (selectNetworks.contains("vk")) {
 				try {
-					vkService.sendMessageToClient(clientId, 4L, dateOfSkypeCall, principal);
+					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.info("VK message not sent", e);
 				}
 			}
 			if (selectNetworks.contains("sms")) {
 				try {
-					smsService.sendSMS(clientId, 4L, dateOfSkypeCall, principal);
+					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.info("SMS message not sent", e);
 				}
 			}
 			if (selectNetworks.contains("email")) {
 				try {
-					mailSendService.prepareAndSend(clientId, 4L, dateOfSkypeCall, principal);
+					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.info("E-mail message not sent");
 				}

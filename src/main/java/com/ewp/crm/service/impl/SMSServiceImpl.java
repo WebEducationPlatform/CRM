@@ -48,7 +48,7 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
-	public void sendSMS(Long clientId, Long templateId, String body, User principal) throws JSONException {
+	public void sendSMS(Long clientId, String smsTemplateText, String body, User principal) throws JSONException {
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
@@ -56,7 +56,7 @@ public class SMSServiceImpl implements SMSService {
 		params.put("%fullName%", fullName);
 		params.put("%bodyText%", body);
 		params.put("%dateOfSkypeCall%", body);
-		String smsText = messageTemplateService.replaceName(messageTemplateService.get(templateId).getOtherText(), params);
+		String smsText = messageTemplateService.replaceName(smsTemplateText, params);
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);

@@ -140,9 +140,8 @@ public class VKService {
         return Optional.empty();
     }
 
-	public String sendMessageToClient(Long clientId, Long templateId, String body, User principal) {
+	public String sendMessageToClient(Long clientId, String templateText, String body, User principal) {
 		Client client = clientService.getClientByID(clientId);
-		String msg = messageTemplateService.get(templateId).getOtherText();
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
 		params.put("%fullName%", fullName);
@@ -153,7 +152,7 @@ public class VKService {
 			if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
 				String link =  validVkLink(socialNetwork.getLink());
 				long id = Long.parseLong(link.replaceAll(".+id", ""));
-				String vkText = replaceName(msg, params);
+				String vkText = replaceName(templateText, params);
 				User user = userService.get(principal.getId());
 				String token = user.getVkToken();
 				if(token == null) {

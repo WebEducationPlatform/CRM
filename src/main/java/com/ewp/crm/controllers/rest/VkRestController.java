@@ -4,13 +4,8 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.VkMemberService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -35,19 +27,22 @@ public class VkRestController {
 	private final VKService vkService;
 	private final VkTrackedClubService vkTrackedClubService;
 	private final VkMemberService vkMemberService;
+	private final MessageTemplateService messageTemplateService;
 
 	@Autowired
-	public VkRestController(VKService vkService1, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService) {
+	public VkRestController(VKService vkService1, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, MessageTemplateService messageTemplateService) {
 		this.vkService = vkService1;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	@RequestMapping(value = "/rest/vkontakte", method = RequestMethod.POST)
 	public ResponseEntity<String> sendToVkontakte(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                              @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		vkService.sendMessageToClient(clientId, templateId, body, principal);
+		String templateText = messageTemplateService.get(templateId).getOtherText();
+		vkService.sendMessageToClient(clientId, templateText, body, principal);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
 	}
 
