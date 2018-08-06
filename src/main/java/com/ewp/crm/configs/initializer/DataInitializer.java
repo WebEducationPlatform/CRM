@@ -98,6 +98,7 @@ public class DataInitializer {
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
 				"</body>\n" +
 				"</html>";
+
 		String templateText2 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
@@ -186,7 +187,7 @@ public class DataInitializer {
 		//TODO удалить после теста
 		Faker faker = new Faker();
 		List<Client> list = new LinkedList<>();
-		for (int i = 0; i < 40; i++) {
+		for (int i = 0; i < 0; i++) {
 			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("First Status"));
 			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
 			list.add(client);
@@ -194,7 +195,7 @@ public class DataInitializer {
 		clientService.addBatchClients(list);
 		list.clear();
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("deleted"));
 			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
 			list.add(client);
