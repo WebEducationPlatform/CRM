@@ -193,7 +193,7 @@ public class MailSendService {
         final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         mimeMessageHelper.setFrom("Java-Mentor.ru");
         mimeMessageHelper.setTo(client.getEmail());
-        mimeMessageHelper.setSubject("Test complete!");
+        mimeMessageHelper.setSubject("Ваш личный Java наставник");
         mimeMessageHelper.setText(htmlContent, true);
 
 
