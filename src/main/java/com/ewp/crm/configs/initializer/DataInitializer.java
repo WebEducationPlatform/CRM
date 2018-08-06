@@ -98,6 +98,7 @@ public class DataInitializer {
 				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
 				"</body>\n" +
 				"</html>";
+
 		String templateText2 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
 				"<head></head>\n" +
