@@ -1099,8 +1099,8 @@ $('.assign-skype-call-btn').on('click', function (e) {
             if(clientSkype === null || 0 === clientSkype.length) {
                 currentStatus.css('color', '#333');
                 currentStatus.text("Введите Skype пользователя");
-                currentStatus.after('<input class="enter-skype-login"> </input>');
-                $('.enter-skype-login').after('<button type="button" class="btn btn-info btn-sm confirm-skype-login">OK</button>');
+                currentStatus.after('<input class="enter-skype-login form-control"> </input>');
+                $('.enter-skype-login').after('<br/>' + '<button type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
             } else {
                 currentBtn.attr("disabled", "true");
                 currentBtn.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +

@@ -48,7 +48,8 @@ public class EmailRestController {
 	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		mailSendService.prepareAndSend(clientId, templateId, body, principal);
+		String templateText = messageTemplateService.get(templateId).getTemplateText();
+		mailSendService.prepareAndSend(clientId, templateText, body, principal);
 		return ResponseEntity.ok().build();
 	}
 

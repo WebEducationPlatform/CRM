@@ -4,6 +4,12 @@
 	margin-bottom: 5px;
 }
 
+.enter-skype-login {
+	width: 40%;
+	display: inline;
+	margin-bottom: 5px;
+}
+
 .confirm-skype-interceptor {
 	text-align: center;
 }

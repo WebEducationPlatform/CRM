@@ -86,7 +86,7 @@ public class MailSendService {
 		javaMailSender.send(message);
 	}
 
-	public void prepareAndSend(Long clientId, Long templateId, String body, User principal) {
+	public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
 		String templateFile = "emailStringTemplate";
 		Client client = clientService.getClientByID(clientId);
 		String recipient = client.getEmail();
@@ -97,7 +97,6 @@ public class MailSendService {
 		params.put("%bodyText%", body);
 		params.put("%dateOfSkypeCall%", body);
 		final Context ctx = new Context();
-		String templateText = messageTemplateService.get(templateId).getTemplateText();
 		templateText = templateText.replaceAll("\n", "");
 		ctx.setVariable("templateText", templateText);
 		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -130,7 +129,6 @@ public class MailSendService {
 			throw new MessageTemplateException(e.getMessage());
 		}
 	}
-
 
 	@Async
 	public void sendNotificationMessage(User userToNotify, String notificationMessage) {

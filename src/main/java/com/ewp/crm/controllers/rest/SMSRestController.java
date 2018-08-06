@@ -41,8 +41,9 @@ public class SMSRestController {
 	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                      @RequestParam(value = "body",required = false) String body) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String smsTemplateText = messageTemplateService.get(templateId).getOtherText();
 		try {
-			smsService.sendSMS(clientId, templateId, body, principal);
+			smsService.sendSMS(clientId, smsTemplateText, body, principal);
 			return ResponseEntity.status(HttpStatus.OK).body("Message sent");
 		} catch (JSONException e) {
 			logger.error("Error to send message ", e);
