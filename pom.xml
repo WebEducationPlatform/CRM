@@ -5,7 +5,7 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>1.0-CRM</version>
+	<version>1.2-CRM</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>
@@ -164,6 +164,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
