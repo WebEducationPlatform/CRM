@@ -528,9 +528,7 @@ $(document).ready(function () {
         }])
 });
 
-
-
-function reAviableUser(id) {
+function reAvailableUser(id) {
     let url = '/admin/rest/user/reaviable';
     let formData = {
         deleteId: id
