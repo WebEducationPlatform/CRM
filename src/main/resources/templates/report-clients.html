@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <script th:src="@{/js/validator.min.js}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 </head>
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
@@ -13,25 +17,20 @@
     <div id="user-info-container" class="container-fluid">
         <div class="row-fluid">
             <div class="col-md-3" style="width: 20%; padding:30px;">
+                <input type="text" name="mailingDate" id="mailingDate"/>
+                <div id="formToSend">
                 <form id="formCreate" action="/last-days" method="get">
                     <div class="form-group">
-                        <label class="p-user">Сколько пришло людей за последний N?</label>
-                        <input class="form-control input-sm form-control-report" name="days"/>
+                        <label class="p-user">Отчет</label>
+                        <textarea style="resize: both" class="form-control input-sm form-control-report" name="reportArea" th:id="reportArea"/>
                     </div>
                     <div class="form-group">
-                        <label class="p-user">Сколько учится?</label>
-                        <input class="form-control input-sm form-control-report" name="learning"/>
+                        <label class="p-user">Отправить на Email</label>
+                        <input class="form-control input-sm form-control-report" name="email"  th:value="${currentMail}" th:id="email"/>
                     </div>
-                    <div class="form-group">
-                        <label class="p-user"> Сколько закончило обучение за N?</label>
-                        <input class="form-control input-sm form-control-report" name="finish"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="p-user">Сколько бросило обучение за N?</label>
-                        <input class="form-control input-sm form-control-report" name="out"/>
-                    </div>
+                    <button class="btn btn-primary" onclick="sendReport()">Отправить отчет</button>
                 </form>
-
+                </div>
                 <div class="pos-f-t">
                     <nav class="navbar navbar-dark bg-dark">
                         <span class="navbar-toggler" data-toggle="collapse"
@@ -42,39 +41,33 @@
                         <div class="bg-dark p-4">
                             <form>
                                 <div class="form-group">
-                                    <label class="p-user">начало обучение</label>
-                                    <select class="form-control input-sm form-control-report">
-                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="p-user">пороходит обучение</label>
-                                    <select class="form-control input-sm form-control-report">
+                                    <label class="p-user">проходит обучение</label>
+                                    <select th:id="select0" class="form-control input-sm form-control-report" >
                                         <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="p-user">закончили обучение</label>
-                                    <select class="form-control input-sm form-control-report">
+                                    <select th:id="select1" class="form-control input-sm form-control-report">
                                         <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="p-user">бросили обучение</label>
-                                    <select class="form-control input-sm form-control-report">
+                                    <select th:id="select2" class="form-control input-sm form-control-report">
                                         <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
                                     </select>
                                 </div>
+                                <button class="btn btn-primary" onclick="updateReportsStatus()">Обновить статусы</button>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div>
-                <button class="btn btn-primary" onclick="createChart()">Отчет</button>
-                <a href="/client">
-                    <button class="btn btn-primary">Назад</button>
-                </a>
+                <div>
+                    <a href="/client">
+                        <button class="btn btn-primary">Назад</button>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
