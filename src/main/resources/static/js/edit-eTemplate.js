@@ -10,29 +10,28 @@ function switchTemplate() {
 }
 
 var current;
-var exit;
 var defaltText;
 var count = 0;
+var userId;
+var templateId;
 $(document).ready(function () {
     current = document.getElementById("message");
+    userId = $('#saveTemplate').attr('user-id');
+    templateId = $('#saveTemplate').data("template-id");
+
 });
 
 var timerId = setInterval(function () {
     if (count == 0) {
+        CKEDITOR.instances['body'].setData(localStorage.getItem('user ' + userId + ' template ' + templateId));
         defaltText = CKEDITOR.instances['body'].getData();
         count++;
-        exit = true;
     }
     if (defaltText != CKEDITOR.instances['body'].getData()) {
-        exit = false;
+        defaltText = CKEDITOR.instances['body'].getData();
+        localStorage.setItem('user ' + userId + ' template ' + templateId, defaltText);
     }
 }, 100);
-
-window.onbeforeunload = function () {
-    if (!exit) {
-        return "Данные не сохранены. Точно перейти?";
-    }
-};
 
 function saveTemplate(templateId) {
     let url = '/admin/editMessageTemplate';
@@ -55,7 +54,6 @@ function saveTemplate(templateId) {
         success: function (result) {
             current.style.color = "limegreen";
             current.textContent = "Сохранено";
-            exit = true;
             defaltText = CKEDITOR.instances['body'].getData();
         },
         error: function (e) {
@@ -133,4 +131,5 @@ $(document).ready(function () {
         toolbar: 'styles',
         icon: 'info.png'
     });
+
 });
