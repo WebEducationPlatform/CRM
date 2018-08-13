@@ -29,7 +29,9 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval2(int days);
 
-	List<Client> getClientByTimeInterval(int days);
+//	List<Client> getClientByTimeInterval(long firstDay, long lastDay);
+
+	List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types);
 
 	Long countByDate(String date);
 }

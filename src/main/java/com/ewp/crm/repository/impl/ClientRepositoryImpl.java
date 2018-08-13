@@ -11,12 +11,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
     private final EntityManager entityManager;
-
     @Value("${project.jpa.batch-size}")
     private int batchSize;
 
@@ -44,10 +45,21 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         return count.longValue();
     }
 
+//    @Override
+//    public List<Client> getClientByTimeInterval(long firstDay, long lastDay) {
+//        return entityManager.createQuery("select cl from Client cl where cl.dateOfRegistration > (current_date() - (:firstDay))" +
+//                " AND cl.dateOfRegistration < (current_date() - (:lastDay)) AND cl")
+//                .setParameter("firstDay", firstDay)
+//                .setParameter("lastDay", lastDay)
+//                .getResultList();
+//    }
+
     @Override
-    public List<Client> getClientByTimeInterval(int days) {
-        return entityManager.createQuery("select cl from Client cl where cl.dateOfRegistration > (current_date() - (:days))")
-                .setParameter("days", days)
+    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types) {
+        return entityManager.createQuery("SELECT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
+                .setParameter("firstDay", firstDay)
+                .setParameter("lastDay", lastDay)
+                .setParameter("types", Arrays.asList(types))
                 .getResultList();
     }
 
@@ -122,7 +134,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
-        TypedQuery<Client> query = entityManager.createQuery("from Client c where c.status = :status and (c.ownerUser in (:ownerUser) or c.ownerUser is NULL)", Client.class);
+        TypedQuery<Client> query = entityManager.createQuery("SELECT c from Client c where c.status = :status and (c.ownerUser in (:ownerUser) or c.ownerUser is NULL)", Client.class);
         query.setParameter("status", status);
         query.setParameter("ownerUser", ownUser);
         return query.getResultList();

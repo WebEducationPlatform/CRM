@@ -1,6 +1,7 @@
 package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Message;
@@ -44,18 +45,20 @@ public class MailSendService {
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final MailConfig mailConfig;
 	private String emailLogin;
 
 
 	@Autowired
 	public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService) {
+	                       ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig) {
 		this.javaMailSender = javaMailSender;
 		this.htmlTemplateEngine = htmlTemplateEngine;
 		this.imageConfig = imageConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.mailConfig = mailConfig;
 		checkConfig(environment);
 	}
 
@@ -116,5 +119,11 @@ public class MailSendService {
 		message.setFrom(emailLogin);
 		message.setTo(userToNotify.getEmail());
 		javaMailSender.send(message);
+	}
+
+	public void sendNotificationMessageYourself(String notificationMessage){
+		User user = new User();
+		user.setEmail(mailConfig.getLogin());
+		sendNotificationMessage(user,notificationMessage);
 	}
 }

@@ -47,6 +47,9 @@ public class DataInitializer {
 	@Autowired
 	private ClientHistoryService clientHistoryService;
 
+	@Autowired
+	private ReportsStatusService reportsStatusService;
+
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -178,6 +181,7 @@ public class DataInitializer {
 			list.add(client);
 		}
 		clientService.addBatchClients(list);
+		reportsStatusService.add(new ReportsStatus(4,3,2));
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.report.ReportService;
+import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
@@ -16,7 +18,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,10 +54,14 @@ public class ScheduleTasks {
 
 	private final YoutubeClientService youtubeClientService;
 
+	private final MailSendService mailSendService;
+
+	private final ReportService reportService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, ReportService reportService, MailSendService mailSendService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -71,6 +76,8 @@ public class ScheduleTasks {
 		this.vkMemberService = vkMemberService;
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
+		this.reportService = reportService;
+		this.mailSendService = mailSendService;
 	}
 
 	private void addClient(Client newClient) {
@@ -193,6 +200,11 @@ public class ScheduleTasks {
 				smsInfoService.update(sms);
 			}
 		}
+	}
+
+	@Scheduled(cron = "0 0 10 01 * ?")
+	private void buildAndSendReport() {
+		mailSendService.sendNotificationMessageYourself(reportService.buildReportOfLastMonth());
 	}
 
 	private String determineStatusOfResponse(String status) {
