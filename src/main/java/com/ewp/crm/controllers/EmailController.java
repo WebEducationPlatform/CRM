@@ -39,7 +39,7 @@ public class EmailController {
 		modelAndView.addObject("template", MessageTemplate);
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-
+		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
 }
