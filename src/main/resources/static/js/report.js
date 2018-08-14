@@ -11,8 +11,8 @@ $('#mailingDate').daterangepicker({
         'This Month': [moment().startOf('month'), moment().endOf('month')],
         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
     },
-    "startDate": moment(),
-    "endDate": moment().startOf('month')
+    "startDate": moment().startOf('month'),
+    "endDate": moment()
 }, function(start, end, label) {
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
@@ -93,12 +93,20 @@ function updateReportsStatus() {
 }
 
 function sendReport() {
-    let data = {
-        report: $('#reportArea').val(),
-        email: $('#email').val
+    var data = {
+        report: document.getElementById('reportArea').value,
+        email: document.getElementById('email').value
     };
     $.ajax({
-        url: "/rest/report/sendReportToEmail"
+        url: "/rest/report/sendReportToEmail",
+        type: "POST",
+        data: data,
+        success: function (response) {
+            location.reload();
+        },
+        error: function (response) {
+            alert('error ' + response);
+        }
     });
 }
 
