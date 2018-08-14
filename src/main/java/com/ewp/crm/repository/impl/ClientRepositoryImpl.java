@@ -56,7 +56,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types) {
-        return entityManager.createQuery("SELECT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
+        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
                 .setParameter("types", Arrays.asList(types))
