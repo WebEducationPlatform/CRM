@@ -50,8 +50,8 @@ public class ReportRestController {
     }
 
     @RequestMapping(value = "/sendReportToEmail", method = RequestMethod.POST)
-    public ResponseEntity sendReportToEmail(@RequestParam String report,
-                                            @RequestParam String email){
+    public ResponseEntity sendReportToEmail(@Valid @RequestParam String report,
+                                            @Valid @RequestParam String email){
         User user = new User();
         user.setEmail(email);
         mailSendService.sendNotificationMessage(user, report);

@@ -123,7 +123,7 @@ public class MailSendService {
 
 	public void sendNotificationMessageYourself(String notificationMessage){
 		User user = new User();
-		user.setEmail(mailConfig.getLogin());
+		user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
 		sendNotificationMessage(user,notificationMessage);
 	}
 }
