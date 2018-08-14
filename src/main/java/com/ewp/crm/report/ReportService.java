@@ -76,10 +76,18 @@ public class ReportService {
                  .anyMatch(y -> y.getType().equals(ClientHistory.Type.STATUS) &&
                          y.getTitle().contains(endLearningName))).count();
          long countInLearningClients = students.stream().filter(x -> x.getStatus().getName().equals(inLearningName)).count();
+
+         long percentage;
+         if (countDropOutClients + countEndLearningClients != 0) {
+             percentage = (long) (((double) countEndLearningClients / (double) (countDropOutClients + countEndLearningClients)) * 100);
+         } else {
+             percentage = 0;
+         }
+         
          return  "Отчет за " + dates[0] + "-" + dates[1] + "\n\r" +
                  "На проекте " + countNewClient + " новых клиентов. \n\r" +
                  "Покинули " + (countDropOutClients + countEndLearningClients) +" человек из которых " +
-                 ((countDropOutClients + countEndLearningClients)/100) * countEndLearningClients * 100 + "% (" +
+                 percentage + "% (" +
                  countEndLearningClients +" человек) закончили обучение. \n\r" +
                  "В настоящее время обучается " + countInLearningClients + "человек.";
      }
