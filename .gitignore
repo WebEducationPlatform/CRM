@@ -26,3 +26,15 @@ nbdist/
 /Images/
 /DownloadData
 /CallRecords/
+
+### Properties
+application.properties
+facebook.properties
+gmail.properties
+image.properties
+ip.properties
+javamentortest.properties
+skype-message.properties
+sms.properties
+vk.properties
+youtube.properties
