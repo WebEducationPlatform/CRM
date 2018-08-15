@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <title>Редактирование шаблона сообщения</title>
@@ -31,7 +31,7 @@
                     </label>
                 </div>
                 <label for="body"></label>
-                <textarea  id="body" required="required" th:text="${template.templateText}">
+                <textarea id="body" required="required" th:text="${template.templateText}">
                              &lt;p&gt;
                                  Example template layout.
                              &lt;/p&gt;
@@ -43,7 +43,7 @@
                 <textarea  th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
             </div>
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary" th:attr="user-id=${user.id}" th:attrappend="data-template-id=${template.id}" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
+                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
                 <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
             </div>
             <p><span id = "message"></span></p>
