@@ -26,6 +26,3 @@ nbdist/
 /Images/
 /DownloadData
 /CallRecords/
-
-### Properties
-*.properties

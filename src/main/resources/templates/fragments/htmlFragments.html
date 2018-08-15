@@ -16,110 +16,100 @@
 
 <th:block th:fragment="top-navigation-panel">
     <div id="not-bar" class="container">
-        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-            <div class="navbar-header">
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
-                    </ul>
-                </div>
-
-            </div>
-
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="/client">Доска</a></li>
-                    <li><a href="/client/allClients">Все клиенты</a></li>
-                    <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
-                        <div class="search-place">
-                            <input id="search-clients" type="text" class="form-control" name="search"
-                                   placeholder="Search"/>
-                        </div>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
-                        <a class="glyphicon glyphicon-bell redBell"
-                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
-                        <ul class="dropdown-menu notification-dropdown">
-                            <th:block th:if="${notifications.size() > 0}">
-                                <th:block th:each="notification : ${notifications}"
-                                          th:if="${!notification.client.status.invisible}">
-                                    <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="link-cursor-pointer notify"
-                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                               th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                    <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).SMS}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="notification-header-btn sms-error-btn"
-                                               th:attrappend="data-id=${notification.client.id}"
-                                               th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                    <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).POSTPONE}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="link-cursor-pointer notify"
-                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                               th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                    <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="link-cursor-pointer notify"
-                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                               th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                    <th:block
-                                            th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
-                                        <li th:class="'menu' + ${notification.client.id}">
-                                            <a data-toggle="modal" class="link-cursor-pointer notify"
-                                               th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
-                                               th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
-                                            </a>
-                                        </li>
-                                    </th:block>
-                                </th:block>
-
-                            </th:block>
-                            <th:block th:if="${notifications.size() == 0}">
-                                <li><a>У вас нет новых оповещений</a></li>
-                            </th:block>
-                        </ul>
-                    </li>
-                    <li>
-                        <button data-toggle="dropdown" class="user-icon"
-                                th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
-                                     + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
-                                th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"><a
-                                    th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a>
-                            </li>
-                            <li><a href="/user/customize">Настройки</a></li>
-
-                            <li><a href="/logout">Выход</a></li>
-                        </ul>
-                    </li>
-                </ul>
+                    <span id="logo-span" class="navbar-brand navbar-left">JM-CRM</span>
+</ul>
             </div>
-        </nav>
+
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/client">Доска</a></li>
+                <li><a href="/client/allClients">Все клиенты</a></li>
+                <li><a href="/client/mailing">Рассылка</a></li>
+                <li th:if="${#httpServletRequest.getRequestURI() == '/client'}" >
+                   <div class="search-place">
+                       <input id="search-clients" type="text" class="form-control" name="search" placeholder="Search" />
+                   </div>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
+                    <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
+                    <ul class="dropdown-menu notification-dropdown">
+                        <th:block th:if="${notifications.size() > 0}">
+                            <th:block th:each="notification : ${notifications}" th:if="${!notification.client.status.invisible}">
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                    <a data-toggle="modal" class="link-cursor-pointer notify"
+                                       th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                       th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                       th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
+                                    </a>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).SMS}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="notification-header-btn sms-error-btn" th:attrappend="data-id=${notification.client.id}"
+                                           th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).POSTPONE}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
+                                        </a>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).NEW_USER}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
+                            </th:block>
+
+                        </th:block>
+                        <th:block th:if="${notifications.size() == 0}">
+                            <li><a>У вас нет новых оповещений</a></li>
+                        </th:block>
+                    </ul>
+                </li>
+                <li>
+                    <button data-toggle="dropdown" class="user-icon"
+                            th:text="${#strings.substring(#authentication.getPrincipal().getFirstName(), 0,1)
+                                     + #strings.substring(#authentication.getPrincipal().getLastName(), 0,1)}"
+                            th:value="${#authentication.getPrincipal().getFirstName()} + ' ' + ${#authentication.getPrincipal().getLastName()}">
+                    </button>
+                   <ul class="dropdown-menu">
+                                           <li><a href="/user/customize">Настройки</a></li>
+
+                                           <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"><a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a></li>
+                                           <li><a href="/logout">Выход</a></li>
+                                      </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
     </div>
 </th:block>
 
@@ -142,22 +132,22 @@
         <div class="comments">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <span><h4>Комментарии:</h4></span>
-                    <div class="form-group comment-div">
+            <span><h4>Комментарии:</h4></span>
+            <div class="form-group comment-div">
                 <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
-                    </div>
-                    <ul class="list-group main-modal-comment">
-                    </ul>
-                </div>
             </div>
+           <ul class="list-group main-modal-comment">
+            </ul>
         </div>
+    </div>
+    </div>
     </div>
 </th:block>
 
-<!--Отправка фиксированного сообщения во все сети.-->
+ <!--Отправка фиксированного сообщения во все сети.-->
 <th:block th:fragment="sendTemplateModal">
-    <div class="modal fade fix-modal" th:id="'sendTemplateModal'" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade fix-modal" th:id="'sendTemplateModal'" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -166,8 +156,8 @@
                 <div class="modal-body">
                     <div class="form-сheck">
                         <form class="box-modal">
-                            <button type="button" class="btn btn-success btn-xs select_all ">Выбрать все</button>
-                            <button type="button" class="btn btn-success btn-xs deselect_all">Отменить все</button>
+                            <button type="button" class="btn btn-success btn-xs select_all " >Выбрать все</button>
+                            <button type="button" class="btn btn-success btn-xs deselect_all" >Отменить все</button>
                         </form>
                     </div>
                 </div>
@@ -196,8 +186,8 @@
                 <div class="modal-body">
                     <select class="form-control" id="selectType" name="selectType">
                         <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
-                            <option th:value="${socialNetworkType.name}" th:text="${socialNetworkType.name}"></option>
-                        </th:block>
+                        <option th:value="${socialNetworkType.name}" th:text="${socialNetworkType.name}"></option>
+                            </th:block>
                         <option id="email" name="email" th:value="email">Email</option>
                         <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
                     </select>
@@ -214,7 +204,7 @@
 
 <th:block th:fragment="deleteUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -236,8 +226,7 @@
 
 <th:block th:fragment="deleteVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
+        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -247,9 +236,7 @@
                         <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Да
-                        </button>
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Да</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                     </div>
                 </div>
@@ -261,8 +248,7 @@
 
 <th:block th:fragment="deleteVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
+        <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -272,9 +258,7 @@
                         <h6>Вы уверены, что хотите удалить отслеживаемую группу ВК?</h6>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Удалить
-                        </button>
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteVkTrackedClub('+ ${club.id} + ')'">Удалить</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                     </div>
                 </div>
@@ -285,8 +269,7 @@
 
 <th:block th:fragment="updateVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
-        <div class="modal fade" th:id="'updateVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"
-             aria-hidden="true">
+        <div class="modal fade" th:id="'updateVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -311,9 +294,7 @@
                                th:value="${club.clientId}"/>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary"
-                                th:onclick="'updateVkTrackedClub('+ ${club.id} + ')'">Обновить
-                        </button>
+                        <button type="button" class="btn btn-primary" th:onclick="'updateVkTrackedClub('+ ${club.id} + ')'">Обновить</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                     </div>
                 </div>
@@ -323,33 +304,33 @@
 </th:block>
 
 <th:block th:fragment="addVkTrackedClub">
-    <div class="modal fade" th:id="addVkTrackedClubModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Добавить новое отслеживаемое сообщество</h5>
-                </div>
-                <div class="modal-body">
-                    <label for="groupName">Name</label>
-                    <input type="text" id="newGroupName" name="groupName"
-                           class="form-control"/>
-                    <label for="groupId">GroupId</label>
-                    <input type="text" id="newGroupId" name="groupId"
-                           class="form-control"/>
-                    <label for="token">token</label>
-                    <input type="text" id="newToken" name="token"
-                           class="form-control"/>
-                    <label for="clientId">clientId</label>
-                    <input type="text" id="newClientId" name="clientId"
-                           class="form-control"/>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" th:onclick="'addVkTrackedClub()'">Добавить</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+        <div class="modal fade" th:id="addVkTrackedClubModal" tabindex="-1" role="dialog"  aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Добавить новое отслеживаемое сообщество</h5>
+                    </div>
+                    <div class="modal-body">
+                        <label for="groupName">Name</label>
+                        <input type="text" id="newGroupName" name="groupName"
+                               class="form-control" />
+                        <label for="groupId">GroupId</label>
+                        <input type="text" id="newGroupId" name="groupId"
+                               class="form-control" />
+                        <label for="token">token</label>
+                        <input type="text" id="newToken" name="token"
+                               class="form-control" />
+                        <label for="clientId">clientId</label>
+                        <input type="text" id="newClientId" name="clientId"
+                               class="form-control" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'addVkTrackedClub()'">Добавить</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </th:block>
 
 <th:block th:fragment="addSocialNetworkType">
@@ -388,71 +369,65 @@
 </th:block>
 
 <th:block th:fragment="changeStatusNameModal">
-    <div class="modal fade" th:id="'renameStatusModal' + ${status.id}" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="renameStatusModalTitle" th:text="${status.name}"></h5>
+<div class="modal fade" th:id="'renameStatusModal' + ${status.id}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameStatusModalTitle" th:text="${status.name}"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
+                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" placeholder="Название статуса"/>
                 </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
-                        <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}"
-                               maxlength="30" placeholder="Название статуса"/>
-                    </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                    <button type="button" class="btn btn-primary"
-                            th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить
-                    </button>
-                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить</button>
             </div>
         </div>
     </div>
+</div>
 </th:block>
 <th:block th:fragment="deleteNotifications">
-    <div id="delete-client-modal" class="modal" role="dialog">
-        <div class="modal-dialog">
+<div id="delete-client-modal" class="modal" role="dialog">
+    <div class="modal-dialog">
 
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтвердите свое действие</h5>
-                </div>
-                <div class="modal-body">
-                    <p>Вы уверены, что хотите удалить карточк - у(ки), на котор - ой(ых) есть непрочитанные уведомления?
-                        Если выбирете "да", то все уведомления будут удалены.</p>
-                </div>
-                <div class="modal-footer">
-                    <button id="delete-client-btn" type="button" class="btn btn-primary" data-dismiss="modal">Да
-                    </button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                </div>
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтвердите свое действие</h5>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить карточк - у(ки), на котор - ой(ых) есть непрочитанные уведомления? Если выбирете "да", то все уведомления будут удалены.</p>
+            </div>
+            <div class="modal-footer">
+                <button  id ="delete-client-btn"   type="button" class="btn btn-primary" data-dismiss="modal">Да</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>
+</div>
 </th:block>
 <th:block th:fragment="deleteStatusModal">
-    <div class="modal fade" id="deleteStatusModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтвердите свое действие</h5>
-                </div>
-                <div class="modal-body">
-                    <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
-                </div>
-                <div class="modal-footer">
-                    <button id="delete-status-btn" type="button" class="btn btn-primary">Да</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
-                </div>
+<div class="modal fade" id="deleteStatusModal" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтвердите свое действие</h5>
+            </div>
+            <div class="modal-body">
+                <h6>Вы уверены, что хотите удалить статус и содержащих его клиентов?</h6>
+            </div>
+            <div class="modal-footer">
+                <button id="delete-status-btn" type="button" class="btn btn-primary" >Да</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
             </div>
         </div>
     </div>
+</div>
 </th:block>
 
 <th:block th:fragment="createDefaultStatusModal">
-    <div class="modal fade" th:if="${statuses.size()== 0}" th:id="createDefaultStatus" tabindex="-1" role="dialog"
-         aria-hidden="true">
+    <div class="modal fade" th:if="${statuses.size()== 0}" th:id="createDefaultStatus" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -475,7 +450,7 @@
 
 <!--Отправка кастомного сообщения в VKONTAKTE , из модального окна с расширенной информацией-->
 <th:block th:fragment="vkontakteMessageTemplateModal">
-    <div class="modal fade" th:id="'customVKMessageTemplate'" role="dialog" aria-hidden="true">
+    <div class="modal fade" th:id="'customVKMessageTemplate'"  role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header padding-top-bot">
@@ -489,7 +464,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <span class="send-custom-vk-status"></span>
+                    <span class = "send-custom-vk-status"></span>
                     <button type="button" class="btn btn-primary send-vk-btn">Отправить</button>
                 </div>
             </div>
@@ -499,7 +474,7 @@
 
 <!--Отправка кастомного сообщения в EMAIL , из модального окна с расширенной информацией-->
 <th:block th:fragment="emailMessageTemplateModal">
-    <div class="modal fade" th:id="'customEmailMessageTemplate'" role="dialog" aria-hidden="true">
+    <div class="modal fade"  th:id="'customEmailMessageTemplate'"  role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header padding-top-bot">
@@ -523,7 +498,7 @@
 
 <!--//Отправка кастомных сообщений во все сети с карточки-->
 <th:block th:fragment="customMessageTemplateModal">
-    <div class="modal fade custom-modal" th:id="'customMessageTemplate'" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade custom-modal"  th:id="'customMessageTemplate'" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body">
@@ -533,8 +508,8 @@
                     </div>
                     <div class="form-сheck">
                         <form class="box-modal">
-                            <button type="button" class="btn btn-success btn-xs select_all">Выбрать все</button>
-                            <button type="button" class="btn btn-success btn-xs deselect_all">Отменить все</button>
+                            <button type="button" class="btn btn-success btn-xs select_all" >Выбрать все</button>
+                            <button type="button" class="btn btn-success btn-xs deselect_all" >Отменить все</button>
                         </form>
                     </div>
                 </div>
@@ -588,7 +563,7 @@
 </th:block>
 
 <th:block th:fragment="hideClient">
-    <div class="modal fade" th:id="'hideClient' + ${client.id}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" th:id="'hideClient' + ${client.id}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -598,8 +573,7 @@
                     <h6>Вы уверены, что хотите удалить статус? Все клиенты статуса будут перемещены в архив</h6>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" th:onclick="'hideClient(\''+ ${client.id} +'\')'">OK
-                    </button>
+                    <button type="button" class="btn btn-primary" th:onclick="'hideClient(\''+ ${client.id} +'\')'">OK</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
                 </div>
             </div>
@@ -619,7 +593,7 @@
                 <div th:id="'collapse'" class="panel-collapse collapse client-collapse">
                     <div class="panel-body">
                         <table class="table table-bordered history-line" th:id="'client-string-history'">
-                            <tbody></tbody>
+                          <tbody></tbody>
                         </table>
                             <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>
                     </div>

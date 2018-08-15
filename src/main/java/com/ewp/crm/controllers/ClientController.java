@@ -7,16 +7,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class ClientController {
@@ -85,6 +86,13 @@ public class ClientController {
 		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
+		return modelAndView;
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "/client/mailing", method = RequestMethod.GET)
+	public ModelAndView mailingPage() {
+		ModelAndView modelAndView = new ModelAndView("mailing");
 		return modelAndView;
 	}
 

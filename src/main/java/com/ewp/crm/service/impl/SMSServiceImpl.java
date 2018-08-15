@@ -17,24 +17,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class SMSServiceImpl implements SMSService {
 
 	private static Logger logger = LoggerFactory.getLogger(SMSServiceImpl.class);
-
 	private final SMSConfig smsConfig;
 	private final RestTemplate restTemplate;
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final SMSInfoService smsInfoService;
 	private final MessageTemplateService messageTemplateService;
-
-
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
@@ -201,5 +195,45 @@ public class SMSServiceImpl implements SMSService {
 		httpHeaders.set("Authorization", encodeAuth);
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return httpHeaders;
+	}
+
+	@Override
+	public void sendSMS(Set<ClientData> phoneNumbers, String text) {
+		URI uri = URI.create(TEMPLATE_URI + "/send.json");
+		JSONObject jsonRequest = new JSONObject();
+		JSONObject request = buildMessages(jsonRequest, phoneNumbers, text);
+		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+		try {
+			JSONObject body = new JSONObject(response.getBody());
+			JSONArray messages = body.getJSONArray("messages");
+		} catch (JSONException e) {
+			logger.error("Error to send messages ", e);
+		}
+	}
+
+	private JSONObject buildMessages(JSONObject jsonRequest, Set<ClientData> phoneNumber, String text) {
+		JSONArray jsonClients = new JSONArray();
+		for (ClientData phone : phoneNumber) {
+			jsonClients.put(buildMessage(phone.getInfo(), text));
+		}
+		try {
+			jsonRequest.put("messages", jsonClients);
+		} catch (JSONException e) {
+			logger.error("Can`t build JSON message {}", e.getMessage());
+		}
+		return jsonRequest;
+	}
+
+	private JSONObject buildMessage(String phone, String text) {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject.put("phone", phone);
+			jsonObject.put("sender", smsConfig.getAlphaName());
+			jsonObject.put("text", text);
+		} catch (JSONException e) {
+			logger.error("Can`t build JSON message {}", e.getMessage());
+		}
+		return jsonObject;
 	}
 }

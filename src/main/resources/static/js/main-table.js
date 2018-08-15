@@ -9,10 +9,6 @@ $('.custom-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
     var clientId = $(this).find('.send-all-custom-message').data('clientId');
     drawCheckbox(currentForm, clientId);
-    // $('#custom-eTemplate-body').val(localStorage.getItem("client " + clientId));
-    // $('#custom-eTemplate-body').keyup(function () {
-    //     localStorage.setItem("client " + clientId, $('#custom-eTemplate-body').val());
-    // })
 });
 
 // Отрисовка чекбоксов социальных сетей
@@ -896,7 +892,7 @@ $(function () {
 
 
 
-//Отправка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
+//Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
     $('.send-all-custom-message').on('click', function(event) {
         var clientId = $(this).data('clientId');
@@ -938,7 +934,6 @@ $(function () {
                         $('#custom-eTemplate-body').val("");
                         current.text("Отправить");
                         current.removeAttr("disabled");
-                        // delete  localStorage["client " + clientId];
                     }
                 },
                 error: function (e) {
@@ -999,12 +994,7 @@ $(document).ready(function () {
         minDate: startDate,
         startDate: startDate
     });
-
 });
-// $('#customMessageTemplate').on('show.bs.modal', function (event) {
-//     $()
-//     console.log("333");
-// });
 
 
 $(function () {
