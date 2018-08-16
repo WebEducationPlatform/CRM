@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ClientController {
@@ -64,10 +65,12 @@ public class ClientController {
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
 		}
+		List<User> userList = userService.getAll();
 		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
-		modelAndView.addObject("users", userService.getAll());
+		modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+		modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
