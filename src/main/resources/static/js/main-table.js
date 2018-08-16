@@ -1380,3 +1380,22 @@ $(".change-status-position").on('click', function () {
         }
     });
 });
+
+function deleteNewUser(deleteId) {
+    let url = '/admin/rest/user/delete';
+    let data ={
+        deleteId: deleteId
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: function () {
+            location.reload();
+        },
+        error: function () {
+            alert("Пользователь не был удален")
+        }
+    });
+}

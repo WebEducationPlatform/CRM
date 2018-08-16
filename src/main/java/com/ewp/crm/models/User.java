@@ -62,6 +62,9 @@ public class User implements UserDetails {
 	@Column
 	private boolean isEnabled;
 
+	@Column
+	private boolean isVerified;
+
 	@Column(name = "vkToken")
 	private String vkToken;
 
@@ -94,10 +97,11 @@ public class User implements UserDetails {
 	private List<Role> role = new ArrayList<>();
 
 	public User() {
-		this.isEnabled = true;
+		this.isEnabled = false;
+		this.isVerified = false;
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony) {
+	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony, boolean isVerified) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
@@ -109,7 +113,8 @@ public class User implements UserDetails {
 		this.country = country;
 		this.role = role;
 		this.ipTelephony = ipTelephony;
-		this.isEnabled = true;
+		this.isVerified = isVerified;
+		this.isEnabled = isVerified;
 	}
 
 	public String getVkToken() {
@@ -327,4 +332,15 @@ public class User implements UserDetails {
 		this.isEnabled = availability;
 	}
 
+	public void setIsEnabled(boolean availability) {
+		this.isEnabled = availability;
+	}
+
+	public boolean isVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(boolean verified) {
+		isVerified = verified;
+	}
 }
