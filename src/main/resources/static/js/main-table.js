@@ -1321,12 +1321,16 @@ function callToClient(userPhone, clientPhone) {
 function webCallToClient(clientPhone) {
     console.log("Trying to call by using Voximplant SDK");
     const sdk = VoxImplant.getInstance();
+    var voxLogin;
+    var voxPassword;
     var callerId;
     var url = "/user/rest/call/sendData";
+    var credentialsUrl = "/user/rest/call/voximplantCredentials";
     var formData = {
         to: clientPhone
     };
     let icon = $(".call-to-client");
+
     $.ajax({
         type: 'post',
         url: url,
@@ -1344,6 +1348,19 @@ function webCallToClient(clientPhone) {
         }
     });
 
+    $.ajax({
+        type: 'get',
+        url: credentialsUrl,
+        success: function (credensials) {
+            var arr = credensials.split(",");
+            voxLogin = arr[0];
+            voxPassword = arr[1];
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
     sdk.init()
         .then(() => {
             console.log('This code is executed after SDK successfully initializes');
@@ -1353,7 +1370,7 @@ function webCallToClient(clientPhone) {
         })
         .then(() => {
             console.log('This code is executed after SDK is successfully connected to Voximplant');
-            return sdk.login('admin@webcallcrm.streetcleaner.voximplant.com', 'admin12345-');
+            return sdk.login(voxLogin, voxPassword);
         })
         .then(() => {
             console.log('This code is executed on successfull login');
