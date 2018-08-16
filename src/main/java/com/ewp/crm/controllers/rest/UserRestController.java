@@ -66,7 +66,6 @@ public class UserRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	//Workers will be deactivated, not deleted
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = {"/admin/rest/user/update/photo"}, method = RequestMethod.POST)
 	public ResponseEntity addAvatar(@RequestParam("0") MultipartFile file, @RequestParam("id") Long id) {
@@ -89,20 +88,32 @@ public class UserRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/add", method = RequestMethod.POST)
 	public ResponseEntity addUser(@Valid @RequestBody User user) {
-
+		user.setEnabled(true);
 		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		userService.add(user);
 		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
 		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
 	}
 
+	//Workers will be deactivated, not deleted
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/admin/rest/user/reaviable", method = RequestMethod.POST)
 	public ResponseEntity reAviableUser(@RequestParam Long deleteId){
     	User currentUser = userService.get(deleteId);
+		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		currentUser.setEnabled(!currentUser.isEnabled());
     	userService.update(currentUser);
-		logger.info("{} has deleted user: id {}, email {}", currentUser.getFullName(), currentUser.getId(), currentUser.getEmail());
+		logger.info("{} has reavailable user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	@RequestMapping(value = "/admin/rest/user/delete", method = RequestMethod.POST)
+	public ResponseEntity deleteNewUser(@RequestParam Long deleteId){
+		User currentUser = userService.get(deleteId);
+		userService.delete(deleteId);
+		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
