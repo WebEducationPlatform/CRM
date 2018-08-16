@@ -1,6 +1,8 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
+import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
@@ -64,10 +66,14 @@ public class ScheduleTasks {
 
 	private Environment env;
 
+	private final MailingMessageRepository mailingMessageRepository;
+
+	private final MailingService mailingService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, MailingMessageRepository mailingMessageRepository, MailingService mailingService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -85,6 +91,8 @@ public class ScheduleTasks {
 		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.env = env;
+		this.mailingMessageRepository = mailingMessageRepository;
+		this.mailingService = mailingService;
 	}
 
 	private void addClient(Client newClient) {
@@ -217,6 +225,17 @@ public class ScheduleTasks {
 			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(),client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
+	}
+
+	@Scheduled(fixedRate = 6_000)
+	private void sendMailing() {
+		LocalDateTime currentTime = LocalDateTime.now();
+		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
+		messages.forEach(x -> {
+			if(x.getDate().compareTo(currentTime) < 0) {
+				mailingService.sendMessage(x);
+			}
+		});
 	}
 
 

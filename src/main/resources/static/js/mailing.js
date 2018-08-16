@@ -1,6 +1,5 @@
 let type = 'email';
 let text;
-
 function switchMailingType() {
     var selected = $('#socNetworkChoose').val();
     if (selected === 'email') {
@@ -14,6 +13,8 @@ function switchMailingType() {
         $('#vkArea').show();
         $('#smsArea').hide();
         text = document.getElementById("vkArea1");
+        dropArea = document.getElementById("vkArea");
+        ondropText();
     }
     else if (selected === 'sms') {
         type = 'sms';
@@ -21,10 +22,11 @@ function switchMailingType() {
         $('#vkArea').hide();
         $('#smsArea').show();
         text = document.getElementById("smsArea1");
+        dropArea = document.getElementById("smsArea");
+        ondropText();
     }
 }
 
-var iframeX;
 $(document).ready(function () {
     editor = CKEDITOR.replace('body1', {
         allowedContent: true,
@@ -47,14 +49,17 @@ $(document).ready(function () {
 function mail(sendnow) {
     let date = $('#mailingDate').val();
     let templateText = CKEDITOR.instances['body1'].getData();
-    if(type == "email") {
-        text = new String("");
+    let x;
+    if (type != "email") {
+        x = text.value;
+    } else {
+        x = "";
     }
     let wrap = {
         sendnow: sendnow,
         type: type,
         templateText: templateText,
-        text: text.value,
+        text: x,
         date: date
     };
     $.ajax({
@@ -62,10 +67,10 @@ function mail(sendnow) {
         url: "/client/mailing/send",
         data: wrap,
         success: function (result) {
-            alert("success " + result);
+            console.log("success " + result);
         },
         error: function (e) {
-            alert("неверный формат записи, добавте clientData перед данными\n" + e);
+            console.log("неверный формат записи, добавте clientData перед данными\n" + e);
         }
     });
 }
@@ -93,13 +98,29 @@ $(document).ready(function () {
         var files = e.data.dataTransfer.getFile(0);
         var reader = new FileReader();
         reader.onload = function () {
-            editor.insertText("\nclientData\n" + this.result);
+            if (CKEDITOR.instances["body1"].getData().includes("clientData")) {
+                editor.insertText("\n\n" + this.result);
+            } else {
+                editor.insertText("\nclientData\n" + this.result);
+            }
         };
         reader.readAsBinaryString(files);
     });
 });
 
-
-
-
-
+function ondropText() {
+    var dropZone = text;
+    dropZone.addEventListener('drop', function (e) {
+        event.preventDefault();
+        var files = e.dataTransfer.files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+            if (text.value.includes("clientData")) {
+                text.value += "\n\n" + this.result;
+            } else {
+                text.value += "\nclientData\n" + this.result;
+            }
+        };
+        reader.readAsBinaryString(files);
+    }, false);
+}

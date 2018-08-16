@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 @RestController
 public class SendMailsController {
     private final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private final String vkPattern = "(\\d|[a-zA-Z0-9_.])+$";//"(\\d|[a-zA-z][a-zA-Z0-9_.]{2,})";
+    private final String vkPattern = "^[^a-zA-Z]*$";
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private String pattern;
     private String template;
@@ -51,6 +51,7 @@ public class SendMailsController {
                 pattern = vkPattern;
                 textData = text.split("clientData", 2);
                 template = textData[0];
+                textData[1] = textData[1].replaceAll("\\p{Punct}|", "");
                 break;
             case "sms":
                 pattern = smsPattern;
@@ -71,7 +72,12 @@ public class SendMailsController {
         Set<ClientData> clientsInfo = new HashSet<>();
         if (type.equals("vk")) {
             String[] vkIds = textData[1].split("\n");
-            Arrays.asList(vkIds).forEach(x -> clientsInfo.add(new ClientData(x)));
+            Arrays.asList(vkIds).forEach(x -> {
+                Matcher vkMatcher = p.matcher(x);
+                if (vkMatcher.find() && !x.contains(" ") && !x.equals("")) {
+                    clientsInfo.add(new ClientData(x));
+                }
+            });
         } else {
             Matcher matcher2 = p.matcher(textData[1]);
             while (matcher2.find()) {
@@ -83,26 +89,10 @@ public class SendMailsController {
         MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
         MailingMessage executeMessage = mailingService.addMailingMessage(message);
 
-
-        List<MailingMessage> list = mailingMessageRepository.getAllByReadedMessageIsFalse();
-
         if (sendnow) {
             mailingService.sendMessage(executeMessage);
         }
 
-
-        /*
-        if(type.equals("email")) {
-                messages.forEach(mailingService :: sendingMailingsEmails);
-            } else if(type.equals("sms")) {
-
-            } else if(type.equals("email")) {
-                messages.forEach(mailingService :: sendingMailingSMS);
-            }
-            */
-
-
-        //mailingMessageRepository.deleteAll();
         return ResponseEntity.ok("");
     }
 }
