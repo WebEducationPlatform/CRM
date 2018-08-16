@@ -83,12 +83,33 @@ public class IPTelephonyRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	@ResponseBody
 	@RequestMapping(value = "/record/{file}", method = RequestMethod.GET)
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
 		Path fileLocation = Paths.get("CallRecords\\" + file + ".mp3");
 		return Files.readAllBytes(fileLocation);
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@RequestMapping(value = "/sendData", method = RequestMethod.POST)
+	public ResponseEntity getCallRecordsCredentials(@RequestParam String to) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Client client = clientService.getClientByPhoneNumber(to);
+		if (client.isCanCall() && principal.isIpTelephony()) {
+			CallRecord callRecord = new CallRecord();
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, "http://www.google.com");
+			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
+			client.addHistory(historyFromDB);
+			callRecord.setClientHistory(historyFromDB);
+			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
+			client.addCallRecord(callRecordFromDB);
+			clientService.updateClient(client);
+			callRecordFromDB.setClient(client);
+			callRecordService.update(callRecordFromDB);
+			return ResponseEntity.ok(callRecordFromDB);
+		} else {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 }
