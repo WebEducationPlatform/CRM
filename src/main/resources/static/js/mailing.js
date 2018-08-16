@@ -1,5 +1,6 @@
 let type = 'email';
 let text;
+
 function switchMailingType() {
     var selected = $('#socNetworkChoose').val();
     if (selected === 'email') {
@@ -13,8 +14,6 @@ function switchMailingType() {
         $('#vkArea').show();
         $('#smsArea').hide();
         text = document.getElementById("vkArea1");
-        dropArea = document.getElementById("vkArea");
-        ondropText();
     }
     else if (selected === 'sms') {
         type = 'sms';
@@ -22,15 +21,13 @@ function switchMailingType() {
         $('#vkArea').hide();
         $('#smsArea').show();
         text = document.getElementById("smsArea1");
-        dropArea = document.getElementById("smsArea");
-        ondropText();
     }
 }
 
 $(document).ready(function () {
     editor = CKEDITOR.replace('body1', {
         allowedContent: true,
-        height: '600px',
+        height: '400px',
     });
     editor.addCommand("infoCommend", {
         exec: function (edt) {
@@ -49,6 +46,7 @@ $(document).ready(function () {
 function mail(sendnow) {
     let date = $('#mailingDate').val();
     let templateText = CKEDITOR.instances['body1'].getData();
+    let clientData = $('#clientData1').val();
     let x;
     if (type != "email") {
         x = text.value;
@@ -60,7 +58,8 @@ function mail(sendnow) {
         type: type,
         templateText: templateText,
         text: x,
-        date: date
+        date: date,
+        clientData: clientData
     };
     $.ajax({
         type: "POST",
@@ -108,19 +107,15 @@ $(document).ready(function () {
     });
 });
 
-function ondropText() {
-    var dropZone = text;
-    dropZone.addEventListener('drop', function (e) {
+document.addEventListener('DOMContentLoaded', function () {
+    var dropZone1 = document.getElementById("clientData1");
+    dropZone1.addEventListener('drop', function (e) {
         event.preventDefault();
         var files = e.dataTransfer.files[0];
         var reader = new FileReader();
         reader.onload = function () {
-            if (text.value.includes("clientData")) {
-                text.value += "\n\n" + this.result;
-            } else {
-                text.value += "\nclientData\n" + this.result;
-            }
+            dropZone1.value += "\n" + this.result;
         };
         reader.readAsBinaryString(files);
     }, false);
-}
+}, false);
