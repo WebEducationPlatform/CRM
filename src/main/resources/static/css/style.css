@@ -870,3 +870,8 @@ li.dropdown:hover .dropdown-menu {
 
 	display: none;
 }
+
+#web-call-voximplant, #callback-call-voximplant {
+	width: 24px;
+	height: 24px;
+}

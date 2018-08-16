@@ -1201,7 +1201,8 @@ $(function () {
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>');
+                        $('#client-phone').after('<td id="web-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1298,7 +1299,7 @@ function callToClient(userPhone, clientPhone) {
         from: userPhone,
         to: clientPhone
     };
-    let icon = $(".call-to-client");
+    let icon = $(".callback-call");
     $.ajax({
         type: 'post',
         url: url,
@@ -1314,6 +1315,64 @@ function callToClient(userPhone, clientPhone) {
             console.log(error);
         }
     });
+}
+
+//web call to client by using Voximplant SDK
+function webCallToClient(clientPhone) {
+    console.log("Trying to call by using Voximplant SDK");
+    const sdk = VoxImplant.getInstance();
+    var callerId;
+    var url = "/user/rest/call/sendData";
+    var formData = {
+        to: clientPhone
+    };
+    let icon = $(".call-to-client");
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function(callRecordId) {
+            console.log("PROCESS WEBCALL");
+            callerId = callRecordId.id;
+            icon.css("background", "green");
+            icon.css("color", "white");
+            icon.attr("disabled", "true");
+        },
+        error: function (error) {
+            console.log("ERROR WEBCALL");
+            console.log(error);
+        }
+    });
+
+    sdk.init()
+        .then(() => {
+            console.log('This code is executed after SDK successfully initializes');
+            // connecting to the Voximplant Cloud;
+            // "false" argument disables checking of UDP connection (for fastest connect)
+            return sdk.connect(false);
+        })
+        .then(() => {
+            console.log('This code is executed after SDK is successfully connected to Voximplant');
+            return sdk.login('admin@webcallcrm.streetcleaner.voximplant.com', 'admin12345-');
+        })
+        .then(() => {
+            console.log('This code is executed on successfull login');
+
+            const call = sdk.call({number: clientPhone, customData: callerId});
+            call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
+            call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
+            call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
+
+            sdk.on(VoxImplant.Events.IncomingCall, (e) => {
+                e.call.answer();
+                console.log('You can hear audio from the cloud');
+                e.call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
+                e.call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
+            });
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 }
 
 //авторизация Вконтакте
