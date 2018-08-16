@@ -58,6 +58,13 @@ public class UserController {
 		return modelAndView;
 	}
 
+	@RequestMapping(value = "/user/register", method = RequestMethod.GET)
+	public ModelAndView registerUser() {
+		ModelAndView modelAndView = new ModelAndView("user-registration");
+		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
+		return modelAndView;
+	}
+
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/user/customize", method = RequestMethod.GET)
 	public ModelAndView getUserCustomize() {

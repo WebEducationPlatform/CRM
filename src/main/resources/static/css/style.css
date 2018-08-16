@@ -303,7 +303,7 @@ ul.nav a:hover {
 	border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading, #user_group-heading, #statuses-heading {
+#client-filter-heading, #user_group-heading, #statuses-heading, #new_user_group-heading {
 	background: gainsboro;
 }
 
