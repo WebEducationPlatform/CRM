@@ -163,25 +163,24 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		return clientRepository.findAll(pageable).getContent();
 	}
 
-	@Override
-	public void updateClient(Client client) {
-		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
-			if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
-				throw new ClientExistsException();
-			}
-		}
-
-		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-			phoneNumberValidation(client);
-			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
-			if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
-				throw new ClientExistsException();
-			}
-		}
-		checkSocialLinks(client);
-		clientRepository.saveAndFlush(client);
-	}
+    @Override
+    public void updateClient(Client client) {
+        if (client.getEmail() != null && !client.getEmail().isEmpty()) {
+            Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
+            if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
+                throw new ClientExistsException();
+            }
+        }
+        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+            phoneNumberValidation(client);
+            Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+            if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+                throw new ClientExistsException();
+            }
+        }
+        checkSocialLinks(client);
+        clientRepository.saveAndFlush(client);
+    }
 
 	private void phoneNumberValidation(Client client) {
 		String phoneNumber = client.getPhoneNumber();
