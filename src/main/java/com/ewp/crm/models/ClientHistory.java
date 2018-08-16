@@ -25,9 +25,8 @@ public class ClientHistory {
 	@Column
 	private String recordLink;
 
-	//TODO потом переделать
 	@Basic
-	private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
+	private String date;
 
 	@Column(name = "history_type", nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -44,7 +43,7 @@ public class ClientHistory {
 	private Client client;
 
 	public ClientHistory() {
-		//TODO date init
+		this.date =  DateTime.now().toString("HH:mm ddMMM yyyy'г'");
 	}
 
 	public ClientHistory(Type type) {

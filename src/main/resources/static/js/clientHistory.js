@@ -84,8 +84,14 @@ $(document).ready(function () {
 function drawClientHistory(list, history_table) {
     for (let i = 0; i < list.length; i++) {
         let $tdLink = "";
-        if (list[i].link !== null) {
-            $tdLink = "<td style='width: 10%'><button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" href=\"" + list[i].link + "\" onclick='open_new_window(this)'></button></td>"
+        if (list[i].link != null) {
+            $tdLink = "" +
+                "<td style='width: 10%'>" +
+                    "<button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" onclick = 'viewClientHistoryMessage(" + list[i].link + ")'>" +
+                    "</button>" +
+                    "<div id=\"modalClientHistoryMessageHolder\">" +
+                    "</div>"
+                "</td>"
         }
         if (list[i].recordLink != null) {
             $tdLink = "<td style='width: 10%'>" +
@@ -112,6 +118,18 @@ function drawClientHistory(list, history_table) {
 function open_new_window(elem) {
     let url = $(elem).attr("href");
     window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
+}
+
+function viewClientHistoryMessage(id) {
+    $.ajax({
+        url: "/client/message/info/" + id,
+        success: function (response) {
+            console.log(response);
+            $('#modalClientHistoryMessageHolder').html(response);
+            $('#modalClientHistoryMessage').modal();
+            $('#modalClientHistoryMessage').modal('open');
+        }
+    });
 }
 
 
