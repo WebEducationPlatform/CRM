@@ -22,6 +22,9 @@ public class IPServiceImpl implements IPService {
 
 	private String voximplantRuleId;
 
+	private String voximplantLoginForWebCall;
+
+	private String voximplantPasswordForWebCall;
 
 	private static org.slf4j.Logger logger = LoggerFactory.getLogger(IPServiceImpl.class);
 
@@ -31,6 +34,8 @@ public class IPServiceImpl implements IPService {
 		voximplantApiKey = ipConfig.getVoximplantApiKey();
 		voximplantAccountId = ipConfig.getVoximplantAccountId();
 		voximplantRuleId = ipConfig.getVoximplantRuleId();
+		voximplantLoginForWebCall = ipConfig.getVoximplantLoginForWebCall();
+		voximplantPasswordForWebCall = ipConfig.getVoximplantPasswordForWebCall();
 	}
 
 	public void call(String from, String to, Long callId) {
@@ -59,8 +64,14 @@ public class IPServiceImpl implements IPService {
 		} catch (IOException e) {
 			logger.error("Failed to connect to Voximplant server ", e);
 		}
+	}
 
+	public String getVoximplantLoginForWebCall() {
+		return voximplantLoginForWebCall;
+	}
 
+	public String getVoximplantPasswordForWebCall() {
+		return voximplantPasswordForWebCall;
 	}
 }
 

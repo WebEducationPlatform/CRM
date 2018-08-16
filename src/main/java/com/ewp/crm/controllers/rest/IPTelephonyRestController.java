@@ -112,4 +112,11 @@ public class IPTelephonyRestController {
 			return ResponseEntity.badRequest().build();
 		}
 	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@ResponseBody
+	@RequestMapping(value = "/voximplantCredentials", method = RequestMethod.GET)
+	public String getVoximplantCredentials() {
+		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
+	}
 }
