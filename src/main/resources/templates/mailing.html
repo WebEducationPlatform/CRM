@@ -33,10 +33,10 @@
                 <div class="col-sm-1">
                     <input type="text" name="mailingDate" id="mailingDate"/>
                 </div>
-                <div class="col-sm-offset-3">
+                <div class="col-sm-1" style="padding-left: 10%">
                     <button class="btn btn-primary" id="mailingStart" onclick="mail(0)">Рассылка</button>
                 </div>
-                <div class="col-sm-offset-3">
+                <div class="col-sm-1" style="padding-left: 9%">
                     <button class="btn btn-primary" id="mailingNow" onclick="mail(1)">Отправить сейчас</button>
                 </div>
             </div>
@@ -48,11 +48,14 @@
                 <textarea class="container" id="body1" required="required">&lt;p&gt;Example template layout.&lt;/p&gt;</textarea>
                 <br/>
             </fieldset>
-            <div class="col-md-12 content" style="display: none;" id="vkArea">
-                <textarea style="width: 850px" th:id="vkArea1" rows="16"></textarea>
+            <div class="col-md-12" style="display: none;padding-left: 0%" id="vkArea">
+                <textarea style="width: 1138px" th:id="vkArea1" rows="16"></textarea>
             </div>
-            <div class="col-md-12 content" style="display: none;" id="smsArea">
-                <textarea style="width: 850px" th:id="smsArea1" rows="16"></textarea>
+            <div class="col-md-12" style="display: none;padding-left: 0%" id="smsArea">
+                <textarea style="width: 1138px" th:id="smsArea1" rows="16"></textarea>
+            </div>
+            <div class="col-md-12" style="padding-left: 0%" id="clientData">
+                <textarea style="width: 1138px" th:id="clientData1" rows="16"></textarea>
             </div>
         </div>
     </div>
