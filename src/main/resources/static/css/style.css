@@ -530,6 +530,16 @@ h4.modal-title {
 	border-radius: 10%;
 }
 
+.client-info-edit-save-back-btns{
+	display: block;
+	height: 35px;
+}
+.client-info-edit-save-back-btns span{
+	height: 35px;
+	display: inline-block;
+	margin-top: 7px;
+}
+
 #photoSelectBtn{
 	margin-top: 5%;
 }
@@ -557,7 +567,7 @@ button[name="editStatusBtn"] {
 }
 
 #client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {
-	width: 50%;
+	width: 80%;
 }
 
 #addNewSN, #addNewJob {
@@ -573,7 +583,7 @@ button[name="editStatusBtn"] {
 }
 
 #SN-table-body td, #job-table-body td {
-	max-width: 0;
+	width: 50%;
 }
 
 button[name|="emailTmplList"] {
