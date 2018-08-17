@@ -20,6 +20,7 @@ public class MailingMessage {
 
     @NotNull
     @Column(name = "text", nullable = false)
+    @Lob
     private String text;
 
     @NotNull

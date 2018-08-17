@@ -92,7 +92,7 @@ $(document).ready(function () {
     });
 });
 
-$(document).ready(function () {
+/*$(document).ready(function () {
     editor.on('drop', function (e) {
         var files = e.data.dataTransfer.getFile(0);
         var reader = new FileReader();
@@ -105,7 +105,7 @@ $(document).ready(function () {
         };
         reader.readAsBinaryString(files);
     });
-});
+});*/
 
 document.addEventListener('DOMContentLoaded', function () {
     var dropZone1 = document.getElementById("clientData1");

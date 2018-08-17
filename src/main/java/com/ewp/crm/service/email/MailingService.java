@@ -78,8 +78,7 @@ public class MailingService {
     private void sendingMailingVk(MailingMessage message) {
         for (ClientData idVk : message.getClientsData()) {
             try {
-                long id = Long.parseLong(idVk.getInfo());
-                vkService.sendMessageById(id, message.getText());
+                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk +", ", e);
             }
