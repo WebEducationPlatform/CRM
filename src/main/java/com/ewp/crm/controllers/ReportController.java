@@ -4,6 +4,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ReportsStatusService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class ReportController {
 
     @Autowired
     private StatusService statusService;
-
-    @Autowired
-    private ReportsStatusService reportsStatusService;
 
     @RequestMapping(value = "/report", method = RequestMethod.GET)
     public ModelAndView trackingGroupInfo() {
