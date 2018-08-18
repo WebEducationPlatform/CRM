@@ -68,7 +68,7 @@ public class DataInitializer {
 		socialNetworkTypeService.add(VK);
 		socialNetworkTypeService.add(FACEBOOK);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@gmail.com",
+		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
 				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
 		userService.add(admin);
 
@@ -185,7 +185,7 @@ public class DataInitializer {
 			list.add(client);
 		}
 		clientService.addBatchClients(list);
-		reportsStatusService.add(new ReportsStatus(5,4,2,3,1));
+		reportsStatusService.add(new ReportsStatus(6,5,3,4,2));
 	}
 
 }

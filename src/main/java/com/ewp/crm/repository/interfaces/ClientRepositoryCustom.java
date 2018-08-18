@@ -27,7 +27,7 @@ public interface ClientRepositoryCustom {
 
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
-	List<ClientHistory> getClientByTimeInterval2(int days);
+	List<ClientHistory> getClientByTimeInterval(int days);
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types);
 
