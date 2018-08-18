@@ -1247,6 +1247,7 @@ $(function () {
                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
+                $('.postponeStatus').attr('id', 'postponeStatus' + client.id);
                 $('.textcomplete').attr('id', 'new-text-for-client' + client.id);
                 $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id + '"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
                 $('.main-modal-comment').attr('id', 'client-' + client.id + 'comments');
