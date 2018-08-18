@@ -316,8 +316,8 @@ public class ClientRestController {
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.get(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
+			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+			LocalDateTime postponeDate = LocalDateTime.parse(date.substring(0, 15), dateTimeFormatter);
 			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
