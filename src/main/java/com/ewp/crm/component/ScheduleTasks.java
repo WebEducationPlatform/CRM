@@ -1,7 +1,7 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
-import com.ewp.crm.report.ReportService;
+import com.ewp.crm.service.impl.ReportService;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;

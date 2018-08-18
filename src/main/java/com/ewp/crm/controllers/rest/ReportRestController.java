@@ -2,8 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ReportsStatus;
 import com.ewp.crm.models.User;
-import com.ewp.crm.report.ReportService;
-import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.service.impl.ReportService;
 import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.ReportsStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,8 @@ public class ReportRestController {
         currentReportsStatus.setDropOutStatus(reportsStatus.getDropOutStatus());
         currentReportsStatus.setEndLearningStatus(reportsStatus.getEndLearningStatus());
         currentReportsStatus.setInLearningStatus(reportsStatus.getInLearningStatus());
+        currentReportsStatus.setPauseLearnStatus(reportsStatus.getPauseLearnStatus());
+        currentReportsStatus.setTrialLearnStatus(reportsStatus.getTrialLearnStatus());
         reportsStatusService.update(currentReportsStatus);
         return ResponseEntity.ok(HttpStatus.OK);
     }
