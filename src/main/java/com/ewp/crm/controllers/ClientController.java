@@ -57,12 +57,14 @@ public class ClientController {
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
-		ModelAndView modelAndView = new ModelAndView("main-client-table");
+		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
 		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
 			statuses = statusService.getAll();
+			modelAndView = new ModelAndView("main-client-table");
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
+			modelAndView = new ModelAndView("main-client-table-user");
 		}
 		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
