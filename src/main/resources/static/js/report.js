@@ -53,7 +53,7 @@ $(document).ready(function () {
         url: "/rest/report/getReportsStatus",
         type: "POST",
         success: function (response) {
-            var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus ];
+            var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus ];
             for (var i = 0; i < field.length; i++) {
                 var select = $(document.getElementById("select"+i));
                 select.find('option').each(function () {
@@ -75,7 +75,9 @@ function updateReportsStatus() {
         id: 0,
         inLearningStatus: Number($('#select0').val()),
         endLearningStatus: Number($('#select1').val()),
-        dropOutStatus: Number($('#select2').val())
+        dropOutStatus: Number($('#select2').val()),
+        pauseLearnStatus: Number($('#select3').val()),
+        trialLearnStatus: Number($('#select4').val())
     };
     $.ajax({
         url: "/rest/report/setReportsStatus",

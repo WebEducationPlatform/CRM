@@ -68,7 +68,7 @@ public class DataInitializer {
 		socialNetworkTypeService.add(VK);
 		socialNetworkTypeService.add(FACEBOOK);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
+		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@gmail.com",
 				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true);
 		userService.add(admin);
 
@@ -122,9 +122,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate2);
 		MessageTemplateService.add(MessageTemplate3);
 
-		Status status1 = new Status("First status", false, 2L);
-		Status status2 = new Status("Second status", false , 3L);
-		Status status3 = new Status("Third status", false, 4L);
+		Status status1 = new Status("trialLearnStatus", false, 2L);
+		Status status2 = new Status("inLearningStatus", false , 3L);
+		Status status3 = new Status("pauseLearnStatus", false, 4L);
+		Status status4 = new Status("endLearningStatus", false , 5L);
+		Status status5 = new Status("dropOut Status", false, 6L);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -170,6 +172,8 @@ public class DataInitializer {
 		statusService.addInit(status1);
 		statusService.addInit(status2);
 		statusService.addInit(status3);
+		statusService.addInit(status4);
+		statusService.addInit(status5);
 		statusService.addInit(defaultStatus);
 
 		//TODO удалить после теста
@@ -181,7 +185,7 @@ public class DataInitializer {
 			list.add(client);
 		}
 		clientService.addBatchClients(list);
-		reportsStatusService.add(new ReportsStatus(4,3,2));
+		reportsStatusService.add(new ReportsStatus(5,4,2,3,1));
 	}
 
 }

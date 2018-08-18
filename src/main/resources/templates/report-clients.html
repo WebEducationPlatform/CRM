@@ -58,6 +58,18 @@
                                         <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label class="p-user">Приостановили обучение</label>
+                                    <select th:id="select3" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">Пробное обучение</label>
+                                    <select th:id="select4" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
                                 <button class="btn btn-primary" onclick="updateReportsStatus()">Обновить статусы</button>
                             </form>
                         </div>

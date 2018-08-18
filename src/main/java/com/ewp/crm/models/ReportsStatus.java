@@ -20,10 +20,18 @@ public class ReportsStatus {
     @Column
     private long inLearningStatus;
 
-    public ReportsStatus(long dropOutStatus, long endLearningStatus, long inLearningStatus) {
+    @Column
+    private long pauseLearnStatus;
+
+    @Column
+    private long trialLearnStatus;
+
+    public ReportsStatus(long dropOutStatus, long endLearningStatus, long inLearningStatus, long pauseLearnStatus, long trialLearnStatus) {
         this.dropOutStatus = dropOutStatus;
         this.endLearningStatus = endLearningStatus;
         this.inLearningStatus = inLearningStatus;
+        this.pauseLearnStatus = pauseLearnStatus;
+        this.trialLearnStatus = trialLearnStatus;
     }
 
     public ReportsStatus() {
@@ -51,5 +59,21 @@ public class ReportsStatus {
 
     public void setInLearningStatus(long inLearningStatus) {
         this.inLearningStatus = inLearningStatus;
+    }
+
+    public long getPauseLearnStatus() {
+        return pauseLearnStatus;
+    }
+
+    public void setPauseLearnStatus(long pauseLearnStatus) {
+        this.pauseLearnStatus = pauseLearnStatus;
+    }
+
+    public long getTrialLearnStatus() {
+        return trialLearnStatus;
+    }
+
+    public void setTrialLearnStatus(long trialLearnStatus) {
+        this.trialLearnStatus = trialLearnStatus;
     }
 }

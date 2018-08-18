@@ -45,15 +45,6 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         return count.longValue();
     }
 
-//    @Override
-//    public List<Client> getClientByTimeInterval(long firstDay, long lastDay) {
-//        return entityManager.createQuery("select cl from Client cl where cl.dateOfRegistration > (current_date() - (:firstDay))" +
-//                " AND cl.dateOfRegistration < (current_date() - (:lastDay)) AND cl")
-//                .setParameter("firstDay", firstDay)
-//                .setParameter("lastDay", lastDay)
-//                .getResultList();
-//    }
-
     @Override
     public List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types) {
         return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
@@ -63,6 +54,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .getResultList();
     }
 
+    public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(Date firstDay, Date lastDay, ClientHistory.Type[] types, String title) {
+        return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+                .setParameter("firstDay", firstDay)
+                .setParameter("lastDay", lastDay)
+                .setParameter("types", Arrays.asList(types))
+                .setParameter("title", title)
+                .getSingleResult();
+    }
 
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {

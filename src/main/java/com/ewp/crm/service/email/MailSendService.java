@@ -121,9 +121,9 @@ public class MailSendService {
 		javaMailSender.send(message);
 	}
 
-	public void sendNotificationMessageYourself(String notificationMessage){
+	public void sendNotificationMessageYourself(String notificationMessage) {
 		User user = new User();
 		user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
-		sendNotificationMessage(user,notificationMessage);
+		sendNotificationMessage(user, notificationMessage);
 	}
 }
