@@ -30,7 +30,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<ClientHistory> getClientByTimeInterval2(int days) {
+    public List<ClientHistory> getClientByTimeInterval(int days) {
         return entityManager.createQuery("SELECT cl FROM ClientHistory cl where cl.date > (current_date() - (:days))")
                 .setParameter("days", days)
                 .getResultList();
