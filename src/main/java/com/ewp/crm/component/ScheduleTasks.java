@@ -64,6 +64,8 @@ public class ScheduleTasks {
 
     private final AssignSkypeCallService assignSkypeCallService;
 
+    private final ReportService reportService;
+
 	private Environment env;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
