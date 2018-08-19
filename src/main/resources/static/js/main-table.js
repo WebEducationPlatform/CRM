@@ -1370,22 +1370,29 @@ function webCallToClient(clientPhone) {
         })
         .then(() => {
             console.log('This code is executed after SDK is successfully connected to Voximplant');
-            return sdk.login(voxLogin, voxPassword);
-        })
-        .then(() => {
-            console.log('This code is executed on successfull login');
+            //return sdk.login(voxLogin, voxPassword);
+            sdk.requestOneTimeLoginKey(voxLogin);
 
-            const call = sdk.call({number: clientPhone, customData: callerId});
-            call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
-            call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
-            call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
+            sdk.addEventListener(VoxImplant.Events.AuthResult, e => {
+                console.log('AuthResult: ' + e.result);
+                if (e.result) {
+                    console.log('This code is executed on successfull login');
 
-            sdk.on(VoxImplant.Events.IncomingCall, (e) => {
-                e.call.answer();
-                console.log('You can hear audio from the cloud');
-                e.call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
-                e.call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
-            });
+                    const call = sdk.call({number: clientPhone, customData: callerId});
+                    call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
+                    call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
+                    call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
+                } else {
+                    if (e.code == 302) {
+                        $.post('/user/rest/call/calcKey', {
+                            key: e.key
+                        }, token => {
+                            sdk.loginWithOneTimeKey(voxLogin, token);
+                        }, 'text');
+                    }
+                }
+            })
+            return VoxImplant.AuthResult.result;
         })
         .catch((e) => {
             console.log(e);

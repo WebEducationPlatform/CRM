@@ -7,4 +7,6 @@ public interface IPService {
 	String getVoximplantLoginForWebCall();
 
 	String getVoximplantPasswordForWebCall();
+
+	String getVoximplantUserLogin(String fullLogin);
 }

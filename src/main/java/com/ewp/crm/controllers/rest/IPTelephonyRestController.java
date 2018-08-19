@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class IPTelephonyRestController {
 	private final ClientHistoryService clientHistoryService;
 	private final CallRecordService callRecordService;
 	private final DownloadCallRecordService downloadCallRecordService;
+	private final String voximplantHash;
 	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
 
 
@@ -48,6 +50,7 @@ public class IPTelephonyRestController {
 		this.clientHistoryService = clientHistoryService;
 		this.callRecordService = callRecordService;
 		this.downloadCallRecordService = downloadCallRecordService;
+		this.voximplantHash = DigestUtils.md5DigestAsHex((ipService.getVoximplantUserLogin(ipService.getVoximplantLoginForWebCall()) + ":voximplant.com:" + ipService.getVoximplantPasswordForWebCall()).getBytes());
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
@@ -114,9 +117,15 @@ public class IPTelephonyRestController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
-	@ResponseBody
 	@RequestMapping(value = "/voximplantCredentials", method = RequestMethod.GET)
 	public String getVoximplantCredentials() {
 		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@RequestMapping(value ="/calcKey", method = RequestMethod.POST)
+	public String getHash(@RequestParam String key) {
+		String hashKey = key + "|" + voximplantHash;
+		return DigestUtils.md5DigestAsHex(hashKey.getBytes());
 	}
 }
