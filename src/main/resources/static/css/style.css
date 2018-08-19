@@ -66,6 +66,10 @@
 	color: #132580;
 }
 
+.form-control-report {
+	width: 240px
+}
+
 #textTemplateArea {
 	width: 100%;
 	padding: 15px;
@@ -481,11 +485,11 @@ input[type="checkbox"]:checked + label:before {
 	background: white;
 	border-radius: 10px;
 
-	white-space: pre-wrap; /* css-3 */
-	white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
-	white-space: -pre-wrap; /* Opera 4-6 */
-	white-space: -o-pre-wrap; /* Opera 7 */
-	word-wrap: break-word; /* Internet Explorer 5.5+ */
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .comment-name {
