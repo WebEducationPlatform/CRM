@@ -20,7 +20,9 @@ import java.util.*;
 
 @Service
 public class ReportService {
+
     private static Logger logger = LoggerFactory.getLogger(ReportService.class);
+    
     @Autowired
     private ClientRepository clientRepository;
 
