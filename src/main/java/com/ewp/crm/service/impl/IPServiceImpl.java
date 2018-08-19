@@ -73,6 +73,10 @@ public class IPServiceImpl implements IPService {
 	public String getVoximplantPasswordForWebCall() {
 		return voximplantPasswordForWebCall;
 	}
+
+    public String getVoximplantUserLogin(String fullLogin) {
+        return fullLogin.replaceAll("@.+", "");
+    }
 }
 
 
