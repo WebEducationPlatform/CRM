@@ -6,6 +6,8 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.List;
 public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
 	private final ClientService clientService;
+
+	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
 	public StatusServiceImpl(StatusDAO statusDAO, ClientService clientService) {
@@ -53,22 +57,28 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void add(Status status) {
+		logger.info("{} adding of a new status...", StatusServiceImpl.class.getName());
 		checkStatusUnique(status);
 		Long position = statusDAO.findMaxPosition() + 1L;
 		status.setPosition(position);
 		statusDAO.saveAndFlush(status);
+		logger.info("{} status added successfully...", StatusServiceImpl.class.getName());
 	}
 
 	@Override
 	public void addInit(Status status) {
 		checkStatusUnique(status);
+		logger.info("{} adding of a new status...", StatusServiceImpl.class.getName());
 		statusDAO.saveAndFlush(status);
+		logger.info("{} status added successfully...", StatusServiceImpl.class.getName());
 	}
 
 	@Override
 	public void update(Status status) {
+		logger.info("{} updating of the status...", StatusServiceImpl.class.getName());
 		checkStatusUnique(status);
 		statusDAO.saveAndFlush(status);
+		logger.info("{} status updated successfully...", StatusServiceImpl.class.getName());
 	}
 
 	private void checkStatusUnique(Status status) {
@@ -98,15 +108,19 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void delete(Status status) {
+		logger.info("{} deleting of the status...", StatusServiceImpl.class.getName());
 		delete(status.getId());
+		logger.info("{} status deleted successfully...", StatusServiceImpl.class.getName());
 	}
 
 	@Override
 	public void delete(Long id) {
+		logger.info("{} deleting of the status...", StatusServiceImpl.class.getName());
 		checkStatusId(id);
 		Status statusFromDB = statusDAO.findOne(id);
 		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
+		logger.info("{} status deleted successfully...", StatusServiceImpl.class.getName());
 	}
 
 	@Override

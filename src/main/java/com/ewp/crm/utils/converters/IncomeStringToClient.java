@@ -32,6 +32,7 @@ public class IncomeStringToClient {
 
     public Client convert(String income) {
         Client client = null;
+        logger.info("Start of conversion");
         if (income != null && !income.isEmpty()) {
             String workString = prepareForm(income);
             if (income.contains("Начать обучение")) {
@@ -55,6 +56,7 @@ public class IncomeStringToClient {
     }
 
     private Client parseClientFormOne(String form) {
+        logger.info("Parsing FormOne...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
@@ -71,6 +73,7 @@ public class IncomeStringToClient {
             if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
                 client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
                         " недействительна");
+                logger.warn("Unknown social network");
             }
             client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
@@ -80,10 +83,12 @@ public class IncomeStringToClient {
             client.setEmail(clientData.get("Email"));
             client.setClientDescriptionComment("На пробные 3 дня");
         }
+        logger.info("FormOne parsing finished");
         return client;
     }
 
     private Client parseClientFormTwo(String form) {
+        logger.info("Parsing FormTwo...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
@@ -99,13 +104,16 @@ public class IncomeStringToClient {
             if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
                 client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
                         " недействительна");
+                logger.warn("Unknown social network");
             }
             client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
+        logger.info("FormTwo parsing finished");
         return client;
     }
 
     private Client parseClientFormFour(String form) {
+        logger.info("Parsing FormFour...");
         Client client = new Client();
         String replaceSpaceInString = form.replaceAll(" ", "");
         String removeExtraCharacters = replaceSpaceInString.substring(replaceSpaceInString.indexOf("Имя"), replaceSpaceInString.length());
@@ -117,6 +125,7 @@ public class IncomeStringToClient {
             if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
                 client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
                                                 " недействительна");
+                logger.warn("Unknown social network");
             }
             client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
@@ -124,6 +133,7 @@ public class IncomeStringToClient {
         client.setCountry(clientData.get("City6"));
         client.setEmail(clientData.get("Email2"));
         client.setClientDescriptionComment("Проходил Тест");
+        logger.info("FormFour parsing finished");
         return client;
     }
 
