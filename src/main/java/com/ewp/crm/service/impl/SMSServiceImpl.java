@@ -49,6 +49,7 @@ public class SMSServiceImpl implements SMSService {
 
 	@Override
 	public void sendSMS(Long clientId, String smsTemplateText, String body, User principal) throws JSONException {
+		logger.info("{} sending sms message to client...", SMSServiceImpl.class.getName());
 		Client client = clientService.getClientByID(clientId);
 		String fullName = client.getName() + " " + client.getLastName();
 		Map<String, String> params = new HashMap<>();
@@ -70,10 +71,12 @@ public class SMSServiceImpl implements SMSService {
 		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
 		client.addHistory(clientHistory);
 		clientService.updateClient(client);
+		logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
 	}
 
 	@Override
 	public void sendSMS(List<Client> clients, String text, User sender) {
+		logger.info("{} sending sms message to clients...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		JSONObject request = buildMessages(jsonRequest, clients, text);
@@ -86,13 +89,16 @@ public class SMSServiceImpl implements SMSService {
 				JSONObject smsInfo = (JSONObject) messages.get(i);
 				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
 			}
+			logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
 		} catch (JSONException e) {
 			logger.error("Error to send messages ", e);
 		}
+		logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
 	}
 
 	@Override
 	public void plannedSMS(Client client, String text, String date, User sender) {
+		logger.info("{} planning sms message to clients...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -104,13 +110,15 @@ public class SMSServiceImpl implements SMSService {
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), text, sender);
 			client.addSMSInfo(smsInfo);
+			logger.info("{} sms planned successfully...", SMSServiceImpl.class.getName());
 		} catch (JSONException e) {
-			logger.error("Error to send message ", e);
+			logger.error("Error to plan sms message ", e);
 		}
 	}
 
 	@Override
 	public void plannedSMS(List<Client> clients, String text, String date, User sender) {
+		logger.info("{} planning sms message to clients...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
 		JSONObject jsonRequest = new JSONObject();
 		try {
@@ -124,13 +132,15 @@ public class SMSServiceImpl implements SMSService {
 				JSONObject smsInfo = (JSONObject) messages.get(i);
 				clients.get(i).addSMSInfo(new SMSInfo(smsInfo.getLong("smscId"), text, sender));
 			}
+			logger.info("{} sms planned successfully...", SMSServiceImpl.class.getName());
 		} catch (JSONException e) {
-			logger.error("Error to send message ", e);
+			logger.error("Error to plan sms message ", e);
 		}
 	}
 
 	@Override
 	public String getBalance() {
+		logger.info("{} getting balance...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/balance.json");
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(createHeaders()), String.class);
 		if (response.getStatusCode() == HttpStatus.OK) {
@@ -148,6 +158,7 @@ public class SMSServiceImpl implements SMSService {
 
 	@Override
 	public String getStatusMessage(long smsId) {
+		logger.info("{} getting of a status message...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/status.json");
 		JSONObject request = new JSONObject();
 		JSONObject smsRequest = new JSONObject();
@@ -170,6 +181,7 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	private JSONObject buildMessages(JSONObject jsonRequest, List<Client> clients, String text) {
+		logger.info("{} building messages...", SMSServiceImpl.class.getName());
 		JSONArray jsonClients = new JSONArray();
 		for (Client client : clients) {
 			jsonClients.put(buildMessage(client, text));
@@ -183,6 +195,7 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	private JSONObject buildMessage(Client client, String text) {
+		logger.info("{} building messages...", SMSServiceImpl.class.getName());
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("phone", client.getPhoneNumber());

@@ -127,21 +127,21 @@ public class ScheduleTasks {
 				try {
 					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
-					logger.info("VK message not sent", e);
+					logger.warn("VK message not sent", e);
 				}
 			}
 			if (selectNetworks.contains("sms")) {
 				try {
 					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
-					logger.info("SMS message not sent", e);
+					logger.warn("SMS message not sent", e);
 				}
 			}
 			if (selectNetworks.contains("email")) {
 				try {
 					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
-					logger.info("E-mail message not sent");
+					logger.warn("E-mail message not sent");
 				}
 			}
 				assignSkypeCallService.delete(assignSkypeCall);
