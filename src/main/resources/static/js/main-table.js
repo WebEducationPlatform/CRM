@@ -50,8 +50,8 @@ function drawCheckbox(currentForm, clientId) {
     });
 }
 
-$(function(){
-    $(".hide-main-modal").click(function(e){
+$(function () {
+    $(".hide-main-modal").click(function(e) {
         $(".main-modal .close").click()
     });
 });
@@ -999,12 +999,7 @@ $(document).ready(function () {
         minDate: startDate,
         startDate: startDate
     });
-
 });
-// $('#customMessageTemplate').on('show.bs.modal', function (event) {
-//     $()
-//     console.log("333");
-// });
 
 
 $(function () {
@@ -1247,6 +1242,7 @@ $(function () {
                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
+                $('.postponeStatus').attr('id', 'postponeStatus' + client.id);
                 $('.textcomplete').attr('id', 'new-text-for-client' + client.id);
                 $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id + '"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
                 $('.main-modal-comment').attr('id', 'client-' + client.id + 'comments');
@@ -1269,8 +1265,8 @@ $(function () {
         $('.skype-panel').remove();
         $('.skype-text').empty();
         $('.remove-element').remove();
-        $('.hide-client-collapse').attr('id','hideClientCollapse');
-        $('.postpone-date').attr('id','postponeDate');
+        $('.hide-client-collapse').attr('id', 'hideClientCollapse');
+        $('.postpone-date').attr('id', 'postponeDate');
         $('.textcomplete').removeAttr('id');
         $('.main-modal-comment').removeAttr('id');
         $('.remove-tag').remove();
@@ -1317,8 +1313,7 @@ function callToClient(userPhone, clientPhone) {
 }
 
 //авторизация Вконтакте
-function vk_popup(options)
-{
+function vk_popup(options) {
     var
         screenX = typeof window.screenX != 'undefined' ? window.screenX : window.screenLeft,
         screenY = typeof window.screenY != 'undefined' ? window.screenY : window.screenTop,

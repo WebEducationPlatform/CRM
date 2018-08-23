@@ -78,12 +78,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
 				title.append(")");
 				break;
-			case SKYPE:
-				title.append(" ");
-				title.append("(");
-				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
-				title.append(")");
-				break;
 			case STATUS:
 				title.append(" ").append(client.getStatus());
 				break;
@@ -147,19 +141,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setMessage(message);
 		clientHistory.setLink(message.getId().toString());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
-		return clientHistory;
-	}
-
-	/*
-	   scheduler send message by email/vk/facebook/sms [link]
-	*/
-	@Override
-	public ClientHistory createHistory(Client client, Message message) {
-		logger.info("creation of history...");
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
-		clientHistory.setMessage(message);
-		clientHistory.setLink("/client/message/info/" + message.getId());
-		clientHistory.setTitle("Scheduler" + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
 		return clientHistory;
 	}
 

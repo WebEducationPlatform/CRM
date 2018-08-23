@@ -696,5 +696,12 @@
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="status_name_in_selection">
+    <div th:each="status : ${statuses}">
+        <option th:text="${status.name}" th:value="${status.id}"></option>
+    </div>
+</th:block>
+
 </body>
 </html>

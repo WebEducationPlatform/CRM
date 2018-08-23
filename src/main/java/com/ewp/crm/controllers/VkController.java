@@ -33,7 +33,7 @@ public class VkController {
         this.vkTrackedClubService = vkTrackedClubService;
     }
 
-//    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
     @RequestMapping(value = "/admin/vkontakte/trackedclub", method = RequestMethod.GET)
     public ModelAndView trackingGroupInfo() {
         ModelAndView modelAndView = new ModelAndView("vk-trackedclub-info");
