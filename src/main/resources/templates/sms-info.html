@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <meta charset="UTF-8"/>
+    <title>SMS INFO</title>
+</head>
+<body>
+<table class="table table-bordered">
+    <tr>
+         <th scope="col">Отправитель</th>
+         <th scope="col">Сообщение</th>
+         <th scope="col">Получатель</th>
+         <th scope="col">Статус</th>
+    </tr>
+    <tr>
+        <td th:text="${sms.user.fullName}"></td>
+        <td th:text="${sms.message}"></td>
+        <td th:text="${sms.client.phoneNumber}"></td>
+        <td th:text="${sms.deliveryStatus}"></td>
+    </tr>
+</table>
+</body>
+</html>
