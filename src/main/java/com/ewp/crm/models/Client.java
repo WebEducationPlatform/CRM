@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -16,9 +20,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 @Entity
 @Table(name = "client")
-public class Client implements Serializable {
+public class Client implements Serializable, Diffable<Client> {
 
 	@Id
 	@GeneratedValue
@@ -40,7 +45,7 @@ public class Client implements Serializable {
 	private String email;
 
 	@Column(name = "skype")
-	private String skype;
+	private String skype = "";
 
 	private byte age;
 
@@ -90,13 +95,13 @@ public class Client implements Serializable {
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
-	private List<Comment> comments;
+	private List<Comment> comments = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "client_notification",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
-	private List<Notification> notifications;
+	private List<Notification> notifications = new ArrayList<>();
 
 	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
@@ -112,14 +117,14 @@ public class Client implements Serializable {
 	@JoinTable(name = "client_job",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
-	private List<Job> jobs;
+	private List<Job> jobs = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "client_social_network",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private List<SocialNetwork> socialNetworks;
+	private List<SocialNetwork> socialNetworks = new ArrayList<>();
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
@@ -136,7 +141,7 @@ public class Client implements Serializable {
 	@JsonIgnore
 	@Column
 	@OneToMany(cascade = CascadeType.ALL)
-	private List<CallRecord> callRecords;
+	private List<CallRecord> callRecords = new ArrayList<>();
 
 	public Client() {
 		this.state = State.NEW;
@@ -439,6 +444,24 @@ public class Client implements Serializable {
 
 	public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
 		this.clientAssignSkypeCall = clientAssignSkypeCall;
+	}
+
+	@Override
+	public DiffResult diff(Client client) {
+		return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
+				.append("Имя", this.name, client.name)
+				.append("Фамилия", this.lastName, client.lastName)
+				.append("Номер телефона", this.phoneNumber, client.phoneNumber)
+				.append("E-mail", this.email, client.email)
+				.append("Skype", this.skype, client.skype)
+				.append( "Возраст", this.age, client.age)
+				.append("Пол", this.sex, client.sex)
+				.append("Страна", this.country, client.country)
+				.append("Город", this.city, client.city)
+				.append("Работа", this.jobs.toString(), client.jobs.toString())
+				.append("Социальные сети", this.socialNetworks.toString(), client.socialNetworks.toString())
+				.append("Состояние", this.state, client.state)
+				.build();
 	}
 
 	public enum Sex {

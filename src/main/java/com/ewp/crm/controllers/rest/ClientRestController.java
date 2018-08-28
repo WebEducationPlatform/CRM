@@ -334,7 +334,6 @@ public class ClientRestController {
 		}
 	}
 
-
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,

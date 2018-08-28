@@ -220,7 +220,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </th:block>
 
@@ -650,5 +649,33 @@
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="deleteNewUser">
+    <div th:each="newusr : ${newUsers}">
+        <div class="modal fade" th:id="'deleteNewUserModal' + ${newusr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить нового пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteNewUser('+ ${newusr.id} + ')'">Да</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="status_name_in_selection">
+    <div th:each="status : ${statuses}">
+        <option th:text="${status.name}" th:value="${status.id}"></option>
+    </div>
+</th:block>
+
 </body>
 </html>

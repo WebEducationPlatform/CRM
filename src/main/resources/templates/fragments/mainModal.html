@@ -24,7 +24,7 @@
                                     <td>
                                         <div class="btn-group">
                                             <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                                            <a  id="email-href" name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
+                                            <a name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
                                             <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                 <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                                     <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
@@ -78,9 +78,6 @@
                             </table>
                             <div id="assign-unassign-btns">
                             </div>
-                            <div class="confirm-skype-interceptor"><button class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>
-                            <div class="skype-notification"></div>
-                                </div>
                         </div>
                     </div>
                 </div>
@@ -97,7 +94,7 @@
                                     <input type = "text" class="form-control postpone-date" th:id ="'postponeDate'" name="postponeDate"/>
                                 </div>
 
-                                <span th:id = "'postponeStatus'"></span>
+                                <span class="postponeStatus" th:id = "'postponeStatus'"></span>
                             </div>
                         </div>
                     </div>

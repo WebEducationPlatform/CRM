@@ -1,6 +1,7 @@
 package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.controllers.rest.SMSRestController;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
@@ -23,6 +24,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -51,13 +53,14 @@ public class MailSendService {
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
     private final MessageTemplateService messageTemplateService;
+    private final MailConfig mailConfig;
     private String emailLogin;
     private final Environment env;
 
 
     @Autowired
     public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                           ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MessageTemplateService messageTemplateService) {
+                           ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;
@@ -66,6 +69,7 @@ public class MailSendService {
         this.messageService = messageService;
         this.messageTemplateService = messageTemplateService;
         this.env = environment;
+        this.mailConfig = mailConfig;
         checkConfig(environment);
     }
 
@@ -234,13 +238,19 @@ public class MailSendService {
         }
     }
 
-    @Async
-    public void sendNotificationMessage(User userToNotify, String notificationMessage) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Оповещение из CRM");
-        message.setText(notificationMessage);
-        message.setFrom(emailLogin);
-        message.setTo(userToNotify.getEmail());
-        javaMailSender.send(message);
-    }
+	@Async
+	public void sendNotificationMessage(User userToNotify, String notificationMessage) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setSubject("Оповещение из CRM");
+		message.setText(notificationMessage);
+		message.setFrom(emailLogin);
+		message.setTo(userToNotify.getEmail());
+		javaMailSender.send(message);
+	}
+
+	public void sendNotificationMessageYourself(String notificationMessage) {
+		User user = new User();
+		user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
+		sendNotificationMessage(user, notificationMessage);
+	}
 }

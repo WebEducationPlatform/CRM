@@ -3,6 +3,8 @@ package com.ewp.crm.component;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.ReportService;
+import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
@@ -62,7 +64,9 @@ public class ScheduleTasks {
 
 	private final YoutubeClientService youtubeClientService;
 
-	private final AssignSkypeCallService assignSkypeCallService;
+    private final AssignSkypeCallService assignSkypeCallService;
+
+    private final ReportService reportService;
 
 	private Environment env;
 
@@ -73,6 +77,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
 	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, MailingMessageRepository mailingMessageRepository, MailingService mailingService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
@@ -93,6 +98,7 @@ public class ScheduleTasks {
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
+		this.reportService = reportService;
 	}
 
 	private void addClient(Client newClient) {
@@ -269,6 +275,11 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(cron = "0 0 10 01 * ?")
+	private void buildAndSendReport() {
+		mailSendService.sendNotificationMessageYourself(reportService.buildReportOfLastMonth());
+	}
+
 	private String determineStatusOfResponse(String status) {
 		String info;
 		switch (status) {
@@ -298,11 +309,11 @@ public class ScheduleTasks {
 					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
 					if (newClient.isPresent()) {
 						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
-						if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
-							updateClient(newClient.get());
-						} else {
-							addClient(newClient.get());
-						}
+                        if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
+                            updateClient(newClient.get());
+                        } else {
+                            addClient(newClient.get());
+                        }
 					}
 				}
 			}
