@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,23 +59,26 @@ public class ClientController {
 	public ModelAndView getAll() {
 		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		List<Status> statuses;
-		ModelAndView modelAndView = new ModelAndView("main-client-table");
+		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
 		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
 			statuses = statusService.getAll();
+			modelAndView = new ModelAndView("main-client-table");
 		} else {
 			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
+			modelAndView = new ModelAndView("main-client-table-user");
 		}
+		List<User> userList = userService.getAll();
 		statuses.sort(Comparator.comparing(Status::getPosition));
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("statuses", statuses);
-		modelAndView.addObject("users", userService.getAll());
+		modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+		modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
 		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
-		modelAndView.addObject("notifications_type_assign_skype",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.ASSIGN_SKYPE));
 		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
 		return modelAndView;
 	}

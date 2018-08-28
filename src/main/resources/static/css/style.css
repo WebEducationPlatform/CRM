@@ -66,6 +66,10 @@
 	color: #132580;
 }
 
+.form-control-report {
+	width: 240px
+}
+
 #textTemplateArea {
 	width: 100%;
 	padding: 15px;
@@ -303,7 +307,7 @@ ul.nav a:hover {
 	border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading, #user_group-heading, #statuses-heading {
+#client-filter-heading, #user_group-heading, #statuses-heading, #new_user_group-heading {
 	background: gainsboro;
 }
 
@@ -454,7 +458,7 @@ input[type="checkbox"]:checked + label:before {
 	transform: rotate(45deg);
 }
 
-#showallbtn, #addNewUser, #vkClubList {
+#showallbtn, #addNewUser, #vkClubList, #report {
 	width: 100%;
 	margin-bottom: 10px;
 	border-radius: 5px;
@@ -481,11 +485,11 @@ input[type="checkbox"]:checked + label:before {
 	background: white;
 	border-radius: 10px;
 
-	white-space: pre-wrap; /* css-3 */
-	white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
-	white-space: -pre-wrap; /* Opera 4-6 */
-	white-space: -o-pre-wrap; /* Opera 7 */
-	word-wrap: break-word; /* Internet Explorer 5.5+ */
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .comment-name {
@@ -530,6 +534,16 @@ h4.modal-title {
 	border-radius: 10%;
 }
 
+.client-info-edit-save-back-btns{
+	display: block;
+	height: 35px;
+}
+.client-info-edit-save-back-btns span{
+	height: 35px;
+	display: inline-block;
+	margin-top: 7px;
+}
+
 #photoSelectBtn{
 	margin-top: 5%;
 }
@@ -557,7 +571,7 @@ button[name="editStatusBtn"] {
 }
 
 #client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {
-	width: 50%;
+	width: 80%;
 }
 
 #addNewSN, #addNewJob {
@@ -573,7 +587,7 @@ button[name="editStatusBtn"] {
 }
 
 #SN-table-body td, #job-table-body td {
-	max-width: 0;
+	width: 50%;
 }
 
 button[name|="emailTmplList"] {
@@ -869,4 +883,9 @@ li.dropdown:hover .dropdown-menu {
 	z-index: 1;
 
 	display: none;
+}
+
+/* to display new lines in modal window*/
+.modal-client-history-message p {
+	white-space: pre;
 }

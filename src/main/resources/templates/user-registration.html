@@ -8,19 +8,18 @@
     <script th:src="@{/js/validator.min.js}"></script>
 </head>
 <body>
-<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 <div style="margin-top: 3%">
     <div id="user-info-container" class="container-fluid">
         <div class="row-fluid">
             <div class="col-md-3" id="column1">
                 <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-primary" id="saveChanges" onclick="addUser()">Сохранить
+                        <button type="submit" class="btn btn-primary" id="saveChanges" onclick="registerUser()">Сохранить
                         </button>
-                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <a href="/login" class="btn btn-primary" id="backToMain">Назад</a>
                     </div>
                     <p><span id="message"></span></p>
-                    <input type="checkbox" checked="checked" class="form-control"  style="display:none"    id="add-user-isVerified"/>
+                    <!--<input type="checkbox" class="form-control" style="display:none"  id="add-user-isVerified"/>-->
                     <div class="form-group">
                         <label for="add-user-first-name">Имя</label>
                         <input class="form-control" data-error="Имя должно начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$" required="required"  id="add-user-first-name"/>
@@ -40,7 +39,7 @@
                         <input type="tel" class="form-control" required="required" id="add-user-phone-number"/>
                     </div>
                     <div class="form-group" id="ipTelephony">
-                        <label for="ipTelephony">Дать доступ к IP Телефонии:</label>
+                        <label for="ipTelephony">Получить доступ к IP Телефонии:</label>
                         <div class="checkbox">
                             <input type="checkbox" name="ipTelephony" title="" th:id="ipTel"/>
                             <label th:for="ipTel"></label>
@@ -77,13 +76,10 @@
                         <label for="add-user-city">Город</label>
                         <input type="text" class="form-control" required="required" id="add-user-city"/>
                     </div>
-                    <div class="form-group" id="add-user-roles">
+                    <div class="form-group" id="add-user-roles" th:hidden="hidden">
                         <label for="add-user-roles">Роли</label>
-                        <div class="checkbox" th:each="role : ${roles}">
-                            <input type="checkbox" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}"
+                            <input type="checkbox" th:checked="checked" th:id="checkbox-user-2" th:value="2"
                                    name="roleCheckBx" title=""/>
-                            <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
-                        </div>
                     </div>
                 </form>
             </div>
