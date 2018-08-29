@@ -33,13 +33,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	@Autowired
 	public ClientServiceImpl(ClientRepository clientRepository) {
 		this.clientRepository = clientRepository;
-
 	}
 
 	@Override
 	public List<Client> findAllByStatus(Status status) {
 		return clientRepository.findAllByStatus(status);
-
 	}
 
 	@Override
@@ -123,7 +121,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				return;
 			}
 		}
-
 		clientRepository.saveAndFlush(client);
 		sendNotificationService.sendNotificationsAllUsers(client);
 	}

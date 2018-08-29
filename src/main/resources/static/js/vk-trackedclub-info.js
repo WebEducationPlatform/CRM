@@ -17,6 +17,7 @@ function deleteVkTrackedClub(id) {
     });
 }
 
+//TODO Почему отправляет объект, а на контроллере 3 строки
 function updateVkTrackedClub(id) {
     let url = '/rest/vkontakte/trackedclub/update';
     let vkTrackedClub = {

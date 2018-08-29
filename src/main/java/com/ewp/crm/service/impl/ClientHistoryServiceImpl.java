@@ -151,19 +151,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	/*
-	   scheduler send message by email/vk/facebook/sms [link]
-	*/
-	@Override
-	public ClientHistory createHistory(Client client, Message message) {
-		logger.info("creation of history...");
-		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
-		clientHistory.setMessage(message);
-		clientHistory.setLink("/client/message/info/" + message.getId());
-		clientHistory.setTitle("Scheduler" + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
-		return clientHistory;
-	}
-
-	/*
 		Worker add new client
 		Worker change client data [link]
 	 */
