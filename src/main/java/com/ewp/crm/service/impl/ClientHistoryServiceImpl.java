@@ -48,6 +48,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public ClientHistory createHistory(String socialRequest) {
+		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SOCIAL_REQUEST);
 		clientHistory.setTitle(ClientHistory.Type.SOCIAL_REQUEST.getInfo() + " " + socialRequest);
 		return clientHistory;
@@ -63,6 +64,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	*/
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		String action = user.getFullName() + " " + type.getInfo();
 		StringBuilder title = new StringBuilder(action);
@@ -71,6 +73,12 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ").append("\"").append(client.getClientDescriptionComment()).append("\"");
 				break;
 			case POSTPONE:
+				title.append(" ");
+				title.append("(");
+				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(")");
+				break;
+			case SKYPE:
 				title.append(" ");
 				title.append("(");
 				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
@@ -94,6 +102,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 */
 	@Override
 	public ClientHistory createHistory(User admin, User worker, Client client, ClientHistory.Type type) {
+		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(admin.getFullName() + " " + type.getInfo() + " " + worker.getFullName());
 		return clientHistory;
@@ -102,6 +111,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	// worker call to client [link]
 	@Override
 	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link) {
+		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setLink(link);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
@@ -110,6 +120,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public ClientHistory createInfoHistory(User user, Client client, ClientHistory.Type type, String info) {
+		logger.info("creation of client info history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + info);
@@ -118,6 +129,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public ClientHistory createHistory(User user , String recordLink) {
+		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL);
 		clientHistory.setRecordLink(recordLink);
 		clientHistory.setTitle(user.getFullName() + " " + ClientHistory.Type.CALL.getInfo());
@@ -130,6 +142,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 */
 	@Override
 	public ClientHistory createHistory(User user, Client client, Message message) {
+		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
 		clientHistory.setMessage(message);
 		clientHistory.setLink(message.getId().toString());
@@ -143,6 +156,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 */
 	@Override
 	public ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
+		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 
         // if user updated client, which has no changes.
