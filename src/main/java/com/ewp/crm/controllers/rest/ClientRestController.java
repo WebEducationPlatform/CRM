@@ -316,7 +316,7 @@ public class ClientRestController {
 	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
 		try {
 			Client client = clientService.get(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
 			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
 			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
@@ -333,7 +333,6 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
 	}
-
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
