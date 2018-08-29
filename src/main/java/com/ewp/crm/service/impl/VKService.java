@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
@@ -106,6 +105,7 @@ public class VKService {
     }
 
     public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
+        logger.info("VKService: getting new messages...");
         if (applicationToken == null) {
             throw new VKAccessTokenException("VK access token has not got");
         }
@@ -172,6 +172,7 @@ public class VKService {
 
 
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
+        logger.info("VKService: getting all VK members...");
         if (groupId == null) {
             groupId = Long.parseLong(clubId) * (-1);
         }
@@ -210,6 +211,7 @@ public class VKService {
 
 
     public String sendMessageById(Long id, String msg, String token) {
+        logger.info("VKService: sending message to client with id {}...",id);
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -251,6 +253,7 @@ public class VKService {
     }
 
     public Optional<List<Long>> getUsersIdFromCommunityMessages() {
+        logger.info("VKService: getting user ids from community messages...");
         String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
                 "?v=" + version +
                 "&unread=1" +
@@ -299,6 +302,7 @@ public class VKService {
     }
 
     public Optional<Client> getClientFromVkId(Long id) {
+        logger.info("VKService: getting client by VK id...");
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
@@ -334,6 +338,7 @@ public class VKService {
     }
 
     public Client parseClientFromMessage(String message) throws ParseClientException {
+        logger.info("VKService: parsing client from VK message...");
         if (!message.startsWith("Новая заявка")) {
             throw new ParseClientException("Invalid message format");
         }
@@ -369,6 +374,7 @@ public class VKService {
     }
 
     public String refactorAndValidateVkLink(String link) {
+        logger.info("VKService: refactoring and validation of VK link...");
         String userName = link.replaceAll("^.+\\.(com/)", "");
         String request = VK_API_METHOD_TEMPLATE + "users.get?"
                 + "user_ids=" + userName
@@ -418,6 +424,7 @@ public class VKService {
     }
 
     public String createNewAudience(String groupName, String idVkCabinet) throws Exception {
+        logger.info("VKService: creation of new audience...");
         String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.GET, createGroup);
@@ -432,6 +439,7 @@ public class VKService {
     }
 
     public void addUsersToAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
+        logger.info("VKService: adding users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
@@ -444,6 +452,7 @@ public class VKService {
     }
 
     public void removeUsersFromAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
+        logger.info("VKService: removing users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
         OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
@@ -457,6 +466,7 @@ public class VKService {
 
     @PostConstruct
     private void initAccessToken() {
+        logger.info("VKService: initialization of access token...");
         String uri = "https://oauth.vk.com/token" +
                 "?grant_type=password" +
                 "&client_id=" + robotClientId +
@@ -486,6 +496,7 @@ public class VKService {
     }
 
     public Optional<Client> getClientFromYoutubeLiveStreamByName(String name) {
+        logger.info("VKService: getting client from YouTube Live Stream by name...");
         String fullName = name.replaceAll("(?U)[\\pP\\s]", "%20");
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
                 "q=" + fullName +
@@ -506,8 +517,10 @@ public class VKService {
             JSONObject responseObject = json.getJSONObject("response");
 
             if (responseObject.getString("count").equals("0")) {
+                logger.warn("VKService: response is empty");
                 return Optional.empty();
             } else {
+                logger.info("VKService: processing of response...");
                 JSONArray jsonUsers = responseObject.getJSONArray("items");
                 JSONObject jsonUser = jsonUsers.getJSONObject(0);
                 long id = jsonUser.getLong("id");

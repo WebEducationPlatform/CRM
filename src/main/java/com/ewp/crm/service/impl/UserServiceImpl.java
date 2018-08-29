@@ -38,25 +38,32 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
 
     @Override
     public void add(User user) {
+        logger.info("{}: adding of a new user...", UserServiceImpl.class.getName());
         phoneNumberValidation(user);
         if (userDAO.getUserByEmail(user.getEmail()) != null) {
+            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+        logger.info("{}: user saved successfully", UserServiceImpl.class.getName());
         userDAO.saveAndFlush(user);
     }
 
     @Override
     public void update(User user) {
+        logger.info("{}: updating of a user...", UserServiceImpl.class.getName());
         phoneNumberValidation(user);
         User currentUserByEmail;
         if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
+            logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+        logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
         userDAO.saveAndFlush(user);
     }
 
     @Override
     public void addPhoto(MultipartFile file, User user) {
+        logger.info("{}: adding of a photo...", UserServiceImpl.class.getName());
         if (!file.isEmpty()) {
             try {
                 BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
@@ -69,6 +76,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 logger.error("Error during saving photo: " + e.getMessage());
                 throw new UserPhotoException();
             }
+            logger.info("{}: photo added successfully", UserServiceImpl.class.getName());
         }
     }
 

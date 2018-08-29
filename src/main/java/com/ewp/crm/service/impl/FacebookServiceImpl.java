@@ -105,7 +105,7 @@ public class FacebookServiceImpl implements FacebookService {
 			facebookMessageService.addBatchMessages(listMessages);
 			logger.info("All Facebook messages add to database");
 		} catch (ParseException | JSONException e) {
-			logger.info("Can't parse Facebook messages", e);
+			logger.error("Can't parse Facebook messages", e);
 		}
 	}
 }

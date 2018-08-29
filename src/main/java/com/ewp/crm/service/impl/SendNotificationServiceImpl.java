@@ -7,6 +7,8 @@ import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,8 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private final NotificationService notificationService;
 
+    private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
+
     @Autowired
     public SendNotificationServiceImpl(UserService userService, MailSendService mailSendService, NotificationService notificationService) {
         this.userService = userService;
@@ -39,6 +43,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     @Override
     public void sendNotificationsAllUsers(Client client) {
+        logger.info("sending notification to all clients...");
         List<User> usersToNotify = userService.getAll();
         List<Notification> notifications = new ArrayList<>();
         for (int i = 0; i < usersToNotify.size(); i++) {
@@ -49,6 +54,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     @Override
     public void sendNotification(String content, Client client) {
+        logger.info("sending notification to client...");
         String regexForContent = "\\B\\@\\p{L}+";
         String regexForSplit = "(?=[A-ZА-Я])";
         Pattern pattern = Pattern.compile(regexForContent);
