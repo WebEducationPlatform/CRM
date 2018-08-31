@@ -7,4 +7,8 @@ public interface IPConfig {
 	String getVoximplantAccountId();
 
 	String getVoximplantRuleId();
+
+	String getVoximplantLoginForWebCall();
+
+	String getVoximplantPasswordForWebCall();
 }
