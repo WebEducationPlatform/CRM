@@ -94,7 +94,7 @@ public class IPTelephonyRestController {
 		return Files.readAllBytes(fileLocation);
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/sendData", method = RequestMethod.POST)
 	public ResponseEntity getCallRecordsCredentials(@RequestParam String to) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -116,13 +116,13 @@ public class IPTelephonyRestController {
 		}
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/voximplantCredentials", method = RequestMethod.GET)
 	public String getVoximplantCredentials() {
 		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value ="/calcKey", method = RequestMethod.POST)
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
