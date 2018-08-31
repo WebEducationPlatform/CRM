@@ -889,3 +889,8 @@ li.dropdown:hover .dropdown-menu {
 .modal-client-history-message p {
 	white-space: pre;
 }
+
+#web-call-voximplant, #callback-call-voximplant {
+	width: 24px;
+	height: 24px;
+}
