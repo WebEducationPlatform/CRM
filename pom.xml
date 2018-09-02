@@ -5,7 +5,7 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>1.0-CRM</version>
+	<version>1.2-CRM</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>
@@ -24,9 +24,17 @@
 		<java.version>1.8</java.version>
 		<thymeleaf.version>2.1.3.RELEASE</thymeleaf.version>
 		<spring.version>4.3.2.RELEASE</spring.version>
+		<project.youtube.version>v3-rev182-1.22.0</project.youtube.version>
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>21.0</version>
+		</dependency>
+
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -135,6 +143,22 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.9.1</version>
 		</dependency>
+		<!-- YouTube Data V3 support -->
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-youtube</artifactId>
+			<version>${project.youtube.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.15</version>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.7</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -145,6 +169,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>

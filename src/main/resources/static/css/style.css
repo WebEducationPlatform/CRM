@@ -1,3 +1,57 @@
+.skype-notification {
+	text-align: center;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.enter-skype-login {
+	width: 40%;
+	display: inline;
+	margin-bottom: 5px;
+}
+
+.confirm-skype-interceptor {
+	text-align: center;
+}
+
+.confirm-skype-login {
+	text-align: center;
+}
+
+.select_all_skype_boxes {
+	margin-left: 5px;
+}
+
+.skype-text {
+	text-align: center;
+	color: #229922;
+}
+
+.skype-panel {
+	width: 50%;
+	text-align: center;
+	margin: auto;
+	margin-top: 5px;
+}
+
+.send-skype-message {
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+
+.skype-postpone-date {
+	display: table-caption;
+	margin-top: 5px;
+	text-align: center;
+	width: 80%;
+}
+
+.skype-footer {
+	background-color: #e8e8e8;
+}
+
+
 #show-area {
 	padding-left: 0px;
 	margin-top: 15px;
@@ -10,6 +64,10 @@
 .line-decoration{
 	text-decoration: underline;
 	color: #132580;
+}
+
+.form-control-report {
+	width: 240px
 }
 
 #textTemplateArea {
@@ -249,7 +307,7 @@ ul.nav a:hover {
 	border-bottom: 1px solid #cdcfd0;
 }
 
-#client-filter-heading, #user_group-heading, #statuses-heading {
+#client-filter-heading, #user_group-heading, #statuses-heading, #new_user_group-heading {
 	background: gainsboro;
 }
 
@@ -400,7 +458,7 @@ input[type="checkbox"]:checked + label:before {
 	transform: rotate(45deg);
 }
 
-#showallbtn, #addNewUser, #vkClubList {
+#showallbtn, #addNewUser, #vkClubList, #report {
 	width: 100%;
 	margin-bottom: 10px;
 	border-radius: 5px;
@@ -426,6 +484,12 @@ input[type="checkbox"]:checked + label:before {
 	padding: 9px 11px;
 	background: white;
 	border-radius: 10px;
+
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .comment-name {
@@ -470,6 +534,16 @@ h4.modal-title {
 	border-radius: 10%;
 }
 
+.client-info-edit-save-back-btns{
+	display: block;
+	height: 35px;
+}
+.client-info-edit-save-back-btns span{
+	height: 35px;
+	display: inline-block;
+	margin-top: 7px;
+}
+
 #photoSelectBtn{
 	margin-top: 5%;
 }
@@ -497,7 +571,7 @@ button[name="editStatusBtn"] {
 }
 
 #client-from input:not([id="edit"]), #client-from select:not([id="edit"]), #client-from table , #job-client-from table {
-	width: 50%;
+	width: 80%;
 }
 
 #addNewSN, #addNewJob {
@@ -513,7 +587,7 @@ button[name="editStatusBtn"] {
 }
 
 #SN-table-body td, #job-table-body td {
-	max-width: 0;
+	width: 50%;
 }
 
 button[name|="emailTmplList"] {
@@ -521,7 +595,7 @@ button[name|="emailTmplList"] {
 	border-radius: 40px;
 	padding: 12px;
 	background: #f1f1f1;
-	color: #9c9c9c;
+	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
 }
@@ -696,6 +770,12 @@ button.upload-more-history {
     margin-top: -1px;
 }
 
+.notification-dropdown {
+	max-height: 100px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
 .dropdown-menu li:hover .sub-menu {
     visibility: visible;
 }
@@ -721,4 +801,96 @@ li.dropdown:hover .dropdown-menu {
     left: 10px;
     top: 11px;
     left: -6px;
+}
+
+@font-face {
+	font-family: 'icomoon';
+	src:  url('../fonts/icomoon.eot?rdtdjs');
+	src:  url('../fonts/icomoon.eot?rdtdjs#iefix') format('embedded-opentype'),
+	url('../fonts/icomoon.ttf?rdtdjs') format('truetype'),
+	url('../fonts/icomoon.woff?rdtdjs') format('woff'),
+	url('../fonts/icomoon.svg?rdtdjs#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	position: relative;
+	top: 1px;
+	display: inline-block;
+	font-family: 'icomoon' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-email-card:before {
+	content: "\e900";
+}
+
+.f-18 {
+	font-size: 18px;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+
+.remove-history {
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap; /* Mozilla, начиная с 1999 года */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.onclick-menu {
+	position: relative;
+	display: inline-block;
+}
+.onclick-menu:before {
+	display: inline-block;
+	width: 100%;
+}
+.onclick-menu:focus .onclick-menu-content {
+	display: block;
+}
+.onclick-menu-content {
+	position: absolute;
+	z-index: 1;
+
+	display: none;
+}
+
+/* to display new lines in modal window*/
+.modal-client-history-message p {
+	white-space: pre;
+}
+
+#web-call-voximplant, #callback-call-voximplant {
+	width: 24px;
+	height: 24px;
 }

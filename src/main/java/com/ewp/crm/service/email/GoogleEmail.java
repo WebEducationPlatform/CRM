@@ -18,6 +18,7 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
+import org.thymeleaf.context.Context;
 
 
 import javax.mail.Flags;
@@ -29,8 +30,9 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Configuration
 @EnableIntegration
@@ -50,16 +52,18 @@ public class GoogleEmail {
     private final StatusService statusService;
     private final IncomeStringToClient incomeStringToClient;
     private final ClientHistoryService clientHistoryService;
+    private final MailSendService prepareAndSend;
 
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
+    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
         this.incomeStringToClient = incomeStringToClient;
+        this.prepareAndSend = prepareAndSend;
 
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
@@ -89,7 +93,7 @@ public class GoogleEmail {
         mailReceiver.setShouldDeleteMessages(false);
 
         mailReceiver.setShouldMarkMessagesAsRead(true);
-        mailReceiver.setCancelIdleInterval(1200);
+        mailReceiver.setCancelIdleInterval(300);
         mailReceiver.setBeanFactory(beanFactory);
         mailReceiver.setSearchTermStrategy(this::fromAndNotSeenTerm);
         mailReceiver.afterPropertiesSet();
@@ -113,6 +117,9 @@ public class GoogleEmail {
                 parser.parse();
                 Client client = incomeStringToClient.convert(parser.getHtmlContent());
                 if (client != null) {
+                    if (parser.getHtmlContent().contains("Java Test")) {
+                        prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
+                    }
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));
                     clientService.addClient(client);
@@ -123,6 +130,8 @@ public class GoogleEmail {
         });
         return directChannel;
     }
+
+
 
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
         Optional<InternetAddress> internetAddress = Optional.empty();

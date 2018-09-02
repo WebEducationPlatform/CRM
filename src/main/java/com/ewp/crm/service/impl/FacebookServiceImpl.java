@@ -6,6 +6,13 @@ import com.ewp.crm.models.FacebookMessage;
 import com.ewp.crm.models.MessageDialog;
 import com.ewp.crm.service.interfaces.FacebookDialogService;
 import com.ewp.crm.service.interfaces.FacebookService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -95,10 +103,9 @@ public class FacebookServiceImpl implements FacebookService {
 				facebookDialogService.addDialog(messageDialog);
 			}
 			facebookMessageService.addBatchMessages(listMessages);
-
 			logger.info("All Facebook messages add to database");
 		} catch (ParseException | JSONException e) {
-			logger.info("Can't parse Facebook messages", e);
+			logger.error("Can't parse Facebook messages", e);
 		}
 	}
 }

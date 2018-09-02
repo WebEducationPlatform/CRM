@@ -1,6 +1,10 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
+import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.ReportService;
+import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.FacebookServiceImpl;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
@@ -8,21 +12,26 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.*;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @EnableScheduling
+@PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
 public class ScheduleTasks {
 
 	private final VKService vkService;
@@ -39,6 +48,8 @@ public class ScheduleTasks {
 
 	private final SMSInfoService smsInfoService;
 
+	private final MailSendService mailSendService;
+
 	private final SendNotificationService sendNotificationService;
 
 	private final ClientHistoryService clientHistoryService;
@@ -49,10 +60,24 @@ public class ScheduleTasks {
 
 	private final VkMemberService vkMemberService;
 
+	private final YoutubeService youtubeService;
+
+	private final YoutubeClientService youtubeClientService;
+
+    private final AssignSkypeCallService assignSkypeCallService;
+
+    private final ReportService reportService;
+
+	private Environment env;
+
+	private final MailingMessageRepository mailingMessageRepository;
+
+	private final MailingService mailingService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
@@ -60,11 +85,19 @@ public class ScheduleTasks {
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
+		this.mailSendService = mailSendService;
 		this.sendNotificationService = sendNotificationService;
 		this.clientHistoryService = clientHistoryService;
 		this.facebookService = facebookService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
+		this.youtubeService = youtubeService;
+		this.youtubeClientService = youtubeClientService;
+		this.assignSkypeCallService = assignSkypeCallService;
+		this.env = env;
+		this.mailingMessageRepository = mailingMessageRepository;
+		this.mailingService = mailingService;
+		this.reportService = reportService;
 	}
 
 	private void addClient(Client newClient) {
@@ -87,6 +120,47 @@ public class ScheduleTasks {
 		clientService.updateClient(updateClient);
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
+
+
+	@Scheduled(fixedRate = 6_000)
+	private void checkTimeSkypeCall() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
+			Client client = assignSkypeCall.getToAssignSkypeCall();
+			String skypeTemplate = env.getRequiredProperty("skype.template");
+			User principal = assignSkypeCall.getFromAssignSkypeCall();
+			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
+			Long clientId = client.getId();
+			LocalDateTime trasnfromDate = LocalDateTime.fromDateFields(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm по МСК");
+			String dateOfSkypeCall = dateFormat.format(trasnfromDate.toDate());
+
+			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
+
+			if (selectNetworks.contains("vk")) {
+				try {
+					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("VK message not sent", e);
+				}
+			}
+			if (selectNetworks.contains("sms")) {
+				try {
+					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("SMS message not sent", e);
+				}
+			}
+			if (selectNetworks.contains("email")) {
+				try {
+					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("E-mail message not sent");
+				}
+			}
+				assignSkypeCallService.delete(assignSkypeCall);
+				clientService.updateClient(client);
+			}
+		}
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
@@ -158,6 +232,17 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(fixedRate = 6_000)
+	private void sendMailing() {
+		LocalDateTime currentTime = LocalDateTime.now();
+		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
+		messages.forEach(x -> {
+			if(x.getDate().compareTo(currentTime) < 0) {
+				mailingService.sendMessage(x);
+			}
+		});
+	}
+
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {
@@ -189,6 +274,11 @@ public class ScheduleTasks {
 		}
 	}
 
+	@Scheduled(cron = "0 0 10 01 * ?")
+	private void buildAndSendReport() {
+		mailSendService.sendNotificationMessageYourself(reportService.buildReportOfLastMonth());
+	}
+
 	private String determineStatusOfResponse(String status) {
 		String info;
 		switch (status) {
@@ -205,5 +295,27 @@ public class ScheduleTasks {
 				info = "Неизвестная ошибка";
 		}
 		return info;
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void handleYoutubeLiveStreams() {
+		if (!youtubeService.checkLiveStreamStatus()) {
+			youtubeService.handleYoutubeLiveChatMessages();
+		} else {
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			if (youtubeClient.isPresent()) {
+				for (YoutubeClient client : youtubeClient.get()) {
+					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
+					if (newClient.isPresent()) {
+						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
+                        if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
+                            updateClient(newClient.get());
+                        } else {
+                            addClient(newClient.get());
+                        }
+					}
+				}
+			}
+		}
 	}
 }

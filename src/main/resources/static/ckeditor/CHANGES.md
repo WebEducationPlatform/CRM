@@ -38,8 +38,8 @@ Fixed Issues:
 * [#1356](https://github.com/ckeditor/ckeditor-dev/issues/1356): Fixed: [Border parse function](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.tools.style.parse-method-border) does not allow spaces in the color value.
 * [#1010](https://github.com/ckeditor/ckeditor-dev/issues/1010): Fixed: The CSS `border` shorthand property was incorrectly expanded ignoring the `border-color` style.
 * [#1535](https://github.com/ckeditor/ckeditor-dev/issues/1535): Fixed: [Widget](https://ckeditor.com/cke4/addon/widget) mouseover border contrast is insufficient.
-* [#1516](https://github.com/ckeditor/ckeditor-dev/issues/1516): Fixed: Fake selection allows removing content in read-only mode using the <kbd>Backspace</kbd> and <kbd>Delete</kbd> keys.
-* [#1570](https://github.com/ckeditor/ckeditor-dev/issues/1570): Fixed: Fake selection allows cutting content in read-only mode using the <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>X</kbd> keys.
+* [#1516](https://github.com/ckeditor/ckeditor-dev/issues/1516): Fixed: Fake selection allows removing content in readedMessage-only mode using the <kbd>Backspace</kbd> and <kbd>Delete</kbd> keys.
+* [#1570](https://github.com/ckeditor/ckeditor-dev/issues/1570): Fixed: Fake selection allows cutting content in readedMessage-only mode using the <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>X</kbd> keys.
 * [#1363](https://github.com/ckeditor/ckeditor-dev/issues/1363): Fixed: Paste notification is unclear and it might confuse users.
 
 API Changes:
@@ -130,7 +130,7 @@ Fixed Issues:
 * [#566](https://github.com/ckeditor/ckeditor-dev/issues/566): Fixed: The CSS `border` shorthand property with zero width (`border: 0px solid #000;`) causes the table to have the border attribute set to 1.
 * [#779](https://github.com/ckeditor/ckeditor-dev/issues/779): Fixed: The [Remove Format](https://ckeditor.com/cke4/addon/removeformat) plugin removes elements with language definition inserted by the [Language](https://ckeditor.com/cke4/addon/language) plugin.
 * [#423](https://github.com/ckeditor/ckeditor-dev/issues/423): Fixed: The [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) plugin pastes paragraphs into the editor even if [`CKEDITOR.config.enterMode`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-enterMode) is set to `CKEDITOR.ENTER_BR`.
-* [#719](https://github.com/ckeditor/ckeditor-dev/issues/719): Fixed: Image inserted using the [Enhanced Image](https://ckeditor.com/cke4/addon/image2) plugin can be resized when the editor is in [read-only mode](https://docs.ckeditor.com/ckeditor4/docs/#!/guide/dev_readonly).
+* [#719](https://github.com/ckeditor/ckeditor-dev/issues/719): Fixed: Image inserted using the [Enhanced Image](https://ckeditor.com/cke4/addon/image2) plugin can be resized when the editor is in [readedMessage-only mode](https://docs.ckeditor.com/ckeditor4/docs/#!/guide/dev_readonly).
 * [#577](https://github.com/ckeditor/ckeditor-dev/issues/577): Fixed: The "Delete Columns" command provided by the [Table Tools](https://ckeditor.com/cke4/addon/tabletools) plugin throws an error when trying to delete columns.
 * [#867](https://github.com/ckeditor/ckeditor-dev/issues/867): Fixed: Typing into a selected table throws an error.
 * [#817](https://github.com/ckeditor/ckeditor-dev/issues/817): Fixed: The [Save](https://ckeditor.com/cke4/addon/save) plugin does not work in [Source Mode](https://ckeditor.com/cke4/addon/sourcearea).
@@ -160,7 +160,7 @@ Fixed Issues:
 * [#491](https://github.com/ckeditor/ckeditor-dev/issues/491): Fixed: Unnecessary dependency on the [Editor Toolbar](https://ckeditor.com/cke4/addon/toolbar) plugin inside the [Notification](https://ckeditor.com/cke4/addon/notification) plugin.
 * [#646](https://github.com/ckeditor/ckeditor-dev/issues/646): Fixed: Error thrown into the browser console after opening the [Styles Combo](https://ckeditor.com/cke4/addon/stylescombo) plugin menu in the editor without any selection.
 * [#501](https://github.com/ckeditor/ckeditor-dev/issues/501): Fixed: Double click does not open the dialog for modifying anchors inserted via the [Link](https://ckeditor.com/cke4/addon/link) plugin.
-* [#9780](https://dev.ckeditor.com/ticket/9780): [IE8-9] Fixed: Clicking inside an empty [read-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) editor throws an error.
+* [#9780](https://dev.ckeditor.com/ticket/9780): [IE8-9] Fixed: Clicking inside an empty [readedMessage-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) editor throws an error.
 * [#16820](https://dev.ckeditor.com/ticket/16820): [IE10] Fixed: Clicking below a single horizontal rule throws an error.
 * [#426](https://github.com/ckeditor/ckeditor-dev/issues/426): Fixed: The [`range.cloneContents`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.dom.range-method-cloneContents) method selects the whole element when the selection starts at the beginning of that element.
 * [#644](https://github.com/ckeditor/ckeditor-dev/issues/644): Fixed: The [`range.extractContents`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.dom.range-method-extractContents) method returns an incorrect result when multiple nodes are selected.
@@ -477,8 +477,8 @@ Fixed Issues:
 * [#13867](https://dev.ckeditor.com/ticket/13867): Fixed: CKEditor does not work when the `classList` polyfill is used.
 * [#13885](https://dev.ckeditor.com/ticket/13885): Fixed: [Enhanced Image](https://ckeditor.com/cke4/addon/image2) requires the [Link](https://ckeditor.com/cke4/addon/link) plugin to link an image.
 * [#13883](https://dev.ckeditor.com/ticket/13883): Fixed: Copying a table using the context menu strips off styles.
-* [#13872](https://dev.ckeditor.com/ticket/13872): Fixed: Cutting is possible in the [read-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode.
-* [#12848](https://dev.ckeditor.com/ticket/12848): [Blink] Fixed: Opening the [Find and Replace](https://ckeditor.com/cke4/addon/find) dialog window in the [read-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode throws an exception.
+* [#13872](https://dev.ckeditor.com/ticket/13872): Fixed: Cutting is possible in the [readedMessage-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode.
+* [#12848](https://dev.ckeditor.com/ticket/12848): [Blink] Fixed: Opening the [Find and Replace](https://ckeditor.com/cke4/addon/find) dialog window in the [readedMessage-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode throws an exception.
 * [#13879](https://dev.ckeditor.com/ticket/13879): Fixed: It is not possible to prevent the [`editor.drop`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-event-drop) event.
 * [#13361](https://dev.ckeditor.com/ticket/13361): Fixed: Skin images fail when the site path includes parentheses because the `background-image` path needs single quotes around the URL value.
 * [#13771](https://dev.ckeditor.com/ticket/13771): Fixed: The `contents.css` style is not used if the [IFrame Editing Area](https://ckeditor.com/cke4/addon/wysiwygarea) plugin is missing.
@@ -686,7 +686,7 @@ New Features:
   * [#12810](https://dev.ckeditor.com/ticket/12810): Introduced a [notification aggregator](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.notificationAggregator) for the [notification system](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.notification) which simplifies displaying progress of many concurrent tasks.
 * [#11636](https://dev.ckeditor.com/ticket/11636): Introduced new, UX-focused, methods for getting selected HTML and deleting it &mdash; [`editor.getSelectedHtml()`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-method-getSelectedHtml) and [`editor.extractSelectedHtml()`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-method-extractSelectedHtml).
 * [#12416](https://dev.ckeditor.com/ticket/12416): Added the [`widget.definition.upcastPriority`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.widget.definition-property-upcastPriority) property which gives more control over widget upcasting order to the widget author.
-* [#12036](https://dev.ckeditor.com/ticket/12036): Initialize the editor in [read-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode when the `<textarea>` element has a `readonly` attribute.
+* [#12036](https://dev.ckeditor.com/ticket/12036): Initialize the editor in [readedMessage-only](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-property-readOnly) mode when the `<textarea>` element has a `readonly` attribute.
 * [#11905](https://dev.ckeditor.com/ticket/11905): The [`resize` event](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-event-resize) passes the current dimensions in its data.
 * [#12126](https://dev.ckeditor.com/ticket/12126): Introduced [`config.image_prefillDimensions`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-image_prefillDimensions) and [`config.image2_prefillDimensions`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.config-cfg-image2_prefillDimensions) to make pre-filling `width` and `height` configurable for the [Enhanced Image](https://ckeditor.com/cke4/addon/image2).
 * [#12746](https://dev.ckeditor.com/ticket/12746): Added a new configuration option to hide the [Enhanced Image](https://ckeditor.com/cke4/addon/image2) resizer.
@@ -747,7 +747,7 @@ Fixed Issues:
 * [#13164](https://dev.ckeditor.com/ticket/13164): Fixed: Error when inserting a hidden field.
 * [#13155](https://dev.ckeditor.com/ticket/13155): Fixed: Incorrect [Line Utilities](https://ckeditor.com/cke4/addon/lineutils) positioning when `<body>` has a margin.
 * [#13351](https://dev.ckeditor.com/ticket/13351): Fixed: Link lost when editing a linked image with the Link tab disabled. This also fixed a bug when inserting an image into a fully selected link would throw an error ([#12847](https://dev.ckeditor.com/ticket/12847)).
-* [#13344](https://dev.ckeditor.com/ticket/13344): [WebKit/Blink] Fixed: It is possible to remove or change editor content in [read-only mode](https://docs.ckeditor.com/ckeditor4/docs/#!/guide/dev_readonly).
+* [#13344](https://dev.ckeditor.com/ticket/13344): [WebKit/Blink] Fixed: It is possible to remove or change editor content in [readedMessage-only mode](https://docs.ckeditor.com/ckeditor4/docs/#!/guide/dev_readonly).
 
 Other Changes:
 
@@ -846,7 +846,7 @@ Fixed Issues:
   * [#12219](https://dev.ckeditor.com/ticket/12219): [Safari] Fixed: Some modifications of the [`UndoManager.locked`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.plugins.undo.UndoManager-property-locked) property violate strict mode in the [Undo](https://ckeditor.com/cke4/addon/undo) plugin.
 * [#10916](https://dev.ckeditor.com/ticket/10916): Fixed: [Magic Line](https://ckeditor.com/cke4/addon/magicline) icon in Right-To-Left environments.
 * [#11970](https://dev.ckeditor.com/ticket/11970): [IE] Fixed: CKEditor `paste` event is not fired when pasting with *Shift+Ins*.
-* [#12111](https://dev.ckeditor.com/ticket/12111): Fixed: Linked image attributes are not read when opening the image dialog window by doubleclicking.
+* [#12111](https://dev.ckeditor.com/ticket/12111): Fixed: Linked image attributes are not readedMessage when opening the image dialog window by doubleclicking.
 * [#10030](https://dev.ckeditor.com/ticket/10030): [IE] Fixed: Prevented "Unspecified Error" thrown in various cases when IE8-9 does not allow access to `document.activeElement`.
 * [#12273](https://dev.ckeditor.com/ticket/12273): Fixed: Applying block style in a description list breaks it.
 * [#12218](https://dev.ckeditor.com/ticket/12218): Fixed: Minor syntax issue in CSS files.
@@ -1131,7 +1131,7 @@ Fixed Issues:
 * [#11179](https://dev.ckeditor.com/ticket/11179): Fixed: [`editor.destroy()`](https://docs.ckeditor.com/ckeditor4/docs/#!/api/CKEDITOR.editor-method-destroy) does not cleanup content generated by the [Table Resize](https://ckeditor.com/cke4/addon/tableresize) plugin for inline editors.
 * [#11237](https://dev.ckeditor.com/ticket/11237): Fixed: Table border attribute value is deleted when pasting content from Microsoft Word.
 * [#11250](https://dev.ckeditor.com/ticket/11250): Fixed: HTML entities inside the `<textarea>` element are not encoded.
-* [#11260](https://dev.ckeditor.com/ticket/11260): Fixed: Initially disabled buttons are not read by JAWS as disabled.
+* [#11260](https://dev.ckeditor.com/ticket/11260): Fixed: Initially disabled buttons are not readedMessage by JAWS as disabled.
 * [#11200](https://dev.ckeditor.com/ticket/11200):  Added [Clipboard](https://ckeditor.com/cke4/addon/clipboard) plugin as a dependency for [Widget](https://ckeditor.com/cke4/addon/widget) to fix drag and drop.
 
 ## CKEditor 4.3
@@ -1449,7 +1449,7 @@ Fixed Issues:
 * [#9360](https://dev.ckeditor.com/ticket/9360): [Inline editor] Blocks shown for a `<div>` element stay permanently even after the user exits editing the `<div>`.
 * [#9531](https://dev.ckeditor.com/ticket/9531): [Firefox & Inline editor] Toolbar is lost when closing the Format drop-down list by clicking its button.
 * [#9553](https://dev.ckeditor.com/ticket/9553): Table width incorrectly set when the `border-width` style is specified.
-* [#9594](https://dev.ckeditor.com/ticket/9594): Cannot tab past CKEditor when it is in read-only mode.
+* [#9594](https://dev.ckeditor.com/ticket/9594): Cannot tab past CKEditor when it is in readedMessage-only mode.
 * [#9658](https://dev.ckeditor.com/ticket/9658): [IE9] Justify not working on selected images.
 * [#9686](https://dev.ckeditor.com/ticket/9686): Added missing contents styles for `<pre>` elements.
 * [#9709](https://dev.ckeditor.com/ticket/9709): [Paste from Word](https://ckeditor.com/cke4/addon/pastefromword) should not depend on configuration from other styles.

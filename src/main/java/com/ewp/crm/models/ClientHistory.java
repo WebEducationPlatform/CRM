@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -25,102 +26,105 @@ public class ClientHistory {
 	@Column
 	private String recordLink;
 
-	//TODO потом переделать
-	@Basic
-	private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
+    //TODO потом переделать
+    //@Basic
+    //private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
 
-	@Column(name = "history_type", nullable = false)
-	@Enumerated(EnumType.STRING)
-	private Type type;
+    @Column(name = "date")
+    private Date date;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	private Message message;
+    @Column(name = "history_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Type type;
 
-	@JsonBackReference
-	@ManyToOne
-	@JoinTable(name = "history_client",
-			joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
-			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
-	private Client client;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Message message;
 
-	public ClientHistory() {
-		//TODO date init
-	}
+    @JsonBackReference
+    @ManyToOne
+    @JoinTable(name = "history_client",
+            joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
+            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
+    private Client client;
 
-	public ClientHistory(Type type) {
-		this();
-		this.type = type;
-	}
+    public ClientHistory() {
+        this.date = new Date();
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public ClientHistory(Type type) {
+        this();
+        this.type = type;
+    }
 
-	public void setLink(String link) {
-		this.link = link;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
+    public void setLink(String link) {
+        this.link = link;
+    }
 
-	public void setMessage(Message message) {
-		this.message = message;
-	}
+    public void setType(Type type) {
+        this.type = type;
+    }
 
-	public void setClient(Client client) {
-		this.client = client;
-	}
+    public void setMessage(Message message) {
+        this.message = message;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getLink() {
-		return link;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public String getLink() {
+        return link;
+    }
 
-	public Type getType() {
-		return type;
-	}
+    public Date getDate() {
+        return date;
+    }
 
-	public Message getMessage() {
-		return message;
-	}
+    public Type getType() {
+        return type;
+    }
 
-	public Client getClient() {
-		return client;
-	}
+    public Message getMessage() {
+        return message;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ClientHistory)) return false;
-		ClientHistory that = (ClientHistory) o;
-		return Objects.equals(id,that.id) &&
-				Objects.equals(date, that.date);
-	}
+    public Client getClient() {
+        return client;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, date);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClientHistory)) return false;
+        ClientHistory that = (ClientHistory) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(date, that.date);
+    }
 
-	public String getRecordLink() {
-		return recordLink;
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, date);
+    }
 
-	public void setRecordLink(String recordLink) {
-		this.recordLink = recordLink;
-	}
+    public String getRecordLink() {
+        return recordLink;
+    }
+
+    public void setRecordLink(String recordLink) {
+        this.recordLink = recordLink;
+    }
 
 	public enum Type {
 		SOCIAL_REQUEST("Клиент был добавлен из"),
@@ -133,16 +137,18 @@ public class ClientHistory {
 		CALL("совершил звонок"),
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
-		UPDATE("обновил информацию");
+		UPDATE("обновил информацию"),
+		SKYPE("назначил беседу по скайп на"),
+		ADD_LOGIN("установил клиенту логин в skype - ");
 
-		private String info;
+        private String info;
 
-		Type(String info) {
-			this.info = info;
-		}
+        Type(String info) {
+            this.info = info;
+        }
 
-		public String getInfo() {
-			return info;
-		}
-	}
+        public String getInfo() {
+            return info;
+        }
+    }
 }

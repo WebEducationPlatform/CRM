@@ -30,6 +30,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="/client">Доска</a></li>
                 <li><a href="/client/allClients">Все клиенты</a></li>
+                <li><a href="/client/mailing">Рассылка</a></li>
                 <li th:if="${#httpServletRequest.getRequestURI() == '/client'}" >
                    <div class="search-place">
                        <input id="search-clients" type="text" class="form-control" name="search" placeholder="Search" />
@@ -39,7 +40,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                     <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu notification-dropdown">
                         <th:block th:if="${notifications.size() > 0}">
                             <th:block th:each="notification : ${notifications}" th:if="${!notification.client.status.invisible}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
@@ -76,7 +77,17 @@
                                         </a>
                                     </li>
                                 </th:block>
+                                <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).ASSIGN_SKYPE}">
+                                    <li th:class="'menu' + ${notification.client.id}">
+                                        <a data-toggle="modal" class="link-cursor-pointer notify"
+                                           th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
+                                           th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                           th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
+                                        </a>
+                                    </li>
+                                </th:block>
                             </th:block>
+
                         </th:block>
                         <th:block th:if="${notifications.size() == 0}">
                             <li><a>У вас нет новых оповещений</a></li>
@@ -123,7 +134,7 @@
                 <div class="panel-heading">
             <span><h4>Комментарии:</h4></span>
             <div class="form-group comment-div">
-                <textarea class="form-control textcomplete" th:id="'new-text-for-client'"
+                <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
             </div>
            <ul class="list-group main-modal-comment">
@@ -203,13 +214,12 @@
                         <h6>Вы уверены, что хотите изменить права доступа пользователя?</h6>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" th:onclick="'reAviableUser('+ ${usr.id} + ')'">Да</button>
+                        <button type="button" class="btn btn-primary" th:onclick="'reAvailableUser('+ ${usr.id} + ')'">Да</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </th:block>
 
@@ -639,5 +649,33 @@
         </div>
     </div>
 </th:block>
+
+<th:block th:fragment="deleteNewUser">
+    <div th:each="newusr : ${newUsers}">
+        <div class="modal fade" th:id="'deleteNewUserModal' + ${newusr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить нового пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteNewUser('+ ${newusr.id} + ')'">Да</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="status_name_in_selection">
+    <div th:each="status : ${statuses}">
+        <option th:text="${status.name}" th:value="${status.id}"></option>
+    </div>
+</th:block>
+
 </body>
 </html>

@@ -1,10 +1,8 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.FilteringCondition;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ClientRepositoryCustom {
@@ -29,4 +27,11 @@ public interface ClientRepositoryCustom {
 
 	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
+	List<ClientHistory> getClientByTimeInterval(int days);
+
+	List<Client> getClientByHistoryTimeIntervalAndHistoryType(Date firstDay, Date lastDay, ClientHistory.Type[] types);
+
+	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(Date firstDay, Date lastDay, ClientHistory.Type[] types, String title);
+
+	Long countByDate(String date);
 }
