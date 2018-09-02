@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import sun.security.provider.MD5;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,6 +40,7 @@ public class IPTelephonyRestController {
 	private final ClientHistoryService clientHistoryService;
 	private final CallRecordService callRecordService;
 	private final DownloadCallRecordService downloadCallRecordService;
+	private final String voximplantHash;
 	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
 
 
@@ -48,6 +51,7 @@ public class IPTelephonyRestController {
 		this.clientHistoryService = clientHistoryService;
 		this.callRecordService = callRecordService;
 		this.downloadCallRecordService = downloadCallRecordService;
+		this.voximplantHash = DigestUtils.md5DigestAsHex((ipService.getVoximplantUserLogin(ipService.getVoximplantLoginForWebCall()) + ":voximplant.com:" + ipService.getVoximplantPasswordForWebCall()).getBytes());
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
@@ -64,6 +68,8 @@ public class IPTelephonyRestController {
 			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
 			client.addCallRecord(callRecordFromDB);
 			clientService.updateClient(client);
+			callRecordFromDB.setClient(client);
+			callRecordService.update(callRecordFromDB);
 			ipService.call(from, to, callRecordFromDB.getId());
 		}
 	}
@@ -74,8 +80,9 @@ public class IPTelephonyRestController {
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
 			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setRecordLink(downloadLink);
+			callRecord.getClientHistory().setRecordLink(url);
 			callRecordService.update(callRecord);
+			logger.info("CallRecord to client id {} has download", clientCallId);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -86,5 +93,40 @@ public class IPTelephonyRestController {
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
 		Path fileLocation = Paths.get("CallRecords\\" + file + ".mp3");
 		return Files.readAllBytes(fileLocation);
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "/sendData", method = RequestMethod.POST)
+	public ResponseEntity getCallRecordsCredentials(@RequestParam String to) {
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Client client = clientService.getClientByPhoneNumber(to);
+		if (client.isCanCall() && principal.isIpTelephony()) {
+			CallRecord callRecord = new CallRecord();
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, "http://www.google.com");
+			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
+			client.addHistory(historyFromDB);
+			callRecord.setClientHistory(historyFromDB);
+			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
+			client.addCallRecord(callRecordFromDB);
+			clientService.updateClient(client);
+			callRecordFromDB.setClient(client);
+			callRecordService.update(callRecordFromDB);
+			return ResponseEntity.ok(callRecordFromDB);
+		} else {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "/voximplantCredentials", method = RequestMethod.GET)
+	public String getVoximplantCredentials() {
+		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value ="/calcKey", method = RequestMethod.POST)
+	public String getHash(@RequestParam String key) {
+		String hashKey = key + "|" + voximplantHash;
+		return DigestUtils.md5DigestAsHex(hashKey.getBytes());
 	}
 }

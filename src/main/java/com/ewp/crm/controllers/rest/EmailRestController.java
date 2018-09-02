@@ -47,14 +47,9 @@ public class EmailRestController {
 	@RequestMapping(value = "/rest/sendEmail", method = RequestMethod.POST)
 	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
 	                                @RequestParam(value = "body",required = false) String body) {
-		Client client = clientService.get(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
-		mailSendService.prepareAndSend(client.getEmail(), params, messageTemplateService.get(templateId).getTemplateText(),
-				"emailStringTemplate");
+		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String templateText = messageTemplateService.get(templateId).getTemplateText();
+		mailSendService.prepareAndSend(clientId, templateText, body, principal);
 		return ResponseEntity.ok().build();
 	}
 

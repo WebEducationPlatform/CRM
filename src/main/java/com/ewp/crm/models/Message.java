@@ -6,8 +6,8 @@ import javax.persistence.*;
 public class Message {
 
 	@Id
-	@GeneratedValue
-	private Long id;
+    @GeneratedValue
+    private Long id;
 
 	@Lob
 	private String content;

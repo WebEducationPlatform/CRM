@@ -2,6 +2,8 @@ package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.models.SocialNetworkType;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +20,19 @@ public class IncomeStringToClient {
 
     private final SocialNetworkTypeService socialNetworkTypeService;
 
+    private final VKService vkService;
+
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
 
     @Autowired
-    public IncomeStringToClient(SocialNetworkTypeService socialNetworkTypeService) {
+    public IncomeStringToClient(SocialNetworkTypeService socialNetworkTypeService, VKService vkService) {
         this.socialNetworkTypeService = socialNetworkTypeService;
+        this.vkService = vkService;
     }
 
     public Client convert(String income) {
         Client client = null;
+        logger.info("Start of conversion");
         if (income != null && !income.isEmpty()) {
             String workString = prepareForm(income);
             if (income.contains("Начать обучение")) {
@@ -50,6 +56,7 @@ public class IncomeStringToClient {
     }
 
     private Client parseClientFormOne(String form) {
+        logger.info("Parsing FormOne...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
@@ -62,7 +69,13 @@ public class IncomeStringToClient {
         client.setCountry(clientData.get("Страна"));
         client.setCity(clientData.get("Город"));
         if (clientData.containsKey("Соцсеть")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Соцсеть"))));
+            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Соцсеть"));
+            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+                        " недействительна");
+                logger.warn("Unknown social network");
+            }
+            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
         if (form.contains("Согласен")) {
             client.setEmail(clientData.get("Email"));
@@ -70,10 +83,12 @@ public class IncomeStringToClient {
             client.setEmail(clientData.get("Email"));
             client.setClientDescriptionComment("На пробные 3 дня");
         }
+        logger.info("FormOne parsing finished");
         return client;
     }
 
     private Client parseClientFormTwo(String form) {
+        logger.info("Parsing FormTwo...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
@@ -84,13 +99,21 @@ public class IncomeStringToClient {
         setClientName(client, clientData.get("Name"));
         client.setPhoneNumber(clientData.get("Phone"));
         client.setClientDescriptionComment(clientData.get("Vopros"));
-        if (clientData.containsKey("Social")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Social"))));
+        if (clientData.containsKey("Social1")) {
+            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Social1"));
+            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+                        " недействительна");
+                logger.warn("Unknown social network");
+            }
+            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
+        logger.info("FormTwo parsing finished");
         return client;
     }
 
     private Client parseClientFormFour(String form) {
+        logger.info("Parsing FormFour...");
         Client client = new Client();
         String replaceSpaceInString = form.replaceAll(" ", "");
         String removeExtraCharacters = replaceSpaceInString.substring(replaceSpaceInString.indexOf("Имя"), replaceSpaceInString.length());
@@ -98,25 +121,37 @@ public class IncomeStringToClient {
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
         setClientName(client, clientData.get("Имя"));
         if (clientData.containsKey("Social2")) {
-            client.setSocialNetworks(Collections.singletonList(getSocialNetwork(clientData.get("Social2"))));
+            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Social2"));
+            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+                                                " недействительна");
+                logger.warn("Unknown social network");
+            }
+            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
         }
         client.setPhoneNumber(clientData.get("Phone6"));
         client.setCountry(clientData.get("City6"));
         client.setEmail(clientData.get("Email2"));
         client.setClientDescriptionComment("Проходил Тест");
+        logger.info("FormFour parsing finished");
         return client;
     }
 
     private SocialNetwork getSocialNetwork(String link) {
         SocialNetwork socialNetwork = new SocialNetwork();
+        socialNetwork.setLink(link);
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
-            socialNetwork.setLink(link);
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
-        } else if (link.startsWith("www.facebook.com") || link.startsWith("m.facebook.com")) {
-            socialNetwork.setLink(link);
+            String validLink = vkService.refactorAndValidateVkLink(link);
+            if (validLink.equals("undefined")){
+                socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("unknown"));
+            } else {
+                socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
+            }
+        } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
+
             socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));
         } else {
-            socialNetwork = null;
+            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("unknown"));
         }
         return socialNetwork;
     }

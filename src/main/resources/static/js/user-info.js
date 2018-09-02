@@ -41,6 +41,8 @@ function changeUser(id, authId) {
         city: $('#edit-user-city').val(),
         vk:$('#edit-user-VKid').val(),
         password:$('#edit-user-password').val(),
+        isVerified: true,
+        enabled: true,
         role:myRows
     };
 
@@ -57,6 +59,7 @@ function changeUser(id, authId) {
         },
         success: function (result) {
             sendPhoto(id, authId);
+            window.location.replace("/client")
         },
         error: function (e) {
             setErrorMessage(e.responseJSON.message);
@@ -205,6 +208,8 @@ function addUser() {
         city: $('#add-user-city').val(),
         vk:$('#add-user-VKid').val(),
         password:$('#add-user-password').val(),
+        isVerified: true,
+        iaEnabled: true,
         role:myRows
     };
 
@@ -225,6 +230,58 @@ function addUser() {
         error: function (e) {
             setErrorMessage(e.responseJSON.message);
             console.log(e.responseText);
+        }
+    });
+}
+
+function registerUser() {
+    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+        return;
+    }
+    if($("input[name='roleCheckBx']:checked").length === 0) {
+        var current = document.getElementById("message");
+        current.textContent = "Необходимо указать минимум одну роль!";
+        current.style.color = "red";
+        return false;
+    }
+    let url = '/user/register';
+    var obj = {};
+    obj["id"] = 2;
+    obj["roleName"] = 'USER';
+    var myRows = [];
+    myRows.push(obj);
+    let wrap = {
+        firstName: $('#add-user-first-name').val(),
+        lastName: $('#add-user-last-name').val(),
+        phoneNumber: $('#add-user-phone-number').val(),
+        ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
+        email: $('#add-user-email').val(),
+        sex: $('#add-user-sex').find('option:selected').text(),
+        country: $('#add-user-country').val(),
+        city: $('#add-user-city').val(),
+        vk:$('#add-user-VKid').val(),
+        password:$('#add-user-password').val(),
+        isVerified: false,
+        isEnabled: false,
+        role: myRows
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(wrap),
+        beforeSend: function(){
+            var current = document.getElementById("message");
+            current.style.color = "darkorange";
+            current.textContent = "Загрузка...";
+
+        },
+        success: function (result) {
+            window.location.replace("/login")
+        },
+        error: function (e) {
+            alert('Пользователь не был зарегистрирован');
         }
     });
 }

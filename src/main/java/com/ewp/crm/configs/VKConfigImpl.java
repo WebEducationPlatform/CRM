@@ -8,7 +8,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
@@ -37,6 +36,8 @@ public class VKConfigImpl implements VKConfig {
 
     private String firstContactMessage;
 
+    private String targetVkGroup;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -55,6 +56,7 @@ public class VKConfigImpl implements VKConfig {
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
 
+            targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
                 throw new NullPointerException();
@@ -113,4 +115,8 @@ public class VKConfigImpl implements VKConfig {
         return firstContactMessage;
     }
 
+
+    public String getTargetVkGroup() {
+        return targetVkGroup;
+    }
 }

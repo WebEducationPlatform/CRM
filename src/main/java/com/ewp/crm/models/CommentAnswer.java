@@ -31,6 +31,7 @@ public class CommentAnswer {
 	private String dateFormat;
 
 	@Column
+	@Lob
 	private String content;
 
 	@JsonIgnore

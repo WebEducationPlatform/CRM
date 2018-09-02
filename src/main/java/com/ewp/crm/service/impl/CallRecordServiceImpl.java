@@ -19,4 +19,5 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     public CallRecord addCallRecord(CallRecord callRecord) {
         return callRecordRepository.saveAndFlush(callRecord);
     }
+
 }

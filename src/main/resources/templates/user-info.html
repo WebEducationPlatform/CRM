@@ -20,6 +20,7 @@
 						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
 					</div>
                     <p><span id = "message"></span></p>
+                    <input type="checkbox" checked="checked" class="form-control"  style="display:none"    id="edit-user-isVerified"/>
                     <div class="form-group">
                         <label for="edit-user-first-name">Имя</label>
                         <input class="form-control" data-error="Имя должно начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$" required="required" disabled="disabled" id="edit-user-first-name" th:value="${user.firstName}"/>
