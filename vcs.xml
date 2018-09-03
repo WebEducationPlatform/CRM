@@ -14,6 +14,10 @@
           <option name="url" value="https://github.com/WebEducationPlatform/CRM.git" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://github.com/WebEducationPlatform/CRM" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="D:\YandexDisk\Programming\GitHub\CRM1.0" />
