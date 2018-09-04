@@ -158,13 +158,13 @@ public class DataInitializer {
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
 		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
 		client3.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
 		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
@@ -194,10 +194,11 @@ public class DataInitializer {
 		statusService.addInit(defaultStatus);
 
 		//TODO удалить после теста
+
 		Faker faker = new Faker();
 		List<Client> list = new LinkedList<>();
 		for (int i = 0; i < 20; i++) {
-			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("First Status"));
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("dropOut Status"));
 			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
 			list.add(client);
 		}
