@@ -193,22 +193,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	private void checkSocialLinks(Client client) {
-		/*try {
-			//For memory
-			String regexp = "^(https:\\/\\/)+([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$";
-			Pattern pattern = Pattern.compile(regexp);
-			for (int i = 0; i < client.getSocialNetworks().size(); i++) {
-				String link = client.getSocialNetworks().get(i).getLink();
-				Matcher matcher = pattern.matcher(link);
-				if (!matcher.matches()) {
-					link = "https://" + client.getSocialNetworks().get(i).getLink();
-					client.getSocialNetworks().get(i).setLink(link);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-
 		for (int i = 0; i < client.getSocialNetworks().size(); i++) {
 			String link = client.getSocialNetworks().get(i).getLink();
 			SocialNetworkType type = client.getSocialNetworks().get(i).getSocialNetworkType();
