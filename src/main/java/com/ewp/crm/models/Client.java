@@ -370,6 +370,8 @@ public class Client implements Serializable, Diffable<Client> {
 		this.socialNetworks = socialNetworks;
 	}
 
+
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
