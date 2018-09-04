@@ -1,5 +1,6 @@
 <application>
   <component name="GithubSettings">
-    <option name="AUTH_TYPE" value="TOKEN" />
+    <option name="LOGIN" value="SadreevArt" />
+    <option name="AUTH_TYPE" value="BASIC" />
   </component>
 </application>
