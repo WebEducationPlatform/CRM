@@ -140,9 +140,9 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate4);
 
 		Status status1 = new Status("trialLearnStatus", false, 2L);
-		Status status2 = new Status("inLearningStatus", false , 3L);
+		Status status2 = new Status("inLearningStatus", false, 3L);
 		Status status3 = new Status("pauseLearnStatus", false, 4L);
-		Status status4 = new Status("endLearningStatus", false , 5L);
+		Status status4 = new Status("endLearningStatus", false, 5L);
 		Status status5 = new Status("dropOut Status", false, 6L);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
@@ -211,6 +211,6 @@ public class DataInitializer {
 			list.add(client);
 		}
 		clientService.addBatchClients(list);
-		reportsStatusService.add(new ReportsStatus(6,5,3,4,2));
+		reportsStatusService.add(new ReportsStatus(6, 5, 3, 4, 2));
 	}
 }
