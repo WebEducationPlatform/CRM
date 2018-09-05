@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-@Controller (value = "/student")
+@Controller
+@RequestMapping("/student")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class StudentController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientController.class);
@@ -22,7 +25,7 @@ public class StudentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
-    @GetMapping (value = "/all")
+    @GetMapping(value = "/all")
     public ModelAndView showAllStudents() {
         ModelAndView modelAndView = new ModelAndView("all-students-table");
         modelAndView.addObject("students", studentService.getAll());

@@ -13,4 +13,10 @@ public class StudentStatus {
     @Column (name = "status")
     private String status;
 
+    public StudentStatus() {
+    }
+
+    public StudentStatus(String status) {
+        this.status = status;
+    }
 }

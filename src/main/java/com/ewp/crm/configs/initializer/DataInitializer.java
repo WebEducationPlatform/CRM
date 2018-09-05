@@ -3,7 +3,6 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
@@ -49,6 +48,12 @@ public class DataInitializer {
 
 	@Autowired
 	private ReportsStatusService reportsStatusService;
+
+	@Autowired
+	private StudentService studentService;
+
+	@Autowired
+	private StudentStatusService studentStatusService;
 
 	private void init() {
 
@@ -193,6 +198,11 @@ public class DataInitializer {
 		statusService.addInit(status5);
 		statusService.addInit(defaultStatus);
 
+		StudentStatus trialStatus = new StudentStatus("Trial student");
+		studentStatusService.add(trialStatus);
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), new Date(Calendar.getInstance().getTimeInMillis() - 100000000), new Date(Calendar.getInstance().getTimeInMillis() - 100000000), 1200000L, 800000L, 400000L, studentStatusService.get(1L), "Trial");
+		studentService.add(trialStudent);
+
 		//TODO удалить после теста
 
 		Faker faker = new Faker();
@@ -213,4 +223,5 @@ public class DataInitializer {
 		clientService.addBatchClients(list);
 		reportsStatusService.add(new ReportsStatus(6, 5, 3, 4, 2));
 	}
+
 }
