@@ -88,9 +88,13 @@ public class ClientHistory {
         return link;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return new DateTime(date).toString("HH:mm ddMMM yyyy'г'");
     }
+
+	public long getDateAsLong() {
+		return date.getTime();
+	}
 
     public Type getType() {
         return type;
