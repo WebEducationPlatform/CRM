@@ -6,6 +6,7 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
@@ -199,9 +200,19 @@ public class DataInitializer {
 		statusService.addInit(defaultStatus);
 
 		StudentStatus trialStatus = new StudentStatus("Trial student");
+		StudentStatus learningStatus = new StudentStatus("Learning student");
+		StudentStatus pauseStatus = new StudentStatus("Paused student");
 		studentStatusService.add(trialStatus);
-		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), new Date(Calendar.getInstance().getTimeInMillis() - 100000000), new Date(Calendar.getInstance().getTimeInMillis() - 100000000), 1200000L, 800000L, 400000L, studentStatusService.get(1L), "Trial");
+		studentStatusService.add(learningStatus);
+		studentStatusService.add(pauseStatus);
+
+		DateTime currentDate = new DateTime();
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), 1200000L, 800000L, 400000L, studentStatusService.get(1L), "Trial started");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate.toDate(), currentDate.plusDays(30).toDate(), 1200000L, 800000L, 400000L, studentStatusService.get(2L), "Learning fast");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate.toDate(), currentDate.plusDays(14).toDate(), 1200000L, 1200000L, 0L, studentStatusService.get(3L), "Gone to vacation for 14 days");
 		studentService.add(trialStudent);
+		studentService.add(learningStudent);
+		studentService.add(pauseStudent);
 
 		//TODO удалить после теста
 
