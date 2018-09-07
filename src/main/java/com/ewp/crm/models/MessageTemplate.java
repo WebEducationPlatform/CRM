@@ -3,20 +3,23 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table
+@Table(name = "message_template")
 public class MessageTemplate {
 
 	@Id
 	@GeneratedValue
+	@Column(name = "id")
 	private Long id;
 
-	@Column(unique = true)
+	@Column(name = "name", unique = true)
 	private String name;
 
 	@Lob
+	@Column(name = "template_text")
 	private String templateText;
 
 	@Lob
+	@Column(name = "other_text")
 	private String otherText;
 
 	public MessageTemplate() {

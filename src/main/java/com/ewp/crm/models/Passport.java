@@ -11,22 +11,30 @@ public class Passport implements Serializable {
 
     @Id
     @GeneratedValue
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "series")
     private String series;
 
+    @Column(name = "number")
     private String number;
 
+    @Column(name = "date_of_issue")
     private Date dateOfIssue;
 
+    @Column(name = "issued_by")
     private String issuedBy;
 
+    @Column(name = "registration")
     private String registration;
 
     @Lob
+    @Column(name = "photo_of_the_main_page")
     private byte[] photoOfTheMainPage;
 
     @Lob
+    @Column(name = "photo_of_residence_permit")
     private byte[] photoOfResidencePermit;
 
     public Passport() {
