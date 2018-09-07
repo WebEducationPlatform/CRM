@@ -2,7 +2,6 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
-import com.ewp.crm.models.Message;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import org.joda.time.LocalDateTime;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,10 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SMSService;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.slf4j.Logger;

@@ -1,8 +1,8 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -18,8 +18,6 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mail.ImapIdleChannelAdapter;
 import org.springframework.integration.mail.ImapMailReceiver;
-import org.thymeleaf.context.Context;
-
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -30,9 +28,8 @@ import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.FromTerm;
 import javax.mail.search.SearchTerm;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
+import java.util.Properties;
 
 @Configuration
 @EnableIntegration

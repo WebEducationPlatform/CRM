@@ -1,11 +1,13 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.VkMemberService;
+import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
