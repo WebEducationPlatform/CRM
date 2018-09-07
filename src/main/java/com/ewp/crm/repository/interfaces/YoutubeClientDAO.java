@@ -8,5 +8,5 @@ public interface YoutubeClientDAO extends CommonGenericRepository<YoutubeClient>
 
     List<YoutubeClient> findAll();
 
-    YoutubeClient findByFullName(String name);
+    YoutubeClient getByFullName(String name);
 }

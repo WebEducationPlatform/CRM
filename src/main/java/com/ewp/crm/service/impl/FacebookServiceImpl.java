@@ -68,7 +68,7 @@ public class FacebookServiceImpl implements FacebookService {
 			while (count != jsonData.length()) {
 				JSONObject jsonDataObj = jsonData.getJSONObject(count);
 				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
-				MessageDialog messageDialog = facebookDialogService.findByDialogId(jsonDataObj.getString("id"));
+				MessageDialog messageDialog = facebookDialogService.getByDialogId(jsonDataObj.getString("id"));
 				if (messageDialog == null) {
 					messageDialog = new MessageDialog();
 					messageDialog.setDialogId(jsonDataObj.getString("id"));

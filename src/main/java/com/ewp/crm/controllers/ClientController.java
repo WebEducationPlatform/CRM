@@ -63,7 +63,7 @@ public class ClientController {
 		List<Status> statuses;
 		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
+		if (userFromSession.getRole().contains(roleService.getRoleByName("ADMIN")) || userFromSession.getRole().contains(roleService.getRoleByName("OWNER"))) {
 			statuses = statusService.getAll();
 			modelAndView = new ModelAndView("main-client-table");
 		} else {
@@ -89,7 +89,7 @@ public class ClientController {
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
+		modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;

@@ -123,7 +123,7 @@ public class ListLiveChatMessages {
     }
 
     private void addYoutubeClientToDB(String name, String message) {
-        YoutubeClient youtubeClient = youtubeClientService.findByName(name);
+        YoutubeClient youtubeClient = youtubeClientService.getClientByName(name);
         String clearMessage = clearYoutubeMessageOfEmoji(message);
 
         if (youtubeClient != null) {

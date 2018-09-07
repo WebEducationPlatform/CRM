@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface VkMemberRepository extends JpaRepository<VkMember, Long> {
-    List<VkMember> findAllByGroupId(Long groupId);
+
+    List<VkMember> getAllByGroupId(Long groupId);
 }

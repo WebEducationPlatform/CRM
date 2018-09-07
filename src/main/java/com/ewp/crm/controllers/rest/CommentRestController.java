@@ -127,7 +127,7 @@ public class CommentRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "/getComments/{clientId}", method = RequestMethod.GET)
 	public ResponseEntity<List<Comment>> getComments(@PathVariable Long clientId) {
-		List<Comment> comments = commentService.getAllByClient(clientService.get(clientId));
+		List<Comment> comments = commentService.getAllCommentsByClient(clientService.get(clientId));
 		return ResponseEntity.ok(comments);
 	}
 

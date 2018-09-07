@@ -4,5 +4,5 @@ import com.ewp.crm.models.MessageDialog;
 
 public interface FacebookDialogDAO extends CommonGenericRepository<MessageDialog> {
 
-	MessageDialog findByDialogId(String id);
+	MessageDialog getByDialogId(String id);
 }

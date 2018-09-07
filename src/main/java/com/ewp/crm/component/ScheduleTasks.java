@@ -255,7 +255,7 @@ public class ScheduleTasks {
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
-		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
+		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
 			String status = smsService.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
@@ -300,7 +300,7 @@ public class ScheduleTasks {
 		if (!youtubeService.checkLiveStreamStatus()) {
 			youtubeService.handleYoutubeLiveChatMessages();
 		} else {
-			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.getAll());
 			if (youtubeClient.isPresent()) {
 				for (YoutubeClient client : youtubeClient.get()) {
 					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
