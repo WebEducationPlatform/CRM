@@ -1,7 +1,6 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ReportsStatusService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

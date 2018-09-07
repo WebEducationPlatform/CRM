@@ -1,18 +1,16 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
-import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.ReportService;
-import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.FacebookServiceImpl;
-import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailSendService;
+import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
+import com.ewp.crm.service.impl.ReportService;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;

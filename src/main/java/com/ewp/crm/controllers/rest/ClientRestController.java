@@ -1,7 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -21,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
