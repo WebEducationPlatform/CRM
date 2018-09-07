@@ -41,7 +41,7 @@ public class StatusRestController {
 	@RequestMapping(value = "/rest/status/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
 		Status status = statusService.get(id);
-		return ResponseEntity.ok(clientService.findAllByStatus(status));
+		return ResponseEntity.ok(clientService.getAllClientsByStatus(status));
 	}
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	@RequestMapping(value = "/rest/status/add", method = RequestMethod.POST)

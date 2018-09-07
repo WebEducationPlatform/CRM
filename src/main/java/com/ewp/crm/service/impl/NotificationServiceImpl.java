@@ -26,9 +26,6 @@ public class NotificationServiceImpl extends CommonServiceImpl<Notification> imp
 		notificationRepository.deleteByTypeAndClientAndUserToNotify(type, client, user);
 	}
 
-
-
-
 	@Override
 	@Transactional
 	public void deleteNotificationsByClient(Client client) {

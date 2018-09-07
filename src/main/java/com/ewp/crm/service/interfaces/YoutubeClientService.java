@@ -8,9 +8,9 @@ public interface YoutubeClientService {
 
     void add(YoutubeClient youtubeClient);
 
-    List<YoutubeClient> findAll();
+    List<YoutubeClient> getAll();
 
-    YoutubeClient findByName(String name);
+    YoutubeClient getClientByName(String name);
 
     void update(YoutubeClient youtubeClient);
 }
