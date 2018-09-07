@@ -9,6 +9,7 @@ public class Student {
 
     @Id
     @GeneratedValue
+    @Column (name = "id")
     private Long id;
 
     @JoinColumn (name = "client_id")

@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table
+@Table(name = "youtube_client")
 public class YoutubeClient {
 
     @Id
@@ -12,7 +12,7 @@ public class YoutubeClient {
     @Column(name = "youtube_client_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     @OneToMany(cascade = CascadeType.ALL)

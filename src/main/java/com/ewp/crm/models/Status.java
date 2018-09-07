@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table
+@Table(name = "status")
 public class Status implements Serializable {
 
 	@Id
@@ -21,9 +21,11 @@ public class Status implements Serializable {
 	private String name;
 
 	@Basic
+	@Column(name = "is_invisible")
 	private Boolean isInvisible = false;
 
 	@Basic
+	@Column(name = "position")
 	private Long position;
 
 	@JsonIgnore

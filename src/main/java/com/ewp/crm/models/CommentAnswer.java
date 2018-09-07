@@ -30,7 +30,7 @@ public class CommentAnswer {
 	@Column(name = "date")
 	private String dateFormat;
 
-	@Column
+	@Column(name = "content")
 	@Lob
 	private String content;
 
