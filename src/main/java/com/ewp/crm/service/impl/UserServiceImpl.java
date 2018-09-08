@@ -37,7 +37,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    public void add(User user) {
+    public User add(User user) {
         logger.info("{}: adding of a new user...", UserServiceImpl.class.getName());
         phoneNumberValidation(user);
         if (userDAO.getUserByEmail(user.getEmail()) != null) {
@@ -45,7 +45,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             throw new UserExistsException();
         }
         logger.info("{}: user saved successfully", UserServiceImpl.class.getName());
-        userDAO.saveAndFlush(user);
+        return userDAO.saveAndFlush(user);
     }
 
     @Override

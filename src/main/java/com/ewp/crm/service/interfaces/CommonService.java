@@ -5,7 +5,7 @@ import java.util.List;
 public interface CommonService<T> {
     T get(Long id);
 
-    void add(T entity);
+    T add(T entity);
 
     List<T> getAll();
 
