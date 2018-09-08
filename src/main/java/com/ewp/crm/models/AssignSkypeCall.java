@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "assign_skype_call")
 public class AssignSkypeCall {
 
 	@Id
@@ -17,10 +18,10 @@ public class AssignSkypeCall {
 	@Column(name = "assign_skype_call_created_time")
 	private Date createdTime;
 
-	@Column
+	@Column(name = "remind_before_of_skype_call")
 	private Date remindBeforeOfSkypeCall;
 
-	@Column
+	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
 
 	@ManyToOne

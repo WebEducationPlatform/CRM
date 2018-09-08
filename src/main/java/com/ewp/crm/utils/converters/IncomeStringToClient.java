@@ -2,7 +2,6 @@ package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialNetwork;
-import com.ewp.crm.models.SocialNetworkType;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
 import org.slf4j.Logger;

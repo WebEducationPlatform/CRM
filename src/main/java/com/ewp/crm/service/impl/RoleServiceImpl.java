@@ -16,7 +16,7 @@ public class RoleServiceImpl extends CommonServiceImpl<Role> implements RoleServ
 	}
 
 	@Override
-	public Role getByRoleName(String roleName) {
+	public Role getRoleByName(String roleName) {
 		return roleDAO.getByRoleName(roleName);
 	}
 }

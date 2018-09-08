@@ -23,13 +23,13 @@ public class YoutubeClientServiceImpl implements YoutubeClientService {
     }
 
     @Override
-    public List<YoutubeClient> findAll() {
+    public List<YoutubeClient> getAll() {
         return youtubeClientDAO.findAll();
     }
 
     @Override
-    public YoutubeClient findByName(String name) {
-        return youtubeClientDAO.findByFullName(name);
+    public YoutubeClient getClientByName(String name) {
+        return youtubeClientDAO.getByFullName(name);
     }
 
     @Override

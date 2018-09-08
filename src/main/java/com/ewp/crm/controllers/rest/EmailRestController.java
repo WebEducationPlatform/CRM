@@ -2,7 +2,6 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.email.MailSendService;
@@ -23,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 public class EmailRestController {

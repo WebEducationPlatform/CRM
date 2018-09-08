@@ -4,7 +4,6 @@ import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.models.YoutubeClientMessage;
 import com.ewp.crm.service.interfaces.YoutubeClientMessageService;
 import com.ewp.crm.service.interfaces.YoutubeClientService;
-import com.ewp.crm.service.interfaces.YoutubeService;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -124,7 +123,7 @@ public class ListLiveChatMessages {
     }
 
     private void addYoutubeClientToDB(String name, String message) {
-        YoutubeClient youtubeClient = youtubeClientService.findByName(name);
+        YoutubeClient youtubeClient = youtubeClientService.getClientByName(name);
         String clearMessage = clearYoutubeMessageOfEmoji(message);
 
         if (youtubeClient != null) {

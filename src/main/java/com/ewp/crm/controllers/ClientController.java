@@ -1,24 +1,26 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Notification;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 public class ClientController {
@@ -61,7 +63,7 @@ public class ClientController {
 		List<Status> statuses;
 		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
-		if (userFromSession.getRole().contains(roleService.getByRoleName("ADMIN")) || userFromSession.getRole().contains(roleService.getByRoleName("OWNER"))) {
+		if (userFromSession.getRole().contains(roleService.getRoleByName("ADMIN")) || userFromSession.getRole().contains(roleService.getRoleByName("OWNER"))) {
 			statuses = statusService.getAll();
 			modelAndView = new ModelAndView("main-client-table");
 		} else {
@@ -87,7 +89,7 @@ public class ClientController {
 	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
+		modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
 		return modelAndView;

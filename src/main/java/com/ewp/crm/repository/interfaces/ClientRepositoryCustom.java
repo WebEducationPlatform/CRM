@@ -25,7 +25,7 @@ public interface ClientRepositoryCustom {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
-	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
+	List<Client> getByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 

@@ -8,6 +8,7 @@ import com.ewp.crm.service.interfaces.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -24,9 +25,6 @@ public class NotificationServiceImpl extends CommonServiceImpl<Notification> imp
 	public void deleteByTypeAndClientAndUserToNotify(Notification.Type type, Client client, User user) {
 		notificationRepository.deleteByTypeAndClientAndUserToNotify(type, client, user);
 	}
-
-
-
 
 	@Override
 	@Transactional

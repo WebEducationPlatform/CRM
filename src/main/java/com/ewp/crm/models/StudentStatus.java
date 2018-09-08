@@ -8,6 +8,7 @@ public class StudentStatus {
 
     @Id
     @GeneratedValue
+    @Column (name = "id")
     private Long id;
 
     @Column (name = "status")
