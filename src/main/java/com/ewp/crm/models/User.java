@@ -281,15 +281,6 @@ public class User implements UserDetails {
 		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
 
-//	@Override
-//	public int hashCode() {
-//		int result = id.hashCode();
-//		result = 31 * result + phoneNumber.hashCode();
-//		result = 31 * result + email.hashCode();
-//		return result;
-//	}
-
-
 	@Override
 	public int hashCode() {
 		int result = getId() != null ? getId().hashCode() : 0;

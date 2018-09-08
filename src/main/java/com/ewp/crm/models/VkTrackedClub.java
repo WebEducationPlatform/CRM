@@ -18,8 +18,6 @@ public class VkTrackedClub implements Serializable{
 
     private String token;
 
-//    private String clientSecret;
-
     private Long clientId;
 
     public VkTrackedClub(Long groupId, String token, String groupName, Long clientId) {

@@ -2,7 +2,6 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
-import com.ewp.crm.models.Message;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import org.joda.time.LocalDateTime;
@@ -11,28 +10,26 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RestController
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 public class SendMailsController {
+
     private final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
     private final String vkPattern = "^[^a-zA-Z]*$";
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private String pattern;
     private String template;
-    private String[] textData;
+    private String[] textData; //todo SadreevArt это че?
     private String textData1;
-    private final MailingMessageRepository mailingMessageRepository;
+    private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
 
     @Autowired
@@ -41,11 +38,13 @@ public class SendMailsController {
         this.mailingService = mailingService;
     }
 
-
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    @RequestMapping(value = "/client/mailing/send", method = RequestMethod.POST)
-    public ResponseEntity<String> parseClientData(@RequestParam("type") String type, @RequestParam("templateText") String templateText, @RequestParam("clientData") String clientData,
-                                                  @RequestParam("text") String text, @RequestParam("date") String date, @RequestParam("sendnow") boolean sendnow) {
+    @PostMapping(value = "/client/mailing/send")
+    public ResponseEntity<String> parseClientData(@RequestParam("type") String type,
+                                                  @RequestParam("templateText") String templateText,
+                                                  @RequestParam("clientData") String clientData,
+                                                  @RequestParam("text") String text,
+                                                  @RequestParam("date") String date,
+                                                  @RequestParam("sendnow") boolean sendnow) {
 
         switch (type) {
             case "vk":
@@ -86,7 +85,6 @@ public class SendMailsController {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-
 
         MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
         MailingMessage executeMessage = mailingService.addMailingMessage(message);
