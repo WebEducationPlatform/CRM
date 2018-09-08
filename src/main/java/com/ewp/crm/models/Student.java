@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Table (name = "student")
@@ -10,6 +9,7 @@ public class Student {
 
     @Id
     @GeneratedValue
+    @Column (name = "id")
     private Long id;
 
     @JoinColumn (name = "client_id")

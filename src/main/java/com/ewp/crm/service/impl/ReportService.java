@@ -16,7 +16,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReportService {
@@ -83,9 +85,9 @@ public class ReportService {
                  new ClientHistory.Type[] {ClientHistory.Type.STATUS}, endLearningName);
          long countTakePauseClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
                  new ClientHistory.Type[] {ClientHistory.Type.STATUS}, pauseLearnStatus.getName());
-         int countInLearningClients = clientRepository.findAllByStatus(inLearningStatus).size();
-         int countPauseLearnClients = clientRepository.findAllByStatus(pauseLearnStatus).size();
-         int countTrialLearnClients = clientRepository.findAllByStatus(trialLearnStatus).size();
+         int countInLearningClients = clientRepository.getAllByStatus(inLearningStatus).size();
+         int countPauseLearnClients = clientRepository.getAllByStatus(pauseLearnStatus).size();
+         int countTrialLearnClients = clientRepository.getAllByStatus(trialLearnStatus).size();
 
          String dateFrom = new SimpleDateFormat("d MMMM", new Locale("ru")).format(dates[0]);
          String dateTo = new SimpleDateFormat("d MMMM yyyy", new Locale("ru")).format(dates[1]);

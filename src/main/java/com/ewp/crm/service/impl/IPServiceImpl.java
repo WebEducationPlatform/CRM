@@ -1,7 +1,7 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.configs.inteface.IPConfig;
+import com.ewp.crm.service.interfaces.IPService;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;

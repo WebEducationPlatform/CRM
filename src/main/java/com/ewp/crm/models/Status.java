@@ -1,15 +1,15 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
-@Table
+@Table(name = "status")
 public class Status implements Serializable {
 
 	@Id
@@ -21,9 +21,11 @@ public class Status implements Serializable {
 	private String name;
 
 	@Basic
+	@Column(name = "is_invisible")
 	private Boolean isInvisible = false;
 
 	@Basic
+	@Column(name = "position")
 	private Long position;
 
 	@JsonIgnore

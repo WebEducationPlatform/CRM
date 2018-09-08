@@ -1,15 +1,11 @@
 package com.ewp.crm.controllers.rest;
 
 
-import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.models.CallRecord;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.CallRecordService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.DownloadCallRecordService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-import sun.security.provider.MD5;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -28,14 +28,14 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public List<Status> getAll() {
-		return statusDAO.findAllByOrderByIdAsc();
+		return statusDAO.getAllByOrderByIdAsc();
 	}
 
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
 		List<Status> statuses = getAll();
 		for (Status status : statuses) {
-			status.setClients(clientService.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
+			status.setClients(clientService.getClientsByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
 		}
 		return statuses;
 	}
@@ -47,7 +47,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status get(String name) {
-		return statusDAO.findStatusByName(name);
+		return statusDAO.getStatusByName(name);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	private void checkStatusUnique(Status status) {
-		Status statusFromDB = statusDAO.findStatusByName(status.getName());
+		Status statusFromDB = statusDAO.getStatusByName(status.getName());
 		if (statusFromDB != null && !statusFromDB.equals(status)) {
 			throw new StatusExistsException("Статус с таким названием уже существует");
 		}
@@ -99,7 +99,7 @@ public class StatusServiceImpl implements StatusService {
 
 	private void transferStatusClientsBeforeDelete(Status status) {
 		if (status.getClients() != null) {
-			Status defaultStatus = statusDAO.findStatusByName("deleted");
+			Status defaultStatus = statusDAO.getStatusByName("deleted");
 			defaultStatus.getClients().addAll(status.getClients());
 			status.getClients().clear();
 			statusDAO.saveAndFlush(status);

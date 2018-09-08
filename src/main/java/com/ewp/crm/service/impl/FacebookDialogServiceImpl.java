@@ -23,7 +23,7 @@ public class FacebookDialogServiceImpl extends CommonServiceImpl<MessageDialog> 
 	}
 
 	@Override
-	public MessageDialog findByDialogId(String id) {
-		return facebookDialogDAO.findByDialogId(id);
+	public MessageDialog getByDialogId(String id) {
+		return facebookDialogDAO.getByDialogId(id);
 	}
 }

@@ -6,13 +6,6 @@ import com.ewp.crm.models.FacebookMessage;
 import com.ewp.crm.models.MessageDialog;
 import com.ewp.crm.service.interfaces.FacebookDialogService;
 import com.ewp.crm.service.interfaces.FacebookService;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -76,7 +68,7 @@ public class FacebookServiceImpl implements FacebookService {
 			while (count != jsonData.length()) {
 				JSONObject jsonDataObj = jsonData.getJSONObject(count);
 				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
-				MessageDialog messageDialog = facebookDialogService.findByDialogId(jsonDataObj.getString("id"));
+				MessageDialog messageDialog = facebookDialogService.getByDialogId(jsonDataObj.getString("id"));
 				if (messageDialog == null) {
 					messageDialog = new MessageDialog();
 					messageDialog.setDialogId(jsonDataObj.getString("id"));

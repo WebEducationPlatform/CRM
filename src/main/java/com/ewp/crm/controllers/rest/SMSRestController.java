@@ -1,10 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SMSService;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class SMSRestController {
 	@PostMapping("/send/now/clients/{listClientsId}")
 	public ResponseEntity<String> sendSMS(@PathVariable("listClientsId") List<Long> listClientsId, @RequestParam("message") String message) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		smsService.sendSMS(clients, message, principal);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Messages in queue");
@@ -77,7 +77,7 @@ public class SMSRestController {
 	                                         @RequestParam("message") String message,
 	                                         @RequestParam("date") String date) {
 		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		DateTime utc = DateTime.parse(date);
 		smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), principal);
 		clientService.updateBatchClients(clients);

@@ -16,14 +16,15 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(name = "title", nullable = false)
 	private String title;
 
 	@Basic
 	@Lob
+    @Column(name = "link")
 	private String link;
 
-	@Column
+	@Column(name = "record_link")
 	private String recordLink;
 
     //TODO потом переделать

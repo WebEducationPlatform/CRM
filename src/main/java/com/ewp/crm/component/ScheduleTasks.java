@@ -1,18 +1,16 @@
 package com.ewp.crm.component;
 
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
-import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.ReportService;
-import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.FacebookServiceImpl;
-import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailSendService;
+import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.FacebookServiceImpl;
+import com.ewp.crm.service.impl.ReportService;
+import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -257,7 +255,7 @@ public class ScheduleTasks {
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
-		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
+		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
 			String status = smsService.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
@@ -302,7 +300,7 @@ public class ScheduleTasks {
 		if (!youtubeService.checkLiveStreamStatus()) {
 			youtubeService.handleYoutubeLiveChatMessages();
 		} else {
-			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.getAll());
 			if (youtubeClient.isPresent()) {
 				for (YoutubeClient client : youtubeClient.get()) {
 					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());

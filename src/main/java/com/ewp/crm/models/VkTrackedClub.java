@@ -9,17 +9,21 @@ public class VkTrackedClub implements Serializable{
 
     @Id
     @GeneratedValue
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "group_name")
     private String groupName;
 
-    @Column(unique = true)
+    @Column(name = "group_id", unique = true)
     private Long groupId;
 
+    @Column(name = "token")
     private String token;
 
 //    private String clientSecret;
 
+    @Column(name = "client_id")
     private Long clientId;
 
     public VkTrackedClub(Long groupId, String token, String groupName, Long clientId) {

@@ -3,12 +3,12 @@ package com.ewp.crm.models;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -34,6 +34,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "first_name", nullable = false)
 	private String name;
 
+	@Column(name = "last_name")
 	private String lastName;
 
 	@Column(name = "phoneNumber")
@@ -47,21 +48,26 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "skype")
 	private String skype = "";
 
+	@Column(name = "age")
 	private byte age;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "sex")
 	private Sex sex;
 
+	@Column(name = "city")
 	private String city;
 
+	@Column(name = "country")
 	private String country;
 
+	@Column(name = "comment")
 	private String comment;
 
 	@Column(name = "postponeDate")
 	private Date postponeDate;
 
-	@Column
+	@Column(name = "can_call")
 	private boolean canCall;
 
 	@Column(name = "client_state")
@@ -139,8 +145,7 @@ public class Client implements Serializable, Diffable<Client> {
 	private String clientDescriptionComment;
 
 	@JsonIgnore
-	@Column
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "client")
 	private List<CallRecord> callRecords = new ArrayList<>();
 
 	public Client() {

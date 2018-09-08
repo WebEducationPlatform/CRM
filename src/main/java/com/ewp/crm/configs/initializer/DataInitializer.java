@@ -77,15 +77,15 @@ public class DataInitializer {
 		socialNetworkTypeService.add(UNKNOWN);
 
 		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
-				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true, true);
+				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"), roleService.getRoleByName("OWNER")), true, true);
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getByRoleName("USER")), true, false);
+				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getRoleByName("USER")), true, false);
 		userService.add(user1);
 
 		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true, true);
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
 		userService.add(user2);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
