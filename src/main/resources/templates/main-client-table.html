@@ -233,6 +233,10 @@
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
                                                 th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
                                         </button>
+                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
+                                                type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
+                                                th:attrappend="data-target='#trashUserModal' + ${usr.id}">
+                                        </button>
                                     </td>
                                 </tr>
                             </table>
@@ -285,6 +289,7 @@
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
+<div th:replace="fragments/htmlFragments::trashUser"></div>
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>

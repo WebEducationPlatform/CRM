@@ -6,10 +6,7 @@ import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MessageService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.*;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import org.slf4j.Logger;
@@ -44,9 +41,9 @@ import java.util.regex.Pattern;
         @PropertySource("classpath:application.properties"),
         @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251")
 })
-public class MailSendService {
+public class MailSendServiceImpl implements MailSendService {
 
-    private static Logger logger = LoggerFactory.getLogger(MailSendService.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
@@ -61,8 +58,8 @@ public class MailSendService {
 
 
     @Autowired
-    public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                           ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
+    public MailSendServiceImpl(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
+                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;

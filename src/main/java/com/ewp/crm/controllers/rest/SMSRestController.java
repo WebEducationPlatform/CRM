@@ -2,8 +2,8 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.joda.time.DateTime;
 import org.json.JSONException;
@@ -25,13 +25,13 @@ public class SMSRestController {
 
 	private final SMSService smsService;
 	private final ClientService clientService;
-	private final MessageTemplateServiceImpl messageTemplateService;
+	private final MessageTemplateService messageTemplateService;
 
 	private static Logger logger = LoggerFactory.getLogger(SMSRestController.class);
 
 
 	@Autowired
-	public SMSRestController(SMSService smsService, ClientService clientService, MessageTemplateServiceImpl messageTemplateService) {
+	public SMSRestController(SMSService smsService, ClientService clientService, MessageTemplateService messageTemplateService) {
 		this.smsService = smsService;
 		this.clientService = clientService;
 		this.messageTemplateService = messageTemplateService;

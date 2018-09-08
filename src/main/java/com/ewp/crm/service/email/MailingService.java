@@ -19,7 +19,7 @@ import javax.mail.internet.MimeMessage;
 @Service
 //@EnableAsync
 public class MailingService {
-    private static Logger logger = LoggerFactory.getLogger(MailSendService.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
     private final VKService vkService;

@@ -224,11 +224,34 @@
     </div>
 </th:block>
 
+<th:block th:fragment="trashUser">
+    <div th:each="usr : ${users}">
+        <div class="modal fade" th:id="'trashUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'trashUser('+ ${usr.id} + ')'">
+                            Да
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="deleteVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
         <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-cfontent">
                     <div class="modal-header">
                         <h5 class="modal-title">Подтвердите свое действие</h5>
                     </div>
