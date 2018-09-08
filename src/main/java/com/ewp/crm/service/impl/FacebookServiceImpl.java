@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.models.FacebookMessage;
 import com.ewp.crm.models.MessageDialog;
 import com.ewp.crm.service.interfaces.FacebookDialogService;
+import com.ewp.crm.service.interfaces.FacebookMessageService;
 import com.ewp.crm.service.interfaces.FacebookService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,11 +34,11 @@ public class FacebookServiceImpl implements FacebookService {
 	private String pageToken;
 	private String pageId;
 	private final RestTemplate restTemplate;
-	private FacebookMessageServiceImpl facebookMessageService;
-	private FacebookDialogService facebookDialogService;
+	private final FacebookMessageService facebookMessageService;
+	private final FacebookDialogService facebookDialogService;
 
 	@Autowired
-	public FacebookServiceImpl(FacebookConfig facebookConfig, RestTemplate restTemplate, FacebookMessageServiceImpl facebookService, FacebookDialogService facebookDialogService) {
+	public FacebookServiceImpl(FacebookConfig facebookConfig, RestTemplate restTemplate, FacebookMessageService facebookService, FacebookDialogService facebookDialogService) {
 		this.version = facebookConfig.getVersion();
 		this.pageToken = facebookConfig.getPageToken();
 		this.pageId = facebookConfig.getPageId();

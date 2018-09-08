@@ -5,7 +5,7 @@ import com.ewp.crm.models.FacebookMessage;
 import java.util.Date;
 import java.util.List;
 
-public interface FacebookMessageServie extends CommonService<FacebookMessage> {
+public interface FacebookMessageService extends CommonService<FacebookMessage> {
 
 	Date findMaxDate();
 

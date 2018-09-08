@@ -491,7 +491,7 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
-$(document).ready(function () {
+$(document).on('click', function () {
     var url = '/rest/user';
 
     var userNames = [];
@@ -544,6 +544,26 @@ function reAvailableUser(id) {
         },
         error: function (e) {
 
+        }
+    });
+}
+
+function trashUser(id) {
+    let url = '/admin/rest/user/trash';
+    let formData = {
+        trashId: id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            //      $("#trashUserModal" + id).modal("hide");
+            location.reload();
+        },
+        error: function (e) {
+            alert('не сработало');
         }
     });
 }
