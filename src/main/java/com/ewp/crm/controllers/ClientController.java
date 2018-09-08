@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -54,10 +55,9 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
+	@GetMapping(value = "/client")
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
-	@RequestMapping(value = "/client", method = RequestMethod.GET)
-	public ModelAndView getAll() {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
 		List<Status> statuses;
 		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
@@ -83,8 +83,8 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/client/allClients")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.findAllByPage(new PageRequest(0, pageSize)));
@@ -93,17 +93,16 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/client/mailing")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/mailing", method = RequestMethod.GET)
 	public ModelAndView mailingPage() {
-		ModelAndView modelAndView = new ModelAndView("mailing");
-		return modelAndView;
+		return new ModelAndView("mailing");
 	}
 
+	@GetMapping(value = "/client/clientInfo/{id}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
-	public ModelAndView clientInfo(@PathVariable Long id) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ModelAndView clientInfo(@PathVariable Long id,
+								   @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("client-info");
 		modelAndView.addObject("client", clientService.get(id));
 		modelAndView.addObject("states", Client.State.values());
@@ -114,10 +113,10 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/admin/client/add/{statusName}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
-	public ModelAndView addClient(@PathVariable String statusName) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ModelAndView addClient(@PathVariable String statusName,
+								  @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("add-client");
 		modelAndView.addObject("status", statusService.get(statusName));
 		modelAndView.addObject("states", Client.State.values());
@@ -127,8 +126,8 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/phone")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
 	}

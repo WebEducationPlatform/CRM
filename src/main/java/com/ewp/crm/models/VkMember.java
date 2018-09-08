@@ -38,7 +38,6 @@ public class VkMember implements Serializable{
 
     @Override
     public int hashCode() {
-
         return Objects.hash(vkId, groupId);
     }
 
