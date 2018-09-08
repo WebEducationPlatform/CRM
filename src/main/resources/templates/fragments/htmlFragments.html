@@ -224,9 +224,9 @@
     </div>
 </th:block>
 
-<th:block th:fragment="trashUser">
+<th:block th:fragment="fullDeleteUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'trashUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" th:id="'fullDeleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -236,7 +236,7 @@
                         <h6>Вы уверены, что хотите удалить пользователя?</h6>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" th:onclick="'trashUser('+ ${usr.id} + ')'">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">
                             Да
                         </button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>

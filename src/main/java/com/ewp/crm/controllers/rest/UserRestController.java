@@ -116,13 +116,13 @@ public class UserRestController {
 		logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
-	
+
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@RequestMapping(value = "/admin/rest/user/trash", method = RequestMethod.POST)
-	public ResponseEntity trashUser(@RequestParam Long trashId) {
-		User trashUser = userService.get(trashId);
-		userService.delete(trashUser);
-		logger.info("{} has deleted user: id {}, email {}", trashUser.getFullName(), trashUser.getId(), trashUser.getEmail());
+	@RequestMapping(value = "/admin/rest/user/deleteUser", method = RequestMethod.POST)
+	public ResponseEntity deleteUser(@RequestParam Long deleteId) {
+		User deleteUser = userService.get(deleteId);
+		userService.delete(deleteId);
+		logger.info("{} has deleted user: id {}, email {}", deleteUser.getFullName(), deleteUser.getId(), deleteUser.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
