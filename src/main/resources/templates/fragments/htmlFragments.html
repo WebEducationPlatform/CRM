@@ -203,9 +203,9 @@
     </div>
 </th:block>
 
-<th:block th:fragment="deleteUser">
+<th:block th:fragment="reAvailableUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal fade" th:id="'reAvailableUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -224,9 +224,9 @@
     </div>
 </th:block>
 
-<th:block th:fragment="fullDeleteUser">
+<th:block th:fragment="deleteUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'fullDeleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

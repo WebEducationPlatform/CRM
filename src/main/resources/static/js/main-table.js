@@ -540,7 +540,7 @@ function reAvailableUser(id) {
         url: url,
         data: formData,
         success: function () {
-            $("#deleteUserModal" + id).modal("hide");
+            $("#reAvailableUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {
