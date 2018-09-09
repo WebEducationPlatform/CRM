@@ -7,10 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,34 +16,31 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 public class ClientController {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
+	private static Logger logger = LoggerFactory.getLogger(AdminController.class);
 
 	private final StatusService statusService;
-
 	private final ClientService clientService;
-
 	private final UserService userService;
-
 	private final MessageTemplateService MessageTemplateService;
-
 	private final SocialNetworkTypeService socialNetworkTypeService;
-
 	private final NotificationService notificationService;
-
 	private final RoleService roleService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService, RoleService roleService) {
+	public ClientController(StatusService statusService,
+							ClientService clientService,
+							UserService userService,
+	                        MessageTemplateService MessageTemplateService,
+							SocialNetworkTypeService socialNetworkTypeService,
+							NotificationService notificationService,
+							RoleService roleService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
@@ -110,19 +105,6 @@ public class ClientController {
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 
-		return modelAndView;
-	}
-
-	@GetMapping(value = "/admin/client/add/{statusName}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	public ModelAndView addClient(@PathVariable String statusName,
-								  @AuthenticationPrincipal User userFromSession) {
-		ModelAndView modelAndView = new ModelAndView("add-client");
-		modelAndView.addObject("status", statusService.get(statusName));
-		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
-		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
 	}
 

@@ -1,4 +1,4 @@
-package com.ewp.crm.controllers.rest;
+package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
