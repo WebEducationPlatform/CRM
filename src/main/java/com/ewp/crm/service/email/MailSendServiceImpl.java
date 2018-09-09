@@ -85,7 +85,7 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
     public void sendEmailInAllCases(Client client){
-        final String htmlContent = "Предлагаем вам пройти обучеие";
+        final String htmlContent = "Предлагаем вам пройти обучение на нашем портале";
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         final MimeMessageHelper mimeMessageHelper;
