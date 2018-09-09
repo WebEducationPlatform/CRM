@@ -84,7 +84,6 @@ public class MailSendServiceImpl implements MailSendService {
             System.exit(-1);
         }
     }
-
     public void sendEmailInAllCases(Client client) {
         final String htmlContent = "Предлагаем вам пройти обучение на нашем портале";
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -101,7 +100,6 @@ public class MailSendServiceImpl implements MailSendService {
         }
         javaMailSender.send(mimeMessage);
     }
-
     public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
