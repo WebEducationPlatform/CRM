@@ -120,6 +120,7 @@ public class GoogleEmail {
                     }
                     client.setStatus(statusService.get(1L));
                     client.addHistory(clientHistoryService.createHistory("GMail"));
+                    prepareAndSend.sendEmailInAllCases(client);
                     clientService.addClient(client);
                 }
             } catch (Exception e) {
