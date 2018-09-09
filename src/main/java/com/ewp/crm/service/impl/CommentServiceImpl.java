@@ -21,12 +21,12 @@ public class CommentServiceImpl extends CommonServiceImpl<Comment> implements Co
     }
 
     @Override
-    public List<Comment> getAllByClient(Client client) {
+    public List<Comment> getAllCommentsByClient(Client client) {
         return commentDAO.getAllByClient(client);
     }
 
     @Override
-    public List<Comment> getAllByUser(User user) {
+    public List<Comment> getAllCommentsByUser(User user) {
         return commentDAO.getAllByUser(user);
     }
 }

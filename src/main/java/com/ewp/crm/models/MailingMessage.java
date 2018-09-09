@@ -33,7 +33,7 @@ public class MailingMessage {
             inverseJoinColumns = {@JoinColumn(name = "client_data_messages_id", foreignKey = @ForeignKey(name = "FK_CLIENT_DATA_MESSAGES"))})
     private Set<ClientData> clientsData;
 
-    @Column
+    @Column(name = "readed_message")
     private boolean readedMessage;
 
     public boolean isReadedMessage() {

@@ -7,15 +7,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table
+@Table(name = "social_network")
 public class SocialNetwork implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column
+	@Column(name = "id")
 	private long id;
 
-	@Column
+	@Column(name = "link")
 	private String link;
 
 	@JsonIgnore

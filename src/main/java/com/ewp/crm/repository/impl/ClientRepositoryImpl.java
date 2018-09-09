@@ -134,7 +134,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
+    public List<Client> getByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
         TypedQuery<Client> query = entityManager.createQuery("SELECT c from Client c where c.status = :status and (c.ownerUser in (:ownerUser) or c.ownerUser is NULL)", Client.class);
         query.setParameter("status", status);
         query.setParameter("ownerUser", ownUser);

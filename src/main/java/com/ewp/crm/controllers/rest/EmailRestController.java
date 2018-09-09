@@ -1,8 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
+import com.ewp.crm.service.interfaces.MailSendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

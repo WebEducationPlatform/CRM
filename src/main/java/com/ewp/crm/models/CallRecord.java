@@ -8,16 +8,18 @@ public class CallRecord {
 
 	@Id
 	@GeneratedValue
-	@Column
+	@Column(name = "id")
 	private Long id;
 
 	@Column(name = "record_link")
 	private String link;
 
 	@ManyToOne
+	@JoinColumn(name = "client_client_id")
 	private Client client;
 
 	@OneToOne
+	@JoinColumn(name = "client_history_history_id")
 	private ClientHistory clientHistory;
 
 	public CallRecord() {}

@@ -30,6 +30,7 @@
             <ul class="nav navbar-nav">
                 <li><a href="/client">Доска</a></li>
                 <li><a href="/client/allClients">Все клиенты</a></li>
+                <li><a href="/student/all">Все студенты</a></li>
                 <li><a href="/client/mailing">Рассылка</a></li>
                 <li th:if="${#httpServletRequest.getRequestURI() == '/client'}" >
                    <div class="search-place">
@@ -202,9 +203,9 @@
     </div>
 </th:block>
 
-<th:block th:fragment="deleteUser">
+<th:block th:fragment="reAvailableUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal fade" th:id="'reAvailableUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -223,11 +224,34 @@
     </div>
 </th:block>
 
+<th:block th:fragment="deleteUser">
+    <div th:each="usr : ${users}">
+        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">
+                            Да
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="deleteVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
         <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-cfontent">
                     <div class="modal-header">
                         <h5 class="modal-title">Подтвердите свое действие</h5>
                     </div>

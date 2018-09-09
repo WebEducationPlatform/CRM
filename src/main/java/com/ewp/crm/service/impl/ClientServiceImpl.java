@@ -4,15 +4,12 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,8 +30,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public List<Client> findAllByStatus(Status status) {
-		return clientRepository.findAllByStatus(status);
+	public List<Client> getAllClientsByStatus(Status status) {
+		return clientRepository.getAllByStatus(status);
 	}
 
 	@Override
@@ -43,8 +40,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public Client findClientBySkype(String skypeLogin) {
-		return clientRepository.findClientBySkype(skypeLogin);
+	public Client getClientBySkype(String skypeLogin) {
+		return clientRepository.getClientBySkype(skypeLogin);
 	}
 
 	@Override
@@ -54,12 +51,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 	@Override
 	public Client getClientByEmail(String email) {
-		return clientRepository.findClientByEmail(email);
+		return clientRepository.getClientByEmail(email);
 	}
 
 	@Override
 	public Client getClientByPhoneNumber(String phoneNumber) {
-		return clientRepository.findClientByPhoneNumber(phoneNumber);
+		return clientRepository.getClientByPhoneNumber(phoneNumber);
 	}
 
 	@Override
@@ -78,8 +75,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public List<Client> findClientsByManyIds(List<Long> ids) {
-		return clientRepository.findByIdIn(ids);
+	public List<Client> getClientsByManyIds(List<Long> ids) {
+		return clientRepository.getById(ids);
 	}
 
 	@Override
@@ -101,7 +98,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		Status firstStatus = statusService.getFirstStatusForClient();
 		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 			phoneNumberValidation(client);
-			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+			Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 			if (clientByPhone != null) {
 				clientByPhone.setStatus(firstStatus);
 				clientRepository.saveAndFlush(clientByPhone);
@@ -110,7 +107,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			}
 		}
 		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-			Client clientByEmail = clientRepository.findClientByEmail(client.getEmail());
+			Client clientByEmail = clientRepository.getClientByEmail(client.getEmail());
 			if (clientByEmail != null) {
 				clientByEmail.setStatus(firstStatus);
 				clientRepository.saveAndFlush(clientByEmail);
@@ -148,26 +145,26 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
-		return clientRepository.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
+	public List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
+		return clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
 	}
 
 	@Override
-	public List<Client> findAllByPage(Pageable pageable) {
+	public List<Client> getAllClientsByPage(Pageable pageable) {
 		return clientRepository.findAll(pageable).getContent();
 	}
 
 	@Override
 	public void updateClient(Client client) {
 		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-			Client clientByMail = clientRepository.findClientByEmail(client.getEmail());
+			Client clientByMail = clientRepository.getClientByEmail(client.getEmail());
 			if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
 				throw new ClientExistsException();
 			}
 		}
 		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 			phoneNumberValidation(client);
-			Client clientByPhone = clientRepository.findClientByPhoneNumber(client.getPhoneNumber());
+			Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 			if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
 				throw new ClientExistsException();
 			}

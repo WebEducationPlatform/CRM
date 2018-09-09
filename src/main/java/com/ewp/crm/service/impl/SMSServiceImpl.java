@@ -1,6 +1,5 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.service.interfaces.SMSService;
 import com.ewp.crm.configs.inteface.SMSConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;

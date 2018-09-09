@@ -57,7 +57,7 @@ public class ClientRestController {
 	@GetMapping(value = "/pagination/get")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getClients(@RequestParam int page) {
-		List<Client> clients = clientService.findAllByPage(new PageRequest(page, pageSize));
+		List<Client> clients = clientService.getAllClientsByPage(new PageRequest(page, pageSize));
 		if (clients == null || clients.isEmpty()) {
 			logger.error("No more clients");
 			return ResponseEntity.noContent().build();
@@ -325,7 +325,7 @@ public class ClientRestController {
 													  @RequestParam(name = "skypeLogin") String skypeLogin,
 													  @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
-		Client checkDuplicateLogin = clientService.findClientBySkype(skypeLogin);
+		Client checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
 		if (client == null) {
 			logger.error("Client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");

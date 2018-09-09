@@ -26,7 +26,7 @@ public class SMSInfoServiceImpl extends CommonServiceImpl<SMSInfo> implements SM
 	}
 
 	@Override
-	public List<SMSInfo> getBySMSIsChecked(boolean isChecked) {
-		return smsInfoRepository.findByIsChecked(isChecked);
+	public List<SMSInfo> getSMSByIsChecked(boolean isChecked) {
+		return smsInfoRepository.getByIsChecked(isChecked);
 	}
 }

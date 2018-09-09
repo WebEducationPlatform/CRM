@@ -8,14 +8,15 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
+@Table(name = "social_network_type")
 public class SocialNetworkType implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column
+	@Column(name = "id")
 	private Long id;
 
-	@Column
+	@Column(name = "name")
 	private String name;
 
 	@JsonIgnore

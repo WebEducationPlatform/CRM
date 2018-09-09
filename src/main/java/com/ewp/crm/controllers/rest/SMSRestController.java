@@ -69,7 +69,7 @@ public class SMSRestController {
 	public ResponseEntity<String> sendSMS(@PathVariable("listClientsId") List<Long> listClientsId,
 										  @RequestParam("message") String message,
 										  @AuthenticationPrincipal User userFromSession) {
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		smsService.sendSMS(clients, message, userFromSession);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Messages in queue");
@@ -80,7 +80,7 @@ public class SMSRestController {
 	                                         @RequestParam("message") String message,
 	                                         @RequestParam("date") String date,
 											 @AuthenticationPrincipal User userFromSession) {
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		DateTime utc = DateTime.parse(date);
 		smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), userFromSession);
 		clientService.updateBatchClients(clients);

@@ -16,8 +16,8 @@ public class CommonServiceImpl<T> implements CommonService<T> {
     }
 
     @Override
-    public void add(T entity) {
-        repository.saveAndFlush(entity);
+    public T add(T entity) {
+        return repository.saveAndFlush(entity);
     }
 
     @Override

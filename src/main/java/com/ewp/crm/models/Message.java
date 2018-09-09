@@ -3,16 +3,20 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "message")
 public class Message {
 
 	@Id
     @GeneratedValue
+	@Column(name = "id")
     private Long id;
 
 	@Lob
+	@Column(name = "content")
 	private String content;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
 	private Type type;
 
 	public Message() {
