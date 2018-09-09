@@ -84,7 +84,22 @@ public class MailSendServiceImpl implements MailSendService {
             System.exit(-1);
         }
     }
+    public void sendEmailInAllCases(Client client) {
+        final String htmlContent = "Предлагаем вам пройти обучение на нашем портале";
+        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
+        final MimeMessageHelper mimeMessageHelper;
+        try {
+            mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            mimeMessageHelper.setFrom("Java-Mentor.ru");
+            mimeMessageHelper.setTo(client.getEmail());
+            mimeMessageHelper.setSubject("Ваш личный Java наставник");
+            mimeMessageHelper.setText(htmlContent, true);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        javaMailSender.send(mimeMessage);
+    }
     public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
@@ -237,19 +252,19 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
 
-	@Async
-	public void sendNotificationMessage(User userToNotify, String notificationMessage) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setSubject("Оповещение из CRM");
-		message.setText(notificationMessage);
-		message.setFrom(emailLogin);
-		message.setTo(userToNotify.getEmail());
-		javaMailSender.send(message);
-	}
+    @Async
+    public void sendNotificationMessage(User userToNotify, String notificationMessage) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("Оповещение из CRM");
+        message.setText(notificationMessage);
+        message.setFrom(emailLogin);
+        message.setTo(userToNotify.getEmail());
+        javaMailSender.send(message);
+    }
 
-	public void sendNotificationMessageYourself(String notificationMessage) {
-		User user = new User();
-		user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
-		sendNotificationMessage(user, notificationMessage);
-	}
+    public void sendNotificationMessageYourself(String notificationMessage) {
+        User user = new User();
+        user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
+        sendNotificationMessage(user, notificationMessage);
+    }
 }

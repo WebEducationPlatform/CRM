@@ -71,7 +71,7 @@ public class GoogleEmail {
         protocol = mailConfig.getProtocol();
         debug = mailConfig.getDebug();
         imapServer = mailConfig.getImapServer();
-	    this.clientHistoryService = clientHistoryService;
+        this.clientHistoryService = clientHistoryService;
     }
 
     private Properties javaMailProperties() {
@@ -128,7 +128,6 @@ public class GoogleEmail {
         });
         return directChannel;
     }
-
 
 
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
