@@ -84,22 +84,7 @@ public class MailSendServiceImpl implements MailSendService {
             System.exit(-1);
         }
     }
-    public void sendEmailInAllCases(Client client){
-        final String htmlContent = "Предлагаем вам пройти обучеие";
-        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
-        final MimeMessageHelper mimeMessageHelper;
-        try {
-            mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setFrom("Java-Mentor.ru");
-            mimeMessageHelper.setTo(client.getEmail());
-            mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(htmlContent, true);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-        javaMailSender.send(mimeMessage);
-    }
     public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
