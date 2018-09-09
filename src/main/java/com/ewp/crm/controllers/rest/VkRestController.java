@@ -16,11 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,7 +33,10 @@ public class VkRestController {
 	private final MessageTemplateService messageTemplateService;
 
 	@Autowired
-	public VkRestController(VKService vkService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, MessageTemplateService messageTemplateService) {
+	public VkRestController(VKService vkService,
+							VkTrackedClubService vkTrackedClubService,
+							VkMemberService vkMemberService,
+							MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;

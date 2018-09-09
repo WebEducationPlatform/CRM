@@ -13,9 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 @Controller
 public class ClientController {
 
-	private static Logger logger = LoggerFactory.getLogger(AdminController.class);
+	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
 
 	private final StatusService statusService;
 	private final ClientService clientService;
@@ -53,6 +52,19 @@ public class ClientController {
 		this.socialNetworkTypeService = socialNetworkTypeService;
 		this.notificationService = notificationService;
 		this.roleService = roleService;
+	}
+
+	@GetMapping(value = "/admin/client/add/{statusName}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	public ModelAndView addClient(@PathVariable String statusName,
+								  @AuthenticationPrincipal User userFromSession) {
+		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("status", statusService.get(statusName));
+		modelAndView.addObject("states", Client.State.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		return modelAndView;
 	}
 
 	@GetMapping(value = "/client")

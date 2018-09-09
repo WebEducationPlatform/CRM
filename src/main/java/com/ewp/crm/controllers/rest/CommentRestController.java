@@ -30,7 +30,11 @@ public class CommentRestController {
 	private CommentAnswerService commentAnswerService;
 
 	@Autowired
-	public CommentRestController(ClientService clientService, CommentService commentService, UserService userService, SendNotificationService sendNotificationService, CommentAnswerService commentAnswerService) {
+	public CommentRestController(ClientService clientService,
+								 CommentService commentService,
+								 UserService userService,
+								 SendNotificationService sendNotificationService,
+								 CommentAnswerService commentAnswerService) {
 		this.clientService = clientService;
 		this.commentService = commentService;
 		this.userService = userService;
