@@ -17,16 +17,16 @@ import java.util.List;
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 @RequestMapping("/admin/rest/status")
-public class AdminRestStatus {
+public class AdminRestStatusController {
 
-	private static Logger logger = LoggerFactory.getLogger(AdminRestStatus.class);
+	private static Logger logger = LoggerFactory.getLogger(AdminRestStatusController.class);
 
 	private final StatusService statusService;
 	private final NotificationService notificationService;
 
 	@Autowired
-	public AdminRestStatus(StatusService statusService,
-						   NotificationService notificationService) {
+	public AdminRestStatusController(StatusService statusService,
+									 NotificationService notificationService) {
 		this.statusService = statusService;
 		this.notificationService = notificationService;
 	}

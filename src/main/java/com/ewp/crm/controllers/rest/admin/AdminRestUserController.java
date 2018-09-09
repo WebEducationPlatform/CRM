@@ -22,16 +22,16 @@ import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-public class AdminRestUser {
+public class AdminRestUserController {
 
-	private static Logger logger = LoggerFactory.getLogger(AdminRestUser.class);
+	private static Logger logger = LoggerFactory.getLogger(AdminRestUserController.class);
 
 	private final UserService userService;
 	private final ImageConfig imageConfig;
 
 	@Autowired
-	public AdminRestUser(UserService userService,
-						 ImageConfig imageConfig)  	{
+	public AdminRestUserController(UserService userService,
+								   ImageConfig imageConfig)  	{
 		this.userService = userService;
 		this.imageConfig = imageConfig;
 	}
