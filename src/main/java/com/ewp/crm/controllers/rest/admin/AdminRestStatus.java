@@ -1,10 +1,8 @@
-package com.ewp.crm.controllers.rest;
+package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -13,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-@RequestMapping("/admin/rest")
+@RequestMapping("/admin/rest/status")
 public class AdminRestStatus {
 
 	private static Logger logger = LoggerFactory.getLogger(AdminRestStatus.class);
@@ -34,7 +31,7 @@ public class AdminRestStatus {
 		this.notificationService = notificationService;
 	}
 
-	@PostMapping(value = "/status/edit")
+	@PostMapping(value = "/edit")
 	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName,
 									 @RequestParam(name = "oldStatusId") Long oldStatusId,
 									 @AuthenticationPrincipal User currentAdmin) {
@@ -45,7 +42,7 @@ public class AdminRestStatus {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping(value = "/status/delete")
+	@PostMapping(value = "/delete")
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId,
 									   @AuthenticationPrincipal User currentAdmin) {
 		Status status = statusService.get(deleteId);
@@ -59,7 +56,7 @@ public class AdminRestStatus {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping(value = "/status/visible/change")
+	@PostMapping(value = "/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId,
 											  @RequestParam("invisible") boolean bool) {
 		Status status = statusService.get(statusId);

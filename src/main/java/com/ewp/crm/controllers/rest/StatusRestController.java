@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/rest/status")
 public class StatusRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(StatusRestController.class);
@@ -37,15 +38,15 @@ public class StatusRestController {
 		this.notificationService = notificationService;
 	}
 
+	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-	@GetMapping(value = "/rest/status/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
 		Status status = statusService.get(id);
 		return ResponseEntity.ok(clientService.findAllByStatus(status));
 	}
 
+	@PostMapping(value = "/add")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@PostMapping(value = "/rest/status/add")
 	public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName,
 									   @AuthenticationPrincipal User currentAdmin) {
 		statusService.add(new Status(statusName));
@@ -53,8 +54,8 @@ public class StatusRestController {
 		return ResponseEntity.ok("Успешно добавлено");
 	}
 
+	@PostMapping(value = "/client/change")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@PostMapping(value = "/rest/status/client/change")
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
 	                                         @RequestParam(name = "clientId") Long clientId,
 											 @AuthenticationPrincipal User userFromSession) {
@@ -70,8 +71,8 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PostMapping(value = "/client/delete")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@PostMapping(value = "/rest/status/client/delete")
 	public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId,
 											 @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
@@ -88,8 +89,8 @@ public class StatusRestController {
 		return ResponseEntity.ok().build();
 	}
 
+	@PostMapping(value = "/position/change")
 	@PreAuthorize("isAuthenticated()")
-	@PostMapping(value = "/rest/status/position/change")
 	public ResponseEntity changePositionOfTwoStatuses(@RequestParam("sourceId") long sourceId,
 													  @RequestParam("destinationId") long destinationId) {
 		Status sourceStatus = statusService.get(sourceId);

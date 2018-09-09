@@ -1,4 +1,4 @@
-package com.ewp.crm.controllers.rest;
+package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
