@@ -13,5 +13,4 @@ public interface MailSendService {
     void sendNotificationMessage(User userToNotify, String notificationMessage);
 
     void sendNotificationMessageYourself(String notificationMessage);
-    void sendEmailInAllCases(Client client);
 }
