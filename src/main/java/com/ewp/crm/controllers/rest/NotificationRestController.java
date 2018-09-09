@@ -27,7 +27,9 @@ public class NotificationRestController {
 	private final ClientHistoryService clientHistoryService;
 
 	@Autowired
-	public NotificationRestController(ClientService clientService, NotificationService notificationService, ClientHistoryService clientHistoryService) {
+	public NotificationRestController(ClientService clientService,
+									  NotificationService notificationService,
+									  ClientHistoryService clientHistoryService) {
 		this.clientService = clientService;
 		this.notificationService = notificationService;
 		this.clientHistoryService = clientHistoryService;

@@ -33,7 +33,8 @@ public class SendMailsController {
     private final MailingService mailingService;
 
     @Autowired
-    public SendMailsController(MailingMessageRepository mailingMessageRepository, MailingService mailingService) {
+    public SendMailsController(MailingMessageRepository mailingMessageRepository,
+                               MailingService mailingService) {
         this.mailingMessageRepository = mailingMessageRepository;
         this.mailingService = mailingService;
     }

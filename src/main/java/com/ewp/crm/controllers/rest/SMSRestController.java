@@ -32,7 +32,9 @@ public class SMSRestController {
 
 
 	@Autowired
-	public SMSRestController(SMSService smsService, ClientService clientService, MessageTemplateServiceImpl messageTemplateService) {
+	public SMSRestController(SMSService smsService,
+							 ClientService clientService,
+							 MessageTemplateServiceImpl messageTemplateService) {
 		this.smsService = smsService;
 		this.clientService = clientService;
 		this.messageTemplateService = messageTemplateService;
