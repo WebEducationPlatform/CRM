@@ -3,10 +3,10 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
@@ -50,6 +50,12 @@ public class DataInitializer {
 	@Autowired
 	private ReportsStatusService reportsStatusService;
 
+	@Autowired
+	private StudentService studentService;
+
+	@Autowired
+	private StudentStatusService studentStatusService;
+
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -71,15 +77,15 @@ public class DataInitializer {
 		socialNetworkTypeService.add(UNKNOWN);
 
 		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
-				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true, true);
+				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"), roleService.getRoleByName("OWNER")), true, true);
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getByRoleName("USER")), true, false);
+				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getRoleByName("USER")), true, false);
 		userService.add(user1);
 
 		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true, true);
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
 		userService.add(user2);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
@@ -193,6 +199,21 @@ public class DataInitializer {
 		statusService.addInit(status5);
 		statusService.addInit(defaultStatus);
 
+		StudentStatus trialStatus = new StudentStatus("Trial student");
+		StudentStatus learningStatus = new StudentStatus("Learning student");
+		StudentStatus pauseStatus = new StudentStatus("Paused student");
+		studentStatusService.add(trialStatus);
+		studentStatusService.add(learningStatus);
+		studentStatusService.add(pauseStatus);
+
+		DateTime currentDate = new DateTime();
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), 1200000L, 800000L, 400000L, studentStatusService.get(1L), "Trial started");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate.toDate(), currentDate.plusDays(30).toDate(), 1200000L, 800000L, 400000L, studentStatusService.get(2L), "Learning fast");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate.toDate(), currentDate.plusDays(14).toDate(), 1200000L, 1200000L, 0L, studentStatusService.get(3L), "Gone to vacation for 14 days");
+		studentService.add(trialStudent);
+		studentService.add(learningStudent);
+		studentService.add(pauseStudent);
+
 		//TODO удалить после теста
 
 		Faker faker = new Faker();
@@ -213,4 +234,5 @@ public class DataInitializer {
 		clientService.addBatchClients(list);
 		reportsStatusService.add(new ReportsStatus(6, 5, 3, 4, 2));
 	}
+
 }

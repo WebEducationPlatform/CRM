@@ -12,11 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -27,13 +24,9 @@ public class CommentRestController {
 	private static Logger logger = LoggerFactory.getLogger(CommentRestController.class);
 
 	private ClientService clientService;
-
 	private CommentService commentService;
-
 	private UserService userService;
-
 	private SendNotificationService sendNotificationService;
-
 	private CommentAnswerService commentAnswerService;
 
 	@Autowired
@@ -47,7 +40,7 @@ public class CommentRestController {
 
 	@GetMapping(value = "/getComments/{clientId}")
 	public ResponseEntity<List<Comment>> getComments(@PathVariable Long clientId) {
-		List<Comment> comments = commentService.getAllByClient(clientService.get(clientId));
+		List<Comment> comments = commentService.getAllCommentsByClient(clientService.get(clientId));
 		return ResponseEntity.ok(comments);
 	}
 

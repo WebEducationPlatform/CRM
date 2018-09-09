@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table
+@Table(name = "youtube_client_message")
 public class YoutubeClientMessage {
 
     @Id
@@ -11,7 +11,7 @@ public class YoutubeClientMessage {
     @Column(name = "youtube_client_message_id")
     private Long id;
 
-    @Column
+    @Column(name = "messages")
     private String messages;
 
     @ManyToOne

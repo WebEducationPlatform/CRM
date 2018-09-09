@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface SMSInfoRepository extends CommonGenericRepository<SMSInfo> {
 
-	List<SMSInfo> findByIsChecked(Boolean isDelivered);
+	List<SMSInfo> getByIsChecked(Boolean isDelivered);
 
 	List<SMSInfo> findAll();
 }

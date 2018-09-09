@@ -2,7 +2,6 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.controllers.rest.SMSRestController;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Message;
@@ -24,7 +23,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -32,7 +30,8 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +41,9 @@ import java.util.regex.Pattern;
         @PropertySource("classpath:application.properties"),
         @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251")
 })
-public class MailSendService {
+public class MailSendServiceImpl implements MailSendService {
 
-    private static Logger logger = LoggerFactory.getLogger(MailSendService.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
@@ -59,8 +58,8 @@ public class MailSendService {
 
 
     @Autowired
-    public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                           ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
+    public MailSendServiceImpl(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
+                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;

@@ -1,6 +1,9 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.NotificationService;
@@ -42,7 +45,7 @@ public class StatusRestController {
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
 		Status status = statusService.get(id);
-		return ResponseEntity.ok(clientService.findAllByStatus(status));
+		return ResponseEntity.ok(clientService.getAllClientsByStatus(status));
 	}
 
 	@PostMapping(value = "/add")

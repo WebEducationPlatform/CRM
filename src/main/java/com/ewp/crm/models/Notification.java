@@ -14,10 +14,11 @@ public class Notification implements Serializable {
 
 	@Id
 	@GeneratedValue
-	@Column
+	@Column(name = "id")
 	private Long id;
 
 	@Basic
+	@Column(name = "information")
 	private String information;
 
 	@ManyToOne
@@ -35,6 +36,7 @@ public class Notification implements Serializable {
 	private User userToNotify;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
 	private Type type;
 
 	public Notification() {

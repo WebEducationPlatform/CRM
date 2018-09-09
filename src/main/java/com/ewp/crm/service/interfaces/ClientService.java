@@ -10,10 +10,12 @@ import java.util.List;
 
 
 public interface ClientService extends CommonService<Client> {
-	List<Client> findAllByStatus(Status status);
+
+	List<Client> getAllClientsByStatus(Status status);
+
 	List<Client> getAllClients();
 
-	Client findClientBySkype(String skypeLogin);
+	Client getClientBySkype(String skypeLogin);
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
@@ -31,7 +33,7 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getChangeActiveClients();
 
-	List<Client> findClientsByManyIds(List<Long> ids);
+	List<Client> getClientsByManyIds(List<Long> ids);
 
 	void updateBatchClients(List<Client> clients);
 
@@ -47,7 +49,7 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
-	List<Client> findByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
+	List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
-	List<Client> findAllByPage(Pageable pageable);
+	List<Client> getAllClientsByPage(Pageable pageable);
 }

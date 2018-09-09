@@ -1,7 +1,5 @@
 package com.ewp.crm.exceptions.parse;
 
-import java.text.ParseException;
-
 public class ParseClientException extends Exception {
 
     public ParseClientException(String message) {
