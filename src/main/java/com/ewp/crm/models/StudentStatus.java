@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table (name = "student_staus")
+@Table (name = "student_status")
 public class StudentStatus {
 
     @Id
