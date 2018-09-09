@@ -25,14 +25,14 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     public Student addStudentForClient(Client client) {
         Student result;
         if (client.getStudent() == null) {
-            StudentStatus status = studentStatusRepository.save(new StudentStatus(client.getStatus().getName()));
+            StudentStatus status = studentStatusRepository.save(new StudentStatus("Auto generated " + client.getStatus().getName()));
             DateTime currentDate = new DateTime();
             if(client.getStatus().getName().equals("trialLearnStatus")) {
-                result = new Student(client, currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), PRICE, PRICE, 0L, status, "Auto generated trial");
+                result = new Student(client, currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), PRICE, PRICE, 0L, status, "");
             } else if (client.getStatus().getName().equals("inLearningStatus")) {
-                result = new Student(client, currentDate.toDate(), currentDate.plusDays(30).toDate(), PRICE, PRICE, 0L, status, "Auto generated learning");
+                result = new Student(client, currentDate.toDate(), currentDate.plusDays(30).toDate(), PRICE, PRICE, 0L, status, "");
             } else {
-                result = new Student(client, currentDate.toDate(), currentDate.toDate(), 0L, 0L, 0L, status, "Auto generated other");
+                result = new Student(client, currentDate.toDate(), currentDate.toDate(), 0L, 0L, 0L, status, "");
             }
             result = studentRepository.save(result);
         } else {
