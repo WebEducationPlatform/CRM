@@ -28,17 +28,17 @@ public class ReportRestController {
     @Autowired
     private MailSendService mailSendService;
 
-    @RequestMapping(value = "/last-days", method = RequestMethod.POST)
+    @PostMapping(value = "/last-days")
     public ResponseEntity clientReportByLastNDays(@RequestBody String date) {
         return ResponseEntity.ok(reportService.buildReport(date));
     }
 
-    @RequestMapping(value = "/getReportsStatus", method = RequestMethod.POST)
+    @PostMapping(value = "/getReportsStatus")
     public ResponseEntity<ReportsStatus> getReportsStatus(){
         return ResponseEntity.ok(reportsStatusService.getAll().get(0));
     }
 
-    @RequestMapping(value = "/setReportsStatus", method = RequestMethod.POST)
+    @PostMapping(value = "/setReportsStatus")
     public ResponseEntity updateReportsStatus(@Valid @RequestBody ReportsStatus reportsStatus){
         ReportsStatus currentReportsStatus = reportsStatusService.getAll().get(0);
         currentReportsStatus.setDropOutStatus(reportsStatus.getDropOutStatus());
@@ -50,7 +50,7 @@ public class ReportRestController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/sendReportToEmail", method = RequestMethod.POST)
+    @PostMapping(value = "/sendReportToEmail")
     public ResponseEntity sendReportToEmail(@Valid @RequestParam String report,
                                             @Valid @RequestParam String email){
         User user = new User();
