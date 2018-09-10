@@ -1,3 +1,15 @@
+$('.checkbox').click(function() {
+    var table, rows, i, status;
+    table = document.getElementById("students-table");
+    rows = table.rows;
+    for (i = 1; i < rows.length; i++) {
+        status = rows[i].getElementsByTagName("TD")[0];
+        if (this.id == status.innerHTML) {
+            rows[i].style.display = this.checked ? '' : 'none';
+        }
+    }
+});
+
 function sort_table(n, type) {
     var table, rows, switching, i, x, y, x_val, y_val, temp_x, temp_y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("students-table");
@@ -46,3 +58,8 @@ function sort_table(n, type) {
         }
     }
 }
+
+function filter_table() {
+    console.log("filter");
+}
+

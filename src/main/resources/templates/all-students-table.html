@@ -14,110 +14,70 @@
     <div class="container-fluid">
         <div><h1>Таблица всех студентов</h1></div>
 
-        <!--<div class="row">-->
-            <!--<div class="col-md-4">-->
-                <!--<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>-->
+        <div class="row">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>
+            </div>
+            <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск студента..."/></div>
+        </div>
+
+        <div id="filter" class="collapse filter">
+            <!--<div class="row">-->
+            <!--<label class="col-xs-1 control-label">Статусы:</label>-->
             <!--</div>-->
-        <!--</div>-->
-        <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск студента..."/></div>
+            <div class="row">
+                <div class="col-xs-1">
+                    <label class="control-label" for="New clients">Новые:</label>
+                    <input id="New clients" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="trialLearnStatus">Пробные:</label>
+                    <input id="trialLearnStatus" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="inLearningStatus">Активные:</label>
+                    <input id="inLearningStatus" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="pauseLearnStatus">На паузе:</label>
+                    <input id="pauseLearnStatus" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="endLearningStatus">Выпускники:</label>
+                    <input id="endLearningStatus" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="dropOut Status">Отвалились:</label>
+                    <input id="dropOut Status" class="checkbox" type="checkbox" checked="checked"/>
+                </div>
+            </div>
+            <div th:replace="fragments/htmlFragments::downloadModal"></div>
+        </div>
 
-        <!--<div id="filter" class="collapse filter">-->
-        <!--<div class="row">-->
-        <!--<div class="col-xs-2">-->
-        <!--<label class="control-label" for="sex">Пол: </label>-->
-        <!--<select class="form-control" id="sex" size="1">-->
-        <!--<option></option>-->
-        <!--<option th:each="sex : ${T(com.ewp.crm.models.Client.Sex).values()}" th:value="${sex}"-->
-        <!--th:text="${sex}"></option>-->
-        <!--</select>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3">-->
-        <!--<div class="row">-->
-        <!--<label class="col-xs-12">Возраст:</label>-->
-        <!--</div>-->
-        <!--<div class="row">-->
-        <!--<div class="col-xs-12 col-sm-6">-->
-        <!--<input class="form-control" type="number" id="ageFrom" placeholder="От"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-12 col-sm-6">-->
-        <!--<input class="form-control" type="number" id="ageTo" placeholder="До"/>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3">-->
-        <!--<label class="control-label" for="city">Город: </label>-->
-        <!--<input class="form-control" type="text" id="city"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3 offset-1">-->
-        <!--<label class="control-label" for="country">Страна: </label>-->
-        <!--<input class="form-control" type="text" id="country"/>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div class="row">-->
-        <!--<div class="col-xs-5">-->
-        <!--<div class="row">-->
-        <!--<label class="col-xs-12">Дата: </label>-->
-        <!--</div>-->
-        <!--<div class="row">-->
-        <!--<div class="col-xs-12 col-sm-6">-->
-        <!--<input class="form-control" type="date" id="dateFrom" placeholder="От"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-12 col-sm-6">-->
-        <!--<input class="form-control" type="date" id="dateTo" placeholder="До"/>-->
-        <!--</div>-->
-        <!--</div>-->
 
-        <!--</div>-->
-        <!--<div class="col-xs-3 offset-4">-->
-        <!--<label class="control-label" for="status">Статус: </label>-->
-        <!--<select class="form-control" id="status" size="1">-->
-        <!--<option></option>-->
-        <!--<option th:each="status : ${statuses}" th:value="${status}"-->
-        <!--th:text="${status.name}"></option>-->
-        <!--</select>-->
-
-        <!--</div>-->
-        <!--</div>-->
-
-        <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal">-->
-        <!--Скачать данные-->
-        <!--</button>-->
-
-        <!--<div class="row">-->
-        <!--<button type="button" class="btn btn-info filtration-button" id="filtration">Найти</button>-->
-        <!--</div>-->
-
-        <!--<div th:replace="fragments/htmlFragments::downloadModal"></div>-->
-
-        <!--</div>-->
         <table class="table table-hover table-fixed" id="students-table">
             <thead id="thead-table-students">
             <tr class="head-table">
-                <th onclick="sort_table(0)">#</th>
-                <th onclick="sort_table(1, 'href')">Имя</th>
-                <th onclick="sort_table(2)">Фамилия</th>
-                <th onclick="sort_table(3)">Email</th>
-                <th onclick="sort_table(4, 'date')">Конец пробных</th>
-                <th onclick="sort_table(5, 'date')">Следующая оплата</th>
-                <th onclick="sort_table(6)">Цена</th>
-                <th onclick="sort_table(7)">Сумма платежа</th>
-                <th onclick="sort_table(8)">Оплата после</th>
-                <th onclick="sort_table(9)">Статус учёбы</th>
-                <th onclick="sort_table(10)">Заметки</th>
+                <th onclick="sort_table(1)">#</th>
+                <th onclick="sort_table(2, 'href')">Имя</th>
+                <th onclick="sort_table(3)">Фамилия</th>
+                <th onclick="sort_table(4)">Email</th>
+                <th onclick="sort_table(5, 'date')">Конец пробных</th>
+                <th onclick="sort_table(6, 'date')">Следующая оплата</th>
+                <th onclick="sort_table(7)">Цена</th>
+                <th onclick="sort_table(8)">Сумма платежа</th>
+                <th onclick="sort_table(9)">Оплата после</th>
+                <th onclick="sort_table(10)">Статус учёбы</th>
+                <th onclick="sort_table(11)">Заметки</th>
             </tr>
             </thead>
             <tbody id="table-body">
             <tr th:each="student : ${students}">
+                <td style="display:none;" th:text="${student.client.status.name}"></td>
                 <td th:text="${student.id}"></td>
                 <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
                 <td th:text="${student.client.lastName}"></td>
                 <td th:text="${student.client.email}"></td>
-                <!--<td>-->
-                <!--<th:block th:each="soc : ${client.socialNetworks}">-->
-                <!--<th:block th:text="${soc.link}"></th:block>-->
-                <!--<br/>-->
-                <!--</th:block>-->
-                <!--</td>-->
                 <td th:text="${#dates.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
                 <td th:text="${#dates.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
                 <td th:text="${student.price}"></td>
@@ -125,12 +85,6 @@
                 <td th:text="${student.payLater}"></td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
-                <!--<td class="no-fix">-->
-                <!--<div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">-->
-                <!--<button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}">Вернуть</button>-->
-                <!--<ul class="dropdown-menu statuses-content"></ul>-->
-                <!--</div>-->
-                <!--</td>-->
             </tr>
             </tbody>
             <tfoot>
