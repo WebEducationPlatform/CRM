@@ -117,6 +117,15 @@ public class UserRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	@RequestMapping(value = "/admin/rest/user/deleteUser", method = RequestMethod.POST)
+	public ResponseEntity deleteUser(@RequestParam Long deleteId) {
+		User deleteUser = userService.get(deleteId);
+		userService.delete(deleteId);
+		logger.info("{} has deleted user: id {}, email {}", deleteUser.getFullName(), deleteUser.getId(), deleteUser.getEmail());
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
     @ResponseBody
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @RequestMapping(value = "/admin/avatar/{file}", method = RequestMethod.GET)

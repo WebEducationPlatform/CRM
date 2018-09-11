@@ -231,6 +231,10 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                        </button>
+                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
+                                                type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
                                                 th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
                                         </button>
                                     </td>
@@ -284,6 +288,7 @@
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::reAvailableUser"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>

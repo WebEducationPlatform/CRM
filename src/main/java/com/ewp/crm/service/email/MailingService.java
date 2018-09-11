@@ -19,7 +19,7 @@ import javax.mail.internet.MimeMessage;
 @Service
 //@EnableAsync
 public class MailingService {
-    private static Logger logger = LoggerFactory.getLogger(MailSendService.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
     private final VKService vkService;
@@ -34,16 +34,16 @@ public class MailingService {
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
-       return mailingMessageRepository.saveAndFlush(message);
+        return mailingMessageRepository.saveAndFlush(message);
     }
 
 
     public void sendMessage(MailingMessage message) {
-        if(message.getType().equals("email")) {
+        if (message.getType().equals("email")) {
             sendingMailingsEmails(message);
-        } else if(message.getType().equals("sms")) {
+        } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
-        } else if(message.getType().equals("vk")) {
+        } else if (message.getType().equals("vk")) {
             sendingMailingVk(message);
         }
     }
@@ -79,7 +79,7 @@ public class MailingService {
             try {
                 vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
             } catch (ClassCastException e) {
-                logger.info("bad vk id, " + idVk +", ", e);
+                logger.info("bad vk id, " + idVk + ", ", e);
             }
         }
         message.setReadedMessage(true);
