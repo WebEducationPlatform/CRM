@@ -23,6 +23,8 @@ public class IPConfigImpl implements IPConfig {
 
 	private String voximplantPasswordForWebCall;
 
+	private String voximplantCodeToSetRecord;
+
 	private static Logger logger = LoggerFactory.getLogger(IPConfigImpl.class);
 
 	@Autowired
@@ -33,6 +35,7 @@ public class IPConfigImpl implements IPConfig {
 			voximplantRuleId = environment.getRequiredProperty("voximplant.rule.id");
 			voximplantLoginForWebCall = environment.getRequiredProperty("voximplant.webcall.login");
 			voximplantPasswordForWebCall = environment.getRequiredProperty("voximplant.webcall.password");
+			voximplantCodeToSetRecord = environment.getRequiredProperty("voximplant.salt");
 			if (voximplantApiKey.isEmpty() || voximplantAccountId.isEmpty() || voximplantRuleId.isEmpty() || voximplantLoginForWebCall.isEmpty() || voximplantPasswordForWebCall.isEmpty()) {
 				throw new NullPointerException();
 			}
@@ -63,5 +66,9 @@ public class IPConfigImpl implements IPConfig {
 
 	public String getVoximplantPasswordForWebCall() {
 		return voximplantPasswordForWebCall;
+	}
+
+	public String getVoximplantCodeToSetRecord() {
+		return voximplantCodeToSetRecord;
 	}
 }

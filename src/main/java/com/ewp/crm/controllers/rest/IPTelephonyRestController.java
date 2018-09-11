@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-import sun.security.provider.MD5;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,7 +74,13 @@ public class IPTelephonyRestController {
 	}
 
 	@RequestMapping(value = "/setCallRecord", method = RequestMethod.GET)
-	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
+	public ResponseEntity setCallRecord(@RequestParam String url,
+										@RequestParam Long clientCallId
+										/*@RequestParam String code*/) {
+		// TODO Will be used after IP telephony is tested, also "code" must be added as parameter in voximplant scenarios
+//		if (!code.equals(ipService.getVoximplantCodeToSetRecord()) ) {
+//			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+//		}
 		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());

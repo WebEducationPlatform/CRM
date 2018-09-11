@@ -1383,7 +1383,7 @@ function webCallToClient(clientPhone) {
                     }
                 }
             })
-            return VoxImplant.AuthResult.result;
+            return VoxImplant.Events.AuthResult.result;
         })
         .catch((e) => {
             console.log(e);
