@@ -4,9 +4,9 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.email.MailSendService;
-import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,13 +27,13 @@ import java.nio.file.Paths;
 public class EmailRestController {
 
 	private final MailSendService mailSendService;
-	private final MessageTemplateServiceImpl messageTemplateService;
+	private final MessageTemplateService messageTemplateService;
 	private final ClientService clientService;
 	private final ImageConfig imageConfig;
 
 
 	@Autowired
-	public EmailRestController(MailSendService mailSendService, MessageTemplateServiceImpl MessageTemplateService, ClientService clientService, ImageConfig imageConfig) {
+	public EmailRestController(MailSendService mailSendService, MessageTemplateService MessageTemplateService, ClientService clientService, ImageConfig imageConfig) {
 		this.mailSendService = mailSendService;
 		this.messageTemplateService = MessageTemplateService;
 		this.clientService = clientService;
