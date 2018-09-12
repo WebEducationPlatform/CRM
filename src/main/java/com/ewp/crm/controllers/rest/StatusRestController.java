@@ -4,10 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +26,17 @@ public class StatusRestController {
 	private final ClientService clientService;
 	private final ClientHistoryService clientHistoryService;
 	private final NotificationService notificationService;
+	private final StudentService studentService;
+	private final StudentStatusService studentStatusService;
 
 	@Autowired
-	public StatusRestController(StatusService statusService,
-								ClientService clientService,
-								ClientHistoryService clientHistoryService,
-								NotificationService notificationService) {
+	public StatusRestController(StatusService statusService, ClientService clientService, ClientHistoryService clientHistoryService, NotificationService notificationService, StudentService studentService, StudentStatusService studentStatusService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.notificationService = notificationService;
+		this.studentService = studentService;
+		this.studentStatusService = studentStatusService;
 	}
 
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,6 +67,7 @@ public class StatusRestController {
 		currentClient.setStatus(statusService.get(statusId));
 		currentClient.addHistory(clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS));
 		clientService.updateClient(currentClient);
+		studentService.addStudentForClient(currentClient);
 		notificationService.deleteNotificationsByClient(currentClient);
 		logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();

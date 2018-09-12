@@ -148,6 +148,11 @@ public class Client implements Serializable, Diffable<Client> {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "client")
 	private List<CallRecord> callRecords = new ArrayList<>();
 
+	@JsonIgnore
+	@OneToOne(mappedBy = "client")
+	@JoinColumn(name = "student_id")
+	private Student student;
+
 	public Client() {
 		this.state = State.NEW;
 		this.dateOfRegistration = new Date();
@@ -375,7 +380,13 @@ public class Client implements Serializable, Diffable<Client> {
 		this.socialNetworks = socialNetworks;
 	}
 
+	public Student getStudent() {
+		return student;
+	}
 
+	public void setStudent(Student student) {
+		this.student = student;
+	}
 
 	@Override
 	public boolean equals(Object o) {
