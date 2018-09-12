@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +62,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 	@Override
 	public Client getClientByID(Long id) {
-		return clientRepository.findOne(id);
+		Optional<Client> optional = clientRepository.findById(id);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
