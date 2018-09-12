@@ -23,6 +23,8 @@ public class IPConfigImpl implements IPConfig {
 
 	private String voximplantPasswordForWebCall;
 
+	private String voximplantCodeToSetRecord;
+
 	private static Logger logger = LoggerFactory.getLogger(IPConfigImpl.class);
 
 	@Autowired
@@ -33,7 +35,10 @@ public class IPConfigImpl implements IPConfig {
 			voximplantRuleId = environment.getRequiredProperty("voximplant.rule.id");
 			voximplantLoginForWebCall = environment.getRequiredProperty("voximplant.webcall.login");
 			voximplantPasswordForWebCall = environment.getRequiredProperty("voximplant.webcall.password");
-			if (voximplantApiKey.isEmpty() || voximplantAccountId.isEmpty() || voximplantRuleId.isEmpty() || voximplantLoginForWebCall.isEmpty() || voximplantPasswordForWebCall.isEmpty()) {
+			voximplantCodeToSetRecord = environment.getRequiredProperty("voximplant.setcallrecord.code");
+			if (voximplantApiKey.isEmpty() || voximplantAccountId.isEmpty() || voximplantRuleId.isEmpty()
+					|| voximplantLoginForWebCall.isEmpty() || voximplantPasswordForWebCall.isEmpty()
+					|| voximplantCodeToSetRecord.isEmpty()) {
 				throw new NullPointerException();
 			}
 		} catch (IllegalStateException | NullPointerException e) {
@@ -63,5 +68,10 @@ public class IPConfigImpl implements IPConfig {
 
 	public String getVoximplantPasswordForWebCall() {
 		return voximplantPasswordForWebCall;
+	}
+
+	@Override
+	public String getVoximplantCodeToSetRecord() {
+		return voximplantCodeToSetRecord;
 	}
 }
