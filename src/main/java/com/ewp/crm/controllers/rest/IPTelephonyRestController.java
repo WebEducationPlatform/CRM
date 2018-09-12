@@ -51,7 +51,11 @@ public class IPTelephonyRestController {
 	//Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
 	//Не секьюритить
 	@GetMapping(value = "/setCallRecord")
-	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
+	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId,
+										@RequestParam String code) {
+		if (!code.equals(ipService.getVoximplantCodeToSetRecord())) {
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		}
 		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
