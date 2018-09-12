@@ -6,10 +6,7 @@ import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.FacebookServiceImpl;
-import com.ewp.crm.service.impl.ReportService;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -52,7 +49,7 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
-	private FacebookServiceImpl facebookService;
+	private final FacebookService facebookService;
 
 	private final VkTrackedClubService vkTrackedClubService;
 
@@ -75,7 +72,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;

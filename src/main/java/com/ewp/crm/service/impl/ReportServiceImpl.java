@@ -5,6 +5,7 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.ReportsStatus;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.service.interfaces.ReportService;
 import com.ewp.crm.service.interfaces.ReportsStatusService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -21,9 +22,9 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class ReportService {
+public class ReportServiceImpl implements ReportService {
 
-    private static Logger logger = LoggerFactory.getLogger(ReportService.class);
+    private static Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
     
     @Autowired
     private ClientRepository clientRepository;

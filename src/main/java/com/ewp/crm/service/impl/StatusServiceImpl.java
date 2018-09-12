@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -42,7 +43,12 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status get(Long id) {
-		return statusDAO.findOne(id);
+		Optional<Status> optional = statusDAO.findById(id);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -52,7 +58,12 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status getFirstStatusForClient() {
-		return statusDAO.findOne(1L);
+		Optional<Status> optional = statusDAO.findById(1L);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -92,7 +103,12 @@ public class StatusServiceImpl implements StatusService {
 		if (id == 1L) {
 			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
 		}
-		if (statusDAO.findOne(id).getName().equals("deleted")) {
+		Optional<Status> optional = statusDAO.findById(id);
+		Status statusFromDB = null;
+		if (optional.isPresent()) {
+			statusFromDB = optional.get();
+		}
+		if (statusFromDB.getName().equals("deleted")) {
 			throw new StatusExistsException("Статус deleted нельзя удалить");
 		}
 	}
@@ -117,7 +133,11 @@ public class StatusServiceImpl implements StatusService {
 	public void delete(Long id) {
 		logger.info("{} deleting of the status...", StatusServiceImpl.class.getName());
 		checkStatusId(id);
-		Status statusFromDB = statusDAO.findOne(id);
+		Optional<Status> optional = statusDAO.findById(id);
+		Status statusFromDB = null;
+		if (optional.isPresent()) {
+			statusFromDB = optional.get();
+		}
 		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
 		logger.info("{} status deleted successfully...", StatusServiceImpl.class.getName());

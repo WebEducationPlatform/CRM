@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.utils.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
@@ -70,7 +71,7 @@ public class GoogleEmail {
         protocol = mailConfig.getProtocol();
         debug = mailConfig.getDebug();
         imapServer = mailConfig.getImapServer();
-	    this.clientHistoryService = clientHistoryService;
+        this.clientHistoryService = clientHistoryService;
     }
 
     private Properties javaMailProperties() {
@@ -127,7 +128,6 @@ public class GoogleEmail {
         });
         return directChannel;
     }
-
 
 
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
