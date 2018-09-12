@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VkTrackedClubServiceImpl implements VkTrackedClubService {
@@ -21,7 +22,12 @@ public class VkTrackedClubServiceImpl implements VkTrackedClubService {
 
     @Override
     public VkTrackedClub get(Long id) {
-        return vkTrackedClubRepository.findOne(id);
+        Optional<VkTrackedClub> optional = vkTrackedClubRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -36,7 +42,7 @@ public class VkTrackedClubServiceImpl implements VkTrackedClubService {
 
     @Override
     public void delete(Long id) {
-        vkTrackedClubRepository.delete(id);
+        vkTrackedClubRepository.deleteById(id);
     }
 
     @Override
@@ -46,6 +52,6 @@ public class VkTrackedClubServiceImpl implements VkTrackedClubService {
 
     @Override
     public void addAllClubs(List<VkTrackedClub> vkTrackedClubs) {
-        vkTrackedClubRepository.save(vkTrackedClubs);
+        vkTrackedClubRepository.saveAll(vkTrackedClubs);
     }
 }
