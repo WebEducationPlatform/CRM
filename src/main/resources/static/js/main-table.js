@@ -151,9 +151,17 @@ $(document).ready(function () {
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
         let jo2 = jo.find($(".portlet-header"));
-        this.value.localeCompare("") == 0 ? jo.show : jo.hide();
+        let data = this.value.toLowerCase().split(" ");
+        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
+
         for (let i = 0; i < jo2.length; i++) {
-            if (jo2[i].innerText.includes(this.value)) {
+            let count = 0;
+            for(let z = 0; z < data.length; z++) {
+                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
+                    count++;
+                }
+            }
+            if (count === data.length) {
                 jo[i].style.display = 'block';
             }
         }
