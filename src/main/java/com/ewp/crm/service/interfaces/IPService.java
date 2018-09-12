@@ -9,4 +9,6 @@ public interface IPService {
 	String getVoximplantPasswordForWebCall();
 
 	String getVoximplantUserLogin(String fullLogin);
+
+	String getVoximplantCodeToSetRecord();
 }

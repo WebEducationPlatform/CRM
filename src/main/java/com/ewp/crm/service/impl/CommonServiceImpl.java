@@ -5,6 +5,7 @@ import com.ewp.crm.service.interfaces.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CommonServiceImpl<T> implements CommonService<T> {
     @Autowired
@@ -12,7 +13,12 @@ public class CommonServiceImpl<T> implements CommonService<T> {
 
     @Override
     public T get(Long id) {
-        return repository.findOne(id);
+        Optional<T> optional = repository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -32,7 +38,7 @@ public class CommonServiceImpl<T> implements CommonService<T> {
 
     @Override
     public void delete(Long id) {
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     @Override

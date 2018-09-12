@@ -17,7 +17,9 @@ import java.util.List;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
+
     private final EntityManager entityManager;
+
     @Value("${project.jpa.batch-size}")
     private int batchSize;
 

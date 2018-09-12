@@ -11,4 +11,6 @@ public interface IPConfig {
 	String getVoximplantLoginForWebCall();
 
 	String getVoximplantPasswordForWebCall();
+
+	String getVoximplantCodeToSetRecord();
 }
