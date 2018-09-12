@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
@@ -28,25 +27,24 @@ public class ClientController {
 	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
 
 	private final StatusService statusService;
-
 	private final ClientService clientService;
-
 	private final UserService userService;
-
 	private final MessageTemplateService MessageTemplateService;
-
 	private final SocialNetworkTypeService socialNetworkTypeService;
-
 	private final NotificationService notificationService;
-
 	private final RoleService roleService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
-	public ClientController(StatusService statusService, ClientService clientService, UserService userService,
-	                        MessageTemplateService MessageTemplateService, SocialNetworkTypeService socialNetworkTypeService, NotificationService notificationService, ClientHistoryService clientHistoryService, RoleService roleService) {
+	public ClientController(StatusService statusService,
+							ClientService clientService,
+							UserService userService,
+	                        MessageTemplateService MessageTemplateService,
+							SocialNetworkTypeService socialNetworkTypeService,
+							NotificationService notificationService,
+							RoleService roleService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
@@ -56,10 +54,22 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
+	@GetMapping(value = "/admin/client/add/{statusName}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	public ModelAndView addClient(@PathVariable String statusName,
+								  @AuthenticationPrincipal User userFromSession) {
+		ModelAndView modelAndView = new ModelAndView("add-client");
+		modelAndView.addObject("status", statusService.get(statusName));
+		modelAndView.addObject("states", Client.State.values());
+		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("user", userFromSession);
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		return modelAndView;
+	}
+
+	@GetMapping(value = "/client")
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
-	@RequestMapping(value = "/client", method = RequestMethod.GET)
-	public ModelAndView getAll() {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
 		List<Status> statuses;
 		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
@@ -85,8 +95,8 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/client/allClients")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/allClients", method = RequestMethod.GET)
 	public ModelAndView allClientsPage() {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
@@ -95,17 +105,16 @@ public class ClientController {
 		return modelAndView;
 	}
 
+	@GetMapping(value = "/client/mailing")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/mailing", method = RequestMethod.GET)
 	public ModelAndView mailingPage() {
-		ModelAndView modelAndView = new ModelAndView("mailing");
-		return modelAndView;
+		return new ModelAndView("mailing");
 	}
 
+	@GetMapping(value = "/client/clientInfo/{id}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/client/clientInfo/{id}", method = RequestMethod.GET)
-	public ModelAndView clientInfo(@PathVariable Long id) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ModelAndView clientInfo(@PathVariable Long id,
+								   @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("client-info");
 		modelAndView.addObject("client", clientService.get(id));
 		modelAndView.addObject("states", Client.State.values());
@@ -116,21 +125,8 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@RequestMapping(value = "/admin/client/add/{statusName}", method = RequestMethod.GET)
-	public ModelAndView addClient(@PathVariable String statusName) {
-		User userFromSession = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		ModelAndView modelAndView = new ModelAndView("add-client");
-		modelAndView.addObject("status", statusService.get(statusName));
-		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
-		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		return modelAndView;
-	}
-
+	@GetMapping(value = "/phone")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/phone", method = RequestMethod.GET)
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
 	}

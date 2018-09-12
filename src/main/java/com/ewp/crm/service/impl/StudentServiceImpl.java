@@ -8,18 +8,23 @@ import com.ewp.crm.repository.interfaces.StudentStatusRepository;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
 
-    @Autowired
     private StudentRepository studentRepository;
-
-    @Autowired
     private StudentStatusRepository studentStatusRepository;
 
-    private static final Long PRICE = 12000L;
+    @Autowired
+    public StudentServiceImpl(StudentRepository studentRepository, StudentStatusRepository studentStatusRepository) {
+        this.studentRepository = studentRepository;
+        this.studentStatusRepository = studentStatusRepository;
+    }
+
+    @Value("${price.month}")
+    private Long PRICE;
 
     @Override
     public Student addStudentForClient(Client client) {
