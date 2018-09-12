@@ -59,7 +59,3 @@ function sort_table(n, type) {
     }
 }
 
-function filter_table() {
-    console.log("filter");
-}
-
