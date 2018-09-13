@@ -69,6 +69,7 @@
                 <th onclick="sort_table(9)">Оплата после</th>
                 <th onclick="sort_table(10)">Статус учёбы</th>
                 <th onclick="sort_table(11)">Заметки</th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -85,6 +86,7 @@
                 <td th:text="${student.payLater}"></td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
+                <td><button class="button_edit" th:value="${student.id}">Изменить</button></td>
             </tr>
             </tbody>
             <tfoot>
