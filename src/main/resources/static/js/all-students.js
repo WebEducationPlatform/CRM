@@ -59,3 +59,7 @@ function sort_table(n, type) {
     }
 }
 
+$('.button_edit').click(function () {
+    alert("TODO Show modal");
+    console.log(this.value);
+});
