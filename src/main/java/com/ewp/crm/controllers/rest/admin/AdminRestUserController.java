@@ -68,10 +68,17 @@ public class AdminRestUserController {
 	@PostMapping(value = "/admin/rest/user/add")
 	public ResponseEntity addUser(@Valid @RequestBody User user,
 								  @AuthenticationPrincipal User currentAdmin) {
-		user.setEnabled(true);
-		userService.add(user);
-		logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
-		return ResponseEntity.ok().body(userService.getUserByEmail(user.getEmail()).getId());
+		ResponseEntity result;
+		if (userService.getUserByEmail(user.getEmail()) == null) {
+			user.setEnabled(true);
+			userService.add(user);
+			result = new ResponseEntity(user, HttpStatus.OK);
+			logger.info("{} has added user: email {}", currentAdmin.getFullName(), user.getEmail());
+		} else {
+			result = new ResponseEntity(HttpStatus.CONFLICT);
+			logger.info("{} user with that email already exists: email {}", currentAdmin.getFullName(), user.getEmail());
+		}
+		return result;
 	}
 
 	//Workers will be deactivated, not deleted
