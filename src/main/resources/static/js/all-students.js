@@ -66,91 +66,62 @@ $('.button_edit').click(function () {
 });
 
 $('#update-student').click(function () {
-   console.log("update");
+    //TODO Add Client JSON
+   let data = {
+       id : $("#student-id").val(),
+       client : "",
+       trialEndDate : $("#trial-end-date").val(),
+       nextPaymentDate : $("#next-payment-date").val(),
+       price : $("#month-price").val(),
+       paymentAmount : $("#payment").val(),
+       payLater : $("#later-payment").val(),
+       status : {id : $("#student-status").val(),status : $("#student-status option:selected").text()},
+       notes : $("#notes").val()
+   };
+
+    console.log(data);
+    $.ajax({
+        type: 'POST',
+        url: '/rest/student/update',
+        contentType : "application/json; charset=UTF-8",
+        encoding: "UTF-8",
+        data: JSON.stringify(data),
+        success: function (response) {
+
+        }
+    })
 });
 
 //--------------------------------------------------------------------------------------
 
 $(function () {
     $('#student-edit-modal').on('show.bs.modal', function () {
-        var currentModal = $(this);
         var student_id = $(this).data('student_id');
-        console.log(student_id);
-
-//         let formData = {clientId: clientId};
-//         $.ajax({
-//             type: 'GET',
-//             url: 'rest/client/' + clientId,
-//             data: formData,
-//             success: function (client) {
-//                 $.get('rest/client/getPrincipal', function (user) {
-//                     if (client.ownerUser != null) {
-//                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
-//                     }
-//                     var adminName = user.firstName + ' ' + user.lastName;
-//                     $('#main-modal-window').data('userId', user.id);
-//
-//                     currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
-//                     $('#client-email').text(client.email);
-//                     $('#client-phone').text(client.phoneNumber);
-//                     if (client.canCall && user.ipTelephony) {
-//                         $('#client-phone').after('<td id="web-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-//                             .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-//                     }
-//
-//                     if (client.age > 0) {
-//                         $('#client-age').text(client.age);
-//                     }
-//                     $('#client-sex').text(client.sex);
-//
-//                     if (client.email == null) {
-//                         $('#email-href').hide();
-//                     } else {
-//                         $('#email-href').show();
-//                     }
-//                     // здесь вставка ссылок в кнопки вк и фб
-//
-//
-//                     $('#vk-href').hide();
-//                     $('#fb-href').hide();
-//
-//                     for (var i = 0; i < client.socialNetworks.length; i++) {
-//                         if (client.socialNetworks[i].socialNetworkType.name == 'vk') {
-//                             $('#vk-href').attr('href', client.socialNetworks[i].link);
-//                             $('#vk-href').show();
-//                         }
-//                         if (client.socialNetworks[i].socialNetworkType.name == 'facebook') {
-//                             $('#fb-href').attr('href', client.socialNetworks[i].link);
-//                             $('#fb-href').show();
-//                         }
-//                     }
-//                     var btnBlock = $('div#assign-unassign-btns');
-//                     if (client.ownerUser === null) {
-//                         btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
-//                     }
-//                     if (client.ownerUser !== null && owenerName === adminName) {
-//                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
-//                     }
-//                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-//                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
-//                 });
-//
-//                 $('.send-all-custom-message').attr('clientId', clientId);
-//                 $('.send-all-message').attr('clientId', clientId);
-//                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
-//                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
-//                 $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
-//                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
-//                 $('.postponeStatus').attr('id', 'postponeStatus' + client.id);
-//                 $('.textcomplete').attr('id', 'new-text-for-client' + client.id);
-//                 $('.comment-div').append('<button class="btn btn-sm btn-success comment-button remove-element" id="assign-client' + client.id + '"  onclick="sendComment(' + client.id + ', \'test_message\')"> Сохранить </button>');
-//                 $('.main-modal-comment').attr('id', 'client-' + client.id + 'comments');
-//                 $('.upload-history').attr('data-id', client.id).attr('href', '#collapse' + client.id);
-//                 $('.client-collapse').attr('id', 'collapse' + client.id);
-//                 $('.history-line').attr('id', 'client-' + client.id + 'history');
-//                 $('.upload-more-history').attr('data-clientid', client.id);
-//             }
-//         });
+        $.ajax({
+            type: 'GET',
+            url: '/rest/student/' + student_id,
+            success: function (response) {
+                $("#modal-header").empty().append(response.client.name + " " + response.client.lastName);
+                $("#student-id").val(student_id);
+                $("#trial-end-date").val(response.trialEndDate.substring(0,10));
+                $("#next-payment-date").val(response.nextPaymentDate.substring(0,10));
+                $("#month-price").val(response.price);
+                $("#payment").val(response.paymentAmount);
+                $("#later-payment").val(response.payLater);
+                $("#student-status").empty();
+                $.ajax({
+                    type: 'GET',
+                    url: "/rest/student/status",
+                    success: function (statuses) {
+                        for (var i in statuses) {
+                            var selected = statuses[i].status == response.status.status ? "selected" : "";
+                            $("#student-status").append("<option value='" + statuses[i].id + "' " + selected + ">" + statuses[i].status + "</option>");
+                        }
+                    }
+                });
+                $("#notes").val(response.notes);
+            }
+        })
     });
 });
 
