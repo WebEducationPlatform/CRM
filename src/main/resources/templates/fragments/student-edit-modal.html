@@ -11,13 +11,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Header</h4>
+                    <h4 id="modal-header" class="modal-title"></h4>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
                             <table class="table table-condensed font-size">
                                 <tr>
+                                    <input id="student-id" type="hidden"/>
                                     <td><label for="trial-end-date">Конец пробных</label></td>
                                     <td><input id="trial-end-date" type="date"/></td>
                                 </tr>
@@ -45,27 +46,12 @@
                                     <td><label for="notes">Заметки</label></td>
                                     <td><input id="notes" type="text"/></td>
                                 </tr>
-                                <!--<tr th:each="student : ${students}">-->
-                                    <!--<td style="display:none;" th:text="${student.client.status.name}"></td>-->
-                                    <!--<td th:text="${student.id}"></td>-->
-                                    <!--<td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>-->
-                                    <!--<td th:text="${student.client.lastName}"></td>-->
-                                    <!--<td th:text="${student.client.email}"></td>-->
-                                    <!--<td th:text="${#dates.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>-->
-                                    <!--<td th:text="${#dates.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>-->
-                                    <!--<td th:text="${student.price}"></td>-->
-                                    <!--<td th:text="${student.paymentAmount}"></td>-->
-                                    <!--<td th:text="${student.payLater}"></td>-->
-                                    <!--<td th:text="${student.status.status}"></td>-->
-                                    <!--<td th:text="${student.notes}"></td>-->
-                                    <!--<td><button class="button_edit" th:value="${student.id}">Изменить</button></td>-->
-                                <!--</tr>-->
                             </table>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="update-student" type="button" class="btn btn-default" data-dismiss="modal">Изменить</button>
+                    <button id="update-student" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>
                 </div>
             </div>
         </div>
