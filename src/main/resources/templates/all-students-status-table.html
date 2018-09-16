@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/status.js}"></script>
+</head>
+<body>
+<div style="margin: 2%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+    <div class="container-fluid">
+        <div><h1>Таблица всех статусов обучения</h1></div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-info">Создать</button>
+            </div>
+            <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск статуса..."/></div>
+        </div>
+
+        <table class="table table-hover table-fixed" id="students-table">
+            <thead id="thead-table-students-status">
+            <tr class="head-table">
+                <th>#</th>
+                <th>Статус</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="table-body">
+            <tr th:each="status : ${statuses}">
+                <td th:text="${status.id}"></td>
+                <td th:text="${status.status}"></td>
+                <td><button class="button_edit_status btn btn-info" th:value="${status.id}">Изменить</button></td>
+                <td><button class="button_delete_status btn btn-info" th:value="${status.id}">Удалить</button></td>
+            </tr>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+<script type="text/javascript" th:src="@{/js/all-students-status.js}"></script>
+<!--<script type="text/javascript" th:src="@{/js/all-students.js}"></script>-->
+</body>
+</html>
