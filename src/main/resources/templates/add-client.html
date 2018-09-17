@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+	<div th:replace="fragments/htmlFragments::header"></div>
+	<link rel="stylesheet" href="/css/style.css"/>
+	<script type="text/javascript" th:src="@{/js/add-client.js}"></script>
+	<script th:src="@{/js/validator.min.js}"></script>
+</head>
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+	<div id = "client-info-container" class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-md-6" id="column1">
+				<form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
+					<div class="btn-group">
+                        <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'addClient()'">Сохранить</button>
+					</div>
+					<p><span id = "message"></span></p>
+
+					<div class="form-group">
+                    	<label for="client-status" th:text="${status.name}"></label>
+                    	<input type="hidden" id="client-status" th:value="${status.name}"/>
+                    </div>
+
+					<div class="form-group">
+						<label for="edit-client-first-name">Имя</label>
+						<input class="form-control" required = "required" id="edit-client-first-name"/>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-last-name">Фамилия</label>
+						<input class="form-control" id="edit-client-last-name"/>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-phone-number">Номер телефона</label>
+						<input type="tel" class="form-control" id="edit-client-phone-number"/>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-email">Email</label>
+						<input type="email" class="form-control" data-error="Неверный формат Email" pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$" id="edit-client-email"/>
+						<div class="help-block with-errors"></div>
+					</div>
+                    <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control" id="edit-client-skype"/>
+                    </div>
+					<div class="form-group">
+						<label for="edit-client-age">Возраст</label>
+						<input type="number" class="form-control" min="0" max="127" title = "Диапазон от 0 до 127" onkeydown="disableInputE()"  id="edit-client-age"/>
+						<div class="help-block with-error" style="color: red"></div>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-sex">Выберите пол</label>
+						<select class="form-control" id="edit-client-sex">
+							<option>MALE</option>
+							<option>FEMALE</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-state">Статус</label>
+						<select class="form-control" id="edit-client-state">
+							<option th:each="state: ${states}" th:value="${state}" th:text="${state}"></option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-country">Страна</label>
+						<input type="text" class="form-control" id="edit-client-country"/>
+					</div>
+					<div class="form-group">
+						<label for="edit-client-city">Город</label>
+						<input type="text" class="form-control" id="edit-client-city"/>
+					</div>
+					<div class="form-group">
+						<label>Социальные сети</label>
+						<table class="table table-hover" th:id = "SocialNetworks">
+							<thead class="thead-inverse">
+							<tr>
+								<th hidden="hidden" abbr="id">id</th>
+								<th abbr="link">Link</th>
+							 	<th abbr="socialProfileType">Type</th>
+							</tr>
+							</thead>
+							<tbody id = "SN-table-body">
+							</tbody>
+						</table>
+					</div>
+				</form>
+				<button class="btn btn-md btn-info" id = "addNewSN" th:onclick="'addNewSN()'">Добавить соц. сеть</button>
+				<form id="job-client-from">
+					<div class="form-group">
+						<label>Работа</label>
+						<table class="table table-hover" th:id = "Job">
+							<thead class="thead-inverse">
+							<tr>
+								<th hidden="hidden" abbr="id">id</th>
+								<th abbr="organization">Организация</th>
+								<th abbr="position">Позиция</th>
+							</tr>
+							</thead>
+							<tbody id = "job-table-body">
+							</tbody>
+						</table>
+					</div>
+				</form>
+				<button class="btn btn-md btn-info" id = "addNewJob" th:onclick="'addNewJob()'">Добавить работу</button>
+			</div>
+			<div class="col-md-6"></div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
