@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
 
@@ -44,5 +46,10 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             result = client.getStudent();
         }
         return result;
+    }
+
+    @Override
+    public List<Student> getStudentsByStatusId(Long id) {
+        return studentRepository.getStudentsByStatusId(id);
     }
 }

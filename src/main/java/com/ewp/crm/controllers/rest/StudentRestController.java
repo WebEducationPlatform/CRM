@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasAnyAuthority('OWNER')")
 public class StudentRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
+    private static Logger logger = LoggerFactory.getLogger(StudentRestController.class);
 
     private final StudentService studentService;
 
