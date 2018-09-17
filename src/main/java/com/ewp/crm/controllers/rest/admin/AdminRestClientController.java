@@ -18,17 +18,17 @@ public class AdminRestClientController {
 	private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
 
 	private final ClientService clientService;
-	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialProfileTypeService socialProfileTypeService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
 
 	@Autowired
 	public AdminRestClientController(ClientService clientService,
-									 SocialNetworkTypeService socialNetworkTypeService,
+									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
 									 StatusService statusService) {
 		this.clientService = clientService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
 	}
@@ -37,9 +37,9 @@ public class AdminRestClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ResponseEntity addClient(@RequestBody Client client,
 									@AuthenticationPrincipal User userFromSession) {
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
-			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
-					socialNetwork.getSocialNetworkType().getName()).getId());
+		for (SocialProfile socialProfile : client.getSocialProfiles()) {
+			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+					socialProfile.getSocialProfileType().getName()).getId());
 		}
 		Status status = statusService.get(client.getStatus().getName());
 		client.setStatus(status);
@@ -53,9 +53,9 @@ public class AdminRestClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ResponseEntity updateClient(@RequestBody Client currentClient,
 									   @AuthenticationPrincipal User userFromSession) {
-		for (SocialNetwork socialNetwork : currentClient.getSocialNetworks()) {
-			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
-					socialNetwork.getSocialNetworkType().getName()).getId());
+		for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
+			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+					socialProfile.getSocialProfileType().getName()).getId());
 		}
 		Client clientFromDB = clientService.get(currentClient.getId());
 		currentClient.setHistory(clientFromDB.getHistory());

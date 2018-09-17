@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "social_network")
-public class SocialNetwork implements Serializable {
+public class SocialProfile implements Serializable {
 
 	@Id
 	@GeneratedValue
@@ -30,33 +30,33 @@ public class SocialNetwork implements Serializable {
 	@JoinTable(name = "social_network_social_network_type",
 			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private SocialNetworkType socialNetworkType;
+	private SocialProfileType socialProfileType;
 
-	public SocialNetwork() {
+	public SocialProfile() {
 	}
 
-	public SocialNetwork(String link, SocialNetworkType socialNetworkType) {
+	public SocialProfile(String link, SocialProfileType socialProfileType) {
 		this.link = link;
-		this.socialNetworkType = socialNetworkType;
+		this.socialProfileType = socialProfileType;
 	}
 
-	public SocialNetwork(String link) {
+	public SocialProfile(String link) {
 		this.link = link;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof SocialNetwork)) return false;
-		SocialNetwork that = (SocialNetwork) o;
+		if (!(o instanceof SocialProfile)) return false;
+		SocialProfile that = (SocialProfile) o;
 		return id == that.id &&
 				Objects.equals(link, that.link) &&
-				Objects.equals(socialNetworkType, that.socialNetworkType);
+				Objects.equals(socialProfileType, that.socialProfileType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, link, socialNetworkType);
+		return Objects.hash(id, link, socialProfileType);
 	}
 
 	@Override
@@ -80,12 +80,12 @@ public class SocialNetwork implements Serializable {
 		this.link = link;
 	}
 
-	public SocialNetworkType getSocialNetworkType() {
-		return socialNetworkType;
+	public SocialProfileType getSocialProfileType() {
+		return socialProfileType;
 	}
 
-	public void setSocialNetworkType(SocialNetworkType socialNetworkType) {
-		this.socialNetworkType = socialNetworkType;
+	public void setSocialProfileType(SocialProfileType socialProfileType) {
+		this.socialProfileType = socialProfileType;
 	}
 
 	public Client getClient() {
