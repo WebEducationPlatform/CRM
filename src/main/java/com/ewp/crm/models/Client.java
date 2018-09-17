@@ -130,7 +130,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@JoinTable(name = "client_social_network",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private List<SocialNetwork> socialNetworks = new ArrayList<>();
+	private List<SocialProfile> socialProfiles = new ArrayList<>();
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
@@ -372,12 +372,12 @@ public class Client implements Serializable, Diffable<Client> {
 		this.dateOfRegistration = dateOfRegistration;
 	}
 
-	public List<SocialNetwork> getSocialNetworks() {
-		return socialNetworks;
+	public List<SocialProfile> getSocialProfiles() {
+		return socialProfiles;
 	}
 
-	public void setSocialNetworks(List<SocialNetwork> socialNetworks) {
-		this.socialNetworks = socialNetworks;
+	public void setSocialProfiles(List<SocialProfile> socialProfiles) {
+		this.socialProfiles = socialProfiles;
 	}
 
 	public Student getStudent() {
@@ -403,7 +403,7 @@ public class Client implements Serializable, Diffable<Client> {
 				Objects.equals(city, client.city) &&
 				Objects.equals(country, client.country) &&
 				state == client.state &&
-				Objects.equals(socialNetworks, client.socialNetworks) &&
+				Objects.equals(socialProfiles, client.socialProfiles) &&
 				Objects.equals(jobs, client.jobs) &&
 				Objects.equals(skype,client.skype);
 
@@ -412,7 +412,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
-				 state, jobs, socialNetworks);
+				 state, jobs, socialProfiles);
 	}
 
 	@Override
@@ -477,7 +477,7 @@ public class Client implements Serializable, Diffable<Client> {
 				.append("Страна", this.country, client.country)
 				.append("Город", this.city, client.city)
 				.append("Работа", this.jobs.toString(), client.jobs.toString())
-				.append("Социальные сети", this.socialNetworks.toString(), client.socialNetworks.toString())
+				.append("Социальные сети", this.socialProfiles.toString(), client.socialProfiles.toString())
 				.append("Состояние", this.state, client.state)
 				.build();
 	}

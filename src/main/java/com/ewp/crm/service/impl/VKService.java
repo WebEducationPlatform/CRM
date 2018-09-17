@@ -37,11 +37,11 @@ import java.util.*;
 public class VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
-    private final SocialNetworkService socialNetworkService;
+    private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
     private final ClientService clientService;
     private final MessageService messageService;
-    private final SocialNetworkTypeService socialNetworkTypeService;
+    private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
     //Токен аккаунта, отправляющего сообщения
@@ -68,7 +68,7 @@ public class VKService {
     private String targetVkGroup;
 
     @Autowired
-    public VKService(VKConfig vkConfig, SocialNetworkService socialNetworkService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, MessageTemplateService messageTemplateService) {
+    public VKService(VKConfig vkConfig, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService) {
         clubId = vkConfig.getClubId();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -77,11 +77,11 @@ public class VKService {
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
         targetVkGroup = vkConfig.getTargetVkGroup();
-        this.socialNetworkService = socialNetworkService;
+        this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
         this.clientService = clientService;
         this.messageService = messageService;
-        this.socialNetworkTypeService = socialNetworkTypeService;
+        this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.messageTemplateService = messageTemplateService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
@@ -147,10 +147,10 @@ public class VKService {
         params.put("%fullName%", fullName);
         params.put("%bodyText%", body);
         params.put("%dateOfSkypeCall%", body);
-        List<SocialNetwork> socialNetworks = socialNetworkService.getAllByClient(client);
-        for (SocialNetwork socialNetwork : socialNetworks) {
-            if (socialNetwork.getSocialNetworkType().getName().equals("vk")) {
-                String link = socialNetwork.getLink();
+        List<SocialProfile> socialProfiles = socialProfileService.getAllByClient(client);
+        for (SocialProfile socialProfile : socialProfiles) {
+            if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+                String link = socialProfile.getLink();
                 Long id = Long.parseLong(link.replaceAll(".+id", ""));
                 String vkText = replaceName(templateText, params);
                 User user = userService.get(principal.getId());
@@ -322,10 +322,10 @@ public class VKService {
             String lastName = jsonUser.getString("last_name");
             String vkLink = "https://vk.com/id" + id;
             Client client = new Client(name, lastName);
-            SocialNetwork socialNetwork = new SocialNetwork(vkLink);
-            List<SocialNetwork> socialNetworks = new ArrayList<>();
-            socialNetworks.add(socialNetwork);
-            client.setSocialNetworks(socialNetworks);
+            SocialProfile socialProfile = new SocialProfile(vkLink);
+            List<SocialProfile> socialProfiles = new ArrayList<>();
+            socialProfiles.add(socialProfile);
+            client.setSocialProfiles(socialProfiles);
             return Optional.of(client);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -358,10 +358,10 @@ public class VKService {
             }
 
             newClient.setClientDescriptionComment(description.toString());
-            SocialNetworkType socialNetworkType = socialNetworkTypeService.getByTypeName("vk");
+            SocialProfileType socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
-            SocialNetwork socialNetwork = new SocialNetwork("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialNetworkType);
-            newClient.setSocialNetworks(Collections.singletonList(socialNetwork));
+            SocialProfile socialProfile = new SocialProfile("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialProfileType);
+            newClient.setSocialProfiles(Collections.singletonList(socialProfile));
         } catch (Exception e) {
             logger.error("Parse error, can't parse income string", e);
         }
@@ -527,10 +527,10 @@ public class VKService {
                 String lastName = jsonUser.getString("last_name");
                 String vkLink = "https://vk.com/id" + id;
                 Client client = new Client(firstName, lastName);
-                SocialNetwork socialNetwork = new SocialNetwork(vkLink);
-                List<SocialNetwork> socialNetworks = new ArrayList<>();
-                socialNetworks.add(socialNetwork);
-                client.setSocialNetworks(socialNetworks);
+                SocialProfile socialProfile = new SocialProfile(vkLink);
+                List<SocialProfile> socialProfiles = new ArrayList<>();
+                socialProfiles.add(socialProfile);
+                client.setSocialProfiles(socialProfiles);
                 return Optional.of(client);
             }
         } catch (JSONException e) {

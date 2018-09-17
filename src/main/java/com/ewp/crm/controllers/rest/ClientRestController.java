@@ -30,7 +30,7 @@ public class ClientRestController {
 	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
-	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialProfileTypeService socialProfileTypeService;
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 
@@ -39,11 +39,11 @@ public class ClientRestController {
 
 	@Autowired
 	public ClientRestController(ClientService clientService,
-								SocialNetworkTypeService socialNetworkTypeService,
+								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
 								ClientHistoryService clientHistoryService) {
 		this.clientService = clientService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 	}
@@ -184,10 +184,10 @@ public class ClientRestController {
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
 
-			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(selected)).isPresent()) {
-				List<SocialNetwork> socialNetworks = socialNetworkTypeService.getByTypeName(selected).getSocialNetworkList();
-				for (SocialNetwork socialNetwork : socialNetworks) {
-					bufferedWriter.write(socialNetwork.getLink() + "\r\n");
+			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
+				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
+				for (SocialProfile socialProfile : socialProfiles) {
+					bufferedWriter.write(socialProfile.getLink() + "\r\n");
 				}
 			}
 			if (selected.equals("email")) {
@@ -243,7 +243,7 @@ public class ClientRestController {
 			FileWriter fileWriter = new FileWriter(file);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
+			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
 					bufferedWriter.write(socialNetworkLink + "\r\n");

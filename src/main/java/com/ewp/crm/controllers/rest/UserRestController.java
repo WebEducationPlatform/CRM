@@ -1,8 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.SocialNetworkType;
+import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,13 +18,13 @@ import java.util.Map;
 public class UserRestController {
 
     private final UserService userService;
-    private final SocialNetworkTypeService socialNetworkTypeService;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     public UserRestController(UserService userService,
-							  SocialNetworkTypeService socialNetworkTypeService) {
+							  SocialProfileTypeService socialProfileTypeService) {
         this.userService = userService;
-        this.socialNetworkTypeService = socialNetworkTypeService;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
 	@GetMapping(value = "/rest/user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,10 +38,10 @@ public class UserRestController {
 	@GetMapping(value = {"/user/socialNetworkTypes"})
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
-		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
+		List<SocialProfileType> socialProfileTypes = socialProfileTypeService.getAll();
 		Map<Long, String> socialTypeNames = new HashMap<>();
-		for (SocialNetworkType socialNetworkType : socialNetworkTypes) {
-			socialTypeNames.put(socialNetworkType.getId(), socialNetworkType.getName());
+		for (SocialProfileType socialProfileType : socialProfileTypes) {
+			socialTypeNames.put(socialProfileType.getId(), socialProfileType.getName());
 		}
 		return ResponseEntity.ok(socialTypeNames);
 	}

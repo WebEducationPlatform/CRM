@@ -196,9 +196,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	private void checkSocialLinks(Client client) {
-		for (int i = 0; i < client.getSocialNetworks().size(); i++) {
-			String link = client.getSocialNetworks().get(i).getLink();
-			SocialNetworkType type = client.getSocialNetworks().get(i).getSocialNetworkType();
+		for (int i = 0; i < client.getSocialProfiles().size(); i++) {
+			String link = client.getSocialProfiles().get(i).getLink();
+			SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
 			if (type.getName().equals("unknown")) {
 				if (!link.startsWith("https")) {
 					if (link.startsWith("http")) {
@@ -214,7 +214,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				}
 				link = "https://" + type.getName() + ".com/" + link;
 			}
-			client.getSocialNetworks().get(i).setLink(link);
+			client.getSocialProfiles().get(i).setLink(link);
 		}
 	}
 

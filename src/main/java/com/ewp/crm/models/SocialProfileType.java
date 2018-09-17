@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "social_network_type")
-public class SocialNetworkType implements Serializable {
+public class SocialProfileType implements Serializable {
 
 	@Id
 	@GeneratedValue
@@ -24,7 +24,7 @@ public class SocialNetworkType implements Serializable {
 	@JoinTable(name = "social_network_social_network_type",
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
 			joinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private List<SocialNetwork> socialNetworkList;
+	private List<SocialProfile> socialProfileList;
 
 	public Long getId() {
 		return id;
@@ -42,18 +42,18 @@ public class SocialNetworkType implements Serializable {
 		this.name = name;
 	}
 
-	public SocialNetworkType() {
+	public SocialProfileType() {
 	}
 
-	public SocialNetworkType(String name) {
+	public SocialProfileType(String name) {
 		this.name = name;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof SocialNetworkType)) return false;
-		SocialNetworkType that = (SocialNetworkType) o;
+		if (!(o instanceof SocialProfileType)) return false;
+		SocialProfileType that = (SocialProfileType) o;
 		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		return name != null ? name.equals(that.name) : that.name == null;
 	}
@@ -70,11 +70,11 @@ public class SocialNetworkType implements Serializable {
 		return this.name;
 	}
 
-	public List<SocialNetwork> getSocialNetworkList() {
-		return socialNetworkList;
+	public List<SocialProfile> getSocialProfileList() {
+		return socialProfileList;
 	}
 
-	public void setSocialNetworkList(List<SocialNetwork> socialNetworkList) {
-		this.socialNetworkList = socialNetworkList;
+	public void setSocialProfileList(List<SocialProfile> socialProfileList) {
+		this.socialProfileList = socialProfileList;
 	}
 }
