@@ -23,7 +23,7 @@ public class StudentStatus {
 
     @Override
     public String toString() {
-        return "StudentStatus{" + "id=" + id + ", status='" + status + '}';
+        return "StudentStatus{" + "id=" + id + ", status='" + status + "'}";
     }
 
     public Long getId() {
