@@ -1,0 +1,53 @@
+package com.ewp.crm.controllers.rest;
+
+import com.ewp.crm.models.SocialNetworkType;
+import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+public class UserRestController {
+
+    private final UserService userService;
+    private final SocialNetworkTypeService socialNetworkTypeService;
+
+    @Autowired
+    public UserRestController(UserService userService,
+							  SocialNetworkTypeService socialNetworkTypeService) {
+        this.userService = userService;
+        this.socialNetworkTypeService = socialNetworkTypeService;
+    }
+
+	@GetMapping(value = "/rest/user", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<User>> getAll(@AuthenticationPrincipal User userFromSession) {
+		List <User> users = userService.getAll();
+		users.remove(userService.get(userFromSession.getId()));
+		return ResponseEntity.ok(users);
+	}
+
+	@GetMapping(value = {"/user/socialNetworkTypes"})
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
+		List<SocialNetworkType> socialNetworkTypes = socialNetworkTypeService.getAll();
+		Map<Long, String> socialTypeNames = new HashMap<>();
+		for (SocialNetworkType socialNetworkType : socialNetworkTypes) {
+			socialTypeNames.put(socialNetworkType.getId(), socialNetworkType.getName());
+		}
+		return ResponseEntity.ok(socialTypeNames);
+	}
+
+	@GetMapping("rest/client/getPrincipal")
+	public ResponseEntity getPrincipal(@AuthenticationPrincipal User userFromSession) {
+		return ResponseEntity.ok(userFromSession);
+	}
+}

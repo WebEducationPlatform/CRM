@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+</head>
+<body>
+<div  style="margin: 4%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    <div id = "status-columns" class="status-columns">
+        <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
+        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.invisible}">
+            <div id="column-header">
+            <div class="btn-group">
+                <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                    <li  th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:value="${status.id}">Удалить статус</a></li>
+                    <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
+                    <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
+                    <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i class="glyphicon glyphicon-chevron-right"></i></a>
+                        <ul class="dropdown-menu sub-menu">
+                            <li class="link-cursor-pointer" th:each="st:${statuses}" th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-status-position" th:value="${st.id}" th:text="${st.name}"></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+                <div style="height: 25px">
+                    <span th:text="${status.name}" th:if="${status.name.length() &lt; 15}"
+                          style="font-size:20px"></span>
+                    <span th:text="${status.name}"
+                          th:if="${status.name.length() &gt; 15 and status.name.length() &lt; 25}"
+                          style="font-size:15px"></span>
+                    <span th:text="${status.name}" th:if="${status.name.length() &gt; 25}"
+                          style="font-size:13px"></span>
+                </div>
+            </div>
+            <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
+            <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
+            <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
+            <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
+                <div class="portlet-title">
+                    <div class="dropdown" style="margin-left:90%;">
+                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
+                        <ul class="dropdown-menu">
+                            <th:block>
+                                  <li class="dropdown-header">Назначить работника</li>
+                                         <li th:each="worker : ${users}">
+                                             <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                           </li>
+                                          <li class="divider"></li>
+                            </th:block>
+                                <li class="dropdown-header">Скрыть в статус</li>
+                                <li  th:each="inv_status:${statuses}" th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
+                                    <a  class="invisible-client" th:text="${inv_status.name}" th:attrappend="data-clientid=${client.id}, data-statusid=${inv_status.id}"></a>
+                                </li>
+                                          <li class="divider"></li>
+
+                                          <li class="open-description-btn"  th:attr="data-id=${client.id}">
+                                                               <a>Добавить комментарий</a>
+                                                              </li>
+                            <th:block>
+                                         <li>
+                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с карточки</a>
+                                      </li>
+                            </th:block>
+                            <th:block>
+                            <li class="delete-client" th:attrappend="data-clientid=${client.id} ">
+                                <a>Удалить клиента</a>
+                            </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </div>
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
+                    <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
+                    </div>
+                    <div class="portlet-content">
+                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
+                            <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
+                            <p th:if="${client.ownerUser != null}" class="user-icon"
+                               th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                                  + #strings.substring(client.ownerUser.lastName, 0,1)}"
+                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                               th:id="'own-' + ${client.id}">
+                            </p>
+                            <p th:if="${client.ownerUser != null}" style="display:none" th:text="${client.ownerUser.fullName}"></p>
+
+                            <th:block th:each="notification_comment:${notifications_type_comment}">
+                                <th:block th:if="${notification_comment.client == client}">
+                                   <span id="notification"
+                                         class="notification glyphicon glyphicon-bell pull-right"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                                <th:block th:if="${notification_new_user.client == client}">
+                                   <span id="notification-new"
+                                         class="notification glyphicon glyphicon-bell pull-right"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                                <th:block th:if="${notification_assign_skype.client == client}">
+                                   <span id="notification-new"
+                                         class="notification glyphicon glyphicon-bell pull-right"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                                <th:block th:if="${notification_postpone.client == client}">
+                                   <span th:id="'notification-postpone'+${client.id}"
+                                         class="glyphicon glyphicon-time"
+                                         style="color: red"></span>
+                                </th:block>
+                            </th:block>
+                        </div>
+                </div>
+                <div class="btn-group">
+                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                        <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
+                    </button>
+                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
+                            <a class="glyphicon glyphicon-plus portlet-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
+                            <a th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                <button
+                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                </button>
+                            </a>
+                        </li>
+                    </ul>
+                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+
+                    <!-- SMS ERROR INFO BTN -->
+                    <th:block th:each="notification_sms:${notifications_type_sms}">
+                        <th:block th:if="${notification_sms.client == client}">
+                            <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign sms-error-btn" th:attrappend="data-id=${client.id}"></button>
+                        </th:block>
+                    </th:block>
+                    <!--/ SMS ERROR INFO BTN -->
+
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="create-new-status-column">
+            <button type="button" id="create-new-status-btn">Новый статус...</button>
+            <form role="form" id="new-status-form">
+                <div class="form-group" id="new-status-formgr">
+                    <input type="text" class="form-control" required = "required" id="new-status-name"
+                           placeholder="Новый статус..."/>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="create-new-status" class="btn btn-success btn-sm" onclick="createNewStatus()">
+                        Сохранить
+                    </button>
+                    <button type="button" id="create-new-status-cancelbtn" class="glyphicon glyphicon-remove"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="panel">
+        <div id="panel-content">
+            <div class="panel-group">
+                <div class="panel-title">
+                    <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
+                    <h2>Меню</h2>
+                </div>
+                <div id="statuses_group">
+                    <div class="panel-heading" id="statuses-heading">
+                        <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
+                           href="#collapseStatuses">Скрытые статусы</a>
+                    </div>
+                    <div id="collapseStatuses" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-bordered">
+                                <tr th:each="status:${statuses}" th:style="${!status.invisible ? 'display:none' : ''}" th:if="${status.name != 'deleted'}">
+                                    <td width="70%" th:text="${status.name}"></td>
+                                    <td><button type="button" class="show-status-btn btn" id="testIdIdId" th:value="${status.id}">показать</button></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="client_filter_group">
+                    <div class="panel-heading" id="client-filter-heading">
+                        <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseFilter">Фильтр клиентов</a>
+                    </div>
+                    <div id="collapseFilter" class="panel-collapse collapse in">
+                        <div class="panel-body" id="panel-filter-body">
+                            <button class="btn-style" type="button" id="showallbtn" onclick="showall()">Показать все</button>
+                            <div class="checkbox menucheck" id="client_filter">
+                                <br/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="user_group">
+                    <div class="panel-heading" id="user_group-heading">
+                        <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseUser">Список сотрудников</a>
+                    </div>
+                    <div id="collapseUser" class="panel-collapse collapse in">
+                        <div class="panel-body" id="user_group-body">
+                            <table class="table table-bordered">
+                                <tr th:each="usr : ${users}">
+                                    <div th:switch="${usr.enabled}">
+                                        <p th:case="true">
+                                            <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                        <p th:case="false">
+                                            <td class="unEnabledUser" th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        </p>
+                                    </div>
+                                    <td class="editUserButtons">
+                                        <a th:href="'/admin/user/' +  ${usr.id}">
+                                            <button type="button" class="glyphicon glyphicon glyphicon-edit"></button>
+                                        </a>
+                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
+                                                type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                        </button>
+                                        <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
+                                                type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="new_user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
+                    <div class="panel-heading" id="new_user_group-heading">
+                        <a id="new_user_group_label" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseNewUser">Список новых сотрудников</a>
+                    </div>
+                    <div id="collapseNewUser" class="panel-collapse collapse in">
+                        <div class="panel-body" id="new_user_group-body">
+                            <table class="table table-bordered">
+                                <tr th:each="newusr : ${newUsers}">
+                                    <td th:text="${newusr.firstName} + ' ' + ${newusr.lastName}"></td>
+                                    <td class="editUserButtons">
+                                        <a th:href="'/admin/user/' +  ${newusr.id}">
+                                            <button type="button" class="glyphicon glyphicon-ok"></button>
+                                        </a>
+                                        <button type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
+                                                th:attrappend="data-target='#deleteNewUserModal' + ${newusr.id}">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p><a href="/admin/user/add">
+                    <button type="button" id="addNewUser">Добавить пользователя</button>
+                </a></p>
+                <p><a href="/admin/vkontakte/trackedclub">
+                    <button type="button" id="vkClubList">Отслеживаемые группы VK</button>
+                </a></p>
+                <p><a href="/report">
+                    <button class="button" type="button" id="report">Отчет</button>
+                </a></p>
+            </div>
+        </div>
+        <div id="panel-sticker">
+            <span>Меню</span>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/htmlFragments::client_description_modal"></div>
+<div th:replace="fragments/mainModal::mainModalWindow"></div>
+<div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::reAvailableUser"></div>
+<div th:replace="fragments/htmlFragments::deleteUser"></div>
+<div th:replace="fragments/htmlFragments::deleteNewUser"></div>
+<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/comments.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+<script type="text/javascript" th:src="@{/js/status.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="/js/moment-timezone.js"></script>
+<script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
+</body>
+</html>

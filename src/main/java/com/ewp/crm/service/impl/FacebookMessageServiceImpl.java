@@ -1,0 +1,44 @@
+package com.ewp.crm.service.impl;
+
+import com.ewp.crm.models.FacebookMessage;
+import com.ewp.crm.repository.interfaces.FacebookMessageDAO;
+import com.ewp.crm.service.interfaces.FacebookMessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class FacebookMessageServiceImpl extends CommonServiceImpl<FacebookMessage> implements FacebookMessageService {
+
+	private final FacebookMessageDAO facebookMessageDao;
+
+	private static Logger logger = LoggerFactory.getLogger(FacebookMessageServiceImpl.class);
+
+	@Autowired
+	public FacebookMessageServiceImpl(FacebookMessageDAO facebookMessageDao) {
+		this.facebookMessageDao = facebookMessageDao;
+	}
+
+	@Override
+	public Date findMaxDate() {
+		return facebookMessageDao.findMaxDate();
+	}
+
+	@Override
+	public FacebookMessage addFacebookMessage(FacebookMessage facebookMessage) {
+		logger.info("adding of facebook message...");
+		return facebookMessageDao.saveAndFlush(facebookMessage);
+	}
+
+	@Override
+	public void addBatchMessages(List<FacebookMessage> messages) {
+		logger.info("adding of facebook messages...");
+		for (FacebookMessage msg : messages) {
+			facebookMessageDao.saveAndFlush(msg);
+		}
+	}
+}
