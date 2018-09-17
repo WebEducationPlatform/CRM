@@ -16,7 +16,7 @@
 
         <div class="row">
             <div class="col-md-4">
-                <button type="button" class="btn btn-info">Создать</button>
+                <button id="create_status" type="button" class="btn btn-info">Создать</button>
             </div>
             <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск статуса..."/></div>
         </div>
@@ -44,6 +44,7 @@
         </table>
     </div>
 </div>
+<div th:replace="fragments/student-status-create-modal::studentStatusCreateModal"></div>
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
 <script type="text/javascript" th:src="@{/js/all-students-status.js}"></script>
 <!--<script type="text/javascript" th:src="@{/js/all-students.js}"></script>-->
