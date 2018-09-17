@@ -1,9 +1,9 @@
 package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialNetwork;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.service.interfaces.SocialNetworkTypeService;
+import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +17,15 @@ import java.util.Map;
 @Component
 public class IncomeStringToClient {
 
-    private final SocialNetworkTypeService socialNetworkTypeService;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     private final VKService vkService;
 
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
 
     @Autowired
-    public IncomeStringToClient(SocialNetworkTypeService socialNetworkTypeService, VKService vkService) {
-        this.socialNetworkTypeService = socialNetworkTypeService;
+    public IncomeStringToClient(SocialProfileTypeService socialProfileTypeService, VKService vkService) {
+        this.socialProfileTypeService = socialProfileTypeService;
         this.vkService = vkService;
     }
 
@@ -68,13 +68,13 @@ public class IncomeStringToClient {
         client.setCountry(clientData.get("Страна"));
         client.setCity(clientData.get("Город"));
         if (clientData.containsKey("Соцсеть")) {
-            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Соцсеть"));
-            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть"));
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
-            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
+            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
         if (form.contains("Согласен")) {
             client.setEmail(clientData.get("Email"));
@@ -99,13 +99,13 @@ public class IncomeStringToClient {
         client.setPhoneNumber(clientData.get("Phone"));
         client.setClientDescriptionComment(clientData.get("Vopros"));
         if (clientData.containsKey("Social1")) {
-            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Social1"));
-            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social1"));
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
-            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
+            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
         logger.info("FormTwo parsing finished");
         return client;
@@ -120,13 +120,13 @@ public class IncomeStringToClient {
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
         setClientName(client, clientData.get("Имя"));
         if (clientData.containsKey("Social2")) {
-            SocialNetwork currentSocialNetwork = getSocialNetwork(clientData.get("Social2"));
-            if (currentSocialNetwork.getSocialNetworkType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialNetwork.getLink() +
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social2"));
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
                                                 " недействительна");
                 logger.warn("Unknown social network");
             }
-            client.setSocialNetworks(Collections.singletonList(currentSocialNetwork));
+            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
         client.setPhoneNumber(clientData.get("Phone6"));
         client.setCountry(clientData.get("City6"));
@@ -136,23 +136,23 @@ public class IncomeStringToClient {
         return client;
     }
 
-    private SocialNetwork getSocialNetwork(String link) {
-        SocialNetwork socialNetwork = new SocialNetwork();
-        socialNetwork.setLink(link);
+    private SocialProfile getSocialNetwork(String link) {
+        SocialProfile socialProfile = new SocialProfile();
+        socialProfile.setLink(link);
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")){
-                socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("unknown"));
+                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
             } else {
-                socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
+                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
 
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("facebook"));
+            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("facebook"));
         } else {
-            socialNetwork.setSocialNetworkType(socialNetworkTypeService.getByTypeName("unknown"));
+            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
         }
-        return socialNetwork;
+        return socialProfile;
     }
 
     private Map<String, String> createMapFromClientData(String[] res) {

@@ -30,7 +30,7 @@ public class ClientController {
 	private final ClientService clientService;
 	private final UserService userService;
 	private final MessageTemplateService MessageTemplateService;
-	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialProfileTypeService socialProfileTypeService;
 	private final NotificationService notificationService;
 	private final RoleService roleService;
 
@@ -42,14 +42,14 @@ public class ClientController {
 							ClientService clientService,
 							UserService userService,
 	                        MessageTemplateService MessageTemplateService,
-							SocialNetworkTypeService socialNetworkTypeService,
+							SocialProfileTypeService socialProfileTypeService,
 							NotificationService notificationService,
 							RoleService roleService) {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.MessageTemplateService = MessageTemplateService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.notificationService = notificationService;
 		this.roleService = roleService;
 	}
@@ -61,7 +61,7 @@ public class ClientController {
 		ModelAndView modelAndView = new ModelAndView("add-client");
 		modelAndView.addObject("status", statusService.get(statusName));
 		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;
@@ -101,7 +101,7 @@ public class ClientController {
 		ModelAndView modelAndView = new ModelAndView("all-clients-table");
 		modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
 		modelAndView.addObject("statuses", statusService.getAll());
-		modelAndView.addObject("socialNetworkTypes", socialNetworkTypeService.getAll());
+		modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
 		return modelAndView;
 	}
 
@@ -118,7 +118,7 @@ public class ClientController {
 		ModelAndView modelAndView = new ModelAndView("client-info");
 		modelAndView.addObject("client", clientService.get(id));
 		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialNetworkTypeService.getAll());
+		modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
 		modelAndView.addObject("user", userFromSession);
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 
