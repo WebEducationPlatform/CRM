@@ -44,7 +44,6 @@ public class VKService {
     private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
-    private final ProjectPropertiesService projectPropertiesService;
     //Токен аккаунта, отправляющего сообщения
     private String robotAccessToken;
     //Айди группы
@@ -59,7 +58,7 @@ public class VKService {
     //URL, на который приходит
     private String redirectUri;
     private String scope;
-    private String technicalAccountToken;
+    private String applicationToken;
     private OAuth20Service service;
     private String robotClientSecret;
     private String robotClientId;
@@ -69,7 +68,7 @@ public class VKService {
     private String targetVkGroup;
 
     @Autowired
-    public VKService(VKConfig vkConfig, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+    public VKService(VKConfig vkConfig, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService) {
         clubId = vkConfig.getClubId();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -85,7 +84,6 @@ public class VKService {
         this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.messageTemplateService = messageTemplateService;
-        this.projectPropertiesService = projectPropertiesService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.robotClientSecret = vkConfig.getRobotClientSecret();
         this.robotClientId = vkConfig.getRobotClientId();
@@ -107,14 +105,14 @@ public class VKService {
 
     public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
         logger.info("VKService: getting new messages...");
-        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken()) == null) {
+        if (applicationToken == null) {
             throw new VKAccessTokenException("VK access token has not got");
         }
         String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
                 "?user_id=" + clubId +
                 "&rev=0" +
                 "&version=" + version +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + applicationToken;
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
             HttpClient httpClient = HttpClients.custom()
@@ -132,7 +130,7 @@ public class VKService {
                     resultList.add(jsonMessage.getString("body"));
                 }
             }
-            markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+            markAsRead(Long.parseLong(clubId), httpClient, applicationToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -276,7 +274,7 @@ public class VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient, technicalAccountToken);
+                markAsRead(jsonMessage.getLong("user_id"), httpClient, applicationToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -307,7 +305,7 @@ public class VKService {
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + applicationToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
         HttpClient httpClient = HttpClients.custom()
@@ -415,8 +413,8 @@ public class VKService {
         return vkText;
     }
 
-    public void setTechnicalAccountToken(String technicalAccountToken) {
-        this.technicalAccountToken = technicalAccountToken;
+    public void setApplicationToken(String applicationToken) {
+        this.applicationToken = applicationToken;
     }
 
     public String replaceApplicationTokenFromUri(String uri) {
@@ -427,7 +425,7 @@ public class VKService {
     public String createNewAudience(String groupName, String idVkCabinet) throws Exception {
         logger.info("VKService: creation of new audience...");
         String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(technicalAccountToken);
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.GET, createGroup);
         request.addParameter("account_id", idVkCabinet);
         request.addParameter("name", groupName);
@@ -442,7 +440,7 @@ public class VKService {
     public void addUsersToAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         logger.info("VKService: adding users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(technicalAccountToken);
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
         request.addParameter("account_id", idVkCabinet);
         request.addParameter("target_group_id", groupId);
@@ -455,7 +453,7 @@ public class VKService {
     public void removeUsersFromAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         logger.info("VKService: removing users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(technicalAccountToken);
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(applicationToken);
         OAuthRequest request = new OAuthRequest(Verb.POST, addContactsToGroup);
         request.addParameter("account_id", idVkCabinet);
         request.addParameter("target_group_id", groupId);
@@ -504,7 +502,7 @@ public class VKService {
                 "&count=1" +
                 "&group_id=" + targetVkGroup +
                 "&v=" + version +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + applicationToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
         HttpClient httpClient = HttpClients.custom()

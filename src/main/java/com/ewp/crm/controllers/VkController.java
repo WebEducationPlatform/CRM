@@ -1,13 +1,14 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,18 +20,14 @@ public class VkController {
     private final UserService userService;
     private final VKService vkService;
     private final VkTrackedClubService vkTrackedClubService;
-    private final ProjectPropertiesService projectPropertiesService;
-
-    private ProjectProperties projectProperties;
 
     @Autowired
     public VkController(VKService vkService,
                         UserService userService,
-                        VkTrackedClubService vkTrackedClubService, ProjectPropertiesService projectPropertiesService) {
+                        VkTrackedClubService vkTrackedClubService) {
         this.vkService = vkService;
         this.userService = userService;
         this.vkTrackedClubService = vkTrackedClubService;
-        this.projectPropertiesService = projectPropertiesService;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -48,16 +45,16 @@ public class VkController {
         return "redirect:" + uri;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
     @PostMapping(value = "/vk-auth")
-    public String vkGetAccessToken(@RequestParam("token") String token) {
+    public String vkGetAccessToken(@RequestParam("token") String token,
+                                   @AuthenticationPrincipal User userFromSession) {
+        User user = userService.get(userFromSession.getId());
         String applicationToken = vkService.replaceApplicationTokenFromUri(token);
-        if ((projectProperties = projectPropertiesService.get()) == null) {
-            projectProperties = new ProjectProperties();
+        user.setVkToken(applicationToken);
+        userService.update(user);
+        if (user.getAuthorities().contains(new Role("OWNER"))) {
+            vkService.setApplicationToken(applicationToken);
         }
-        projectProperties.setTechnicalAccountToken(applicationToken);
-        projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
         return "redirect:/client";
     }
-
 }
