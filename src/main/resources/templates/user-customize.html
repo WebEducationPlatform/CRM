@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
 </head>
@@ -34,18 +34,19 @@
 
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
         <div id="change-profile-button">
-        <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
-            <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pul">Изменить профиль</button>
-        </a>
+            <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
+                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pul">Изменить профиль
+                </button>
+            </a>
         </div>
         <br/>
-        <button  type="button" class="btn btn-primary pull" data-toggle="modal"
+        <button type="button" class="btn btn-primary pull" data-toggle="modal"
                 data-target="#vkAuthModal">
             Авторизация Вконтакте
         </button>
         <br/>
         <br/>
-        <button  type="button" class="btn btn-primary pull">
+        <button type="button" class="btn btn-primary pull">
             Настроить автоответ
         </button>
     </div>
