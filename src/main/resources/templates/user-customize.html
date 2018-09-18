@@ -39,12 +39,20 @@
         </a>
         </div>
         <br/>
-        <button  type="button" class="btn btn-primary pul" data-toggle="modal"
+        <button type="button" class="btn btn-primary pul" data-toggle="modal"
                 data-target="#vkAuthModal">
             Авторизация Вконтакте
         </button>
+
+        <div class="inline">
+            <form class="form" method="get" action="/login/google">
+                <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
+            </form>
+        </div>
+
     </div>
 </div>
+
 <!-- Модальное окно для получения токена -->
 <div class="modal fade" id="vkAuthModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">

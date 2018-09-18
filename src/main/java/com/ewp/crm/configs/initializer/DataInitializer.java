@@ -59,9 +59,11 @@ public class DataInitializer {
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
 		Role roleUser = new Role("USER");
+		Role roleMentor = new Role("MENTOR");
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
 		roleService.add(roleOwner);
+		roleService.add(roleMentor);
 
 		SocialNetworkType VK = new SocialNetworkType("vk");
 		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
@@ -70,7 +72,7 @@ public class DataInitializer {
 		socialNetworkTypeService.add(FACEBOOK);
 		socialNetworkTypeService.add(UNKNOWN);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
+		User admin = new User("Stanislav", "Sorokin", "88062334088", "qqfilqq@gmail.ru",
 				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true, true);
 		userService.add(admin);
 
@@ -81,6 +83,14 @@ public class DataInitializer {
 		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true, true);
 		userService.add(user2);
+
+		User user3 = new User("Mentos", "Mentor", "8999999999", "fordfortuna@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("MENTOR")), true, true);
+		userService.add(user3);
+
+		User user4 = new User("Vlad", "Mentor", "8999999999", "eefilee@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("MENTOR")), true, true);
+		userService.add(user4);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.validator.constraints.Email;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -70,6 +71,12 @@ public class Client implements Serializable, Diffable<Client> {
 
 	@Column(name = "date")
 	private Date dateOfRegistration;
+
+	@Column(name = "owner_call_skype")
+	private Long ownerCallSkype;
+
+    @Column(name = "date_call_skype")
+    private Date dateCallSkype;
 
 	@OneToMany
 	@JsonIgnore
@@ -216,6 +223,22 @@ public class Client implements Serializable, Diffable<Client> {
 
 	public void setClientDescriptionComment(String clientDescriptionComment) {
 		this.clientDescriptionComment = clientDescriptionComment;
+	}
+
+    public Date getDateCallSkype() {
+        return dateCallSkype;
+    }
+
+    public void setDateCallSkype(Date dateCallSkype) {
+        this.dateCallSkype = dateCallSkype;
+    }
+
+    public Long getOwnerCallSkype() {
+		return ownerCallSkype;
+	}
+
+	public void setOwnerCallSkype(Long ownerCallSkype) {
+		this.ownerCallSkype = ownerCallSkype;
 	}
 
 	public String getSkype() {
