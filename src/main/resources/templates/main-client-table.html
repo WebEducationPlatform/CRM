@@ -299,5 +299,19 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
+
+<script src="https://apis.google.com/js/client:platform.js?onload=start"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.21/moment-timezone.min.js"></script>
+<script>
+    function start() {
+        gapi.load('auth2', function() {
+            auth2 = gapi.auth2.init({
+                client_id: '150758214120-hd8m6mk4q2see4mh8je9570isuuk07fo.apps.googleusercontent.com',
+                // Scopes to request in addition to 'profile' and 'email'
+                //scope: 'additional_scope'
+            });
+        });
+    }
+</script>
 </body>
 </html>

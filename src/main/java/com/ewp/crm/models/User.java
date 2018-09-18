@@ -69,6 +69,10 @@ public class User implements UserDetails {
 	@Column(name = "vkToken")
 	private String vkToken;
 
+	@Column(name = "googleToken")
+	private String googleToken;
+
+
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
@@ -117,6 +121,14 @@ public class User implements UserDetails {
 
 	public void setVkToken(String vkToken) {
 		this.vkToken = vkToken;
+	}
+
+	public String getGoogleToken() {
+		return googleToken;
+	}
+
+	public void setGoogleToken(String googleToken) {
+		this.googleToken = googleToken;
 	}
 
 	public Long getId() {
