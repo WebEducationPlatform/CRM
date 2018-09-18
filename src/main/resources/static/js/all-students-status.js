@@ -71,11 +71,10 @@ $('.button_delete_status').click(function () {
         type: 'GET',
         url: '/rest/student/status/delete/' + status_id,
         success: function (response) {
-            alert("!!!");
+            if (response == "CONFLICT") {
+                alert("Статус занят студентами.\r\nНе могу удалить статус!");
+            }
             location.reload();
-        },
-        error : function (response) {
-            alert("Error");
         }
     })
 });
