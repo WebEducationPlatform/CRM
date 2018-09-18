@@ -59,8 +59,8 @@ public class DataInitializer {
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("deleted", true, 5L);
-		Status status0 = new Status("New clients", false, 1L);
+		Status defaultStatus = new Status("deleted", true, 5L, false);
+		Status status0 = new Status("New clients", false, 1L, false);
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
@@ -145,11 +145,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate3);
 		MessageTemplateService.add(MessageTemplate4);
 
-		Status status1 = new Status("trialLearnStatus", false, 2L);
-		Status status2 = new Status("inLearningStatus", false, 3L);
-		Status status3 = new Status("pauseLearnStatus", false, 4L);
-		Status status4 = new Status("endLearningStatus", false, 5L);
-		Status status5 = new Status("dropOut Status", false, 6L);
+		Status status1 = new Status("trialLearnStatus", false, 2L, true);
+		Status status2 = new Status("inLearningStatus", false, 3L, true);
+		Status status3 = new Status("pauseLearnStatus", false, 4L, false);
+		Status status4 = new Status("endLearningStatus", false, 5L, false);
+		Status status5 = new Status("dropOut Status", false, 6L, false);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
