@@ -185,7 +185,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getStatus() != null) {
-            query.append(" and cl.status.name = '").append(filteringCondition.getStatus()).append("')");
+            query.append(" and cl.status.name = '").append(filteringCondition.getStatus()).append("'");
         }
 
         return query.toString();
