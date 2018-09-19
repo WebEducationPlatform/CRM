@@ -46,11 +46,37 @@
         </button>
         <br/>
         <br/>
-        <button type="button" class="btn btn-primary pull">
+        <button type="button" class="btn btn-primary pull" data-toggle="modal" data-target="#autoAnswerModal">
             Настроить автоответ
         </button>
     </div>
 
+</div>
+
+
+<!-- Модальное окно для настройки автоответа -->
+<div class="modal fade" id="autoAnswerModal" tabindex="-1" role="dialog" aria-labelledby="autoAnswerLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="autoAnswerLabel">Настройка текста автоответа</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="autoAnswerArea">Автоматический ответ</label>
+                            <textarea style="width: 100%" class="form-control" rows="5" id="autoAnswerArea">Здравствуйте, предлагаем вам пройти обучение на нашем сайте</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Модальное окно для получения токена -->
 <div class="modal fade" id="vkAuthModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
