@@ -65,16 +65,26 @@
                 </button>
                 <h4 class="modal-title" id="autoAnswerLabel">Настройка текста автоответа</h4>
             </div>
+            <form class="form" method="post" action="/user/autoAnswer">
             <div class="modal-body">
                 <div class="container">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="autoAnswerArea">Автоматический ответ</label>
-                            <textarea style="width: 100%" class="form-control" rows="5" id="autoAnswerArea">Здравствуйте, предлагаем вам пройти обучение на нашем сайте</textarea>
+                            <textarea class="form-control" rows="5"
+                                      name="text"
+                                      th:text="${userCustomize.autoAnswer}"
+                                      id="autoAnswerArea">test</textarea>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <input class="btn-primary btn-sm" type="submit"
+                       role="button"
+                       value="Сохранить"/>
+            </div>
+            </form>
         </div>
     </div>
 </div>
