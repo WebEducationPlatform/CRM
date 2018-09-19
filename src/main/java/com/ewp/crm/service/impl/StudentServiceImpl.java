@@ -29,6 +29,10 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     private Long PRICE;
     @Value("${default.student.status}")
     private String DEFAULT_STATUS;
+    @Value("${status.name.trial}")
+    private String trialStatusName;
+    @Value("${status.name.learn}")
+    private String learnStatusName;
 
     @Override
     public Student addStudentForClient(Client client) {
