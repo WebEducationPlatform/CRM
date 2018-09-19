@@ -9,6 +9,4 @@ import java.util.List;
 public interface SocialProfileRepository extends JpaRepository <SocialProfile, Long> {
 
 	SocialProfile getByLink(String ling);
-
-	List<SocialProfile> getAllByClient(Client client);
 }
