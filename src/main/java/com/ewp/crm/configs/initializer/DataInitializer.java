@@ -76,8 +76,20 @@ public class DataInitializer {
 		socialNetworkTypeService.add(FACEBOOK);
 		socialNetworkTypeService.add(UNKNOWN);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
-				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"), roleService.getRoleByName("OWNER")), true, true);
+		User admin = new User(
+				"Stanislav",
+				"Sorokin",
+				"88062334088",
+				"admin@mail.ru",
+				"admin",
+				null, Client.Sex.MALE.toString(),
+				"Moscow",
+				"Russia",
+				Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+						roleService.getRoleByName("OWNER")),
+				true,
+				true);
+		admin.setAutoAnswer("Admin: Предлагаем вам пройти обучение на нашем сайте");
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
