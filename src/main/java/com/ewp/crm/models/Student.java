@@ -1,7 +1,9 @@
 package com.ewp.crm.models;
 
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 import javax.persistence.*;
-import java.util.Date;
+import java.math.BigDecimal;
 
 @Table (name = "student")
 @Entity
@@ -17,19 +19,21 @@ public class Student {
     private Client client;
 
     @Column (name = "end_trial")
-    private Date trialEndDate;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime trialEndDate;
 
     @Column (name = "next_pay")
-    private Date nextPaymentDate;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime nextPaymentDate;
 
     @Column (name = "price")
-    private Long price;
+    private BigDecimal price;
 
     @Column (name = "amount")
-    private Long paymentAmount;
+    private BigDecimal paymentAmount;
 
     @Column (name = "later")
-    private Long payLater;
+    private BigDecimal payLater;
 
     @JoinColumn (name = "status_id")
     @OneToOne
@@ -41,7 +45,7 @@ public class Student {
     public Student() {
     }
 
-    public Student(Client client, Date trialEndDate, Date nextPaymentDate, Long price, Long paymentAmount, Long payLater, StudentStatus status, String notes) {
+    public Student(Client client, DateTime trialEndDate, DateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
         this.nextPaymentDate = nextPaymentDate;
@@ -68,43 +72,43 @@ public class Student {
         this.client = client;
     }
 
-    public Date getTrialEndDate() {
+    public DateTime getTrialEndDate() {
         return trialEndDate;
     }
 
-    public void setTrialEndDate(Date trialEndDate) {
+    public void setTrialEndDate(DateTime trialEndDate) {
         this.trialEndDate = trialEndDate;
     }
 
-    public Date getNextPaymentDate() {
+    public DateTime getNextPaymentDate() {
         return nextPaymentDate;
     }
 
-    public void setNextPaymentDate(Date nextPaymentDate) {
+    public void setNextPaymentDate(DateTime nextPaymentDate) {
         this.nextPaymentDate = nextPaymentDate;
     }
 
-    public Long getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Long getPaymentAmount() {
+    public BigDecimal getPaymentAmount() {
         return paymentAmount;
     }
 
-    public void setPaymentAmount(Long paymentAmount) {
+    public void setPaymentAmount(BigDecimal paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 
-    public Long getPayLater() {
+    public BigDecimal getPayLater() {
         return payLater;
     }
 
-    public void setPayLater(Long payLater) {
+    public void setPayLater(BigDecimal payLater) {
         this.payLater = payLater;
     }
 

@@ -5,9 +5,11 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import com.github.javafaker.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -105,5 +107,14 @@ public class StatusRestController {
 		destinationStatus.setPosition(tempPosition);
 		statusService.update(sourceStatus);
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping (value = "/create-student")
+	@PreAuthorize ("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public HttpStatus setCreateStudent(@RequestParam("id") Long id, @RequestParam("create") Boolean create) {
+		Status status = statusService.get(id);
+		status.setCreateStudent(create);
+		statusService.update(status);
+		return HttpStatus.OK;
 	}
 }

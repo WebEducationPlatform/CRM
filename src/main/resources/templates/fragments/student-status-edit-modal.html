@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+</head>
+<body>
+
+<th:block th:fragment="studentStatusEditModal">
+    <div th:id="student-status-edit-modal" class="modal fade main-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 id="modal-header" class="modal-title">Изменение статуса обучения</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+                                <tr>
+                                    <input id="edit-student-status-id" type="hidden"/>
+                                    <td><label for="edit-status-name">Введите имя статуса</label></td>
+                                    <td><input id="edit-status-name" class="form-control" type="text"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="edit_student_status" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>
