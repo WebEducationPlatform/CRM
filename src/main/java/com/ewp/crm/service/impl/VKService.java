@@ -149,7 +149,7 @@ public class VKService {
         params.put("%fullName%", fullName);
         params.put("%bodyText%", body);
         params.put("%dateOfSkypeCall%", body);
-        List<SocialProfile> socialProfiles = socialProfileService.getAllByClient(client);
+        List<SocialProfile> socialProfiles = client.getSocialProfiles();
         for (SocialProfile socialProfile : socialProfiles) {
             if (socialProfile.getSocialProfileType().getName().equals("vk")) {
                 String link = socialProfile.getLink();
