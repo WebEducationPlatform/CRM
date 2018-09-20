@@ -9,6 +9,7 @@ import com.github.javafaker.Faker;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.*;
 
@@ -204,9 +205,9 @@ public class DataInitializer {
 		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
 		DateTime currentDate = new DateTime();
-		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), 1200000L, 800000L, 400000L, trialStatus, "На пробных");
-		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate.toDate(), currentDate.plusDays(30).toDate(), 1200000L, 800000L, 400000L, learningStatus, "Быстро учится");
-		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate.toDate(), currentDate.plusDays(14).toDate(), 1200000L, 1200000L, 0L, pauseStatus, "Уехал в отпуск на 2 недели");
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate.toDate(), currentDate.plusDays(30).toDate(), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate.toDate(), currentDate.plusDays(14).toDate(), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
 		studentService.add(trialStudent);
 		studentService.add(learningStudent);
 		studentService.add(pauseStudent);

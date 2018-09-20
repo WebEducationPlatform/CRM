@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Value("${price.month}")
-    private Long PRICE;
+    private String PRICE;
     @Value("${default.student.status}")
     private String DEFAULT_STATUS;
     @Value("${status.name.trial}")
@@ -44,11 +45,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             }
             DateTime currentDate = new DateTime();
             if(client.getStatus().getName().equals("trialLearnStatus")) {
-                result = new Student(client, currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), PRICE, PRICE, 0L, status, "");
+                result = new Student(client, currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else if (client.getStatus().getName().equals("inLearningStatus")) {
-                result = new Student(client, currentDate.toDate(), currentDate.plusDays(30).toDate(), PRICE, PRICE, 0L, status, "");
+                result = new Student(client, currentDate.toDate(), currentDate.plusDays(30).toDate(), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else {
-                result = new Student(client, currentDate.toDate(), currentDate.toDate(), 0L, 0L, 0L, status, "");
+                result = new Student(client, currentDate.toDate(), currentDate.toDate(), new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
             }
             result = studentRepository.save(result);
         } else {

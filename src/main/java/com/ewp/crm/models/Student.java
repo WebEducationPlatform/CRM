@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Table (name = "student")
@@ -23,13 +24,13 @@ public class Student {
     private Date nextPaymentDate;
 
     @Column (name = "price")
-    private Long price;
+    private BigDecimal price;
 
     @Column (name = "amount")
-    private Long paymentAmount;
+    private BigDecimal paymentAmount;
 
     @Column (name = "later")
-    private Long payLater;
+    private BigDecimal payLater;
 
     @JoinColumn (name = "status_id")
     @OneToOne
@@ -41,7 +42,7 @@ public class Student {
     public Student() {
     }
 
-    public Student(Client client, Date trialEndDate, Date nextPaymentDate, Long price, Long paymentAmount, Long payLater, StudentStatus status, String notes) {
+    public Student(Client client, Date trialEndDate, Date nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
         this.nextPaymentDate = nextPaymentDate;
@@ -84,27 +85,27 @@ public class Student {
         this.nextPaymentDate = nextPaymentDate;
     }
 
-    public Long getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Long getPaymentAmount() {
+    public BigDecimal getPaymentAmount() {
         return paymentAmount;
     }
 
-    public void setPaymentAmount(Long paymentAmount) {
+    public void setPaymentAmount(BigDecimal paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 
-    public Long getPayLater() {
+    public BigDecimal getPayLater() {
         return payLater;
     }
 
-    public void setPayLater(Long payLater) {
+    public void setPayLater(BigDecimal payLater) {
         this.payLater = payLater;
     }
 
