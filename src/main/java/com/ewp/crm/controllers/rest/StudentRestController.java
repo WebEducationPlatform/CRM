@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasAnyAuthority('OWNER')")
 public class StudentRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
+    private static Logger logger = LoggerFactory.getLogger(StudentRestController.class);
 
     private final StudentService studentService;
 
@@ -31,13 +32,29 @@ public class StudentRestController {
         if (student != null) {
             result = ResponseEntity.ok(student);
         } else {
+            logger.info("Student with id {} not found", id);
             result = new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return result;
     }
 
     @PostMapping ("/update")
-    public void updateStudent(@RequestBody Student student) {
+    public HttpStatus updateStudent(@RequestBody Student student) {
         studentService.update(student);
+        return HttpStatus.OK;
     }
+
+    @GetMapping ("/{id}/client")
+    public ResponseEntity<Client> getClientByStudentId(@PathVariable("id") Long id) {
+        ResponseEntity result;
+        Client client = studentService.get(id).getClient();
+        if (client != null) {
+            result = ResponseEntity.ok(client);
+        } else {
+            logger.info("Client for student with id {} not found", id);
+            result = new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return result;
+    }
+
 }

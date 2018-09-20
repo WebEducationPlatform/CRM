@@ -60,36 +60,44 @@ function sort_table(n, type) {
 }
 
 $('.button_edit').click(function () {
-    var currentModal = $('#student-edit-modal');
+    let currentModal = $('#student-edit-modal');
     currentModal.data('student_id', this.value);
     currentModal.modal('show');
 });
 
 $('#update-student').click(function () {
-    //TODO Add Client JSON
-   let data = {
-       id : $("#student-id").val(),
-       client : "",
-       trialEndDate : $("#trial-end-date").val(),
-       nextPaymentDate : $("#next-payment-date").val(),
-       price : $("#month-price").val(),
-       paymentAmount : $("#payment").val(),
-       payLater : $("#later-payment").val(),
-       status : {id : $("#student-status").val(),status : $("#student-status option:selected").text()},
-       notes : $("#notes").val()
-   };
-
-    console.log(data);
+    let student_id = $("#student-id").val();
+    let url = "/rest/student/" + student_id + "/client";
     $.ajax({
-        type: 'POST',
-        url: '/rest/student/update',
-        contentType : "application/json; charset=UTF-8",
-        encoding: "UTF-8",
-        data: JSON.stringify(data),
-        success: function (response) {
+        type: 'GET',
+        url: url,
+        success: function (client) {
+            let data = {
+                id : $("#student-id").val(),
+                // client : client,
+                client : {id : client.id},
+                trialEndDate : $("#trial-end-date").val(),
+                nextPaymentDate : $("#next-payment-date").val(),
+                price : $("#month-price").val(),
+                paymentAmount : $("#payment").val(),
+                payLater : $("#later-payment").val(),
+                status : {id : $("#student-status").val(),status : $("#student-status option:selected").text()},
+                notes : $("#notes").val()
+            };
 
+            $.ajax({
+                type: 'POST',
+                url: '/rest/student/update',
+                contentType : "application/json; charset=UTF-8",
+                encoding: "UTF-8",
+                dataType: "JSON",
+                data: JSON.stringify(data),
+                success: function () {
+                    location.reload();
+                }
+            })
         }
-    })
+    });
 });
 
 //--------------------------------------------------------------------------------------
@@ -124,29 +132,3 @@ $(function () {
         })
     });
 });
-
-// $(function () {
-//     $('#main-modal-window').on('hidden.bs.modal', function () {
-//         $('.assign-skype-call-btn').removeAttr("disabled");
-//         $('div#assign-unassign-btns').empty();
-//         $('.skype-notification').empty();
-//         $('.confirm-skype-login').remove();
-//         $('.enter-skype-login').remove();
-//         $('.skype-panel').remove();
-//         $('.skype-text').empty();
-//         $('.remove-element').remove();
-//         $('.hide-client-collapse').attr('id', 'hideClientCollapse');
-//         $('.postpone-date').attr('id', 'postponeDate');
-//         $('.textcomplete').removeAttr('id');
-//         $('.main-modal-comment').removeAttr('id');
-//         $('.remove-tag').remove();
-//         $('.history-line').find("tbody").empty();
-//         $('#sendEmailTemplateStatus').empty();
-//         $('#sendSocialTemplateStatus').empty();
-//         $('.client-collapse').collapse('hide');
-//         $('.remove-history').remove();
-//         $('.upload-more-history').removeAttr('data-clientid');
-//         $('.upload-more-history').attr("data-page", 1);
-//     });
-// });
-
