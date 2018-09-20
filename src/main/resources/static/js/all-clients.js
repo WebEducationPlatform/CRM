@@ -64,7 +64,6 @@ $('#filtration').click(function (){
             );
 
             for (var i = 0; i < res.length; i++) {
-
                 var socLink = '';
                 for(var j  = 0; j < res[i].socialProfiles.length; j++) {
                     socLink += res[i].socialProfiles[j].link + '<br>';
