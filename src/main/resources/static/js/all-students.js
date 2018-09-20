@@ -132,29 +132,3 @@ $(function () {
         })
     });
 });
-
-// $(function () {
-//     $('#main-modal-window').on('hidden.bs.modal', function () {
-//         $('.assign-skype-call-btn').removeAttr("disabled");
-//         $('div#assign-unassign-btns').empty();
-//         $('.skype-notification').empty();
-//         $('.confirm-skype-login').remove();
-//         $('.enter-skype-login').remove();
-//         $('.skype-panel').remove();
-//         $('.skype-text').empty();
-//         $('.remove-element').remove();
-//         $('.hide-client-collapse').attr('id', 'hideClientCollapse');
-//         $('.postpone-date').attr('id', 'postponeDate');
-//         $('.textcomplete').removeAttr('id');
-//         $('.main-modal-comment').removeAttr('id');
-//         $('.remove-tag').remove();
-//         $('.history-line').find("tbody").empty();
-//         $('#sendEmailTemplateStatus').empty();
-//         $('#sendSocialTemplateStatus').empty();
-//         $('.client-collapse').collapse('hide');
-//         $('.remove-history').remove();
-//         $('.upload-more-history').removeAttr('data-clientid');
-//         $('.upload-more-history').attr("data-page", 1);
-//     });
-// });
-
