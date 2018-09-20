@@ -65,8 +65,8 @@ $('#filtration').click(function (){
 
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
-                for(var j  = 0; j < res[i].socialNetworks.length; j++) {
-                    socLink += res[i].socialNetworks[j].link + '<br>';
+                for(var j  = 0; j < res[i].socialProfiles.length; j++) {
+                    socLink += res[i].socialProfiles[j].link + '<br>';
                 }
                 var d = new Date(res[i].dateOfRegistration);
                 var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
@@ -173,8 +173,8 @@ $(document).ready(function () {
     function drawClients(table, res) {
         for (let i = 0; i < res.length; i++) {
             let socLink = '';
-            for(let j  = 0; j < res[i].socialNetworks.length; j++) {
-                socLink += res[i].socialNetworks[j].link + '<br>';
+            for(let j  = 0; j < res[i].socialProfiles.length; j++) {
+                socLink += res[i].socialProfiles[j].link + '<br>';
             }
             let d = new Date(res[i].dateOfRegistration);
             let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
