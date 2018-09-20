@@ -1,8 +1,9 @@
 package com.ewp.crm.models;
 
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
 
 @Table (name = "student")
 @Entity
@@ -18,10 +19,12 @@ public class Student {
     private Client client;
 
     @Column (name = "end_trial")
-    private Date trialEndDate;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime trialEndDate;
 
     @Column (name = "next_pay")
-    private Date nextPaymentDate;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime nextPaymentDate;
 
     @Column (name = "price")
     private BigDecimal price;
@@ -42,7 +45,7 @@ public class Student {
     public Student() {
     }
 
-    public Student(Client client, Date trialEndDate, Date nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
+    public Student(Client client, DateTime trialEndDate, DateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
         this.nextPaymentDate = nextPaymentDate;
@@ -69,19 +72,19 @@ public class Student {
         this.client = client;
     }
 
-    public Date getTrialEndDate() {
+    public DateTime getTrialEndDate() {
         return trialEndDate;
     }
 
-    public void setTrialEndDate(Date trialEndDate) {
+    public void setTrialEndDate(DateTime trialEndDate) {
         this.trialEndDate = trialEndDate;
     }
 
-    public Date getNextPaymentDate() {
+    public DateTime getNextPaymentDate() {
         return nextPaymentDate;
     }
 
-    public void setNextPaymentDate(Date nextPaymentDate) {
+    public void setNextPaymentDate(DateTime nextPaymentDate) {
         this.nextPaymentDate = nextPaymentDate;
     }
 

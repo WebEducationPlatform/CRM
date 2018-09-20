@@ -25,7 +25,8 @@
 		<thymeleaf.version>2.1.3.RELEASE</thymeleaf.version>
 		<guava.version>21.0</guava.version>
 		<scribejava.version>5.5.0</scribejava.version>
-		<mysql-connector-java.version>5.1.39</mysql-connector-java.version>
+		<!--<mysql-connector-java.version>5.1.39</mysql-connector-java.version>-->
+		<mysql-connector-java.version>5.1.46</mysql-connector-java.version>
 		<spring-integration-mail.version>4.3.14.RELEASE</spring-integration-mail.version>
 		<commons-email.version>1.4</commons-email.version>
 		<jquery.version>3.2.1</jquery.version>
@@ -39,6 +40,8 @@
 		<javafaker.version>0.15</javafaker.version>
 		<commons-lang3.version>3.7</commons-lang3.version>
 		<logback.version>1.2.3</logback.version>
+		<fasterxml.jackson.version>2.9.6</fasterxml.jackson.version>
+		<jadira.usertype.version>6.0.1.GA</jadira.usertype.version>
 	</properties>
 
 	<dependencies>
@@ -158,6 +161,21 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>${joda-time.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jadira.usertype</groupId>
+			<artifactId>usertype.core</artifactId>
+			<version>${jadira.usertype.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>${fasterxml.jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+			<version>${fasterxml.jackson.version}</version>
 		</dependency>
 		<!--  YouTube Data V3 support  -->
 		<dependency>
