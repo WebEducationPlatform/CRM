@@ -28,10 +28,13 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Value("${price.month}")
     private String PRICE;
+
     @Value("${default.student.status}")
     private String DEFAULT_STATUS;
+
     @Value("${status.name.trial}")
     private String trialStatusName;
+
     @Value("${status.name.learn}")
     private String learnStatusName;
 
@@ -45,11 +48,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             }
             DateTime currentDate = new DateTime();
             if(client.getStatus().getName().equals("trialLearnStatus")) {
-                result = new Student(client, currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
+                result = new Student(client, currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else if (client.getStatus().getName().equals("inLearningStatus")) {
-                result = new Student(client, currentDate.toDate(), currentDate.plusDays(30).toDate(), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
+                result = new Student(client, currentDate, currentDate.plusDays(30), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else {
-                result = new Student(client, currentDate.toDate(), currentDate.toDate(), new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
+                result = new Student(client, currentDate, currentDate, new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
             }
             result = studentRepository.save(result);
         } else {
