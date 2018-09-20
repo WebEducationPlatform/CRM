@@ -24,7 +24,7 @@ function drawCheckbox(currentForm, clientId) {
             }
         },
         success: function (data) {
-            var soc = data.socialNetworks;
+            var soc = data.socialProfiles;
             var email = data.email;
             var phoneNumber = data.phoneNumber;
 
