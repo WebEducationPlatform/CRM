@@ -23,9 +23,4 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 	public SocialProfile getSocialProfileByLink(String link) {
 		return socialProfileRepository.getByLink(link);
 	}
-
-	@Override
-	public List<SocialProfile> getAllByClient(Client client) {
-		return socialProfileRepository.getAllByClient(client);
-	}
 }

@@ -123,4 +123,19 @@ public class Student {
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", client=" + client +
+                ", trialEndDate=" + trialEndDate +
+                ", nextPaymentDate=" + nextPaymentDate +
+                ", price=" + price +
+                ", paymentAmount=" + paymentAmount +
+                ", payLater=" + payLater +
+                ", status=" + status +
+                ", notes='" + notes + '\'' +
+                '}';
+    }
 }

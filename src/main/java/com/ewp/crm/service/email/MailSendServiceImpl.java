@@ -23,6 +23,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -54,12 +55,13 @@ public class MailSendServiceImpl implements MailSendService {
     private final MessageTemplateService messageTemplateService;
     private final MailConfig mailConfig;
     private String emailLogin;
+    private UserService userService;
     private final Environment env;
 
 
     @Autowired
     public MailSendServiceImpl(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
+                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig,UserService userservice, MessageTemplateService messageTemplateService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;
@@ -69,6 +71,7 @@ public class MailSendServiceImpl implements MailSendService {
         this.messageTemplateService = messageTemplateService;
         this.env = environment;
         this.mailConfig = mailConfig;
+        this.userService = userservice;
         checkConfig(environment);
     }
 
@@ -85,16 +88,15 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
     public void sendEmailInAllCases(Client client) {
-        final String htmlContent = "Предлагаем вам пройти обучение на нашем портале";
+        User principal = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-
         final MimeMessageHelper mimeMessageHelper;
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(htmlContent, true);
+            mimeMessageHelper.setText(principal.getAutoAnswer(), true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }

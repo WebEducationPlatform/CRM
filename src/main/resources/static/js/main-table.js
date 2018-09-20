@@ -24,7 +24,7 @@ function drawCheckbox(currentForm, clientId) {
             }
         },
         success: function (data) {
-            var soc = data.socialProfiles;
+            var soc = data.socialNetworks;
             var email = data.email;
             var phoneNumber = data.phoneNumber;
 
@@ -1238,11 +1238,11 @@ $(function () {
                     $('#fb-href').hide();
 
                     for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialNetworkType.name == 'vk') {
+                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
                             $('#vk-href').show();
                         }
-                        if (client.socialProfiles[i].socialNetworkType.name == 'facebook') {
+                        if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
