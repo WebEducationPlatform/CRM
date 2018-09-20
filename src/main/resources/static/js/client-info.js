@@ -80,7 +80,7 @@ function changeClient(id) {
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
         skype: $('#edit-client-skype').val(),
-        socialProfiles: SN,
+        socialNetworks: SN,
         status : {},
         jobs: Job
     };
