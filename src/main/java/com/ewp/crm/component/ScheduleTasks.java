@@ -107,7 +107,7 @@ public class ScheduleTasks {
 
 	private void updateClient(Client newClient) {
 		SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-		Client updateClient = socialProfileService.getSocialProfileByLink(socialProfile.getLink()).getClient();
+		Client updateClient = clientService.getClientBySocialProfile(socialProfile);
 		updateClient.setPhoneNumber(newClient.getPhoneNumber());
 		updateClient.setEmail(newClient.getEmail());
 		updateClient.setAge(newClient.getAge());

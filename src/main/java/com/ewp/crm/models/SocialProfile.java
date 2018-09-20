@@ -18,14 +18,6 @@ public class SocialProfile implements Serializable {
 	@Column(name = "link")
 	private String link;
 
-	@JsonIgnore
-	@ManyToOne
-	@JoinTable(name = "client_social_network",
-			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
-			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private Client client;
-
-
 	@ManyToOne
 	@JoinTable(name = "social_network_social_network_type",
 			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
@@ -86,13 +78,5 @@ public class SocialProfile implements Serializable {
 
 	public void setSocialProfileType(SocialProfileType socialProfileType) {
 		this.socialProfileType = socialProfileType;
-	}
-
-	public Client getClient() {
-		return client;
-	}
-
-	public void setClient(Client client) {
-		this.client = client;
 	}
 }
