@@ -30,7 +30,7 @@ function drawCheckbox(currentForm, clientId) {
 
             for (let i = 0; i < soc.length; i++) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
-                    "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
+                    "<input type='checkbox'  value=" + soc[i].socialProfileType.name + "  class='my-checkbox-soc' />" + soc[i].socialProfileType.name +
                     "</label>");
             }
             if (email !== null) {
