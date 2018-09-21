@@ -266,3 +266,15 @@ $(document).ready(function () {
     });
 
 });
+
+//Set createStudent flag for Status
+$(".create_student_checkbox").click(function () {
+    $.ajax({
+        type: 'POST',
+        url: "/rest/status/create-student",
+        data: {
+            id : this.value,
+            create : this.checked
+        }
+    });
+});

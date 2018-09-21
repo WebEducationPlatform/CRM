@@ -81,15 +81,15 @@
                             <tr>
                                 <th hidden="hidden" abbr="id">id</th>
                                 <th abbr="link">Link</th>
-                                <th abbr="socialNetworkType">Type</th>
+                                <th abbr="socialProfileType">Type</th>
                             </tr>
                             </thead>
                             <tbody id="SN-table-body">
-                            <tr th:each="socials:${client.socialNetworks}">
+                            <tr th:each="socials:${client.socialProfiles}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
                                 <td th:value="${socials.link}" th:text="${socials.link}"></td>
-                                <td th:value="${socials.socialNetworkType.id}"
-                                    th:text="${socials.socialNetworkType.name}"></td>
+                                <td th:value="${socials.socialProfileType.id}"
+                                    th:text="${socials.socialProfileType.name}"></td>
                                 <td>
                                     <button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>

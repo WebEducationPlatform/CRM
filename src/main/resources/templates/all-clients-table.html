@@ -115,7 +115,7 @@
                     <td th:text="${client.phoneNumber}"></td>
                     <td th:text="${client.email}"></td>
                     <td>
-                        <th:block th:each="soc : ${client.socialNetworks}">
+                        <th:block th:each="soc : ${client.socialProfiles}">
                             <th:block th:text="${soc.link}"></th:block>
                             <br/>
                         </th:block>
