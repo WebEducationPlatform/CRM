@@ -22,38 +22,14 @@
         </div>
 
         <div id="filter" class="collapse filter">
-            <!--<div class="row">-->
-            <!--<label class="col-xs-1 control-label">Статусы:</label>-->
-            <!--</div>-->
             <div class="row">
-                <div class="col-xs-1">
-                    <label class="control-label" for="New clients">Новые:</label>
-                    <input id="New clients" class="checkbox" type="checkbox" checked="checked"/>
-                </div>
-                <div class="col-xs-1">
-                    <label class="control-label" for="trialLearnStatus">Пробные:</label>
-                    <input id="trialLearnStatus" class="checkbox" type="checkbox" checked="checked"/>
-                </div>
-                <div class="col-xs-1">
-                    <label class="control-label" for="inLearningStatus">Активные:</label>
-                    <input id="inLearningStatus" class="checkbox" type="checkbox" checked="checked"/>
-                </div>
-                <div class="col-xs-1">
-                    <label class="control-label" for="pauseLearnStatus">На паузе:</label>
-                    <input id="pauseLearnStatus" class="checkbox" type="checkbox" checked="checked"/>
-                </div>
-                <div class="col-xs-1">
-                    <label class="control-label" for="endLearningStatus">Выпускники:</label>
-                    <input id="endLearningStatus" class="checkbox" type="checkbox" checked="checked"/>
-                </div>
-                <div class="col-xs-1">
-                    <label class="control-label" for="dropOut Status">Отвалились:</label>
-                    <input id="dropOut Status" class="checkbox" type="checkbox" checked="checked"/>
+                <div class="col-xs-1" th:each="status : ${statuses}">
+                    <label class="control-label" th:for="${status.name}" th:text="${status.name}"></label>
+                    <input th:id="${status.name}" class="checkbox" type="checkbox" checked="checked"/>
                 </div>
             </div>
             <div th:replace="fragments/htmlFragments::downloadModal"></div>
         </div>
-
 
         <table class="table table-hover table-fixed" id="students-table">
             <thead id="thead-table-students">
@@ -86,19 +62,13 @@
                 <td th:text="${student.payLater}"></td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
-                <td><button class="button_edit" th:value="${student.id}">Изменить</button></td>
+                <td><button class="button_edit btn btn-info" th:value="${student.id}">Изменить</button></td>
             </tr>
             </tbody>
             <tfoot>
 
             </tfoot>
         </table>
-
-        <!--<div id="statuses-list" style="display:none">-->
-        <!--<li th:each="status:${statuses}" th:if="${!status.invisible}">-->
-        <!--<a th:if="${status.name != 'deleted'}" class="link-cursor-pointer return-to-visible-status" th:text="${status.name}" th:value="${status.id}" onclick=""></a>-->
-        <!--</li>-->
-        <!--</div>-->
     </div>
 </div>
 <div th:replace="fragments/student-edit-modal::studentEditModal"></div>

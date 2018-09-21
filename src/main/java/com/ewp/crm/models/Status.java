@@ -35,10 +35,14 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	public Status(String name, Boolean isInvisible, Long position) {
+	@Column (name = "create_student")
+	private boolean createStudent;
+
+	public Status(String name, Boolean isInvisible, Long position, boolean createStudent) {
 		this.name = name;
 		this.isInvisible = isInvisible;
 		this.position = position;
+		this.createStudent = createStudent;
 	}
 
 	public Status(String name) {
@@ -74,6 +78,14 @@ public class Status implements Serializable {
 
 	public List<Client> getClients() {
 		return clients;
+	}
+
+	public boolean isCreateStudent() {
+		return createStudent;
+	}
+
+	public void setCreateStudent(boolean createStudent) {
+		this.createStudent = createStudent;
 	}
 
 	public void setClients(List<Client> clients) {
