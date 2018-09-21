@@ -1,6 +1,9 @@
 package com.ewp.crm.service.slack;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SlackProfile;
+import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.SlackRepository;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,6 +31,10 @@ public class SlackServiceImpl implements SlackService {
 
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
 
+    @Autowired
+    SlackRepository slackRepository;
+    ClientRepository clientRepository;
+
     private String LEGACY_TOKEN;
 
     @Autowired
@@ -43,13 +50,7 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
-    public void memberJoinSlack(SlackProfile slackProfile) {
-
-    }
-
-    @Override
     public SlackProfile receiveClientSlackProfileBySlackHashName(String slackHashName) {
-
         try {
             String url = "https://slack.com/api/users.info?token=" + LEGACY_TOKEN + "&user=" + slackHashName;
             URL obj = new URL(url);
@@ -73,5 +74,22 @@ public class SlackServiceImpl implements SlackService {
             e.printStackTrace();
         }
         return new SlackProfile();
+    }
+
+    @Override
+    public void memberJoinSlack(SlackProfile slackProfile) {
+        if (isMemberInBase(slackProfile)) {
+            logger.error("Email " + slackProfile.getEmail() + " already use");
+        } else {
+            slackRepository.save(slackProfile);
+            logger.info("New member " + slackProfile.getDisplayName() + " "
+                        + slackProfile.getEmail() + " joined to general channel");
+        }
+    }
+
+    private boolean isMemberInBase(SlackProfile slackProfile) {
+        SlackProfile profileFromBase = slackRepository.getSlackProfileByEmail(slackProfile.getEmail());
+        Client client = clientRepository.getClientByEmail(slackProfile.getEmail());
+        return profileFromBase != null || client.getStudent() != null;
     }
 }

@@ -173,16 +173,16 @@ public class DataInitializer {
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
-				vkConfig.getCommunityToken(),
-				"JavaMentorTest",
-				Long.parseLong(vkConfig.getApplicationId())));
-		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
-		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
-			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-					.orElseThrow(NotFoundMemberList::new);
-			vkMemberService.addAllMembers(memberList);
-		}
+//		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
+//				vkConfig.getCommunityToken(),
+//				"JavaMentorTest",
+//				Long.parseLong(vkConfig.getApplicationId())));
+//		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+//		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+//			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+//					.orElseThrow(NotFoundMemberList::new);
+//			vkMemberService.addAllMembers(memberList);
+//		}
 		clientService.addClient(client1);
 		clientService.addClient(client2);
 		clientService.addClient(client3);
