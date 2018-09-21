@@ -11,11 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@RestController(value = "/slack")
+@RestController
+@RequestMapping("/slack")
 public class SlackRestController {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
@@ -45,22 +47,15 @@ public class SlackRestController {
             //обрабатываем событие на вход юзера на канал.
             JsonNode event = jsonNode.get("event").get("type");
             if ("member_joined_channel".equals(event.asText())) {
-                String slackHashName = event.get("event").get("user").asText();
+                String slackHashName = jsonNode.get("event").get("user").asText();
                 SlackProfile slackProfile = slackService.receiveClientSlackProfileBySlackHashName(slackHashName);
-                logger.info("New member " + slackProfile.getDisplayName() + " " + slackProfile.getEmail() + " joined to general channel");
-            }
+                slackService.memberJoinSlack(slackProfile);
 
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    private SlackProfile memberJoinSlackChannel(String slackHashName) {
-
-
-        return new SlackProfile();
-    }
-
 }

@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,10 +17,12 @@ public class SlackProfile {
     @Column(name = "id")
     private long id;
 
+    @JsonProperty("real_name")
     @Column(name = "name")
     private String name;
 
-    @Column(name = "displayName")
+    @JsonProperty("display_name")
+    @Column(name = "display_name")
     private String displayName;
 
     @Column(name = "email", unique = true)
