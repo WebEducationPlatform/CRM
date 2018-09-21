@@ -24,13 +24,13 @@ function drawCheckbox(currentForm, clientId) {
             }
         },
         success: function (data) {
-            var soc = data.socialNetworks;
+            var soc = data.socialProfiles;
             var email = data.email;
             var phoneNumber = data.phoneNumber;
 
             for (let i = 0; i < soc.length; i++) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
-                    "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
+                    "<input type='checkbox'  value=" + soc[i].socialProfileType.name + "  class='my-checkbox-soc' />" + soc[i].socialProfileType.name +
                     "</label>");
             }
             if (email !== null) {
@@ -1237,13 +1237,13 @@ $(function () {
                     $('#vk-href').hide();
                     $('#fb-href').hide();
 
-                    for (var i = 0; i < client.socialNetworks.length; i++) {
-                        if (client.socialNetworks[i].socialNetworkType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialNetworks[i].link);
+                    for (var i = 0; i < client.socialProfiles.length; i++) {
+                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
+                            $('#vk-href').attr('href', client.socialProfiles[i].link);
                             $('#vk-href').show();
                         }
-                        if (client.socialNetworks[i].socialNetworkType.name == 'facebook') {
-                            $('#fb-href').attr('href', client.socialNetworks[i].link);
+                        if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
+                            $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
                     }

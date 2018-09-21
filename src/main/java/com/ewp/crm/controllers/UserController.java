@@ -69,6 +69,8 @@ public class UserController {
 	public ModelAndView getUserCustomize(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		modelAndView.addObject("userCustomize", userService.get(userFromSession.getId()
+		));
 		return modelAndView;
 	}
 
@@ -80,5 +82,12 @@ public class UserController {
 		userService.update(userFromSession);
 		return new ModelAndView("redirect:/user/customize");
 	}
-
+	@PostMapping(value = "/user/autoAnswer")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ModelAndView changeAutoAnswer(@RequestParam String text,
+											@AuthenticationPrincipal User userFromSession) {
+	    userFromSession.setAutoAnswer(text);
+		userService.update(userFromSession);
+		return new ModelAndView("redirect:/user/customize");
+	}
 }

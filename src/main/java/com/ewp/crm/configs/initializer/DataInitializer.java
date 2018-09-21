@@ -9,6 +9,7 @@ import com.github.javafaker.Faker;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.*;
 
@@ -42,7 +43,7 @@ public class DataInitializer {
 	private MessageTemplateService MessageTemplateService;
 
 	@Autowired
-	private SocialNetworkTypeService socialNetworkTypeService;
+	private SocialProfileTypeService socialProfileTypeService;
 
 	@Autowired
 	private ClientHistoryService clientHistoryService;
@@ -59,8 +60,8 @@ public class DataInitializer {
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("deleted", true, 5L);
-		Status status0 = new Status("New clients", false, 1L);
+		Status defaultStatus = new Status("deleted", true, 5L, false);
+		Status status0 = new Status("New clients", false, 1L, false);
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
@@ -69,15 +70,27 @@ public class DataInitializer {
 		roleService.add(roleUser);
 		roleService.add(roleOwner);
 
-		SocialNetworkType VK = new SocialNetworkType("vk");
-		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
-		SocialNetworkType UNKNOWN = new SocialNetworkType("unknown");
-		socialNetworkTypeService.add(VK);
-		socialNetworkTypeService.add(FACEBOOK);
-		socialNetworkTypeService.add(UNKNOWN);
+		SocialProfileType VK = new SocialProfileType("vk");
+		SocialProfileType FACEBOOK = new SocialProfileType("facebook");
+		SocialProfileType UNKNOWN = new SocialProfileType("unknown");
+		socialProfileTypeService.add(VK);
+		socialProfileTypeService.add(FACEBOOK);
+		socialProfileTypeService.add(UNKNOWN);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "admin@mail.ru",
-				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"), roleService.getRoleByName("OWNER")), true, true);
+		User admin = new User(
+				"Stanislav",
+				"Sorokin",
+				"88062334088",
+				"admin@mail.ru",
+				"admin",
+				null, Client.Sex.MALE.toString(),
+				"Moscow",
+				"Russia",
+				Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+						roleService.getRoleByName("OWNER")),
+				true,
+				true);
+		admin.setAutoAnswer("Admin: Предлагаем вам пройти обучение на нашем сайте");
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
@@ -145,11 +158,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate3);
 		MessageTemplateService.add(MessageTemplate4);
 
-		Status status1 = new Status("trialLearnStatus", false, 2L);
-		Status status2 = new Status("inLearningStatus", false, 3L);
-		Status status3 = new Status("pauseLearnStatus", false, 4L);
-		Status status4 = new Status("endLearningStatus", false, 5L);
-		Status status5 = new Status("dropOut Status", false, 6L);
+		Status status1 = new Status("trialLearnStatus", false, 2L, true);
+		Status status2 = new Status("inLearningStatus", false, 3L, true);
+		Status status3 = new Status("pauseLearnStatus", false, 4L, false);
+		Status status4 = new Status("endLearningStatus", false, 5L, false);
+		Status status5 = new Status("dropOut Status", false, 6L, false);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -163,14 +176,14 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
-		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
-		client3.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
-		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb.com/id", socialNetworkTypeService.getByTypeName("facebook"))));
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
@@ -199,14 +212,14 @@ public class DataInitializer {
 		statusService.addInit(status5);
 		statusService.addInit(defaultStatus);
 
-		StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Trial student"));
-		StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Learning student"));
-		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Paused student"));
+		StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
+		StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
+		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
 		DateTime currentDate = new DateTime();
-		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3).toDate(), currentDate.plusDays(3).toDate(), 1200000L, 800000L, 400000L, trialStatus, "Trial started");
-		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate.toDate(), currentDate.plusDays(30).toDate(), 1200000L, 800000L, 400000L, learningStatus, "Learning fast");
-		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate.toDate(), currentDate.plusDays(14).toDate(), 1200000L, 1200000L, 0L, pauseStatus, "Gone to vacation for 14 days");
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate, currentDate.plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate, currentDate.plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
 		studentService.add(trialStudent);
 		studentService.add(learningStudent);
 		studentService.add(pauseStudent);

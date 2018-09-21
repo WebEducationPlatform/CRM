@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -58,6 +59,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	@Override
 	public Client getClientByPhoneNumber(String phoneNumber) {
 		return clientRepository.getClientByPhoneNumber(phoneNumber);
+	}
+
+	@Override
+	public Client getClientBySocialProfile(SocialProfile socialProfile) {
+		List<SocialProfile> socialProfiles = new ArrayList<>();
+		socialProfiles.add(socialProfile);
+		return clientRepository.getClientBySocialProfiles(socialProfiles);
 	}
 
 	@Override
@@ -196,9 +204,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	private void checkSocialLinks(Client client) {
-		for (int i = 0; i < client.getSocialNetworks().size(); i++) {
-			String link = client.getSocialNetworks().get(i).getLink();
-			SocialNetworkType type = client.getSocialNetworks().get(i).getSocialNetworkType();
+		for (int i = 0; i < client.getSocialProfiles().size(); i++) {
+			String link = client.getSocialProfiles().get(i).getLink();
+			SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
 			if (type.getName().equals("unknown")) {
 				if (!link.startsWith("https")) {
 					if (link.startsWith("http")) {
@@ -214,7 +222,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				}
 				link = "https://" + type.getName() + ".com/" + link;
 			}
-			client.getSocialNetworks().get(i).setLink(link);
+			client.getSocialProfiles().get(i).setLink(link);
 		}
 	}
 

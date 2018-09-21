@@ -1,9 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.FilteringCondition;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -24,6 +21,8 @@ public interface ClientService extends CommonService<Client> {
 	Client getClientByPhoneNumber(String phoneNumber);
 
 	Client getClientByID(Long id);
+
+	Client getClientBySocialProfile(SocialProfile socialProfile);
 
 	void addClient(Client client);
 
