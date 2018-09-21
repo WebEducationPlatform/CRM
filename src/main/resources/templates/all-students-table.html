@@ -43,8 +43,9 @@
                 <th onclick="sort_table(7)">Цена</th>
                 <th onclick="sort_table(8)">Сумма платежа</th>
                 <th onclick="sort_table(9)">Оплата после</th>
-                <th onclick="sort_table(10)">Статус учёбы</th>
-                <th onclick="sort_table(11)">Заметки</th>
+                <th width="220px">Напоминание</th>
+                <th onclick="sort_table(11)">Статус учёбы</th>
+                <th onclick="sort_table(12)">Заметки</th>
                 <th></th>
             </tr>
             </thead>
@@ -60,6 +61,12 @@
                 <td th:text="${student.price}"></td>
                 <td th:text="${student.paymentAmount}"></td>
                 <td th:text="${student.payLater}"></td>
+                <td>
+                    <label th:for="${'notify_email_'+student.id}">Email:<input th:id="${'notify_email_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/></label>
+                    <label th:for="${'notify_sms_'+student.id}">SMS:<input th:id="${'notify_sms_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/></label>
+                    <label th:for="${'notify_vk_'+student.id}">VK:<input th:id="${'notify_vk_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/></label>
+                    <label th:for="${'notify_all_'+student.id}">Все:<input th:id="${'notify_all_'+student.id}" type="checkbox" class="notifier_all" th:value="${student.id}"/></label>
+                </td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
                 <td><button class="button_edit btn btn-info" th:value="${student.id}">Изменить</button></td>

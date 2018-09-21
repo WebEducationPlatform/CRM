@@ -100,8 +100,6 @@ $('#update-student').click(function () {
     });
 });
 
-//--------------------------------------------------------------------------------------
-
 $(function () {
     $('#student-edit-modal').on('show.bs.modal', function () {
         var student_id = $(this).data('student_id');
@@ -131,4 +129,12 @@ $(function () {
             }
         })
     });
+});
+
+$('.notifier_all').click(function() {
+    console.log(this.value);
+});
+
+$('.notifier').click(function() {
+    console.log(this.value);
 });

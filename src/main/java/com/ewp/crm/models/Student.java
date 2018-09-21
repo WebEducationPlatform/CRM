@@ -42,6 +42,15 @@ public class Student {
     @Column (name = "notes")
     private String notes;
 
+    @Column (name = "notify_email")
+    private boolean notifyEmail = false;
+
+    @Column (name = "notify_sms")
+    private boolean notifySMS = false;
+
+    @Column (name = "notify_vk")
+    private boolean notifyVK = false;
+
     public Student() {
     }
 
@@ -126,6 +135,30 @@ public class Student {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isNotifyEmail() {
+        return notifyEmail;
+    }
+
+    public void setNotifyEmail(boolean notifyEmail) {
+        this.notifyEmail = notifyEmail;
+    }
+
+    public boolean isNotifySMS() {
+        return notifySMS;
+    }
+
+    public void setNotifySMS(boolean notifySMS) {
+        this.notifySMS = notifySMS;
+    }
+
+    public boolean isNotifyVK() {
+        return notifyVK;
+    }
+
+    public void setNotifyVK(boolean notifyVK) {
+        this.notifyVK = notifyVK;
     }
 
     @Override
