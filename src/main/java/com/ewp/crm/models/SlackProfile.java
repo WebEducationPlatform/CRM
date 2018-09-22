@@ -3,19 +3,17 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "slack_profile")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SlackProfile {
 
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @JsonProperty("real_name")
     @Column(name = "name")
@@ -28,12 +26,24 @@ public class SlackProfile {
     @Column(name = "email", unique = true)
     private String email;
 
-    public long getId() {
+    @PrimaryKeyJoinColumn
+    @OneToOne
+    private Client client;
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public String getName() {
