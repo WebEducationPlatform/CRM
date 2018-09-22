@@ -73,7 +73,7 @@ function addClient() {
 		city: $('#edit-client-city').val(),
 		skype: $('#edit-client-skype').val(),
 		status: status,
-		socialNetworks: SN,
+		socialProfiles: SN,
 		jobs: Job
 	};
 	let data = JSON.stringify(wrap);
