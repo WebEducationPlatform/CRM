@@ -66,6 +66,9 @@ public class User implements UserDetails {
 	@Column(name = "is_verified")
 	private boolean isVerified;
 
+	@Column(name = "autoAnswer")
+	private String autoAnswer;
+
 	@Column(name = "vkToken")
 	private String vkToken;
 
@@ -158,6 +161,14 @@ public class User implements UserDetails {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getAutoAnswer() {
+		return autoAnswer;
+	}
+
+	public void setAutoAnswer(String autoAnswer) {
+		this.autoAnswer = autoAnswer;
 	}
 
 	@Override
