@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SlackProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.SlackRepository;
+import com.ewp.crm.service.impl.StudentServiceImpl;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,7 +34,10 @@ public class SlackServiceImpl implements SlackService {
 
     @Autowired
     SlackRepository slackRepository;
+    @Autowired
     ClientRepository clientRepository;
+    @Autowired
+    StudentServiceImpl studentService;
 
     private String LEGACY_TOKEN;
 
@@ -81,7 +85,14 @@ public class SlackServiceImpl implements SlackService {
         if (isMemberInBase(slackProfile)) {
             logger.error("Email " + slackProfile.getEmail() + " already use");
         } else {
-            slackRepository.save(slackProfile);
+            Client client = clientRepository.getClientByEmail(slackProfile.getEmail());
+            slackProfile.setClient(client);
+            client.setSlackProfile(slackProfile);
+            clientRepository.save(client);
+//            if (client.getStudent() == null) {
+//                studentService.addStudentForClient(client);
+//            }
+
             logger.info("New member " + slackProfile.getDisplayName() + " "
                         + slackProfile.getEmail() + " joined to general channel");
         }
@@ -89,7 +100,6 @@ public class SlackServiceImpl implements SlackService {
 
     private boolean isMemberInBase(SlackProfile slackProfile) {
         SlackProfile profileFromBase = slackRepository.getSlackProfileByEmail(slackProfile.getEmail());
-        Client client = clientRepository.getClientByEmail(slackProfile.getEmail());
-        return profileFromBase != null || client.getStudent() != null;
+        return profileFromBase != null;
     }
 }
