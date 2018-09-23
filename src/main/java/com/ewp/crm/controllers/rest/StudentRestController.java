@@ -40,6 +40,7 @@ public class StudentRestController {
 
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student) {
+        System.out.println(student);
         studentService.update(student);
         return HttpStatus.OK;
     }
@@ -57,4 +58,27 @@ public class StudentRestController {
         return result;
     }
 
+    @PostMapping ("/{id}/notify/email")
+    public HttpStatus updateNotifyEmailFlag(@RequestParam boolean status, @PathVariable("id") Long id) {
+        Student current = studentService.get(id);
+        current.setNotifyEmail(status);
+        studentService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping ("/{id}/notify/sms")
+    public HttpStatus updateNotifySMSFlag(@RequestParam boolean status, @PathVariable("id") Long id) {
+        Student current = studentService.get(id);
+        current.setNotifySMS(status);
+        studentService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping ("/{id}/notify/vk")
+    public HttpStatus updateNotifyVKFlag(@RequestParam boolean status, @PathVariable("id") Long id) {
+        Student current = studentService.get(id);
+        current.setNotifyVK(status);
+        studentService.update(current);
+        return HttpStatus.OK;
+    }
 }

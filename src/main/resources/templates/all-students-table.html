@@ -56,16 +56,16 @@
                 <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
                 <td th:text="${student.client.lastName}"></td>
                 <td th:text="${student.client.email}"></td>
-                <td th:text="${#dates.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${#dates.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
                 <td th:text="${student.price}"></td>
                 <td th:text="${student.paymentAmount}"></td>
                 <td th:text="${student.payLater}"></td>
                 <td>
-                    <label th:for="${'notify_email_'+student.id}">Email:<input th:id="${'notify_email_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/></label>
-                    <label th:for="${'notify_sms_'+student.id}">SMS:<input th:id="${'notify_sms_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/></label>
-                    <label th:for="${'notify_vk_'+student.id}">VK:<input th:id="${'notify_vk_'+student.id}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/></label>
-                    <label th:for="${'notify_all_'+student.id}">Все:<input th:id="${'notify_all_'+student.id}" type="checkbox" class="notifier_all" th:value="${student.id}"/></label>
+                    <label th:for="${student.id+'_notify_email'}">Email:<input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/></label>
+                    <label th:for="${student.id+'_notify_sms'}">SMS:<input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/></label>
+                    <label th:for="${student.id+'_notify_vk'}">VK:<input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/></label>
+                    <label th:for="${student.id+'_notify_all'}">Все:<input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/></label>
                 </td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>

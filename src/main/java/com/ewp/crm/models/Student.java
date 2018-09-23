@@ -1,9 +1,9 @@
 package com.ewp.crm.models;
 
 import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Table (name = "student")
 @Entity
@@ -19,12 +19,10 @@ public class Student {
     private Client client;
 
     @Column (name = "end_trial")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime trialEndDate;
+    private LocalDateTime trialEndDate;
 
     @Column (name = "next_pay")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime nextPaymentDate;
+    private LocalDateTime nextPaymentDate;
 
     @Column (name = "price")
     private BigDecimal price;
@@ -54,7 +52,7 @@ public class Student {
     public Student() {
     }
 
-    public Student(Client client, DateTime trialEndDate, DateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
+    public Student(Client client, LocalDateTime trialEndDate, LocalDateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
         this.nextPaymentDate = nextPaymentDate;
@@ -81,19 +79,19 @@ public class Student {
         this.client = client;
     }
 
-    public DateTime getTrialEndDate() {
+    public LocalDateTime getTrialEndDate() {
         return trialEndDate;
     }
 
-    public void setTrialEndDate(DateTime trialEndDate) {
+    public void setTrialEndDate(LocalDateTime trialEndDate) {
         this.trialEndDate = trialEndDate;
     }
 
-    public DateTime getNextPaymentDate() {
+    public LocalDateTime getNextPaymentDate() {
         return nextPaymentDate;
     }
 
-    public void setNextPaymentDate(DateTime nextPaymentDate) {
+    public void setNextPaymentDate(LocalDateTime nextPaymentDate) {
         this.nextPaymentDate = nextPaymentDate;
     }
 
@@ -172,7 +170,10 @@ public class Student {
                 ", paymentAmount=" + paymentAmount +
                 ", payLater=" + payLater +
                 ", status=" + status +
-                ", notes='" + notes + '\'' +
+                ", notes='" + notes +
+                ", notifyEmail='" + notifyEmail +
+                ", notifySMS='" + notifySMS +
+                ", notifyVK='" + notifyVK +
                 '}';
     }
 }
