@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class DataInitializer {
@@ -216,10 +217,9 @@ public class DataInitializer {
 		StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
 		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
-		DateTime currentDate = new DateTime();
-		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
-		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate, currentDate.plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
-		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate, currentDate.plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3),LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
 		studentService.add(trialStudent);
 		studentService.add(learningStudent);
 		studentService.add(pauseStudent);

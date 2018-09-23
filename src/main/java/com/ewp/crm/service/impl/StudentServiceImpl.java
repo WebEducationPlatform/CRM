@@ -4,26 +4,29 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
+import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import com.ewp.crm.repository.interfaces.StudentStatusRepository;
 import com.ewp.crm.service.interfaces.StudentService;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
 
-    private StudentRepository studentRepository;
-    private StudentStatusRepository studentStatusRepository;
+    private final StudentRepository studentRepository;
+    private final StudentStatusRepository studentStatusRepository;
+    private final StudentRepositoryCustom studentRepositoryCustom;
 
     @Autowired
-    public StudentServiceImpl(StudentRepository studentRepository, StudentStatusRepository studentStatusRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, StudentStatusRepository studentStatusRepository, StudentRepositoryCustom studentRepositoryCustom) {
         this.studentRepository = studentRepository;
         this.studentStatusRepository = studentStatusRepository;
+        this.studentRepositoryCustom = studentRepositoryCustom;
     }
 
     @Value("${price.month}")
@@ -46,13 +49,12 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             if (status == null) {
                 status = studentStatusRepository.save(new StudentStatus(DEFAULT_STATUS));
             }
-            DateTime currentDate = new DateTime();
             if(client.getStatus().getName().equals("trialLearnStatus")) {
-                result = new Student(client, currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
+                result = new Student(client, LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else if (client.getStatus().getName().equals("inLearningStatus")) {
-                result = new Student(client, currentDate, currentDate.plusDays(30), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
+                result = new Student(client, LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else {
-                result = new Student(client, currentDate, currentDate, new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
+                result = new Student(client, LocalDateTime.now(), LocalDateTime.now(), new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
             }
             result = studentRepository.save(result);
         } else {
@@ -64,5 +66,10 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     @Override
     public List<Student> getStudentsByStatusId(Long id) {
         return studentRepository.getStudentsByStatusId(id);
+    }
+
+    @Override
+    public List<Student> getStudentsWithTodayNotificationsEnabled() {
+        return studentRepositoryCustom.getStudentsWithTodayNotificationsEnabled();
     }
 }

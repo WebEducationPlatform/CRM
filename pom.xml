@@ -157,6 +157,13 @@
 			<artifactId>org.apache.commons.io</artifactId>
 			<version>${apache.commons.io.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-java8time -->
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-java8time</artifactId>
+			<version>2.1.0.RELEASE</version>
+		</dependency>
+
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
