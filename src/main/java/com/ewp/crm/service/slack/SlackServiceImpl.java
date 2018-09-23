@@ -1,11 +1,9 @@
 package com.ewp.crm.service.slack;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SlackProfile;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.SlackRepository;
 import com.ewp.crm.service.impl.StudentServiceImpl;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -18,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-@Component
+@Service
 @PropertySources(value = {
         @PropertySource("classpath:application.properties"),
         @PropertySource("file:./slack.properties")
@@ -35,19 +33,16 @@ public class SlackServiceImpl implements SlackService {
 
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
 
-    @Autowired
-    SlackRepository slackRepository;
-    @Autowired
-    ClientService clientService;
-    @Autowired
-    StudentServiceImpl studentService;
-    @Autowired
-    StatusService statusService;
+    private final SlackRepository slackRepository;
+    private final ClientService clientService;
+    private final StudentServiceImpl studentService;
+    private final StatusService statusService;
+    private final ClientHistoryService clientHistoryService;
 
     private String LEGACY_TOKEN;
 
     @Autowired
-    public SlackServiceImpl(Environment environment) {
+    public SlackServiceImpl(Environment environment, SlackRepository slackRepository, ClientService clientService, StudentServiceImpl studentService, StatusService statusService, ClientHistoryService clientHistoryService) {
         try {
             this.LEGACY_TOKEN = environment.getRequiredProperty("slack.legacyToken");
             if (LEGACY_TOKEN.isEmpty()) {
@@ -56,6 +51,11 @@ public class SlackServiceImpl implements SlackService {
         } catch (NullPointerException npe) {
             logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
         }
+        this.slackRepository = slackRepository;
+        this.clientService = clientService;
+        this.studentService = studentService;
+        this.statusService = statusService;
+        this.clientHistoryService = clientHistoryService;
     }
 
     @Override
@@ -93,17 +93,20 @@ public class SlackServiceImpl implements SlackService {
             Client client = clientService.getClientByEmail(slackProfile.getEmail());
             slackProfile.setClient(client);
             client.setSlackProfile(slackProfile);
-            Status clientStatus = client.getStatus();
-            clientStatus.getClients().remove(client);
-            Status status = statusService.get(clientStatus.getId() + 1);
-            if (status != null) {
-                status.addClient(client);
-                statusService.update(status);
+            Status oldClientStatus = client.getStatus();
+            oldClientStatus.getClients().remove(client);
+            Status newClientStatus = statusService.get(oldClientStatus.getId() + 1);
+            if (newClientStatus != null) {
+                client.setStatus(newClientStatus);
+                newClientStatus.addClient(client);
+                statusService.update(newClientStatus);
             }
-            clientService.updateClient(client);
             if (client.getStudent() == null) {
                 studentService.addStudentForClient(client);
             }
+            client.addHistory(clientHistoryService.createHistory(client.getName() + " "
+                    + client.getLastName() + " joined to Slack"));
+            clientService.updateClient(client);
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");
         }
