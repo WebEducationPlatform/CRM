@@ -90,4 +90,11 @@ public class UserController {
 		userService.update(userFromSession);
 		return new ModelAndView("redirect:/user/customize");
 	}
+	@GetMapping(value = "/user/autoAnswer")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ModelAndView getAutoAnswerView(@AuthenticationPrincipal User userFromSession) {
+		ModelAndView modelAndView = new ModelAndView("user-autoanswer");
+		modelAndView.addObject("userCustomize",userFromSession);
+		return modelAndView;
+	}
 }
