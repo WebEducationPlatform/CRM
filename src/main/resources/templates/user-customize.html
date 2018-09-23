@@ -4,8 +4,6 @@
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <script type="text/javascript" th:src="@{/js/userCustomize.js}"></script>
-    <script src="/ckeditor/ckeditor.js"></script>
 </head>
 <body>
 <div style="margin: 2%">
@@ -48,71 +46,11 @@
         </button>
         <br/>
         <br/>
-        <button type="button" class="btn btn-primary pull" data-toggle="modal" data-target="#autoAnswerModal">
-            Настроить автоответ
-        </button>
+            <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
     </div>
 
 </div>
 
-
-<!-- Модальное окно для настройки автоответа -->
-<div class="modal fade" id="autoAnswerModal" tabindex="-1" role="dialog" aria-labelledby="autoAnswerLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="autoAnswerLabel">Настройка текста автоответа</h4>
-            </div>
-            <form class="form" method="post" action="/user/autoAnswer">
-            <div class="modal-body">
-                <div class="container">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="body">Автоматический ответ</label>
-                            <textarea id="body" required="required" class="form-control" rows="5"
-                                      name="text"
-                                      th:text="${userCustomize.autoAnswer}">test</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <input class="btn-primary btn-sm" type="submit"
-                       role="button"
-                       value="Сохранить"/>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- Модальное окно для получения информации -->
-<div class="modal fade" id="infoModal"  role="dialog"  aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Краткая информация о редакторе</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <h5>Ключевые слова заключены в знаки процента %</h5>
-                <h5>При отправке сообщения они будут заменены на соответсвующие им значения</h5>
-                <h5><b>Например:</b></h5>
-                <h5>%fullName% будет заменен на имя и фамилию клиента</h5>
-                <h5><b>Поддерживаемые ключевые слова:</b></h5>
-                <ul>
-                    <li>%fullName% - Фамилия и имя клиента;</li>
-                </ul>
-                <ul>
-                    <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого текста;</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Модальное окно для получения токена -->
 <div class="modal fade" id="vkAuthModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
