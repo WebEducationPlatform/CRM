@@ -2,10 +2,13 @@ package com.ewp.crm.service.slack;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SlackProfile;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.SlackRepository;
 import com.ewp.crm.service.impl.StudentServiceImpl;
+import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,9 +38,11 @@ public class SlackServiceImpl implements SlackService {
     @Autowired
     SlackRepository slackRepository;
     @Autowired
-    ClientRepository clientRepository;
+    ClientService clientService;
     @Autowired
     StudentServiceImpl studentService;
+    @Autowired
+    StatusService statusService;
 
     private String LEGACY_TOKEN;
 
@@ -85,16 +90,22 @@ public class SlackServiceImpl implements SlackService {
         if (isMemberInBase(slackProfile)) {
             logger.error("Email " + slackProfile.getEmail() + " already use");
         } else {
-            Client client = clientRepository.getClientByEmail(slackProfile.getEmail());
+            Client client = clientService.getClientByEmail(slackProfile.getEmail());
             slackProfile.setClient(client);
             client.setSlackProfile(slackProfile);
-            clientRepository.save(client);
-//            if (client.getStudent() == null) {
-//                studentService.addStudentForClient(client);
-//            }
-
+            Status clientStatus = client.getStatus();
+            clientStatus.getClients().remove(client);
+            Status status = statusService.get(clientStatus.getId() + 1);
+            if (status != null) {
+                status.addClient(client);
+                statusService.update(status);
+            }
+            clientService.updateClient(client);
+            if (client.getStudent() == null) {
+                studentService.addStudentForClient(client);
+            }
             logger.info("New member " + slackProfile.getDisplayName() + " "
-                        + slackProfile.getEmail() + " joined to general channel");
+                    + slackProfile.getEmail() + " joined to general channel");
         }
     }
 
