@@ -2,7 +2,7 @@
 $(document).ready(function () {
     editor = CKEDITOR.replace('body', {
         allowedContent: true,
-        height: '200px'
+        height: '350px'
     });
 
     editor.addCommand("infoCommend", {
