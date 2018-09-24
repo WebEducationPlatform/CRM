@@ -67,6 +67,7 @@ $('.button_edit').click(function () {
 
 //Get student and send update
 $('#update-student').click(function () {
+    if (!validate_prices()) {return}
     let student_id = $("#student-id").val();
     let url = "/rest/student/" + student_id + "/client";
     $.ajax({
@@ -109,6 +110,20 @@ $('#update-student').click(function () {
     });
 });
 
+//Check prices consistency
+function validate_prices() {
+    let price = parseInt($("#month-price").val());
+    let payment = parseInt($("#payment").val());
+    let pay_later = parseInt($("#later-payment").val());
+    if (price != payment + pay_later) {
+        alert("Сумма платежа и последующей оплаты не равны цене!\r\n"
+            + payment + " + " + pay_later + " != " + price);
+        return false;
+    }
+    return true;
+}
+
+//Fill values on student edit modal show up.
 $(function () {
     $('#student-edit-modal').on('show.bs.modal', function () {
         var student_id = $(this).data('student_id');

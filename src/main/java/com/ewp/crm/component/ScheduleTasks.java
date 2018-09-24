@@ -321,37 +321,19 @@ public class ScheduleTasks {
 		}
 	}
 
+	/**
+	 * Sends payment notification to students contacts.
+	 * Must be scheduled daily.
+	 * Occurs only on a Student nextPaymentDate day.
+	 */
 	@Scheduled(cron = "${payment.notification.polling.cron}")
-	private void checkPaymentNotifications() {
-		//TODO send notifications
-		System.out.println("Tick!");
-		System.out.println(studentService.getStudentsWithTodayNotificationsEnabled());
-
+	private void sendPaymentNotifications() {
 		for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
-			Client client = student.getClient();
 			String template = messageTemplateService.getByName("Оплата за обучение").getTemplateText();
-			//Client history sender
 			User sender = new User();
 			sender.setLastName("Планировщик");
-			sender.setLastName("Задач");
-			Long clientId = client.getId();
-
-//			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-
-//			if (selectNetworks.contains("vk")) {
-//				try {
-//					vkService.sendMessageToClient(clientId, template, dateOfSkypeCall, principal);
-//				} catch (Exception e) {
-//					logger.warn("VK message not sent", e);
-//				}
-//			}
-//			if (selectNetworks.contains("sms")) {
-//				try {
-//					smsService.sendSMS(clientId, template, dateOfSkypeCall, principal);
-//				} catch (Exception e) {
-//					logger.warn("SMS message not sent", e);
-//				}
-//			}
+			sender.setFirstName("задач");
+			Long clientId = student.getClient().getId();
 			if (student.isNotifyEmail()) {
 				try {
 					mailSendService.prepareAndSend(clientId, template, "", sender);
@@ -359,8 +341,20 @@ public class ScheduleTasks {
 					logger.warn("E-mail message not sent");
 				}
 			}
+			if (student.isNotifySMS()) {
+				try {
+					smsService.sendSMS(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("SMS message not sent", e);
+				}
+			}
+			if (student.isNotifyVK()) {
+				try {
+					vkService.sendMessageToClient(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("VK message not sent", e);
+				}
+			}
 		}
-
-
 	}
 }
