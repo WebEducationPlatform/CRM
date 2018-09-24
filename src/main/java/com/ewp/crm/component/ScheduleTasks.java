@@ -66,6 +66,8 @@ public class ScheduleTasks {
 
     private final ReportService reportService;
 
+    private final MessageTemplateService messageTemplateService;
+
 	private Environment env;
 
 	private final MailingMessageRepository mailingMessageRepository;
@@ -75,7 +77,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.studentService = studentService;
@@ -97,6 +99,7 @@ public class ScheduleTasks {
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
 		this.reportService = reportService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	private void addClient(Client newClient) {
@@ -323,5 +326,41 @@ public class ScheduleTasks {
 		//TODO send notifications
 		System.out.println("Tick!");
 		System.out.println(studentService.getStudentsWithTodayNotificationsEnabled());
+
+		for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
+			Client client = student.getClient();
+			String template = messageTemplateService.getByName("Оплата за обучение").getTemplateText();
+			//Client history sender
+			User sender = new User();
+			sender.setLastName("Планировщик");
+			sender.setLastName("Задач");
+			Long clientId = client.getId();
+
+//			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
+
+//			if (selectNetworks.contains("vk")) {
+//				try {
+//					vkService.sendMessageToClient(clientId, template, dateOfSkypeCall, principal);
+//				} catch (Exception e) {
+//					logger.warn("VK message not sent", e);
+//				}
+//			}
+//			if (selectNetworks.contains("sms")) {
+//				try {
+//					smsService.sendSMS(clientId, template, dateOfSkypeCall, principal);
+//				} catch (Exception e) {
+//					logger.warn("SMS message not sent", e);
+//				}
+//			}
+			if (student.isNotifyEmail()) {
+				try {
+					mailSendService.prepareAndSend(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("E-mail message not sent");
+				}
+			}
+		}
+
+
 	}
 }

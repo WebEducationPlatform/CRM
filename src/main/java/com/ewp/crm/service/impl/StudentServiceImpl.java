@@ -49,9 +49,9 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             if (status == null) {
                 status = studentStatusRepository.save(new StudentStatus(DEFAULT_STATUS));
             }
-            if(client.getStatus().getName().equals("trialLearnStatus")) {
+            if(client.getStatus().getName().equals(trialStatusName)) {
                 result = new Student(client, LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
-            } else if (client.getStatus().getName().equals("inLearningStatus")) {
+            } else if (client.getStatus().getName().equals(learnStatusName)) {
                 result = new Student(client, LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(PRICE), new BigDecimal(PRICE), new BigDecimal(0.00), status, "");
             } else {
                 result = new Student(client, LocalDateTime.now(), LocalDateTime.now(), new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
