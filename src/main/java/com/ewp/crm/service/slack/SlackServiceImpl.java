@@ -77,7 +77,6 @@ public class SlackServiceImpl implements SlackService {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             JsonNode actualObj = objectMapper.readTree(response.toString()).get("user").get("profile");
             return objectMapper.treeToValue(actualObj, SlackProfile.class);
-
         } catch (IOException e) {
             logger.error("Can't receive Client Slack profile", e);
             e.printStackTrace();
@@ -87,12 +86,10 @@ public class SlackServiceImpl implements SlackService {
 
     @Override
     public void memberJoinSlack(SlackProfile slackProfile) {
-        if (isMemberInBase(slackProfile)) {
-            logger.error("Email " + slackProfile.getEmail() + " already use");
-        } else {
-            Client client = clientService.getClientByEmail(slackProfile.getEmail());
-            slackProfile.setClient(client);
+        Client client = checkMemberInBase(slackProfile);
+        if (client.getEmail() != null) {
             client.setSlackProfile(slackProfile);
+            slackProfile.setClient(client);
             Status oldClientStatus = client.getStatus();
             oldClientStatus.getClients().remove(client);
             Status newClientStatus = statusService.get(oldClientStatus.getId() + 1);
@@ -112,8 +109,13 @@ public class SlackServiceImpl implements SlackService {
         }
     }
 
-    private boolean isMemberInBase(SlackProfile slackProfile) {
-        SlackProfile profileFromBase = slackRepository.getSlackProfileByEmail(slackProfile.getEmail());
-        return profileFromBase != null;
+    private Client checkMemberInBase(SlackProfile slackProfile) {
+        Client client = clientService.getClientByEmail(slackProfile.getEmail());
+        if (client != null) {
+            return client;
+        } else {
+            logger.error(slackProfile.getDisplayName() + " not a client! Joined to Slack general channel!");
+            return new Client();
+        }
     }
 }

@@ -30,7 +30,7 @@ public class SlackRestController {
     }
 
     @PostMapping
-    public ResponseEntity<String> checkConnect(@RequestBody String body) {
+    public ResponseEntity<String> interactionsWithSlack(@RequestBody String body) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(body);
@@ -50,7 +50,6 @@ public class SlackRestController {
                 String slackHashName = jsonNode.get("event").get("user").asText();
                 SlackProfile slackProfile = slackService.receiveClientSlackProfileBySlackHashName(slackHashName);
                 slackService.memberJoinSlack(slackProfile);
-
             }
 
         } catch (IOException e) {
