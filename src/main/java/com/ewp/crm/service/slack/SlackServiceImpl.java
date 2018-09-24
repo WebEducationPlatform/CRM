@@ -102,7 +102,7 @@ public class SlackServiceImpl implements SlackService {
                 studentService.addStudentForClient(client);
             }
             client.addHistory(clientHistoryService.createHistory(client.getName() + " "
-                    + client.getLastName() + " joined to Slack"));
+                    + client.getLastName() + " joined to Slack nickname " + slackProfile.getDisplayName()));
             clientService.updateClient(client);
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");
