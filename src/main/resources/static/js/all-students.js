@@ -66,7 +66,6 @@ $('.button_edit').click(function () {
 });
 
 //Get student and send update
-//TODO get and send notification checkboxes
 $('#update-student').click(function () {
     let student_id = $("#student-id").val();
     let url = "/rest/student/" + student_id + "/client";
@@ -74,9 +73,14 @@ $('#update-student').click(function () {
         type: 'GET',
         url: url,
         success: function (client) {
+            let email_selector = '#' + student_id + '_notify_email';
+            let sms_selector = '#' + student_id + '_notify_sms';
+            let vk_selector = '#' + student_id + '_notify_vk';
+            let email_notify = $(email_selector).attr('checked') == 'checked' ? true : false;
+            let sms_notify = $(sms_selector).attr('checked') == 'checked' ? true : false;
+            let vk_notify = $(vk_selector).attr('checked') == 'checked' ? true : false;
             let data = {
                 id : $("#student-id").val(),
-                // client : client,
                 client : {id : client.id},
                 trialEndDate : $("#trial-end-date").val() + "T00:00:00",
                 nextPaymentDate : $("#next-payment-date").val() + "T00:00:00",
@@ -84,7 +88,10 @@ $('#update-student').click(function () {
                 paymentAmount : $("#payment").val(),
                 payLater : $("#later-payment").val(),
                 status : {id : $("#student-status").val(),status : $("#student-status option:selected").text()},
-                notes : $("#notes").val()
+                notes : $("#notes").val(),
+                notifyEmail: email_notify,
+                notifySMS: sms_notify,
+                notifyVK: vk_notify
             };
 
             $.ajax({
@@ -143,11 +150,12 @@ $('.notifier_all').click(function() {
     for (let prefix of notifications) {
         let selector = '#' + id + prefix;
         if($(selector).attr('disabled') == undefined) {
-            $(selector).prop('checked', checked);
+            // $(selector).prop('checked', checked);
             update_notification(selector.substr(1), checked);
         }
     }
-    $(this.id).prop('checked', checked);
+    // $(this.id).prop('checked', checked);
+    location.reload();
 });
 
 //Notification checkbox change action
@@ -156,12 +164,12 @@ $('.notifier').change(function() {
     let id = this.id;
     let checked = this.checked;
     update_notification(id, checked);
-    if(checked) {
+    // if(checked) {
         location.reload();
-    } else {
-        let selector_all = '#' + this.value + '_notify_all';
-        $(selector_all).prop('checked', false);
-    }
+    // } else {
+    //     let selector_all = '#' + this.value + '_notify_all';
+    //     $(selector_all).prop('checked', false);
+    // }
 });
 
 //Notification change
