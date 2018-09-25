@@ -116,8 +116,8 @@ function validate_prices() {
     let payment = parseInt($("#payment").val());
     let pay_later = parseInt($("#later-payment").val());
     if (price != payment + pay_later) {
-        alert("Сумма платежа и последующей оплаты не равны цене!\r\n"
-            + payment + " + " + pay_later + " != " + price);
+        alert("Сумма платежа и последующей оплаты не равна цене!\r\n"
+            + payment + " + " + pay_later + " ≠ " + price);
         return false;
     }
     return true;

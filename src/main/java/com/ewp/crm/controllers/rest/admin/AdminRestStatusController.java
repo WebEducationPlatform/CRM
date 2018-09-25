@@ -34,9 +34,13 @@ public class AdminRestStatusController {
 	@PostMapping(value = "/edit")
 	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName,
 									 @RequestParam(name = "oldStatusId") Long oldStatusId,
+									 @RequestParam(name = "trialOffset") Integer trialOffset,
+									 @RequestParam(name = "nextPaymentOffset") Integer nextPaymentOffset,
 									 @AuthenticationPrincipal User currentAdmin) {
 		Status status = statusService.get(oldStatusId);
 		status.setName(statusName);
+		status.setTrialOffset(trialOffset);
+		status.setNextPaymentOffset(nextPaymentOffset);
 		statusService.update(status);
 		logger.info("{} has updated status {}", currentAdmin.getFullName(), statusName);
 		return ResponseEntity.ok().build();
