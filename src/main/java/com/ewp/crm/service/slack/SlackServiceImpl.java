@@ -3,10 +3,7 @@ package com.ewp.crm.service.slack;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.SlackRepository;
 import com.ewp.crm.service.impl.StudentServiceImpl;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,11 +35,18 @@ public class SlackServiceImpl implements SlackService {
     private final StudentServiceImpl studentService;
     private final StatusService statusService;
     private final ClientHistoryService clientHistoryService;
+    private final ProjectPropertiesService propertiesService;
 
     private String LEGACY_TOKEN;
 
     @Autowired
-    public SlackServiceImpl(Environment environment, SlackRepository slackRepository, ClientService clientService, StudentServiceImpl studentService, StatusService statusService, ClientHistoryService clientHistoryService) {
+    public SlackServiceImpl(Environment environment,
+                            SlackRepository slackRepository,
+                            ClientService clientService,
+                            StudentServiceImpl studentService,
+                            StatusService statusService,
+                            ClientHistoryService clientHistoryService,
+                            ProjectPropertiesService propertiesService) {
         try {
             this.LEGACY_TOKEN = environment.getRequiredProperty("slack.legacyToken");
             if (LEGACY_TOKEN.isEmpty()) {
@@ -56,6 +60,7 @@ public class SlackServiceImpl implements SlackService {
         this.studentService = studentService;
         this.statusService = statusService;
         this.clientHistoryService = clientHistoryService;
+        this.propertiesService = propertiesService;
     }
 
     @Override
@@ -89,10 +94,11 @@ public class SlackServiceImpl implements SlackService {
         if (client != null) {
             client.setSlackProfile(slackProfile);
             slackProfile.setClient(client);
-            Status oldClientStatus = client.getStatus();
-            oldClientStatus.getClients().remove(client);
-            Status newClientStatus = statusService.get(oldClientStatus.getId() + 1);
-            if (newClientStatus != null) {
+            ProjectProperties projectProperties = propertiesService.get();
+            if (projectProperties == null || projectProperties.getDefaultStatusId() == null ) {
+                logger.warn("Don't have projectProperties yet! Create");
+            } else {
+                Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId());
                 client.setStatus(newClientStatus);
                 newClientStatus.addClient(client);
                 statusService.update(newClientStatus);
@@ -100,13 +106,12 @@ public class SlackServiceImpl implements SlackService {
             if (client.getStudent() == null) {
                 studentService.addStudentForClient(client);
             }
-            client.addHistory(clientHistoryService.createHistory(client.getName() + " "
-                    + client.getLastName() + " joined to Slack nickname " + slackProfile.getDisplayName()));
+            client.addHistory(clientHistoryService.createHistory(" Slack nickname-" + slackProfile.getDisplayName()
+                            + ". " + client.getName() + " " + client.getLastName() + " теперь студент"));
             clientService.updateClient(client);
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");
-        }
-        else {
+        } else {
             logger.info(slackProfile.getDisplayName() + " not a client joined to Slack general channel!");
         }
     }

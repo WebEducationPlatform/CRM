@@ -1,10 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.SlackProfile;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/slack")
@@ -27,11 +27,13 @@ public class SlackRestController {
 
     private final SlackService slackService;
     private final StatusService statusService;
+    private final ProjectPropertiesService propertiesService;
 
     @Autowired
-    public SlackRestController(SlackService slackService, StatusService statusService) {
+    public SlackRestController(SlackService slackService, StatusService statusService, ProjectPropertiesService propertiesService) {
         this.slackService = slackService;
         this.statusService = statusService;
+        this.propertiesService = propertiesService;
     }
 
     @PostMapping
@@ -70,7 +72,7 @@ public class SlackRestController {
         try {
             mapper.writeValue(out, statusService.getAllStatusesForStudents());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Cant wrap json", e);
         }
         final byte[] data = out.toByteArray();
         return new ResponseEntity<>(new String(data), HttpStatus.OK);
@@ -78,7 +80,13 @@ public class SlackRestController {
 
     @GetMapping(value = "/set/default/{statusId}")
     public ResponseEntity setDefaultStatus(@PathVariable("statusId") Long id) {
-
+        ProjectProperties pp = propertiesService.get();
+        if (pp == null) {
+            propertiesService.saveAndFlash(new ProjectProperties());
+            pp = propertiesService.get();
+        }
+        pp.setDefaultStatusId(id);
+        propertiesService.saveAndFlash(pp);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }
