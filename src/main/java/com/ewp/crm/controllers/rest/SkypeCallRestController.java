@@ -94,8 +94,8 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/mentor/addEvent", method = RequestMethod.POST)
-	public ResponseEntity addEventByIdMentor(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Long startDate) {
-		User user = userService.get(idMentor);
+	public ResponseEntity addEventByIdMentor(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long mentorId, @RequestParam(name = "startDateOld") Long startDate) {
+		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		client.setOwnerCallSkype(user.getId());
 		client.setDateCallSkype(startDate);
@@ -111,8 +111,8 @@ public class SkypeCallRestController {
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     @RequestMapping(value = "rest/mentor/updateEvent", method = RequestMethod.POST)
-    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateNew") Long startDate, @RequestParam(name = "startDateOld") Long startDateOld) {
-        User user = userService.get(idMentor);
+    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long mentorId, @RequestParam(name = "startDateNew") Long startDate, @RequestParam(name = "startDateOld") Long startDateOld) {
+        User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
 		client.setDateCallSkype(startDate);
