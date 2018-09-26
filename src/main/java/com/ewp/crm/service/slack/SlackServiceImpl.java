@@ -77,17 +77,16 @@ public class SlackServiceImpl implements SlackService {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             JsonNode actualObj = objectMapper.readTree(response.toString()).get("user").get("profile");
             return objectMapper.treeToValue(actualObj, SlackProfile.class);
-        } catch (IOException e) {
-            logger.error("Can't receive Client Slack profile", e);
-            e.printStackTrace();
+        } catch (IOException | RuntimeException e) {
+            logger.warn("Can't receive Client Slack profile", e);
         }
         return new SlackProfile();
     }
 
     @Override
     public void memberJoinSlack(SlackProfile slackProfile) {
-        Client client = checkMemberInBase(slackProfile);
-        if (client.getEmail() != null) {
+        Client client = clientService.getClientByEmail(slackProfile.getEmail());
+        if (client != null) {
             client.setSlackProfile(slackProfile);
             slackProfile.setClient(client);
             Status oldClientStatus = client.getStatus();
@@ -107,15 +106,8 @@ public class SlackServiceImpl implements SlackService {
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");
         }
-    }
-
-    private Client checkMemberInBase(SlackProfile slackProfile) {
-        Client client = clientService.getClientByEmail(slackProfile.getEmail());
-        if (client != null) {
-            return client;
-        } else {
-            logger.error(slackProfile.getDisplayName() + " not a client! Joined to Slack general channel!");
-            return new Client();
+        else {
+            logger.info(slackProfile.getDisplayName() + " not a client joined to Slack general channel!");
         }
     }
 }
