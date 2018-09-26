@@ -4,8 +4,10 @@ import com.ewp.crm.models.SlackProfile;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -59,8 +62,23 @@ public class SlackRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/get/students/statuses")
-    public ResponseEntity<List<Status>> getAllStatusForStudents() {
-        return ResponseEntity.ok(statusService.getAllStatusesForStudents());
+    @PostMapping(value = "/get/students/statuses")
+    public ResponseEntity<String> getAllStatusForStudents() {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectMapper mapper = new ObjectMapper()
+                .configure(SerializationFeature.INDENT_OUTPUT, true);
+        try {
+            mapper.writeValue(out, statusService.getAllStatusesForStudents());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final byte[] data = out.toByteArray();
+        return new ResponseEntity<>(new String(data), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/set/default/{statusId}")
+    public ResponseEntity setDefaultStatus(@PathVariable("statusId") Long id) {
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }
