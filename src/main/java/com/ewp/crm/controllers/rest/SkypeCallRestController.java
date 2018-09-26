@@ -1,12 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.AssignSkypeCall;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
-import com.google.api.services.calendar.Calendar;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -47,11 +47,10 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/assignSkype", method = RequestMethod.POST)
-	public ResponseEntity assignSkypeCall(@RequestParam Long clientId, @RequestParam String date, @RequestParam String selectNetwork) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity assignSkypeCall(@AuthenticationPrincipal User principal, @RequestParam Long clientId, @RequestParam String date, @RequestParam String selectNetwork) {
 		Client client = clientService.getClientByID(clientId);
 		try {
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm МСК");
 			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
 			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
 			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
@@ -59,10 +58,10 @@ public class SkypeCallRestController {
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall();
-			clientAssignSkypeCall.setRemindBeforeOfSkypeCall(remindBeforeSkypeCall.toDate());
+			clientAssignSkypeCall.setRemindBeforeOfSkypeCall(remindBeforeSkypeCall.toLocalDate().atStartOfDay());
 			clientAssignSkypeCall.setLogin(client.getSkype());
 			clientAssignSkypeCall.setFromAssignSkypeCall(principal);
-			clientAssignSkypeCall.setCreatedTime(new Date());
+			clientAssignSkypeCall.setCreatedTime(LocalDateTime.now());
 			clientAssignSkypeCall.setToAssignSkypeCall(client);
 			clientAssignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
 			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
@@ -77,8 +76,7 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/allMentors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<User>> getAllMentors() {
-		User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity<List<User>> getAllMentors(@AuthenticationPrincipal User currentUser) {
 		List<User> users = userService.getByRole(roleService.getByRoleName("MENTOR"));
 		users.remove(userService.get(currentUser.getId()));
 		return ResponseEntity.ok(users);
@@ -86,36 +84,37 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/checkFreeDate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Long> checkFreeDate(@RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Date startDate) {
+	public ResponseEntity<Integer> checkFreeDate(@RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Long startDate) {
 		User user = userService.get(idMentor);
-		if (calendarService.checkDate(startDate, user.getEmail())) {
-			return ResponseEntity.ok(0L);
+		if (calendarService.checkFreeDate(startDate, user.getEmail())) {
+			return ResponseEntity.status(HttpStatus.OK).body(0);
 		}
-		return ResponseEntity.ok(1L);
+		return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(1);
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/mentor/addEvent", method = RequestMethod.POST)
-	public ResponseEntity addEventByIdMentor(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Date startDate) {
+	public ResponseEntity addEventByIdMentor(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Long startDate) {
 		User user = userService.get(idMentor);
 		Client client = clientService.get(clientId);
 		client.setOwnerCallSkype(user.getId());
 		client.setDateCallSkype(startDate);
 		clientService.updateClient(client);
         try {
-            calendarService.addEvent(user.getEmail(), startDate);
+            calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
         } catch (IOException e) {
-            e.printStackTrace();
+			logger.error("Error to send message ", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message not sent");
         }
         return ResponseEntity.ok(HttpStatus.OK);
 	}
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     @RequestMapping(value = "rest/mentor/updateEvent", method = RequestMethod.POST)
-    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateNew") Date startDate, @RequestParam(name = "startDateOld") Date startDateOld) {
+    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateNew") Long startDate, @RequestParam(name = "startDateOld") Long startDateOld) {
         User user = userService.get(idMentor);
-		calendarService.update(startDate, startDateOld, user.getEmail());
 		Client client = clientService.get(clientId);
+		calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
 		client.setDateCallSkype(startDate);
 		clientService.updateClient(client);
         return ResponseEntity.ok(HttpStatus.OK);

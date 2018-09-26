@@ -1,7 +1,7 @@
 package com.ewp.crm.configs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -14,7 +14,7 @@ public class GoogleCalendarConfigImpl {
     private String clientId;
     private String clientSecret;
     private String redirectURI;
-    private final static Log logger = LogFactory.getLog(GoogleCalendarConfigImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(ImageConfig.class);
 
     @Autowired
     public GoogleCalendarConfigImpl(Environment env) {
@@ -23,7 +23,7 @@ public class GoogleCalendarConfigImpl {
         redirectURI = env.getProperty("google.client.redirectUri");
 
         if (!configIsValid()) {
-            logger.error("Youtube configs have not initialized. Check youtube.properties file");
+            logger.error("Google configs have not initialized. Check google-calendar.properties file");
             System.exit(-1);
         }
     }
