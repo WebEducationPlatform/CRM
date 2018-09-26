@@ -183,13 +183,14 @@ public class Student implements Diffable<Student> {
 
     @Override
     public DiffResult diff(Student student) {
-        return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
+        return new DiffBuilder(this, student, ToStringStyle.JSON_STYLE)
+                .append("Клиент", this.client.getId(), student.client.getId())
                 .append("Дата пробных", this.trialEndDate, student.trialEndDate)
                 .append("Двта оплаты", this.nextPaymentDate, student.nextPaymentDate)
                 .append("Цена", this.price, student.price)
                 .append("Платёж", this.paymentAmount, student.paymentAmount)
                 .append("Оплата позже", this.payLater, student.payLater)
-                .append("Статус обучения", this.status, student.status)
+                .append("Статус обучения", this.status.getId(), student.status.getId())
                 .append("Заметки", this.notes, student.notes)
                 .append("Оповещение по почте", this.notifyEmail, student.notifyEmail)
                 .append("Оповещение по СМС", this.notifySMS, student.notifySMS)
