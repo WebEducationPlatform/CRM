@@ -1043,7 +1043,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
 
     let formData1 = {
         idMentor: idMentor,
-        startDateOld: startDateOld,
+        startDateOld: startDateOld.getTime(),
         clientId: clientId
     };
 
@@ -1189,14 +1189,14 @@ $(document).on('click','.update-skype-call', function (e) {
     let formData1 = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateOld: startDateNew
+        startDateOld: startDateNew.getTime()
     };
 
     let formData = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateNew: startDateNew,
-        startDateOld: startDateOld
+        startDateNew: startDateNew.getTime(),
+        startDateOld: startDateOld.getTime()
     };
 
     // Check free date

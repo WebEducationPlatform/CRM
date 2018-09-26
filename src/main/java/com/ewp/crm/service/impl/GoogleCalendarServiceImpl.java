@@ -24,11 +24,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
@@ -47,7 +47,6 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     private Credential credential;
 
     @Autowired
-
     public GoogleCalendarServiceImpl(GoogleCalendarConfigImpl config) {
         this.clientId = config.getClientId();
         this.clientSecret = config.getClientSecret();
@@ -67,7 +66,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error to send message ", e);
             }
             flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
                     Collections.singleton(CalendarScopes.CALENDAR)).setAccessType("offline").build();
@@ -92,59 +91,61 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     }
 
     @Override
-    public void addEvent(String calendarMentor, Date startDate) throws IOException {
-        Event event = newEvent(startDate);
+    public void addEvent(String calendarMentor, Long startDate, String skype) throws IOException {
+        Event event = newEvent(startDate, skype);
         com.google.api.services.calendar.model.Calendar calendar =
                 client.calendars().get(calendarMentor).execute();
         client.events().insert(calendar.getId(), event).execute();
     }
 
     @Override
-    public void update(Date newDate, Date oldDate, String calendarMentor) {
+    public void update(Long newDate, Long oldDate, String calendarMentor, String skype) {
         try {
             com.google.api.services.calendar.model.Calendar calendar =
                     client.calendars().get(calendarMentor).execute();
-            SimpleDateFormat dateFormatter = new SimpleDateFormat("y-MM-dd'T'HH:mm:ss");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
+            String formattedDateOld = ZonedDateTime.ofInstant(Instant.ofEpochMilli(oldDate), ZoneId.systemDefault()).format(outputFormatter);
+
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
-            Event newEvent = newEvent(newDate);
+            Event newEvent = newEvent(newDate, skype);
 
             for (int i = 0; i < eventAll.size(); i++) {
-                if (eventAll.get(i).getStart().toString().contains(dateFormatter.format(oldDate))) {
+                if (eventAll.get(i).getStart().toString().contains(formattedDateOld)) {
                     String eventId = eventAll.get(i).getId();
                     client.events().delete(calendarMentor, eventId).execute();
                     client.events().insert(calendar.getId(), newEvent).execute();
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error to send message ", e);
         }
     }
 
     @Override
-    public boolean checkDate(Date date, String calendarMentor) {
+    public boolean checkFreeDate(Long date, String calendarMentor) {
         try {
-            com.google.api.services.calendar.model.Calendar calendar =
-                    client.calendars().get(calendarMentor).execute();
-            SimpleDateFormat dateFormatter = new SimpleDateFormat("y-MM-dd'T'HH:mm:ss");
+            com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
 
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
+            String formattedDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.systemDefault()).format(outputFormatter);
+
             for (int i = 0; i < eventAll.size(); i++) {
-                if (eventAll.get(i).getStart().toString().contains(dateFormatter.format(date))) {
+                if (eventAll.get(i).getStart().toString().contains(formattedDate)) {
                     return true;
                 }
             }
-            return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error to send message ", e);
         }
         return false;
     }
 
-    private Event newEvent(Date startDate) {
+    private Event newEvent(Long startDate, String skype) {
         Event event = new Event();
-        event.setSummary("Skype беседа");
-        Date endDate = new Date(startDate.getTime() + 3600000);
-        DateTime start = new DateTime(startDate, TimeZone.getTimeZone("UTC"));
+        event.setSummary("Skype(crm) - " + skype);
+        Date endDate = new Date(startDate + 3600000);
+        DateTime start = new DateTime(startDate);
         event.setStart(new EventDateTime().setDateTime(start));
         DateTime end = new DateTime(endDate, TimeZone.getTimeZone("UTC"));
         event.setEnd(new EventDateTime().setDateTime(end));
