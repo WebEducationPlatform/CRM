@@ -18,6 +18,10 @@ public class ProjectProperties {
     @Column(name = "technical_account_token")
     private String technicalAccountToken;
 
+    //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
+    @Column(name = "default_status")
+    private Long defaultStatusId;
+
     public ProjectProperties() {
     }
 
@@ -46,4 +50,11 @@ public class ProjectProperties {
         this.technicalAccountToken = technicalAccountToken;
     }
 
+    public Long getDefaultStatusId() {
+        return defaultStatusId;
+    }
+
+    public void setDefaultStatusId(Long defaultStatusId) {
+        this.defaultStatusId = defaultStatusId;
+    }
 }

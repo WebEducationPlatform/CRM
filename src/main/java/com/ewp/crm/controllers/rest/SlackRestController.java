@@ -1,7 +1,9 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.SlackProfile;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -9,12 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/slack")
@@ -23,10 +23,12 @@ public class SlackRestController {
     private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
 
     private final SlackService slackService;
+    private final StatusService statusService;
 
     @Autowired
-    public SlackRestController(SlackService slackService) {
+    public SlackRestController(SlackService slackService, StatusService statusService) {
         this.slackService = slackService;
+        this.statusService = statusService;
     }
 
     @PostMapping
@@ -55,5 +57,10 @@ public class SlackRestController {
             logger.warn("Cant read json form Slack", e);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/get/students/statuses")
+    public ResponseEntity<List<Status>> getAllStatusForStudents() {
+        return ResponseEntity.ok(statusService.getAllStatusesForStudents());
     }
 }
