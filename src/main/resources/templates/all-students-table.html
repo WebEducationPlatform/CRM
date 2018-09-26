@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      xmlns:display="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
@@ -62,10 +63,34 @@
                 <td th:text="${student.paymentAmount}"></td>
                 <td th:text="${student.payLater}"></td>
                 <td>
-                    <label th:for="${student.id+'_notify_email'}">Email:<input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/></label>
-                    <label th:for="${student.id+'_notify_sms'}">SMS:<input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/></label>
-                    <label th:for="${student.id+'_notify_vk'}">VK:<input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/></label>
-                    <label th:for="${student.id+'_notify_all'}">Все:<input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/></label>
+                    <table width="220px">
+                        <tr>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_email'}" th:hidden="${student.client.email}==''">
+                                    Email:
+                                    <input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_sms'}" th:hidden="${student.client.phoneNumber}==''">
+                                    SMS:
+                                    <input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_vk'}" th:hidden="${!#strings.contains(student.client.socialProfiles,'vk.com')}">
+                                    VK:
+                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_all'}">
+                                    Все:
+                                    <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/>
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
@@ -73,7 +98,7 @@
             </tr>
             </tbody>
             <tfoot>
-
+            <label for="test">Test:<input id="test" type="checkbox"/></label>
             </tfoot>
         </table>
     </div>

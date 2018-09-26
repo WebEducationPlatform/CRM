@@ -77,9 +77,9 @@ $('#update-student').click(function () {
             let email_selector = '#' + student_id + '_notify_email';
             let sms_selector = '#' + student_id + '_notify_sms';
             let vk_selector = '#' + student_id + '_notify_vk';
-            let email_notify = $(email_selector).attr('checked') == 'checked' ? true : false;
-            let sms_notify = $(sms_selector).attr('checked') == 'checked' ? true : false;
-            let vk_notify = $(vk_selector).attr('checked') == 'checked' ? true : false;
+            let email_notify = $(email_selector).prop('checked');
+            let sms_notify = $(sms_selector).prop('checked');
+            let vk_notify = $(vk_selector).prop('checked');
             let data = {
                 id : $("#student-id").val(),
                 client : {id : client.id},
@@ -164,13 +164,12 @@ $('.notifier_all').click(function() {
     let checked = this.checked;
     for (let prefix of notifications) {
         let selector = '#' + id + prefix;
-        if($(selector).attr('disabled') == undefined) {
-            // $(selector).prop('checked', checked);
+        if($(selector).prop('disabled') == false) {
+            $(selector).prop('checked', checked);
             update_notification(selector.substr(1), checked);
         }
     }
-    // $(this.id).prop('checked', checked);
-    location.reload();
+    $(this.id).prop('checked', checked);
 });
 
 //Notification checkbox change action
@@ -178,13 +177,20 @@ $('.notifier_all').click(function() {
 $('.notifier').change(function() {
     let id = this.id;
     let checked = this.checked;
+    let selector_all = '#' + this.value + '_notify_all';
     update_notification(id, checked);
-    // if(checked) {
-        location.reload();
-    // } else {
-    //     let selector_all = '#' + this.value + '_notify_all';
-    //     $(selector_all).prop('checked', false);
-    // }
+    if(checked) {
+        let result = true;
+        for (let prefix of notifications) {
+            let selector = '#' + this.value + prefix;
+            if(!$(selector).prop('disabled')) {
+                result = $(selector).prop('checked') && result;
+            }
+        }
+        $(selector_all).prop('checked', result);
+    } else {
+        $(selector_all).prop('checked', false);
+    }
 });
 
 //Notification change

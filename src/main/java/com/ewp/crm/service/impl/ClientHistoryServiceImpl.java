@@ -193,7 +193,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 * @param type history type.
 	 * @return client history object.
 	 */
-	//TODO debug
 	@Override
 	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
 		logger.info("creation of history...");

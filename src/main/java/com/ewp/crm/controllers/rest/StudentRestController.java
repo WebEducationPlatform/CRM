@@ -49,6 +49,7 @@ public class StudentRestController {
         return result;
     }
 
+    //TODO same objects
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         Student previous = studentService.get(student.getId());
