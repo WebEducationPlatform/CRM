@@ -1,5 +1,9 @@
 package com.ewp.crm.models;
 
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -7,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Table (name = "student")
 @Entity
-public class Student {
+public class Student implements Diffable<Student> {
 
     @Id
     @GeneratedValue
@@ -175,5 +179,21 @@ public class Student {
                 ", notifySMS='" + notifySMS +
                 ", notifyVK='" + notifyVK +
                 '}';
+    }
+
+    @Override
+    public DiffResult diff(Student student) {
+        return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
+                .append("Дата пробных", this.trialEndDate, student.trialEndDate)
+                .append("Двта оплаты", this.nextPaymentDate, student.nextPaymentDate)
+                .append("Цена", this.price, student.price)
+                .append("Платёж", this.paymentAmount, student.paymentAmount)
+                .append("Оплата позже", this.payLater, student.payLater)
+                .append("Статус обучения", this.status, student.status)
+                .append("Заметки", this.notes, student.notes)
+                .append("Оповещение по почте", this.notifyEmail, student.notifyEmail)
+                .append("Оповещение по СМС", this.notifySMS, student.notifySMS)
+                .append("Оповещение по Вконтакте", this.notifyVK, student.notifyVK)
+                .build();
     }
 }

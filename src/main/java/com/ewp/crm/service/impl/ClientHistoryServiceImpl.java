@@ -1,9 +1,6 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Message;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
@@ -179,6 +176,40 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 		clientHistory.setMessage(message);
 
+		clientHistory.setLink(message.getId().toString());
+		return clientHistory;
+	}
+
+	@Override
+	public ClientHistory creteStudentAddHistory(User user, Student student, ClientHistory.Type type) {
+		return null;
+	}
+
+	/**
+	 * Create client history when student modified.
+	 * @param user change author.
+	 * @param prev previous student.
+	 * @param current current student.
+	 * @param type history type.
+	 * @return client history object.
+	 */
+	//TODO debug
+	@Override
+	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory clientHistory = new ClientHistory(type);
+		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
+		if (current.equals(prev)) {
+			logger.info("Can't find changes");
+			return clientHistory;
+		}
+		DiffResult diffs = prev.diff(current);
+		StringBuilder content = new StringBuilder();
+		diffs.getDiffs().stream().map(
+				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
+				.forEach(str -> content.append(str).append("\n"));
+		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
+		clientHistory.setMessage(message);
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
