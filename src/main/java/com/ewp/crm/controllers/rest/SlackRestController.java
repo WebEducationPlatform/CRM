@@ -51,9 +51,8 @@ public class SlackRestController {
                 SlackProfile slackProfile = slackService.receiveClientSlackProfileBySlackHashName(slackHashName);
                 slackService.memberJoinSlack(slackProfile);
             }
-
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Cant read json form Slack", e);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
