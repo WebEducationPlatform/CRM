@@ -186,7 +186,7 @@ public class Student implements Diffable<Student> {
         return new DiffBuilder(this, student, ToStringStyle.JSON_STYLE)
                 .append("Клиент", this.client.getId(), student.client.getId())
                 .append("Дата пробных", this.trialEndDate.toLocalDate(), student.trialEndDate.toLocalDate())
-                .append("Двта оплаты", this.nextPaymentDate.toLocalDate(), student.nextPaymentDate.toLocalDate())
+                .append("Дата оплаты", this.nextPaymentDate.toLocalDate(), student.nextPaymentDate.toLocalDate())
                 .append("Цена", this.price.stripTrailingZeros(), student.price.stripTrailingZeros())
                 .append("Платёж", this.paymentAmount.stripTrailingZeros(), student.paymentAmount.stripTrailingZeros())
                 .append("Оплата позже", this.payLater.stripTrailingZeros(), student.payLater.stripTrailingZeros())

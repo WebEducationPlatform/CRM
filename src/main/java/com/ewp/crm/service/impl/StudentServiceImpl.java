@@ -62,4 +62,9 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     public List<Student> getStudentsWithTodayNotificationsEnabled() {
         return studentRepositoryCustom.getStudentsWithTodayNotificationsEnabled();
     }
+
+    @Override
+    public void detach(Student student) {
+        studentRepositoryCustom.detach(student);
+    }
 }

@@ -181,21 +181,24 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public ClientHistory creteStudentAddHistory(User user, Student student, ClientHistory.Type type) {
-		return null;
+	public ClientHistory creteStudentHistory(User user, ClientHistory.Type type) {
+		logger.info("creation of become student history...");
+		ClientHistory clientHistory = new ClientHistory(type);
+		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
+		return clientHistory;
 	}
 
 	/**
 	 * Create client history when student modified.
 	 * @param user change author.
-	 * @param prev previous student.
-	 * @param current current student.
+	 * @param prev previous student object.
+	 * @param current current student object.
 	 * @param type history type.
 	 * @return client history object.
 	 */
 	@Override
 	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
-		logger.info("creation of history...");
+		logger.info("creation of student history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		if (current.equals(prev)) {
@@ -212,4 +215,5 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
+
 }

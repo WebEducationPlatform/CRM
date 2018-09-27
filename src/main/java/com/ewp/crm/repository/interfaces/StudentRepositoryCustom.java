@@ -6,4 +6,6 @@ import java.util.List;
 public interface StudentRepositoryCustom {
 
     List<Student> getStudentsWithTodayNotificationsEnabled();
+
+    void detach(Student student);
 }

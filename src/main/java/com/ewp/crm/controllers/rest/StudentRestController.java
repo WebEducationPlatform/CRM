@@ -74,10 +74,12 @@ public class StudentRestController {
 
     @PostMapping ("/{id}/notify/email")
     public HttpStatus updateNotifyEmailFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
+        Student previous = studentService.get(id);
+        studentService.detach(previous);
         Student current = studentService.get(id);
         Client client = current.getClient();
         current.setNotifyEmail(status);
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT));
+        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, current, ClientHistory.Type.UPDATE_STUDENT));
         studentService.update(current);
         clientService.updateClient(client);
         return HttpStatus.OK;
@@ -85,6 +87,8 @@ public class StudentRestController {
 
     @PostMapping ("/{id}/notify/sms")
     public HttpStatus updateNotifySMSFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
+        Student previous = studentService.get(id);
+        studentService.detach(previous);
         Student current = studentService.get(id);
         Client client = current.getClient();
         current.setNotifySMS(status);
@@ -96,6 +100,8 @@ public class StudentRestController {
 
     @PostMapping ("/{id}/notify/vk")
     public HttpStatus updateNotifyVKFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
+        Student previous = studentService.get(id);
+        studentService.detach(previous);
         Student current = studentService.get(id);
         Client client = current.getClient();
         current.setNotifyVK(status);
