@@ -30,7 +30,9 @@ public class SlackRestController {
     private final ProjectPropertiesService propertiesService;
 
     @Autowired
-    public SlackRestController(SlackService slackService, StatusService statusService, ProjectPropertiesService propertiesService) {
+    public SlackRestController(SlackService slackService,
+                               StatusService statusService,
+                               ProjectPropertiesService propertiesService) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.propertiesService = propertiesService;
