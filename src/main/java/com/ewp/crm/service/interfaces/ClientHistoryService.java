@@ -25,7 +25,7 @@ public interface ClientHistoryService {
 
 	ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type);
 
-	ClientHistory creteStudentAddHistory(User user, Student student, ClientHistory.Type type);
+	ClientHistory creteStudentHistory(User user, ClientHistory.Type type);
 
 	ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type);
 

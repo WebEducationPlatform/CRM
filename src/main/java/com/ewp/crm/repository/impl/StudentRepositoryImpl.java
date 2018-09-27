@@ -29,4 +29,9 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
                 .setParameter("tomorrow", tomorrow)
                 .getResultList();
     }
+
+    @Override
+    public void detach(Student student) {
+        entityManager.detach(student);
+    }
 }
