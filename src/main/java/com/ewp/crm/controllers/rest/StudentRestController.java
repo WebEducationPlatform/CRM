@@ -49,13 +49,12 @@ public class StudentRestController {
         return result;
     }
 
-    //TODO same objects
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         Student previous = studentService.get(student.getId());
         Client client = previous.getClient();
-        studentService.update(student);
         client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT));
+        studentService.update(student);
         clientService.updateClient(client);
         return HttpStatus.OK;
     }

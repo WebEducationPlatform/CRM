@@ -44,7 +44,7 @@
                 <th onclick="sort_table(7)">Цена</th>
                 <th onclick="sort_table(8)">Сумма платежа</th>
                 <th onclick="sort_table(9)">Оплата после</th>
-                <th width="220px">Напоминание</th>
+                <th width="240px">Напоминание</th>
                 <th onclick="sort_table(11)">Статус учёбы</th>
                 <th onclick="sort_table(12)">Заметки</th>
                 <th></th>
@@ -63,7 +63,7 @@
                 <td th:text="${student.paymentAmount}"></td>
                 <td th:text="${student.payLater}"></td>
                 <td>
-                    <table width="220px">
+                    <table width="240px">
                         <tr>
                             <td width="25%">
                                 <label th:for="${student.id+'_notify_email'}" th:hidden="${student.client.email}==''">
