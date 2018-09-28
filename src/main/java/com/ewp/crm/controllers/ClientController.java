@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Notification;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +70,8 @@ public class ClientController {
 		List<Status> statuses;
 		ModelAndView modelAndView;
 		//TODO Сделать ещё адекватней
-		if (userFromSession.getRole().contains(roleService.getRoleByName("ADMIN")) || userFromSession.getRole().contains(roleService.getRoleByName("OWNER"))) {
+		List<Role> sessionRoles = userFromSession.getRole();
+		if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
 			statuses = statusService.getAll();
 			modelAndView = new ModelAndView("main-client-table");
 		} else {
@@ -129,5 +127,18 @@ public class ClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ModelAndView getPhone() {
 		return new ModelAndView("webrtrc");
+	}
+
+	@GetMapping(value = "/client/editMailingTemplate")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ModelAndView getEditMailingTemplate(@AuthenticationPrincipal User userFromSession) {
+		ModelAndView modelAndView = new ModelAndView("editMailingTemplate");
+		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
+		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
+		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+		modelAndView.addObject("user", userFromSession);
+		return modelAndView;
 	}
 }
