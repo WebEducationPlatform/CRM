@@ -50,10 +50,10 @@ public class AdminEmailRestController {
 		if (templateText.contains("%bodyText%") ^ otherTemplateText.contains("%bodyText%")) {
 			throw new MessageTemplateException("%bodyText% должен присутствовать/остутствовать на обоих типах сообщения");
 		}
-		MessageTemplate MessageTemplate = messageTemplateService.get(templateId);
-		MessageTemplate.setTemplateText(templateText);
-		MessageTemplate.setOtherText(otherTemplateText);
-		messageTemplateService.update(MessageTemplate);
+		MessageTemplate messageTemplate = messageTemplateService.get(templateId);
+		messageTemplate.setTemplateText(templateText);
+		messageTemplate.setOtherText(otherTemplateText);
+		messageTemplateService.update(messageTemplate);
 		return ResponseEntity.ok().build();
 	}
 
