@@ -11,7 +11,37 @@
 
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-здесь будем верстать
 
+<div class="container">
+    <div class="templContainer">
+        <div class="btn-group">
+            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+            <ul th:if="${emailTmpl.size()!=0}">
+                <li th:id="'eTemplate' + ${template.id}"
+                    th:each="template : ${emailTmpl}">
+                    <a th:if="${!template.hasBody()}"
+                       th:id="'eTemplateBtn' + ${template.id}"
+                       data-toggle="modal"
+                       th:attrappend="data-target='#sendTemplateModal'"
+                       th:text="' ' + ${template.name}"
+                       th:attrprepend="data-template-id=${template.id}"></a>
+                    <a th:if="${template.hasBody()}"
+                       th:id="'eTemplateBtn' + ${template.id}"
+                       data-toggle="modal" th:attrappend="
+                               data-target='#customMessageTemplate'"
+                       th:text="' ' + ${template.name}"
+                       th:attrprepend="data-template-id=${template.id}"></a>
+                    <a th:href="'/admin/editMessageTemplate/' +  ${template.id}">
+                        <button
+                                type="button" data-toggle="modal" name="editETemplateBtn"
+                                class="glyphicon glyphicon-edit">
+                        </button>
+                    </a>
+                </li>
+            </ul>
+            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+        </div>
+    </div>
+</div>
 </body>
 </html>

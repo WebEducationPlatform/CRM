@@ -26,7 +26,7 @@ public class ClientController {
 	private final StatusService statusService;
 	private final ClientService clientService;
 	private final UserService userService;
-	private final MessageTemplateService MessageTemplateService;
+	private final MessageTemplateService messageTemplateService;
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final NotificationService notificationService;
 	private final RoleService roleService;
@@ -45,7 +45,7 @@ public class ClientController {
 		this.statusService = statusService;
 		this.clientService = clientService;
 		this.userService = userService;
-		this.MessageTemplateService = MessageTemplateService;
+		this.messageTemplateService = MessageTemplateService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.notificationService = notificationService;
 		this.roleService = roleService;
@@ -89,7 +89,7 @@ public class ClientController {
 		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
 		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
 		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
-		modelAndView.addObject("emailTmpl", MessageTemplateService.getAll());
+		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 		return modelAndView;
 	}
 
@@ -133,12 +133,10 @@ public class ClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ModelAndView getEditMailingTemplate(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("editMailingTemplate");
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
-		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
+
+
 }
