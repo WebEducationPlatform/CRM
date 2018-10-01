@@ -2,7 +2,6 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.controllers.rest.SMSRestController;
 import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Message;
@@ -32,7 +31,8 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +42,9 @@ import java.util.regex.Pattern;
         @PropertySource("classpath:application.properties"),
         @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251")
 })
-public class MailSendService {
+public class MailSendServiceImpl implements MailSendService {
 
-    private static Logger logger = LoggerFactory.getLogger(MailSendService.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
@@ -55,12 +55,13 @@ public class MailSendService {
     private final MessageTemplateService messageTemplateService;
     private final MailConfig mailConfig;
     private String emailLogin;
+    private UserService userService;
     private final Environment env;
 
 
     @Autowired
-    public MailSendService(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                           ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig, MessageTemplateService messageTemplateService) {
+    public MailSendServiceImpl(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
+                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig,UserService userservice, MessageTemplateService messageTemplateService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;
@@ -70,6 +71,7 @@ public class MailSendService {
         this.messageTemplateService = messageTemplateService;
         this.env = environment;
         this.mailConfig = mailConfig;
+        this.userService = userservice;
         checkConfig(environment);
     }
 
@@ -85,7 +87,21 @@ public class MailSendService {
             System.exit(-1);
         }
     }
-
+    public void sendEmailInAllCases(Client client) {
+        User principal = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        final MimeMessageHelper mimeMessageHelper;
+        try {
+            mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            mimeMessageHelper.setFrom("Java-Mentor.ru");
+            mimeMessageHelper.setTo(client.getEmail());
+            mimeMessageHelper.setSubject("Ваш личный Java наставник");
+            mimeMessageHelper.setText(principal.getAutoAnswer(), true);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        javaMailSender.send(mimeMessage);
+    }
     public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
@@ -238,19 +254,19 @@ public class MailSendService {
         }
     }
 
-	@Async
-	public void sendNotificationMessage(User userToNotify, String notificationMessage) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setSubject("Оповещение из CRM");
-		message.setText(notificationMessage);
-		message.setFrom(emailLogin);
-		message.setTo(userToNotify.getEmail());
-		javaMailSender.send(message);
-	}
+    @Async
+    public void sendNotificationMessage(User userToNotify, String notificationMessage) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject("Оповещение из CRM");
+        message.setText(notificationMessage);
+        message.setFrom(emailLogin);
+        message.setTo(userToNotify.getEmail());
+        javaMailSender.send(message);
+    }
 
-	public void sendNotificationMessageYourself(String notificationMessage) {
-		User user = new User();
-		user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
-		sendNotificationMessage(user, notificationMessage);
-	}
+    public void sendNotificationMessageYourself(String notificationMessage) {
+        User user = new User();
+        user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
+        sendNotificationMessage(user, notificationMessage);
+    }
 }

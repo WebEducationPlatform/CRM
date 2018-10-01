@@ -8,7 +8,7 @@ public interface SMSInfoService extends CommonService<SMSInfo> {
 
 	List<SMSInfo> getAllSMS();
 
-	List<SMSInfo> getBySMSIsChecked(boolean isChecked);
+	List<SMSInfo> getSMSByIsChecked(boolean isChecked);
 
 	SMSInfo addSMSInfo(SMSInfo smsInfo);
 }

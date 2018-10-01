@@ -11,6 +11,7 @@ public class SMSInfo implements Serializable {
 
 	@Id
 	@GeneratedValue
+	@Column(name = "id")
 	private Long id;
 
 	@Column(name = "sms_id")
@@ -21,9 +22,11 @@ public class SMSInfo implements Serializable {
 
 	@Basic
 	@Lob
+	@Column(name = "message")
 	private String message;
 
 	@Basic
+	@Column(name = "is_checked")
 	private boolean isChecked = false;
 
 	@ManyToOne

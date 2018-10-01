@@ -30,6 +30,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="/client">Доска</a></li>
                 <li><a href="/client/allClients">Все клиенты</a></li>
+                <li><a href="/student/all">Все студенты</a></li>
+                <li><a href="/student-status/all">Статусы обучения</a></li>
                 <li><a href="/client/mailing">Рассылка</a></li>
                 <li th:if="${#httpServletRequest.getRequestURI() == '/client'}" >
                    <div class="search-place">
@@ -185,8 +187,8 @@
                 </div>
                 <div class="modal-body">
                     <select class="form-control" id="selectType" name="selectType">
-                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
-                        <option th:value="${socialNetworkType.name}" th:text="${socialNetworkType.name}"></option>
+                        <th:block th:each="socialProfileType : ${socialProfileTypes}">
+                        <option th:value="${socialProfileType.name}" th:text="${socialProfileType.name}"></option>
                             </th:block>
                         <option id="email" name="email" th:value="email">Email</option>
                         <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
@@ -202,9 +204,9 @@
     </div>
 </th:block>
 
-<th:block th:fragment="deleteUser">
+<th:block th:fragment="reAvailableUser">
     <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal fade" th:id="'reAvailableUserModal' + ${usr.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -223,11 +225,34 @@
     </div>
 </th:block>
 
+<th:block th:fragment="deleteUser">
+    <div th:each="usr : ${users}">
+        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Подтвердите свое действие</h5>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">
+                            Да
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="deleteVkTrackedClub">
     <div th:each="club : ${vkTrackedClub}">
         <div class="modal fade" th:id="'deleteVkTrackedClubModal' + ${club.id}" tabindex="-1" role="dialog"  aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-cfontent">
                     <div class="modal-header">
                         <h5 class="modal-title">Подтвердите свое действие</h5>
                     </div>
@@ -522,7 +547,7 @@
 </th:block>
 
 <th:block th:fragment="updateSocialNetworkType">
-    <div th:attr="id=${socialNetworkType.id}" class="modal fade" role="dialog">
+    <div th:attr="id=${socialProfileType.id}" class="modal fade" role="dialog">
 
         <div class="modal-dialog">
             <form role="form" id="updateTypeForm" th:action="@{/admin/user/updateSocialNetworkType}" method="post">
@@ -540,9 +565,9 @@
                                 <label for="updateType">Name</label>
                                 <input type="text" id="updateType" name="name"
                                        class="form-control"
-                                       th:value="${socialNetworkType.name}"/>
+                                       th:value="${socialProfileType.name}"/>
 
-                                <input type="hidden" id="typeId" name="id" th:value="${socialNetworkType.id}"/>
+                                <input type="hidden" id="typeId" name="id" th:value="${socialProfileType.id}"/>
 
                             </div>
                         </div>

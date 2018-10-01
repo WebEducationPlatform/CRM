@@ -34,6 +34,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "first_name", nullable = false)
 	private String name;
 
+	@Column(name = "last_name")
 	private String lastName;
 
 	@Column(name = "phoneNumber")
@@ -47,21 +48,26 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "skype")
 	private String skype = "";
 
+	@Column(name = "age")
 	private byte age;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "sex")
 	private Sex sex;
 
+	@Column(name = "city")
 	private String city;
 
+	@Column(name = "country")
 	private String country;
 
+	@Column(name = "comment")
 	private String comment;
 
 	@Column(name = "postponeDate")
 	private Date postponeDate;
 
-	@Column
+	@Column(name = "can_call")
 	private boolean canCall;
 
 	@Column(name = "client_state")
@@ -130,7 +136,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@JoinTable(name = "client_social_network",
 			joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private List<SocialNetwork> socialNetworks = new ArrayList<>();
+	private List<SocialProfile> socialProfiles = new ArrayList<>();
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
@@ -145,9 +151,13 @@ public class Client implements Serializable, Diffable<Client> {
 	private String clientDescriptionComment;
 
 	@JsonIgnore
-	@Column
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "client")
 	private List<CallRecord> callRecords = new ArrayList<>();
+
+	@JsonIgnore
+	@OneToOne(mappedBy = "client")
+	@JoinColumn(name = "student_id")
+	private Student student;
 
 	public Client() {
 		this.state = State.NEW;
@@ -384,12 +394,20 @@ public class Client implements Serializable, Diffable<Client> {
 		this.dateOfRegistration = dateOfRegistration;
 	}
 
-	public List<SocialNetwork> getSocialNetworks() {
-		return socialNetworks;
+	public List<SocialProfile> getSocialProfiles() {
+		return socialProfiles;
 	}
 
-	public void setSocialNetworks(List<SocialNetwork> socialNetworks) {
-		this.socialNetworks = socialNetworks;
+	public void setSocialProfiles(List<SocialProfile> socialProfiles) {
+		this.socialProfiles = socialProfiles;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
 	}
 
 	@Override
@@ -407,7 +425,7 @@ public class Client implements Serializable, Diffable<Client> {
 				Objects.equals(city, client.city) &&
 				Objects.equals(country, client.country) &&
 				state == client.state &&
-				Objects.equals(socialNetworks, client.socialNetworks) &&
+				Objects.equals(socialProfiles, client.socialProfiles) &&
 				Objects.equals(jobs, client.jobs) &&
 				Objects.equals(skype,client.skype);
 
@@ -416,7 +434,7 @@ public class Client implements Serializable, Diffable<Client> {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
-				 state, jobs, socialNetworks);
+				 state, jobs, socialProfiles);
 	}
 
 	@Override
@@ -481,7 +499,7 @@ public class Client implements Serializable, Diffable<Client> {
 				.append("Страна", this.country, client.country)
 				.append("Город", this.city, client.city)
 				.append("Работа", this.jobs.toString(), client.jobs.toString())
-				.append("Социальные сети", this.socialNetworks.toString(), client.socialNetworks.toString())
+				.append("Социальные сети", this.socialProfiles.toString(), client.socialProfiles.toString())
 				.append("Состояние", this.state, client.state)
 				.build();
 	}

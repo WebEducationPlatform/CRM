@@ -1,7 +1,7 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.configs.inteface.IPConfig;
+import com.ewp.crm.service.interfaces.IPService;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -26,6 +26,8 @@ public class IPServiceImpl implements IPService {
 
 	private String voximplantPasswordForWebCall;
 
+	private String voximplantCodeToSetRecord;
+
 	private static org.slf4j.Logger logger = LoggerFactory.getLogger(IPServiceImpl.class);
 
 
@@ -36,6 +38,7 @@ public class IPServiceImpl implements IPService {
 		voximplantRuleId = ipConfig.getVoximplantRuleId();
 		voximplantLoginForWebCall = ipConfig.getVoximplantLoginForWebCall();
 		voximplantPasswordForWebCall = ipConfig.getVoximplantPasswordForWebCall();
+		voximplantCodeToSetRecord = ipConfig.getVoximplantCodeToSetRecord();
 	}
 
 	public void call(String from, String to, Long callId) {
@@ -77,6 +80,10 @@ public class IPServiceImpl implements IPService {
     public String getVoximplantUserLogin(String fullLogin) {
         return fullLogin.replaceAll("@.+", "");
     }
+
+	public String getVoximplantCodeToSetRecord() {
+		return voximplantCodeToSetRecord;
+	}
 }
 
 

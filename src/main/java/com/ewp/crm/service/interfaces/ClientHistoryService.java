@@ -28,7 +28,7 @@ public interface ClientHistoryService {
 
 	ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type);
 
-	List<ClientHistory> findByClientId(long id);
+	List<ClientHistory> getClientById(long id);
 
-	List<ClientHistory> findAllByClientId(long id, Pageable pageable);
+	List<ClientHistory> getAllClientById(long id, Pageable pageable);
 }

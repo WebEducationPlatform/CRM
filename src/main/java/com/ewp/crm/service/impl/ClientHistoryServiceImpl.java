@@ -37,13 +37,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public List<ClientHistory> findByClientId(long id) {
-		return clientHistoryRepository.findByClientId(id);
+	public List<ClientHistory> getClientById(long id) {
+		return clientHistoryRepository.getByClientId(id);
 	}
 
 	@Override
-	public List<ClientHistory> findAllByClientId(long id, Pageable pageable) {
-		return clientHistoryRepository.findAllByClientId(id, pageable);
+	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
+		return clientHistoryRepository.getAllByClientId(id, pageable);
 	}
 
 	@Override

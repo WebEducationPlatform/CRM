@@ -9,11 +9,18 @@ import java.util.List;
 import java.util.Set;
 
 public interface SMSService {
+
 	void sendSMS(Set<ClientData> phoneNumbers, String text);
+
 	void sendSMS(Long clientId, String templateId, String body, User principal) throws JSONException;
+
 	void sendSMS(List<Client> clients, String text, User sender);
+
 	void plannedSMS(Client client, String text, String date, User sender);
+
 	void plannedSMS(List<Client> client, String text, String date, User sender);
+
 	String getBalance();
+
 	String getStatusMessage(long smsId);
 }

@@ -7,12 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -26,7 +21,7 @@ public class RegisterRestController {
     private UserService userService;
 
 
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
+    @PostMapping(value = "/user/register")
     public ResponseEntity addUser(@Valid @RequestBody User user) {
         if ( user.isVerified() || user.isEnabled()) {
             logger.warn("CRM been attempt of hacking");

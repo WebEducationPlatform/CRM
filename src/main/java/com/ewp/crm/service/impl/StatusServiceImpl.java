@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -28,31 +29,41 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public List<Status> getAll() {
-		return statusDAO.findAllByOrderByIdAsc();
+		return statusDAO.getAllByOrderByIdAsc();
 	}
 
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
 		List<Status> statuses = getAll();
 		for (Status status : statuses) {
-			status.setClients(clientService.findByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
+			status.setClients(clientService.getClientsByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
 		}
 		return statuses;
 	}
 
 	@Override
 	public Status get(Long id) {
-		return statusDAO.findOne(id);
+		Optional<Status> optional = statusDAO.findById(id);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
 	public Status get(String name) {
-		return statusDAO.findStatusByName(name);
+		return statusDAO.getStatusByName(name);
 	}
 
 	@Override
 	public Status getFirstStatusForClient() {
-		return statusDAO.findOne(1L);
+		Optional<Status> optional = statusDAO.findById(1L);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -82,7 +93,7 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	private void checkStatusUnique(Status status) {
-		Status statusFromDB = statusDAO.findStatusByName(status.getName());
+		Status statusFromDB = statusDAO.getStatusByName(status.getName());
 		if (statusFromDB != null && !statusFromDB.equals(status)) {
 			throw new StatusExistsException("Статус с таким названием уже существует");
 		}
@@ -92,14 +103,19 @@ public class StatusServiceImpl implements StatusService {
 		if (id == 1L) {
 			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
 		}
-		if (statusDAO.findOne(id).getName().equals("deleted")) {
+		Optional<Status> optional = statusDAO.findById(id);
+		Status statusFromDB = null;
+		if (optional.isPresent()) {
+			statusFromDB = optional.get();
+		}
+		if (statusFromDB.getName().equals("deleted")) {
 			throw new StatusExistsException("Статус deleted нельзя удалить");
 		}
 	}
 
 	private void transferStatusClientsBeforeDelete(Status status) {
 		if (status.getClients() != null) {
-			Status defaultStatus = statusDAO.findStatusByName("deleted");
+			Status defaultStatus = statusDAO.getStatusByName("deleted");
 			defaultStatus.getClients().addAll(status.getClients());
 			status.getClients().clear();
 			statusDAO.saveAndFlush(status);
@@ -117,7 +133,11 @@ public class StatusServiceImpl implements StatusService {
 	public void delete(Long id) {
 		logger.info("{} deleting of the status...", StatusServiceImpl.class.getName());
 		checkStatusId(id);
-		Status statusFromDB = statusDAO.findOne(id);
+		Optional<Status> optional = statusDAO.findById(id);
+		Status statusFromDB = null;
+		if (optional.isPresent()) {
+			statusFromDB = optional.get();
+		}
 		transferStatusClientsBeforeDelete(statusFromDB);
 		statusDAO.delete(statusFromDB);
 		logger.info("{} status deleted successfully...", StatusServiceImpl.class.getName());

@@ -2,7 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.FacebookMessage;
 import com.ewp.crm.repository.interfaces.FacebookMessageDAO;
-import com.ewp.crm.service.interfaces.FacebookMessageServie;
+import com.ewp.crm.service.interfaces.FacebookMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class FacebookMessageServiceImpl extends CommonServiceImpl<FacebookMessage> implements FacebookMessageServie {
+public class FacebookMessageServiceImpl extends CommonServiceImpl<FacebookMessage> implements FacebookMessageService {
 
 	private final FacebookMessageDAO facebookMessageDao;
 

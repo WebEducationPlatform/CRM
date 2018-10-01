@@ -19,25 +19,26 @@ function drawCheckbox(currentForm, clientId) {
         url: 'rest/client/' + clientId,
         data: formData,
         beforeSend: function () {
-            if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+            if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
                 return false;
             }
         },
-        success: function(data) {
-            var soc = data.socialNetworks;
+        success: function (data) {
+            var soc = data.socialProfiles;
             var email = data.email;
             var phoneNumber = data.phoneNumber;
 
             for (let i = 0; i < soc.length; i++) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
-                    "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
+                    "<input type='checkbox'  value=" + soc[i].socialProfileType.name + "  class='my-checkbox-soc' />" + soc[i].socialProfileType.name +
                     "</label>");
             }
-            if(email !== null) {
+            if (email !== null) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
                     "</label>");
-            } if (phoneNumber !== null ) {
+            }
+            if (phoneNumber !== null) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
                     "</label>");
@@ -47,27 +48,27 @@ function drawCheckbox(currentForm, clientId) {
 }
 
 $(function () {
-    $(".hide-main-modal").click(function(e) {
+    $(".hide-main-modal").click(function (e) {
         $(".main-modal .close").click()
     });
 });
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 
-$('.select_all').click(function() {
+$('.select_all').click(function () {
     var currentForm = $(this).parents('.box-modal');
     currentForm.find('.my-checkbox-soc').prop('checked', true);
 });
 
-$('.confirm-skype-interceptor').on('click','.select_all_skype_boxes', function (e) {
+$('.confirm-skype-interceptor').on('click', '.select_all_skype_boxes', function (e) {
     var currentForm = $(this).parents('.box-window');
     currentForm.find('.my-checkbox-soc').prop('checked', true);
 });
 
 
-    $('.deselect_all').click(function() {
-        var currentForm = $(this).parents('.box-modal');
-        currentForm.find('.my-checkbox-soc').prop('checked', false);
+$('.deselect_all').click(function () {
+    var currentForm = $(this).parents('.box-modal');
+    currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
 
 
@@ -97,13 +98,10 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
-
-
-
 $(document).ready(function () {
     $(".column").sortable({
-    delay:100,
-	items: '> .portlet',
+        delay: 100,
+        items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
         cancel: ".portlet-toggle",
@@ -119,9 +117,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function(){
-        $("#new-status-name").keypress(function(e){
-            if(e.keyCode===13){
+    $(document).ready(function () {
+        $("#new-status-name").keypress(function (e) {
+            if (e.keyCode === 13) {
                 createNewStatus();
             }
         });
@@ -143,19 +141,27 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-   /* $("#new-status-form").focusout(
-        function () {
-            $(this).hide();
-            $("#create-new-status-span").show();
-        });*/
+    /* $("#new-status-form").focusout(
+         function () {
+             $(this).hide();
+             $("#create-new-status-span").show();
+         });*/
 
-   //Search clients in main
+    //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
         let jo2 = jo.find($(".portlet-header"));
-        this.value.localeCompare("") == 0 ? jo.show : jo.hide();
+        let data = this.value.toLowerCase().split(" ");
+        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
+
         for (let i = 0; i < jo2.length; i++) {
-            if (jo2[i].innerText.includes(this.value)) {
+            let count = 0;
+            for(let z = 0; z < data.length; z++) {
+                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
+                    count++;
+                }
+            }
+            if (count === data.length) {
                 jo[i].style.display = 'block';
             }
         }
@@ -165,7 +171,8 @@ $(document).ready(function () {
         let modal = $("#sms_error_modal"),
             btn = $(this),
             url = '/user/notification/sms/error/' + btn.attr("data-id");
-        $.get(url, function(){}).done(function (notifications) {
+        $.get(url, function () {
+        }).done(function (notifications) {
             let body = modal.find("tbody");
             for (let i = 0; i < notifications.length; i++) {
                 body.append(
@@ -173,7 +180,7 @@ $(document).ready(function () {
                 )
             }
         });
-        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
         modal.modal();
     })
 
@@ -186,10 +193,10 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
+
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
-
 
 
 function createNewUser() {
@@ -261,6 +268,7 @@ function changeStatusName(id) {
         }
     });
 }
+
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -309,12 +317,13 @@ function assign(id) {
         }
     });
 }
+
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign : user
+            userForAssign: user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -324,7 +333,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
+                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -348,8 +357,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -377,11 +386,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if(unassignBtn.length !== 0){
+            if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id +")' " +
+                    "   onclick='assign(" + id + ")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -401,14 +410,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data=[];
-        for (var w = 0; w < allChecks.length; ++w){
-            if(allChecks[w].checked){
-                data[data.length]=allChecks[w].value;
+        var data = [];
+        for (var w = 0; w < allChecks.length; ++w) {
+            if (allChecks[w].checked) {
+                data[data.length] = allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length===0) {
+        if (data.length === 0) {
             jo.show();
             return;
         }
@@ -491,7 +500,7 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
-$(document).ready(function () {
+$(document).on('click', function () {
     var url = '/rest/user';
 
     var userNames = [];
@@ -539,11 +548,29 @@ function reAvailableUser(id) {
         url: url,
         data: formData,
         success: function () {
-            $("#deleteUserModal" + id).modal("hide");
+            $("#reAvailableUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {
 
+        }
+    });
+}
+
+function deleteUser(id) {
+    let url = '/admin/rest/user/deleteUser';
+    let formData = {
+        deleteId: id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            location.reload();
+        },
+        error: function (e) {
         }
     });
 }
@@ -582,7 +609,7 @@ $(function () {
 
 // Отправка кастомного сообщения в вк
 $(function () {
-    $('.send-vk-btn').on('click', function(event) {
+    $('.send-vk-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-custom-vk-status');
@@ -599,11 +626,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -629,7 +656,7 @@ $(function () {
 
 // Отправка кастомного сообщения в email
 $(function () {
-    $('.send-email-btn').on('click', function(event) {
+    $('.send-email-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-email-err-status');
@@ -647,11 +674,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -707,7 +734,7 @@ $(function () {
 });
 
 $(function () {
-    $('.open-description-btn').on('click', function(event) {
+    $('.open-description-btn').on('click', function (event) {
         var id = $(this).data('id');
         var infoClient = $('#info-client' + id);
         var text = infoClient.find('.client-description').text();
@@ -718,7 +745,6 @@ $(function () {
         clientModal.modal('show');
     });
 });
-
 
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
@@ -781,7 +807,7 @@ $(function () {
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
-            var valuecheck = $( this ).val();
+            var valuecheck = $(this).val();
             switch (valuecheck) {
                 case ('email'):
                     url = '/rest/sendEmail';
@@ -801,29 +827,28 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: formData,
-            beforeSend: function () {
-                current.text("Отправка..");
-                current.attr("disabled", "true")
-            },
-            success: function (result) {
-                if (err.length === 0) {
-                    $(".modal").modal('hide');
+                beforeSend: function () {
+                    current.text("Отправка..");
+                    current.attr("disabled", "true")
+                },
+                success: function (result) {
+                    if (err.length === 0) {
+                        $(".modal").modal('hide');
+                        current.text("Отправить");
+                        current.removeAttr("disabled");
+                    }
+                },
+                error: function (e) {
+                    err.push(valuecheck);
                     current.text("Отправить");
-                    current.removeAttr("disabled");
+                    currentStatus.text("Не удалось отправить сообщение " + err);
+                    current.attr("disabled", "true");
+                    console.log(e)
                 }
-            },
-            error: function (e) {
-                err.push(valuecheck);
-                current.text("Отправить");
-                currentStatus.text("Не удалось отправить сообщение " + err);
-                current.attr("disabled", "true");
-                console.log(e)
-            }
+            });
         });
     });
 });
-});
-
 $(function () {
     $('.fix-modal').on('hidden.bs.modal', function () {
         var currentForm = $(this).find('.send-fixed-template');
@@ -872,19 +897,19 @@ $(function () {
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.save_value').on('click', function(event) {
+    $('.save_value').on('click', function (event) {
         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
             return $(el).val();
         });
-        var boxList =sel.get();
+        var boxList = sel.get();
         console.log(sel.get());
 
         $.ajax({
             contentType: "application/json",
             type: 'POST',
             data: JSON.stringify(boxList),
-            url:"/rest/sendSeveralMessage",
-            success:function(result){
+            url: "/rest/sendSeveralMessage",
+            success: function (result) {
                 alert('sucess')
             }
         });
@@ -895,18 +920,20 @@ $(function () {
 
 //Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
-    $('.send-all-custom-message').on('click', function(event) {
+    $('.send-all-custom-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        var formData = {clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()};
+        var formData = {
+            clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body').val()
+        };
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
             var valuecheck = $(this).val();
-            switch ($( this ).val()) {
+            switch ($(this).val()) {
                 case ('email'):
                     url = '/rest/sendEmail';
                     break;
@@ -925,7 +952,7 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: formData,
-                beforeSend: function(){
+                beforeSend: function () {
                     current.text("Отправка..");
                     current.attr("disabled", "true")
                 },
@@ -955,7 +982,6 @@ $(function () {
         $(this).find('.send-all-custom-message').removeAttr("disabled");
     });
 });
-
 
 
 function hideClient(clientId) {
@@ -1005,7 +1031,7 @@ $(function () {
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-			markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'))
         }
     });
 });
@@ -1029,6 +1055,7 @@ $(function () {
     });
 });
 
+$('.confirm-skype-interceptor').on('click', '.confirm-skype-btn', function (e) {
 $(document).on('click','.confirm-skype-btn', function (e) {
     startDateOld = $('input[name="skypePostponeDateOld"]').data('daterangepicker').startDate._d;
     idMentor = document.getElementsByTagName("option")[document.getElementById("mentor").selectedIndex].value;
@@ -1289,8 +1316,8 @@ function assignSkype(id) {
     var currentStatus = $('.skype-notification');
     var formData = {clientId: clientId};
     var nowDate = new Date();
-    var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
-    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
+    var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
+    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
     var startDate = moment(minDate).utcOffset(180);
     $.ajax({
         type: 'GET',
@@ -1379,43 +1406,12 @@ function confirmSkype(id) {
             currentStatus.text("Логин Skype успешно добавлен");
             $('.confirm-skype-login').remove();
             $('.enter-skype-login').remove();
-
-            // Get the list of mentors
-            $.ajax({
-                type: 'GET',
-                url: 'rest/skype/allMentors',
-                dataType: 'json',
-                success: function (mentors) {
-                    currentStatus.css('color', '#333');
-                    currentStatus.text("Выбирете ментора из списка");
-                    currentStatus.after('<select id="mentor" class="remove-element enter-mentor-list form-control"></select>');
-                    if (mentors === null || mentors.length === 0) {
-                        currentStatus.css('color', '#333');
-                        currentStatus.text("Менторы не найдены");
-                    } else {
-                        $.each(mentors, function(key, value) {
-                            $('.enter-mentor-list')
-                                .append($("<option></option>")
-                                    .attr("value",value.id)
-                                    .text(value.firstName + " " + value.lastName));
-                        });
-                        idMentor = document.getElementsByTagName("option")[document.getElementById("mentor").selectedIndex].value;
-                    }
-                },
-
-                error: function (error) {
-                    console.log(error);
-                    currentStatus.css('color','#229922');
-                    currentStatus.text(error);
-                }
-
-            });
-
+            //
             currentBtn.attr("disabled", "true");
             currentBtn.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
-                '<div class="panel-body">' + '<input type="text" class="form-control skype-postpone-date" name="skypePostponeDateOld" id="skypePostpone' + clientId + '"> </input>' +
+                '<div class="panel-body">' + '<input type="text" class="form-control skype-postpone-date" name="skypePostponeDate" id="skypePostpone' + clientId + '"> </input>' +
                 '<button class="btn btn-info btn-sm confirm-skype-btn">ОК</button>' + ' <form class="box-window"></form>' + '</div></div>');
-            $('input[name="skypePostponeDateOld"]').daterangepicker({
+            $('input[name="skypePostponeDate"]').daterangepicker({
                 singleDatePicker: true,
                 timePicker: true,
                 timePickerIncrement: 1,
@@ -1423,17 +1419,16 @@ function confirmSkype(id) {
                 locale: {
                     format: 'DD.MM.YYYY H:mm МСК'
                 },
-                minDate: 0,
-                startDate: startDateOld
+                minDate: startDate,
+                startDate: startDate
             });
         },
-        error: function (error) {
-            currentStatus.css('color','#229922');
-            currentStatus.text("Клиент с таким логином уже существует");
-        }
+            error: function (error) {
+                currentStatus.css('color','#229922');
+                currentStatus.text("Клиент с таким логином уже существует");
+            }
     });
-};
-
+});
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
@@ -1457,7 +1452,7 @@ $(function () {
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
                         $('#client-phone').after('<td id="web-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                            .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
                     }
 
                     if (client.age > 0) {
@@ -1476,13 +1471,13 @@ $(function () {
                     $('#vk-href').hide();
                     $('#fb-href').hide();
 
-                    for (var i = 0; i < client.socialNetworks.length; i++) {
-                        if (client.socialNetworks[i].socialNetworkType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialNetworks[i].link);
+                    for (var i = 0; i < client.socialProfiles.length; i++) {
+                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
+                            $('#vk-href').attr('href', client.socialProfiles[i].link);
                             $('#vk-href').show();
                         }
-                        if (client.socialNetworks[i].socialNetworkType.name == 'facebook') {
-                            $('#fb-href').attr('href', client.socialNetworks[i].link);
+                        if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
+                            $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
                     }

@@ -11,7 +11,7 @@ public interface UserService extends CommonService<User> {
 
 	User getByEmailOrPhone(String email, String phone);
 
-	void add(User user);
+	User add(User user);
 
 	void update(User user);
 
