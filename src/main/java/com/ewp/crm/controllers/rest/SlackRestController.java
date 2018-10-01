@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
@@ -67,6 +68,7 @@ public class SlackRestController {
     }
 
     @PostMapping(value = "/get/students/statuses")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<String> getAllStatusForStudents() {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final ObjectMapper mapper = new ObjectMapper()
@@ -81,6 +83,7 @@ public class SlackRestController {
     }
 
     @GetMapping(value = "/set/default/{statusId}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity setDefaultStatus(@PathVariable("statusId") Long id) {
         ProjectProperties pp = propertiesService.get();
         if (pp == null) {
