@@ -150,7 +150,7 @@ $(document).ready(function () {
     //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
-        let jo2 = jo.find($(".portlet-header"));
+        let jo2 = jo.find($(".search_text"));
         let data = this.value.toLowerCase().split(" ");
         this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
 
