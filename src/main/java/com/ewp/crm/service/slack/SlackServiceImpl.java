@@ -1,7 +1,9 @@
 package com.ewp.crm.service.slack;
 
-import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.SlackRepository;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.SlackProfile;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.service.impl.StudentServiceImpl;
 import com.ewp.crm.service.interfaces.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -30,7 +32,6 @@ public class SlackServiceImpl implements SlackService {
 
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
 
-    private final SlackRepository slackRepository;
     private final ClientService clientService;
     private final StudentServiceImpl studentService;
     private final StatusService statusService;
@@ -41,7 +42,6 @@ public class SlackServiceImpl implements SlackService {
 
     @Autowired
     public SlackServiceImpl(Environment environment,
-                            SlackRepository slackRepository,
                             ClientService clientService,
                             StudentServiceImpl studentService,
                             StatusService statusService,
@@ -53,9 +53,8 @@ public class SlackServiceImpl implements SlackService {
                 throw new NullPointerException();
             }
         } catch (NullPointerException npe) {
-            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
+            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
         }
-        this.slackRepository = slackRepository;
         this.clientService = clientService;
         this.studentService = studentService;
         this.statusService = statusService;
@@ -96,7 +95,7 @@ public class SlackServiceImpl implements SlackService {
             slackProfile.setClient(client);
             ProjectProperties projectProperties = propertiesService.get();
             if (projectProperties == null || projectProperties.getDefaultStatusId() == null ) {
-                logger.warn("Don't have projectProperties yet! Create");
+                logger.warn("Don't have projectProperties yet! Create it.");
             } else {
                 Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId());
                 client.setStatus(newClientStatus);
@@ -106,7 +105,7 @@ public class SlackServiceImpl implements SlackService {
             if (client.getStudent() == null) {
                 studentService.addStudentForClient(client);
             }
-            client.addHistory(clientHistoryService.createHistory(" Slack nickname-" + slackProfile.getDisplayName()
+            client.addHistory(clientHistoryService.createHistory("Slack, nickname: " + slackProfile.getDisplayName()
                             + ". " + client.getName() + " " + client.getLastName() + " теперь студент"));
             clientService.updateClient(client);
             logger.info("New member " + slackProfile.getDisplayName() + " "
