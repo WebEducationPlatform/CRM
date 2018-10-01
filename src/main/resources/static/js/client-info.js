@@ -1,7 +1,20 @@
 $(function () {
-    $('.back-btn').click(function(){
+    $('.back-btn').click(function () {
         history.back();
         return false;
+    });
+});
+
+$(function () {
+    $("#edit-client-visible").empty();
+    let id = console.log(window.location.href.substr(window.location.href.lastIndexOf('/') + 1))
+    $.ajax({
+        type: 'GET',
+        url: '/rest/client' + id,
+        data: data,
+        success: function (data) {
+            console.log(data)
+        }
     });
 });
 
@@ -12,7 +25,7 @@ $(document).ready(function () {
 });
 
 function changeClient(id) {
-    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+    if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
         return;
     }
     var SN = [];
@@ -28,15 +41,15 @@ function changeClient(id) {
                     throw new Error("Пустые поля в таблице 'Cоциальные сети'");
                 }
                 if ($(th).attr('abbr') !== "") {
-                    if(typeof $tds.eq(index).children().val()==='undefined') {
+                    if (typeof $tds.eq(index).children().val() === 'undefined') {
                         var obj1 = {};
-                        if($tds.eq(index)[0].id === "edit-client-SN_type"){
+                        if ($tds.eq(index)[0].id === "edit-client-SN_type") {
                             obj1["name"] = $tds.eq(index)[0].innerText;
                             obj[$(th).attr('abbr')] = obj1;
-                        }else {
+                        } else {
                             obj[$(th).attr('abbr')] = $tds.eq(index).text();
                         }
-                    }else{
+                    } else {
                         obj[$(th).attr('abbr')] = $tds.eq(index).children().val();
                     }
                 }
@@ -76,12 +89,13 @@ function changeClient(id) {
         email: $('#edit-client-email').val(),
         age: $('#edit-client-age').val(),
         sex: $('#edit-client-sex').find('option:selected').text(),
-        state:  $('#edit-client-state').val(),
+        state: $('#edit-client-state').val(),
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
         skype: $('#edit-client-skype').val(),
+        postponeDate: $('#edit-client-visible').val(),
         socialProfiles: SN,
-        status : {},
+        status: {},
         jobs: Job
     };
     var current = document.getElementById("message");
@@ -91,7 +105,7 @@ function changeClient(id) {
         url: url,
         contentType: "application/json; charset=utf-8",
         data: data,
-        beforeSend: function(){
+        beforeSend: function () {
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
 
@@ -109,10 +123,10 @@ function changeClient(id) {
 }
 
 function disableInputE() {
-	var disMas = [69, 187, 189, 109];
-	if (disMas.indexOf(event.keyCode)!==-1) {
-		event.preventDefault()
-	}
+    var disMas = [69, 187, 189, 109];
+    if (disMas.indexOf(event.keyCode) !== -1) {
+        event.preventDefault()
+    }
 }
 
 $(document).on('click', 'td', (function (e) {
@@ -126,9 +140,9 @@ $(document).on('click', 'td', (function (e) {
     }
     var val = $(t).html();
     var code;
-    if(e.target.cellIndex === 2 && e.target.offsetParent.id === "SocialNetworks"){
-        code = '<select id="edit" value = "'+ val + '" class=\"form-control\">' + SNs + '</select>'
-    }else {
+    if (e.target.cellIndex === 2 && e.target.offsetParent.id === "SocialNetworks") {
+        code = '<select id="edit" value = "' + val + '" class=\"form-control\">' + SNs + '</select>'
+    } else {
         code = '<input type="text" id="edit" value="' + val + '" />';
     }
     $(t).empty().append(code);
@@ -150,30 +164,31 @@ $(window).keydown(function (event) {
 });
 
 function deleteSocial(element) {
-	$(element).parent().parent().remove();
+    $(element).parent().parent().remove();
 }
 
 function deleteJob(element) {
-	$(element).parent().parent().remove();
+    $(element).parent().parent().remove();
 }
 
-var SNs="";
+var SNs = "";
+
 function addNewSN() {
-    if(SNs.length===0){
+    if (SNs.length === 0) {
         console.log("Массив socialNetworkTypes пуст!");
         return;
     }
-	var size =  ($("#SN-table-body")[0]).rows.length;
-	$("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+    var size = ($("#SN-table-body")[0]).rows.length;
+    $("#SN-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteSocial(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function addNewJob() {
-    var size =  ($("#job-table-body")[0]).rows.length;
+    var size = ($("#job-table-body")[0]).rows.length;
     $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function revertUnable() {
-    var column1 =  $('#column1');
+    var column1 = $('#column1');
     column1.find('input').each(function () {
         if ($(this)[0].disabled === true) {
             $(this)[0].disabled = false;
@@ -212,9 +227,9 @@ $(document).ready(function () {
         url: url,
         dataType: 'json',
         success: function (res) {
-            socialNetworkTypes=res;
-            $.each(socialNetworkTypes,function (index, type) {
-                SNs = SNs + "<option>"+ type + "</option>"
+            socialNetworkTypes = res;
+            $.each(socialNetworkTypes, function (index, type) {
+                SNs = SNs + "<option>" + type + "</option>"
             });
         },
         error: function (error) {
@@ -223,7 +238,7 @@ $(document).ready(function () {
     });
 });
 
-function selectOptions (element) {
+function selectOptions(element) {
     element.find("option").each(function () {
         var val = $(this).closest('select').attr('value');
         var inText = $(this).text();
@@ -234,14 +249,15 @@ function selectOptions (element) {
 }
 
 $(function () {
-	$("#edit-client-age").on('keyup', function(e) {
-		var reg = new RegExp("^$|^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
-		if(!reg.test($("#edit-client-age").val())) {
-			$("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
-			$("#saveChanges")[0].setAttribute("disabled","disabled");
-		}else {
-			$("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "";
-			$("#saveChanges")[0].removeAttribute("disabled");
-		}
-	});
+    $("#edit-client-age").on('keyup', function (e) {
+        var reg = new RegExp("^$|^[0-9]$|^[1-9][0-9]$|^1[0-1][1-9]$|^12[1-7]$");
+        if (!reg.test($("#edit-client-age").val())) {
+            $("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "Диапазон от 0 до 127";
+            $("#saveChanges")[0].setAttribute("disabled", "disabled");
+        } else {
+            $("#edit-client-age").siblings("div[class='help-block with-error']")[0].innerText = "";
+            $("#saveChanges")[0].removeAttribute("disabled");
+        }
+    });
 });
+

@@ -74,6 +74,15 @@
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
                                th:value="${client.city}"/>
                     </div>
+
+                    <div class="form-group">
+                        <label for="edit-client-visible">Видимость клиента</label>
+                        <select class="form-control" disabled="disabled" id="edit-client-visible">
+                            <option th:value="${client.postponeDate}" th:text="'Скрыт до ' + ${client.postponeDate}"></option>
+                            <option th:value="null">В работе</option>
+                        </select>
+                    </div>
+<!--//th:onshow="'selectVisibility('+${client.postponeDate}+')'"-->
                     <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">

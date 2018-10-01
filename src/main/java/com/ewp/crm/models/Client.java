@@ -417,14 +417,14 @@ public class Client implements Serializable, Diffable<Client> {
                 state == client.state &&
                 Objects.equals(socialProfiles, client.socialProfiles) &&
                 Objects.equals(jobs, client.jobs) &&
-                Objects.equals(skype, client.skype);
-
+                Objects.equals(skype, client.skype) &&
+                Objects.equals(postponeDate, client.postponeDate);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
-                state, jobs, socialProfiles);
+                state, jobs, socialProfiles, postponeDate);
     }
 
     @Override
