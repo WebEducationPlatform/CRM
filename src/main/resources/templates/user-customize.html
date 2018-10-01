@@ -46,48 +46,11 @@
         </button>
         <br/>
         <br/>
-        <button type="button" class="btn btn-primary pull" data-toggle="modal" data-target="#autoAnswerModal">
-            Настроить автоответ
-        </button>
+            <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
     </div>
 
 </div>
 
-
-<!-- Модальное окно для настройки автоответа -->
-<div class="modal fade" id="autoAnswerModal" tabindex="-1" role="dialog" aria-labelledby="autoAnswerLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="autoAnswerLabel">Настройка текста автоответа</h4>
-            </div>
-            <form class="form" method="post" action="/user/autoAnswer">
-            <div class="modal-body">
-                <div class="container">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="autoAnswerArea">Автоматический ответ</label>
-                            <textarea class="form-control" rows="5"
-                                      name="text"
-                                      th:text="${userCustomize.autoAnswer}"
-                                      id="autoAnswerArea">test</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <input class="btn-primary btn-sm" type="submit"
-                       role="button"
-                       value="Сохранить"/>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
 <!-- Модальное окно для получения токена -->
 <div class="modal fade" id="vkAuthModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
