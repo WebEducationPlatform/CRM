@@ -147,4 +147,9 @@ public class StatusServiceImpl implements StatusService {
 	public Long findMaxPosition() {
 		return statusDAO.findMaxPosition();
 	}
+
+	@Override
+	public List<Status> getAllStatusesForStudents() {
+		return statusDAO.getAllStatusesForStudents();
+	}
 }
