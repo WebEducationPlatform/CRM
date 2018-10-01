@@ -15,6 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.HandlerMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/rest/student")
@@ -73,41 +81,67 @@ public class StudentRestController {
     }
 
     @PostMapping ("/{id}/notify/email")
-    public HttpStatus updateNotifyEmailFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
-        Student previous = studentService.get(id);
-        studentService.detach(previous);
-        Student current = studentService.get(id);
-        Client client = current.getClient();
-        current.setNotifyEmail(status);
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, current, ClientHistory.Type.UPDATE_STUDENT));
-        studentService.update(current);
-        clientService.updateClient(client);
+    public HttpStatus updateNotifyEmailFlag(@RequestParam boolean status,
+                                            @PathVariable("id") Long id,
+                                            @AuthenticationPrincipal User userFromSession,
+                                            HttpServletRequest request) {
+        updateNotification(status, id, userFromSession, request);
         return HttpStatus.OK;
     }
 
     @PostMapping ("/{id}/notify/sms")
-    public HttpStatus updateNotifySMSFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
-        Student previous = studentService.get(id);
-        studentService.detach(previous);
-        Student current = studentService.get(id);
-        Client client = current.getClient();
-        current.setNotifySMS(status);
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT));
-        studentService.update(current);
-        clientService.updateClient(client);
+    public HttpStatus updateNotifySMSFlag(@RequestParam boolean status,
+                                          @PathVariable("id") Long id,
+                                          @AuthenticationPrincipal User userFromSession,
+                                          HttpServletRequest request) {
+        updateNotification(status, id, userFromSession, request);
         return HttpStatus.OK;
     }
 
     @PostMapping ("/{id}/notify/vk")
-    public HttpStatus updateNotifyVKFlag(@RequestParam boolean status, @PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
+    public HttpStatus updateNotifyVKFlag(@RequestParam boolean status,
+                                         @PathVariable("id") Long id,
+                                         @AuthenticationPrincipal User userFromSession,
+                                         HttpServletRequest request) {
+        updateNotification(status, id, userFromSession, request);
+        return HttpStatus.OK;
+    }
+
+    /**
+     * Change notification status depending on url path.
+     * @param status notification status.
+     * @param id modified student id.
+     * @param userFromSession logged in user.
+     * @param request HTTP request.
+     */
+    private void updateNotification(boolean status, Long id, User userFromSession, HttpServletRequest request) {
         Student previous = studentService.get(id);
         studentService.detach(previous);
-        Student current = studentService.get(id);
+        String url = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String key = url.substring(url.lastIndexOf("/") + 1);
+        Map<String, Supplier<Student>> filterMap = new HashMap<String, Supplier<Student>>() {
+            {
+                put("email", () -> {
+                    Student current = studentService.get(id);
+                    current.setNotifyEmail(status);
+                    return current;
+                });
+                put("sms", () -> {
+                    Student current = studentService.get(id);
+                    current.setNotifySMS(status);
+                    return current;
+                });
+                put("vk", () -> {
+                    Student current = studentService.get(id);
+                    current.setNotifyVK(status);
+                    return current;
+                });
+            }
+        };
+        Student current = filterMap.get(key).get();
         Client client = current.getClient();
-        current.setNotifyVK(status);
         client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT));
         studentService.update(current);
         clientService.updateClient(client);
-        return HttpStatus.OK;
     }
 }

@@ -164,7 +164,7 @@ $('.notifier_all').click(function() {
     let checked = this.checked;
     for (let prefix of notifications) {
         let selector = '#' + id + prefix;
-        if($(selector).prop('disabled') == false) {
+        if(($(selector).prop('disabled') == false) && ($(selector).prop('checked') != checked)) {
             $(selector).prop('checked', checked);
             update_notification(selector.substr(1), checked);
         }
