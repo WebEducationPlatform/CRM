@@ -23,7 +23,9 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     private final StudentRepositoryCustom studentRepositoryCustom;
 
     @Autowired
-    public StudentServiceImpl(StudentRepository studentRepository, StudentStatusRepository studentStatusRepository, StudentRepositoryCustom studentRepositoryCustom) {
+    public StudentServiceImpl(StudentRepository studentRepository,
+                              StudentStatusRepository studentStatusRepository,
+                              StudentRepositoryCustom studentRepositoryCustom) {
         this.studentRepository = studentRepository;
         this.studentStatusRepository = studentStatusRepository;
         this.studentRepositoryCustom = studentRepositoryCustom;
@@ -45,7 +47,14 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             }
             int trialOffset = client.getStatus().getTrialOffset();
             int nextPaymentOffset = client.getStatus().getNextPaymentOffset();
-            result = new Student(client, LocalDateTime.now().plusDays(trialOffset), LocalDateTime.now().plusDays(nextPaymentOffset), new BigDecimal(0.00), new BigDecimal(0.00), new BigDecimal(0.00), status, "");
+            result = new Student(client,
+                    LocalDateTime.now().plusDays(trialOffset),
+                    LocalDateTime.now().plusDays(nextPaymentOffset),
+                    new BigDecimal(0.00),
+                    new BigDecimal(0.00),
+                    new BigDecimal(0.00),
+                    status,
+                    "");
             result = studentRepository.save(result);
         } else {
             result = client.getStudent();

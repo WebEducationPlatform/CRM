@@ -180,9 +180,15 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistory;
 	}
 
+	/**
+	 * Create client history when student .
+	 * @param user change author.
+	 * @param type history type.
+	 * @return client history object.
+	 */
 	@Override
 	public ClientHistory creteStudentHistory(User user, ClientHistory.Type type) {
-		logger.info("creation of become student history...");
+		logger.debug("creation of become student history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		return clientHistory;
@@ -198,7 +204,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 */
 	@Override
 	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
-		logger.info("creation of student history...");
+		logger.debug("creation of student history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		if (current.equals(prev)) {

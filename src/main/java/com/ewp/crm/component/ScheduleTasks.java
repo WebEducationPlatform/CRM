@@ -338,7 +338,7 @@ public class ScheduleTasks {
 				try {
 					mailSendService.prepareAndSend(clientId, template, "", sender);
 				} catch (Exception e) {
-					logger.warn("E-mail message not sent");
+					logger.warn("E-mail message not sent", e);
 				}
 			}
 			if (student.isNotifySMS()) {
