@@ -6,10 +6,7 @@ import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.email.MailSendService;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.FacebookServiceImpl;
-import com.ewp.crm.service.impl.ReportService;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -38,9 +35,9 @@ public class ScheduleTasks {
 
 	private final StatusService statusService;
 
-	private final SocialNetworkService socialNetworkService;
+	private final SocialProfileService socialProfileService;
 
-	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialProfileTypeService socialProfileTypeService;
 
 	private final SMSService smsService;
 
@@ -52,7 +49,7 @@ public class ScheduleTasks {
 
 	private final ClientHistoryService clientHistoryService;
 
-	private FacebookServiceImpl facebookService;
+	private final FacebookService facebookService;
 
 	private final VkTrackedClubService vkTrackedClubService;
 
@@ -75,12 +72,12 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialNetworkService socialNetworkService, SocialNetworkTypeService socialNetworkTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookServiceImpl facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
 		this.statusService = statusService;
-		this.socialNetworkService = socialNetworkService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.socialProfileService = socialProfileService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.mailSendService = mailSendService;
@@ -102,15 +99,15 @@ public class ScheduleTasks {
 		Status newClientsStatus = statusService.getFirstStatusForClient();
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
-		newClient.getSocialNetworks().get(0).setSocialNetworkType(socialNetworkTypeService.getByTypeName("vk"));
+		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
 		newClient.addHistory(clientHistoryService.createHistory("vk"));
 		clientService.addClient(newClient);
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
 	private void updateClient(Client newClient) {
-		SocialNetwork socialNetwork = newClient.getSocialNetworks().get(0);
-		Client updateClient = socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink()).getClient();
+		SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
+		Client updateClient = clientService.getClientBySocialProfile(socialProfile);
 		updateClient.setPhoneNumber(newClient.getPhoneNumber());
 		updateClient.setEmail(newClient.getEmail());
 		updateClient.setAge(newClient.getAge());
@@ -128,9 +125,9 @@ public class ScheduleTasks {
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
-			java.time.LocalDateTime trasnfromDate = java.time.LocalDateTime.from(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
+			LocalDateTime trasnfromDate = LocalDateTime.fromDateFields(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm по МСК");
-			String dateOfSkypeCall = dateFormat.format(trasnfromDate);
+			String dateOfSkypeCall = dateFormat.format(trasnfromDate.toDate());
 
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
 
@@ -168,8 +165,8 @@ public class ScheduleTasks {
 				for (String message : newMassages.get()) {
 					try {
 						Client newClient = vkService.parseClientFromMessage(message);
-						SocialNetwork socialNetwork = newClient.getSocialNetworks().get(0);
-						if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
+						SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
+						if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
 							updateClient(newClient);
 						} else {
 							addClient(newClient);
@@ -212,8 +209,8 @@ public class ScheduleTasks {
 			for (Long id : newUsers.get()) {
 				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
-					SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
-					if (!(Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent())) {
+					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
+					if (!(Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent())) {
 						addClient(newClient.get());
 					}
 				}
@@ -255,7 +252,7 @@ public class ScheduleTasks {
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
-		List<SMSInfo> queueSMS = smsInfoService.getBySMSIsChecked(false);
+		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
 			String status = smsService.getStatusMessage(sms.getSmsId());
 			if (!status.equals("queued")) {
@@ -300,13 +297,13 @@ public class ScheduleTasks {
 		if (!youtubeService.checkLiveStreamStatus()) {
 			youtubeService.handleYoutubeLiveChatMessages();
 		} else {
-			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.findAll());
+			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.getAll());
 			if (youtubeClient.isPresent()) {
 				for (YoutubeClient client : youtubeClient.get()) {
 					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
 					if (newClient.isPresent()) {
-						SocialNetwork socialNetwork = newClient.get().getSocialNetworks().get(0);
-                        if (Optional.ofNullable(socialNetworkService.getSocialNetworkByLink(socialNetwork.getLink())).isPresent()) {
+						SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
+                        if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
                             updateClient(newClient.get());
                         } else {
                             addClient(newClient.get());

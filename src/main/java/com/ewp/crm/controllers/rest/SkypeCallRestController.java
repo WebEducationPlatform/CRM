@@ -77,7 +77,7 @@ public class SkypeCallRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/allMentors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAllMentors(@AuthenticationPrincipal User currentUser) {
-		List<User> users = userService.getByRole(roleService.getByRoleName("MENTOR"));
+		List<User> users = userService.getByRole(roleService.getRoleByName("MENTOR"));
 		users.remove(userService.get(currentUser.getId()));
 		return ResponseEntity.ok(users);
 	}

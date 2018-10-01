@@ -1,6 +1,5 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.AssignSkypeCall;
 import org.springframework.data.jpa.repository.Query;
 

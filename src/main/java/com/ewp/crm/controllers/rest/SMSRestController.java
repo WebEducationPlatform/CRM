@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,19 +32,22 @@ public class SMSRestController {
 
 
 	@Autowired
-	public SMSRestController(SMSService smsService, ClientService clientService, MessageTemplateServiceImpl messageTemplateService) {
+	public SMSRestController(SMSService smsService,
+							 ClientService clientService,
+							 MessageTemplateServiceImpl messageTemplateService) {
 		this.smsService = smsService;
 		this.clientService = clientService;
 		this.messageTemplateService = messageTemplateService;
 	}
 
 	@PostMapping("/send/now/client")
-	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId, @RequestParam("templateId") Long templateId,
-	                                      @RequestParam(value = "body",required = false) String body) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity<String> sendSMS(@RequestParam("clientId") Long clientId,
+										  @RequestParam("templateId") Long templateId,
+	                                      @RequestParam(value = "body",required = false) String body,
+										  @AuthenticationPrincipal User userFromSession) {
 		String smsTemplateText = messageTemplateService.get(templateId).getOtherText();
 		try {
-			smsService.sendSMS(clientId, smsTemplateText, body, principal);
+			smsService.sendSMS(clientId, smsTemplateText, body, userFromSession);
 			return ResponseEntity.status(HttpStatus.OK).body("Message sent");
 		} catch (JSONException e) {
 			logger.error("Error to send message ", e);
@@ -54,20 +58,21 @@ public class SMSRestController {
 	@PostMapping("/send/planned/client/{clientId}")
 	public ResponseEntity<String> plannedSMS(@PathVariable("clientId") Long id,
 	                                         @RequestParam("message") String message,
-	                                         @RequestParam("date") String date) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	                                         @RequestParam("date") String date,
+											 @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(id);
 		DateTime utc = DateTime.parse(date);
-		smsService.plannedSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), principal);
+		smsService.plannedSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), userFromSession);
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body("Send Message");
 	}
 
 	@PostMapping("/send/now/clients/{listClientsId}")
-	public ResponseEntity<String> sendSMS(@PathVariable("listClientsId") List<Long> listClientsId, @RequestParam("message") String message) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
-		smsService.sendSMS(clients, message, principal);
+	public ResponseEntity<String> sendSMS(@PathVariable("listClientsId") List<Long> listClientsId,
+										  @RequestParam("message") String message,
+										  @AuthenticationPrincipal User userFromSession) {
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
+		smsService.sendSMS(clients, message, userFromSession);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Messages in queue");
 	}
@@ -75,11 +80,11 @@ public class SMSRestController {
 	@PostMapping("/send/planned/clients/{listClientsId}")
 	public ResponseEntity<String> plannedSMS(@PathVariable("listClientsId") List<Long> listClientsId,
 	                                         @RequestParam("message") String message,
-	                                         @RequestParam("date") String date) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Client> clients = clientService.findClientsByManyIds(listClientsId);
+	                                         @RequestParam("date") String date,
+											 @AuthenticationPrincipal User userFromSession) {
+		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		DateTime utc = DateTime.parse(date);
-		smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), principal);
+		smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), userFromSession);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send");
 	}

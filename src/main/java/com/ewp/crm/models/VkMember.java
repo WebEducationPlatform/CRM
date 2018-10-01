@@ -5,17 +5,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table
+@Table(name = "vk_member")
 public class VkMember implements Serializable{
 
     @Id
     @GeneratedValue
+    @Column(name = "id")
     private Long id;
 
-    @Column(unique = true)
+    @Column(name = "vk_id", unique = true)
     private Long vkId;
 
-    @Column(nullable = false)
+    @Column(name = "group_id", nullable = false)
     private Long groupId;
 
     public VkMember(Long vkId, Long groupId){
@@ -38,7 +39,6 @@ public class VkMember implements Serializable{
 
     @Override
     public int hashCode() {
-
         return Objects.hash(vkId, groupId);
     }
 

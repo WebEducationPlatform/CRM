@@ -13,10 +13,10 @@ public class Job implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(name = "organization")
     private String organization;
 
-    @Column
+    @Column(name = "position")
     private String position;
 
     public Job() {

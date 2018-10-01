@@ -12,10 +12,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.*;
 
 @Entity
-@Table
+@Table(name = "user")
 public class User implements UserDetails {
 
 	@Id
@@ -24,31 +23,32 @@ public class User implements UserDetails {
 	private Long id;
 
 	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
-	@Column(nullable = false)
+	@Column(name = "first_name", nullable = false)
 	private String firstName;
 
 	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
-	@Column(nullable = false)
+	@Column(name = "last_name", nullable = false)
 	private String lastName;
 
-	@Column(nullable = false)
+	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
 
-	@Column(nullable = false, unique = true)
+	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 
-	@Column(nullable = false)
+	@Column(name = "password", nullable = false)
 	private String password;
 
+	@Column(name = "vk")
 	private String vk;
 
-	@Column(nullable = false)
+	@Column(name = "sex", nullable = false)
 	private String sex;
 
-	@Column(nullable = false)
+	@Column(name = "city", nullable = false)
 	private String city;
 
-	@Column(nullable = false)
+	@Column(name = "country", nullable = false)
 	private String country;
 
 	@Column(name = "photo")
@@ -57,14 +57,17 @@ public class User implements UserDetails {
 	@Column(name = "photoType")
 	private String photoType;
 
-	@Column
+	@Column(name = "ip_telephony")
 	private boolean ipTelephony;
 
-	@Column
+	@Column(name = "is_enabled")
 	private boolean isEnabled;
 
-	@Column
+	@Column(name = "is_verified")
 	private boolean isVerified;
+
+	@Column(name = "autoAnswer")
+	private String autoAnswer;
 
 	@Column(name = "vkToken")
 	private String vkToken;
@@ -81,6 +84,7 @@ public class User implements UserDetails {
 	private List<Notification> notifications;
 
 	@JsonIgnore
+	@Column(name = "enable_mail_notifications")
 	private boolean enableMailNotifications = true;
 
 	@JsonIgnore
@@ -169,6 +173,14 @@ public class User implements UserDetails {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getAutoAnswer() {
+		return autoAnswer;
+	}
+
+	public void setAutoAnswer(String autoAnswer) {
+		this.autoAnswer = autoAnswer;
 	}
 
 	@Override
@@ -292,15 +304,6 @@ public class User implements UserDetails {
 		if (!email.equals(user.email)) return false;
 		return vk != null ? vk.equals(user.vk) : user.vk == null;
 	}
-
-//	@Override
-//	public int hashCode() {
-//		int result = id.hashCode();
-//		result = 31 * result + phoneNumber.hashCode();
-//		result = 31 * result + email.hashCode();
-//		return result;
-//	}
-
 
 	@Override
 	public int hashCode() {

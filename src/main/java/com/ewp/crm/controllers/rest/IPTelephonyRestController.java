@@ -1,25 +1,19 @@
 package com.ewp.crm.controllers.rest;
 
-
-import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.models.CallRecord;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.CallRecordService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.DownloadCallRecordService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-import sun.security.provider.MD5;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,12 +22,10 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
-/*
-	Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
-	Не секьюритить
- */
 @RequestMapping("/user/rest/call")
 public class IPTelephonyRestController {
+
+	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
 
 	private final IPService ipService;
 	private final ClientService clientService;
@@ -41,11 +33,13 @@ public class IPTelephonyRestController {
 	private final CallRecordService callRecordService;
 	private final DownloadCallRecordService downloadCallRecordService;
 	private final String voximplantHash;
-	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
-
 
 	@Autowired
-	public IPTelephonyRestController(IPService ipService, ClientService clientService, ClientHistoryService clientHistoryService, CallRecordService callRecordService, DownloadCallRecordService downloadCallRecordService) {
+	public IPTelephonyRestController(IPService ipService,
+									 ClientService clientService,
+									 ClientHistoryService clientHistoryService,
+									 CallRecordService callRecordService,
+									 DownloadCallRecordService downloadCallRecordService) {
 		this.ipService = ipService;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
@@ -54,14 +48,48 @@ public class IPTelephonyRestController {
 		this.voximplantHash = DigestUtils.md5DigestAsHex((ipService.getVoximplantUserLogin(ipService.getVoximplantLoginForWebCall()) + ":voximplant.com:" + ipService.getVoximplantPasswordForWebCall()).getBytes());
 	}
 
+	//Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
+	//Не секьюритить
+	@GetMapping(value = "/setCallRecord")
+	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId,
+										@RequestParam String code) {
+		if (!code.equals(ipService.getVoximplantCodeToSetRecord())) {
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		}
+		CallRecord callRecord = callRecordService.get(clientCallId);
+		if (Optional.ofNullable(callRecord).isPresent()) {
+			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
+			callRecord.setLink(downloadLink);
+			callRecord.getClientHistory().setRecordLink(url);
+			callRecordService.update(callRecord);
+			logger.info("CallRecord to client id {} has download", clientCallId);
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@ResponseBody
+	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
-	@RequestMapping(value = "/voximplant", method = RequestMethod.POST)
-	public void voximplantCall(@RequestParam String from, @RequestParam String to) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public byte[] getCallRecord(@PathVariable String file) throws IOException {
+		Path fileLocation = Paths.get("CallRecords\\" + file + ".mp3");
+		return Files.readAllBytes(fileLocation);
+	}
+
+	@GetMapping(value = "/voximplantCredentials")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	public String getVoximplantCredentials() {
+		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
+	}
+
+	@PostMapping(value = "/voximplant")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	public void voximplantCall(@RequestParam String from,
+							   @RequestParam String to,
+							   @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.getClientByPhoneNumber(to);
-		if (client.isCanCall() && principal.isIpTelephony()) {
+		if (client.isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = clientHistoryService.createHistory(principal, "http://www.google.com");
+			ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
 			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
 			client.addHistory(historyFromDB);
 			callRecord.setClientHistory(historyFromDB);
@@ -74,35 +102,14 @@ public class IPTelephonyRestController {
 		}
 	}
 
-	@RequestMapping(value = "/setCallRecord", method = RequestMethod.GET)
-	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId) {
-		CallRecord callRecord = callRecordService.get(clientCallId);
-		if (Optional.ofNullable(callRecord).isPresent()) {
-			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
-			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setRecordLink(url);
-			callRecordService.update(callRecord);
-			logger.info("CallRecord to client id {} has download", clientCallId);
-		}
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
+	@PostMapping(value = "/sendData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
-	@ResponseBody
-	@RequestMapping(value = "/record/{file}", method = RequestMethod.GET)
-	public byte[] getCallRecord(@PathVariable String file) throws IOException {
-		Path fileLocation = Paths.get("CallRecords\\" + file + ".mp3");
-		return Files.readAllBytes(fileLocation);
-	}
-
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/sendData", method = RequestMethod.POST)
-	public ResponseEntity getCallRecordsCredentials(@RequestParam String to) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity getCallRecordsCredentials(@RequestParam String to,
+													@AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.getClientByPhoneNumber(to);
-		if (client.isCanCall() && principal.isIpTelephony()) {
+		if (client.isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = clientHistoryService.createHistory(principal, "http://www.google.com");
+			ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
 			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
 			client.addHistory(historyFromDB);
 			callRecord.setClientHistory(historyFromDB);
@@ -117,14 +124,8 @@ public class IPTelephonyRestController {
 		}
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/voximplantCredentials", method = RequestMethod.GET)
-	public String getVoximplantCredentials() {
-		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
-	}
-
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value ="/calcKey", method = RequestMethod.POST)
+	@PostMapping(value = "/calcKey")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());

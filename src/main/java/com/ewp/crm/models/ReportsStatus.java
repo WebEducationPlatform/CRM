@@ -8,22 +8,22 @@ public class ReportsStatus {
 
     @Id
     @GeneratedValue
-    @Column
+    @Column(name = "id")
     private long id;
 
-    @Column
+    @Column(name = "drop_out_status")
     private long dropOutStatus;
 
-    @Column
+    @Column(name = "end_learning_status")
     private long endLearningStatus;
 
-    @Column
+    @Column(name = "in_learning_status")
     private long inLearningStatus;
 
-    @Column
+    @Column(name = "pause_learn_status")
     private long pauseLearnStatus;
 
-    @Column
+    @Column(name = "trial_learn_status")
     private long trialLearnStatus;
 
     public ReportsStatus(long dropOutStatus, long endLearningStatus, long inLearningStatus, long pauseLearnStatus, long trialLearnStatus) {

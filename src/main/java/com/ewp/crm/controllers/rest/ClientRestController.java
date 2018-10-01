@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.joda.time.LocalDateTime;
@@ -17,163 +16,148 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/rest/client")
 public class ClientRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
-	private final SocialNetworkTypeService socialNetworkTypeService;
+	private final SocialProfileTypeService socialProfileTypeService;
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
-	private final StatusService statusService;
-	private final SendNotificationService sendNotificationService;
-
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService, SocialNetworkTypeService socialNetworkTypeService, UserService userService, ClientHistoryService clientHistoryService, StatusService statusService, VKService vkService, SendNotificationService sendNotificationService) {
+	public ClientRestController(ClientService clientService,
+								SocialProfileTypeService socialProfileTypeService,
+								UserService userService,
+								ClientHistoryService clientHistoryService) {
 		this.clientService = clientService;
-		this.socialNetworkTypeService = socialNetworkTypeService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
-		this.statusService = statusService;
-		this.sendNotificationService = sendNotificationService;
 	}
 
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAll() {
 		return ResponseEntity.ok(clientService.getAll());
 	}
 
+	@GetMapping(value = "/pagination/get")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getClients(@RequestParam int page) {
+		List<Client> clients = clientService.getAllClientsByPage(new PageRequest(page, pageSize));
+		if (clients == null || clients.isEmpty()) {
+			logger.error("No more clients");
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(clients);
+	}
+
+	@GetMapping(value = "/getClientsData")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<InputStreamResource> getClientsData() {
+
+		String path = "DownloadData\\";
+		File file = new File(path + "data.txt");
+
+		InputStreamResource resource = null;
+		try {
+			resource = new InputStreamResource(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			logger.error("File not found! ", e);
+		}
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment;filename=" + file.getName())
+				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
+				.body(resource);
+	}
+
+	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.get(id));
 	}
 
+	@PostMapping(value = "/assign")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client/assign", method = RequestMethod.POST)
-	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId) {
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId,
+									   @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() != null) {
-			logger.info("User {} tried to assign a client with id {}, but client have owner", user.getEmail(), clientId);
+			logger.info("User {} tried to assign a client with id {}, but client have owner", userFromSession.getEmail(), clientId);
 			return ResponseEntity.badRequest().body(null);
 		}
-		client.setOwnerUser(user);
-		client.addHistory(clientHistoryService.createHistory(user, client, ClientHistory.Type.ASSIGN));
+		client.setOwnerUser(userFromSession);
+		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN));
 		clientService.updateClient(client);
-		logger.info("User {} has assigned client with id {}", user.getEmail(), clientId);
+		logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PostMapping(value = "/assign/user")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client/assign/user", method = RequestMethod.POST)
 	public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
-	                                 @RequestParam(name = "userForAssign") Long userId) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+									 @RequestParam(name = "userForAssign") Long userId,
+									 @AuthenticationPrincipal User userFromSession) {
 		User assignUser = userService.get(userId);
 		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
-			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", principal.getEmail(), clientId, assignUser.getEmail());
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
 			return ResponseEntity.badRequest().build();
 		}
-		if (principal.equals(assignUser)) {
-			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.ASSIGN));
+		if (userFromSession.equals(assignUser)) {
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN));
 		} else {
-			client.addHistory(clientHistoryService.createHistory(principal, assignUser, client, ClientHistory.Type.ASSIGN));
+			client.addHistory(clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN));
 		}
 		client.setOwnerUser(assignUser);
 		clientService.updateClient(client);
-		logger.info("User {} has assigned client with id {} to user {}", principal.getEmail(), clientId, assignUser.getEmail());
+		logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PostMapping(value = "/unassign")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client/unassign", method = RequestMethod.POST)
-	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId,
+								   @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
 		if (client.getOwnerUser() == null) {
-			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", principal.getEmail(), clientId);
+			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", userFromSession.getEmail(), clientId);
 			return ResponseEntity.badRequest().build();
 		}
-		if (client.getOwnerUser().equals(principal)) {
-			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.UNASSIGN));
+		if (client.getOwnerUser().equals(userFromSession)) {
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN));
 		} else {
-			client.addHistory(clientHistoryService.createHistory(principal, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN));
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN));
 		}
 		client.setOwnerUser(null);
 		clientService.updateClient(client);
-		logger.info("User {} has unassigned client with id {}", principal.getEmail(), clientId);
+		logger.info("User {} has unassigned client with id {}", userFromSession.getEmail(), clientId);
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@RequestMapping(value = "/admin/rest/client/update", method = RequestMethod.POST)
-	public ResponseEntity updateClient(@RequestBody Client currentClient) {
-		User currentAdmin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		for (SocialNetwork socialNetwork : currentClient.getSocialNetworks()) {
-			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
-					socialNetwork.getSocialNetworkType().getName()).getId());
-		}
-		Client clientFromDB = clientService.get(currentClient.getId());
-		currentClient.setHistory(clientFromDB.getHistory());
-		currentClient.setComments(clientFromDB.getComments());
-		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
-		currentClient.setStatus(clientFromDB.getStatus());
-		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
-		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
-		currentClient.setNotifications(clientFromDB.getNotifications());
-		currentClient.setCanCall(clientFromDB.isCanCall());
-		currentClient.setCallRecords(clientFromDB.getCallRecords());
-		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
-		if (currentClient.equals(clientFromDB)) {
-			return ResponseEntity.noContent().build();
-		}
-		currentClient.addHistory(clientHistoryService.createHistory(currentAdmin, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
-		clientService.updateClient(currentClient);
-		logger.info("{} has updated client: id {}, email {}", currentAdmin.getFullName(), currentClient.getId(), currentClient.getEmail());
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	@RequestMapping(value = "/admin/rest/client/add", method = RequestMethod.POST)
-	public ResponseEntity addClient(@RequestBody Client client) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		for (SocialNetwork socialNetwork : client.getSocialNetworks()) {
-			socialNetwork.getSocialNetworkType().setId(socialNetworkTypeService.getByTypeName(
-					socialNetwork.getSocialNetworkType().getName()).getId());
-		}
-		Status status = statusService.get(client.getStatus().getName());
-		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(principal, client, client, ClientHistory.Type.ADD));
-		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", principal.getFullName(), client.getId(), client.getEmail());
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
-
+	@PostMapping(value = "/filtration", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "/rest/client/filtration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
 		List<Client> clients = clientService.filteringClient(filteringCondition);
 		return ResponseEntity.ok(clients);
 	}
 
+	@PostMapping(value = "/createFile")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/createFile", method = RequestMethod.POST)
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
 		String path = "DownloadData";
@@ -200,10 +184,10 @@ public class ClientRestController {
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
 
-			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(selected)).isPresent()) {
-				List<SocialNetwork> socialNetworks = socialNetworkTypeService.getByTypeName(selected).getSocialNetworkList();
-				for (SocialNetwork socialNetwork : socialNetworks) {
-					bufferedWriter.write(socialNetwork.getLink() + "\r\n");
+			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
+				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
+				for (SocialProfile socialProfile : socialProfiles) {
+					bufferedWriter.write(socialProfile.getLink() + "\r\n");
 				}
 			}
 			if (selected.equals("email")) {
@@ -232,8 +216,8 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/createFileFilter", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
 
 		String path = "DownloadData";
@@ -259,7 +243,7 @@ public class ClientRestController {
 			FileWriter fileWriter = new FileWriter(file);
 			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-			if (Optional.ofNullable(socialNetworkTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
+			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
 					bufferedWriter.write(socialNetworkLink + "\r\n");
@@ -291,29 +275,11 @@ public class ClientRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PostMapping(value = "/postpone")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/getClientsData", method = RequestMethod.GET)
-	public ResponseEntity<InputStreamResource> getClientsData() {
-
-		String path = "DownloadData\\";
-		File file = new File(path + "data.txt");
-
-		InputStreamResource resource = null;
-		try {
-			resource = new InputStreamResource(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			logger.error("File not found! ", e);
-		}
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION,
-						"attachment;filename=" + file.getName())
-				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
-				.body(resource);
-	}
-
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/postpone", method = RequestMethod.POST)
-	public ResponseEntity postponeClient(@RequestParam Long clientId, @RequestParam String date) {
+	public ResponseEntity postponeClient(@RequestParam Long clientId,
+										 @RequestParam String date,
+										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
 			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
@@ -323,22 +289,21 @@ public class ClientRestController {
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
 			client.setPostponeDate(postponeDate.toDate());
-			User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			client.setOwnerUser(principal);
-			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.POSTPONE));
+			client.setOwnerUser(userFromSession);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
 			clientService.updateClient(client);
-			logger.info("{} has postponed client id:{} until {}", principal.getFullName(), client.getId(), date);
+			logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
 	}
 
+	@PostMapping(value = "/addDescription")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/addDescription", method = RequestMethod.POST)
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
-	                                             @RequestParam(name = "clientDescription") String clientDescription) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+												 @RequestParam(name = "clientDescription") String clientDescription,
+												 @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
@@ -349,18 +314,18 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body("Client has same description");
 		}
 		client.setClientDescriptionComment(clientDescription);
-		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.DESCRIPTION));
+		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
 
+	@PostMapping(value = "/setSkypeLogin")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/client/setSkypeLogin", method = RequestMethod.POST)
 	public ResponseEntity<String> setClientSkypeLogin(@RequestParam(name = "clientId") Long clientId,
-	                                             @RequestParam(name = "skypeLogin") String skypeLogin) {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+													  @RequestParam(name = "skypeLogin") String skypeLogin,
+													  @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
-		Client checkDuplicateLogin = clientService.findClientBySkype(skypeLogin);
+		Client checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
 		if (client == null) {
 			logger.error("Client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
@@ -370,18 +335,8 @@ public class ClientRestController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
 		}
 		client.setSkype(skypeLogin);
-		client.addHistory(clientHistoryService.createInfoHistory(principal, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
+		client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
-	}
-
-	@GetMapping("rest/client/pagination/get")
-	public ResponseEntity getClients(@RequestParam int page) {
-		List<Client> clients = clientService.findAllByPage(new PageRequest(page, pageSize));
-		if (clients == null || clients.isEmpty()) {
-			logger.error("No more clients");
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(clients);
 	}
 }

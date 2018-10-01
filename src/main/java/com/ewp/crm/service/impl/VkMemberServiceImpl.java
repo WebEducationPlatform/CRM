@@ -14,7 +14,7 @@ public class VkMemberServiceImpl implements VkMemberService {
     private final VkMemberRepository vkMemberRepository;
 
     @Autowired
-    public VkMemberServiceImpl(VkMemberRepository vkMemberRepository){
+    public VkMemberServiceImpl(VkMemberRepository vkMemberRepository) {
         this.vkMemberRepository = vkMemberRepository;
     }
 
@@ -40,7 +40,7 @@ public class VkMemberServiceImpl implements VkMemberService {
 
     @Override
     public void delete(Long id) {
-        vkMemberRepository.delete(id);
+        vkMemberRepository.deleteById(id);
     }
 
     @Override
@@ -49,12 +49,12 @@ public class VkMemberServiceImpl implements VkMemberService {
     }
 
 
-    public void addAllMembers(List<VkMember> vkMembers){
-        vkMemberRepository.save(vkMembers);
+    public void addAllMembers(List<VkMember> vkMembers) {
+        vkMemberRepository.saveAll(vkMembers);
     }
 
     @Override
     public List<VkMember> getAllMembersByGroupId(Long id) {
-        return vkMemberRepository.findAllByGroupId(id);
+        return vkMemberRepository.getAllByGroupId(id);
     }
 }

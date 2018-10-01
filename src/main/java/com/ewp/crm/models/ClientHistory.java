@@ -16,14 +16,15 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(name = "title", nullable = false)
 	private String title;
 
 	@Basic
 	@Lob
+    @Column(name = "link")
 	private String link;
 
-	@Column
+	@Column(name = "record_link")
 	private String recordLink;
 
     //TODO потом переделать
@@ -88,9 +89,13 @@ public class ClientHistory {
         return link;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return new DateTime(date).toString("HH:mm ddMMM yyyy'г'");
     }
+
+	public long getDateAsLong() {
+		return date.getTime();
+	}
 
     public Type getType() {
         return type;

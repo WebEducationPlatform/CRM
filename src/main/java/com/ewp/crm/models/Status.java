@@ -1,15 +1,15 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
-@Table
+@Table(name = "status")
 public class Status implements Serializable {
 
 	@Id
@@ -21,9 +21,11 @@ public class Status implements Serializable {
 	private String name;
 
 	@Basic
+	@Column(name = "is_invisible")
 	private Boolean isInvisible = false;
 
 	@Basic
+	@Column(name = "position")
 	private Long position;
 
 	@JsonIgnore
@@ -33,10 +35,14 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	public Status(String name, Boolean isInvisible, Long position) {
+	@Column (name = "create_student")
+	private boolean createStudent;
+
+	public Status(String name, Boolean isInvisible, Long position, boolean createStudent) {
 		this.name = name;
 		this.isInvisible = isInvisible;
 		this.position = position;
+		this.createStudent = createStudent;
 	}
 
 	public Status(String name) {
@@ -72,6 +78,14 @@ public class Status implements Serializable {
 
 	public List<Client> getClients() {
 		return clients;
+	}
+
+	public boolean isCreateStudent() {
+		return createStudent;
+	}
+
+	public void setCreateStudent(boolean createStudent) {
+		this.createStudent = createStudent;
 	}
 
 	public void setClients(List<Client> clients) {

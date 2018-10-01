@@ -222,14 +222,14 @@ function addUser() {
             var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
-
         },
         success: function (result) {
             sendPhoto(result);
         },
         error: function (e) {
-            setErrorMessage(e.responseJSON.message);
-            console.log(e.responseText);
+            setErrorMessage(e);
+            var current = document.getElementById("message");
+            current.textContent = "Пользователь с таким e-mail уже существует";
         }
     });
 }
