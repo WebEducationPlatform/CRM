@@ -1,13 +1,13 @@
 // Предполагаем что статус не установлен, при открытии страницы.
-function createSessionStorage() {
+$(function () {
     if(sessionStorage.getItem('student_status') == undefined) {
         sessionStorage.setItem('student_status', "false");
     }
-}
+});
 // Запрос к базе о состоянии статуса происходит 1 раз при каждом новом открытии страницы (не обновлении, не переходе),
 // 2 раза при своевременной установке статуса админом после первого запуска и напоминания,
 // n-раз до установки статуса, попап будет так же всплывать n-раз
-function getStatus() {
+$(function getStatus() {
     if (sessionStorage.getItem('student_status') == 'false') {
         var url = 'properties/status';
         $.ajax({
@@ -25,7 +25,4 @@ function getStatus() {
             }
         });
     }
-}
-
-createSessionStorage();
-getStatus();
+});
