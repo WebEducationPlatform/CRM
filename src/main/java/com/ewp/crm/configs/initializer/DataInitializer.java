@@ -66,9 +66,11 @@ public class DataInitializer {
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
 		Role roleUser = new Role("USER");
+		Role roleMentor = new Role("MENTOR");
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
 		roleService.add(roleOwner);
+		roleService.add(roleMentor);
 
 		SocialProfileType VK = new SocialProfileType("vk");
 		SocialProfileType FACEBOOK = new SocialProfileType("facebook");
@@ -81,7 +83,7 @@ public class DataInitializer {
 				"Stanislav",
 				"Sorokin",
 				"88062334088",
-				"admin@mail.ru",
+				"qqfilqq@gmail.com",
 				"admin",
 				null, Client.Sex.MALE.toString(),
 				"Moscow",
@@ -100,6 +102,14 @@ public class DataInitializer {
 		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
 		userService.add(user2);
+
+		User user3 = new User("Vlad", "Mentor", "89118465234", "user2@mail.ru",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+		userService.add(user3);
+
+		User user4 = new User("Nikita", "Mentor", "89118465234", "eefilee@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+		userService.add(user4);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
