@@ -50,7 +50,7 @@ public class SkypeCallRestController {
 	public ResponseEntity assignSkypeCall(@AuthenticationPrincipal User principal, @RequestParam Long clientId, @RequestParam String date, @RequestParam String selectNetwork) {
 		Client client = clientService.getClientByID(clientId);
 		try {
-			org.joda.time.format.DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			org.joda.time.format.DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
 			org.joda.time.LocalDateTime dateOfSkypeCall = org.joda.time.LocalDateTime.parse(date, dateTimeFormatter);
 			org.joda.time.LocalDateTime remindBeforeSkypeCall = org.joda.time.LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
 			if (dateOfSkypeCall.isBefore(org.joda.time.LocalDateTime.now()) || dateOfSkypeCall.isEqual(org.joda.time.LocalDateTime.now())) {

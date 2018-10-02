@@ -83,7 +83,7 @@ public class DataInitializer {
 				"Stanislav",
 				"Sorokin",
 				"88062334088",
-				"qqfilqq@gmail.com",
+				"admin@mail.ru",
 				"admin",
 				null, Client.Sex.MALE.toString(),
 				"Moscow",
@@ -110,6 +110,11 @@ public class DataInitializer {
 		User user4 = new User("Nikita", "Mentor", "89118465234", "eefilee@gmail.com",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user4);
+
+		User user5 = new User("Benedikt", "Manager", "9999999999", "qqfilqq@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+				roleService.getRoleByName("OWNER")), true, true);
+		userService.add(user5);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
