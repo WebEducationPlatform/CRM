@@ -1,13 +1,17 @@
 package com.ewp.crm.models;
 
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Table (name = "student")
 @Entity
-public class Student {
+public class Student implements Diffable<Student> {
 
     @Id
     @GeneratedValue
@@ -19,12 +23,10 @@ public class Student {
     private Client client;
 
     @Column (name = "end_trial")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime trialEndDate;
+    private LocalDateTime trialEndDate;
 
     @Column (name = "next_pay")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime nextPaymentDate;
+    private LocalDateTime nextPaymentDate;
 
     @Column (name = "price")
     private BigDecimal price;
@@ -42,10 +44,19 @@ public class Student {
     @Column (name = "notes")
     private String notes;
 
+    @Column (name = "notify_email")
+    private boolean notifyEmail = false;
+
+    @Column (name = "notify_sms")
+    private boolean notifySMS = false;
+
+    @Column (name = "notify_vk")
+    private boolean notifyVK = false;
+
     public Student() {
     }
 
-    public Student(Client client, DateTime trialEndDate, DateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
+    public Student(Client client, LocalDateTime trialEndDate, LocalDateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
         this.nextPaymentDate = nextPaymentDate;
@@ -72,19 +83,19 @@ public class Student {
         this.client = client;
     }
 
-    public DateTime getTrialEndDate() {
+    public LocalDateTime getTrialEndDate() {
         return trialEndDate;
     }
 
-    public void setTrialEndDate(DateTime trialEndDate) {
+    public void setTrialEndDate(LocalDateTime trialEndDate) {
         this.trialEndDate = trialEndDate;
     }
 
-    public DateTime getNextPaymentDate() {
+    public LocalDateTime getNextPaymentDate() {
         return nextPaymentDate;
     }
 
-    public void setNextPaymentDate(DateTime nextPaymentDate) {
+    public void setNextPaymentDate(LocalDateTime nextPaymentDate) {
         this.nextPaymentDate = nextPaymentDate;
     }
 
@@ -128,6 +139,30 @@ public class Student {
         this.notes = notes;
     }
 
+    public boolean isNotifyEmail() {
+        return notifyEmail;
+    }
+
+    public void setNotifyEmail(boolean notifyEmail) {
+        this.notifyEmail = notifyEmail;
+    }
+
+    public boolean isNotifySMS() {
+        return notifySMS;
+    }
+
+    public void setNotifySMS(boolean notifySMS) {
+        this.notifySMS = notifySMS;
+    }
+
+    public boolean isNotifyVK() {
+        return notifyVK;
+    }
+
+    public void setNotifyVK(boolean notifyVK) {
+        this.notifyVK = notifyVK;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
@@ -139,7 +174,27 @@ public class Student {
                 ", paymentAmount=" + paymentAmount +
                 ", payLater=" + payLater +
                 ", status=" + status +
-                ", notes='" + notes + '\'' +
+                ", notes='" + notes +
+                ", notifyEmail='" + notifyEmail +
+                ", notifySMS='" + notifySMS +
+                ", notifyVK='" + notifyVK +
                 '}';
+    }
+
+    @Override
+    public DiffResult diff(Student student) {
+        return new DiffBuilder(this, student, ToStringStyle.JSON_STYLE)
+                .append("Клиент", this.client.getId(), student.client.getId())
+                .append("Дата пробных", this.trialEndDate.toLocalDate(), student.trialEndDate.toLocalDate())
+                .append("Дата оплаты", this.nextPaymentDate.toLocalDate(), student.nextPaymentDate.toLocalDate())
+                .append("Цена", this.price.toString().contains(".00") ? this.price.toBigInteger().toString() : this.price.toString(), student.price.toString().contains(".00") ? student.price.toBigInteger().toString() : student.price.toString())
+                .append("Платёж", this.paymentAmount.toString().contains(".00") ? this.paymentAmount.toBigInteger().toString() : this.paymentAmount.toString(), student.paymentAmount.toString().contains(".00") ? student.paymentAmount.toBigInteger().toString() : student.paymentAmount.toString())
+                .append("Оплата позже", this.payLater.toString().contains(".00") ? this.payLater.toBigInteger().toString() : this.payLater.toString(), student.payLater.toString().contains(".00") ? student.payLater.toBigInteger().toString() : student.payLater.toString())
+                .append("Статус обучения", this.status.getStatus(), student.status.getStatus())
+                .append("Заметки", this.notes, student.notes)
+                .append("Оповещение по почте", this.notifyEmail, student.notifyEmail)
+                .append("Оповещение по СМС", this.notifySMS, student.notifySMS)
+                .append("Оповещение по Вконтакте", this.notifyVK, student.notifyVK)
+                .build();
     }
 }
