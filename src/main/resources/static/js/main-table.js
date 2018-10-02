@@ -1428,7 +1428,7 @@ function confirmSkype(id) {
                 currentStatus.text("Клиент с таким логином уже существует");
             }
     });
-});
+};
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
@@ -1681,7 +1681,7 @@ function vk_popup(options) {
             ',top=' + top
         );
     return window.open(options.url, 'vk_oauth', features);
-}
+};
 
 function doLogin() {
     var win;
@@ -1705,7 +1705,7 @@ function doLogin() {
         } catch (e) {
         }
     }, 100);
-}
+};
 
 $(".change-status-position").on('click', function () {
     let destinationId = $(this).attr("value");
@@ -1745,4 +1745,4 @@ function deleteNewUser(deleteId) {
             alert("Пользователь не был удален")
         }
     });
-}
+};
