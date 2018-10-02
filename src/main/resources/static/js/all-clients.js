@@ -195,6 +195,14 @@ $(document).ready(function () {
                         '<ul class="dropdown-menu statuses-content"></ul>' +
                         '</div>'
                 }
+
+                if (res[i].postponeDate != undefined) {
+                    returnBtn =
+                        '<div class="dropdown statuses-by-dropdown">' +
+                        ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        '<ul class="dropdown-menu statuses-content"></ul>' +
+                        '</div>'
+                }
             }
 
 
