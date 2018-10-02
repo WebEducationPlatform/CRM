@@ -7,27 +7,29 @@ import java.util.List;
 
 public interface StatusService {
 
-	List<Status> getAll();
+    List<Status> getAll();
 
-	List<Status> getStatusesWithClientsForUser(User ownerUser);
+    List<Status> getStatusesWithClientsForUser(User ownerUser);
 
-	Status get(Long id);
+    Status get(Long id);
 
-	Status get(String name);
+    Status get(String name);
 
-	Status getFirstStatusForClient();
+    Status getFirstStatusForClient();
 
-	void add(Status status);
+    void add(Status status);
 
-	void addInit(Status status);
+    void addInit(Status status);
 
-	void update(Status status);
+    void update(Status status);
 
-	void delete(Status status);
+    void delete(Status status);
 
-	void delete(Long id);
+    void delete(Long id);
 
-	Long findMaxPosition();
+    Long findMaxPosition();
+
+    List<Status> getAllStatusesForStudents();
 
 
 }
