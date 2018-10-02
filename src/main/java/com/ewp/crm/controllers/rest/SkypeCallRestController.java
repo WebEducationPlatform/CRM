@@ -58,7 +58,7 @@ public class SkypeCallRestController {
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall();
-			clientAssignSkypeCall.setRemindBeforeOfSkypeCall(remindBeforeSkypeCall.toLocalDate().atStartOfDay());
+			clientAssignSkypeCall.setRemindBeforeOfSkypeCall(remindBeforeSkypeCall.toDate());
 			clientAssignSkypeCall.setLogin(client.getSkype());
 			clientAssignSkypeCall.setFromAssignSkypeCall(principal);
 			clientAssignSkypeCall.setCreatedTime(LocalDateTime.now());
