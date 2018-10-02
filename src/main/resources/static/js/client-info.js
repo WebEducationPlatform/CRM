@@ -5,24 +5,39 @@ $(function () {
     });
 });
 
-$(function () {
-    $("#edit-client-visible").empty();
-    let id = console.log(window.location.href.substr(window.location.href.lastIndexOf('/') + 1))
-    $.ajax({
-        type: 'GET',
-        url: '/rest/client' + id,
-        data: data,
-        success: function (data) {
-            console.log(data)
+$(function choiceClientVisibility () {
+    window.isHide = function () {
+        var element = document.getElementById('postpone');
+        var postpone = element.getAttribute('post');
+        if (postpone == undefined) {
+            return 'Клиент в работе';
+        } else {
+            return "Клиент скрыт до " + postpone;
         }
-    });
+    };
+    var elements = document.querySelectorAll('*[data-value-function]');
+    for (var i = 0; i < elements.length; i++) {
+        var valueFunctionName = elements[i].getAttribute('data-value-function');
+        elements[i].value = window[valueFunctionName]();
+    }
 });
 
+$('#makeVisible').click(function () {
+    var element = document.getElementById('postpone');
+    var postpone = element.getAttribute('post');
+    console.log(postpone);
+    if (postpone != undefined) {
+        var element = document.getElementById('edit-client-visible');
+        element.value = null;
+    }
+});
 
 $(document).ready(function () {
     selectOptions($("#edit-client-state"));
     selectOptions($("#edit-client-sex"));
 });
+
+
 
 function changeClient(id) {
     if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
@@ -207,6 +222,7 @@ function revertUnable() {
             $(this)[0].disabled = $(this)[0].disabled !== true;
         }
     });
+    $("#makeVisible")[0].disabled = $("#makeVisible")[0].disabled !== true;
     $("#addNewSN")[0].disabled = $("#addNewSN")[0].disabled !== true;
     $("#addNewJob")[0].disabled = $("#addNewJob")[0].disabled !== true;
 }
