@@ -2,6 +2,7 @@ package com.ewp.crm.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
@@ -39,6 +40,7 @@ public class ThymeleafConfig {
 	public SpringTemplateEngine thymeleafTemplateEngine() {
 		SpringTemplateEngine engine = new SpringTemplateEngine();
 		engine.addDialect(new SpringSecurityDialect());
+		engine.addDialect(new Java8TimeDialect());
 		Set<TemplateResolver> templateResolverSet = new HashSet<>();
 		templateResolverSet.add(springThymeleafTemplateResolver());
 		templateResolverSet.add(stringTemplateResolver());
