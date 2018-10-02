@@ -3,12 +3,13 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.*;
 
@@ -42,7 +43,7 @@ public class DataInitializer {
 	private MessageTemplateService MessageTemplateService;
 
 	@Autowired
-	private SocialNetworkTypeService socialNetworkTypeService;
+	private SocialProfileTypeService socialProfileTypeService;
 
 	@Autowired
 	private ClientHistoryService clientHistoryService;
@@ -50,47 +51,55 @@ public class DataInitializer {
 	@Autowired
 	private ReportsStatusService reportsStatusService;
 
+	@Autowired
+	private StudentService studentService;
+
+	@Autowired
+	private StudentStatusService studentStatusService;
+
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("deleted", true, 5L);
-		Status status0 = new Status("New clients", false, 1L);
+		Status defaultStatus = new Status("deleted", true, 5L, false);
+		Status status0 = new Status("New clients", false, 1L, false);
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
 		Role roleUser = new Role("USER");
-		Role roleMentor = new Role("MENTOR");
 		roleService.add(roleAdmin);
 		roleService.add(roleUser);
 		roleService.add(roleOwner);
-		roleService.add(roleMentor);
 
-		SocialNetworkType VK = new SocialNetworkType("vk");
-		SocialNetworkType FACEBOOK = new SocialNetworkType("facebook");
-		SocialNetworkType UNKNOWN = new SocialNetworkType("unknown");
-		socialNetworkTypeService.add(VK);
-		socialNetworkTypeService.add(FACEBOOK);
-		socialNetworkTypeService.add(UNKNOWN);
+		SocialProfileType VK = new SocialProfileType("vk");
+		SocialProfileType FACEBOOK = new SocialProfileType("facebook");
+		SocialProfileType UNKNOWN = new SocialProfileType("unknown");
+		socialProfileTypeService.add(VK);
+		socialProfileTypeService.add(FACEBOOK);
+		socialProfileTypeService.add(UNKNOWN);
 
-		User admin = new User("Stanislav", "Sorokin", "88062334088", "qqfilqq@gmail.ru",
-				"admin", null, Client.Sex.MALE.toString(), "Moscow", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("ADMIN"), roleService.getByRoleName("OWNER")), true, true);
+		User admin = new User(
+				"Stanislav",
+				"Sorokin",
+				"88062334088",
+				"admin@mail.ru",
+				"admin",
+				null, Client.Sex.MALE.toString(),
+				"Moscow",
+				"Russia",
+				Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+						roleService.getRoleByName("OWNER")),
+				true,
+				true);
+		admin.setAutoAnswer("Admin: Предлагаем вам пройти обучение на нашем сайте");
 		userService.add(admin);
 
 		User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getByRoleName("USER")), true, false);
+				"user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getRoleByName("USER")), true, false);
 		userService.add(user1);
 
 		User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getByRoleName("USER")), true, true);
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
 		userService.add(user2);
-
-		User user3 = new User("Mentos", "Mentor", "8999999999", "fordfortuna@gmail.com",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("MENTOR")), true, true);
-		userService.add(user3);
-
-		User user4 = new User("Vlad", "Mentor", "8999999999", "eefilee@gmail.com",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getByRoleName("USER"), roleService.getByRoleName("MENTOR")), true, true);
-		userService.add(user4);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
 				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
@@ -149,11 +158,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate3);
 		MessageTemplateService.add(MessageTemplate4);
 
-		Status status1 = new Status("trialLearnStatus", false, 2L);
-		Status status2 = new Status("inLearningStatus", false , 3L);
-		Status status3 = new Status("pauseLearnStatus", false, 4L);
-		Status status4 = new Status("endLearningStatus", false , 5L);
-		Status status5 = new Status("dropOut Status", false, 6L);
+		Status status1 = new Status("trialLearnStatus", false, 2L, true);
+		Status status2 = new Status("inLearningStatus", false, 3L, true);
+		Status status3 = new Status("pauseLearnStatus", false, 4L, false);
+		Status status4 = new Status("endLearningStatus", false, 5L, false);
+		Status status5 = new Status("dropOut Status", false, 6L, false);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -167,14 +176,14 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-		client2.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-		client3.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
-		client4.setSocialNetworks(Arrays.asList(new SocialNetwork("https://vk.com/id", socialNetworkTypeService.getByTypeName("vk")),
-				new SocialNetwork("https://fb", socialNetworkTypeService.getByTypeName("facebook"))));
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
@@ -203,11 +212,24 @@ public class DataInitializer {
 		statusService.addInit(status5);
 		statusService.addInit(defaultStatus);
 
+		StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
+		StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
+		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
+
+		DateTime currentDate = new DateTime();
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate, currentDate.plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate, currentDate.plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
+		studentService.add(trialStudent);
+		studentService.add(learningStudent);
+		studentService.add(pauseStudent);
+
 		//TODO удалить после теста
+
 		Faker faker = new Faker();
 		List<Client> list = new LinkedList<>();
 		for (int i = 0; i < 20; i++) {
-			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("First Status"));
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
 			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
 			list.add(client);
 		}
@@ -215,11 +237,12 @@ public class DataInitializer {
 		list.clear();
 
 		for (int i = 0; i < 50; i++) {
-			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("deleted"));
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("endLearningStatus"));
 			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
 			list.add(client);
 		}
 		clientService.addBatchClients(list);
-		reportsStatusService.add(new ReportsStatus(6,5,3,4,2));
+		reportsStatusService.add(new ReportsStatus(6, 5, 3, 4, 2));
 	}
+
 }
