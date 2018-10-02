@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -50,10 +50,10 @@ public class SkypeCallRestController {
 	public ResponseEntity assignSkypeCall(@AuthenticationPrincipal User principal, @RequestParam Long clientId, @RequestParam String date, @RequestParam String selectNetwork) {
 		Client client = clientService.getClientByID(clientId);
 		try {
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm МСК");
-			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
-			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
-			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
+			org.joda.time.format.DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+			org.joda.time.LocalDateTime dateOfSkypeCall = org.joda.time.LocalDateTime.parse(date, dateTimeFormatter);
+			org.joda.time.LocalDateTime remindBeforeSkypeCall = org.joda.time.LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
+			if (dateOfSkypeCall.isBefore(org.joda.time.LocalDateTime.now()) || dateOfSkypeCall.isEqual(org.joda.time.LocalDateTime.now())) {
 				logger.info("Incorrect date set: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
