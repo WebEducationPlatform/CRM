@@ -103,12 +103,12 @@ public class DataInitializer {
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
 		userService.add(user2);
 
-		User user3 = new User("Vlad", "Mentor", "89118465234", "user2@mail.ru",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+		User user3 = new User("Vlad", "Mentor", "89118465234", "user3@mail.ru",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user3);
 
 		User user4 = new User("Nikita", "Mentor", "89118465234", "eefilee@gmail.com",
-				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user4);
 
 		String templateText4 = "<!DOCTYPE html>\n" +
