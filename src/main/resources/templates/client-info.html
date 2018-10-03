@@ -75,7 +75,7 @@
 
                     <div class="form-group">
                         <label for="edit-client-visible">Видимость клиента</label>
-                        <input type="hidden" id="postpone" th:attr="post = ${client.postponeDate}"/>
+                        <input type="hidden" id="postpone" th:attr="postponeDate = ${client.postponeDate}"/>
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-visible"
                                data-value-function="isHide"/>
                         <p/>
