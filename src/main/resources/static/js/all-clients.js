@@ -191,16 +191,15 @@ $(document).ready(function () {
                 if (res[i].status.invisible) {
                     returnBtn =
                         '<div class="dropdown statuses-by-dropdown">' +
-                        ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        '<button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
                         '<ul class="dropdown-menu statuses-content"></ul>' +
                         '</div>'
                 }
 
                 if (res[i].postponeDate != undefined) {
                     returnBtn =
-                        '<div class="dropdown statuses-by-dropdown">' +
-                        ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
-                        '<ul class="dropdown-menu statuses-content"></ul>' +
+                        '<div class="button-return-from-postpone">' +
+                        '<button type="button" id="return-from-postpone" class="btn btn-default" data-client="'+ res[i].id +'">Вернуть</button>' +
                         '</div>'
                 }
             }
@@ -225,5 +224,34 @@ $(document).ready(function () {
             )
         }
     }
-    }
-);
+
+    $(document).on('click', '.from-postpone', function returnClientFromPostpone() {
+        var button = $(this);
+        var clientId = this.getAttribute('data-client');
+        var url = '/rest/client/remove/postpone';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {clientId : clientId},
+            success: function () {
+                button.parents('.button-return-from-postpone').children("button").addClass("btn btn-secondary").attr("disabled", "disabled").text("Выполнено");
+                //location.reload();
+            }
+        })
+    });
+});
+
+// $('.from-postpone').click(function () {
+//     console.log(this);
+//     var clientId = this.getAttribute('data-client');
+//     var url = '/rest/client/remove/postpone';
+//     $.ajax({
+//         type: 'POST',
+//         url: url,
+//         data: {clientId : clientId},
+//         success: function () {
+//             $(this).removeClass().addClass("btn btn-secondary").attr("disabled", "disabled").text("Выполнено");
+//             //location.reload();
+//         }
+//     })
+// });

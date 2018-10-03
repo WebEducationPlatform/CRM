@@ -299,6 +299,22 @@ public class ClientRestController {
 		}
 	}
 
+	@PostMapping(value = "/remove/postpone")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity removePostpone(@RequestParam Long clientId,
+										 @AuthenticationPrincipal User userFromSession) {
+		try {
+			Client client = clientService.get(clientId);
+			client.setPostponeDate(null);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE));
+			clientService.updateClient(client);
+			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+	}
+
 	@PostMapping(value = "/addDescription")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,

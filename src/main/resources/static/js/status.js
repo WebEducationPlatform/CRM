@@ -264,7 +264,6 @@ $(document).ready(function () {
             }
         });
     });
-
 });
 
 //Set createStudent flag for Status
