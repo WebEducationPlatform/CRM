@@ -78,7 +78,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="portlet-content">
@@ -102,7 +102,7 @@
 
                             <th:block th:each="notification_new_user:${notifications_type_new_user}">
                                 <th:block th:if="${notification_new_user.client == client}">
-                                   <span id="notification-new"
+                                   <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
                                 </th:block>
