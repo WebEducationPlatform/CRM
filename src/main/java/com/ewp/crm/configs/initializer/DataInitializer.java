@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class DataInitializer {
@@ -60,8 +61,8 @@ public class DataInitializer {
 	private void init() {
 
 		// DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-		Status defaultStatus = new Status("deleted", true, 5L, false);
-		Status status0 = new Status("New clients", false, 1L, false);
+		Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
+		Status status0 = new Status("New clients", false, 1L, false, 0, 0);
 
 		Role roleAdmin = new Role("ADMIN");
 		Role roleOwner = new Role("OWNER");
@@ -158,11 +159,11 @@ public class DataInitializer {
 		MessageTemplateService.add(MessageTemplate3);
 		MessageTemplateService.add(MessageTemplate4);
 
-		Status status1 = new Status("trialLearnStatus", false, 2L, true);
-		Status status2 = new Status("inLearningStatus", false, 3L, true);
-		Status status3 = new Status("pauseLearnStatus", false, 4L, false);
-		Status status4 = new Status("endLearningStatus", false, 5L, false);
-		Status status5 = new Status("dropOut Status", false, 6L, false);
+		Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
+		Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
+		Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
+		Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
+		Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
 		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
 		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
@@ -216,10 +217,9 @@ public class DataInitializer {
 		StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
 		StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
-		DateTime currentDate = new DateTime();
-		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), currentDate.plusDays(3), currentDate.plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
-		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), currentDate, currentDate.plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
-		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), currentDate, currentDate.plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
+		Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3),LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+		Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+		Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
 		studentService.add(trialStudent);
 		studentService.add(learningStudent);
 		studentService.add(pauseStudent);

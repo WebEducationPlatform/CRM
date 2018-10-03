@@ -60,7 +60,7 @@ public class StatusRestController {
 	@PostMapping(value = "/client/change")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
-	                                         @RequestParam(name = "clientId") Long clientId,
+											 @RequestParam(name = "clientId") Long clientId,
 											 @AuthenticationPrincipal User userFromSession) {
 		Client currentClient = clientService.get(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
@@ -68,6 +68,9 @@ public class StatusRestController {
 		}
 		currentClient.setStatus(statusService.get(statusId));
 		currentClient.addHistory(clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS));
+		if (currentClient.getStudent() == null) {
+			currentClient.addHistory(clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT));
+		}
 		clientService.updateClient(currentClient);
 		studentService.addStudentForClient(currentClient);
 		notificationService.deleteNotificationsByClient(currentClient);

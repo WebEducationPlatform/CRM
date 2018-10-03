@@ -150,7 +150,7 @@ $(document).ready(function () {
     //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
-        let jo2 = jo.find($(".portlet-header"));
+        let jo2 = jo.find($(".search_text"));
         let data = this.value.toLowerCase().split(" ");
         this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
 
@@ -248,12 +248,18 @@ function createNewStatus() {
     });
 }
 
+//Change status button
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
+    let trial_offset = $("#trial_offset_" + id).val();
+    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    if (!validate_status_input(trial_offset, next_payment_offset)) {return};
     let formData = {
         statusName: statusName,
-        oldStatusId: id
+        oldStatusId: id,
+        trialOffset: trial_offset,
+        nextPaymentOffset: next_payment_offset
     };
 
     $.ajax({
@@ -267,6 +273,15 @@ function changeStatusName(id) {
             alert(e.responseText);
         }
     });
+}
+
+//Status offset dates validation
+function validate_status_input(trial_offset, next_payment_offset) {
+    if (trial_offset > next_payment_offset) {
+        alert("Отступ даты пробного периода не может быть больше отступа даты следующей оплаты!");
+        return false;
+    }
+    return true;
 }
 
 function tilt_direction(item) {

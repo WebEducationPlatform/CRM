@@ -33,6 +33,7 @@ public class ClientRestController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
+	private final MessageService messageService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -41,11 +42,12 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-								ClientHistoryService clientHistoryService) {
+								ClientHistoryService clientHistoryService, MessageService messageService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
+		this.messageService = messageService;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -354,5 +356,11 @@ public class ClientRestController {
 		client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
+	}
+
+	@GetMapping(value = "/message/info/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
 	}
 }

@@ -402,7 +402,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
-                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" placeholder="Название статуса"/>
+                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" th:value="${status.name}"/>
+                    <label th:for="'trial_offset_' + ${status.id}">Интервал по-умолчанию для даты пробного периода</label>
+                    <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
+                    <label th:for="'next_payment_offset_' + ${status.id}">Интервал по-умолчанию для даты следующей оплаты</label>
+                    <input th:id="'next_payment_offset_' + ${status.id}" type="number" th:value="${status.nextPaymentOffset}"/>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                 <button type="button" class="btn btn-primary" th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить</button>

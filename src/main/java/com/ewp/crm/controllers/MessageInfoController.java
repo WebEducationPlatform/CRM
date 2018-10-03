@@ -24,13 +24,6 @@ public class MessageInfoController {
 		this.messageService = messageService;
 	}
 
-	@GetMapping("message/info/{messageId}")
-	public ModelAndView showMessageInfo(@PathVariable("messageId") long id) {
-		ModelAndView modelAndView = new ModelAndView("fragments/modal-client-history-message");
-		modelAndView.addObject("message", messageService.get(id));
-		return modelAndView;
-	}
-
 	@GetMapping("/sms/info/{smsId}")
 	public ModelAndView showSMSInfo(@PathVariable("smsId") long id) {
 		ModelAndView modelAndView = new ModelAndView("sms-info");
