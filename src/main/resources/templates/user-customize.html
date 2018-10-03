@@ -50,8 +50,14 @@
         <br/>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pul" data-toggle="modal" data-target="#choice-status-column-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
                 Статус клиента не студента
+            </button>
+        </div>
+        <br/>
+        <div id="payment-notification-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal">
+                Оповещение об оплате
             </button>
         </div>
     </div>
@@ -121,7 +127,9 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 </body>
 </html>

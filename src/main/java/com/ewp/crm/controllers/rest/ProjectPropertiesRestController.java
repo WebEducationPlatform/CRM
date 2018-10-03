@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/properties")
+@RequestMapping("/rest/properties")
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 public class ProjectPropertiesRestController {
 
@@ -20,6 +20,15 @@ public class ProjectPropertiesRestController {
     @Autowired
     public ProjectPropertiesRestController(ProjectPropertiesService projectPropertiesService) {
         this.projectPropertiesService = projectPropertiesService;
+    }
+
+    @GetMapping
+    public ResponseEntity<ProjectProperties> getProjectProperties() {
+        ProjectProperties projectProperties = projectPropertiesService.get();
+        if (projectProperties == null) {
+            projectProperties = new ProjectProperties();
+        }
+        return new ResponseEntity<>(projectProperties, HttpStatus.OK);
     }
 
     @GetMapping("/status")
