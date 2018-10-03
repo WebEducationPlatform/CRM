@@ -1,10 +1,8 @@
 package com.ewp.crm.models;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalTime;
 
 //TODO Дополнить при необходимости полями для системных настроек
 @Entity
@@ -21,6 +19,13 @@ public class ProjectProperties {
     //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
     @Column(name = "default_status")
     private Long defaultStatusId;
+
+    @OneToOne
+    @JoinColumn(name = "payment_message_template")
+    private MessageTemplate paymentMessageTemplate;
+
+    @Column(name = "payment_notification_time")
+    private LocalTime paymentNotificationTime;
 
     public ProjectProperties() {
     }
@@ -56,5 +61,32 @@ public class ProjectProperties {
 
     public void setDefaultStatusId(Long defaultStatusId) {
         this.defaultStatusId = defaultStatusId;
+    }
+
+    public MessageTemplate getPaymentMessageTemplate() {
+        return paymentMessageTemplate;
+    }
+
+    public void setPaymentMessageTemplate(MessageTemplate paymentMessageTemplate) {
+        this.paymentMessageTemplate = paymentMessageTemplate;
+    }
+
+    public LocalTime getPaymentNotificationTime() {
+        return paymentNotificationTime;
+    }
+
+    public void setPaymentNotificationTime(LocalTime paymentNotificationTime) {
+        this.paymentNotificationTime = paymentNotificationTime;
+    }
+
+    @Override
+    public String toString() {
+        return "ProjectProperties{" +
+                "id=" + id +
+                ", technicalAccountToken='" + technicalAccountToken + '\'' +
+                ", defaultStatusId=" + defaultStatusId +
+                ", paymentMessageTemplate=" + paymentMessageTemplate +
+                ", paymentNotificationTime=" + paymentNotificationTime +
+                '}';
     }
 }
