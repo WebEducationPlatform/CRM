@@ -121,16 +121,24 @@ function open_new_window(elem) {
     window.open(url, "", "width=700,height=500,location=0,menubar=0,titlebar=0");
 }
 
+//Open modal with client history message.
 function viewClientHistoryMessage(id) {
-    $.ajax({
-        url: "/client/message/info/" + id,
-        success: function (response) {
-            console.log(response);
-            $('#modalClientHistoryMessageHolder').html(response);
-            $('#modalClientHistoryMessage').modal();
-            $('#modalClientHistoryMessage').modal('open');
-        }
-    });
+    let currentModal = $('#modalClientHistoryMessage');
+    currentModal.data('message_id', id);
+    currentModal.modal('show');
 }
 
+//Fill values on client history message modal show up.
+$(function () {
+    $('#modalClientHistoryMessage').on('show.bs.modal', function () {
+        var message_id = $(this).data('message_id');
+        $.ajax({
+            type: 'GET',
+            url: "/rest/client/message/info/" + message_id,
+            success: function (response) {
+                $("#message_content").empty().append(response.content);
+            }
+        })
+    });
+});
 
