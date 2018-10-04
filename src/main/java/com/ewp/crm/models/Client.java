@@ -159,6 +159,10 @@ public class Client implements Serializable, Diffable<Client> {
 	@JoinColumn(name = "student_id")
 	private Student student;
 
+	@JsonIgnore
+	@OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+	private SlackProfile slackProfile;
+
 	public Client() {
 		this.state = State.NEW;
 		this.dateOfRegistration = new Date();
@@ -409,6 +413,15 @@ public class Client implements Serializable, Diffable<Client> {
 	public void setStudent(Student student) {
 		this.student = student;
 	}
+
+	public SlackProfile getSlackProfile() {
+		return slackProfile;
+	}
+
+	public void setSlackProfile(SlackProfile slackProfile) {
+		this.slackProfile = slackProfile;
+	}
+
 
 	@Override
 	public boolean equals(Object o) {
