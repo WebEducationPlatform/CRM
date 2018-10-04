@@ -20,13 +20,22 @@ public class ProjectProperties {
     @Column(name = "default_status")
     private Long defaultStatusId;
 
+    /**
+     * Message template for scheduled payment notification.
+     */
     @OneToOne
     @JoinColumn(name = "payment_message_template")
     private MessageTemplate paymentMessageTemplate;
 
+    /**
+     * Time of the day payment notification invoked in.
+     */
     @Column(name = "payment_notification_time")
     private LocalTime paymentNotificationTime;
 
+    /**
+     * Is payment notification enabled.
+     */
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
 
@@ -40,6 +49,19 @@ public class ProjectProperties {
     public ProjectProperties(Long id, String technicalAccountToken) {
         this.id = id;
         this.technicalAccountToken = technicalAccountToken;
+    }
+
+    /**
+     * Get payment notification time for daily scheduling.
+     * @return time as cron expression.
+     */
+    public String getPaymentNotificationTimeAsCron() {
+        String result = "0 0 12 * * *";
+        LocalTime time = this.paymentNotificationTime;
+        if (time != null) {
+            result = time.getSecond() + " " + time.getMinute() + " " + time.getHour() + " * * *";
+        }
+        return result;
     }
 
     public Long getId() {
