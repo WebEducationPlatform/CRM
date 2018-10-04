@@ -27,6 +27,9 @@ public class ProjectProperties {
     @Column(name = "payment_notification_time")
     private LocalTime paymentNotificationTime;
 
+    @Column(name = "payment_notification_enabled")
+    private boolean paymentNotificationEnabled = false;
+
     public ProjectProperties() {
     }
 
@@ -79,6 +82,14 @@ public class ProjectProperties {
         this.paymentNotificationTime = paymentNotificationTime;
     }
 
+    public boolean isPaymentNotificationEnabled() {
+        return paymentNotificationEnabled;
+    }
+
+    public void setPaymentNotificationEnabled(boolean paymentNotificationEnabled) {
+        this.paymentNotificationEnabled = paymentNotificationEnabled;
+    }
+
     @Override
     public String toString() {
         return "ProjectProperties{" +
@@ -87,6 +98,7 @@ public class ProjectProperties {
                 ", defaultStatusId=" + defaultStatusId +
                 ", paymentMessageTemplate=" + paymentMessageTemplate +
                 ", paymentNotificationTime=" + paymentNotificationTime +
+                ", paymentNotificationEnabled=" + paymentNotificationEnabled +
                 '}';
     }
 }
