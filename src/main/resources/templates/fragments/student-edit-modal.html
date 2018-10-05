@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+</head>
+<body>
+
+<th:block th:fragment="studentEditModal">
+    <div th:id="student-edit-modal" class="modal fade main-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 id="modal-header" class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+                                <tr>
+                                    <input id="student-id" type="hidden"/>
+                                    <td><label for="trial-end-date">Конец пробных</label></td>
+                                    <td><input id="trial-end-date" class="form-control" type="date"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="next-payment-date">Следующая оплата</label></td>
+                                    <td><input id="next-payment-date" class="form-control" type="date"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="month-price">Цена</label></td>
+                                    <td><input id="month-price" class="form-control" type="number"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="payment">Сумма платежа</label></td>
+                                    <td><input id="payment" class="form-control" type="number"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="later-payment">Оплата после</label></td>
+                                    <td><input id="later-payment" class="form-control" type="number"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="student-status">Статус учёбы</label></td>
+                                    <td><select id="student-status" class="form-control"></select></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="notes">Заметки</label></td>
+                                    <td><input id="notes" class="form-control" type="text"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="update-student" type="button" class="btn btn-default" data-dismiss="modal">Применить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

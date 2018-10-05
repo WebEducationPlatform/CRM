@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+    <div id="client-info-container" class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-6" id="column1">
+                <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="edit-client-first-name">Имя</label>
+                        <input class="form-control" required="required" disabled="disabled" id="edit-client-first-name"
+                               th:value="${client.name}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-last-name">Фамилия</label>
+                        <input class="form-control" id="edit-client-last-name" disabled="disabled"
+                               th:value="${client.lastName}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-phone-number">Номер телефона</label>
+                        <input type="tel" class="form-control" disabled="disabled" id="edit-client-phone-number"
+                               th:value="${client.phoneNumber}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-email">Email</label>
+                        <input type="email" class="form-control" data-error="Неверный формат Email"
+                               pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$"
+                               disabled="disabled" id="edit-client-email" th:value="${client.email}"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-skype">Skype</label>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-skype"
+                               th:value="${client.skype}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-age">Возраст</label>
+                        <input type="number" class="form-control" min="0" max="127" disabled="disabled"
+                               title="Диапазон от 0 до 127" onkeydown="disableInputE()" id="edit-client-age"
+                               th:value="${client.age}"/>
+                        <div class="help-block with-error" style="color: red"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-sex">Выберите пол</label>
+                        <select class="form-control" disabled="disabled" id="edit-client-sex" th:value="${client.sex}">
+                            <option th:value="MALE">MALE</option>
+                            <option th:value="FEMALE">FEMALE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-state">Статус</label>
+                        <select class="form-control" disabled="disabled" id="edit-client-state"
+                                th:value="${client.state}">
+                            <option th:each="state: ${states}" th:value="${state}" th:text="${state}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-country">Страна</label>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-country"
+                               th:value="${client.country}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-city">Город</label>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
+                               th:value="${client.city}"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-client-visible">Видимость клиента</label>
+                        <input type="hidden" id="postpone" th:attr="post = ${client.postponeDate}"/>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-visible"
+                               data-value-function="isHide"/>
+                        <p/>
+                    </div>
+                    <button type="button" id="makeVisible" class="btn btn-md btn-info" disabled="disabled">
+                        Показать клиента
+                    </button>
+
+                    <div class="form-group">
+                        <label>Социальные сети</label>
+                        <table class="table table-hover" th:id="SocialNetworks">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th hidden="hidden" abbr="id">id</th>
+                                <th abbr="link">Link</th>
+                                <th abbr="socialProfileType">Type</th>
+                            </tr>
+                            </thead>
+                            <tbody id="SN-table-body">
+                            <tr th:each="socials:${client.socialProfiles}">
+                                <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
+                                <td th:value="${socials.link}" th:text="${socials.link}"></td>
+                                <td th:value="${socials.socialProfileType.id}"
+                                    th:text="${socials.socialProfileType.name}"></td>
+                                <td>
+                                    <button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'"
+                                            class="glyphicon glyphicon-remove"></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                <button class="btn btn-md btn-info" disabled="disabled" id="addNewSN" th:onclick="'addNewSN()'">Добавить
+                    соц. сеть
+                </button>
+                <form id="job-client-from">
+                    <div class="form-group">
+                        <label>Работа</label>
+                        <table class="table table-hover" th:id="Job">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th hidden="hidden" abbr="id">id</th>
+                                <th abbr="organization">Организация</th>
+                                <th abbr="position">Позиция</th>
+                            </tr>
+                            </thead>
+                            <tbody id="job-table-body">
+                            <tr th:each="job:${client.jobs}">
+                                <td hidden="hidden" th:id="'edit-client-job'+ ${job.id} + '_id'" th:value="${job.id}"
+                                    th:text="${job.id}"></td>
+                                <td th:value="${job.organization}" th:text="${job.organization}"></td>
+                                <td th:value="${job.position}" th:text="${job.position}"></td>
+                                <td>
+                                    <button disabled="disabled" type="button" th:onclick="'deleteJob('+ this + ')'"
+                                            class="glyphicon glyphicon-remove"></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                <button class="btn btn-md btn-info" disabled="disabled" id="addNewJob" th:onclick="'addNewJob()'">
+                    Добавить работу
+                </button>
+                <div class="btn-group client-info-edit-save-back-btns">
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
+                            id="editClientBtn" onclick="revertUnable()">
+                        Редактировать
+                    </button>
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary"
+                            id="saveChanges"
+                            th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
+                    </button>
+                    <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                    <p><span id="message"></span></p>
+                </div>
+            </div>
+            <!-- Client History -->
+            <div class="col-md-6 history-row" id="column2">
+                <div><h2>История клиента</h2></div>
+                <button type="button" data-toggle="collapse" data-target="#collapse-history"
+                        class="btn btn-primary open-history">Открыть историю
+                </button>
+                <div>
+                    <div id="collapse-history" class="collapse" th:attrappend="data-clientid=${client.id}"
+                         style="overflow-y: scroll;">
+                        <table class="table table-bordered" id="table-of-history"
+                               th:id="'client-'+${client.id}+'history'">
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button type="button" data-page="1" class="btn upload-more-history" style="display:none"
+                                th:attrappend="data-clientid=${client.id}">Загрузить ещё
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<script type="text/javascript" th:src="@{/js/client-info.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script th:src="@{/js/validator.min.js}"></script>
+</body>
+</html>
