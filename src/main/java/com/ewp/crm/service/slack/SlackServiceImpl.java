@@ -38,6 +38,9 @@ public class SlackServiceImpl implements SlackService {
     private final ClientHistoryService clientHistoryService;
     private final ProjectPropertiesService propertiesService;
 
+    // get it for you Workspace from
+    // https://api.slack.com/custom-integrations/legacy-tokens
+    // and put in to slack.properties
     private String LEGACY_TOKEN;
 
     @Autowired
@@ -94,7 +97,7 @@ public class SlackServiceImpl implements SlackService {
             client.setSlackProfile(slackProfile);
             slackProfile.setClient(client);
             ProjectProperties projectProperties = propertiesService.get();
-            if (projectProperties == null || projectProperties.getDefaultStatusId() == null ) {
+            if (projectProperties == null || projectProperties.getDefaultStatusId() == null) {
                 logger.warn("Don't have projectProperties yet! Create it.");
             } else {
                 Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId());
@@ -106,7 +109,7 @@ public class SlackServiceImpl implements SlackService {
                 studentService.addStudentForClient(client);
             }
             client.addHistory(clientHistoryService.createHistory("Slack, nickname: " + slackProfile.getDisplayName()
-                            + ". " + client.getName() + " " + client.getLastName() + " теперь студент"));
+                    + ". " + client.getName() + " " + client.getLastName() + " теперь студент"));
             clientService.updateClient(client);
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");

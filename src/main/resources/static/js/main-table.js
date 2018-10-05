@@ -19,11 +19,11 @@ function drawCheckbox(currentForm, clientId) {
         url: 'rest/client/' + clientId,
         data: formData,
         beforeSend: function () {
-            if(currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
+            if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
                 return false;
             }
         },
-        success: function(data) {
+        success: function (data) {
             var soc = data.socialProfiles;
             var email = data.email;
             var phoneNumber = data.phoneNumber;
@@ -33,11 +33,12 @@ function drawCheckbox(currentForm, clientId) {
                     "<input type='checkbox'  value=" + soc[i].socialProfileType.name + "  class='my-checkbox-soc' />" + soc[i].socialProfileType.name +
                     "</label>");
             }
-            if(email !== null) {
+            if (email !== null) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'email' + "  class='my-checkbox-soc' />" + 'e-mail' +
                     "</label>");
-            } if (phoneNumber !== null ) {
+            }
+            if (phoneNumber !== null) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
                     "<input type='checkbox'  value=" + 'sms' + "  class='my-checkbox-soc' />" + 'sms' +
                     "</label>");
@@ -47,25 +48,25 @@ function drawCheckbox(currentForm, clientId) {
 }
 
 $(function () {
-    $(".hide-main-modal").click(function(e) {
+    $(".hide-main-modal").click(function (e) {
         $(".main-modal .close").click()
     });
 });
 
 // Выбрать , отключить все чекбоксы в меню отправки сообщений в email.SMS, VK,FB.
 
-$('.select_all').click(function() {
+$('.select_all').click(function () {
     var currentForm = $(this).parents('.box-modal');
     currentForm.find('.my-checkbox-soc').prop('checked', true);
 });
 
-$('.confirm-skype-interceptor').on('click','.select_all_skype_boxes', function (e) {
+$('.confirm-skype-interceptor').on('click', '.select_all_skype_boxes', function (e) {
     var currentForm = $(this).parents('.box-window');
     currentForm.find('.my-checkbox-soc').prop('checked', true);
 });
 
 
-$('.deselect_all').click(function() {
+$('.deselect_all').click(function () {
     var currentForm = $(this).parents('.box-modal');
     currentForm.find('.my-checkbox-soc').prop('checked', false);
 });
@@ -97,12 +98,9 @@ $("#save-description").on("click", function saveDescription() {
 });
 
 
-
-
-
 $(document).ready(function () {
     $(".column").sortable({
-        delay:100,
+        delay: 100,
         items: '> .portlet',
         connectWith: ".column",
         handle: ".portlet-body",
@@ -119,9 +117,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).ready(function(){
-        $("#new-status-name").keypress(function(e){
-            if(e.keyCode===13){
+    $(document).ready(function () {
+        $("#new-status-name").keypress(function (e) {
+            if (e.keyCode === 13) {
                 createNewStatus();
             }
         });
@@ -152,10 +150,18 @@ $(document).ready(function () {
     //Search clients in main
     $("#search-clients").keyup(function () {
         let jo = $(".portlet");
-        let jo2 = jo.find($(".portlet-header"));
-        this.value.localeCompare("") == 0 ? jo.show : jo.hide();
+        let jo2 = jo.find($(".search_text"));
+        let data = this.value.toLowerCase().split(" ");
+        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
+
         for (let i = 0; i < jo2.length; i++) {
-            if (jo2[i].innerText.includes(this.value)) {
+            let count = 0;
+            for (let z = 0; z < data.length; z++) {
+                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
+                    count++;
+                }
+            }
+            if (count === data.length) {
                 jo[i].style.display = 'block';
             }
         }
@@ -165,7 +171,8 @@ $(document).ready(function () {
         let modal = $("#sms_error_modal"),
             btn = $(this),
             url = '/user/notification/sms/error/' + btn.attr("data-id");
-        $.get(url, function(){}).done(function (notifications) {
+        $.get(url, function () {
+        }).done(function (notifications) {
             let body = modal.find("tbody");
             for (let i = 0; i < notifications.length; i++) {
                 body.append(
@@ -173,7 +180,7 @@ $(document).ready(function () {
                 )
             }
         });
-        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications("+ btn.attr("data-id") +")");
+        modal.find("#clear_sms_errors").attr("onClick", "clearNotifications(" + btn.attr("data-id") + ")");
         modal.modal();
     })
 
@@ -186,10 +193,10 @@ $(document).ready(function () {
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
+
 function hideOption(clientId) {
     $("#option_" + clientId).hide();
 }
-
 
 
 function createNewUser() {
@@ -241,12 +248,18 @@ function createNewStatus() {
     });
 }
 
+//Change status button
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
+    let trial_offset = $("#trial_offset_" + id).val();
+    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    if (!validate_status_input(trial_offset, next_payment_offset)) {return};
     let formData = {
         statusName: statusName,
-        oldStatusId: id
+        oldStatusId: id,
+        trialOffset: trial_offset,
+        nextPaymentOffset: next_payment_offset
     };
 
     $.ajax({
@@ -261,6 +274,16 @@ function changeStatusName(id) {
         }
     });
 }
+
+//Status offset dates validation
+function validate_status_input(trial_offset, next_payment_offset) {
+    if (trial_offset > next_payment_offset) {
+        alert("Отступ даты пробного периода не может быть больше отступа даты следующей оплаты!");
+        return false;
+    }
+    return true;
+}
+
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
@@ -309,12 +332,13 @@ function assign(id) {
         }
     });
 }
+
 function assignUser(id, user, principalId) {
     var
         url = '/rest/client/assign/user',
         formData = {
             clientId: id,
-            userForAssign : user
+            userForAssign: user
         },
         assignBtn = $('#assign-client' + id);
 
@@ -324,7 +348,7 @@ function assignUser(id, user, principalId) {
         data: formData,
         success: function (owner) {
             let info_client = $('#info-client' + id),
-                target_btn = $("a[href='/client/clientInfo/"+ id +"']"),
+                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
@@ -348,8 +372,8 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-"+id+"' value=" + owner.firstName + " " + owner.lastName + ">" +
-                owner.firstName.substring(0,1) + owner.lastName.substring(0,1) +
+                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
             );
@@ -377,11 +401,11 @@ function unassign(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-            if(unassignBtn.length !== 0){
+            if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
                     "   id='assign-client" + id + "' " +
-                    "   onclick='assign(" + id +")' " +
+                    "   onclick='assign(" + id + ")' " +
                     "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
                 );
                 unassignBtn.remove();
@@ -401,14 +425,14 @@ function showall() {
 $(document).ready(function () {
     $("#client_filter").change(function () {
         var allChecks = $('#client_filter input:checkbox');
-        var data=[];
-        for (var w = 0; w < allChecks.length; ++w){
-            if(allChecks[w].checked){
-                data[data.length]=allChecks[w].value;
+        var data = [];
+        for (var w = 0; w < allChecks.length; ++w) {
+            if (allChecks[w].checked) {
+                data[data.length] = allChecks[w].value;
             }
         }
         var jo = $("#status-columns").find($(".portlet"));
-        if (data.length===0) {
+        if (data.length === 0) {
             jo.show();
             return;
         }
@@ -491,7 +515,7 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
-$(document).ready(function () {
+$(document).on('click', function () {
     var url = '/rest/user';
 
     var userNames = [];
@@ -539,11 +563,29 @@ function reAvailableUser(id) {
         url: url,
         data: formData,
         success: function () {
-            $("#deleteUserModal" + id).modal("hide");
+            $("#reAvailableUserModal" + id).modal("hide");
             location.reload();
         },
         error: function (e) {
 
+        }
+    });
+}
+
+function deleteUser(id) {
+    let url = '/admin/rest/user/deleteUser';
+    let formData = {
+        deleteId: id
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            location.reload();
+        },
+        error: function (e) {
         }
     });
 }
@@ -707,7 +749,7 @@ $(function () {
 });
 
 $(function () {
-    $('.open-description-btn').on('click', function(event) {
+    $('.open-description-btn').on('click', function (event) {
         var id = $(this).data('id');
         var infoClient = $('#info-client' + id);
         var text = infoClient.find('.client-description').text();
@@ -718,7 +760,6 @@ $(function () {
         clientModal.modal('show');
     });
 });
-
 
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
@@ -781,7 +822,7 @@ $(function () {
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
-            var valuecheck = $( this ).val();
+            var valuecheck = $(this).val();
             switch (valuecheck) {
                 case ('email'):
                     url = '/rest/sendEmail';
@@ -872,19 +913,19 @@ $(function () {
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
-    $('.save_value').on('click', function(event) {
+    $('.save_value').on('click', function (event) {
         var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
             return $(el).val();
         });
-        var boxList =sel.get();
+        var boxList = sel.get();
         console.log(sel.get());
 
         $.ajax({
             contentType: "application/json",
             type: 'POST',
             data: JSON.stringify(boxList),
-            url:"/rest/sendSeveralMessage",
-            success:function(result){
+            url: "/rest/sendSeveralMessage",
+            success: function (result) {
                 alert('sucess')
             }
         });
@@ -892,21 +933,22 @@ $(function () {
 });
 
 
-
 //Отрпавка сообщений с кастомным текстом во все выбранные социальные сети, email, SMS.
 $(function () {
-    $('.send-all-custom-message').on('click', function(event) {
+    $('.send-all-custom-message').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        var formData = {clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()};
+        var formData = {
+            clientId: clientId, templateId: templateId,
+            body: $('#custom-eTemplate-body').val()
+        };
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
             var valuecheck = $(this).val();
-            switch ($( this ).val()) {
+            switch ($(this).val()) {
                 case ('email'):
                     url = '/rest/sendEmail';
                     break;
@@ -925,7 +967,7 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: formData,
-                beforeSend: function(){
+                beforeSend: function () {
                     current.text("Отправка..");
                     current.attr("disabled", "true")
                 },
@@ -955,7 +997,6 @@ $(function () {
         $(this).find('.send-all-custom-message').removeAttr("disabled");
     });
 });
-
 
 
 function hideClient(clientId) {
@@ -1252,12 +1293,13 @@ $(document).on('click','.send-skype-message', function (e) {
     var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
         return $(el).val();
     });
+
     var boxList = sel.get();
 
     let url = 'rest/skype/assignSkype';
     let formData = {
         clientId: clientId,
-        date: $('#skypePostpone'+ clientId).val(),
+        date: $('#skypePostpone' + clientId).val(),
         selectNetwork: JSON.stringify(boxList)
     };
     $.ajax({
@@ -1266,7 +1308,7 @@ $(document).on('click','.send-skype-message', function (e) {
         data: formData,
         success: function (result) {
             $('.skype-panel').remove();
-            $('.skype-notification, #mentor').hide();
+            $('.skype-notification').hide();
             if (boxList.length === 0) {
                 $('.assign-skype-call-btn').after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
             } else {
@@ -1632,40 +1674,40 @@ function webCallToClient(clientPhone) {
 
     sdk.init()
         .then(() => {
-        console.log('This code is executed after SDK successfully initializes');
-    // connecting to the Voximplant Cloud;
-    // "false" argument disables checking of UDP connection (for fastest connect)
-    return sdk.connect(false);
-})
-.then(() => {
-        console.log('This code is executed after SDK is successfully connected to Voximplant');
-    //return sdk.login(voxLogin, voxPassword);
-    sdk.requestOneTimeLoginKey(voxLogin);
+            console.log('This code is executed after SDK successfully initializes');
+            // connecting to the Voximplant Cloud;
+            // "false" argument disables checking of UDP connection (for fastest connect)
+            return sdk.connect(false);
+        })
+        .then(() => {
+            console.log('This code is executed after SDK is successfully connected to Voximplant');
+            //return sdk.login(voxLogin, voxPassword);
+            sdk.requestOneTimeLoginKey(voxLogin);
 
-    sdk.addEventListener(VoxImplant.Events.AuthResult, e => {
-        console.log('AuthResult: ' + e.result);
-    if (e.result) {
-        console.log('This code is executed on successfull login');
+            sdk.addEventListener(VoxImplant.Events.AuthResult, e => {
+                console.log('AuthResult: ' + e.result);
+                if (e.result) {
+                    console.log('This code is executed on successfull login');
 
-        const call = sdk.call({number: clientPhone, customData: callerId});
-        call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
-        call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
-        call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
-    } else {
-        if (e.code == 302) {
-            $.post('/user/rest/call/calcKey', {
-                key: e.key
-            }, token => {
-                sdk.loginWithOneTimeKey(voxLogin, token);
-        }, 'text');
-        }
-    }
-})
-    return VoxImplant.AuthResult.result;
-})
-.catch((e) => {
-        console.log(e);
-});
+                    const call = sdk.call({number: clientPhone, customData: callerId});
+                    call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
+                    call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
+                    call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
+                } else {
+                    if (e.code == 302) {
+                        $.post('/user/rest/call/calcKey', {
+                            key: e.key
+                        }, token => {
+                            sdk.loginWithOneTimeKey(voxLogin, token);
+                        }, 'text');
+                    }
+                }
+            })
+            return VoxImplant.AuthResult.result;
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 }
 
 //авторизация Вконтакте
@@ -1717,14 +1759,14 @@ $(".change-status-position").on('click', function () {
     let sourceId = $(this).parents(".column").attr("value");
     let url = "/rest/status/position/change";
     let formData = {
-        sourceId : sourceId,
-        destinationId : destinationId
+        sourceId: sourceId,
+        destinationId: destinationId
     };
     $.ajax({
         type: 'post',
         url: url,
         data: formData,
-        success: function() {
+        success: function () {
             location.reload();
         },
         error: function (error) {
@@ -1733,9 +1775,93 @@ $(".change-status-position").on('click', function () {
     });
 });
 
+function changeUrl(id) {
+    var state = {'page_id': id, 'user_id': id};
+    var title = '';
+    var url = '/client?id=' + id;
+
+    history.replaceState(state, title, url);
+}
+
+function backUrl() {
+    var state = {};
+    var title = '';
+    var url = '/client';
+
+    history.replaceState(state, title, url);
+}
+
+function getAllUrlParams(url) {
+    // извлекаем строку из URL или объекта window
+    var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+    // объект для хранения параметров
+    var obj = {};
+    // если есть строка запроса
+    if (queryString) {
+        // данные после знака # будут опущены
+        queryString = queryString.split('#')[0];
+        // разделяем параметры
+        var arr = queryString.split('&');
+
+        for (var i = 0; i < arr.length; i++) {
+            // разделяем параметр на ключ => значение
+            var a = arr[i].split('=');
+            // обработка данных вида: list[]=thing1&list[]=thing2
+            var paramNum = undefined;
+            var paramName = a[0].replace(/\[\d*\]/, function (v) {
+                paramNum = v.slice(1, -1);
+                return '';
+            });
+
+            // передача значения параметра ('true' если значение не задано)
+            var paramValue = typeof(a[1]) === 'undefined' ? true : a[1];
+
+            // преобразование регистра
+            paramName = paramName.toLowerCase();
+            paramValue = paramValue.toLowerCase();
+            // если ключ параметра уже задан
+            if (obj[paramName]) {
+                // преобразуем текущее значение в массив
+                if (typeof obj[paramName] === 'string') {
+                    obj[paramName] = [obj[paramName]];
+                }
+                // если не задан индекс...
+                if (typeof paramNum === 'undefined') {
+                    // помещаем значение в конец массива
+                    obj[paramName].push(paramValue);
+                }
+                // если индекс задан...
+                else {
+                    // размещаем элемент по заданному индексу
+                    obj[paramName][paramNum] = paramValue;
+                }
+            }
+            // если параметр не задан, делаем это вручную
+            else {
+                obj[paramName] = paramValue;
+            }
+        }
+    }
+    return obj;
+}
+
+$(function () {
+    $(document).ready(function () {
+
+        if (window.location.href.indexOf('client?id=') != -1) {
+            var clientId = getAllUrlParams(window.location.href).id;
+            var currentModal = $('#main-modal-window');
+            currentModal.data('clientId', clientId);
+            currentModal.modal('show');
+        }
+
+    });
+});
+
+
 function deleteNewUser(deleteId) {
     let url = '/admin/rest/user/delete';
-    let data ={
+    let data = {
         deleteId: deleteId
     };
 
