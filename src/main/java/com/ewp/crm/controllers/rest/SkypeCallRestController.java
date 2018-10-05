@@ -25,8 +25,7 @@ import java.util.List;
 
 @RestController
 public class SkypeCallRestController {
-
-	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
+	private static Logger logger = LoggerFactory.getLogger(SkypeCallRestController.class);
 
 	private final AssignSkypeCallService assignSkypeCallService;
 	private final ClientHistoryService clientHistoryService;
