@@ -8,7 +8,7 @@ $(function () {
 $(function choiceClientVisibility () {
     window.isHide = function () {
         var element = document.getElementById('postpone');
-        var postpone = element.getAttribute('post');
+        var postpone = element.getAttribute('postponeDate');
         if (postpone == undefined) {
             return 'Клиент в работе';
         } else {
@@ -23,12 +23,12 @@ $(function choiceClientVisibility () {
 });
 
 $('#makeVisible').click(function () {
-    var element = document.getElementById('postpone');
-    var postpone = element.getAttribute('post');
+    var postponeDate = document.getElementById('postpone').getAttribute('postponeDate');
     console.log(postpone);
-    if (postpone != undefined) {
+    if (postponeDate != undefined) {
         var element = document.getElementById('edit-client-visible');
-        element.value = null;
+        element.value = 'Клиент в работе';
+        document.getElementById('postpone').setAttribute('postponeDate', null);
     }
 });
 
@@ -108,7 +108,7 @@ function changeClient(id) {
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
         skype: $('#edit-client-skype').val(),
-        postponeDate: $('#edit-client-visible').val(),
+        postponeDate: $('#postpone').val(),
         socialProfiles: SN,
         status: {},
         jobs: Job
