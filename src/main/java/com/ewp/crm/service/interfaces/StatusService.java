@@ -2,6 +2,7 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
+import com.ewp.crm.repository.interfaces.CommonGenericRepository;
 
 import java.util.List;
 
@@ -17,7 +18,9 @@ public interface StatusService {
 
     Status getFirstStatusForClient();
 
-    void add(Status status);
+	Status getStatusByName(String name);
+
+	void add(Status status);
 
     void addInit(Status status);
 
