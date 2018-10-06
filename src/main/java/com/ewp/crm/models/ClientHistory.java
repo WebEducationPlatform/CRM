@@ -1,10 +1,8 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.joda.time.DateTime;
-
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -32,7 +30,7 @@ public class ClientHistory {
     //private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
 
     @Column(name = "date")
-    private Date date;
+    private LocalDateTime date;
 
     @Column(name = "history_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -49,7 +47,7 @@ public class ClientHistory {
     private Client client;
 
     public ClientHistory() {
-        this.date = new Date();
+        this.date = LocalDateTime.now();
     }
 
     public ClientHistory(Type type) {
@@ -89,13 +87,9 @@ public class ClientHistory {
         return link;
     }
 
-    public String getDate() {
-        return new DateTime(date).toString("HH:mm ddMMM yyyy'г'");
+    public LocalDateTime getDate() {
+        return date;
     }
-
-	public long getDateAsLong() {
-		return date.getTime();
-	}
 
     public Type getType() {
         return type;

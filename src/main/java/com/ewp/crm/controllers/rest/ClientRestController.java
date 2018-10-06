@@ -2,9 +2,6 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
@@ -284,13 +284,13 @@ public class ClientRestController {
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
 			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
 			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeDate(postponeDate.toDate());
+			client.setPostponeDate(postponeDate);
 			client.setOwnerUser(userFromSession);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
 			clientService.updateClient(client);

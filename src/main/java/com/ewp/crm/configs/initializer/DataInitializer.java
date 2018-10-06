@@ -6,12 +6,11 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class DataInitializer {
@@ -165,10 +164,10 @@ public class DataInitializer {
 		Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
 		Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
-		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, new Date(Calendar.getInstance().getTimeInMillis() - 100000000));
-		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 200000000));
-		Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, new Date(Calendar.getInstance().getTimeInMillis() - 300000000));
-		Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, new Date(Calendar.getInstance().getTimeInMillis() - 400000000));
+		Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, LocalDateTime.now());
+		Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, LocalDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
+		Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, LocalDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+		Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, LocalDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
 		client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
 		client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
 		client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));

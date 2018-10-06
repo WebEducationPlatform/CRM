@@ -106,10 +106,13 @@ function drawClientHistory(list, history_table) {
                 "</div>" +
                 "</td>"
         }
+        let d = new Date(list[i].date);
+        let date = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
         history_table.append(
             "<tr class='remove-history'>" +
             "   <td>" + list[i].title + "</td>" +
-            "   <td class=\"client-history-date\">" + list[i].date + "</td>" +
+            "   <td class=\"client-history-date\">" + date + "</td>" +
             $tdLink +
             "</tr>"
         );

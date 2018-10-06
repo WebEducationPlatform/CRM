@@ -17,12 +17,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.net.URI;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -57,8 +56,8 @@ public class FacebookServiceImpl implements FacebookService {
 				"?fields=about,conversations%7Bmessages%7Bmessage,created_time,from,to%7D%7D" +
 				"&access_token=" + pageToken);
 		try {
-			Date lastMessageDate = facebookMessageService.findMaxDate();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			LocalDateTime lastMessageDate = facebookMessageService.findMaxDate();
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 			ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, null, String.class);
 			JSONObject json = new JSONObject(result.getBody());
 			JSONObject conversations = (JSONObject) json.get("conversations");
@@ -82,10 +81,10 @@ public class FacebookServiceImpl implements FacebookService {
 				for (int i = nestedDatajsonjMessages.length() - 1; i >= 0; i--) {
 					JSONObject jsonMessage = nestedDatajsonjMessages.getJSONObject(i);
 					String createdTime = jsonMessage.getString("created_time");
-					Date date = sdf.parse(createdTime);
-					if (lastMessageDate == null || date.after(lastMessageDate)) {
+					LocalDateTime dateTime = LocalDateTime.parse(createdTime, dateTimeFormatter);
+					if (lastMessageDate == null || dateTime.isAfter(lastMessageDate)) {
 						FacebookMessage facebookMessage = new FacebookMessage();
-						facebookMessage.setCreatedTime(date);
+						facebookMessage.setCreatedTime(dateTime);
 						facebookMessage.setTextMessage(jsonMessage.getString("message"));
 						facebookMessage.setFrom(jsonMessage.getJSONObject("from").getString("name"));
 						facebookMessage.setTo(jsonMessage.getJSONObject("to").getJSONArray("data").getJSONObject(0).getString("name"));
@@ -97,7 +96,7 @@ public class FacebookServiceImpl implements FacebookService {
 			}
 			facebookMessageService.addBatchMessages(listMessages);
 			logger.info("All Facebook messages add to database");
-		} catch (ParseException | JSONException e) {
+		} catch (DateTimeException | JSONException e) {
 			logger.error("Can't parse Facebook messages", e);
 		}
 	}
