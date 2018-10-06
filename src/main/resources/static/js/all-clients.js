@@ -68,8 +68,9 @@ $('#filtration').click(function (){
                 for(var j  = 0; j < res[i].socialProfiles.length; j++) {
                     socLink += res[i].socialProfiles[j].link + '<br>';
                 }
+
                 var d = new Date(res[i].dateOfRegistration);
-                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
                 let email = res[i].email === null ? '' : res[i].email,
@@ -176,8 +177,9 @@ $(document).ready(function () {
             for(let j  = 0; j < res[i].socialProfiles.length; j++) {
                 socLink += res[i].socialProfiles[j].link + '<br>';
             }
+
             let d = new Date(res[i].dateOfRegistration);
-            let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+            let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                 d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
             let email = res[i].email === null ? '' : res[i].email,
@@ -196,7 +198,6 @@ $(document).ready(function () {
                         '</div>'
                 }
             }
-
 
             table.append(
                 '    <tr>' +
