@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/admin/rest/client")
 public class AdminRestClientController {
@@ -62,7 +64,7 @@ public class AdminRestClientController {
 		currentClient.setComments(clientFromDB.getComments());
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
 		currentClient.setStatus(clientFromDB.getStatus());
-		currentClient.setDateOfRegistration(clientFromDB.getDateOfRegistration());
+		currentClient.setDateOfRegistration(LocalDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
 		currentClient.setNotifications(clientFromDB.getNotifications());
 		currentClient.setCanCall(clientFromDB.isCanCall());
