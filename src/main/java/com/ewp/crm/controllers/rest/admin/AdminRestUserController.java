@@ -92,6 +92,15 @@ public class AdminRestUserController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/admin/rest/user/deleteUser", method = RequestMethod.POST)
+	public ResponseEntity deleteUser(@RequestParam Long deleteId) {
+		User deleteUser = userService.get(deleteId);
+		userService.delete(deleteId);
+		logger.info("{} has deleted user: id {}, email {}", deleteUser.getFullName(), deleteUser.getId(), deleteUser.getEmail());
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+
 	@PostMapping(value = "/admin/rest/user/delete")
 	public ResponseEntity deleteNewUser(@RequestParam Long deleteId,
 										@AuthenticationPrincipal User currentAdmin) {

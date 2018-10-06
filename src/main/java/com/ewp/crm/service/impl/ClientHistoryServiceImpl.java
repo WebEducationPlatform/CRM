@@ -76,6 +76,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
 				break;
+			case REMOVE_POSTPONE:
+				title.append(" ");
+				break;
 			case SKYPE:
 				title.append(" ");
 				title.append("(");

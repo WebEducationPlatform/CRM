@@ -242,8 +242,23 @@ $(document).ready(function () {
             }
         })
     });
-
-
+    // обработчик кнопок для возврата клиента из отложки
+    //  в all-clients-table
+    $(document).on('click', '.from-postpone', function returnClientFromPostpone() {
+        var button = $(this);
+        var clientId = this.getAttribute('data-client');
+        var url = '/rest/client/remove/postpone';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {clientId : clientId},
+            success: function () {
+                button.parents('.button-return-from-postpone').children("button").addClass("btn btn-secondary").attr("disabled", "disabled").text("Выполнено");
+            }
+        })
+    });
+    // обработчик кнопок для возврата клиента из скрытых статусов
+    // кнопки в all-clients-table
     $(document).on("click", '.return-to-visible-status', function returnClientToStatus() {
         let
             button = $(this),
@@ -264,7 +279,6 @@ $(document).ready(function () {
             }
         });
     });
-
 });
 
 //Set createStudent flag for Status

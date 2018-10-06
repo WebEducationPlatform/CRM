@@ -77,7 +77,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getChangeActiveClients() {
-        return entityManager.createQuery("select cl from Client cl where  cl.postponeDate is not NULL and cl.postponeDate<=now()").getResultList();
+        return entityManager.createQuery("SELECT cl FROM Client cl WHERE  cl.postponeDate IS NOT NULL AND cl.postponeDate<=now()").getResultList();
     }
 
     @Transactional
