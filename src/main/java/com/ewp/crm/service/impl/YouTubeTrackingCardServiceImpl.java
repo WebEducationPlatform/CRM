@@ -73,6 +73,8 @@ public class YouTubeTrackingCardServiceImpl implements YouTubeTrackingCardServic
 		}
 		if (vkGroupID.startsWith("id")){
 			vkGroupID = vkGroupID.replaceFirst("id", "");
+		} else if (vkGroupID.startsWith("public")){
+			vkGroupID = vkGroupID.replaceFirst("public", "");
 		} else {
 			vkGroupID = vkService.getLongIDFromShortName(vkGroupID);
 		}
