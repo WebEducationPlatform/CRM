@@ -81,7 +81,7 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
+	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService, YouTubeTrackingCardService youTubeTrackingCardService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -105,7 +105,6 @@ public class ScheduleTasks {
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
-		this.reportService = reportService;
 		this.messageTemplateService = messageTemplateService;
 	}
 
