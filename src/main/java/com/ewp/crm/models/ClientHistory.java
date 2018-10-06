@@ -135,7 +135,8 @@ public class ClientHistory {
 		SOCIAL_REQUEST("Клиент был добавлен из"),
 		STATUS("переместил клиента в статус:"),
 		DESCRIPTION("добавил комментарий к клиенту:"),
-		POSTPONE("установил напоминание на"),
+		POSTPONE("скрыл клиента до:"),
+        REMOVE_POSTPONE("убрал скрытие"),
 		NOTIFICATION("прочитал напоминание"),
 		ASSIGN("прикрепил"),
 		UNASSIGN("открепил"),
@@ -144,7 +145,9 @@ public class ClientHistory {
 		ADD("добавил вручную"),
 		UPDATE("обновил информацию"),
 		SKYPE("назначил беседу по скайп на"),
-		ADD_LOGIN("установил клиенту логин в skype - ");
+		ADD_LOGIN("установил клиенту логин в skype - "),
+        ADD_STUDENT("сделал клиента студентом"),
+        UPDATE_STUDENT("обновил информацию студента");
 
         private String info;
 

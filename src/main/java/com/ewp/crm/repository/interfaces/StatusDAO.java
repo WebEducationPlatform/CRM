@@ -20,4 +20,7 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
 
 	@Query("SELECT MAX(s.position) from Status s")
 	Long findMaxPosition();
+
+	@Query("SELECT s FROM Status s WHERE s.createStudent = true")
+	List<Status> getAllStatusesForStudents();
 }

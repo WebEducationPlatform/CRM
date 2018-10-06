@@ -6,11 +6,11 @@
 <body>
 
 <th:block th:fragment="mainModalWindow">
-    <div th:id="'main-modal-window'" class="modal fade main-modal" role="dialog" data-keyboard="false">
+    <div th:id="'main-modal-window'"  class="modal fade main-modal" role="dialog" data-keyboard="false">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <button type="button" class="close" th:onclick="'backUrl()'" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title"></h4>
                 </div>
                 <div class="modal-body">
@@ -19,19 +19,35 @@
                             <table class="table table-condensed font-size">
                                 <tbody>
                                 <tr>
-                                    <td>Электронная почта: </td>
+                                    <td>Электронная почта:</td>
                                     <td id="client-email"></td>
                                     <td>
                                         <div class="btn-group">
                                             <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                                            <a name= "emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs"><span class="glyphicon glyphicon-envelope"></span></a>
+                                            <a name="emailTmplList" data-toggle="dropdown"
+                                               class="btn-default btn btn-light btn-xs"><span
+                                                    class="glyphicon glyphicon-envelope"></span></a>
                                             <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                                                <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                                                    <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a class="glyphicon glyphicon-plus test-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                <li th:id="'eTemplate' + ${template.id}"
+                                                    th:each="template : ${emailTmpl}">
+                                                    <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn"
+                                                       th:if="${!template.hasBody()}"
+                                                       th:id="'eTemplateBtn' + ${template.id}" data-toggle="modal"
+                                                       th:attrappend="data-target='#sendTemplateModal'"
+                                                       th:text="' ' + ${template.name}"
+                                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                                    <a class="glyphicon glyphicon-plus test-custom-btn"
+                                                       th:if="${template.hasBody()}"
+                                                       th:id="'eTemplateBtn' + ${template.id}" data-toggle="modal"
+                                                       th:attrappend="data-target='#customMessageTemplate'"
+                                                       th:text="' ' + ${template.name}"
+                                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
+                                                       th:href="'admin/editMessageTemplate/' +  ${template.id}">
                                                         <button
-                                                                type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
+                                                                type="button" data-toggle="modal"
+                                                                name="editETemplateBtn"
+                                                                class="glyphicon glyphicon-edit">
                                                         </button>
                                                     </a>
                                                 </li>
@@ -41,7 +57,9 @@
                                             <!-- SMS ERROR INFO BTN -->
                                             <th:block th:each="notification_sms:${notifications_type_sms}">
                                                 <th:block th:if="${notification_sms.client == client}">
-                                                    <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign sms-error-btn" th:attrappend="data-id=${client.id}"></button>
+                                                    <button type="button" style="color:red"
+                                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                                            th:attrappend="data-id=${client.id}"></button>
                                                 </th:block>
                                             </th:block>
                                             <!--/ SMS ERROR INFO BTN -->
@@ -50,11 +68,11 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Номер телефона: </td>
-                                    <td id="client-phone" ></td>
+                                    <td>Номер телефона:</td>
+                                    <td id="client-phone"></td>
                                 </tr>
                                 <tr>
-                                    <td>Возраст: </td>
+                                    <td>Возраст:</td>
                                     <td id="client-age">
                                         <th:block>
                                         </th:block>
@@ -62,17 +80,22 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td>Пол: </td>
+                                    <td>Пол:</td>
                                     <td id="client-sex"></td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td>Социальные сети: </td>
-                                    <td><div class="btn-group">
-                                        <a  id="vk-href" target="_blank" name= "emailTmplList"  class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
-                                    </div>
-                                        <a  id ="fb-href" target="_blank"  class="btn btn-social-icon btn-facebook btn-sm"><span class="fa fa-facebook"></span></a></td>
-                                    <td><div th:id = "'sendSocialTemplateStatus'"></div></td>
+                                    <td>Социальные сети:</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a id="vk-href" target="_blank" name="emailTmplList"
+                                               class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
+                                        </div>
+                                        <a id="fb-href" target="_blank" class="btn btn-social-icon btn-facebook btn-sm"><span
+                                                class="fa fa-facebook"></span></a></td>
+                                    <td>
+                                        <div th:id="'sendSocialTemplateStatus'"></div>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -84,17 +107,18 @@
                 <div class="modal-header">
                     <div class="panel-group" id="hideAccordion">
                         <div class="panel panel-default">
-                            <div class="panel-heading" id="postpone-accordion" >
+                            <div class="panel-heading" id="postpone-accordion">
                             </div>
                         </div>
                         <div th:id="'hideClientCollapse'" class="panel-collapse collapse hide-client-collapse">
                             <div class="panel-body">
                                 <span>Скрыть клиента до: </span>
-                                <div class = "form-group" id="postpone-div">
-                                    <input type = "text" class="form-control postpone-date" th:id ="'postponeDate'" name="postponeDate"/>
+                                <div class="form-group" id="postpone-div">
+                                    <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
+                                           name="postponeDate"/>
                                 </div>
 
-                                <span class="postponeStatus" th:id = "'postponeStatus'"></span>
+                                <span class="postponeStatus" th:id="'postponeStatus'"></span>
                             </div>
                         </div>
                     </div>

@@ -33,6 +33,7 @@ public class ClientRestController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
+	private final MessageService messageService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -41,11 +42,12 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-								ClientHistoryService clientHistoryService) {
+								ClientHistoryService clientHistoryService, MessageService messageService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
+		this.messageService = messageService;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -299,6 +301,22 @@ public class ClientRestController {
 		}
 	}
 
+	@PostMapping(value = "/remove/postpone")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity removePostpone(@RequestParam Long clientId,
+										 @AuthenticationPrincipal User userFromSession) {
+		try {
+			Client client = clientService.get(clientId);
+			client.setPostponeDate(null);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE));
+			clientService.updateClient(client);
+			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+	}
+
 	@PostMapping(value = "/addDescription")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
@@ -338,5 +356,11 @@ public class ClientRestController {
 		client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
+	}
+
+	@GetMapping(value = "/message/info/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
 	}
 }

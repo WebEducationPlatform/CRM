@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <script type="text/javascript" th:src="@{/js/status.js}"></script>
 </head>
 <body>
 <div style="margin: 2%">
@@ -128,8 +127,11 @@
                     <td th:text="${client.dateOfRegistration.toLocaleString()}"></td>
                     <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
-                            <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}">Вернуть</button>
+                            <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}"> Вернуть </button>
                             <ul class="dropdown-menu statuses-content"></ul>
+                        </div>
+                        <div class="button-return-from-postpone" th:if="${client.postponeDate != null}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                            <button type="button" id="return-from-postpone" class="btn btn-default from-postpone" th:attrappend="data-client=${client.id}"> Вернуть </button>
                         </div>
                     </td>
                 </tr>
@@ -146,7 +148,7 @@
         </div>
     </div>
 </div>
-
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+<script type="text/javascript" th:src="@{/js/status.js}"></script>
 </body>
 </html>

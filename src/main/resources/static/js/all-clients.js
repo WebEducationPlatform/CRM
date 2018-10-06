@@ -87,6 +87,13 @@ $('#filtration').click(function (){
                             '<ul class="dropdown-menu statuses-content"></ul>' +
                             '</div>'
                     }
+
+                    if (res[i].postponeDate != undefined) {
+                        returnBtn =
+                            '<div class="button-return-from-postpone">' +
+                            '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="'+ res[i].id +'"> Вернуть </button>' +
+                            '</div>'
+                    }
                 }
 
                 $("#table-body").append(
@@ -191,8 +198,15 @@ $(document).ready(function () {
                 if (res[i].status.invisible) {
                     returnBtn =
                         '<div class="dropdown statuses-by-dropdown">' +
-                        ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                        '<button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'"> Вернуть </button>' +
                         '<ul class="dropdown-menu statuses-content"></ul>' +
+                        '</div>'
+                }
+
+                if (res[i].postponeDate != undefined) {
+                    returnBtn =
+                        '<div class="button-return-from-postpone">' +
+                        '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="'+ res[i].id +'"> Вернуть </button>' +
                         '</div>'
                 }
             }
@@ -217,5 +231,4 @@ $(document).ready(function () {
             )
         }
     }
-    }
-);
+});

@@ -13,6 +13,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -36,6 +37,8 @@ public class ScheduleTasks {
 	private final YouTubeTrackingCardService youTubeTrackingCardService;
 
 	private final ClientService clientService;
+
+	private final StudentService studentService;
 
 	private final StatusService statusService;
 
@@ -67,6 +70,8 @@ public class ScheduleTasks {
 
     private final ReportService reportService;
 
+    private final MessageTemplateService messageTemplateService;
+
 	private Environment env;
 
 	private final MailingMessageRepository mailingMessageRepository;
@@ -76,11 +81,12 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService, YouTubeTrackingCardService youTubeTrackingCardService, ClientService clientService, StatusService statusService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, MailSendService mailSendService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, FacebookService facebookService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, ReportService reportService, Environment env, MailingMessageRepository mailingMessageRepository, MailingService mailingService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
 		this.clientService = clientService;
+		this.studentService = studentService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
 		this.socialProfileTypeService = socialProfileTypeService;
@@ -99,6 +105,8 @@ public class ScheduleTasks {
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
+		this.reportService = reportService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	private void addClient(Client newClient) {
@@ -313,6 +321,43 @@ public class ScheduleTasks {
 				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
 				if (socialProfileService.getSocialProfileByLink(socialProfile.getLink()) == null) {
 					potentialClientService.addPotentialClient(newPotentialClient.get());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sends payment notification to students contacts.
+	 * Must be scheduled daily.
+	 * Occurs only on a Student nextPaymentDate day.
+	 */
+	@Scheduled(cron = "${payment.notification.polling.cron}")
+	private void sendPaymentNotifications() {
+		for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
+			String template = messageTemplateService.getByName("Оплата за обучение").getTemplateText();
+			User sender = new User();
+			sender.setLastName("Планировщик");
+			sender.setFirstName("задач");
+			Long clientId = student.getClient().getId();
+			if (student.isNotifyEmail()) {
+				try {
+					mailSendService.prepareAndSend(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("E-mail message not sent", e);
+				}
+			}
+			if (student.isNotifySMS()) {
+				try {
+					smsService.sendSMS(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("SMS message not sent", e);
+				}
+			}
+			if (student.isNotifyVK()) {
+				try {
+					vkService.sendMessageToClient(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("VK message not sent", e);
 				}
 			}
 		}
