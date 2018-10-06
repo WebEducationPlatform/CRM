@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class FacebookMessageServiceImpl extends CommonServiceImpl<FacebookMessage> implements FacebookMessageService {
 
-	private final FacebookMessageDAO facebookMessageDao;
-
 	private static Logger logger = LoggerFactory.getLogger(FacebookMessageServiceImpl.class);
+
+	private final FacebookMessageDAO facebookMessageDao;
 
 	@Autowired
 	public FacebookMessageServiceImpl(FacebookMessageDAO facebookMessageDao) {
@@ -24,7 +24,7 @@ public class FacebookMessageServiceImpl extends CommonServiceImpl<FacebookMessag
 	}
 
 	@Override
-	public Date findMaxDate() {
+	public LocalDateTime findMaxDate() {
 		return facebookMessageDao.findMaxDate();
 	}
 
