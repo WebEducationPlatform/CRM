@@ -1,7 +1,9 @@
 package com.ewp.crm.service.youtube;
 
+import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.models.YoutubeClientMessage;
+import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import com.ewp.crm.service.interfaces.YoutubeClientMessageService;
 import com.ewp.crm.service.interfaces.YoutubeClientService;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -31,18 +33,19 @@ public class ListLiveChatMessages {
                     + "profileImageUrl),snippet(displayMessage,superChatDetails,publishedAt)),"
                     + "nextPageToken,pollingIntervalMillis";
     private YouTube youtube;
-    private boolean isLiveStreamInAction = false;
+    private YouTubeTrackingCardService youTubeTrackingCardService;
     private YoutubeClientService youtubeClientService;
     private YoutubeClientMessageService youtubeClientMessageService;
     private static Logger logger = LoggerFactory.getLogger(ListLiveChatMessages.class);
 
     @Autowired
-    public ListLiveChatMessages(YoutubeClientService youtubeClientService, YoutubeClientMessageService youtubeClientMessageService) {
+    public ListLiveChatMessages(YouTubeTrackingCardService youTubeTrackingCardService, YoutubeClientService youtubeClientService, YoutubeClientMessageService youtubeClientMessageService) {
+        this.youTubeTrackingCardService = youTubeTrackingCardService;
         this.youtubeClientService = youtubeClientService;
         this.youtubeClientMessageService = youtubeClientMessageService;
     }
 
-    public void getNamesAndMessagesFromYoutubeLiveStreamByVideoId(String apiKey, String videoId) {
+    public void getNamesAndMessagesFromYoutubeLiveStreamByVideoId(String apiKey, String videoId, YouTubeTrackingCard youTubeTrackingCard) {
 
         try {
             // This object is used to make YouTube Data API requests. The last
@@ -57,19 +60,19 @@ public class ListLiveChatMessages {
             // Get the liveChatId
             String liveChatId = getLiveChatId(youtube, videoId);
             if (liveChatId != null) {
-                isLiveStreamInAction = true;
-                logger.info("Live chat id: " + liveChatId);
-            } else {
-                isLiveStreamInAction = false;
-                logger.error("Unable to find a live chat id");
-            }
+                youTubeTrackingCard.setHasLiveStream(true);
+                youTubeTrackingCardService.updateYouTubeTrackingCard(youTubeTrackingCard);
+                logger.info(youTubeTrackingCard.getChannelName() + ": Live chat id: " + liveChatId);
 
-            // Get live chat messages
-            listChatMessages(liveChatId, null, 100);
+                // Get live chat messages
+                listChatMessages(youTubeTrackingCard, liveChatId, null, 100);
+            } else {
+                logger.error(youTubeTrackingCard.getChannelName() + ": Unable to find a live chat id");
+            }
         } catch (GoogleJsonResponseException e) {
-            logger.error("GoogleJsonResponseException code: ", e);
+            logger.error(youTubeTrackingCard.getChannelName() + ": GoogleJsonResponseException code: ", e);
         } catch (IOException e) {
-            logger.error("IOException: ", e);
+            logger.error(youTubeTrackingCard.getChannelName() + ": IOException: ", e);
         }
     }
 
@@ -82,11 +85,12 @@ public class ListLiveChatMessages {
      * @param delayMs       The delay in milliseconds before making the request.
      */
     private void listChatMessages(
-            final String liveChatId,
-            final String nextPageToken,
-            long delayMs) {
-        Timer pollTimer = new Timer();
-        pollTimer.schedule(
+        YouTubeTrackingCard youTubeTrackingCard,
+        final String liveChatId,
+        final String nextPageToken,
+        long delayMs) {
+            Timer pollTimer = new Timer();
+            pollTimer.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
@@ -104,25 +108,29 @@ public class ListLiveChatMessages {
                             for (int i = 0; i < messages.size(); i++) {
                                 LiveChatMessage message = messages.get(i);
                                 LiveChatMessageSnippet snippet = message.getSnippet();
-                                addYoutubeClientToDB(message.getAuthorDetails().getDisplayName(), snippet.getDisplayMessage());
+                                addYoutubeClientToDB(youTubeTrackingCard, message.getAuthorDetails().getDisplayName(), snippet.getDisplayMessage());
                             }
 
                             // Request the next page of messages
                             listChatMessages(
-                                    liveChatId,
+									youTubeTrackingCard,
+									liveChatId,
                                     response.getNextPageToken(),
                                     response.getPollingIntervalMillis());
                         } catch (GoogleJsonResponseException e) {
-                            isLiveStreamInAction = false;
-                            logger.error("Youtube Live stream is not in action any more", e);
+							youTubeTrackingCard.setHasLiveStream(false);
+							youTubeTrackingCardService.updateYouTubeTrackingCard(youTubeTrackingCard);
+                            logger.error(youTubeTrackingCard.getChannelName() + ": Youtube Live stream is not in action any more", e);
                         } catch (IOException e) {
-                            logger.error("Failed to get list of live names and messages", e);
+                            youTubeTrackingCard.setHasLiveStream(false);
+                            youTubeTrackingCardService.updateYouTubeTrackingCard(youTubeTrackingCard);
+                            logger.error(youTubeTrackingCard.getChannelName() + ": Failed to get list of live names and messages", e);
                         }
                     }
                 }, delayMs);
     }
 
-    private void addYoutubeClientToDB(String name, String message) {
+    private void addYoutubeClientToDB(YouTubeTrackingCard youTubeTrackingCard, String name, String message) {
         YoutubeClient youtubeClient = youtubeClientService.getClientByName(name);
         String clearMessage = clearYoutubeMessageOfEmoji(message);
 
@@ -137,6 +145,7 @@ public class ListLiveChatMessages {
         } else {
             YoutubeClient newYoutubeClient = new YoutubeClient();
             newYoutubeClient.setFullName(name);
+            newYoutubeClient.setYouTubeTrackingCard(youTubeTrackingCard);
             YoutubeClientMessage youtubeClientMessage = new YoutubeClientMessage(clearMessage);
             List<YoutubeClientMessage> messages = new ArrayList<>();
             messages.add(youtubeClientMessage);
@@ -178,11 +187,6 @@ public class ListLiveChatMessages {
                 return liveChatId;
             }
         }
-
         return null;
-    }
-
-    public boolean isLiveStreamInAction() {
-        return isLiveStreamInAction;
     }
 }

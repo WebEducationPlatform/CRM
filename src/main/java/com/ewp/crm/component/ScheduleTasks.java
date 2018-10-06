@@ -31,6 +31,10 @@ public class ScheduleTasks {
 
 	private final VKService vkService;
 
+	private final PotentialClientService potentialClientService;
+
+	private final YouTubeTrackingCardService youTubeTrackingCardService;
+
 	private final ClientService clientService;
 
 	private final StatusService statusService;
@@ -72,8 +76,10 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
+	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService, YouTubeTrackingCardService youTubeTrackingCardService, ClientService clientService, StatusService statusService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, MailSendService mailSendService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, FacebookService facebookService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, ReportService reportService, Environment env, MailingMessageRepository mailingMessageRepository, MailingService mailingService) {
 		this.vkService = vkService;
+		this.potentialClientService = potentialClientService;
+		this.youTubeTrackingCardService = youTubeTrackingCardService;
 		this.clientService = clientService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
@@ -89,10 +95,10 @@ public class ScheduleTasks {
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
+		this.reportService = reportService;
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
-		this.reportService = reportService;
 	}
 
 	private void addClient(Client newClient) {
@@ -294,21 +300,19 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 60_000)
 	private void handleYoutubeLiveStreams() {
-		if (!youtubeService.checkLiveStreamStatus()) {
-			youtubeService.handleYoutubeLiveChatMessages();
-		} else {
-			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.getAll());
-			if (youtubeClient.isPresent()) {
-				for (YoutubeClient client : youtubeClient.get()) {
-					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
-					if (newClient.isPresent()) {
-						SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-                        if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
-                            updateClient(newClient.get());
-                        } else {
-                            addClient(newClient.get());
-                        }
-					}
+		for (YouTubeTrackingCard youTubeTrackingCard: youTubeTrackingCardService.getAllByHasLiveStream(false)){
+			youtubeService.handleYoutubeLiveChatMessages(youTubeTrackingCard);
+		}
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void getPotentialClientsFromYoutubeClients(){
+		for (YoutubeClient youtubeClient: youtubeClientService.getAllByChecked(false)){
+			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
+			if (newPotentialClient.isPresent()) {
+				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
+				if (socialProfileService.getSocialProfileByLink(socialProfile.getLink()) == null) {
+					potentialClientService.addPotentialClient(newPotentialClient.get());
 				}
 			}
 		}
