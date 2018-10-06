@@ -6,6 +6,7 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/settings-remainder.css"/>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 </head>
 <body>
@@ -21,7 +22,7 @@
                 <ul class="dropdown-menu">
                     <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
                     <li  th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:value="${status.id}">Удалить статус</a></li>
-                    <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a></li>
+                    <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a></li>
                     <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
                     <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox" type="checkbox" th:value="${status.id}" th:checked="${status.createStudent}"/></a></li>
                     <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -78,10 +79,13 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
-                    <div class="portlet-content">
+                    <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
+                    ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
+                    ${client.country}" hidden="hidden">
+                    </div><div class="portlet-content">
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
@@ -102,7 +106,7 @@
 
                             <th:block th:each="notification_new_user:${notifications_type_new_user}">
                                 <th:block th:if="${notification_new_user.client == client}">
-                                   <span id="notification-new"
+                                   <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
                                 </th:block>
@@ -286,6 +290,16 @@
         </div>
     </div>
 </div>
+
+<!--settings-remainder Модалка про сеттинги напоминалка-->
+<div id="msg_pop" >
+    <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
+    <h4>Напоминание</h4>
+    Необходимо установить статус по умолчанию для клиентов вошедших в Slack
+    <p></p>
+    <a href="/user/customize">Настройки</a>
+</div>
+
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -308,5 +322,6 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
+<script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 </body>
 </html>

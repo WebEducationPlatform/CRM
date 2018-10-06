@@ -44,11 +44,7 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public Status get(Long id) {
 		Optional<Status> optional = statusDAO.findById(id);
-		if (optional.isPresent()) {
-			return optional.get();
-		} else {
-			return null;
-		}
+		return optional.orElse(null);
 	}
 
 	@Override
@@ -59,11 +55,14 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public Status getFirstStatusForClient() {
 		Optional<Status> optional = statusDAO.findById(1L);
-		if (optional.isPresent()) {
-			return optional.get();
-		} else {
-			return null;
-		}
+		return optional.orElse(null);
+	}
+
+	@Override
+	public Status getStatusByName(String name) {
+		Status statusByName = statusDAO.getStatusByName(name);
+		assert statusByName!=null;
+		return statusByName;
 	}
 
 	@Override
@@ -146,5 +145,10 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public Long findMaxPosition() {
 		return statusDAO.findMaxPosition();
+	}
+
+	@Override
+	public List<Status> getAllStatusesForStudents() {
+		return statusDAO.getAllStatusesForStudents();
 	}
 }

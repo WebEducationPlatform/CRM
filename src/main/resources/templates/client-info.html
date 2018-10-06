@@ -2,12 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
-    <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-    <script th:src="@{/js/validator.min.js}"></script>
+
 </head>
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
@@ -40,7 +38,7 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-client-skype">Skype</label>
-                        <input type="text" class="form-control"  disabled="disabled" id="edit-client-skype"
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-skype"
                                th:value="${client.skype}"/>
                     </div>
                     <div class="form-group">
@@ -74,6 +72,18 @@
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
                                th:value="${client.city}"/>
                     </div>
+
+                    <div class="form-group">
+                        <label for="edit-client-visible">Видимость клиента</label>
+                        <input type="hidden" id="postpone" th:attr="postponeDate = ${client.postponeDate}"/>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-visible"
+                               data-value-function="isHide"/>
+                        <p/>
+                    </div>
+                    <button type="button" id="makeVisible" class="btn btn-md btn-info" disabled="disabled">
+                        Показать клиента
+                    </button>
+
                     <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">
@@ -132,10 +142,12 @@
                     Добавить работу
                 </button>
                 <div class="btn-group client-info-edit-save-back-btns">
-                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary" id="editClientBtn" onclick="revertUnable()">
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
+                            id="editClientBtn" onclick="revertUnable()">
                         Редактировать
                     </button>
-                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary" id="saveChanges"
+                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary"
+                            id="saveChanges"
                             th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                     </button>
                     <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
@@ -149,17 +161,25 @@
                         class="btn btn-primary open-history">Открыть историю
                 </button>
                 <div>
-                <div id="collapse-history" class="collapse" th:attrappend="data-clientid=${client.id}" style="overflow-y: scroll;">
-                    <table class="table table-bordered" id="table-of-history" th:id="'client-'+${client.id}+'history'">
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <button type="button" data-page="1" class="btn upload-more-history" style="display:none" th:attrappend="data-clientid=${client.id}">Загрузить ещё</button>
-                </div>
+                    <div id="collapse-history" class="collapse" th:attrappend="data-clientid=${client.id}"
+                         style="overflow-y: scroll;">
+                        <table class="table table-bordered" id="table-of-history"
+                               th:id="'client-'+${client.id}+'history'">
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <button type="button" data-page="1" class="btn upload-more-history" style="display:none"
+                                th:attrappend="data-clientid=${client.id}">Загрузить ещё
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<script type="text/javascript" th:src="@{/js/client-info.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script th:src="@{/js/validator.min.js}"></script>
 </body>
 </html>
