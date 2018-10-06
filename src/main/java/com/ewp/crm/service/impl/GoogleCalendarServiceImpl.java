@@ -63,9 +63,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             clientSecrets = new GoogleClientSecrets().setWeb(web);
             try {
                 httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (GeneralSecurityException | IOException e) {
                 logger.error("Error to send message ", e);
             }
             flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
@@ -83,9 +81,10 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             return client = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME).build();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")."
                     + " Redirecting to google connection status page.");
+            logger.error("Error to send message ", e);
         }
         return client;
     }
