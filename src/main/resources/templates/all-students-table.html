@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      xmlns:display="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
@@ -43,8 +44,9 @@
                 <th onclick="sort_table(7)">Цена</th>
                 <th onclick="sort_table(8)">Сумма платежа</th>
                 <th onclick="sort_table(9)">Оплата после</th>
-                <th onclick="sort_table(10)">Статус учёбы</th>
-                <th onclick="sort_table(11)">Заметки</th>
+                <th width="240px">Напоминание</th>
+                <th onclick="sort_table(11)">Статус учёбы</th>
+                <th onclick="sort_table(12)">Заметки</th>
                 <th></th>
             </tr>
             </thead>
@@ -55,18 +57,47 @@
                 <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
                 <td th:text="${student.client.lastName}"></td>
                 <td th:text="${student.client.email}"></td>
-                <td th:text="${#dates.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${#dates.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
                 <td th:text="${student.price}"></td>
                 <td th:text="${student.paymentAmount}"></td>
                 <td th:text="${student.payLater}"></td>
+                <td>
+                    <table width="240px">
+                        <tr>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_email'}" th:hidden="${student.client.email}==''">
+                                    Email:
+                                    <input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_sms'}" th:hidden="${student.client.phoneNumber}==''">
+                                    SMS:
+                                    <input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_vk'}" th:hidden="${!#strings.contains(student.client.socialProfiles,'vk.com')}">
+                                    VK:
+                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/>
+                                </label>
+                            </td>
+                            <td width="25%">
+                                <label th:for="${student.id+'_notify_all'}">
+                                    Все:
+                                    <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/>
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
                 <td th:text="${student.status.status}"></td>
                 <td th:text="${student.notes}"></td>
                 <td><button class="button_edit btn btn-info" th:value="${student.id}">Изменить</button></td>
             </tr>
             </tbody>
             <tfoot>
-
             </tfoot>
         </table>
     </div>

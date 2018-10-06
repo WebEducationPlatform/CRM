@@ -1,11 +1,8 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -29,7 +26,7 @@ public class Comment {
 	private Client client;
 
 	@Column(name = "date")
-	private String dateFormat;
+	private LocalDateTime dateFormat;
 
 
 	@Column(name = "content")
@@ -51,10 +48,7 @@ public class Comment {
 		this.user = user;
 		this.client = client;
 		this.content = content;
-
-		Date date = new Date(System.currentTimeMillis());
-        DateFormat dateFormater = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        setDateFormat(dateFormater.format(date));
+		setDateFormat(LocalDateTime.now());
 	}
 
 	public Long getId() {
@@ -90,11 +84,11 @@ public class Comment {
 		this.content = content;
 	}
 
-	public String  getDateFormat() {
+	public LocalDateTime getDateFormat() {
 		return dateFormat;
 	}
 
-	private void setDateFormat(String dateFormat) {
+	private void setDateFormat(LocalDateTime dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 

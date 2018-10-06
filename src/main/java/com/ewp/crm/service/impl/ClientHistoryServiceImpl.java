@@ -1,28 +1,26 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Message;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
 import org.apache.commons.lang3.builder.DiffResult;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
 
-	private final ClientHistoryRepository clientHistoryRepository;
-
 	private static Logger logger = LoggerFactory.getLogger(ClientHistoryServiceImpl.class);
+
+	private final ClientHistoryRepository clientHistoryRepository;
 	private final MessageService messageService;
 
 	@Autowired
@@ -75,13 +73,16 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case POSTPONE:
 				title.append(" ");
 				title.append("(");
-				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
+				break;
+			case REMOVE_POSTPONE:
+				title.append(" ");
 				break;
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
 				break;
 			case STATUS:
@@ -182,4 +183,47 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
+
+	/**
+	 * Create client history when student .
+	 * @param user change author.
+	 * @param type history type.
+	 * @return client history object.
+	 */
+	@Override
+	public ClientHistory creteStudentHistory(User user, ClientHistory.Type type) {
+		logger.debug("creation of become student history...");
+		ClientHistory clientHistory = new ClientHistory(type);
+		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
+		return clientHistory;
+	}
+
+	/**
+	 * Create client history when student modified.
+	 * @param user change author.
+	 * @param prev previous student object.
+	 * @param current current student object.
+	 * @param type history type.
+	 * @return client history object.
+	 */
+	@Override
+	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
+		logger.debug("creation of student history...");
+		ClientHistory clientHistory = new ClientHistory(type);
+		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
+		if (current.equals(prev)) {
+			logger.info("Can't find changes");
+			return clientHistory;
+		}
+		DiffResult diffs = prev.diff(current);
+		StringBuilder content = new StringBuilder();
+		diffs.getDiffs().stream().map(
+				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
+				.forEach(str -> content.append(str).append("\n"));
+		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
+		clientHistory.setMessage(message);
+		clientHistory.setLink(message.getId().toString());
+		return clientHistory;
+	}
+
 }

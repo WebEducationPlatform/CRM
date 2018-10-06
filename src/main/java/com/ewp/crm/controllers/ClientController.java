@@ -12,8 +12,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +23,7 @@ import java.util.stream.Collectors;
 @Controller
 public class ClientController {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
-
+    private static Logger logger = LoggerFactory.getLogger(ClientController.class);
 	private final StatusService statusService;
 	private final ClientService clientService;
 	private final UserService userService;
@@ -31,8 +32,9 @@ public class ClientController {
 	private final NotificationService notificationService;
 	private final RoleService roleService;
 
-	@Value("${project.pagination.page-size.clients}")
-	private int pageSize;
+
+    @Value("${project.pagination.page-size.clients}")
+    private int pageSize;
 
 	@Autowired
 	public ClientController(StatusService statusService,
@@ -51,18 +53,18 @@ public class ClientController {
 		this.roleService = roleService;
 	}
 
-	@GetMapping(value = "/admin/client/add/{statusName}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	public ModelAndView addClient(@PathVariable String statusName,
-								  @AuthenticationPrincipal User userFromSession) {
-		ModelAndView modelAndView = new ModelAndView("add-client");
-		modelAndView.addObject("status", statusService.get(statusName));
-		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
-		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		return modelAndView;
-	}
+    @GetMapping(value = "/admin/client/add/{statusName}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ModelAndView addClient(@PathVariable String statusName,
+                                  @AuthenticationPrincipal User userFromSession) {
+        ModelAndView modelAndView = new ModelAndView("add-client");
+        modelAndView.addObject("status", statusService.get(statusName));
+        modelAndView.addObject("states", Client.State.values());
+        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("user", userFromSession);
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+        return modelAndView;
+    }
 
 	@GetMapping(value = "/client")
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
@@ -93,35 +95,35 @@ public class ClientController {
 		return modelAndView;
 	}
 
-	@GetMapping(value = "/client/allClients")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView allClientsPage() {
-		ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
-		modelAndView.addObject("statuses", statusService.getAll());
-		modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
-		return modelAndView;
-	}
+    @GetMapping(value = "/client/allClients")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ModelAndView allClientsPage() {
+        ModelAndView modelAndView = new ModelAndView("all-clients-table");
+        modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
+        modelAndView.addObject("statuses", statusService.getAll());
+        modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
+        return modelAndView;
+    }
 
-	@GetMapping(value = "/client/mailing")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView mailingPage() {
-		return new ModelAndView("mailing");
-	}
+    @GetMapping(value = "/client/mailing")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ModelAndView mailingPage() {
+        return new ModelAndView("mailing");
+    }
 
-	@GetMapping(value = "/client/clientInfo/{id}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView clientInfo(@PathVariable Long id,
-								   @AuthenticationPrincipal User userFromSession) {
-		ModelAndView modelAndView = new ModelAndView("client-info");
-		modelAndView.addObject("client", clientService.get(id));
-		modelAndView.addObject("states", Client.State.values());
-		modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
-		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+    @GetMapping(value = "/client/clientInfo/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ModelAndView clientInfo(@PathVariable Long id,
+                                   @AuthenticationPrincipal User userFromSession) {
+        ModelAndView modelAndView = new ModelAndView("client-info");
+        modelAndView.addObject("client", clientService.get(id));
+        modelAndView.addObject("states", Client.State.values());
+        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("user", userFromSession);
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 
-		return modelAndView;
-	}
+        return modelAndView;
+    }
 
 	@GetMapping(value = "/phone")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -137,6 +139,4 @@ public class ClientController {
 		modelAndView.addObject("user", userFromSession);
 		return modelAndView;
 	}
-
-
 }

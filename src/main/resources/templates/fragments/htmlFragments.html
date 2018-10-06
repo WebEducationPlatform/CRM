@@ -46,6 +46,16 @@
                     <a class="glyphicon glyphicon-bell redBell" th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
                     <ul class="dropdown-menu notification-dropdown">
                         <th:block th:if="${notifications.size() > 0}">
+                            <th:block>
+                                <li>
+                                    <button
+                                            type="button" data-toggle="modal"
+                                            class="glyphicon glyphicon-trash pull-right"
+                                            title="Очистить всё"
+                                            th:onclick="'cleanAll()'">
+                                    </button>
+                                </li>
+                            </th:block>
                             <th:block th:each="notification : ${notifications}" th:if="${!notification.client.status.invisible}">
                                 <th:block th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                     <li th:class="'menu' + ${notification.client.id}">
@@ -337,16 +347,26 @@
                         <h5 class="modal-title">Добавить новое отслеживаемое сообщество</h5>
                     </div>
                     <div class="modal-body">
-                        <label for="groupName">Name</label>
+                        <label for="groupName">Name</label> <span class="glyphicon glyphicon-question-sign"
+                                                                  title="Введите название отслеживаемой группы"
+                                                                  aria-hidden="true"></span>
                         <input type="text" id="newGroupName" name="groupName"
                                class="form-control" />
-                        <label for="groupId">GroupId</label>
+                        <label for="groupId">GroupId</label> <span class="glyphicon glyphicon-question-sign"
+                                                                   title="Введите id группы
+                                                                             пример: https://vk.com/club171490538, id = 171490538"
+                                                                   aria-hidden="true"></span>
                         <input type="text" id="newGroupId" name="groupId"
                                class="form-control" />
-                        <label for="token">token</label>
+                        <label for="token">token</label> <span class="glyphicon glyphicon-question-sign"
+                                                               title="Защищенный ключ доступа сообщества(своего)
+                                                           перейдите в группу, затем перейдите в раздел управление - работа с API и скопируйте ключ доступа(если ключа нет - нажмите сгенерировать ключ)"
+                                                               aria-hidden="true"></span>
                         <input type="text" id="newToken" name="token"
                                class="form-control" />
-                        <label for="clientId">clientId</label>
+                        <label for="clientId">clientId</label> <span class="glyphicon glyphicon-question-sign"
+                                                                     title="Перейдите в раздел - для разработчиков, выберите свое приложение, перейдите в настройки и скрпипуйие id приложения"
+                                                                     aria-hidden="true"></span>
                         <input type="text" id="newClientId" name="clientId"
                                class="form-control" />
                     </div>
@@ -404,7 +424,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
-                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" placeholder="Название статуса"/>
+                    <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}" maxlength="30" th:value="${status.name}"/>
+                    <label th:for="'trial_offset_' + ${status.id}">Интервал по-умолчанию для даты пробного периода</label>
+                    <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
+                    <label th:for="'next_payment_offset_' + ${status.id}">Интервал по-умолчанию для даты следующей оплаты</label>
+                    <input th:id="'next_payment_offset_' + ${status.id}" type="number" th:value="${status.nextPaymentOffset}"/>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                 <button type="button" class="btn btn-primary" th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить</button>

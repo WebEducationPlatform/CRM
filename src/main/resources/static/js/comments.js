@@ -13,7 +13,9 @@ function sendComment(id) {
             content: text
         },
         success: function (comment) {
-
+            let d = new Date(comment.dateFormat);
+            let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
             $('#new-text-for-client' + id).val("");
             $('#client-' + id + 'comments').prepend(
                 '<li class="list-group-item comment-item">' +
@@ -22,7 +24,7 @@ function sendComment(id) {
                 '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + comment.id + ')"></span>' +
                 '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>' +
                 '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
-                '<span  class="comment-functional">'+ comment.dateFormat +'</span>' +
+                '<span  class="comment-functional">'+ dateFormat +'</span>' +
                 '<p class="comment-text">' + comment.content + '</p>' +
                 '<div class="form-answer">' +
                 '<div class="form-group">' +
@@ -72,6 +74,9 @@ $(function () {
         url: url,
         success: function (list) {
             for (let i = list.length-1; i >=0; i--) {
+                let d = new Date(list[i].dateFormat);
+                let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
                 // if (list[i].mainComment == null) {
                     if (user_id === list[i].user.id + '') {
                         removeComment = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + list[i].id + ')"></span>'
@@ -89,7 +94,7 @@ $(function () {
                         removeComment +
                         editComment +
                         '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
-                        '<span  class="comment-functional">'+ list[i].dateFormat +'</span>' +
+                        '<span  class="comment-functional">'+ dateFormat +'</span>' +
                         '<p class="comment-text" ">' + list[i].content + '</p>' +
                         '<div class="form-answer">' +
                         '<div class="form-group">' +
@@ -107,6 +112,9 @@ $(function () {
                         '<ul class="answer-list comment-item" id="comment-' + list[i].id + 'answers">';
                     let answers = list[i].commentAnswers;
                     for (let i = 0; i < answers.length; i++) {
+                        let d = new Date(answers[i].dateFormat);
+                        let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
                         if (user_id === answers[i].user.id + '') {
                             removeAnswer = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteCommentAnswer(' + answers[i].id + ')"></span>'
                             editAnswer = '<span class="edit-answer glyphicon glyphicon-pencil comment-functional"></span>'
@@ -122,7 +130,7 @@ $(function () {
                           '<span class="comment-name">' + answers[i].user.lastName + ' ' + answers[i].user.firstName + '</span>' +
                             removeAnswer +
                             editAnswer +
-                            '<span  class="comment-functional">'+ answers[i].dateFormat +'</span>' +
+                            '<span  class="comment-functional">'+ dateFormat +'</span>' +
                             //comment-text
                            '<p class="comment-text" ">' + answers[i].content + '</p>' +
                             '<div class="form-edit">' +
@@ -167,6 +175,9 @@ function sendAnswer(id) {
             content: text
         },
         success: function (answer) {
+            let d = new Date(answer.dateFormat);
+            let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
             $('#new-answer-for-comment' + id).val("");
             $('#comment-' + id + 'answers').prepend(
                 //comment
@@ -176,7 +187,7 @@ function sendAnswer(id) {
                 "   <span class='glyphicon glyphicon-remove comment-functional' onclick='deleteCommentAnswer(" + answer.id + ")'></span>" +
                 //edit-comment
                 "   <span class='edit-answer glyphicon glyphicon-pencil comment-functional'></span>" +
-                '   <span  class="comment-functional">'+ answer.dateFormat +'</span>' +
+                '   <span  class="comment-functional">'+ dateFormat +'</span>' +
                 //comment-text
                 "   <p class='comment-text '>" + answer.content + "</p>" +
                 "   <div class='form-edit'>" +

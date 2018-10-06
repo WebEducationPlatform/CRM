@@ -1,13 +1,12 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.FacebookMessage;
-
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FacebookMessageService extends CommonService<FacebookMessage> {
 
-	Date findMaxDate();
+	LocalDateTime findMaxDate();
 
 	FacebookMessage addFacebookMessage(FacebookMessage facebookMessage);
 
