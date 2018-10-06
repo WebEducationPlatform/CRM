@@ -5,21 +5,22 @@ import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
 import org.apache.commons.lang3.builder.DiffResult;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
 
-	private final ClientHistoryRepository clientHistoryRepository;
-
 	private static Logger logger = LoggerFactory.getLogger(ClientHistoryServiceImpl.class);
+
+	private final ClientHistoryRepository clientHistoryRepository;
 	private final MessageService messageService;
 
 	@Autowired
@@ -72,7 +73,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case POSTPONE:
 				title.append(" ");
 				title.append("(");
-				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
 				break;
 			case REMOVE_POSTPONE:
@@ -81,7 +82,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(new DateTime(client.getPostponeDate()).toString("dd MMM 'в' HH:mm yyyy'г'"));
+				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
 				break;
 			case STATUS:
