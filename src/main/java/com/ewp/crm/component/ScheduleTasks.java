@@ -302,6 +302,7 @@ public class ScheduleTasks {
 		return info;
 	}
 
+
 	@Scheduled(fixedRate = 60_000)
 	private void handleYoutubeLiveStreams() {
 		for (YouTubeTrackingCard youTubeTrackingCard : youTubeTrackingCardService.getAllByHasLiveStream(false)) {
