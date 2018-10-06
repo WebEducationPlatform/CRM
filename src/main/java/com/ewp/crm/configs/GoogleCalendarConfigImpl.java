@@ -14,7 +14,7 @@ public class GoogleCalendarConfigImpl {
     private String clientId;
     private String clientSecret;
     private String redirectURI;
-    private static Logger logger = LoggerFactory.getLogger(ImageConfig.class);
+    private static Logger logger = LoggerFactory.getLogger(GoogleCalendarConfigImpl.class);
 
     @Autowired
     public GoogleCalendarConfigImpl(Environment env) {
