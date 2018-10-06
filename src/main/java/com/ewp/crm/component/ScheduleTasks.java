@@ -66,11 +66,11 @@ public class ScheduleTasks {
 
 	private final YoutubeClientService youtubeClientService;
 
-    private final AssignSkypeCallService assignSkypeCallService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
-    private final ReportService reportService;
+	private final ReportService reportService;
 
-    private final MessageTemplateService messageTemplateService;
+	private final MessageTemplateService messageTemplateService;
 
 	private Environment env;
 
@@ -165,10 +165,10 @@ public class ScheduleTasks {
 					logger.warn("E-mail message not sent");
 				}
 			}
-				assignSkypeCallService.delete(assignSkypeCall);
-				clientService.updateClient(client);
-			}
+			assignSkypeCallService.delete(assignSkypeCall);
+			clientService.updateClient(client);
 		}
+	}
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
@@ -198,12 +198,12 @@ public class ScheduleTasks {
 	private void findNewMembersAndSendFirstMessage() {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
-		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
 			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-														   .orElseThrow(NotFoundMemberList::new);
+					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
-				if(!lastMemberList.contains(vkMember)){
+				if (!lastMemberList.contains(vkMember)) {
 					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
 					vkMemberService.add(vkMember);
 					countNewMembers++;
@@ -235,7 +235,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
-			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(),client, client.getOwnerUser(), Notification.Type.POSTPONE);
+			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
 	}
@@ -245,7 +245,7 @@ public class ScheduleTasks {
 		LocalDateTime currentTime = LocalDateTime.now();
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
 		messages.forEach(x -> {
-			if(x.getDate().compareTo(currentTime) < 0) {
+			if (x.getDate().compareTo(currentTime) < 0) {
 				mailingService.sendMessage(x);
 			}
 		});
@@ -293,7 +293,7 @@ public class ScheduleTasks {
 			case "delivery error":
 				info = "Номер заблокирован или вне зоны";
 				break;
-			case "invalid mobile phone" :
+			case "invalid mobile phone":
 				info = "Неправильный формат номера";
 				break;
 			case "incorrect id":
@@ -307,14 +307,14 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 60_000)
 	private void handleYoutubeLiveStreams() {
-		for (YouTubeTrackingCard youTubeTrackingCard: youTubeTrackingCardService.getAllByHasLiveStream(false)){
+		for (YouTubeTrackingCard youTubeTrackingCard : youTubeTrackingCardService.getAllByHasLiveStream(false)) {
 			youtubeService.handleYoutubeLiveChatMessages(youTubeTrackingCard);
 		}
 	}
 
 	@Scheduled(fixedRate = 60_000)
-	private void getPotentialClientsFromYoutubeClients(){
-		for (YoutubeClient youtubeClient: youtubeClientService.getAllByChecked(false)){
+	private void getPotentialClientsFromYoutubeClients() {
+		for (YoutubeClient youtubeClient : youtubeClientService.getAllByChecked(false)) {
 			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
 			if (newPotentialClient.isPresent()) {
 				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
