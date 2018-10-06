@@ -5,7 +5,6 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
-import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -61,8 +61,8 @@ public class SMSRestController {
 	                                         @RequestParam("date") String date,
 											 @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(id);
-		DateTime utc = DateTime.parse(date);
-		smsService.plannedSMS(client, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), userFromSession);
+		LocalDateTime utc = LocalDateTime.parse(date);
+		smsService.plannedSMS(client, message, utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")), userFromSession);
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body("Send Message");
 	}
@@ -83,8 +83,8 @@ public class SMSRestController {
 	                                         @RequestParam("date") String date,
 											 @AuthenticationPrincipal User userFromSession) {
 		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
-		DateTime utc = DateTime.parse(date);
-		smsService.plannedSMS(clients, message, utc.toString("yyyy-MM-dd'T'HH:mm:ss'Z'"), userFromSession);
+		LocalDateTime utc = LocalDateTime.parse(date);
+		smsService.plannedSMS(clients, message, utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")), userFromSession);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send");
 	}
