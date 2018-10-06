@@ -212,7 +212,7 @@ public class VKService {
 
 
     public String sendMessageById(Long id, String msg, String token) {
-        logger.info("VKService: sending message to client with id {}...",id);
+        logger.info("VKService: sending message to client with id {}...", id);
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -496,10 +496,19 @@ public class VKService {
         return firstContactMessage;
     }
 
+    public boolean hasTechnicalAccountToken() {
+        if (technicalAccountToken == null) {
+            if (projectPropertiesService.get() == null) {
+                logger.error("VK access token has not got");
+                return false;
+            }
+            technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken();
+        }
+        return true;
+    }
+
     public String getLongIDFromShortName(String vkGroupShortName) {
-        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
-            logger.error("VK access token has not got");
-        } else {
+        if (hasTechnicalAccountToken()) {
             String uriGetGroup = VK_API_METHOD_TEMPLATE + "groups.getById?" +
                     "group_id=" + vkGroupShortName +
                     "&v=" + version +
@@ -527,9 +536,7 @@ public class VKService {
     }
 
     public Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient) {
-        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
-            logger.error("VK access token has not got");
-        } else {
+        if (hasTechnicalAccountToken()) {
             youtubeClient.setChecked(true);
             youtubeClientService.update(youtubeClient);
             String fullName = youtubeClient.getFullName().replaceAll("(?U)[\\pP\\s]", "%20");

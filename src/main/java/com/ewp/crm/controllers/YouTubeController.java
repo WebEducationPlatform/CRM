@@ -4,6 +4,7 @@ import com.ewp.crm.models.PotentialClient;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.FileService;
 import com.ewp.crm.service.interfaces.PotentialClientService;
 import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import com.ewp.crm.service.interfaces.YoutubeService;
@@ -27,16 +28,18 @@ public class YouTubeController {
 	private final YoutubeService youtubeService;
 	private final VKService vkService;
 	private final PotentialClientService potentialClientService;
+	private final FileService fileService;
 
 	@Autowired
-	public YouTubeController(YouTubeTrackingCardService youTubeTrackingCardService, YoutubeService youtubeService, VKService vkService, PotentialClientService potentialClientService) {
+	public YouTubeController(YouTubeTrackingCardService youTubeTrackingCardService, YoutubeService youtubeService, VKService vkService, PotentialClientService potentialClientService, FileService fileService) {
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
 		this.youtubeService = youtubeService;
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
+		this.fileService = fileService;
 	}
 
-	@GetMapping()
+	@GetMapping
 	public ModelAndView youTubeLivePage() {
 		ModelAndView modelAndView = new ModelAndView("youTube-live");
 		modelAndView.addObject("youtubeCards", youTubeTrackingCardService.getAllYouTubeTrackingCards());
@@ -62,26 +65,12 @@ public class YouTubeController {
 	}
 
 	@GetMapping(value = "/getVkIDs")
-	public void getVkIDs(HttpServletResponse response)
-			throws IOException {
+	public void getVkIDs(HttpServletResponse response) throws IOException {
 		response.setContentType("text/plain");
 		response.setHeader("Content-Disposition", "attachment;filename=vkIDs.txt");
 		ServletOutputStream out = response.getOutputStream();
-		for (PotentialClient potentialClient : potentialClientService.getAllPotentialClients()) {
-			for (SocialProfile socialProfile : potentialClient.getSocialProfiles()) {
-				if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-					String link = socialProfile.getLink();
-					int indexOfLastSlash = link.lastIndexOf("/");
-					if (indexOfLastSlash != -1) {
-						link = link.substring(indexOfLastSlash + 1);
-					}
-					if (link.startsWith("id")) {
-						link = link.replaceFirst("id", "");
-					}
-					out.println(link);
-				}
-			}
-		}
+		String result = fileService.getAllVkIDs();
+		out.println(result);
 		out.flush();
 		out.close();
 	}

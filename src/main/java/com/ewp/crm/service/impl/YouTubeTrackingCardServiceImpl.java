@@ -36,9 +36,8 @@ public class YouTubeTrackingCardServiceImpl implements YouTubeTrackingCardServic
 		Optional<YouTubeTrackingCard> optional = youTubeTrackingCardRepository.findById(id);
 		if (optional.isPresent()) {
 			return optional.get();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
@@ -58,7 +57,7 @@ public class YouTubeTrackingCardServiceImpl implements YouTubeTrackingCardServic
 		youTubeTrackingCardRepository.delete(youTubeTrackingCard);
 	}
 
-	private void turnLinksIntoID(YouTubeTrackingCard youTubeTrackingCard){
+	private void turnLinksIntoID(YouTubeTrackingCard youTubeTrackingCard) {
 		String youTubeChannelID = youTubeTrackingCard.getYouTubeChannelID();
 		int indexOfLastSlash = youTubeChannelID.lastIndexOf("/");
 		if (indexOfLastSlash != -1) {
@@ -71,9 +70,9 @@ public class YouTubeTrackingCardServiceImpl implements YouTubeTrackingCardServic
 		if (indexOfLastSlash != -1) {
 			vkGroupID = vkGroupID.substring(indexOfLastSlash + 1);
 		}
-		if (vkGroupID.startsWith("id")){
+		if (vkGroupID.startsWith("id")) {
 			vkGroupID = vkGroupID.replaceFirst("id", "");
-		} else if (vkGroupID.startsWith("public")){
+		} else if (vkGroupID.startsWith("public")) {
 			vkGroupID = vkGroupID.replaceFirst("public", "");
 		} else {
 			vkGroupID = vkService.getLongIDFromShortName(vkGroupID);
