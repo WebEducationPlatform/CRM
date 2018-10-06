@@ -2,7 +2,6 @@ function addClient() {
 	if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
 		return;
 	}
-	$("#saveChanges").hide();
 	var SN = [];
 	var $th = $('#SocialNetworks').find('th');
 	try {

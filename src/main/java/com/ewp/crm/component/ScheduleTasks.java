@@ -9,7 +9,6 @@ import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +32,8 @@ public class ScheduleTasks {
 	private final VKService vkService;
 
 	private final ClientService clientService;
+
+	private final StudentService studentService;
 
 	private final StatusService statusService;
 
@@ -63,6 +65,8 @@ public class ScheduleTasks {
 
     private final ReportService reportService;
 
+    private final MessageTemplateService messageTemplateService;
+
 	private Environment env;
 
 	private final MailingMessageRepository mailingMessageRepository;
@@ -72,9 +76,10 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService) {
+	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
 		this.vkService = vkService;
 		this.clientService = clientService;
+		this.studentService = studentService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
 		this.socialProfileTypeService = socialProfileTypeService;
@@ -93,6 +98,7 @@ public class ScheduleTasks {
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
 		this.reportService = reportService;
+		this.messageTemplateService = messageTemplateService;
 	}
 
 	private void addClient(Client newClient) {
@@ -125,10 +131,8 @@ public class ScheduleTasks {
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
-			LocalDateTime trasnfromDate = LocalDateTime.fromDateFields(assignSkypeCall.getRemindBeforeOfSkypeCall()).plusHours(1);
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM в HH:mm по МСК");
-			String dateOfSkypeCall = dateFormat.format(trasnfromDate.toDate());
-
+			String dateOfSkypeCall = LocalDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
+					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
 
 			if (selectNetworks.contains("vk")) {
@@ -309,6 +313,43 @@ public class ScheduleTasks {
                             addClient(newClient.get());
                         }
 					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sends payment notification to students contacts.
+	 * Must be scheduled daily.
+	 * Occurs only on a Student nextPaymentDate day.
+	 */
+	@Scheduled(cron = "${payment.notification.polling.cron}")
+	private void sendPaymentNotifications() {
+		for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
+			String template = messageTemplateService.getByName("Оплата за обучение").getTemplateText();
+			User sender = new User();
+			sender.setLastName("Планировщик");
+			sender.setFirstName("задач");
+			Long clientId = student.getClient().getId();
+			if (student.isNotifyEmail()) {
+				try {
+					mailSendService.prepareAndSend(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("E-mail message not sent", e);
+				}
+			}
+			if (student.isNotifySMS()) {
+				try {
+					smsService.sendSMS(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("SMS message not sent", e);
+				}
+			}
+			if (student.isNotifyVK()) {
+				try {
+					vkService.sendMessageToClient(clientId, template, "", sender);
+				} catch (Exception e) {
+					logger.warn("VK message not sent", e);
 				}
 			}
 		}
