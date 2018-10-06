@@ -894,3 +894,12 @@ li.dropdown:hover .dropdown-menu {
 	width: 24px;
 	height: 24px;
 }
+
+#mentor {
+	display: inline-block;
+	width: 50%;
+}
+
+.inline {
+	display: inline-block;
+}
