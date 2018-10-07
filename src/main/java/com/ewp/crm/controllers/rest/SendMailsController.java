@@ -4,9 +4,8 @@ import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,7 +66,7 @@ public class SendMailsController {
                 break;
         }
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 

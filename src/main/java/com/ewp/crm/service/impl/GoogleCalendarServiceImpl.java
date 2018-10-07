@@ -143,9 +143,9 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     private Event newEvent(Long startDate, String skype) {
         Event event = new Event();
         event.setSummary("Skype(crm) - " + skype);
-        DateTime start = new DateTime(startDate + 3600000);
+        DateTime start = new DateTime(startDate);
         event.setStart(new EventDateTime().setDateTime(start));
-        DateTime end = new DateTime(startDate + 3600000);
+        DateTime end = new DateTime(startDate);
         event.setEnd(new EventDateTime().setDateTime(end));
         return event;
     }

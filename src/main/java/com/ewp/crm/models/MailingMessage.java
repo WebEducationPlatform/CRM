@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
-import org.joda.time.LocalDateTime;
-
+import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Set;

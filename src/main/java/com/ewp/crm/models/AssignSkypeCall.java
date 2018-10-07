@@ -18,10 +18,10 @@ public class AssignSkypeCall {
 	@Column(name = "assign_skype_call_created_time")
 	private LocalDateTime createdTime;
 
-	@Column
-	private Date remindBeforeOfSkypeCall;
+	@Column(name = "remind_before_of_skype_call")
+	private LocalDateTime remindBeforeOfSkypeCall;
 
-	@Column
+	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
 
 	@ManyToOne
@@ -36,6 +36,19 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
+	public AssignSkypeCall(LocalDateTime remindBeforeOfSkypeCall,
+						   String login,
+						   User fromAssignSkypeCall,
+						   LocalDateTime createdTime,
+						   Client toAssignSkypeCall,
+						   String selectNetworkForNotifications) {
+		this.login = login;
+		this.createdTime = createdTime;
+		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
+		this.selectNetworkForNotifications = selectNetworkForNotifications;
+		this.fromAssignSkypeCall = fromAssignSkypeCall;
+		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
 
 	public Long getId() {
 		return id;
@@ -61,11 +74,11 @@ public class AssignSkypeCall {
 		this.createdTime = createdTime;
 	}
 
-	public Date getRemindBeforeOfSkypeCall() {
+	public LocalDateTime getRemindBeforeOfSkypeCall() {
 		return remindBeforeOfSkypeCall;
 	}
 
-	public void setRemindBeforeOfSkypeCall(Date remindBeforeOfSkypeCall) {
+	public void setRemindBeforeOfSkypeCall(LocalDateTime remindBeforeOfSkypeCall) {
 		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
 	}
 
