@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
+@Table(name = "assign_skype_call")
 public class AssignSkypeCall {
 
 	@Id
