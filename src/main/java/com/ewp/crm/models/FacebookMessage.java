@@ -1,7 +1,7 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "facebook_message")
@@ -23,19 +23,11 @@ public class FacebookMessage {
 	private String to;
 
 	@Column(name = "created_time")
-	private Date createdTime;
+	private LocalDateTime createdTime;
 
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "message_dialog_fk")
 	private MessageDialog messagesDialog;
-
-//	public FacebookMessage(String textMessage, String from, String to, Date createdTime, MessageDialog messageDialog) {
-//		this.textMessage = textMessage;
-//		this.from = from;
-//		this.to = to;
-//		this.createdTime = createdTime;
-//		this.messagesDialog = messageDialog;
-//	}
 
 	public Long getId() {
 		return id;
@@ -69,11 +61,11 @@ public class FacebookMessage {
 		this.to = to;
 	}
 
-	public Date getCreatedTime() {
+	public LocalDateTime getCreatedTime() {
 		return createdTime;
 	}
 
-	public void setCreatedTime(Date createdTime) {
+	public void setCreatedTime(LocalDateTime createdTime) {
 		this.createdTime = createdTime;
 	}
 
