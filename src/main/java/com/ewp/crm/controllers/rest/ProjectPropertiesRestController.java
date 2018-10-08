@@ -27,11 +27,7 @@ public class ProjectPropertiesRestController {
 
     @GetMapping
     public ResponseEntity<ProjectProperties> getProjectProperties() {
-        ProjectProperties projectProperties = projectPropertiesService.get();
-        if (projectProperties == null) {
-            projectProperties = new ProjectProperties();
-        }
-        return new ResponseEntity<>(projectProperties, HttpStatus.OK);
+        return new ResponseEntity<>(projectPropertiesService.getOrCreate(), HttpStatus.OK);
     }
 
     @PostMapping("/email-notification")
@@ -39,10 +35,10 @@ public class ProjectPropertiesRestController {
                                                      @RequestParam( name = "paymentNotificationTime") String time,
                                                      @RequestParam( name = "paymentNotificationEnabled") Boolean enabled) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
-        if (templateId != null) {
-            current.setPaymentMessageTemplate(messageTemplateService.get(templateId));
-        } else {
+        if (templateId == null) {
             current.setPaymentMessageTemplate(null);
+        } else {
+            current.setPaymentMessageTemplate(messageTemplateService.get(templateId));
         }
         current.setPaymentNotificationTime(LocalTime.parse(time));
         current.setPaymentNotificationEnabled(enabled);

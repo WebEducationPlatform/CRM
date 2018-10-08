@@ -171,6 +171,25 @@ public class VKService {
         return client.getName() + " hasn't vk social network";
     }
 
+    /**
+     * Send simple VK message to client without any additional parameters and client history logging.
+     * @param clientId recipient client id.
+     * @param templateText message template text.
+     */
+    public void sendSimpleMessageToClient(Long clientId, String templateText) {
+        Client client = clientService.getClientByID(clientId);
+        String fullName = client.getName() + " " + client.getLastName();
+        List<SocialProfile> socialProfiles = client.getSocialProfiles();
+        for (SocialProfile socialProfile : socialProfiles) {
+            if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+                String link = socialProfile.getLink();
+                Long id = Long.parseLong(link.replaceAll(".+id", ""));
+                String vkText = templateText.replaceAll("%fullName%", fullName);
+                logger.info("VK message successfully sent to {}", client);
+                sendMessageById(id, vkText, communityToken);
+            }
+        }
+    }
 
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");

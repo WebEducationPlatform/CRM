@@ -48,8 +48,13 @@ $("#update-payment-notification").click( function () {
 
 //Validate input data
 function validate_input(data) {
+    console.log(data);
     if ((data.paymentNotificationEnabled == true) && (data.paymentMessageTemplate == '')) {
         alert("Выберите шаблон или отключите оповещение!");
+        return false;
+    }
+    if (data.paymentNotificationTime == '') {
+        alert("Задайте время оповещения!");
         return false;
     }
     return true;
