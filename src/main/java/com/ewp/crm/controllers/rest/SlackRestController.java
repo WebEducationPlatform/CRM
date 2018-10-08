@@ -19,6 +19,19 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * TODO before start.
+ * Docs about slack functions installation
+ * 1. Goto https://api.slack.com/apps
+ * 2. Choice app for Workspace (JavaMentor or something else)
+ * 3. Goto Features -> Event Subscriptions
+ * 4. Turn ON "Enable Events'
+ * TODO after start
+ * 5. Put at "Request URL" app-IP/slack or app-URL/slack
+ * 6. Wait for verify
+ * 7. Add to "Add Bot User Event" event with name "member_joined_channel"
+ * 8. TODO Проверить и дописать инструкцию. Продублировать.
+ */
 
 @RestController
 @RequestMapping("/slack")
@@ -46,8 +59,6 @@ public class SlackRestController {
             JsonNode jsonNode = objectMapper.readTree(body);
 
             //валидация ссылки куда Слак будет слать запросы. Выполняется 1 раз при смене ссылки в Слак
-            //https://api.slack.com/apps/ACLA3QY72/event-subscriptions?
-            //не забывать нажимать кнопку Save Changes.
             JsonNode challenge = jsonNode.get("challenge");
             if (challenge != null) {
                 logger.info("Slack url_verification done");
@@ -85,13 +96,13 @@ public class SlackRestController {
     @GetMapping(value = "/set/default/{statusId}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity setDefaultStatus(@PathVariable("statusId") Long id) {
-        ProjectProperties pp = propertiesService.get();
-        if (pp == null) {
+        ProjectProperties projectProperties = propertiesService.get();
+        if (projectProperties == null) {
             propertiesService.saveAndFlash(new ProjectProperties());
-            pp = propertiesService.get();
+            projectProperties = propertiesService.get();
         }
-        pp.setDefaultStatusId(id);
-        propertiesService.saveAndFlash(pp);
+        projectProperties.setDefaultStatusId(id);
+        propertiesService.saveAndFlash(projectProperties);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

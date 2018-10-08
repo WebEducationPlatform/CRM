@@ -4,14 +4,13 @@ import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +26,7 @@ public class SendMailsController {
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private String pattern;
     private String template;
-    private String[] textData; //todo SadreevArt это че?
+    private String[] textData; //todo это че?
     private String textData1;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
@@ -67,7 +66,7 @@ public class SendMailsController {
                 break;
         }
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 

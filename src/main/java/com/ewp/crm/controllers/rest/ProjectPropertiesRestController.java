@@ -48,10 +48,10 @@ public class ProjectPropertiesRestController {
 
     @GetMapping("/status")
     public ResponseEntity<Long> getStatus() {
-        ProjectProperties pp = projectPropertiesService.get();
+        ProjectProperties projectProperties = projectPropertiesService.get();
         Long status = -1L;
-        if (pp != null) {
-            status = pp.getDefaultStatusId();
+        if (projectProperties != null) {
+            status = projectProperties.getDefaultStatusId();
         }
         return new ResponseEntity<>(status, HttpStatus.OK);
     }

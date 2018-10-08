@@ -2,9 +2,6 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
@@ -33,6 +33,7 @@ public class ClientRestController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
+	private final MessageService messageService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -41,11 +42,12 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-								ClientHistoryService clientHistoryService) {
+								ClientHistoryService clientHistoryService, MessageService messageService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
+		this.messageService = messageService;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -282,13 +284,13 @@ public class ClientRestController {
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm МСК");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
 			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
 			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeDate(postponeDate.toDate());
+			client.setPostponeDate(postponeDate);
 			client.setOwnerUser(userFromSession);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
 			clientService.updateClient(client);
@@ -297,6 +299,22 @@ public class ClientRestController {
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
 		}
+	}
+
+	@PostMapping(value = "/remove/postpone")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity removePostpone(@RequestParam Long clientId,
+										 @AuthenticationPrincipal User userFromSession) {
+		try {
+			Client client = clientService.get(clientId);
+			client.setPostponeDate(null);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE));
+			clientService.updateClient(client);
+			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
 	}
 
 	@PostMapping(value = "/addDescription")
@@ -338,5 +356,11 @@ public class ClientRestController {
 		client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
+	}
+
+	@GetMapping(value = "/message/info/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
 	}
 }
