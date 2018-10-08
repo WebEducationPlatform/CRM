@@ -1,7 +1,7 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "assign_skype_call")
@@ -16,10 +16,10 @@ public class AssignSkypeCall {
 	private String login;
 
 	@Column(name = "assign_skype_call_created_time")
-	private Date createdTime;
+	private LocalDateTime createdTime;
 
 	@Column(name = "remind_before_of_skype_call")
-	private Date remindBeforeOfSkypeCall;
+	private LocalDateTime remindBeforeOfSkypeCall;
 
 	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
@@ -53,19 +53,19 @@ public class AssignSkypeCall {
 		this.login = login;
 	}
 
-	public Date getCreatedTime() {
+	public LocalDateTime getCreatedTime() {
 		return createdTime;
 	}
 
-	public void setCreatedTime(Date createdTime) {
+	public void setCreatedTime(LocalDateTime createdTime) {
 		this.createdTime = createdTime;
 	}
 
-	public Date getRemindBeforeOfSkypeCall() {
+	public LocalDateTime getRemindBeforeOfSkypeCall() {
 		return remindBeforeOfSkypeCall;
 	}
 
-	public void setRemindBeforeOfSkypeCall(Date remindBeforeOfSkypeCall) {
+	public void setRemindBeforeOfSkypeCall(LocalDateTime remindBeforeOfSkypeCall) {
 		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
 	}
 

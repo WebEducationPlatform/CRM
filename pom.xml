@@ -36,7 +36,6 @@
 		<httpclient.version>4.5.5</httpclient.version>
 		<android-json.version>0.0.20131108.vaadin1</android-json.version>
 		<apache.commons.io.version>2.4</apache.commons.io.version>
-		<joda-time.version>2.9.1</joda-time.version>
 		<project.youtube.version>v3-rev182-1.22.0</project.youtube.version>
 		<javafaker.version>0.15</javafaker.version>
 		<commons-lang3.version>3.7</commons-lang3.version>

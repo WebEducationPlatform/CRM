@@ -2,13 +2,13 @@ var clearNotifications = function clearClientSmsNotifications(id) {
     let request = "/user/notification/sms/clear/" + id;
     $.ajax({
         type: "POST",
-        dataType : "json",
-        url : request,
+        dataType: "json",
+        url: request,
         success: function () {
-            $(".sms-error-btn[data-id="+ id +"]").hide();
+            $(".sms-error-btn[data-id=" + id + "]").hide();
             $('.menu' + id).remove();
         },
-        error : function (error) {
+        error: function (error) {
             console.log(error);
         }
     })
@@ -27,6 +27,24 @@ function markAsReadMenu(clientId) {
                 $('#info-client' + clientId).find(".notification").remove();
                 $('.menu' + clientId).remove();
                 $('#notification-postpone' + clientId).hide();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
+
+function cleanAll() {
+    if ($('.notify').length) {
+
+        var url = "/user/notification/comment/cleanAll";
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: url,
+            success: function () {
+                location.reload();
             },
             error: function (error) {
                 console.log(error);
