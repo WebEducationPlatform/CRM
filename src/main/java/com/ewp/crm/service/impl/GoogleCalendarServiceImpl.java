@@ -33,7 +33,7 @@ import java.util.*;
 @Service
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
-    private static Logger logger = LoggerFactory.getLogger(GoogleCalendarController.class);
+    private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
     private Calendar client;
     private final String APPLICATION_NAME = "client-app";
     private HttpTransport httpTransport;
