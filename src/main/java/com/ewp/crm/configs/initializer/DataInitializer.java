@@ -15,61 +15,62 @@ import java.util.*;
 
 public class DataInitializer {
 
+	@Autowired
+	private VkTrackedClubService vkTrackedClubService;
 
-    @Autowired
-    private VkTrackedClubService vkTrackedClubService;
+	@Autowired
+	private VKConfig vkConfig;
 
-    @Autowired
-    private VKConfig vkConfig;
+	@Autowired
+	private VkMemberService vkMemberService;
 
-    @Autowired
-    private VkMemberService vkMemberService;
+	@Autowired
+	private VKService vkService;
 
-    @Autowired
-    private VKService vkService;
+	@Autowired
+	private StatusService statusService;
 
-    @Autowired
-    private StatusService statusService;
+	@Autowired
+	private ClientService clientService;
 
-    @Autowired
-    private ClientService clientService;
+	@Autowired
+	private UserService userService;
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private RoleService roleService;
 
-    @Autowired
-    private RoleService roleService;
+	@Autowired
+	private MessageTemplateService MessageTemplateService;
 
-    @Autowired
-    private MessageTemplateService MessageTemplateService;
+	@Autowired
+	private SocialProfileTypeService socialProfileTypeService;
 
-    @Autowired
-    private SocialProfileTypeService socialProfileTypeService;
+	@Autowired
+	private ClientHistoryService clientHistoryService;
 
-    @Autowired
-    private ClientHistoryService clientHistoryService;
+	@Autowired
+	private ReportsStatusService reportsStatusService;
 
-    @Autowired
-    private ReportsStatusService reportsStatusService;
+	@Autowired
+	private StudentService studentService;
 
-    @Autowired
-    private StudentService studentService;
+	@Autowired
+	private StudentStatusService studentStatusService;
 
-    @Autowired
-    private StudentStatusService studentStatusService;
-
-    private void init() {
+	private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
         Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
         Status status0 = new Status("New clients", false, 1L, false, 0, 0);
 
-        Role roleAdmin = new Role("ADMIN");
-        Role roleOwner = new Role("OWNER");
-        Role roleUser = new Role("USER");
-        roleService.add(roleAdmin);
-        roleService.add(roleUser);
-        roleService.add(roleOwner);
+		Role roleAdmin = new Role("ADMIN");
+		Role roleOwner = new Role("OWNER");
+		Role roleUser = new Role("USER");
+		Role roleMentor = new Role("MENTOR");
+		roleService.add(roleAdmin);
+		roleService.add(roleUser);
+		roleService.add(roleOwner);
+		roleService.add(roleMentor);
 
         SocialProfileType VK = new SocialProfileType("vk");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
@@ -102,16 +103,29 @@ public class DataInitializer {
                 "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
         userService.add(user2);
 
-        String templateText4 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
-                "<head></head>\n" +
-                "<body>\n" +
-                "<p>Добрый день, %fullName%</p>\n" +
-                "<p>Напоминаем, что сегодня %dateOfSkypeCall% с Вами состоится беседа по Skype.</p>\n" +
-                "<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
-                "<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
-                "</body>\n" +
-                "</html>";
+		User user3 = new User("Vlad", "Mentor", "89118465234", "user3@mail.ru",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
+		userService.add(user3);
+
+		User user4 = new User("Nikita", "Mentor", "89118465234", "eefilee@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
+		userService.add(user4);
+
+		User user5 = new User("Benedikt", "Manager", "9999999999", "qqfilqq@gmail.com",
+				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+				roleService.getRoleByName("OWNER")), true, true);
+		userService.add(user5);
+
+		String templateText4 = "<!DOCTYPE html>\n" +
+				"<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
+				"<head></head>\n" +
+				"<body>\n" +
+				"<p>Добрый день, %fullName%</p>\n" +
+				"<p>Напоминаем, что сегодня %dateOfSkypeCall% с Вами состоится беседа по Skype.</p>\n" +
+				"<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
+				"<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
+				"</body>\n" +
+				"</html>";
 
         String templateText3 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
@@ -150,14 +164,14 @@ public class DataInitializer {
                 "С наилучшими пожеланиями, команда JavaMentor";
         String otherText1 = "%bodyText%";
 
-        MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4);
-        MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
-        MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
-        MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1);
-        MessageTemplateService.add(MessageTemplate1);
-        MessageTemplateService.add(MessageTemplate2);
-        MessageTemplateService.add(MessageTemplate3);
-        MessageTemplateService.add(MessageTemplate4);
+		MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4);
+		MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
+		MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
+		MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1);
+		MessageTemplateService.add(MessageTemplate1);
+		MessageTemplateService.add(MessageTemplate2);
+		MessageTemplateService.add(MessageTemplate3);
+		MessageTemplateService.add(MessageTemplate4);
 
         Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
         Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
@@ -187,31 +201,31 @@ public class DataInitializer {
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
-                vkConfig.getCommunityToken(),
-                "JavaMentorTest",
-                Long.parseLong(vkConfig.getApplicationId())));
-        List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
-        for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
-            List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-                    .orElseThrow(NotFoundMemberList::new);
-            vkMemberService.addAllMembers(memberList);
-        }
-        clientService.addClient(client1);
-        clientService.addClient(client2);
-        clientService.addClient(client3);
-        clientService.addClient(client4);
-        status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
-        status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
-        status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
-        status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
-        statusService.addInit(status0);
-        statusService.addInit(status1);
-        statusService.addInit(status2);
-        statusService.addInit(status3);
-        statusService.addInit(status4);
-        statusService.addInit(status5);
-        statusService.addInit(defaultStatus);
+		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
+				vkConfig.getCommunityToken(),
+				"JavaMentorTest",
+				Long.parseLong(vkConfig.getApplicationId())));
+		List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+			List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+					.orElseThrow(NotFoundMemberList::new);
+			vkMemberService.addAllMembers(memberList);
+		}
+		clientService.addClient(client1);
+		clientService.addClient(client2);
+		clientService.addClient(client3);
+		clientService.addClient(client4);
+		status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
+		status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
+		status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
+		status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
+		statusService.addInit(status0);
+		statusService.addInit(status1);
+		statusService.addInit(status2);
+		statusService.addInit(status3);
+		statusService.addInit(status4);
+		statusService.addInit(status5);
+		statusService.addInit(defaultStatus);
 
         StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
@@ -224,17 +238,17 @@ public class DataInitializer {
         studentService.add(learningStudent);
         studentService.add(pauseStudent);
 
-        //TODO удалить после теста
+		//TODO удалить после теста
 
-        Faker faker = new Faker();
-        List<Client> list = new LinkedList<>();
-        for (int i = 0; i < 20; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
-            client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-            list.add(client);
-        }
-        clientService.addBatchClients(list);
-        list.clear();
+		Faker faker = new Faker();
+		List<Client> list = new LinkedList<>();
+		for (int i = 0; i < 20; i++) {
+			Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
+			client.addHistory(clientHistoryService.createHistory("инициализация crm"));
+			list.add(client);
+		}
+		clientService.addBatchClients(list);
+		list.clear();
 
         for (int i = 0; i < 50; i++) {
             Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("endLearningStatus"));
