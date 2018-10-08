@@ -163,6 +163,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.dateOfRegistration = LocalDateTime.now();
     }
 
+    @Column(name = "owner_call_skype")
+    private Long ownerCallSkype;
+
+    @Column(name = "date_call_skype")
+    private Long dateCallSkype;
+
     public Client(String name, String lastName) {
         this();
         this.name = name;
@@ -231,6 +237,22 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setClientDescriptionComment(String clientDescriptionComment) {
         this.clientDescriptionComment = clientDescriptionComment;
+    }
+
+    public Long getDateCallSkype() {
+        return dateCallSkype;
+    }
+
+    public void setDateCallSkype(Long dateCallSkype) {
+        this.dateCallSkype = dateCallSkype;
+    }
+
+    public Long getOwnerCallSkype() {
+        return ownerCallSkype;
+    }
+
+    public void setOwnerCallSkype(Long ownerCallSkype) {
+        this.ownerCallSkype = ownerCallSkype;
     }
 
     public String getSkype() {
