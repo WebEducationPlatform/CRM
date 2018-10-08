@@ -1031,7 +1031,7 @@ $(document).ready(function () {
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY H:mm МСК'
+            format: 'DD.MM.YYYY HH:mm МСК'
         },
         minDate: startDate,
         startDate: startDate
@@ -1206,7 +1206,7 @@ function updateCallDate(id) {
                 timePickerIncrement: 1,
                 timePicker24Hour: true,
                 locale: {
-                    format: 'DD.MM.YYYY H:mm МСК'
+                    format: 'DD.MM.YYYY HH:mm МСК'
                 },
                 minDate: 0,
                 startDate: oldDate
@@ -1387,7 +1387,7 @@ function assignSkype(id) {
                     timePickerIncrement: 1,
                     timePicker24Hour: true,
                     locale: {
-                        format: 'DD.MM.YYYY H:mm МСК'
+                        format: 'DD.MM.YYYY HH:mm МСК'
                     },
                     minDate: 0,
                     startDate: startDateOld
@@ -1463,7 +1463,7 @@ function confirmSkype(id) {
                 timePickerIncrement: 1,
                 timePicker24Hour: true,
                 locale: {
-                    format: 'DD.MM.YYYY H:mm МСК'
+                    format: 'DD.MM.YYYY HH:mm МСК'
                 },
                 minDate: 0,
                 startDate: startDateOld

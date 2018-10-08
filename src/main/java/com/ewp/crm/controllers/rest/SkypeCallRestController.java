@@ -49,7 +49,7 @@ public class SkypeCallRestController {
 	public ResponseEntity assignSkypeCall(@AuthenticationPrincipal User principal, @RequestParam Long clientId, @RequestParam String date, @RequestParam String selectNetwork) {
 		Client client = clientService.getClientByID(clientId);
 		try {
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm МСК");
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
 			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
 			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
 			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {

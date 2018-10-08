@@ -85,7 +85,7 @@ $(document).ready(function () {
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY H:mm МСК'
+            format: 'DD.MM.YYYY HH:mm МСК'
         },
         minDate: startDate,
         startDate: startDate
