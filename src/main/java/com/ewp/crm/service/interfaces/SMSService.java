@@ -14,6 +14,13 @@ public interface SMSService {
 
 	void sendSMS(Long clientId, String templateId, String body, User principal) throws JSONException;
 
+	/**
+	 * Send SMS notification to client without any additional parameters and client history logging.
+	 * @param clientId recipient client id.
+	 * @param templateText Message template text.
+	 */
+	void sendSimpleSMS(Long clientId, String templateText);
+
 	void sendSMS(List<Client> clients, String text, User sender);
 
 	void plannedSMS(Client client, String text, String date, User sender);
