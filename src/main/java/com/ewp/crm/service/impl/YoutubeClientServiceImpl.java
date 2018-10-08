@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.repository.interfaces.YoutubeClientDAO;
 import com.ewp.crm.service.interfaces.YoutubeClientService;
@@ -25,6 +26,16 @@ public class YoutubeClientServiceImpl implements YoutubeClientService {
     @Override
     public List<YoutubeClient> getAll() {
         return youtubeClientDAO.findAll();
+    }
+
+    @Override
+    public List<YoutubeClient> getAllByChecked(boolean checked) {
+        return youtubeClientDAO.getAllByChecked(checked);
+    }
+
+    @Override
+    public List<YoutubeClient> getAllByYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard) {
+        return youtubeClientDAO.getAllByYouTubeTrackingCard(youTubeTrackingCard);
     }
 
     @Override
