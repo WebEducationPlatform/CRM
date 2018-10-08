@@ -9,6 +9,8 @@ import com.ewp.crm.service.interfaces.PotentialClientService;
 import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import com.ewp.crm.service.interfaces.YoutubeService;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,8 @@ import java.io.IOException;
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
 @RequestMapping("/admin/YouTubeLive")
 public class YouTubeController {
+
+	private static Logger logger = LoggerFactory.getLogger(YouTubeController.class);
 
 	private final YouTubeTrackingCardService youTubeTrackingCardService;
 	private final YoutubeService youtubeService;
@@ -65,13 +69,15 @@ public class YouTubeController {
 	}
 
 	@GetMapping(value = "/getVkIDs")
-	public void getVkIDs(HttpServletResponse response) throws IOException {
+	public void getVkIDs(HttpServletResponse response) {
 		response.setContentType("text/plain");
 		response.setHeader("Content-Disposition", "attachment;filename=vkIDs.txt");
-		ServletOutputStream out = response.getOutputStream();
-		String result = fileService.getAllVkIDs();
-		out.println(result);
-		out.flush();
-		out.close();
+		try (ServletOutputStream out = response.getOutputStream()) {
+			String result = fileService.getAllVkIDs();
+			out.println(result);
+			out.flush();
+		} catch (IOException e) {
+			logger.error("IOException: ", e);
+		}
 	}
 }
