@@ -31,9 +31,8 @@ public class PotentialClientServiceImpl implements PotentialClientService {
 		Optional<PotentialClient> optional = potentialClientRepository.findById(id);
 		if (optional.isPresent()) {
 			return optional.get();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
