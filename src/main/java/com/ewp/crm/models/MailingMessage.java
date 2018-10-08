@@ -1,8 +1,8 @@
 package com.ewp.crm.models;
 
+import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity

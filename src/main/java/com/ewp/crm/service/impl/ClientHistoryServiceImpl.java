@@ -82,7 +82,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
+				title.append(LocalDateTime.parse(LocalDateTime.now().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
 				title.append(")");
 				break;
 			case STATUS:

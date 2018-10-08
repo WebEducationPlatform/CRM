@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "assign_skype_call")
@@ -36,6 +37,19 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
+	public AssignSkypeCall(LocalDateTime remindBeforeOfSkypeCall,
+						   String login,
+						   User fromAssignSkypeCall,
+						   LocalDateTime createdTime,
+						   Client toAssignSkypeCall,
+						   String selectNetworkForNotifications) {
+		this.login = login;
+		this.createdTime = createdTime;
+		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
+		this.selectNetworkForNotifications = selectNetworkForNotifications;
+		this.fromAssignSkypeCall = fromAssignSkypeCall;
+		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
 
 	public Long getId() {
 		return id;

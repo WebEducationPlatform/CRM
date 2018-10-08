@@ -17,6 +17,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,17 +26,17 @@ import java.util.Objects;
 @Table(name = "client")
 public class Client implements Serializable, Diffable<Client> {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "client_id")
-    private Long id;
+	@Id
+	@GeneratedValue
+	@Column(name = "client_id")
+	private Long id;
 
-    @NotNull
-    @Column(name = "first_name", nullable = false)
-    private String name;
+	@NotNull
+	@Column(name = "first_name", nullable = false)
+	private String name;
 
-    @Column(name = "last_name")
-    private String lastName;
+	@Column(name = "last_name")
+	private String lastName;
 
     @Column(name = "phoneNumber")
     private String phoneNumber;
@@ -162,6 +163,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.dateOfRegistration = LocalDateTime.now();
     }
 
+    @Column(name = "owner_call_skype")
+    private Long ownerCallSkype;
+
+    @Column(name = "date_call_skype")
+    private Long dateCallSkype;
+
     public Client(String name, String lastName) {
         this();
         this.name = name;
@@ -230,6 +237,22 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setClientDescriptionComment(String clientDescriptionComment) {
         this.clientDescriptionComment = clientDescriptionComment;
+    }
+
+    public Long getDateCallSkype() {
+        return dateCallSkype;
+    }
+
+    public void setDateCallSkype(Long dateCallSkype) {
+        this.dateCallSkype = dateCallSkype;
+    }
+
+    public Long getOwnerCallSkype() {
+        return ownerCallSkype;
+    }
+
+    public void setOwnerCallSkype(Long ownerCallSkype) {
+        this.ownerCallSkype = ownerCallSkype;
     }
 
     public String getSkype() {
