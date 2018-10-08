@@ -67,6 +67,30 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
+	public void sendSimpleSMS(Long clientId, String smsTemplateText) {
+		logger.info("{} sending sms message to client...", SMSServiceImpl.class.getName());
+		Client client = clientService.getClientByID(clientId);
+		String fullName = client.getName() + " " + client.getLastName();
+		String smsText = smsTemplateText.replaceAll("%fullName%", fullName);
+		URI uri = URI.create(TEMPLATE_URI + "/send.json");
+		JSONObject jsonRequest = new JSONObject();
+		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
+		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+		try {
+			JSONObject jsonBody = new JSONObject(response.getBody());
+			JSONObject message = null;
+			message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
+			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText);
+			client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
+			clientService.updateClient(client);
+		} catch (JSONException e) {
+			logger.info("JSON object error, while sending SMS to client {}", client, e);
+		}
+		logger.info("SMS sent successfully to the client {}", client);
+	}
+
+	@Override
 	public void sendSMS(List<Client> clients, String text, User sender) {
 		logger.info("{} sending sms message to clients...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");

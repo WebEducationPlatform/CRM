@@ -51,19 +51,6 @@ public class ProjectProperties {
         this.technicalAccountToken = technicalAccountToken;
     }
 
-    /**
-     * Get payment notification time for daily scheduling.
-     * @return time as cron expression.
-     */
-    public String getPaymentNotificationTimeAsCron() {
-        String result = "0 0 12 * * *";
-        LocalTime time = this.paymentNotificationTime;
-        if (time != null) {
-            result = time.getSecond() + " " + time.getMinute() + " " + time.getHour() + " * * *";
-        }
-        return result;
-    }
-
     public Long getId() {
         return id;
     }

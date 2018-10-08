@@ -333,42 +333,28 @@ public class ScheduleTasks {
 			}
 		}
 	}
+
 	/**
 	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 360000)
 	private void sendPaymentNotifications() {
-		ProjectProperties properties = projectPropertiesService.get();
-		if (properties != null && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
-			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.MINUTES);
-			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+		ProjectProperties properties = projectPropertiesService.getOrCreate();
+		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
+			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.HOURS);
+			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
 			if (properties.isPaymentNotificationEnabled() && now.equals(time)) {
 				for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
-					String template = properties.getPaymentMessageTemplate().getTemplateText();
-					User sender = new User();
-					sender.setLastName("Планировщик");
-					sender.setFirstName("задач");
+					MessageTemplate template = properties.getPaymentMessageTemplate();
 					Long clientId = student.getClient().getId();
 					if (student.isNotifyEmail()) {
-						try {
-							mailSendService.prepareAndSend(clientId, template, "", sender);
-						} catch (Exception e) {
-							logger.warn("E-mail message not sent", e);
-						}
+						mailSendService.sendSimpleNotification(clientId, template.getTemplateText(), template.getName());
 					}
 					if (student.isNotifySMS()) {
-						try {
-							smsService.sendSMS(clientId, template, "", sender);
-						} catch (Exception e) {
-							logger.warn("SMS message not sent", e);
-						}
+						smsService.sendSimpleSMS(clientId, template.getOtherText());
 					}
 					if (student.isNotifyVK()) {
-						try {
-							vkService.sendMessageToClient(clientId, template, "", sender);
-						} catch (Exception e) {
-							logger.warn("VK message not sent", e);
-						}
+						vkService.sendSimpleMessageToClient(clientId, template.getOtherText());
 					}
 				}
 			}
