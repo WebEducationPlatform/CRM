@@ -25,7 +25,7 @@
         <div class="container">
             <fieldset id="field">
                 <div class="btn-group">
-                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' onchange="sendImg()" style="display: none"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ ${template.id} +'\')'" style="display: none"/>
                     <label for="imgBtn">
                         <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
                     </label>
