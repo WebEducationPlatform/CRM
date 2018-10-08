@@ -9,7 +9,7 @@ $(function () {
 // n-раз до установки статуса, попап будет так же всплывать n-раз
 $(function getStatus() {
     if (sessionStorage.getItem('student_status') == 'false') {
-        var url = 'properties/status';
+        var url = '/rest/properties/status';
         $.ajax({
             type: 'GET',
             url: url,

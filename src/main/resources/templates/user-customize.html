@@ -50,12 +50,11 @@
         <br/>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pul" data-toggle="modal" data-target="#choice-status-column-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
                 Статус клиента не студента
             </button>
         </div>
-            <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
-
+           <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
@@ -134,6 +133,9 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
+<script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 </body>
 </html>
