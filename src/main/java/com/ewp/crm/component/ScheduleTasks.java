@@ -84,16 +84,18 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService,
-						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
-						 MailingService mailingService, SocialProfileService socialProfileService,
-						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
+	                     YouTubeTrackingCardService youTubeTrackingCardService,
+	                     ClientService clientService, StudentService studentService,
+	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
+	                     MailingService mailingService, SocialProfileService socialProfileService,
+	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+	                     MailSendService mailSendService, Environment env, ReportService reportService,
+	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -117,7 +119,6 @@ public class ScheduleTasks {
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
-		this.reportService = reportService;
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
 	}
@@ -210,12 +211,12 @@ public class ScheduleTasks {
 	private void findNewMembersAndSendFirstMessage() {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
-		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
 			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
 					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
-				if(!lastMemberList.contains(vkMember)){
+				if (!lastMemberList.contains(vkMember)) {
 					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
 					vkMemberService.add(vkMember);
 					countNewMembers++;
@@ -247,7 +248,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
-			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(),client, client.getOwnerUser(), Notification.Type.POSTPONE);
+			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
 	}
@@ -257,7 +258,7 @@ public class ScheduleTasks {
 		LocalDateTime currentTime = LocalDateTime.now();
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
 		messages.forEach(x -> {
-			if(x.getDate().compareTo(currentTime) < 0) {
+			if (x.getDate().compareTo(currentTime) < 0) {
 				mailingService.sendMessage(x);
 			}
 		});
@@ -305,7 +306,7 @@ public class ScheduleTasks {
 			case "delivery error":
 				info = "Номер заблокирован или вне зоны";
 				break;
-			case "invalid mobile phone" :
+			case "invalid mobile phone":
 				info = "Неправильный формат номера";
 				break;
 			case "incorrect id":
