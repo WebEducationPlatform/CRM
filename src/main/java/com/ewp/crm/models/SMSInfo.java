@@ -51,6 +51,12 @@ public class SMSInfo implements Serializable {
 		this.deliveryStatus = "в очереди";
 	}
 
+	public SMSInfo(Long smsId, String message) {
+		this.smsId = smsId;
+		this.message = message;
+		this.deliveryStatus = "в очереди";
+	}
+
 	public Boolean getChecked() {
 		return isChecked;
 	}
