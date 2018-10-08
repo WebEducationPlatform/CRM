@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+</head>
+
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+<div class="container">
+    <div class="templContainer">
+        <div class="btn-group">
+            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+            <ul th:if="${emailTmpl.size()!=0}">
+                <li th:id="'eTemplate' + ${template.id}"
+                    th:each="template : ${emailTmpl}">
+                    <a th:if="${!template.hasBody()}"
+                       th:id="'eTemplateBtn' + ${template.id}"
+                       data-toggle="modal"
+                       th:attrappend="data-target='#sendTemplateModal'"
+                       th:text="' ' + ${template.name}"
+                       th:attrprepend="data-template-id=${template.id}"></a>
+                    <a th:if="${template.hasBody()}"
+                       th:id="'eTemplateBtn' + ${template.id}"
+                       data-toggle="modal" th:attrappend="
+                               data-target='#customMessageTemplate'"
+                       th:text="' ' + ${template.name}"
+                       th:attrprepend="data-template-id=${template.id}"></a>
+                    <a th:href="'/admin/editMessageTemplate/' +  ${template.id}">
+                        <button
+                                type="button" data-toggle="modal" name="editETemplateBtn"
+                                class="glyphicon glyphicon-edit">
+                        </button>
+                    </a>
+                </li>
+            </ul>
+            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+        </div>
+    </div>
+</div>
+</body>
+</html>
