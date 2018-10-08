@@ -77,12 +77,12 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/checkFreeDate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Integer> checkFreeDate(@RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Long startDate) {
+	public ResponseEntity<Object> checkFreeDate(@RequestParam(name = "idMentor") Long idMentor, @RequestParam(name = "startDateOld") Long startDate) {
 		User user = userService.get(idMentor);
 		if (calendarService.checkFreeDate(startDate, user.getEmail())) {
-			return ResponseEntity.status(HttpStatus.OK).body(0);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
-		return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(1);
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")

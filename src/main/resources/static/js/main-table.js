@@ -1094,12 +1094,8 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         url: 'rest/skype/checkFreeDate',
         data: formData1,
         dataType: 'json',
-        success: function (status) {
-            if (status === 0) {
-                if (!document.getElementById('freeDate')) {
-                    currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
-                }
-            } else {
+        statusCode: {
+            200: function () {
                 $('#freeDate').remove();
                 skypeBtn.hide();
                 skypeBtn2.remove();
@@ -1132,13 +1128,13 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 currentForm.append('<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>');
                 currentForm.after('<button type="button" class="btn btn-primary btn-xs send-skype-message">Подтвердить</button>');
                 drawCheckbox(currentForm, clientId);
+            },
+            400: function () {
+                if (!document.getElementById('freeDate')) {
+                    currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
+                }
             }
         },
-
-        error: function (error) {
-            currentStatus.css('color','#229922');
-            currentStatus.text(error);
-        }
     });
 });
 
@@ -1246,45 +1242,41 @@ $(document).on('click','.update-skype-call', function (e) {
         url: 'rest/skype/checkFreeDate',
         data: formData1,
         dataType: 'json',
-        success: function (status) {
-            if (document.getElementById('freeDate')) {
-                document.getElementById('freeDate').remove();
-            }
-            if (status === 0) {
-                if (!document.getElementById('freeDate')) {
-                    currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
-                }
-            } else {
-                // Update Event in calendar mentor
-                $.ajax({
-                    type: 'POST',
-                    url: 'rest/mentor/updateEvent',
-                    data: formData,
-                    success: function (e) {
-                        if (!document.getElementById('freeDate')) {
-                            currentBtn.after('<div id="freeDate"><span style="color:#229922">Новая дата назначена.</span></div>');
-                        }
-                        if (e === null || e.length === 0) {
-                            currentStatus.css('color', '#229922');
-                            currentStatus.text("Не один ментор не найден");
-                        } else {
-                            currentStatus.text("Задача улетела в календарь ментору " + document.getElementsByTagName("option")[indexMentor].text);
-                        }
-                    },
-
-                    error: function (error) {
-                        console.log(error);
-                        currentStatus.css('color','#229922');
-                        currentStatus.text(error);
+            statusCode: {
+                400: function() {
+                    if (!document.getElementById('freeDate')) {
+                        currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
                     }
-                });
-            }
-        },
+                },
+                200: function() {
+                    if (document.getElementById('freeDate')) {
+                        document.getElementById('freeDate').remove();
+                    }
+                    // Update Event in calendar mentor
+                    $.ajax({
+                        type: 'POST',
+                        url: 'rest/mentor/updateEvent',
+                        data: formData,
+                        success: function (e) {
+                            if (!document.getElementById('freeDate')) {
+                                currentBtn.after('<div id="freeDate"><span style="color:#229922">Новая дата назначена.</span></div>');
+                            }
+                            if (e === null || e.length === 0) {
+                                currentStatus.css('color', '#229922');
+                                currentStatus.text("Не один ментор не найден");
+                            } else {
+                                currentStatus.text("Задача улетела в календарь ментору " + document.getElementsByTagName("option")[indexMentor].text);
+                            }
+                        },
 
-        error: function (error) {
-            currentStatus.css('color','#229922');
-            currentStatus.text(error);
-        }
+                        error: function (error) {
+                            console.log(error);
+                            currentStatus.css('color','#229922');
+                            currentStatus.text(error);
+                        }
+                    });
+                }
+            }
     });
 });
 
