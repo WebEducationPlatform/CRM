@@ -39,9 +39,6 @@
 
     </div>
 
-
-    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
         <div id="change-profile-button">
             <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
