@@ -99,7 +99,7 @@ public class ClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ModelAndView allClientsPage() {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
-        modelAndView.addObject("allClients", clientService.getAllClientsByPage(new PageRequest(0, pageSize)));
+		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize)));
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         return modelAndView;
