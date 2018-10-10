@@ -97,4 +97,12 @@ public class UserController {
 		modelAndView.addObject("userCustomize",userFromSession);
 		return modelAndView;
 	}
+	@PostMapping(value = "/user/enableNewClientNotifications")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public String enableNewUserNotifications(@RequestParam boolean notify,
+											@AuthenticationPrincipal User userFromSession) {
+		userFromSession.setNewClienNotifyIsEnabled(notify);
+		userService.update(userFromSession);
+		return "redirect:/user/customize";
+	}
 }

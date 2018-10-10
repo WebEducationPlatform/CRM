@@ -42,10 +42,9 @@ public class SendNotificationServiceImpl implements SendNotificationService {
     public void sendNotificationsAllUsers(Client client) {
         logger.info("sending notification to all clients...");
         List<User> usersToNotify = userService.getAll();
-        List<Notification> notifications = new ArrayList<>();
-        for (int i = 0; i < usersToNotify.size(); i++) {
-            notifications.add(new Notification(client, usersToNotify.get(i), Notification.Type.NEW_USER));
-            notificationService.add(notifications.get(i));
+        for (User user : usersToNotify) {
+            if (user.isNewClienNotifyIsEnabled())
+                notificationService.add(new Notification(client, user, Notification.Type.NEW_USER));
         }
     }
 
@@ -57,29 +56,29 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         Pattern pattern = Pattern.compile(regexForContent);
         Matcher matcher = pattern.matcher(content);
 
-		User contentCreator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String notificationMessage = String.format("Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"",
-				contentCreator.getFullName(), client.getLastName(), client.getName(), content);
+        User contentCreator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String notificationMessage = String.format("Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"",
+                contentCreator.getFullName(), client.getLastName(), client.getName(), content);
 
-		while (matcher.find()) {
-			String[] fullName = matcher.group().split(regexForSplit);
-			if (fullName.length == 3) {
-				User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
-				if (Optional.ofNullable(userToNotify).isPresent()) {
-					if (userToNotify.isEnableMailNotifications()) {
-						mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
-					}
-					Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
-					notificationService.add(notification);
-				}
-			}
-		}
-	}
+        while (matcher.find()) {
+            String[] fullName = matcher.group().split(regexForSplit);
+            if (fullName.length == 3) {
+                User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
+                if (Optional.ofNullable(userToNotify).isPresent()) {
+                    if (userToNotify.isEnableMailNotifications()) {
+                        mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
+                    }
+                    Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
+                    notificationService.add(notification);
+                }
+            }
+        }
+    }
 
-	@Override
-	public void sendNotificationType(String info, Client client, User user, Notification.Type type) {
-		Notification notification = new Notification(client, user, type);
-		notification.setInformation(info);
-		notificationService.add(notification);
-	}
+    @Override
+    public void sendNotificationType(String info, Client client, User user, Notification.Type type) {
+        Notification notification = new Notification(client, user, type);
+        notification.setInformation(info);
+        notificationService.add(notification);
+    }
 }

@@ -52,3 +52,20 @@ function cleanAll() {
         })
     }
 }
+function cleanAllNewUserNotify() {
+    if ($('.notify').length) {
+
+        var url = "/user/notification/comment/cleanAllNewUserNotify";
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: url,
+            success: function () {
+                location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
