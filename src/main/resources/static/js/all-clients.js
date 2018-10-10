@@ -167,8 +167,6 @@ $(document).ready(function () {
 
 
     win.scroll(function () {
-        console.log("scroll " + page);
-        console.log($(document).height() + " - " + win.height() + " = " + win.scrollTop());
         if ($(document).height() - win.height() === Math.ceil(win.scrollTop())) {
 
             $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
