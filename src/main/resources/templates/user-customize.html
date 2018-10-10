@@ -7,8 +7,6 @@
 </head>
 <body>
 <div style="margin: 2%">
-    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-
     <div class="col-md-6 col-md-offset-2">
 
         <div><h3>Настройки</h3></div>
@@ -30,7 +28,17 @@
             <br/>
             <button type="submit" class="btn btn-primary pull-right" role="button">Сохранить</button>
         </form>
+
+        <h1>Настройка оповещений о новых клиентах:</h1>
+
+        <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+            Включить/Выключить
+        </button>
+
     </div>
+
+
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
         <div id="change-profile-button">
@@ -55,10 +63,10 @@
             </button>
         </div>
         <br/>
-            <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
+        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
         <br/>
         <br/>
-           <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
+        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
@@ -142,5 +150,6 @@
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 </body>
 </html>
