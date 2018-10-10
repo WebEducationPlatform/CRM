@@ -155,40 +155,21 @@ public class VKService {
                 String link = socialProfile.getLink();
                 Long id = Long.parseLong(link.replaceAll(".+id", ""));
                 String vkText = replaceName(templateText, params);
-                User user = userService.get(principal.getId());
-                String token = user.getVkToken();
-                if (token == null) {
-                    token = communityToken;
+                String token = communityToken;
+                if (principal != null) {
+                    User user = userService.get(principal.getId());
+                    if (user.getVkToken() != null) {
+                        token = user.getVkToken();
+                    }
+                    Message message = messageService.addMessage(Message.Type.VK, vkText);
+                    client.addHistory(clientHistoryService.createHistory(principal, client, message));
+                    clientService.updateClient(client);
                 }
-                String responseMessage = sendMessageById(id, vkText, token);
-                Message message = messageService.addMessage(Message.Type.VK, vkText);
-                client.addHistory(clientHistoryService.createHistory(principal, client, message));
-                clientService.updateClient(client);
-                return responseMessage;
+                return sendMessageById(id, vkText, token);
             }
         }
         logger.error("{} hasn't vk social network", client.getEmail());
         return client.getName() + " hasn't vk social network";
-    }
-
-    /**
-     * Send simple VK message to client without any additional parameters and client history logging.
-     * @param clientId recipient client id.
-     * @param templateText message template text.
-     */
-    public void sendSimpleMessageToClient(Long clientId, String templateText) {
-        Client client = clientService.getClientByID(clientId);
-        String fullName = client.getName() + " " + client.getLastName();
-        List<SocialProfile> socialProfiles = client.getSocialProfiles();
-        for (SocialProfile socialProfile : socialProfiles) {
-            if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-                String link = socialProfile.getLink();
-                Long id = Long.parseLong(link.replaceAll(".+id", ""));
-                String vkText = templateText.replaceAll("%fullName%", fullName);
-                logger.info("VK message successfully sent to {}", client);
-                sendMessageById(id, vkText, communityToken);
-            }
-        }
     }
 
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
