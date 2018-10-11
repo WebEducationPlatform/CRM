@@ -9,6 +9,7 @@ import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -352,13 +353,17 @@ public class ScheduleTasks {
 					MessageTemplate template = properties.getPaymentMessageTemplate();
 					Long clientId = student.getClient().getId();
 					if (student.isNotifyEmail()) {
-						mailSendService.sendSimpleNotification(clientId, template.getTemplateText(), template.getName());
+						mailSendService.prepareAndSend(clientId, template.getTemplateText(), "", null);
 					}
 					if (student.isNotifySMS()) {
-						smsService.sendSimpleSMS(clientId, template.getOtherText());
+						try {
+							smsService.sendSMS(clientId, template.getOtherText(), "", null);
+						} catch (JSONException e) {
+							logger.info("Failed to sent SMS", e);
+						}
 					}
 					if (student.isNotifyVK()) {
-						vkService.sendSimpleMessageToClient(clientId, template.getOtherText());
+						vkService.sendMessageToClient(clientId, template.getOtherText(), "", null);
 					}
 				}
 			}

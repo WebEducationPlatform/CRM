@@ -244,43 +244,14 @@ public class MailSendServiceImpl implements MailSendService {
                 mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
             }
             javaMailSender.send(mimeMessage);
-            Client clientEmail = clientService.getClientByEmail(recipient);
-            Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-            client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
-            clientService.updateClient(client);
-        } catch (Exception e) {
-            logger.error("Can't send mail to {}", recipient);
-            throw new MessageTemplateException(e.getMessage());
-        }
-    }
-
-    @Override
-    public void sendSimpleNotification(Long clientId, String templateText, String subject) {
-        Client client = clientService.getClientByID(clientId);
-        String recipient = client.getEmail();
-        String fullName = client.getName() + " " + client.getLastName();
-        final Context ctx = new Context();
-        templateText = templateText.replaceAll("\n", "");
-        ctx.setVariable("templateText", templateText);
-        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        try {
-            final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setSubject(subject);
-            mimeMessageHelper.setTo(recipient);
-            mimeMessageHelper.setFrom(emailLogin);
-            StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process("emailStringTemplate", ctx));
-            htmlContent = new StringBuilder(htmlContent.toString().replaceAll("%fullName%", fullName));
-            mimeMessageHelper.setText(htmlContent.toString(), true);
-            Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
-            Matcher matcher = pattern.matcher(templateText);
-            while (matcher.find()) {
-                InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
-                mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+            if (principal != null) {
+                Client clientEmail = clientService.getClientByEmail(recipient);
+                Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+                client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
+                clientService.updateClient(client);
             }
-            javaMailSender.send(mimeMessage);
-            logger.info("Email successfully notification sent to {}", recipient);
         } catch (Exception e) {
-            logger.error("Can't send mail to {}", recipient);
+            logger.error("Can't send mail to {}", recipient, e);
             throw new MessageTemplateException(e.getMessage());
         }
     }
