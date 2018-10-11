@@ -142,7 +142,7 @@ public class VKService {
         return Optional.empty();
     }
 
-    public String sendMessageToClient(Long clientId, String templateText, String body, User principal) {
+    public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
         Client client = clientService.getClientByID(clientId);
         String fullName = client.getName() + " " + client.getLastName();
         Map<String, String> params = new HashMap<>();
@@ -153,23 +153,59 @@ public class VKService {
         for (SocialProfile socialProfile : socialProfiles) {
             if (socialProfile.getSocialProfileType().getName().equals("vk")) {
                 String link = socialProfile.getLink();
-                Long id = Long.parseLong(link.replaceAll(".+id", ""));
-                String vkText = replaceName(templateText, params);
-                String token = communityToken;
-                if (principal != null) {
-                    User user = userService.get(principal.getId());
-                    if (user.getVkToken() != null) {
-                        token = user.getVkToken();
+                Optional<Long> optId = getVKIdByUrl(link);
+                if (optId.isPresent()) {
+                    Long id = optId.get();
+                    String vkText = replaceName(templateText, params);
+                    String token = communityToken;
+                    if (principal != null) {
+                        User user = userService.get(principal.getId());
+                        if (user.getVkToken() != null) {
+                            token = user.getVkToken();
+                        }
+                        Message message = messageService.addMessage(Message.Type.VK, vkText);
+                        client.addHistory(clientHistoryService.createHistory(principal, client, message));
+                        clientService.updateClient(client);
                     }
-                    Message message = messageService.addMessage(Message.Type.VK, vkText);
-                    client.addHistory(clientHistoryService.createHistory(principal, client, message));
-                    clientService.updateClient(client);
+                    sendMessageById(id, vkText, token);
+                } else {
+                    logger.info("{} has wrong VK url {}", client.getEmail(), link);
                 }
-                return sendMessageById(id, vkText, token);
             }
         }
-        logger.error("{} hasn't vk social network", client.getEmail());
-        return client.getName() + " hasn't vk social network";
+    }
+
+    /**
+     * Get user VK id by profile url.
+     * @param url user profile url.
+     * @return optional of user VK id.
+     */
+    private Optional<Long> getVKIdByUrl(String url) {
+        Optional<Long> result = Optional.empty();
+        if (url.matches("(.*)://vk.com/id(\\d*)")) {
+            result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
+        } else if (url.matches("(.*)://vk.com/(.*)")) {
+            String screenName = url.substring(url.lastIndexOf("/") + 1);
+            String urlGetMessages = VK_API_METHOD_TEMPLATE + "users.get" +
+                    "?user_ids=" + screenName +
+                    "&version=" + version +
+                    "&access_token=" + communityToken;
+            try {
+                HttpGet httpGetMessages = new HttpGet(urlGetMessages);
+                HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                        .build();
+                HttpResponse httpResponse = httpClient.execute(httpGetMessages);
+                String entity = EntityUtils.toString(httpResponse.getEntity());
+                JSONArray users = new JSONObject(entity).getJSONArray("response");
+                result = Optional.of(users.getJSONObject(0).getLong("uid"));
+            } catch (IOException e) {
+                logger.error("Failed to connect to VK server", e);
+            } catch (JSONException e) {
+                logger.error("Can not read message from JSON", e);
+            }
+        }
+        return result;
     }
 
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
