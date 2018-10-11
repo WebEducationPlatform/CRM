@@ -7,6 +7,8 @@
 </head>
 <body>
 <div style="margin: 2%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
     <div class="col-md-6 col-md-offset-2">
 
         <div><h3>Настройки</h3></div>
@@ -37,9 +39,6 @@
 
     </div>
 
-
-    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
         <div id="change-profile-button">
             <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
@@ -63,10 +62,6 @@
             </button>
         </div>
         <br/>
-        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
-        <br/>
-        <br/>
-        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
