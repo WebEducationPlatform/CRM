@@ -33,4 +33,6 @@ public interface ClientRepositoryCustom {
 	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(LocalDateTime firstDay, LocalDateTime lastDay, ClientHistory.Type[] types, String title);
 
 	Long countByDate(String date);
+
+	List<Client> getClientsBySearchWord(String search);
 }

@@ -226,6 +226,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		}
 	}
 
+	@Override
+	public List<Client> getClientsBySearchWord(String search) {
+		return clientRepository.getClientsBySearchWord(search);
+	}
+
 	@Autowired
 	public void setSendNotificationService(SendNotificationService sendNotificationService) {
 		this.sendNotificationService = sendNotificationService;

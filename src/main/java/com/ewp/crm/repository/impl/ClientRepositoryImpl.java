@@ -235,4 +235,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
         return query.toString();
     }
+
+    @Override
+    public List<Client> getClientsBySearchWord(String search) {
+         return entityManager.createQuery("SELECT c FROM Client c WHERE c.name LIKE :search " +
+                 "OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search")
+        .setParameter("search", "%" + search + "%").getResultList();
+    }
 }

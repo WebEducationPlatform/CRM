@@ -1,38 +1,3 @@
-$(document).ready(
-    $("#searchInput").keyup(function () {
-        //split the current value of searchInput
-        let data = this.value.toLowerCase().split(" ");
-        //create a jquery object of the rows
-        let jo = $("#table-body").find("tr");
-        if (this.value.trim() === "") {
-            jo.show();
-            return;
-        }
-        jo.hide();
-
-        jo.filter(function () {
-            let $validCount = 0;
-            let $t = $(this);
-            let $temp = $t.clone();
-            $temp.text($temp.text().toLowerCase());
-            for (let d = 0; d < data.length; ++d) {
-                if ($temp.is(":contains('" + data[d] + "')")) {
-                    $validCount++;
-                }
-            }
-            return $validCount === data.length;
-        }).show();
-    }).focus(function () {
-        this.value = "";
-        $(this).css({
-            "color": "black"
-        });
-        $(this).unbind('focus');
-    }).css({
-        "color": "#C0C0C0"
-    })
-);
-
 var data = {};
 $('#filtration').click(function (){
     data = {};
@@ -232,4 +197,26 @@ $(document).ready(function () {
             )
         }
     }
+
+    $("#searchInput").keyup(function () {
+        let search = this.value.toLowerCase();
+        let table = $("#clients-table").find("tbody");
+        $.ajax({
+            type: 'GET',
+            url: "/rest/client/search",
+            data: {search:search},
+            success: function (response) {
+                table.empty();
+                drawClients(table, response);
+            }
+        })
+    }).focus(function () {
+        this.value = "";
+        $(this).css({
+            "color": "black"
+        });
+        $(this).unbind('focus');
+    }).css({
+        "color": "#C0C0C0"
+    })
 });
