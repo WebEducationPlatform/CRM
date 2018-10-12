@@ -32,10 +32,16 @@
         </form>
 
         <h1>Настройка оповещений о новых клиентах:</h1>
-
-        <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-            Включить/Выключить
-        </button>
+        <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Выключить
+            </button>
+        </div>
+        <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Включить
+            </button>
+        </div>
 
     </div>
 
