@@ -43,8 +43,9 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         logger.info("sending notification to all clients...");
         List<User> usersToNotify = userService.getAll();
         for (User user : usersToNotify) {
-            if (user.isNewClienNotifyIsEnabled())
+            if (user.isNewClienNotifyIsEnabled()) {
                 notificationService.add(new Notification(client, user, Notification.Type.NEW_USER));
+            }
         }
     }
 
