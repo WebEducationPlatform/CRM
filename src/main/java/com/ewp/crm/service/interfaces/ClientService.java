@@ -52,5 +52,5 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getAllClientsByPage(Pageable pageable);
 
-	List<Client> getClientsBySearchWord(String search);
+	List<Client> getClientsBySearchPhrase(String search);
 }

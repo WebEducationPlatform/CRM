@@ -366,7 +366,7 @@ public class ClientRestController {
 
 	@GetMapping(value = "/search")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity<List<Client>> getClientsBySearchWord(@RequestParam(name = "search") String search) {
-		return new ResponseEntity<>(clientService.getClientsBySearchWord(search), HttpStatus.OK);
+	public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
+		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
 	}
 }

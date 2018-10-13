@@ -34,5 +34,5 @@ public interface ClientRepositoryCustom {
 
 	Long countByDate(String date);
 
-	List<Client> getClientsBySearchWord(String search);
+	List<Client> getClientsBySearchPhrase(String search);
 }

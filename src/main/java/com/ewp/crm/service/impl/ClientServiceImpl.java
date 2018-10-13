@@ -227,8 +227,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public List<Client> getClientsBySearchWord(String search) {
-		return clientRepository.getClientsBySearchWord(search);
+	public List<Client> getClientsBySearchPhrase(String search) {
+		return clientRepository.getClientsBySearchPhrase(search);
 	}
 
 	@Autowired
