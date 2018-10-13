@@ -26,6 +26,8 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
+    private final String queryPattern = " (c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
+
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -237,9 +239,19 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientsBySearchWord(String search) {
-         return entityManager.createQuery("SELECT c FROM Client c WHERE c.name LIKE :search " +
-                 "OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search")
-        .setParameter("search", "%" + search + "%").getResultList();
+    public List<Client> getClientsBySearchPhrase(String search) {
+        StringBuilder searchString = new StringBuilder("SELECT c FROM Client c WHERE");
+        String[] searchWords = search.split(" ");
+        for (int i = 0; i < searchWords.length; i++) {
+            searchString.append(queryPattern.replace("search", "search" + i));
+            if (i != searchWords.length - 1) {
+                searchString.append("AND");
+            }
+        }
+        Query query = entityManager.createQuery(searchString.toString());
+        for (int i = 0; i < searchWords.length; i++) {
+            query.setParameter("search" + i, "%" + searchWords[i] + "%");
+        }
+        return query.getResultList();
     }
 }
