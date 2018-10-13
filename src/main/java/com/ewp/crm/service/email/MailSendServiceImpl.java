@@ -244,12 +244,14 @@ public class MailSendServiceImpl implements MailSendService {
                 mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
             }
             javaMailSender.send(mimeMessage);
-            Client clientEmail = clientService.getClientByEmail(recipient);
-            Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-            client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
-            clientService.updateClient(client);
+            if (principal != null) {
+                Client clientEmail = clientService.getClientByEmail(recipient);
+                Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+                client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
+                clientService.updateClient(client);
+            }
         } catch (Exception e) {
-            logger.error("Can't send mail to {}", recipient);
+            logger.error("Can't send mail to {}", recipient, e);
             throw new MessageTemplateException(e.getMessage());
         }
     }

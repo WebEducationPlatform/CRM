@@ -59,9 +59,11 @@ public class SMSServiceImpl implements SMSService {
 		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
 		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
 		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-		ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
-		clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
-		client.addHistory(clientHistory);
+		if (principal != null) {
+			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
+			clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
+			client.addHistory(clientHistory);
+		}
 		clientService.updateClient(client);
 		logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
 	}

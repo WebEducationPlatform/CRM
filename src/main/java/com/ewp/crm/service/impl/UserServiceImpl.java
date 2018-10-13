@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
@@ -16,6 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,11 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public User getByEmailOrPhone(String email, String phone) {
         return userDAO.getUserByEmailOrPhoneNumber(email, phone);
+    }
+
+    @Override
+    public List<User> getByRole(Role role) {
+        return userDAO.getUserByRole(role);
     }
 
     @Override

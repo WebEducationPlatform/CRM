@@ -8,7 +8,6 @@ import com.ewp.crm.service.interfaces.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,15 +19,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin")
 public class EmailController {
 
-	private final MessageTemplateService MessageTemplateService;
+	private final MessageTemplateService messageTemplateService;
 	private final ImageConfig imageConfig;
 	private final NotificationService notificationService;
 
 	@Autowired
-	public EmailController(MessageTemplateService MessageTemplateService,
+	public EmailController(MessageTemplateService messageTemplateService,
 						   ImageConfig imageConfig,
 						   NotificationService notificationService) {
-		this.MessageTemplateService = MessageTemplateService;
+		this.messageTemplateService = messageTemplateService;
 		this.imageConfig = imageConfig;
 		this.notificationService = notificationService;
 	}
@@ -37,9 +36,9 @@ public class EmailController {
 	@GetMapping(value = {"/editMessageTemplate/{templateId}"})
 	public ModelAndView editTemplatePage(@PathVariable("templateId") Long templateId,
 										 @AuthenticationPrincipal User userFromSession) {
-		MessageTemplate MessageTemplate = MessageTemplateService.get(templateId);
+		MessageTemplate messageTemplate = messageTemplateService.get(templateId);
 		ModelAndView modelAndView = new ModelAndView("edit-eTemplate");
-		modelAndView.addObject("template", MessageTemplate);
+		modelAndView.addObject("template", messageTemplate);
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		return modelAndView;

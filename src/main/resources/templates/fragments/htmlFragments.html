@@ -33,6 +33,8 @@
                 <li><a href="/student/all">Все студенты</a></li>
                 <li><a href="/student-status/all">Статусы обучения</a></li>
                 <li><a href="/client/mailing">Рассылка</a></li>
+                <li><a href="/client/editMailingTemplate">Шаблоны</a></li>
+
                 <li th:if="${#httpServletRequest.getRequestURI() == '/client'}" >
                    <div class="search-place">
                        <input id="search-clients" type="text" class="form-control" name="search" placeholder="Search" />

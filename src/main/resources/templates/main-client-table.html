@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
@@ -10,28 +10,44 @@
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 </head>
 <body>
-<div  style="margin: 4%">
+<div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-    <div id = "status-columns" class="status-columns">
+    <div id="status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}" th:if="${!status.invisible}">
+        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}"
+             th:if="${!status.invisible}">
             <div id="column-header">
-            <div class="btn-group">
-                <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog" data-toggle="dropdown">
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a id="add-client-in-status" class="glyphicon glyphicon-plus" th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
-                    <li  th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle" data-toggle="modal" th:value="${status.id}">Удалить статус</a></li>
-                    <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal" th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a></li>
-                    <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn" th:value="${status.id}">Скрыть</a></li>
-                    <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox" type="checkbox" th:value="${status.id}" th:checked="${status.createStudent}"/></a></li>
-                    <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i class="glyphicon glyphicon-chevron-right"></i></a>
-                        <ul class="dropdown-menu sub-menu">
-                            <li class="link-cursor-pointer" th:each="st:${statuses}" th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-status-position" th:value="${st.id}" th:text="${st.name}"></a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                <div class="btn-group">
+                    <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog"
+                            data-toggle="dropdown">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
+                               th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                        <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
+                                                       data-toggle="modal" th:value="${status.id}">Удалить статус</a>
+                        </li>
+                        <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
+                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a>
+                        </li>
+                        <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
+                               th:value="${status.id}">Скрыть</a></li>
+                        <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox"
+                                                                                         type="checkbox"
+                                                                                         th:value="${status.id}"
+                                                                                         th:checked="${status.createStudent}"/></a>
+                        </li>
+                        <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i
+                                class="glyphicon glyphicon-chevron-right"></i></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li class="link-cursor-pointer" th:each="st:${statuses}"
+                                    th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-status-position"
+                                                                                          th:value="${st.id}"
+                                                                                          th:text="${st.name}"></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
                 <div style="height: 25px">
                     <span th:text="${status.name}" th:if="${status.name.length() &lt; 15}"
                           style="font-size:20px"></span>
@@ -45,36 +61,42 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
-            <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
+            <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}"
+                 th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
+                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
-                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
+                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
+                                data-toggle="dropdown"></button>
                         <ul class="dropdown-menu">
                             <th:block>
-                                  <li class="dropdown-header">Назначить работника</li>
-                                         <li th:each="worker : ${users}">
-                                             <a th:text="${worker.fullName}" th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
-                                           </li>
-                                          <li class="divider"></li>
-                            </th:block>
-                                <li class="dropdown-header">Скрыть в статус</li>
-                                <li  th:each="inv_status:${statuses}" th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
-                                    <a  class="invisible-client" th:text="${inv_status.name}" th:attrappend="data-clientid=${client.id}, data-statusid=${inv_status.id}"></a>
+                                <li class="dropdown-header">Назначить работника</li>
+                                <li th:each="worker : ${users}">
+                                    <a th:text="${worker.fullName}"
+                                       th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
                                 </li>
-                                          <li class="divider"></li>
+                                <li class="divider"></li>
+                            </th:block>
+                            <li class="dropdown-header">Скрыть в статус</li>
+                            <li th:each="inv_status:${statuses}"
+                                th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
+                                <a class="invisible-client" th:text="${inv_status.name}"
+                                   th:attrappend="data-clientid=${client.id}, data-statusid=${inv_status.id}"></a>
+                            </li>
+                            <li class="divider"></li>
 
-                                          <li class="open-description-btn"  th:attr="data-id=${client.id}">
-                                                               <a>Добавить комментарий</a>
-                                                              </li>
+                            <li class="open-description-btn" th:attr="data-id=${client.id}">
+                                <a>Добавить комментарий</a>
+                            </li>
                             <th:block>
-                                         <li>
-                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с карточки</a>
-                                      </li>
+                                <li>
+                                    <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с карточки</a>
+                                </li>
                             </th:block>
                             <th:block>
-                            <li class="delete-client" th:attrappend="data-clientid=${client.id} ">
-                                <a>Удалить клиента</a>
-                            </li>
+                                <li class="delete-client" th:attrappend="data-clientid=${client.id} ">
+                                    <a>Удалить клиента</a>
+                                </li>
                             </th:block>
                         </ul>
                     </div>
@@ -94,7 +116,8 @@
                                th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
                                th:id="'own-' + ${client.id}">
                             </p>
-                            <p th:if="${client.ownerUser != null}" style="display:none" th:text="${client.ownerUser.fullName}"></p>
+                            <p th:if="${client.ownerUser != null}" style="display:none"
+                               th:text="${client.ownerUser.fullName}"></p>
 
                             <th:block th:each="notification_comment:${notifications_type_comment}">
                                 <th:block th:if="${notification_comment.client == client}">
@@ -128,33 +151,43 @@
                                 </th:block>
                             </th:block>
                         </div>
-                </div>
-                <div class="btn-group">
-                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
-                    </button>
-                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                        <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                            <a class="glyphicon glyphicon-ok portlet-send-btn" th:if="${!template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#sendTemplateModal'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                            <a class="glyphicon glyphicon-plus portlet-custom-btn" th:if="${template.hasBody()}" th:id  = "'eTemplateBtn' + ${template.id}" data-toggle="modal" th:attrappend="data-target='#customMessageTemplate'" th:text="' ' + ${template.name}" th:attrprepend="data-template-id=${template.id}"></a>
-                            <a th:href="'admin/editMessageTemplate/' +  ${template.id}">
-                                <button
-                                        type="button" data-toggle="modal" name = "editETemplateBtn" class="glyphicon glyphicon-edit">
-                                </button>
-                            </a>
-                        </li>
-                    </ul>
-                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+                    </div>
+                    <div class="btn-group">
+                        <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                        <button name="emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
+                        </button>
+                        <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                            <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                                <a class="glyphicon glyphicon-ok portlet-send-btn"
+                                   th:if="${!template.hasBody()}"
+                                   th:id="'eTemplateBtn' + ${template.id}"
+                                   data-toggle="modal"
+                                   th:attrappend="data-target='#sendTemplateModal'"
+                                   th:text="' ' + ${template.name}"
+                                   th:attrprepend="data-template-id=${template.id}"></a>
+                                <a class="glyphicon glyphicon-plus portlet-custom-btn"
+                                   th:if="${template.hasBody()}"
+                                   th:id="'eTemplateBtn' + ${template.id}"
+                                   data-toggle="modal" th:attrappend="
+                               data-target='#customMessageTemplate'"
+                                   th:text="' ' + ${template.name}"
+                                   th:attrprepend="data-template-id=${template.id}"></a>
+                              </li>
+                        </ul>
+                        <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
-                    <!-- SMS ERROR INFO BTN -->
-                    <th:block th:each="notification_sms:${notifications_type_sms}">
-                        <th:block th:if="${notification_sms.client == client}">
-                            <button type="button" style="color:red" class="glyphicon glyphicon-exclamation-sign sms-error-btn" th:attrappend="data-id=${client.id}"></button>
+                        <!-- SMS ERROR INFO BTN -->
+                        <th:block th:each="notification_sms:${notifications_type_sms}">
+                            <th:block th:if="${notification_sms.client == client}">
+                                <button type="button"
+                                        style="color:red"
+                                        class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                        th:attrappend="data-id=${client.id}"></button>
+                            </th:block>
                         </th:block>
-                    </th:block>
-                    <!--/ SMS ERROR INFO BTN -->
+                        <!--/ SMS ERROR INFO BTN -->
 
-                </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -162,11 +195,12 @@
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
-                    <input type="text" class="form-control" required = "required" id="new-status-name"
+                    <input type="text" class="form-control" required="required" id="new-status-name"
                            placeholder="Новый статус..."/>
                 </div>
                 <div class="form-actions">
-                    <button type="button" id="create-new-status" class="btn btn-success btn-sm" onclick="createNewStatus()">
+                    <button type="button" id="create-new-status" class="btn btn-success btn-sm"
+                            onclick="createNewStatus()">
                         Сохранить
                     </button>
                     <button type="button" id="create-new-status-cancelbtn" class="glyphicon glyphicon-remove"></button>
@@ -190,9 +224,14 @@
                     <div id="collapseStatuses" class="panel-collapse collapse">
                         <div class="panel-body">
                             <table class="table table-bordered">
-                                <tr th:each="status:${statuses}" th:style="${!status.invisible ? 'display:none' : ''}" th:if="${status.name != 'deleted'}">
+                                <tr th:each="status:${statuses}" th:style="${!status.invisible ? 'display:none' : ''}"
+                                    th:if="${status.name != 'deleted'}">
                                     <td width="70%" th:text="${status.name}"></td>
-                                    <td><button type="button" class="show-status-btn btn" id="testIdIdId" th:value="${status.id}">показать</button></td>
+                                    <td>
+                                        <button type="button" class="show-status-btn btn" id="testIdIdId"
+                                                th:value="${status.id}">показать
+                                        </button>
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -206,7 +245,8 @@
                     </div>
                     <div id="collapseFilter" class="panel-collapse collapse in">
                         <div class="panel-body" id="panel-filter-body">
-                            <button class="btn-style" type="button" id="showallbtn" onclick="showall()">Показать все</button>
+                            <button class="btn-style" type="button" id="showallbtn" onclick="showall()">Показать все
+                            </button>
                             <div class="checkbox menucheck" id="client_filter">
                                 <br/>
                             </div>
@@ -224,10 +264,11 @@
                                 <tr th:each="usr : ${users}">
                                     <div th:switch="${usr.enabled}">
                                         <p th:case="true">
-                                            <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        <td th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
                                         </p>
                                         <p th:case="false">
-                                            <td class="unEnabledUser" th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
+                                        <td class="unEnabledUser"
+                                            th:text="${usr.firstName} + ' ' + ${usr.lastName}"></td>
                                         </p>
                                     </div>
                                     <td class="editUserButtons">
@@ -277,6 +318,9 @@
                 <p><a href="/admin/vkontakte/trackedclub">
                     <button type="button" id="vkClubList">Отслеживаемые группы VK</button>
                 </a></p>
+                <p><a href="/admin/YouTubeLive">
+                    <button type="button" id="YouTubeLive">Отслеживаемая трансляция YouTube</button>
+                </a></p>
                 <p><a href="/report">
                     <button class="button" type="button" id="report">Отчет</button>
                 </a></p>
@@ -312,7 +356,8 @@
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript"

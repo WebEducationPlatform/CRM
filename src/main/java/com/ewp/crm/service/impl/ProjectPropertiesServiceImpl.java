@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProjectPropertiesServiceImpl implements ProjectPropertiesService {
+public class ProjectPropertiesServiceImpl extends CommonServiceImpl<ProjectProperties> implements ProjectPropertiesService {
 
     private final ProjectPropertiesRepository projectPropertiesRepository;
 
@@ -23,6 +23,15 @@ public class ProjectPropertiesServiceImpl implements ProjectPropertiesService {
 
     @Override
     public ProjectProperties get() {
-        return projectPropertiesRepository.getProjectPropertiesById(1L);
+        return get(1L);
+    }
+
+    @Override
+    public ProjectProperties getOrCreate() {
+        ProjectProperties result = get(1L);
+        if (result == null) {
+            result = add(new ProjectProperties());
+        }
+        return result;
     }
 }

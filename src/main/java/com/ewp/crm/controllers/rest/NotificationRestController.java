@@ -7,6 +7,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ public class NotificationRestController {
 	private final ClientService clientService;
 	private final NotificationService notificationService;
 	private final ClientHistoryService clientHistoryService;
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	public NotificationRestController(ClientService clientService,
@@ -86,6 +89,18 @@ public class NotificationRestController {
 					clientHistoryService.addHistory(clientHistory);
 				}
 			}
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
+	@PostMapping(value = "/comment/cleanAllNewUserNotify")
+	public ResponseEntity markAsReadAllNewUserNotify(@AuthenticationPrincipal User userFromSession) {
+	if (userFromSession.isNewClienNotifyIsEnabled())
+	    userFromSession.setNewClienNotifyIsEnabled(false);
+	else userFromSession.setNewClienNotifyIsEnabled(true);
+        userService.update(userFromSession);
+		List<Client> clients = clientService.getAllClients();
+		for (Client client : clients) {
+			notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}

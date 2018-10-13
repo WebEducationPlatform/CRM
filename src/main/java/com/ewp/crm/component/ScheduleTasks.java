@@ -9,6 +9,7 @@ import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.VKService;
 import com.ewp.crm.service.interfaces.*;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +33,10 @@ import java.util.Optional;
 public class ScheduleTasks {
 
 	private final VKService vkService;
+
+	private final PotentialClientService potentialClientService;
+
+	private final YouTubeTrackingCardService youTubeTrackingCardService;
 
 	private final ClientService clientService;
 
@@ -61,11 +68,13 @@ public class ScheduleTasks {
 
 	private final YoutubeClientService youtubeClientService;
 
-    private final AssignSkypeCallService assignSkypeCallService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
-    private final ReportService reportService;
+	private final ReportService reportService;
 
-    private final MessageTemplateService messageTemplateService;
+	private final MessageTemplateService messageTemplateService;
+
+	private final ProjectPropertiesService projectPropertiesService;
 
 	private Environment env;
 
@@ -76,8 +85,21 @@ public class ScheduleTasks {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
-	public ScheduleTasks(VKService vkService, ClientService clientService, StudentService studentService, StatusService statusService, MailingMessageRepository mailingMessageRepository, MailingService mailingService, SocialProfileService socialProfileService, SocialProfileTypeService socialProfileTypeService, SMSService smsService, SMSInfoService smsInfoService, SendNotificationService sendNotificationService, ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService, VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService, YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService, MailSendService mailSendService, Environment env, ReportService reportService, MessageTemplateService messageTemplateService) {
+	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
+	                     YouTubeTrackingCardService youTubeTrackingCardService,
+	                     ClientService clientService, StudentService studentService,
+	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
+	                     MailingService mailingService, SocialProfileService socialProfileService,
+	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+	                     MailSendService mailSendService, Environment env, ReportService reportService,
+	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
+		this.potentialClientService = potentialClientService;
+		this.youTubeTrackingCardService = youTubeTrackingCardService;
 		this.clientService = clientService;
 		this.studentService = studentService;
 		this.statusService = statusService;
@@ -94,11 +116,12 @@ public class ScheduleTasks {
 		this.youtubeService = youtubeService;
 		this.youtubeClientService = youtubeClientService;
 		this.assignSkypeCallService = assignSkypeCallService;
+		this.reportService = reportService;
 		this.env = env;
 		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
-		this.reportService = reportService;
 		this.messageTemplateService = messageTemplateService;
+		this.projectPropertiesService = projectPropertiesService;
 	}
 
 	private void addClient(Client newClient) {
@@ -156,10 +179,10 @@ public class ScheduleTasks {
 					logger.warn("E-mail message not sent");
 				}
 			}
-				assignSkypeCallService.delete(assignSkypeCall);
-				clientService.updateClient(client);
-			}
+			assignSkypeCallService.delete(assignSkypeCall);
+			clientService.updateClient(client);
 		}
+	}
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
@@ -189,12 +212,12 @@ public class ScheduleTasks {
 	private void findNewMembersAndSendFirstMessage() {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
-		for (VkTrackedClub vkTrackedClub: vkTrackedClubList) {
+		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
 			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-														   .orElseThrow(NotFoundMemberList::new);
+					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
-				if(!lastMemberList.contains(vkMember)){
+				if (!lastMemberList.contains(vkMember)) {
 					vkService.sendMessageById(vkMember.getVkId(), vkService.getFirstContactMessage());
 					vkMemberService.add(vkMember);
 					countNewMembers++;
@@ -226,7 +249,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
-			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(),client, client.getOwnerUser(), Notification.Type.POSTPONE);
+			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
 	}
@@ -236,7 +259,7 @@ public class ScheduleTasks {
 		LocalDateTime currentTime = LocalDateTime.now();
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
 		messages.forEach(x -> {
-			if(x.getDate().compareTo(currentTime) < 0) {
+			if (x.getDate().compareTo(currentTime) < 0) {
 				mailingService.sendMessage(x);
 			}
 		});
@@ -284,7 +307,7 @@ public class ScheduleTasks {
 			case "delivery error":
 				info = "Номер заблокирован или вне зоны";
 				break;
-			case "invalid mobile phone" :
+			case "invalid mobile phone":
 				info = "Неправильный формат номера";
 				break;
 			case "incorrect id":
@@ -298,60 +321,54 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 60_000)
 	private void handleYoutubeLiveStreams() {
-		if (!youtubeService.checkLiveStreamStatus()) {
-			youtubeService.handleYoutubeLiveChatMessages();
-		} else {
-			Optional<List<YoutubeClient>> youtubeClient = Optional.of(youtubeClientService.getAll());
-			if (youtubeClient.isPresent()) {
-				for (YoutubeClient client : youtubeClient.get()) {
-					Optional<Client> newClient = vkService.getClientFromYoutubeLiveStreamByName(client.getFullName());
-					if (newClient.isPresent()) {
-						SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-                        if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
-                            updateClient(newClient.get());
-                        } else {
-                            addClient(newClient.get());
-                        }
-					}
+		for (YouTubeTrackingCard youTubeTrackingCard : youTubeTrackingCardService.getAllByHasLiveStream(false)) {
+			youtubeService.handleYoutubeLiveChatMessages(youTubeTrackingCard);
+		}
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void getPotentialClientsFromYoutubeClients() {
+		for (YoutubeClient youtubeClient : youtubeClientService.getAllByChecked(false)) {
+			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
+			if (newPotentialClient.isPresent()) {
+				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
+				if (socialProfileService.getSocialProfileByLink(socialProfile.getLink()) == null) {
+					potentialClientService.addPotentialClient(newPotentialClient.get());
 				}
 			}
 		}
 	}
 
 	/**
-	 * Sends payment notification to students contacts.
-	 * Must be scheduled daily.
-	 * Occurs only on a Student nextPaymentDate day.
+	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(cron = "${payment.notification.polling.cron}")
+	@Scheduled(fixedRate = 360000)
 	private void sendPaymentNotifications() {
-		for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
-			String template = messageTemplateService.getByName("Оплата за обучение").getTemplateText();
-			User sender = new User();
-			sender.setLastName("Планировщик");
-			sender.setFirstName("задач");
-			Long clientId = student.getClient().getId();
-			if (student.isNotifyEmail()) {
-				try {
-					mailSendService.prepareAndSend(clientId, template, "", sender);
-				} catch (Exception e) {
-					logger.warn("E-mail message not sent", e);
+		ProjectProperties properties = projectPropertiesService.getOrCreate();
+		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
+			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.HOURS);
+			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
+			if (properties.isPaymentNotificationEnabled() && now.equals(time)) {
+				for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
+					MessageTemplate template = properties.getPaymentMessageTemplate();
+					Long clientId = student.getClient().getId();
+					if (student.isNotifyEmail()) {
+						mailSendService.prepareAndSend(clientId, template.getTemplateText(), "", null);
+					}
+					if (student.isNotifySMS()) {
+						try {
+							smsService.sendSMS(clientId, template.getOtherText(), "", null);
+						} catch (JSONException e) {
+							logger.info("Failed to sent SMS", e);
+						}
+					}
+					if (student.isNotifyVK()) {
+						vkService.sendMessageToClient(clientId, template.getOtherText(), "", null);
+					}
 				}
 			}
-			if (student.isNotifySMS()) {
-				try {
-					smsService.sendSMS(clientId, template, "", sender);
-				} catch (Exception e) {
-					logger.warn("SMS message not sent", e);
-				}
-			}
-			if (student.isNotifyVK()) {
-				try {
-					vkService.sendMessageToClient(clientId, template, "", sender);
-				} catch (Exception e) {
-					logger.warn("VK message not sent", e);
-				}
-			}
+		} else {
+			logger.info("Payment notification properties not set!");
 		}
 	}
 }
