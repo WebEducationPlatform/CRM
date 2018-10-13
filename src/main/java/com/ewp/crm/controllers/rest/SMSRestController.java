@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class SMSRestController {
 	                                         @RequestParam("date") String date,
 											 @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(id);
-		LocalDateTime utc = LocalDateTime.parse(date);
+		ZonedDateTime utc = ZonedDateTime.parse(date);
 		smsService.plannedSMS(client, message, utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")), userFromSession);
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body("Send Message");
@@ -83,7 +83,7 @@ public class SMSRestController {
 	                                         @RequestParam("date") String date,
 											 @AuthenticationPrincipal User userFromSession) {
 		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
-		LocalDateTime utc = LocalDateTime.parse(date);
+		ZonedDateTime utc = ZonedDateTime.parse(date);
 		smsService.plannedSMS(clients, message, utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")), userFromSession);
 		clientService.updateBatchClients(clients);
 		return ResponseEntity.status(HttpStatus.OK).body("Message send");

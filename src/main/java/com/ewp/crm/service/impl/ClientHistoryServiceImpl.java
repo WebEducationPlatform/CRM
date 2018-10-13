@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case POSTPONE:
 				title.append(" ");
 				title.append("(");
-				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
+				title.append(ZonedDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
 				title.append(")");
 				break;
 			case REMOVE_POSTPONE:
@@ -82,7 +82,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM 'в' HH:mm yyyy'г'")));
+				title.append(ZonedDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
 				title.append(")");
 				break;
 			case STATUS:

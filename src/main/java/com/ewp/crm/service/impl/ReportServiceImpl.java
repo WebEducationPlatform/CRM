@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -38,34 +35,34 @@ public class ReportServiceImpl implements ReportService {
 	private StatusService statusService;
 
 	public String buildReport(String date) {
-		LocalDateTime[] dates = parseTwoDate(date);
+		ZonedDateTime[] dates = parseTwoDate(date);
 		return formationOfReportsText(dates);
 	}
 
 	public String buildReportOfLastMonth() {
 		LocalDate today = LocalDate.now();
 		LocalDate firstDayMonth = today.minusDays(1).withDayOfMonth(1);
-		return formationOfReportsText(new LocalDateTime[]{LocalDateTime.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-				LocalDateTime.from(firstDayMonth.atStartOfDay(ZoneId.systemDefault()).toInstant())});
+		return formationOfReportsText(new ZonedDateTime[]{ZonedDateTime.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+				ZonedDateTime.from(firstDayMonth.atStartOfDay(ZoneId.systemDefault()).toInstant())});
 	}
 
-	private LocalDateTime[] parseTwoDate(String date) {
+	private ZonedDateTime[] parseTwoDate(String date) {
 		String date1 = date.substring(0, 10);
 		String date2 = date.substring(13, 23);
 		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		TemporalAccessor parse1 = format.parse(date1);
 		TemporalAccessor parse2 = format.parse(date2);
 		try {
-			LocalDateTime localDate1 = LocalDate.from(parse1).atStartOfDay();
-			LocalDateTime localDate2 = LocalDate.from(parse2).atStartOfDay().plusHours(23).plusMinutes(59).plusSeconds(59);
-			return new LocalDateTime[]{localDate1, localDate2};
+			ZonedDateTime localDate1 = LocalDate.from(parse1).atStartOfDay(ZoneId.systemDefault());
+			ZonedDateTime localDate2 = LocalDate.from(parse2).atStartOfDay(ZoneId.systemDefault()).plusHours(23).plusMinutes(59).plusSeconds(59);
+			return new ZonedDateTime[]{localDate1, localDate2};
 		} catch (DateTimeParseException e) {
 			logger.error("String \"" + date + "\" hasn't parsed");
 			return null;
 		}
 	}
 
-	private String formationOfReportsText(LocalDateTime[] dates) {
+	private String formationOfReportsText(ZonedDateTime[] dates) {
 		ReportsStatus reportsStatus = reportsStatusService.getAll().get(0);
 		String dropOutStatusName = statusService.get(reportsStatus.getDropOutStatus()).getName();
 		String endLearningName = statusService.get(reportsStatus.getEndLearningStatus()).getName();
@@ -73,8 +70,8 @@ public class ReportServiceImpl implements ReportService {
 		Status pauseLearnStatus = statusService.get(reportsStatus.getPauseLearnStatus());
 		Status trialLearnStatus = statusService.get(reportsStatus.getTrialLearnStatus());
 
-		LocalDateTime datePlusOneWeek = LocalDateTime.of(dates[0].toLocalDate(), LocalTime.MIN).minusWeeks(1);
-		List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(datePlusOneWeek, dates[1],
+//		ZonedDateTime datePlusOneWeek = ZonedDateTime.of(dates[0].toLocalDate(), LocalTime.MIN, ZoneId.systemDefault()).minusWeeks(1); todo зачем нужна была?
+		List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
 				new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
 
 		long countFirstPaymentClients = newClientPlusOneWeek.stream()
