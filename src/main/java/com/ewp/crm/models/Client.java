@@ -15,7 +15,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,7 +67,7 @@ public class Client implements Serializable, Diffable<Client> {
     private String comment;
 
     @Column(name = "postponeDate")
-    private LocalDateTime postponeDate;
+    private ZonedDateTime postponeDate;
 
     @Column(name = "can_call")
     private boolean canCall;
@@ -76,7 +77,7 @@ public class Client implements Serializable, Diffable<Client> {
     private State state;
 
     @Column(name = "date")
-    private LocalDateTime dateOfRegistration;
+    private ZonedDateTime dateOfRegistration;
 
     @OneToMany
     @JsonIgnore
@@ -158,16 +159,16 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private SlackProfile slackProfile;
 
-    public Client() {
-        this.state = State.NEW;
-        this.dateOfRegistration = LocalDateTime.now();
-    }
-
     @Column(name = "owner_call_skype")
     private Long ownerCallSkype;
 
     @Column(name = "date_call_skype")
     private Long dateCallSkype;
+
+	public Client() {
+		this.state = State.NEW;
+		this.dateOfRegistration = ZonedDateTime.now();
+	}
 
     public Client(String name, String lastName) {
         this();
@@ -196,7 +197,7 @@ public class Client implements Serializable, Diffable<Client> {
         this.sex = sex;
     }
 
-    public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, LocalDateTime dateOfRegistration) {
+    public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
         this.lastName = lastName;
@@ -299,11 +300,11 @@ public class Client implements Serializable, Diffable<Client> {
         this.email = email;
     }
 
-    public LocalDateTime getPostponeDate() {
+    public ZonedDateTime getPostponeDate() {
         return postponeDate;
     }
 
-    public void setPostponeDate(LocalDateTime postponeDate) {
+    public void setPostponeDate(ZonedDateTime postponeDate) {
         this.postponeDate = postponeDate;
     }
 
@@ -391,11 +392,11 @@ public class Client implements Serializable, Diffable<Client> {
         this.state = state;
     }
 
-    public LocalDateTime getDateOfRegistration() {
+    public ZonedDateTime getDateOfRegistration() {
         return dateOfRegistration;
     }
 
-    public void setDateOfRegistration(LocalDateTime dateOfRegistration) {
+    public void setDateOfRegistration(ZonedDateTime dateOfRegistration) {
         this.dateOfRegistration = dateOfRegistration;
     }
 

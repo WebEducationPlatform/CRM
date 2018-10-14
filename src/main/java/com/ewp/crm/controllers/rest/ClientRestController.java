@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -284,9 +286,9 @@ public class ClientRestController {
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
-			LocalDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter);
-			if (postponeDate.isBefore(LocalDateTime.now()) || postponeDate.isEqual(LocalDateTime.now())) {
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+			ZonedDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.systemDefault());
+			if (postponeDate.isBefore(ZonedDateTime.now()) || postponeDate.isEqual(ZonedDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}

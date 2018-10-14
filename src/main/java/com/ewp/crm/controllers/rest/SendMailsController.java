@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,7 +66,7 @@ public class SendMailsController {
                 break;
         }
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm МСК");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 
