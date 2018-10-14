@@ -86,17 +86,17 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-	                     YouTubeTrackingCardService youTubeTrackingCardService,
-	                     ClientService clientService, StudentService studentService,
-	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
-	                     MailingService mailingService, SocialProfileService socialProfileService,
-	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-	                     MailSendService mailSendService, Environment env, ReportService reportService,
-	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 YouTubeTrackingCardService youTubeTrackingCardService,
+						 ClientService clientService, StudentService studentService,
+						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
+						 MailingService mailingService, SocialProfileService socialProfileService,
+						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 MailSendService mailSendService, Environment env, ReportService reportService,
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -353,17 +353,13 @@ public class ScheduleTasks {
 					MessageTemplate template = properties.getPaymentMessageTemplate();
 					Long clientId = student.getClient().getId();
 					if (student.isNotifyEmail()) {
-						mailSendService.prepareAndSend(clientId, template.getTemplateText(), "", null);
+						mailSendService.sendSimpleNotification(clientId, template.getTemplateText());
 					}
 					if (student.isNotifySMS()) {
-						try {
-							smsService.sendSMS(clientId, template.getOtherText(), "", null);
-						} catch (JSONException e) {
-							logger.info("Failed to sent SMS", e);
-						}
+						smsService.sendSimpleSMS(clientId, template.getOtherText());
 					}
 					if (student.isNotifyVK()) {
-						vkService.sendMessageToClient(clientId, template.getOtherText(), "", null);
+						vkService.simpleVKNotification(clientId, template.getOtherText());
 					}
 				}
 			}

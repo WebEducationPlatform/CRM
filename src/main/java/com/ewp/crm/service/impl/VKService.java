@@ -208,6 +208,15 @@ public class VKService {
         return result;
     }
 
+    /**
+     * Send VK notification to client without logging and additional body parameters.
+     * @param clientId recipient client.
+     * @param templateText email template text.
+     */
+    public void simpleVKNotification(Long clientId, String templateText) {
+        sendMessageToClient(clientId, templateText, "", null);
+    }
+
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
         if (groupId == null) {
