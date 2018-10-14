@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -43,8 +42,9 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         logger.info("sending notification to all clients...");
         List<User> usersToNotify = userService.getAll();
         for (User user : usersToNotify) {
-            if (user.isNewClienNotifyIsEnabled())
+            if (user.isNewClienNotifyIsEnabled()) {
                 notificationService.add(new Notification(client, user, Notification.Type.NEW_USER));
+            }
         }
     }
 
