@@ -1,5 +1,6 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,9 +28,14 @@ public class SlackProfile {
     @Column(name = "email", unique = true)
     private String email;
 
-    @PrimaryKeyJoinColumn
+    @JsonIgnore
+    @JoinColumn (name = "client_id")
     @OneToOne
     private Client client;
+
+    @JsonProperty("hashName")
+    @Column(name = "hash_name")
+    private String hashName;
 
     public Long getId() {
         return id;
@@ -71,6 +77,14 @@ public class SlackProfile {
         this.email = email;
     }
 
+    public String getHashName() {
+        return hashName;
+    }
+
+    public void setHashName(String hashName) {
+        this.hashName = hashName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,12 +94,13 @@ public class SlackProfile {
                 Objects.equals(name, that.name) &&
                 Objects.equals(displayName, that.displayName) &&
                 Objects.equals(email, that.email) &&
-                Objects.equals(client, that.client);
+                Objects.equals(client, that.client) &&
+                Objects.equals(hashName, that.hashName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, displayName, email, client);
+        return Objects.hash(id, name, displayName, email, client, hashName);
     }
 
     @Override
@@ -96,6 +111,7 @@ public class SlackProfile {
                 ", displayName='" + displayName + '\'' +
                 ", email='" + email + '\'' +
                 ", client=" + client +
+                ", hashName='" + hashName + '\'' +
                 '}';
     }
 }

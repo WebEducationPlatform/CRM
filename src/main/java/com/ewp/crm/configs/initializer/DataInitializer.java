@@ -211,6 +211,13 @@ public class DataInitializer {
 					.orElseThrow(NotFoundMemberList::new);
 			vkMemberService.addAllMembers(memberList);
 		}
+
+        SlackProfile slackProfile = new SlackProfile();
+        slackProfile.setName("Вадим");
+        slackProfile.setHashName("UDDTKJ7PU");
+        client2.setSlackProfile(slackProfile);
+        slackProfile.setClient(client2);
+
 		clientService.addClient(client1);
 		clientService.addClient(client2);
 		clientService.addClient(client3);
