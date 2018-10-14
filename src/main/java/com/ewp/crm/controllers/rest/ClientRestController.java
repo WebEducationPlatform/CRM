@@ -363,4 +363,10 @@ public class ClientRestController {
 	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
 		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
 	}
+
+	@GetMapping(value = "/search")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
+		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
+	}
 }
