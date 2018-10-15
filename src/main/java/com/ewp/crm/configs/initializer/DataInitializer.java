@@ -214,7 +214,7 @@ public class DataInitializer {
 
         SlackProfile slackProfile = new SlackProfile();
         slackProfile.setName("Вадим");
-        slackProfile.setHashName("UDDTKJ7PU");
+        slackProfile.setHashName("U75SN67H8");
         client2.setSlackProfile(slackProfile);
         slackProfile.setClient(client2);
 
