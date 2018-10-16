@@ -342,7 +342,7 @@ public class ScheduleTasks {
 	/**
 	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(fixedRate = 360000)
+	@Scheduled(fixedRate = 3600000)
 	private void sendPaymentNotifications() {
 		ProjectProperties properties = projectPropertiesService.getOrCreate();
 		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
