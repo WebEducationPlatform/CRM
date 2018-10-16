@@ -265,6 +265,4 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
     }
-
-
 }
