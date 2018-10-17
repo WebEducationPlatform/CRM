@@ -110,6 +110,21 @@ $('#update-student').click(function () {
     });
 });
 
+//delete student by id
+$('.button_delete').click(function () {
+    if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
+    let student_id = this.value;
+    let url = "/rest/student/delete/" + student_id;
+    $.ajax({
+        type: 'POST',
+        url: url,
+        success: function () {
+            let row = "#row_" + student_id;
+            $(row).remove();
+        }
+    })
+});
+
 //Check prices consistency
 function validate_prices() {
     let price = parseInt($("#month-price").val());
@@ -205,3 +220,35 @@ function update_notification(checkbox_id, checked) {
         data: {status: checked}
     })
 }
+
+//Search on page
+$("#searchInput").keyup(function () {
+    let data = this.value.toLowerCase().split(" ");
+    let jo = $("#table-body").find("tr");
+    if (this.value.trim() === "") {
+        jo.show();
+        return;
+    }
+    jo.hide();
+
+    jo.filter(function () {
+        let $validCount = 0;
+        let $t = $(this);
+        let $temp = $t.clone();
+        $temp.text($temp.text().toLowerCase());
+        for (let d = 0; d < data.length; ++d) {
+            if ($temp.is(":contains('" + data[d] + "')")) {
+                $validCount++;
+            }
+        }
+        return $validCount === data.length;
+    }).show();
+}).focus(function () {
+    this.value = "";
+    $(this).css({
+        "color": "black"
+    });
+    $(this).unbind('focus');
+}).css({
+    "color": "#C0C0C0"
+});
