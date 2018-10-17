@@ -37,6 +37,7 @@ import java.util.*;
 public class VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
+    private final YoutubeClientService youtubeClientService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
     private final ClientService clientService;
@@ -66,10 +67,9 @@ public class VKService {
     private String robotUsername;
     private String robotPassword;
     private String firstContactMessage;
-    private String targetVkGroup;
 
     @Autowired
-    public VKService(VKConfig vkConfig, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+    public VKService(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
         clubId = vkConfig.getClubId();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -77,7 +77,7 @@ public class VKService {
         display = vkConfig.getDisplay();
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
-        targetVkGroup = vkConfig.getTargetVkGroup();
+        this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
         this.clientService = clientService;
@@ -142,7 +142,7 @@ public class VKService {
         return Optional.empty();
     }
 
-    public String sendMessageToClient(Long clientId, String templateText, String body, User principal) {
+    public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
         Client client = clientService.getClientByID(clientId);
         String fullName = client.getName() + " " + client.getLastName();
         Map<String, String> params = new HashMap<>();
@@ -153,24 +153,69 @@ public class VKService {
         for (SocialProfile socialProfile : socialProfiles) {
             if (socialProfile.getSocialProfileType().getName().equals("vk")) {
                 String link = socialProfile.getLink();
-                Long id = Long.parseLong(link.replaceAll(".+id", ""));
-                String vkText = replaceName(templateText, params);
-                User user = userService.get(principal.getId());
-                String token = user.getVkToken();
-                if (token == null) {
-                    token = communityToken;
+                Optional<Long> optId = getVKIdByUrl(link);
+                if (optId.isPresent()) {
+                    Long id = optId.get();
+                    String vkText = replaceName(templateText, params);
+                    String token = communityToken;
+                    if (principal != null) {
+                        User user = userService.get(principal.getId());
+                        if (user.getVkToken() != null) {
+                            token = user.getVkToken();
+                        }
+                        Message message = messageService.addMessage(Message.Type.VK, vkText);
+                        client.addHistory(clientHistoryService.createHistory(principal, client, message));
+                        clientService.updateClient(client);
+                    }
+                    sendMessageById(id, vkText, token);
+                } else {
+                    logger.info("{} has wrong VK url {}", client.getEmail(), link);
                 }
-                String responseMessage = sendMessageById(id, vkText, token);
-                Message message = messageService.addMessage(Message.Type.VK, vkText);
-                client.addHistory(clientHistoryService.createHistory(principal, client, message));
-                clientService.updateClient(client);
-                return responseMessage;
             }
         }
-        logger.error("{} hasn't vk social network", client.getEmail());
-        return client.getName() + " hasn't vk social network";
     }
 
+    /**
+     * Get user VK id by profile url.
+     * @param url user profile url.
+     * @return optional of user VK id.
+     */
+    private Optional<Long> getVKIdByUrl(String url) {
+        Optional<Long> result = Optional.empty();
+        if (url.matches("(.*)://vk.com/id(\\d*)")) {
+            result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
+        } else if (url.matches("(.*)://vk.com/(.*)")) {
+            String screenName = url.substring(url.lastIndexOf("/") + 1);
+            String urlGetMessages = VK_API_METHOD_TEMPLATE + "users.get" +
+                    "?user_ids=" + screenName +
+                    "&version=" + version +
+                    "&access_token=" + communityToken;
+            try {
+                HttpGet httpGetMessages = new HttpGet(urlGetMessages);
+                HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                        .build();
+                HttpResponse httpResponse = httpClient.execute(httpGetMessages);
+                String entity = EntityUtils.toString(httpResponse.getEntity());
+                JSONArray users = new JSONObject(entity).getJSONArray("response");
+                result = Optional.of(users.getJSONObject(0).getLong("uid"));
+            } catch (IOException e) {
+                logger.error("Failed to connect to VK server", e);
+            } catch (JSONException e) {
+                logger.error("Can not read message from JSON", e);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Send VK notification to client without logging and additional body parameters.
+     * @param clientId recipient client.
+     * @param templateText email template text.
+     */
+    public void simpleVKNotification(Long clientId, String templateText) {
+        sendMessageToClient(clientId, templateText, "", null);
+    }
 
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
@@ -212,7 +257,7 @@ public class VKService {
 
 
     public String sendMessageById(Long id, String msg, String token) {
-        logger.info("VKService: sending message to client with id {}...",id);
+        logger.info("VKService: sending message to client with id {}...", id);
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -496,49 +541,93 @@ public class VKService {
         return firstContactMessage;
     }
 
-    public Optional<Client> getClientFromYoutubeLiveStreamByName(String name) {
-        logger.info("VKService: getting client from YouTube Live Stream by name...");
-        String fullName = name.replaceAll("(?U)[\\pP\\s]", "%20");
-        String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
-                "q=" + fullName +
-                "&count=1" +
-                "&group_id=" + targetVkGroup +
-                "&v=" + version +
-                "&access_token=" + technicalAccountToken;
-
-        HttpGet httpGetClient = new HttpGet(uriGetClient);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
-        try {
-            HttpResponse response = httpClient.execute(httpGetClient);
-            String result = EntityUtils.toString(response.getEntity());
-            JSONObject json = new JSONObject(result);
-            JSONObject responseObject = json.getJSONObject("response");
-
-            if (responseObject.getString("count").equals("0")) {
-                logger.warn("VKService: response is empty");
-                return Optional.empty();
-            } else {
-                logger.info("VKService: processing of response...");
-                JSONArray jsonUsers = responseObject.getJSONArray("items");
-                JSONObject jsonUser = jsonUsers.getJSONObject(0);
-                long id = jsonUser.getLong("id");
-                String firstName = jsonUser.getString("first_name");
-                String lastName = jsonUser.getString("last_name");
-                String vkLink = "https://vk.com/id" + id;
-                Client client = new Client(firstName, lastName);
-                SocialProfile socialProfile = new SocialProfile(vkLink);
-                List<SocialProfile> socialProfiles = new ArrayList<>();
-                socialProfiles.add(socialProfile);
-                client.setSocialProfiles(socialProfiles);
-                return Optional.of(client);
+    public boolean hasTechnicalAccountToken() {
+        if (technicalAccountToken == null) {
+            if (projectPropertiesService.get() == null) {
+                logger.error("VK access token has not got");
+                return false;
             }
-        } catch (JSONException e) {
-            logger.error("Can not read message from JSON or YoutubeClient don't exist in VK group", e);
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server ", e);
+            technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken();
+        }
+        return true;
+    }
+
+    public String getLongIDFromShortName(String vkGroupShortName) {
+        if (hasTechnicalAccountToken()) {
+            String uriGetGroup = VK_API_METHOD_TEMPLATE + "groups.getById?" +
+                    "group_id=" + vkGroupShortName +
+                    "&v=" + version +
+                    "&access_token=" + technicalAccountToken;
+            HttpGet httpGetGroup = new HttpGet(uriGetGroup);
+            HttpClient httpClient = HttpClients.custom()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            try {
+                HttpResponse response = httpClient.execute(httpGetGroup);
+                String result = EntityUtils.toString(response.getEntity());
+                JSONObject json = new JSONObject(result);
+                JSONArray responseObjects = json.getJSONArray("response");
+                JSONObject responseObject = responseObjects.getJSONObject(0);
+                String id = responseObject.getString("id");
+                return id;
+            } catch (JSONException e) {
+                logger.error("Can not read message from JSON", e);
+            } catch (IOException e) {
+                logger.error("Failed to connect to VK server ", e);
+            }
+        }
+        return null;
+    }
+
+    public Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient) {
+        if (hasTechnicalAccountToken()) {
+            youtubeClient.setChecked(true);
+            youtubeClientService.update(youtubeClient);
+            String fullName = youtubeClient.getFullName().replaceAll("(?U)[\\pP\\s]", "%20");
+            logger.info("VKService: getting client from YouTube Live Stream by name: " + fullName);
+            String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
+                    "q=" + fullName +
+                    "&count=1" +
+                    "&group_id=" + youtubeClient.getYouTubeTrackingCard().getVkGroupID() +
+                    "&v=" + version +
+                    "&access_token=" + technicalAccountToken;
+
+            HttpGet httpGetClient = new HttpGet(uriGetClient);
+            HttpClient httpClient = HttpClients.custom()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            try {
+                HttpResponse response = httpClient.execute(httpGetClient);
+                String result = EntityUtils.toString(response.getEntity());
+                JSONObject json = new JSONObject(result);
+                JSONObject responseObject = json.getJSONObject("response");
+
+                if (responseObject.getString("count").equals("0")) {
+                    logger.warn("VKService: response is empty");
+                    return Optional.empty();
+                } else {
+                    logger.info("VKService: processing of response...");
+                    JSONArray jsonUsers = responseObject.getJSONArray("items");
+                    JSONObject jsonUser = jsonUsers.getJSONObject(0);
+                    long id = jsonUser.getLong("id");
+                    String firstName = jsonUser.getString("first_name");
+                    String lastName = jsonUser.getString("last_name");
+                    String vkLink = "https://vk.com/id" + id;
+                    PotentialClient potentialClient = new PotentialClient(firstName, lastName);
+                    SocialProfile socialProfile = new SocialProfile(vkLink);
+                    socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
+                    List<SocialProfile> socialProfiles = new ArrayList<>();
+                    socialProfiles.add(socialProfile);
+                    potentialClient.setSocialProfiles(socialProfiles);
+                    return Optional.of(potentialClient);
+                }
+            } catch (JSONException e) {
+                logger.error("Can not read message from JSON or YoutubeClient don't exist in VK group", e);
+            } catch (IOException e) {
+                logger.error("Failed to connect to VK server ", e);
+            }
         }
         return Optional.empty();
     }
