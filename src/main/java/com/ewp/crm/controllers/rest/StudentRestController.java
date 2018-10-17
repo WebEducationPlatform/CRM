@@ -67,6 +67,12 @@ public class StudentRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/delete/{id}")
+    public HttpStatus deleteStudent(@PathVariable("id") Long id) {
+        studentService.delete(id);
+        return HttpStatus.OK;
+    }
+
     @GetMapping ("/{id}/client")
     public ResponseEntity<Client> getClientByStudentId(@PathVariable("id") Long id) {
         ResponseEntity result;

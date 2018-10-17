@@ -66,6 +66,7 @@ $('#create_student_status').click(function () {
 
 //Delete Student status button action
 $('.button_delete_status').click(function () {
+    if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
     let status_id = this.value;
     $.ajax({
         type: 'GET',
