@@ -1,7 +1,7 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface ClientRepositoryCustom {
@@ -28,9 +28,9 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 
-	List<Client> getClientByHistoryTimeIntervalAndHistoryType(LocalDateTime firstDay, LocalDateTime lastDay, ClientHistory.Type[] types);
+	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
 
-	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(LocalDateTime firstDay, LocalDateTime lastDay, ClientHistory.Type[] types, String title);
+	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title);
 
 	Long countByDate(String date);
 }

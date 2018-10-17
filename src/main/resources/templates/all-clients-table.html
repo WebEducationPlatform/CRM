@@ -124,7 +124,8 @@
                     <td th:text="${client.city}"></td>
                     <td th:text="${client.country}"></td>
                     <td th:text="${client.status.name}"></td>
-                    <td th:text="${#temporals.format(client.dateOfRegistration, 'dd.MM.yyyy HH:mm')}"></td>
+                    <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
+                    <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
                     <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                             <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}"> Вернуть </button>

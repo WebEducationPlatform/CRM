@@ -12,6 +12,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(LocalDateTime firstDay, LocalDateTime lastDay, ClientHistory.Type[] types) {
+    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types) {
         return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
@@ -56,7 +57,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .getResultList();
     }
 
-    public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(LocalDateTime firstDay, LocalDateTime lastDay, ClientHistory.Type[] types, String title) {
+    public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title) {
         return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
