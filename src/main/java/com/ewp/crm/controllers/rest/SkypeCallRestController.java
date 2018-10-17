@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -50,13 +51,15 @@ public class SkypeCallRestController {
 		Client client = clientService.getClientByID(clientId);
 		try {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
-			LocalDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter);
-			LocalDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1);
-			if (dateOfSkypeCall.isBefore(LocalDateTime.now()) || dateOfSkypeCall.isEqual(LocalDateTime.now())) {
+			ZonedDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
+			ZonedDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1).atZone(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
+			ZonedDateTime zonedDateTimeNow = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
+			if (dateOfSkypeCall.isBefore(zonedDateTimeNow) || dateOfSkypeCall.isEqual(zonedDateTimeNow)) {
 				logger.info("Incorrect date set: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(remindBeforeSkypeCall, client.getSkype(), principal, LocalDateTime.now(), client, selectNetwork);
+			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(remindBeforeSkypeCall, client.getSkype(), principal, ZonedDateTime.now(), client, selectNetwork);
+			client.setDateNotifyCallSkypeNotify(dateOfSkypeCall);
 			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE));
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			logger.info("{} assign skype client id:{} until {}", principal.getFullName(), client.getId(), date);
@@ -91,7 +94,7 @@ public class SkypeCallRestController {
 		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		client.setOwnerCallSkype(user.getId());
-		client.setDateCallSkype(startDate);
+		client.setDateCallSkype(LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.of("+00:00")));
 		clientService.updateClient(client);
         try {
             calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
@@ -108,7 +111,7 @@ public class SkypeCallRestController {
         User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
-		client.setDateCallSkype(startDate);
+		client.setDateCallSkype(Instant.ofEpochMilli(startDate).atZone(ZoneId.systemDefault()).toLocalDateTime());
 		clientService.updateClient(client);
         return ResponseEntity.ok(HttpStatus.OK);
     }

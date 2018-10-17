@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -167,7 +168,10 @@ public class Client implements Serializable, Diffable<Client> {
     private Long ownerCallSkype;
 
     @Column(name = "date_call_skype")
-    private Long dateCallSkype;
+    private LocalDateTime dateCallSkype;
+
+    @Column(name = "date_notify_call_skype")
+    private ZonedDateTime dateNotifyCallSkypeNotify;
 
     public Client(String name, String lastName) {
         this();
@@ -239,11 +243,19 @@ public class Client implements Serializable, Diffable<Client> {
         this.clientDescriptionComment = clientDescriptionComment;
     }
 
-    public Long getDateCallSkype() {
+    public ZonedDateTime getDateNotifyCallSkypeNotify() {
+        return dateNotifyCallSkypeNotify;
+    }
+
+    public void setDateNotifyCallSkypeNotify(ZonedDateTime dateNotifyCallSkypeNotify) {
+        this.dateNotifyCallSkypeNotify = dateNotifyCallSkypeNotify;
+    }
+
+    public LocalDateTime getDateCallSkype() {
         return dateCallSkype;
     }
 
-    public void setDateCallSkype(Long dateCallSkype) {
+    public void setDateCallSkype(LocalDateTime dateCallSkype) {
         this.dateCallSkype = dateCallSkype;
     }
 

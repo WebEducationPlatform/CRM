@@ -24,9 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -102,8 +100,15 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         try {
             com.google.api.services.calendar.model.Calendar calendar =
                     client.calendars().get(calendarMentor).execute();
+
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-            String formattedDateOld = ZonedDateTime.ofInstant(Instant.ofEpochMilli(oldDate), ZoneId.systemDefault()).format(outputFormatter);
+            String formattedDateOld = ZonedDateTime.ofInstant(
+                    Instant.ofEpochMilli(oldDate),
+                    ZoneId.systemDefault()).withZoneSameLocal(ZoneId.of("+03:00"))
+                    .withZoneSameInstant(ZoneId.systemDefault())
+                    .format(outputFormatter);
+
+            newDate = Instant.ofEpochMilli(newDate).atZone(ZoneId.systemDefault()).toLocalDateTime().toInstant(ZoneOffset.UTC).toEpochMilli();
 
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
             Event newEvent = newEvent(newDate, skype);
@@ -126,11 +131,16 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
 
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-            String formattedDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.systemDefault()).format(outputFormatter);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            String format = ZonedDateTime.ofInstant(
+                    Instant.ofEpochMilli(date),
+                    ZoneId.systemDefault())
+                    .withZoneSameLocal(ZoneId.of("+03:00"))
+                    .withZoneSameInstant(ZoneId.systemDefault())
+                    .format(dateTimeFormatter);
 
             for (int i = 0; i < eventAll.size(); i++) {
-                if (eventAll.get(i).getStart().toString().contains(formattedDate)) {
+                if (eventAll.get(i).getStart().toString().contains(format)) {
                     return true;
                 }
             }
@@ -143,9 +153,15 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     private Event newEvent(Long startDate, String skype) {
         Event event = new Event();
         event.setSummary("Skype(crm) - " + skype);
-        DateTime start = new DateTime(startDate);
+
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String format = ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(startDate),
+                ZoneId.of("+00:00")).minusHours(3).format(outputFormatter);
+
+        DateTime start = new DateTime(format);
         event.setStart(new EventDateTime().setDateTime(start));
-        DateTime end = new DateTime(startDate);
+        DateTime end = new DateTime(format);
         event.setEnd(new EventDateTime().setDateTime(end));
         return event;
     }

@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Entity
@@ -17,10 +18,10 @@ public class AssignSkypeCall {
 	private String login;
 
 	@Column(name = "assign_skype_call_created_time")
-	private LocalDateTime createdTime;
+	private ZonedDateTime createdTime;
 
 	@Column(name = "remind_before_of_skype_call")
-	private LocalDateTime remindBeforeOfSkypeCall;
+	private ZonedDateTime remindBeforeOfSkypeCall;
 
 	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
@@ -37,10 +38,10 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
-	public AssignSkypeCall(LocalDateTime remindBeforeOfSkypeCall,
+	public AssignSkypeCall(ZonedDateTime remindBeforeOfSkypeCall,
 						   String login,
 						   User fromAssignSkypeCall,
-						   LocalDateTime createdTime,
+						   ZonedDateTime createdTime,
 						   Client toAssignSkypeCall,
 						   String selectNetworkForNotifications) {
 		this.login = login;
@@ -49,6 +50,9 @@ public class AssignSkypeCall {
 		this.selectNetworkForNotifications = selectNetworkForNotifications;
 		this.fromAssignSkypeCall = fromAssignSkypeCall;
 		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
+
+	public AssignSkypeCall() {
 	}
 
 	public Long getId() {
@@ -67,19 +71,19 @@ public class AssignSkypeCall {
 		this.login = login;
 	}
 
-	public LocalDateTime getCreatedTime() {
+	public ZonedDateTime getCreatedTime() {
 		return createdTime;
 	}
 
-	public void setCreatedTime(LocalDateTime createdTime) {
+	public void setCreatedTime(ZonedDateTime createdTime) {
 		this.createdTime = createdTime;
 	}
 
-	public LocalDateTime getRemindBeforeOfSkypeCall() {
+	public ZonedDateTime getRemindBeforeOfSkypeCall() {
 		return remindBeforeOfSkypeCall;
 	}
 
-	public void setRemindBeforeOfSkypeCall(LocalDateTime remindBeforeOfSkypeCall) {
+	public void setRemindBeforeOfSkypeCall(ZonedDateTime remindBeforeOfSkypeCall) {
 		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
 	}
 
