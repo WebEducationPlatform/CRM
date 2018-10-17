@@ -91,4 +91,14 @@ public class MessageTemplate {
 		result = 31 * result + (getOtherText() != null ? getOtherText().hashCode() : 0);
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "MessageTemplate{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", templateText='" + templateText + '\'' +
+				", otherText='" + otherText + '\'' +
+				'}';
+	}
 }

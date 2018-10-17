@@ -30,6 +30,19 @@
             <br/>
             <button type="submit" class="btn btn-primary pull-right" role="button">Сохранить</button>
         </form>
+
+        <h1>Настройка оповещений о новых клиентах:</h1>
+        <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Выключить
+            </button>
+        </div>
+        <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Включить
+            </button>
+        </div>
+
     </div>
 
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
@@ -50,8 +63,21 @@
         <br/>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pul" data-toggle="modal" data-target="#choice-status-column-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
                 Статус клиента не студента
+            </button>
+        </div>
+        <br/>
+        <div class="inline">
+            <form class="form" method="get" action="/login/google">
+                <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
+            </form>
+        </div>
+        <br/>
+        <br/>
+        <div id="payment-notification-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal">
+                Оповещение об оплате
             </button>
         </div>
     </div>
@@ -121,7 +147,10 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 </body>
 </html>

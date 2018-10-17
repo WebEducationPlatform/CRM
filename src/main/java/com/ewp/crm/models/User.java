@@ -63,6 +63,9 @@ public class User implements UserDetails {
 	@Column(name = "is_enabled")
 	private boolean isEnabled;
 
+	@Column(name = "new_client_notify_is_enabled")
+	private boolean newClienNotifyIsEnabled = true;
+
 	@Column(name = "is_verified")
 	private boolean isVerified;
 
@@ -71,6 +74,10 @@ public class User implements UserDetails {
 
 	@Column(name = "vkToken")
 	private String vkToken;
+
+	@Column(name = "googleToken")
+	private String googleToken;
+
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
@@ -121,6 +128,14 @@ public class User implements UserDetails {
 
 	public void setVkToken(String vkToken) {
 		this.vkToken = vkToken;
+	}
+
+	public String getGoogleToken() {
+		return googleToken;
+	}
+
+	public void setGoogleToken(String googleToken) {
+		this.googleToken = googleToken;
 	}
 
 	public Long getId() {
@@ -278,6 +293,14 @@ public class User implements UserDetails {
 
 	public void setOwnedClients(List<Client> ownedClients) {
 		this.ownedClients = ownedClients;
+	}
+
+	public boolean isNewClienNotifyIsEnabled() {
+		return newClienNotifyIsEnabled;
+	}
+
+	public void setNewClienNotifyIsEnabled(boolean newClienNotifyIsEnabled) {
+		this.newClienNotifyIsEnabled = newClienNotifyIsEnabled;
 	}
 
 	@Override

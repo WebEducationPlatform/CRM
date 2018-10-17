@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+</head>
+
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+<div class="container">
+    <div class="container">
+        <div class="templContainer">
+            <div><h3>Редактирование шаблонов</h3></div>
+
+            <th:block th:if="${emailTmpl.size()!=0}">
+            <th:block th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                <table class="table">
+                    <tbody id="table-body">
+                    <tr>
+                        <td class="col-md-2" th:if="${!template.hasBody()}"
+                            th:id="'eTemplateBtn' + ${template.id}"
+                            data-toggle="modal"
+                            th:attrappend="data-target='#sendTemplateModal'"
+                            th:text="' ' + ${template.name}"
+                            th:attrprepend="data-template-id=${template.id}"></td>
+                        <td class="col-md-2" th:if="${template.hasBody()}"
+                            th:id="'eTemplateBtn' + ${template.id}"
+                            data-toggle="modal" th:attrappend="
+                       data-target='#customMessageTemplate'"
+                            th:text="' ' + ${template.name}"
+                            th:attrprepend="data-template-id=${template.id}">></td>
+                        <td class="col-md-1">
+                            <a class="button_edit_status btn btn-info"
+                                    th:href="'/admin/editMessageTemplate/' +  ${template.id}">Редактировать
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </th:block>
+        </th:block>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -10,6 +10,13 @@ public interface MailSendService {
 
     void prepareAndSend(Long clientId, String templateText, String body, User principal);
 
+    /**
+     * Send email notification to client without logging and additional body parameters.
+     * @param clientId recipient client.
+     * @param templateText email template text.
+     */
+    void sendSimpleNotification(Long clientId, String templateText);
+
     void sendNotificationMessage(User userToNotify, String notificationMessage);
 
     void sendNotificationMessageYourself(String notificationMessage);

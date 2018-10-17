@@ -61,10 +61,10 @@ public class ClientRestController {
 	@GetMapping(value = "/pagination/get")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getClients(@RequestParam int page) {
-		List<Client> clients = clientService.getAllClientsByPage(new PageRequest(page, pageSize));
+		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
 		if (clients == null || clients.isEmpty()) {
 			logger.error("No more clients");
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(clients);
 	}
@@ -364,5 +364,11 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
 		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/search")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
+		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
 	}
 }

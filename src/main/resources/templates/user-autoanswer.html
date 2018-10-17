@@ -10,27 +10,32 @@
 </head>
 <body>
 <div class="container">
-    <a class="btn btn-primary pull" href="/user/customize">Назад</a>
-    <form class="form" method="post" action="/user/autoAnswer">
-        <div>
-            <div class="container">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="body">Автоматический ответ</label>
-                        <textarea id="body" required="required" class="form-control" rows="5"
-                                  name="text"
-                                  th:text="${userCustomize.autoAnswer}">test</textarea>
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+
+<div class="container">
+   <div class="autoanswer">
+        <form class="form" method="post" action="/user/autoAnswer">
+            <div>
+                <div class="container">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="body">Автоматический ответ</label>
+                            <textarea id="body" required="required" class="form-control" rows="5"
+                                      name="text"
+                                      th:text="${userCustomize.autoAnswer}">test</textarea>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div>
-            <input class="btn-primary btn-sm" type="submit"
-                   role="button"
-                   value="Сохранить"/>
-        </div>
-    </form>
-</div>
+            <div>
+                <input class="btn-primary btn-sm" type="submit"
+                       role="button"
+                       value="Сохранить"/>
+            </div>
+        </form>
+    </div>
+ </div>
 <!-- Модальное окно для получения информации -->
 <div class="modal fade" id="infoModal" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
