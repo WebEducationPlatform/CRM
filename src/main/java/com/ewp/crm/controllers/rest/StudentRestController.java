@@ -68,7 +68,10 @@ public class StudentRestController {
     }
 
     @PostMapping("/delete/{id}")
-    public HttpStatus deleteStudent(@PathVariable("id") Long id) {
+    public HttpStatus deleteStudent(@PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
+        Client client = studentService.get(id).getClient();
+        client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT));
+        clientService.updateClient(client);
         studentService.delete(id);
         return HttpStatus.OK;
     }
