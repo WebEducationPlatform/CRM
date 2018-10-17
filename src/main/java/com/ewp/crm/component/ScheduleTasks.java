@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -154,7 +155,7 @@ public class ScheduleTasks {
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
-			String dateOfSkypeCall = LocalDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
+			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
 					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
 

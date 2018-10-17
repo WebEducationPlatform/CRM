@@ -1157,6 +1157,7 @@ function updateCallDate(id) {
         success: function (client) {
             var date = new Date(client.dateCallSkype);
             var oldDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() , 0, 0);
+            var startDate = moment(oldDate);
             btnBlockTask.attr('id', 'assign-skype' + clientId);
             // Get the list of mentors
             $.ajax({
@@ -1204,7 +1205,7 @@ function updateCallDate(id) {
                 locale: {
                     format: 'DD.MM.YYYY HH:mm МСК'
                 },
-                minDate: 0,
+                minDate: startDate,
                 startDate: oldDate
             });
             startDateOld = oldDate;
@@ -1338,7 +1339,7 @@ function assignSkype(id) {
                 currentStatus.text("Введите Skype пользователя");
                 currentStatus.after('<input class="enter-skype-login form-control"> </input>');
                 $('.enter-skype-login').after('<br/>' + '<button onclick="confirmSkype(' + id + ')" type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
-            } else {
+            } else {updateCallDate
                 // Get the list of mentors
                 $.ajax({
                     type: 'GET',
@@ -1381,7 +1382,7 @@ function assignSkype(id) {
                     locale: {
                         format: 'DD.MM.YYYY HH:mm МСК'
                     },
-                    minDate: 0,
+                    minDate: startDate,
                     startDate: startDateOld
                 });
             }
@@ -1404,6 +1405,7 @@ function confirmSkype(id) {
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     var skypeLogin = $('.enter-skype-login').val();
     var formData = {clientId: clientId, skypeLogin: skypeLogin};
+    var startDate = moment(minDate).utcOffset(180);
     $.ajax({
         type: 'POST',
         url: 'rest/client/setSkypeLogin',
@@ -1457,7 +1459,7 @@ function confirmSkype(id) {
                 locale: {
                     format: 'DD.MM.YYYY HH:mm МСК'
                 },
-                minDate: 0,
+                minDate: startDate,
                 startDate: startDateOld
             });
         },
