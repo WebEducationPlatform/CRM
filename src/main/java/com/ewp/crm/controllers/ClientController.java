@@ -132,12 +132,4 @@ public class ClientController {
 		return new ModelAndView("webrtrc");
 	}
 
-	@GetMapping(value = "/client/editMailingTemplate")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView getEditMailingTemplate(@AuthenticationPrincipal User userFromSession) {
-		ModelAndView modelAndView = new ModelAndView("editMailingTemplate");
-		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
-		modelAndView.addObject("user", userFromSession);
-		return modelAndView;
-	}
 }
