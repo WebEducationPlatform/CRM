@@ -1504,11 +1504,11 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
-                    // здесь вставка ссылок в кнопки вк и фб
 
-
+                    // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
                     $('#fb-href').hide();
+                    $('#slack-href').hide();
 
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
@@ -1519,6 +1519,11 @@ $(function () {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
+                    }
+
+                    if (client.slackProfile != undefined) {
+                        $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
+                        $('#slack-href').show();
                     }
 
                     var btnBlock = $('div#assign-unassign-btns');

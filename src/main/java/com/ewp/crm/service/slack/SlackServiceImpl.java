@@ -79,11 +79,12 @@ public class SlackServiceImpl implements SlackService {
                 response.append(inputLine);
             }
             in.close();
-            System.out.println(response.toString());
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             JsonNode actualObj = objectMapper.readTree(response.toString()).get("user").get("profile");
-            return objectMapper.treeToValue(actualObj, SlackProfile.class);
+            SlackProfile clientSlackProfile = objectMapper.treeToValue(actualObj, SlackProfile.class);
+            clientSlackProfile.setHashName(slackHashName);
+            return clientSlackProfile;
         } catch (IOException | RuntimeException e) {
             logger.warn("Can't receive Client Slack profile", e);
         }

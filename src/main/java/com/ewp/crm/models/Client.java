@@ -155,8 +155,8 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    @JoinColumn(name = "slack_profile_id")
     private SlackProfile slackProfile;
 
     public Client() {
@@ -210,7 +210,6 @@ public class Client implements Serializable, Diffable<Client> {
         this.state = state;
         this.dateOfRegistration = dateOfRegistration;
     }
-
 
     public List<ClientHistory> getHistory() {
         return history;
