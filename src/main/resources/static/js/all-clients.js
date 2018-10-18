@@ -34,7 +34,8 @@ $('#filtration').click(function (){
                     socLink += res[i].socialProfiles[j].link + '<br>';
                 }
 
-                var d = new Date(res[i].dateOfRegistration);
+                //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
+                var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
                 var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
@@ -75,7 +76,7 @@ $('#filtration').click(function (){
                     '        <td>' + city + ' </td>' +
                     '        <td>' + country + ' </td>' +
                     '        <td>' + res[i].status.name + ' </td>' +
-                    '        <td>' + dateOfRegistration + ' </td>' +
+                    '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
                     '        <td>' + returnBtn + ' </td>' +
                     '    </tr>'
                 )
@@ -144,9 +145,10 @@ function drawClients(table, res) {
             socLink += res[i].socialProfiles[j].link + '<br>';
         }
 
-        let d = new Date(res[i].dateOfRegistration);
-        let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
-            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+            //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
+            var d = new Date(newDate(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+            var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
         let email = res[i].email === null ? '' : res[i].email,
             phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
@@ -185,7 +187,7 @@ function drawClients(table, res) {
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
             '        <td>' + res[i].status.name + ' </td>' +
-            '        <td>' + dateOfRegistration + ' </td>' +
+            '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
         )

@@ -1024,14 +1024,14 @@ $(document).ready(function () {
     var nowDate = new Date();
     var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
-    var startDate = moment(minDate).utcOffset(180);
+    var startDate = moment(minDate)/*.utcOffset(180)*/;
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY HH:mm МСК'
+            format: 'DD.MM.YYYY HH:mm'
         },
         minDate: startDate,
         startDate: startDate
