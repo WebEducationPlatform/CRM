@@ -909,6 +909,13 @@ li.dropdown:hover .dropdown-menu {
 	display: inline-block;
 }
 
+/*Content-fixed rows*/
+.table td.fit,
+.table th.fit {
+	white-space: nowrap;
+	width: 1%;
+}
+
 /*Clearable search style*/
 .clearable{
 	background: #fff url(http://i.stack.imgur.com/mJotv.gif) no-repeat right -10px center;
