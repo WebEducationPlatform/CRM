@@ -141,7 +141,8 @@ public class ClientHistory {
 		SKYPE("назначил беседу по скайп на"),
 		ADD_LOGIN("установил клиенту логин в skype - "),
         ADD_STUDENT("сделал клиента студентом"),
-        UPDATE_STUDENT("обновил информацию студента");
+        UPDATE_STUDENT("обновил информацию студента"),
+        DELETE_STUDENT("удалил студента");
 
         private String info;
 
