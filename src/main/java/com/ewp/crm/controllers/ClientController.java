@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -99,7 +100,7 @@ public class ClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ModelAndView allClientsPage() {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize)));
+		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         return modelAndView;

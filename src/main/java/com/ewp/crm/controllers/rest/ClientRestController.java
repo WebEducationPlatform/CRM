@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,10 +59,23 @@ public class ClientRestController {
 		return ResponseEntity.ok(clientService.getAll());
 	}
 
+	//запрос для вывода клиентов постранично - порядок из базы
 	@GetMapping(value = "/pagination/get")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getClients(@RequestParam int page) {
 		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
+		if (clients == null || clients.isEmpty()) {
+			logger.error("No more clients");
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(clients);
+	}
+
+	//запрос для вывода клиентов постранично - новые выше (16.10.18 установлен по дефолту для all-clients-table)
+ 	@GetMapping(value = "/pagination/new/first")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity getClientsNewFirst(@RequestParam int page) {
+		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration")));
 		if (clients == null || clients.isEmpty()) {
 			logger.error("No more clients");
 			return ResponseEntity.notFound().build();

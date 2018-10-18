@@ -131,7 +131,7 @@ let table = $("#clients-table").find("tbody");
 
 //Draw clients first page to the table
 function drawDefaultClients() {
-    $.get('/rest/client/pagination/get', {page : 0}, function upload(clients) {
+    $.get('/rest/client/pagination/new/first', {page : 0}, function upload(clients) {
         table.empty();
         drawClients(table, clients);
     })
@@ -228,7 +228,7 @@ $(document).ready(function () {
 
     win.scroll(function () {
         if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
-            $.get('/rest/client/pagination/get', {page : page}, function upload(clients) {
+            $.get('/rest/client/pagination/new/first', {page : page}, function upload(clients) {
                 drawClients(table, clients, page);
                 page++;
             })
