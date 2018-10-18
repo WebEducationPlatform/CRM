@@ -22,9 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/rest/client")
@@ -65,8 +63,7 @@ public class ClientRestController {
 	public ResponseEntity getClients(@RequestParam int page) {
 		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
 		if (clients == null || clients.isEmpty()) {
-			logger.error("No more clients");
-			return ResponseEntity.notFound().build();
+			logger.info("No more clients");
 		}
 		return ResponseEntity.ok(clients);
 	}
@@ -77,8 +74,7 @@ public class ClientRestController {
 	public ResponseEntity getClientsNewFirst(@RequestParam int page) {
 		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration")));
 		if (clients == null || clients.isEmpty()) {
-			logger.error("No more clients");
-			return ResponseEntity.notFound().build();
+			logger.info("No more clients");
 		}
 		return ResponseEntity.ok(clients);
 	}

@@ -1,4 +1,8 @@
 var data = {};
+
+//Current clients page for pagination
+let page = 1;
+
 $('#filtration').click(function (){
     data = {};
     var url = "../rest/client/filtration";
@@ -134,6 +138,7 @@ function drawDefaultClients() {
     $.get('/rest/client/pagination/new/first', {page : 0}, function upload(clients) {
         table.empty();
         drawClients(table, clients);
+        page = 1;
     })
 }
 
@@ -146,7 +151,7 @@ function drawClients(table, res) {
         }
 
             //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
-            var d = new Date(newDate(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+            var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
             var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                 d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
@@ -224,7 +229,6 @@ $("#searchInput").keyup(function (e) {
 
 $(document).ready(function () {
     let win = $(window);
-    let page = 1;
 
     win.scroll(function () {
         if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
