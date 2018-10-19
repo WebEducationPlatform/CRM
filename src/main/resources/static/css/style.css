@@ -887,9 +887,7 @@ li.dropdown:hover .dropdown-menu {
 .autoanswer {
 	margin-top: 70px;
 }
-.templContainer {
-	margin-top: 70px;
-}
+
 /* to display new lines in modal window*/
 .modal-client-history-message p {
 	white-space: pre;

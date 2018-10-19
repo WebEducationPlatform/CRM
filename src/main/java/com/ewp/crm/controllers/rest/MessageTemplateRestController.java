@@ -2,30 +2,61 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/rest/message-template")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class MessageTemplateRestController {
 
+    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
+
     private final MessageTemplateService messageTemplateService;
+    private final ProjectPropertiesService projectPropertiesService;
 
     @Autowired
-    public MessageTemplateRestController(MessageTemplateService messageTemplateService) {
+    public MessageTemplateRestController(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
         this.messageTemplateService = messageTemplateService;
+        this.projectPropertiesService = projectPropertiesService;
     }
 
     @GetMapping
     public ResponseEntity<List<MessageTemplate>> getAllMessageTemplates() {
         return new ResponseEntity<>(messageTemplateService.getAll(), HttpStatus.OK);
     }
+
+    @PostMapping
+    public ResponseEntity<MessageTemplate> createTemplate(@RequestParam("name") String name) {
+//        ResponseEntity entity = new ResponseEntity(null, HttpStatus.CONFLICT);
+//        if (messageTemplateService.getByName(name) == null) {
+//            entity = new ResponseEntity(messageTemplateService.add(new MessageTemplate(name)), HttpStatus.OK);
+//            logger.info("Template with name {} created", name);
+//        } else {
+//            logger.info("Template with name {} already exists", name);
+//        }
+        return new ResponseEntity<>(messageTemplateService.add(new MessageTemplate(name)), HttpStatus.OK);
+    }
+
+    @PostMapping ("/delete")
+    public HttpStatus deleteTemplate(@RequestParam("id") Long id) {
+        HttpStatus result = HttpStatus.OK;
+        if (id.equals(projectPropertiesService.get().getPaymentMessageTemplate().getId())) {
+            result = HttpStatus.CONFLICT;
+            logger.info("Template with id {} is used by payment notification", id);
+        } else {
+            messageTemplateService.delete(id);
+            logger.info("Template with id {} deleted", id);
+        }
+        return result;
+    }
+
 }
