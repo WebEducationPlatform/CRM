@@ -9,12 +9,9 @@ $("#create_template").click(function () {
     $.ajax({
         type: 'POST',
         url: '/rest/message-template',
-        contentType: "application/json",
-        dataType: 'JSON',
-        encoding: "UTF-8",
-        data: JSON.stringify({name: name}),
+        dataType: "JSON",
+        data: {name: name},
         success: function (response) {
-            console.log("!! " + response);
             if (response === "CONFLICT") {
                 alert("Шаблон с таким именем уже существует!");
             } else {

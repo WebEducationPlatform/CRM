@@ -35,21 +35,23 @@ public class MessageTemplateRestController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageTemplate> createTemplate(@RequestParam("name") String name) {
-//        ResponseEntity entity = new ResponseEntity(null, HttpStatus.CONFLICT);
-//        if (messageTemplateService.getByName(name) == null) {
-//            entity = new ResponseEntity(messageTemplateService.add(new MessageTemplate(name)), HttpStatus.OK);
-//            logger.info("Template with name {} created", name);
-//        } else {
-//            logger.info("Template with name {} already exists", name);
-//        }
-        return new ResponseEntity<>(messageTemplateService.add(new MessageTemplate(name)), HttpStatus.OK);
+    public HttpStatus createTemplate(@RequestParam("name") String name) {
+        HttpStatus status = HttpStatus.OK;
+        if (messageTemplateService.getByName(name) == null) {
+            messageTemplateService.add(new MessageTemplate(name));
+            logger.info("Template with name {} created", name);
+        } else {
+            logger.info("Template with name {} already exists", name);
+            status = HttpStatus.CONFLICT;
+        }
+        return status;
     }
 
     @PostMapping ("/delete")
     public HttpStatus deleteTemplate(@RequestParam("id") Long id) {
         HttpStatus result = HttpStatus.OK;
-        if (id.equals(projectPropertiesService.get().getPaymentMessageTemplate().getId())) {
+        MessageTemplate notificationTemplate = projectPropertiesService.getOrCreate().getPaymentMessageTemplate();
+        if (notificationTemplate != null && id.equals(notificationTemplate.getId())) {
             result = HttpStatus.CONFLICT;
             logger.info("Template with id {} is used by payment notification", id);
         } else {
