@@ -72,7 +72,7 @@ $('.button_delete_status').click(function () {
         type: 'GET',
         url: '/rest/student/status/delete/' + status_id,
         success: function (response) {
-            if (response == "CONFLICT") {
+            if (response === "CONFLICT") {
                 alert("Статус занят студентами.\r\nНе могу удалить статус!");
             }
             location.reload();

@@ -25,6 +25,12 @@ public class MessageTemplate {
 	public MessageTemplate() {
 	}
 
+	public MessageTemplate(String name) {
+		this.name = name;
+		this.templateText = "";
+		this.otherText = "";
+	}
+
 	public MessageTemplate(String name, String templateText, String otherText) {
 		this.name = name;
 		this.templateText = templateText;
