@@ -256,6 +256,11 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
 
+    @Override
+    public void sendSimpleNotification(Long clientId, String templateText) {
+        prepareAndSend(clientId, templateText, "", null);
+    }
+
     @Async
     public void sendNotificationMessage(User userToNotify, String notificationMessage) {
         SimpleMailMessage message = new SimpleMailMessage();

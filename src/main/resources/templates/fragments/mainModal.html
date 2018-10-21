@@ -6,7 +6,7 @@
 <body>
 
 <th:block th:fragment="mainModalWindow">
-    <div th:id="'main-modal-window'"  class="modal fade main-modal" role="dialog" data-keyboard="false">
+    <div th:id="'main-modal-window'" class="modal fade main-modal" role="dialog" data-keyboard="false">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
@@ -87,12 +87,24 @@
                                 <tr>
                                     <td>Социальные сети:</td>
                                     <td>
-                                        <div class="btn-group">
-                                            <a id="vk-href" target="_blank" name="emailTmplList"
-                                               class="btn btn-social-icon btn-vk btn-sm"><span class="fa fa-vk"></span></a>
+                                        <div class="box-button">
+                                            <div>
+                                                <a id="vk-href" target="_blank" name="emailTmplList"
+                                                   class="btn btn-social-icon btn-vk btn-sm">
+                                                    <span class="fa fa-vk"></span>
+                                                </a>
+                                            </div>
+                                            <div>
+                                                <a id="fb-href" target="_blank"
+                                                   class="btn btn-social-icon btn-facebook btn-sm">
+                                                    <span class="fa fa-facebook"></span></a>
+                                            </div>
+                                            <div class="btn-slack">
+                                                <a id="slack-href" target="_blank" class="slack-button">
+                                                </a>
+                                            </div>
                                         </div>
-                                        <a id="fb-href" target="_blank" class="btn btn-social-icon btn-facebook btn-sm"><span
-                                                class="fa fa-facebook"></span></a></td>
+                                    </td>
                                     <td>
                                         <div th:id="'sendSocialTemplateStatus'"></div>
                                     </td>

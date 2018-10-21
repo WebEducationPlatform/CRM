@@ -11,12 +11,12 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
     <div class="container-fluid">
-        <div><h1>Таблица всех пользователей</h1></div>
+        <div><h1>Таблица всех клиентов</h1></div>
         <div class="row">
             <div class="col-md-4">
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>
             </div>
-            <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск клиента..."/>
+            <div class="col-md-4"><input class="form-control clearable" id="searchInput" placeholder="Поиск клиентов..."/>
             </div>
         </div>
         <div id="filter" class="collapse filter">
@@ -124,7 +124,8 @@
                     <td th:text="${client.city}"></td>
                     <td th:text="${client.country}"></td>
                     <td th:text="${client.status.name}"></td>
-                    <td th:text="${#temporals.format(client.dateOfRegistration, 'dd.MM.yyyy HH:mm')}"></td>
+                    <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
+                    <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
                     <td class="no-fix">
                         <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                             <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}"> Вернуть </button>

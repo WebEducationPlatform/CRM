@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -97,12 +100,5 @@ public class UserController {
 		modelAndView.addObject("userCustomize",userFromSession);
 		return modelAndView;
 	}
-	@PostMapping(value = "/user/enableNewClientNotifications")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public String enableNewUserNotifications(@RequestParam boolean notify,
-											@AuthenticationPrincipal User userFromSession) {
-		userFromSession.setNewClienNotifyIsEnabled(notify);
-		userService.update(userFromSession);
-		return "redirect:/user/customize";
-	}
+
 }

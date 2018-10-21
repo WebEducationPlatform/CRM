@@ -1024,14 +1024,14 @@ $(document).ready(function () {
     var nowDate = new Date();
     var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
-    var startDate = moment(minDate).utcOffset(180);
+    var startDate = moment(minDate)/*.utcOffset(180)*/;
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY HH:mm МСК'
+            format: 'DD.MM.YYYY HH:mm'
         },
         minDate: startDate,
         startDate: startDate
@@ -1504,11 +1504,11 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
-                    // здесь вставка ссылок в кнопки вк и фб
 
-
+                    // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
                     $('#fb-href').hide();
+                    $('#slack-href').hide();
 
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
@@ -1519,6 +1519,11 @@ $(function () {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
+                    }
+
+                    if (client.slackProfile != undefined) {
+                        $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
+                        $('#slack-href').show();
                     }
 
                     var btnBlock = $('div#assign-unassign-btns');

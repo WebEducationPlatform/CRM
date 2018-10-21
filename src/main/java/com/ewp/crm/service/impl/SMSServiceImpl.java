@@ -69,6 +69,15 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
+	public void sendSimpleSMS(Long clientId, String templateText) {
+		try {
+			sendSMS(clientId, templateText, "", null);
+		} catch (JSONException e) {
+			logger.info("Failed to send simple SMS", e);
+		}
+	}
+
+	@Override
 	public void sendSMS(List<Client> clients, String text, User sender) {
 		logger.info("{} sending sms message to clients...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/send.json");
