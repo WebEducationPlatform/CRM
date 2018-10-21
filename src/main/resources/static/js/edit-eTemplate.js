@@ -50,13 +50,13 @@ function saveTemplate(templateId) {
         beforeSend: function () {
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
-
         },
-        success: function (result) {
+        success: function () {
             current.style.color = "limegreen";
             current.textContent = "Сохранено";
             exit = true;
             defaltText = CKEDITOR.instances['body'].getData();
+            window.location = "/template/all";
         },
         error: function (e) {
             setErrorMessage(e.responseText);
@@ -67,7 +67,6 @@ function saveTemplate(templateId) {
 var file;
 
 function sendImg(templateID) {
-
     file = $("#imgBtn")[0].files[0];
     if (file.size > $("#imgBtn").attr("max")) {
         setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
@@ -106,7 +105,6 @@ function setErrorMessage(message) {
         current.textContent = message;
         current.style.color = "red";
     }
-    console.log(message);
 }
 
 function insertNewPicture(userID,templateID) {
