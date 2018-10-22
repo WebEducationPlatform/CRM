@@ -4,8 +4,6 @@
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <script type="text/javascript" th:src="@{/js/user-info.js}"></script>
-    <script th:src="@{/js/validator.min.js}"></script>
 </head>
 <body>
 <div style="margin-top: 3%">
@@ -14,29 +12,46 @@
             <div class="col-md-3" id="column1">
                 <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-primary" id="saveChanges" onclick="registerUser()">Сохранить
+                        <button type="submit" class="btn btn-primary" id="saveChanges" onclick="registerUser()">
+                            Сохранить
                         </button>
                         <a href="/login" class="btn btn-primary" id="backToMain">Назад</a>
                     </div>
                     <p><span id="message"></span></p>
-                    <!--<input type="checkbox" class="form-control" style="display:none"  id="add-user-isVerified"/>-->
                     <div class="form-group">
                         <label for="add-user-first-name">Имя</label>
-                        <input class="form-control" data-error="Имя должно начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$" required="required"  id="add-user-first-name"/>
+                        <input class="form-control"
+                               data-error="Имя должно начинаться с заглавной буквы, минимум из 2-х символов и только буквы."
+                               pattern="^[A-ZА-ЯЁ][a-zа-яё]+$"
+                               required="required"
+                               id="add-user-first-name"/>
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="add-user-last-name">Фамилия</label>
-                        <input class="form-control" data-error="Фамилия должна начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$" required="required" id="add-user-last-name" />
+                        <input class="form-control"
+                               data-error="Фамилия должна начинаться с заглавной буквы, минимум из 2-х символов, можно использовать буквы, пробелы и дефис в составных фамилиях."
+                               pattern="^[A-ZА-ЯЁ][a-zа-яё]+(?:[- ][A-ZА-ЯЁa-zа-яё]+)*$"
+                               required="required"
+                               id="add-user-last-name"/>
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="add-user-password">Пароль</label>
-                        <input type="password" class="form-control" required="required" id="add-user-password"/>
+                        <input type="password"
+                               class="form-control"
+                               required="required"
+                               id="add-user-password"/>
                     </div>
                     <div class="form-group">
                         <label for="add-user-phone-number">Номер телефона</label>
-                        <input type="tel" class="form-control" required="required" id="add-user-phone-number"/>
+                        <input type="tel"
+                               class="form-control"
+                               data-error='Введите телефон в допустимом формате (только цифры)'
+                               required="required"
+                               pattern="[0-9]*$"
+                               id="add-user-phone-number"/>
+                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group" id="ipTelephony">
                         <label for="ipTelephony">Получить доступ к IP Телефонии:</label>
@@ -47,7 +62,10 @@
                     </div>
                     <div class="form-group">
                         <label for="add-user-email">Email</label>
-                        <input type="email" data-error="Неверный формат Email" class="form-control" required="required"
+                        <input type="email"
+                               class="form-control"
+                               data-error="Неверный формат Email"
+                               required="required"
                                pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$"
                                id="add-user-email"/>
                         <div class="help-block with-errors"></div>
@@ -58,7 +76,13 @@
                     </div>
                     <div class="form-group">
                         <label for="add-user-age">Возраст</label>
-                        <input type="number" class="form-control" min="0" max="127" onkeydown="disableInputE()" required="required" title = "Диапазон от 0 до 127" id="add-user-age"/>
+                        <input type="number"
+                               class="form-control"
+                               min="0" max="127"
+                               onkeydown="disableInputE()"
+                               required="required"
+                               title="Диапазон от 0 до 127"
+                               id="add-user-age"/>
                         <div class="help-block with-errors" style="color: red"></div>
                     </div>
                     <div class="form-group">
@@ -70,16 +94,28 @@
                     </div>
                     <div class="form-group">
                         <label for="add-user-country">Страна</label>
-                        <input type="text" class="form-control" required="required" id="add-user-country"/>
+                        <input type="text"
+                               class="form-control"
+                               data-error="Название страны должно начинаться с заглавной буквы, минимум из 2-х символов, можно использовать буквы, пробелы и дефис в составных названиях."
+                               pattern="^[A-ZА-ЯЁ][a-zа-яё]+(?:[- ][A-ZА-ЯЁa-zа-яё]+)*$"
+                               required="required"
+                               id="add-user-country"/>
+                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
                         <label for="add-user-city">Город</label>
-                        <input type="text" class="form-control" required="required" id="add-user-city"/>
+                        <input type="text"
+                               class="form-control"
+                               data-error="Название города должно начинаться с заглавной буквы, минимум из 2-х символов, можно использовать буквы, цифры, пробелы и дефис в составных названиях."
+                               pattern="^[A-ZА-ЯЁ][a-zа-яё]+(?:[- ][A-ZА-ЯЁa-zа-яё0-9*]+)*$"
+                               required="required"
+                               id="add-user-city"/>
+                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group" id="add-user-roles" th:hidden="hidden">
                         <label for="add-user-roles">Роли</label>
-                            <input type="checkbox" th:checked="checked" th:id="checkbox-user-2" th:value="2"
-                                   name="roleCheckBx" title=""/>
+                        <input type="checkbox" th:checked="checked" th:id="checkbox-user-2" th:value="2"
+                               name="roleCheckBx" title=""/>
                     </div>
                 </form>
             </div>
@@ -98,5 +134,7 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" th:src="@{/js/user-info.js}"></script>
+<script th:src="@{/js/validator.min.js}"></script>
 </body>
 </html>
