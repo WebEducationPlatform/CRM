@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -83,7 +84,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(ZonedDateTime.parse(client.getDateNotifyCallSkypeNotify().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
+				title.append(ZonedDateTime.parse(client.getDateNotifyCallSkypeNotify().toString()).withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
 				title.append(")");
 				break;
 			case STATUS:

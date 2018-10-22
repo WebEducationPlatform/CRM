@@ -16,4 +16,6 @@ public interface GoogleCalendarService {
 
     boolean checkFreeDate(Long newDate, String calendarMentor);
 
+    void delete(Long oldDate, String calendarMentor);
+
 }

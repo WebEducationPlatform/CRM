@@ -51,9 +51,9 @@ public class SkypeCallRestController {
 		Client client = clientService.getClientByID(clientId);
 		try {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
-			ZonedDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
-			ZonedDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).minusHours(1).atZone(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
-			ZonedDateTime zonedDateTimeNow = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("Europe/Moscow")).withZoneSameInstant(ZoneId.systemDefault());
+			ZonedDateTime dateOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow")).minusHours(1);
+			ZonedDateTime remindBeforeSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow")).minusHours(1);
+			ZonedDateTime zonedDateTimeNow = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("Europe/Moscow")).minusHours(1);
 			if (dateOfSkypeCall.isBefore(zonedDateTimeNow) || dateOfSkypeCall.isEqual(zonedDateTimeNow)) {
 				logger.info("Incorrect date set: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
@@ -93,8 +93,9 @@ public class SkypeCallRestController {
 	public ResponseEntity addEventByIdMentor(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long mentorId, @RequestParam(name = "startDateOld") Long startDate) {
 		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
-		client.setOwnerCallSkype(user.getId());
-		client.setDateCallSkype(LocalDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.of("+00:00")));
+		client.setOwnerCallSkype(mentorId);
+		client.setLiveOwnerCallSkype(true);
+		client.setDateCallSkype(ZonedDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.of("Europe/Moscow")));
 		clientService.updateClient(client);
         try {
             calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
@@ -107,12 +108,30 @@ public class SkypeCallRestController {
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     @RequestMapping(value = "rest/mentor/updateEvent", method = RequestMethod.POST)
-    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "idMentor") Long mentorId, @RequestParam(name = "startDateNew") Long startDate, @RequestParam(name = "startDateOld") Long startDateOld) {
-        User user = userService.get(mentorId);
+    public ResponseEntity updateEvent(@RequestParam(name = "clientId") Long clientId,
+									  @RequestParam(name = "idMentor") Long mentorId,
+									  @RequestParam(name = "startDateNew") Long startDate,
+									  @RequestParam(name = "startDateOld") Long startDateOld) {
+		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
-		client.setDateCallSkype(Instant.ofEpochMilli(startDate).atZone(ZoneId.systemDefault()).toLocalDateTime());
+		client.setDateCallSkype(ZonedDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.of("Europe/Moscow")));
+		client.setDateNotifyCallSkypeNotify(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("Europe/Moscow")).minusHours(1));
 		clientService.updateClient(client);
-        return ResponseEntity.ok(HttpStatus.OK);
+		return ResponseEntity.ok(HttpStatus.OK);
     }
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "rest/mentor/deleteEvent", method = RequestMethod.POST)
+	public ResponseEntity deleteEvent(@RequestParam(name = "clientId") Long clientId,
+									  @RequestParam(name = "idMentor") Long mentorId,
+									  @RequestParam(name = "startDateOld") Long startDateOld) {
+		User user = userService.get(mentorId);
+		calendarService.delete(startDateOld, user.getEmail());
+		Client client = clientService.get(clientId);
+		client.setOwnerCallSkype(mentorId);
+		client.setLiveOwnerCallSkype(false);
+		clientService.updateClient(client);
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
 }

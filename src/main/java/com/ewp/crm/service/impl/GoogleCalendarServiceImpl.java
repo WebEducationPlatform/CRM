@@ -100,19 +100,13 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         try {
             com.google.api.services.calendar.model.Calendar calendar =
                     client.calendars().get(calendarMentor).execute();
-
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-            String formattedDateOld = ZonedDateTime.ofInstant(
-                    Instant.ofEpochMilli(oldDate),
-                    ZoneId.systemDefault()).withZoneSameLocal(ZoneId.of("+03:00"))
-                    .withZoneSameInstant(ZoneId.systemDefault())
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            String formattedDateOld = Instant.ofEpochMilli(oldDate)
+                    .atZone(ZoneId.systemDefault())
+                    .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(outputFormatter);
-
-            newDate = Instant.ofEpochMilli(newDate).atZone(ZoneId.systemDefault()).toLocalDateTime().toInstant(ZoneOffset.UTC).toEpochMilli();
-
-            List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
             Event newEvent = newEvent(newDate, skype);
-
+            List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
             for (int i = 0; i < eventAll.size(); i++) {
                 if (eventAll.get(i).getStart().toString().contains(formattedDateOld)) {
                     String eventId = eventAll.get(i).getId();
@@ -132,11 +126,9 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
 
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-            String format = ZonedDateTime.ofInstant(
-                    Instant.ofEpochMilli(date),
-                    ZoneId.systemDefault())
-                    .withZoneSameLocal(ZoneId.of("+03:00"))
-                    .withZoneSameInstant(ZoneId.systemDefault())
+            String format = Instant.ofEpochMilli(date)
+                    .atZone(ZoneId.systemDefault())
+                    .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(dateTimeFormatter);
 
             for (int i = 0; i < eventAll.size(); i++) {
@@ -155,14 +147,37 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         event.setSummary("Skype(crm) - " + skype);
 
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String format = ZonedDateTime.ofInstant(
-                Instant.ofEpochMilli(startDate),
-                ZoneId.of("+00:00")).minusHours(3).format(outputFormatter);
+        String format = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.systemDefault())
+                .format(outputFormatter);
 
         DateTime start = new DateTime(format);
         event.setStart(new EventDateTime().setDateTime(start));
         DateTime end = new DateTime(format);
         event.setEnd(new EventDateTime().setDateTime(end));
         return event;
+    }
+
+    @Override
+    public void delete(Long oldDate, String calendarMentor) {
+        try {
+            com.google.api.services.calendar.model.Calendar calendar =
+                    client.calendars().get(calendarMentor).execute();
+
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            String format = Instant.ofEpochMilli(oldDate)
+                    .atZone(ZoneId.systemDefault())
+                    .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+                    .format(dateTimeFormatter);
+
+            List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+            for (int i = 0; i < eventAll.size(); i++) {
+                if (eventAll.get(i).getStart().toString().contains(format)) {
+                    String eventId = eventAll.get(i).getId();
+                    client.events().delete(calendarMentor, eventId).execute();
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Error to send message ", e);
+        }
     }
 }
