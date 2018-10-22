@@ -167,11 +167,14 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "owner_call_skype")
     private Long ownerCallSkype;
 
+    @Column(name = "live_owner_call_skype")
+    private boolean liveOwnerCallSkype = false;
+
     @Column(name = "date_call_skype")
-    private LocalDateTime dateCallSkype;
+    private ZonedDateTime dateCallSkype;
 
     @Column(name = "date_notify_call_skype")
-    private ZonedDateTime dateNotifyCallSkypeNotify;
+    private ZonedDateTime dateCallSkypeNotify;
 
     public Client(String name, String lastName) {
         this();
@@ -244,18 +247,18 @@ public class Client implements Serializable, Diffable<Client> {
     }
 
     public ZonedDateTime getDateNotifyCallSkypeNotify() {
-        return dateNotifyCallSkypeNotify;
+        return dateCallSkypeNotify;
     }
 
     public void setDateNotifyCallSkypeNotify(ZonedDateTime dateNotifyCallSkypeNotify) {
-        this.dateNotifyCallSkypeNotify = dateNotifyCallSkypeNotify;
+        this.dateCallSkypeNotify = dateNotifyCallSkypeNotify;
     }
 
-    public LocalDateTime getDateCallSkype() {
+    public ZonedDateTime getDateCallSkype() {
         return dateCallSkype;
     }
 
-    public void setDateCallSkype(LocalDateTime dateCallSkype) {
+    public void setDateCallSkype(ZonedDateTime dateCallSkype) {
         this.dateCallSkype = dateCallSkype;
     }
 
@@ -265,6 +268,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setOwnerCallSkype(Long ownerCallSkype) {
         this.ownerCallSkype = ownerCallSkype;
+    }
+
+    public boolean isLiveOwnerCallSkype() {
+        return liveOwnerCallSkype;
+    }
+
+    public void setLiveOwnerCallSkype(boolean liveOwnerCallSkype) {
+        this.liveOwnerCallSkype = liveOwnerCallSkype;
     }
 
     public String getSkype() {
