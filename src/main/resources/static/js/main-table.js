@@ -1590,6 +1590,7 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
+        backUrl();
     });
 });
 
