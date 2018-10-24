@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <title>Все клиенты</title>
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
@@ -76,11 +77,11 @@
 
                 </div>
             </div>
-
+            <br />
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal">
                 Скачать данные
             </button>
-
+            <br />
             <div class="row">
                 <button type="button" class="btn btn-info filtration-button" id="filtration">Найти</button>
             </div>
