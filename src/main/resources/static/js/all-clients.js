@@ -69,7 +69,7 @@ $('#filtration').click(function (){
                     socLink += res[i].socialProfiles[j].link + '<br>';
                 }
 
-                var d = new Date(res[i].dateOfRegistration);
+                var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
                 var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
@@ -185,7 +185,7 @@ $(document).ready(function () {
                 socLink += res[i].socialProfiles[j].link + '<br>';
             }
 
-            let d = new Date(res[i].dateOfRegistration);
+            var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
             let dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
                 d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
