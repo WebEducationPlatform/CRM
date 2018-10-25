@@ -5,14 +5,21 @@ let page = 1;
 //при закрытии фильтра отображаем дефолтный вывод таблицы
 $("#open-filter").click(function () {
     if ($("#filter").hasClass('in')) {
-        $("#table-body").remove();
-        $("#thead-table-clients").after(
-            '<tbody id="table-body">' +
-            '    </tbody>'
-        );
+        clearClientsTable();
         drawDefaultClients();
+    } else {
+        clearClientsTable();
     }
+    document.getElementById("searchInput").value = "";
 });
+
+function clearClientsTable() {
+    $("#table-body").remove();
+    $("#thead-table-clients").after(
+        '<tbody id="table-body">' +
+        '    </tbody>'
+    );
+}
 
 $('#filtration').click(function () {
     page = 1;
@@ -39,11 +46,7 @@ $('#filtration').click(function () {
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
-            $("#table-body").remove();
-            $("#thead-table-clients").after(
-                '<tbody id="table-body">' +
-                '    </tbody>'
-            );
+            clearClientsTable();
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
                 for (var j = 0; j < res[i].socialProfiles.length; j++) {
@@ -259,7 +262,7 @@ $(document).ready(function () {
                         drawClients(table, clients);
                     }
                 });
-            //пагинация при обычном просмотре страницы
+                //пагинация при обычном просмотре страницы
             } else {
                 $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
                     drawClients(table, clients, page);
