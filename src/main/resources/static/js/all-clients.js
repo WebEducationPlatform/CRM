@@ -2,8 +2,20 @@ var data = {};
 
 //Current clients page for pagination
 let page = 1;
+//при закрытии фильтра отображаем дефолтный вывод таблицы
+$("#open-filter").click(function () {
+    if ($("#filter").hasClass('in')) {
+        $("#table-body").remove();
+        $("#thead-table-clients").after(
+            '<tbody id="table-body">' +
+            '    </tbody>'
+        );
+        drawDefaultClients();
+    }
+});
 
 $('#filtration').click(function () {
+    page = 1;
     data = {};
     var url = "../rest/client/filtration";
 
@@ -16,6 +28,7 @@ $('#filtration').click(function () {
     data['country'] = $('#country').val();
     data['dateFrom'] = $('#dateFrom').val();
     data['dateTo'] = $('#dateTo').val();
+    data['pageNumber'] = page;
     if ($('#status').val() !== "") {
         data['status'] = $('#status').val();
     }
@@ -31,7 +44,6 @@ $('#filtration').click(function () {
                 '<tbody id="table-body">' +
                 '    </tbody>'
             );
-
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
                 for (var j = 0; j < res[i].socialProfiles.length; j++) {
@@ -179,7 +191,7 @@ function drawClients(table, res) {
             }
         }
 
-        table.append(
+        $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
             '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id + '">' + res[i].name + '</a></td>' +
@@ -231,13 +243,29 @@ $(document).ready(function () {
     let win = $(window);
 
     win.scroll(function () {
-        if (($(document).height() - win.height() === Math.ceil(win.scrollTop()))
-            && ($("#searchInput").val() === "")
-            && (!$("#filter").hasClass('in'))) {
-            $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
-                drawClients(table, clients, page);
-                page++;
-            })
+        if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
+            //пагинация при фильтрации
+            if ($("#filter").hasClass('in')) {
+                data['pageNumber']++;
+                var url = "../rest/client/filtration";
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json",
+                    dataType: 'json',
+                    url: url,
+                    data: JSON.stringify(data),
+                    success: function (clients) {
+                        console.log(clients);
+                        drawClients(table, clients);
+                    }
+                });
+            //пагинация при обычном просмотре страницы
+            } else {
+                $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
+                    drawClients(table, clients, page);
+                    page++;
+                });
+            }
         }
     });
 });
