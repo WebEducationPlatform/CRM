@@ -511,7 +511,7 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
-$(document).on('click', function () {
+$('#main-modal-window  .textcomplete').on('click', function () {
     var url = '/rest/user';
 
     var userNames = [];
