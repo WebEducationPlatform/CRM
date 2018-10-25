@@ -84,7 +84,19 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(ZonedDateTime.parse(client.getDateNotifyCallSkypeNotify().toString()).withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
+				title.append(ZonedDateTime.parse(client.getDateCallSkype().toString()).withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
+				title.append(")");
+				break;
+			case SKYPE_UPDATE:
+				title.append(" ");
+				title.append("(");
+				title.append(ZonedDateTime.parse(client.getDateCallSkype().toString()).withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
+				title.append(")");
+				break;
+			case SKYPE_DELETE:
+				title.append(" ");
+				title.append("(");
+				title.append(ZonedDateTime.parse(client.getDateCallSkype().toString()).withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
 				title.append(")");
 				break;
 			case STATUS:

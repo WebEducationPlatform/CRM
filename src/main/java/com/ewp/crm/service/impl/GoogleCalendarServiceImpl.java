@@ -92,7 +92,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         Event event = newEvent(startDate, skype);
         com.google.api.services.calendar.model.Calendar calendar =
                 client.calendars().get(calendarMentor).execute();
-        client.events().insert(calendar.getId(), event).execute();
+            client.events().insert(calendar.getId(), event).execute();
     }
 
     @Override
@@ -103,6 +103,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String formattedDateOld = Instant.ofEpochMilli(oldDate)
                     .atZone(ZoneId.systemDefault())
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(outputFormatter);
             Event newEvent = newEvent(newDate, skype);
@@ -128,6 +129,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String format = Instant.ofEpochMilli(date)
                     .atZone(ZoneId.systemDefault())
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(dateTimeFormatter);
 
@@ -145,11 +147,10 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     private Event newEvent(Long startDate, String skype) {
         Event event = new Event();
         event.setSummary("Skype(crm) - " + skype);
-
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         String format = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.systemDefault())
+				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                 .format(outputFormatter);
-
         DateTime start = new DateTime(format);
         event.setStart(new EventDateTime().setDateTime(start));
         DateTime end = new DateTime(format);
@@ -162,13 +163,12 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         try {
             com.google.api.services.calendar.model.Calendar calendar =
                     client.calendars().get(calendarMentor).execute();
-
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String format = Instant.ofEpochMilli(oldDate)
-                    .atZone(ZoneId.systemDefault())
+					.atZone(ZoneId.systemDefault())
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(dateTimeFormatter);
-
             List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
             for (int i = 0; i < eventAll.size(); i++) {
                 if (eventAll.get(i).getStart().toString().contains(format)) {
