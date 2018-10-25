@@ -96,7 +96,27 @@ $("#save-description").on("click", function saveDescription() {
         }
     })
 });
+//Search clients in main
+function clientsSearch() {
+    $("#search-clients").keyup(function () {
+        let jo = $(".portlet");
+        let jo2 = jo.find($(".search_text"));
+        let data = this.value.toLowerCase().split(" ");
+        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
 
+        for (let i = 0; i < jo2.length; i++) {
+            let count = 0;
+            for (let z = 0; z < data.length; z++) {
+                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
+                    count++;
+                }
+            }
+            if (count === data.length) {
+                jo[i].style.display = 'block';
+            }
+        }
+    });
+}
 
 $(document).ready(function () {
     $(".column").sortable({
@@ -141,31 +161,7 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-    /* $("#new-status-form").focusout(
-         function () {
-             $(this).hide();
-             $("#create-new-status-span").show();
-         });*/
-
-    //Search clients in main
-    $("#search-clients").keyup(function () {
-        let jo = $(".portlet");
-        let jo2 = jo.find($(".search_text"));
-        let data = this.value.toLowerCase().split(" ");
-        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
-
-        for (let i = 0; i < jo2.length; i++) {
-            let count = 0;
-            for (let z = 0; z < data.length; z++) {
-                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
-                    count++;
-                }
-            }
-            if (count === data.length) {
-                jo[i].style.display = 'block';
-            }
-        }
-    });
+    clientsSearch();
 
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
         let modal = $("#sms_error_modal"),
@@ -1590,6 +1586,8 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
+        backUrl();
+        clientsSearch();
     });
 });
 
