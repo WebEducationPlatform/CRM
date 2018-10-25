@@ -25,34 +25,34 @@ import java.util.stream.Collectors;
 public class ClientController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientController.class);
-	private final StatusService statusService;
-	private final ClientService clientService;
-	private final UserService userService;
-	private final MessageTemplateService messageTemplateService;
-	private final SocialProfileTypeService socialProfileTypeService;
-	private final NotificationService notificationService;
-	private final RoleService roleService;
+    private final StatusService statusService;
+    private final ClientService clientService;
+    private final UserService userService;
+    private final MessageTemplateService messageTemplateService;
+    private final SocialProfileTypeService socialProfileTypeService;
+    private final NotificationService notificationService;
+    private final RoleService roleService;
 
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
-	@Autowired
-	public ClientController(StatusService statusService,
-							ClientService clientService,
-							UserService userService,
-	                        MessageTemplateService MessageTemplateService,
-							SocialProfileTypeService socialProfileTypeService,
-							NotificationService notificationService,
-							RoleService roleService) {
-		this.statusService = statusService;
-		this.clientService = clientService;
-		this.userService = userService;
-		this.messageTemplateService = MessageTemplateService;
-		this.socialProfileTypeService = socialProfileTypeService;
-		this.notificationService = notificationService;
-		this.roleService = roleService;
-	}
+    @Autowired
+    public ClientController(StatusService statusService,
+                            ClientService clientService,
+                            UserService userService,
+                            MessageTemplateService MessageTemplateService,
+                            SocialProfileTypeService socialProfileTypeService,
+                            NotificationService notificationService,
+                            RoleService roleService) {
+        this.statusService = statusService;
+        this.clientService = clientService;
+        this.userService = userService;
+        this.messageTemplateService = MessageTemplateService;
+        this.socialProfileTypeService = socialProfileTypeService;
+        this.notificationService = notificationService;
+        this.roleService = roleService;
+    }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
@@ -67,40 +67,52 @@ public class ClientController {
         return modelAndView;
     }
 
-	@GetMapping(value = "/client")
-	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
-	public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-		List<Status> statuses;
-		ModelAndView modelAndView;
-		//TODO Сделать ещё адекватней
-		List<Role> sessionRoles = userFromSession.getRole();
-		if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-			statuses = statusService.getAll();
-			modelAndView = new ModelAndView("main-client-table");
-		} else {
-			statuses = statusService.getStatusesWithClientsForUser(userFromSession);
-			modelAndView = new ModelAndView("main-client-table-user");
-		}
-		List<User> userList = userService.getAll();
-		statuses.sort(Comparator.comparing(Status::getPosition));
-		modelAndView.addObject("user", userFromSession);
-		modelAndView.addObject("statuses", statuses);
-		modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
-		modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
-		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
-		modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-		modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-		modelAndView.addObject("notifications_type_new_user",notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
-		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
-		return modelAndView;
-	}
+    @GetMapping(value = "/admin/client/add")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ModelAndView addClient(@AuthenticationPrincipal User userFromSession) {
+        ModelAndView modelAndView = new ModelAndView("add-client");
+        modelAndView.addObject("statuses", statusService.getAll());
+        modelAndView.addObject("states", Client.State.values());
+        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("user", userFromSession);
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+        return modelAndView;
+    }
+
+    @GetMapping(value = "/client")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+    public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
+        List<Status> statuses;
+        ModelAndView modelAndView;
+        //TODO Сделать ещё адекватней
+        List<Role> sessionRoles = userFromSession.getRole();
+        if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
+            statuses = statusService.getAll();
+            modelAndView = new ModelAndView("main-client-table");
+        } else {
+            statuses = statusService.getStatusesWithClientsForUser(userFromSession);
+            modelAndView = new ModelAndView("main-client-table-user");
+        }
+        List<User> userList = userService.getAll();
+        statuses.sort(Comparator.comparing(Status::getPosition));
+        modelAndView.addObject("user", userFromSession);
+        modelAndView.addObject("statuses", statuses);
+        modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+        modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+        modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
+        modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
+        modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+        modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        return modelAndView;
+    }
 
     @GetMapping(value = "/client/allClients")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ModelAndView allClientsPage() {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
-		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
+        modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         return modelAndView;
@@ -126,10 +138,10 @@ public class ClientController {
         return modelAndView;
     }
 
-	@GetMapping(value = "/phone")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView getPhone() {
-		return new ModelAndView("webrtrc");
-	}
+    @GetMapping(value = "/phone")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ModelAndView getPhone() {
+        return new ModelAndView("webrtrc");
+    }
 
 }
