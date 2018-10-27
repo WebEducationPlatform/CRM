@@ -101,6 +101,9 @@ public class User implements UserDetails {
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
 	private List<Role> role = new ArrayList<>();
 
+	@Column(name = "color_background")
+	private String colorBackground;
+
 	public User() {
 		this.isEnabled = false;
 		this.isVerified = false;
@@ -255,6 +258,14 @@ public class User implements UserDetails {
 
 	public void setPhotoType(String photoType) {
 		this.photoType = photoType;
+	}
+
+	public String getColorBackground() {
+		return colorBackground;
+	}
+
+	public void setColorBackground(String colorBackground) {
+		this.colorBackground = colorBackground;
 	}
 
 	@Override
