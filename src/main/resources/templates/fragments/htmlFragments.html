@@ -153,6 +153,19 @@
     <script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
 </th:block>
 
+<th:block th:fragment="custom-style">
+    <style th:inline="text" th:if="${#authorization.expression('isAuthenticated()')}">
+        body {
+            background-color:[[${#authentication.getPrincipal().colorBackground}]];
+        }
+
+        .navbar-fixed-top {
+            background-image: -webkit-gradient(linear,left top,left bottom,from(#fbd8cf),to([[${#authentication.getPrincipal().colorBackground}]]));
+            border-color: [[${#authentication.getPrincipal().colorBackground}]];
+        }
+    </style>
+</th:block>
+
 <th:block th:fragment="comments">
     <div class="modal-footer modal-comments">
         <div class="comments">

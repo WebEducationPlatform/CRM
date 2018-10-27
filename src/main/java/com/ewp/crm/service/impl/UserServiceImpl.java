@@ -97,6 +97,16 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
     }
 
+    @Override
+    public void setColorBackground(String color, User user) {
+        logger.info("{}: set color background...", UserServiceImpl.class.getName());
+
+        user.setColorBackground(color);
+        update(user);
+
+        logger.info("{}: color background set to " + color, UserServiceImpl.class.getName());
+    }
+
     private void phoneNumberValidation(User user) {
         String phoneNumber = user.getPhoneNumber();
         Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
