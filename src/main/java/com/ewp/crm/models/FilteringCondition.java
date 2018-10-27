@@ -24,6 +24,8 @@ public class FilteringCondition {
 
     private String selected;
 
+    private int pageNumber;
+
     public FilteringCondition() {
     }
 
@@ -105,5 +107,13 @@ public class FilteringCondition {
 
     public void setSelected(String selected) {
         this.selected = selected;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
     }
 }
