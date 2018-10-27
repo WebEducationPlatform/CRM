@@ -5,6 +5,7 @@
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
 <div style="margin: 2%">
@@ -55,6 +56,12 @@
         </div>
         <br/>
         <button type="button" class="btn btn-primary pull" data-toggle="modal"
+                data-target="#InterfaceSettings">
+            Настройка оформления
+        </button>
+        <br/>
+        <br/>
+        <button type="button" class="btn btn-primary pull" data-toggle="modal"
                 data-target="#vkAuthModal">
             Авторизация Вконтакте
         </button>
@@ -83,6 +90,43 @@
         </div>
     </div>
 
+</div>
+
+<!--Модалка для настройки оформления системы-->
+<div class="modal fade" id="InterfaceSettings" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 id="modal-header-color" class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <label for="status-column">Выберите цвет фона оформления</label>
+
+                        <div class="example-content well">
+                            <div class="example-content-widget">
+                                <div id="wrap-selected-color" class="input-group colorpicker-component">
+                                    <input id="selected-color" type="text" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
+                                    <span class="input-group-addon"><i></i></span>
+                                </div>
+                                <script>
+                                    $(function () {
+                                        $('#wrap-selected-color').colorpicker({format:'hex'});
+                                    });
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="update-interface" class="btn btn-default" data-dismiss="modal">Применить</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Модальное окно для получения токена -->
@@ -153,5 +197,9 @@
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+<script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>
 </html>
