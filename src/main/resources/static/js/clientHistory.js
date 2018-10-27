@@ -1,4 +1,14 @@
 $(document).ready(function () {
+    $('#main-modal-window').on('show.bs.modal', function ShowContent() {
+        let current = $(document.getElementsByClassName("panel-collapse client-collapse collapse"));
+        current.collapse('show');
+    });
+
+    $('#main-modal-window').on('shown.bs.modal', function ShowContent() {
+        let current = $(document.getElementsByClassName("upload-history"));
+        loadClientHistory(current);
+    });
+
     $('.upload-more-history').on("click", function uploadMoreHistory() {
         let current = $(this);
         let clientId = current.attr("data-clientid");
@@ -21,34 +31,6 @@ $(document).ready(function () {
         let data_page = +current.attr("data-page");
         data_page = data_page + 1;
         current.attr("data-page", data_page);
-    });
-
-    $('.upload-history').on("click", function openClientHistory() {
-        let current = $(this);
-        let isHistory = current.attr("class").includes('collapse');
-        let client_id = current.attr("data-id");
-        let url = '/client/history/rest/getHistory/' + client_id;
-        let params = {
-            page: "0"
-        };
-        let history_table =  $('#client-' + client_id + 'history').find("tbody");
-        let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
-        if (!isHistory) {
-            history_table.empty();
-            upload_more_btn.attr("data-page", 1);
-            current.removeClass("history-clean");
-        } else {
-            $.get(url, params, function get(list) {
-            }).done(function (list) {
-                if(list.length < 10) {
-                    upload_more_btn.hide();
-                } else {
-                    upload_more_btn.show();
-                }
-                //draw client history
-                drawClientHistory(list, history_table);
-            })
-        }
     });
 
     //Better way
@@ -145,3 +127,30 @@ $(function () {
     });
 });
 
+function loadClientHistory(element) {
+    let current = element;
+    let isHistory = current.attr("class").includes('collapse');
+    let client_id = current.attr("data-id");
+    let url = '/client/history/rest/getHistory/' + client_id;
+    let params = {
+        page: "0"
+    };
+    let history_table =  $('#client-' + client_id + 'history').find("tbody");
+    let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
+    if (!isHistory) {
+        history_table.empty();
+        upload_more_btn.attr("data-page", 1);
+        current.removeClass("history-clean");
+    } else {
+        $.get(url, params, function get(list) {
+        }).done(function (list) {
+            if(list.length < 10) {
+                upload_more_btn.hide();
+            } else {
+                upload_more_btn.show();
+            }
+            //draw client history
+            drawClientHistory(list, history_table);
+        })
+    }
+}
