@@ -3,7 +3,7 @@ package com.ewp.crm.service.youtube;
 import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.models.YoutubeClientMessage;
-import com.ewp.crm.service.interfaces.ListLiveChatMessages;
+import com.ewp.crm.service.interfaces.ListLiveChatMessagesService;
 import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import com.ewp.crm.service.interfaces.YoutubeClientMessageService;
 import com.ewp.crm.service.interfaces.YoutubeClientService;
@@ -27,7 +27,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @Component
-public class ListLiveChatMessagesImpl implements ListLiveChatMessages {
+public class ListLiveChatMessagesServiceImpl implements ListLiveChatMessagesService {
 
     private static final String LIVE_CHAT_FIELDS =
             "items(authorDetails(channelId,displayName,isChatModerator,isChatOwner,isChatSponsor,"
@@ -37,10 +37,10 @@ public class ListLiveChatMessagesImpl implements ListLiveChatMessages {
     private YouTubeTrackingCardService youTubeTrackingCardService;
     private YoutubeClientService youtubeClientService;
     private YoutubeClientMessageService youtubeClientMessageService;
-    private static Logger logger = LoggerFactory.getLogger(ListLiveChatMessages.class);
+    private static Logger logger = LoggerFactory.getLogger(ListLiveChatMessagesService.class);
 
     @Autowired
-    public ListLiveChatMessagesImpl(YouTubeTrackingCardService youTubeTrackingCardService, YoutubeClientService youtubeClientService, YoutubeClientMessageService youtubeClientMessageService) {
+    public ListLiveChatMessagesServiceImpl(YouTubeTrackingCardService youTubeTrackingCardService, YoutubeClientService youtubeClientService, YoutubeClientMessageService youtubeClientMessageService) {
         this.youTubeTrackingCardService = youTubeTrackingCardService;
         this.youtubeClientService = youtubeClientService;
         this.youtubeClientMessageService = youtubeClientMessageService;

@@ -1,6 +1,6 @@
 package com.ewp.crm.service.youtube;
 
-import com.ewp.crm.service.interfaces.SearchLive;
+import com.ewp.crm.service.interfaces.SearchLiveService;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -20,9 +20,9 @@ import java.util.List;
 
 
 @Component
-public class SearchLiveImpl implements SearchLive {
+public class SearchLiveServiceImpl implements SearchLiveService {
 
-    private static Logger logger = LoggerFactory.getLogger(SearchLive.class);
+    private static Logger logger = LoggerFactory.getLogger(SearchLiveService.class);
 
     @Override
     public List<String> getListOfLiveStreamByChannelId(String apiKey, String channelId) {
