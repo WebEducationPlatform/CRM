@@ -61,7 +61,7 @@ public class VKServiceImpl implements VKService {
     private String redirectUri;
     private String scope;
     private String technicalAccountToken;
-    OAuth20Service service;
+    private OAuth20Service service;
     private String robotClientSecret;
     private String robotClientId;
     private String robotUsername;
