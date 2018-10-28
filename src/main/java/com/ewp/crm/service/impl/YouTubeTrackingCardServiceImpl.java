@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.repository.interfaces.YouTubeTrackingCardRepository;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

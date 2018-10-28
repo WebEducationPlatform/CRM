@@ -4,7 +4,7 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.VkMemberService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
