@@ -2,8 +2,8 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.inteface.YoutubeConfig;
 import com.ewp.crm.models.YouTubeTrackingCard;
+import com.ewp.crm.service.interfaces.ListLiveChatMessages;
 import com.ewp.crm.service.interfaces.YoutubeService;
-import com.ewp.crm.service.youtube.ListLiveChatMessages;
 import com.ewp.crm.service.youtube.SearchLive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
