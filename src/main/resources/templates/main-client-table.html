@@ -280,11 +280,11 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
                                 </tr>

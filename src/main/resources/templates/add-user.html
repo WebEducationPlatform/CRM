@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <title>Новый пользователь</title>
     <meta charset="UTF-8"/>
@@ -114,7 +115,7 @@
                                id="add-user-city"/>
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group" id="add-user-roles">
+                    <div class="form-group" id="add-user-roles" sec:authorize="hasAnyAuthority('OWNER')">
                         <label for="add-user-roles">Роли</label>
                         <div class="checkbox" th:each="role : ${roles}">
                             <input type="checkbox" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}"
