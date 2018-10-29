@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <title>Все клиенты</title>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
@@ -16,14 +16,13 @@
         <div><h1>Таблица всех клиентов</h1></div>
         <div class="row">
             <div class="col-md-4">
-
                 <a href="/admin/client/add" class="btn btn-info" th:id="addClient">Добавить Клиента</a>
-
                 <button type="button" id="open-filter" class="btn btn-info" data-toggle="collapse"
                         data-target="#filter">Фильтр
                 </button>
-
-                <input class="form-control clearable" id="searchInput" placeholder="Поиск клиентов..."/>
+            </div>
+            <div class="col-md-4"><input class="form-control clearable" id="searchInput"
+                                         placeholder="Поиск клиентов..."/>
             </div>
         </div>
         <div id="filter" class="collapse filter">
@@ -83,11 +82,11 @@
 
                 </div>
             </div>
-            <br />
+            <br/>
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal">
                 Скачать данные
             </button>
-            <br />
+            <br/>
             <div class="row">
                 <button type="button" class="btn btn-info filtration-button" id="filtration">Найти</button>
             </div>
@@ -114,35 +113,42 @@
             </tr>
             </thead>
             <tbody id="table-body">
-                <tr th:each="client : ${allClients}">
-                    <td th:text="${client.id}"></td>
-                    <td class="line-decoration" ><a th:text="${client.name}" th:href="@{'/client/clientInfo/' + ${client.id}}"></a></td>
-                    <td th:text="${client.lastName}"></td>
-                    <td th:text="${client.phoneNumber}"></td>
-                    <td th:text="${client.email}"></td>
-                    <td>
-                        <th:block th:each="soc : ${client.socialProfiles}">
-                            <th:block th:text="${soc.link}"></th:block>
-                            <br/>
-                        </th:block>
-                    </td>
-                    <td th:text="${client.age}"></td>
-                    <td th:text="${client.sex}"></td>
-                    <td th:text="${client.city}"></td>
-                    <td th:text="${client.country}"></td>
-                    <td th:text="${client.status.name}"></td>
-                    <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
-                    <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
-                    <td class="no-fix">
-                        <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
-                            <button type="button" class="btn btn-default" data-toggle="dropdown" th:attrappend="data-client=${client.id}"> Вернуть </button>
-                            <ul class="dropdown-menu statuses-content"></ul>
-                        </div>
-                        <div class="button-return-from-postpone" th:if="${client.postponeDate != null}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
-                            <button type="button" id="return-from-postpone" class="btn btn-default from-postpone" th:attrappend="data-client=${client.id}"> Вернуть </button>
-                        </div>
-                    </td>
-                </tr>
+            <tr th:each="client : ${allClients}">
+                <td th:text="${client.id}"></td>
+                <td class="line-decoration"><a th:text="${client.name}"
+                                               th:href="@{'/client/clientInfo/' + ${client.id}}"></a></td>
+                <td th:text="${client.lastName}"></td>
+                <td th:text="${client.phoneNumber}"></td>
+                <td th:text="${client.email}"></td>
+                <td>
+                    <th:block th:each="soc : ${client.socialProfiles}">
+                        <th:block th:text="${soc.link}"></th:block>
+                        <br/>
+                    </th:block>
+                </td>
+                <td th:text="${client.age}"></td>
+                <td th:text="${client.sex}"></td>
+                <td th:text="${client.city}"></td>
+                <td th:text="${client.country}"></td>
+                <td th:text="${client.status.name}"></td>
+                <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
+                <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
+                <td class="no-fix">
+                    <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
+                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <button type="button" class="btn btn-default" data-toggle="dropdown"
+                                th:attrappend="data-client=${client.id}"> Вернуть
+                        </button>
+                        <ul class="dropdown-menu statuses-content"></ul>
+                    </div>
+                    <div class="button-return-from-postpone" th:if="${client.postponeDate != null}"
+                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <button type="button" id="return-from-postpone" class="btn btn-default from-postpone"
+                                th:attrappend="data-client=${client.id}"> Вернуть
+                        </button>
+                    </div>
+                </td>
+            </tr>
             </tbody>
             <tfoot>
 
@@ -151,7 +157,8 @@
 
         <div id="statuses-list" style="display:none">
             <li th:each="status:${statuses}" th:if="${!status.invisible}">
-                <a th:if="${status.name != 'deleted'}" class="link-cursor-pointer return-to-visible-status" th:text="${status.name}" th:value="${status.id}" onclick=""></a>
+                <a th:if="${status.name != 'deleted'}" class="link-cursor-pointer return-to-visible-status"
+                   th:text="${status.name}" th:value="${status.id}" onclick=""></a>
             </li>
         </div>
     </div>
