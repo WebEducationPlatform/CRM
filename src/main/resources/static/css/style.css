@@ -528,9 +528,13 @@ h4.modal-title {
 	margin-top: 50px;
 }
 
-#saveChanges, #editClientBtn, #backToMain , #editUser, #saveTemplate, #backToMain1,#saveTemplate1{
+#saveChanges, #editClientBtn, #backToMain , #editUser, #saveTemplate, #backToMain1,#saveTemplate1, #backToAllClients{
 	margin-right:15px;
 	margin-bottom: 10px;
+	border-radius: 10%;
+}
+#addClient{
+	margin-right:15px;
 	border-radius: 10%;
 }
 
