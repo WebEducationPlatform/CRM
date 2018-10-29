@@ -2,7 +2,7 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MailSendService;

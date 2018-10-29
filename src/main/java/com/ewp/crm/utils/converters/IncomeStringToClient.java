@@ -2,7 +2,7 @@ package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
