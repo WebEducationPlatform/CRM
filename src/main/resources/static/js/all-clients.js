@@ -2,8 +2,27 @@ var data = {};
 
 //Current clients page for pagination
 let page = 1;
+//при закрытии фильтра отображаем дефолтный вывод таблицы
+$("#open-filter").click(function () {
+    if ($("#filter").hasClass('in')) {
+        clearClientsTable();
+        drawDefaultClients();
+    } else {
+        clearClientsTable();
+    }
+    document.getElementById("searchInput").value = "";
+});
 
-$('#filtration').click(function (){
+function clearClientsTable() {
+    $("#table-body").remove();
+    $("#thead-table-clients").after(
+        '<tbody id="table-body">' +
+        '    </tbody>'
+    );
+}
+
+$('#filtration').click(function () {
+    page = 1;
     data = {};
     var url = "../rest/client/filtration";
 
@@ -16,6 +35,7 @@ $('#filtration').click(function (){
     data['country'] = $('#country').val();
     data['dateFrom'] = $('#dateFrom').val();
     data['dateTo'] = $('#dateTo').val();
+    data['pageNumber'] = page;
     if ($('#status').val() !== "") {
         data['status'] = $('#status').val();
     }
@@ -26,21 +46,16 @@ $('#filtration').click(function (){
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
-            $("#table-body").remove();
-            $("#thead-table-clients").after(
-                '<tbody id="table-body">' +
-                '    </tbody>'
-            );
-
+            clearClientsTable();
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
-                for(var j  = 0; j < res[i].socialProfiles.length; j++) {
+                for (var j = 0; j < res[i].socialProfiles.length; j++) {
                     socLink += res[i].socialProfiles[j].link + '<br>';
                 }
 
                 //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
-                var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}));
+                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
                 let email = res[i].email === null ? '' : res[i].email,
@@ -54,7 +69,7 @@ $('#filtration').click(function (){
                     if (res[i].status.invisible) {
                         returnBtn =
                             '<div class="dropdown statuses-by-dropdown">' +
-                            ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'">Вернуть</button>' +
+                            ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="' + res[i].id + '">Вернуть</button>' +
                             '<ul class="dropdown-menu statuses-content"></ul>' +
                             '</div>'
                     }
@@ -62,7 +77,7 @@ $('#filtration').click(function (){
                     if (res[i].postponeDate != undefined) {
                         returnBtn =
                             '<div class="button-return-from-postpone">' +
-                            '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="'+ res[i].id +'"> Вернуть </button>' +
+                            '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="' + res[i].id + '"> Вернуть </button>' +
                             '</div>'
                     }
                 }
@@ -70,7 +85,7 @@ $('#filtration').click(function (){
                 $("#table-body").append(
                     '    <tr>' +
                     '        <td>' + res[i].id + '</td>' +
-                    '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
+                    '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id + '">' + res[i].name + '</a></td>' +
                     '        <td>' + res[i].lastName + '</td>' +
                     '        <td>' + phoneNumber + '</td>' +
                     '        <td>' + email + '</td>' +
@@ -124,8 +139,8 @@ $('#clientData').click(function (event) {
 
 let isAdmin;
 $.get('/rest/client/getPrincipal', function (user) {
-    $.each(user.role, function (i,v) {
-        if (v.roleName === 'ADMIN' || v.roleName === 'OWNER' ) {
+    $.each(user.role, function (i, v) {
+        if (v.roleName === 'ADMIN' || v.roleName === 'OWNER') {
             isAdmin = true;
         }
     })
@@ -135,7 +150,7 @@ let table = $("#clients-table").find("tbody");
 
 //Draw clients first page to the table
 function drawDefaultClients() {
-    $.get('/rest/client/pagination/new/first', {page : 0}, function upload(clients) {
+    $.get('/rest/client/pagination/new/first', {page: 0}, function upload(clients) {
         table.empty();
         drawClients(table, clients);
         page = 1;
@@ -146,14 +161,14 @@ function drawDefaultClients() {
 function drawClients(table, res) {
     for (let i = 0; i < res.length; i++) {
         let socLink = '';
-        for(let j  = 0; j < res[i].socialProfiles.length; j++) {
+        for (let j = 0; j < res[i].socialProfiles.length; j++) {
             socLink += res[i].socialProfiles[j].link + '<br>';
         }
 
-            //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
-            var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-            var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
-                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+        //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
+        var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}));
+        var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
+            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
         let email = res[i].email === null ? '' : res[i].email,
             phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
@@ -166,7 +181,7 @@ function drawClients(table, res) {
             if (res[i].status.invisible) {
                 returnBtn =
                     '<div class="dropdown statuses-by-dropdown">' +
-                    '<button type="button" class="btn btn-default" data-toggle="dropdown" data-client="'+ res[i].id +'"> Вернуть </button>' +
+                    '<button type="button" class="btn btn-default" data-toggle="dropdown" data-client="' + res[i].id + '"> Вернуть </button>' +
                     '<ul class="dropdown-menu statuses-content"></ul>' +
                     '</div>'
             }
@@ -174,15 +189,15 @@ function drawClients(table, res) {
             if (res[i].postponeDate != undefined) {
                 returnBtn =
                     '<div class="button-return-from-postpone">' +
-                    '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="'+ res[i].id +'"> Вернуть </button>' +
+                    '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="' + res[i].id + '"> Вернуть </button>' +
                     '</div>'
             }
         }
 
-        table.append(
+        $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
-            '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
+            '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id + '">' + res[i].name + '</a></td>' +
             '        <td>' + res[i].lastName + '</td>' +
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +
@@ -232,25 +247,43 @@ $(document).ready(function () {
 
     win.scroll(function () {
         if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
-            $.get('/rest/client/pagination/new/first', {page : page}, function upload(clients) {
-                drawClients(table, clients, page);
-                page++;
-            })
+            //пагинация при фильтрации
+            if ($("#filter").hasClass('in')) {
+                data['pageNumber']++;
+                var url = "../rest/client/filtration";
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json",
+                    dataType: 'json',
+                    url: url,
+                    data: JSON.stringify(data),
+                    success: function (clients) {
+                        console.log(clients);
+                        drawClients(table, clients);
+                    }
+                });
+                //пагинация при обычном просмотре страницы
+            } else {
+                $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
+                    drawClients(table, clients, page);
+                    page++;
+                });
+            }
         }
     });
 });
 
 //Clearable search functions
 function tog(v) {
-    return v?'addClass':'removeClass';
+    return v ? 'addClass' : 'removeClass';
 }
 
 //Clearable search functions
-$(document).on('input', '.clearable', function(){
+$(document).on('input', '.clearable', function () {
     $(this)[tog(this.value)]('x');
-}).on('mousemove', '.x', function( e ){
-    $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');
-}).on('touchstart click', '.onX', function( ev ){
+}).on('mousemove', '.x', function (e) {
+    $(this)[tog(this.offsetWidth - 18 < e.clientX - this.getBoundingClientRect().left)]('onX');
+}).on('touchstart click', '.onX', function (ev) {
     ev.preventDefault();
     $(this).removeClass('x onX').val('').change();
     drawDefaultClients();

@@ -71,7 +71,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {
         Query query = entityManager.createQuery(createQuery(filteringCondition));
-        int pageNumber = 1;
+        int pageNumber = filteringCondition.getPageNumber();
         query.setFirstResult((pageNumber - 1) * pageSize);
         query.setMaxResults(pageSize);
         List<Client> fooList = query.getResultList();

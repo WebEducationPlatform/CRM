@@ -22,4 +22,6 @@ public interface UserService extends CommonService<User> {
 	User getUserByEmail(String email);
 
 	User getUserByFirstNameAndLastName(String firstName, String lastName);
+
+	void setColorBackground(String color, User user);
 }
