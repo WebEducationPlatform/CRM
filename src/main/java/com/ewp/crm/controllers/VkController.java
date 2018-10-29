@@ -2,7 +2,7 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
