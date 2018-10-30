@@ -159,11 +159,6 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private SlackProfile slackProfile;
 
-    public Client() {
-        this.state = State.NEW;
-        this.dateOfRegistration = LocalDateTime.now();
-    }
-
     @Column(name = "owner_call_skype")
     private Long ownerCallSkype;
 
@@ -175,6 +170,11 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "date_notify_call_skype")
     private ZonedDateTime dateCallSkypeNotify;
+
+    public Client() {
+        this.state = State.NEW;
+        this.dateOfRegistration = LocalDateTime.now();
+    }
 
     public Client(String name, String lastName) {
         this();

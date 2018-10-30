@@ -27,4 +27,14 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	public List<AssignSkypeCall> getSkypeCallDate() {
 		return assignSkypeCallRepository.getSkypeCallDate();
 	}
+
+	@Override
+	public void deleteByIdSkypeCall(Long id) {
+		assignSkypeCallRepository.deleteById(id);
+	}
+
+	@Override
+	public AssignSkypeCall getAssignSkypeCallBySkypeLogin(String login) {
+		return assignSkypeCallRepository.getAssignSkypeCallBylogin(login);
+	}
 }

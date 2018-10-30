@@ -67,6 +67,14 @@ public class SkypeCallRestController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@RequestMapping(value = "rest/skype/getSkypeCallNotificationChecked", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity getSkypeCallNotificationChecked(@RequestParam Long clientId) {
+		Client client = clientService.getClientByID(clientId);
+		AssignSkypeCall clientAssignSkypeCall = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype());
+		return ResponseEntity.ok(clientAssignSkypeCall.getSelectNetworkForNotifications());
+	}
+
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/mentor/addEvent", method = RequestMethod.POST)
 	public ResponseEntity addEventByIdMentor(@AuthenticationPrincipal User principal,
 											 @RequestParam(name = "clientId") Long clientId,
@@ -133,10 +141,12 @@ public class SkypeCallRestController {
 
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/updateSkypeCallNotification", method = RequestMethod.POST)
-	public ResponseEntity updateSkypeCallNotification(@AuthenticationPrincipal User principal,
-													  @RequestParam Long clientId,
-													  @RequestParam String date,
+	public ResponseEntity updateSkypeCallNotification(@RequestParam Long clientId,
 													  @RequestParam String selectNetwork) {
+		Client client = clientService.getClientByID(clientId);
+		AssignSkypeCall clientAssignSkypeCall = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype());
+		clientAssignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
+		assignSkypeCallService.update(clientAssignSkypeCall);
 		return ResponseEntity.badRequest().body("Произошла ошибка");
 	}
 
@@ -155,6 +165,7 @@ public class SkypeCallRestController {
 		client.setDateCallSkype(null);
 		client.setDateNotifyCallSkypeNotify(null);
 		clientService.updateClient(client);
+		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getId());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 }

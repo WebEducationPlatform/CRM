@@ -1264,7 +1264,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                         } else {
                             $('.assign-skype-call-btn').hide();
                             editDate.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + clientId + '" type="button" onclick="updateCallDate(' + clientId + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>' +
-                                '<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span> <span class="sr-only">Toggle Dropdown</span> </button>'  +
+                                '<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>'  +
                                 '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
                                 '    <li><a onclick="deleteCallDate(' + clientId + ')" href="#">Удалить беседу</a></li>\n' +
                                 '    <li><a href="#">Отмена</a></li>\n' +
@@ -1513,11 +1513,73 @@ function deleteCallDate(id) {
     });
 };
 
-$(document).on('click','.send-skype-message', function (e) {
-    var clientId = $(this).parents('#main-modal-window').data('clientId');
-    var sel = $('input[type="checkbox"]:checked').map(function (i, el) {
+function updateNotification(id) {
+    var clientId = id;
+    var currentFormGroup = $('.update.btn-group');
+    $.ajax({
+        type: 'GET',
+        url: 'rest/client/' + clientId,
+        dataType: 'json',
+        success: function (result) {
+            $.ajsx({
+                type: 'GET',
+                url: 'rest/skype/getSkypeCallNotificationChecked',
+                dataType: 'json',
+                success: function (result) {
+                    $('.update-skype-notification').remove();
+                    currentFormGroup.after('<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Напомнить клиенту за час до созвона</div>' +
+                        '<div class="panel-body">' +
+                        '<form class="box-window">' +
+                        '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button> </form>' +
+                        '<button type="button" class="btn btn-primary btn-xs send-skype-notification">Подтвердить</button></div></div></div>');
+                    drawCheckbox($(".box-window"), clientId);
+                }
+            })
+
+        },
+        error: function (e) {
+            var currentStatus = $(".skype-notification");
+            currentStatus.text(e.responseText);
+            console.log(e.responseText)
+        }
+    })
+};
+
+$(document).on('click','.send-skype-notification', function (e) {
+    var clientId = id;
+    var currentFormGroup = $('.update.btn-group');
+    var currentStatus = $(".skype-notification");
+    var sel = $('.soc-network-box input:checkbox:checked').map(function (i, el) {
         return $(el).val();
     });
+    var boxList = sel.get();
+
+    let formData = {
+        clientId: clientId,
+        selectNetwork: JSON.stringify(boxList)
+    };
+
+    $.ajax({
+        type: 'POST',
+        url: 'rest/skype/updateSkypeCallNotification',
+        data: formData,
+        success: function() {
+            $('.update-skype-notification').remove();
+            currentFormGroup.remove();
+        },
+        error: function (e) {
+            currentStatus.text(e.responseText);
+            console.log(e.responseText)
+        }
+    })
+});
+
+$(document).on('click','.send-skype-message', function (e) {
+    var clientId = $(this).parents('#main-modal-window').data('clientId');
+    var sel = $('.soc-network-box input:checkbox:checked').map(function (i, el) {
+        return $(el).val();
+    });
+    var notification = $('.assign-skype-call-btn');
 
     var boxList = sel.get();
 
@@ -1534,9 +1596,10 @@ $(document).on('click','.send-skype-message', function (e) {
             $('.skype-panel').remove();
             $('.skype-notification').hide();
             if (boxList.length === 0) {
-                $('.assign-skype-call-btn').after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
+                notification.after('<h5 class="skype-text">Уведомление о напоминании не было выбрано</h5>');
             } else {
-                $('.assign-skype-call-btn').after('<h5 class="skype-text">' + 'Клиент будет уведомлен за час до созвона по ' + boxList + '</h5>');
+                notification.after('<h5 class="skype-text">' + 'Клиент будет уведомлен за час до созвона по ' + boxList + '</h5>');
+                $('.update .btn-group').after('<div class="remove-tag update-skype-notification"><button type="button" onclick="updateNotification(' + clientId + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span>Изменить уведомление</button></div>')
             }
         },
         error: function (e) {
@@ -1610,6 +1673,7 @@ $(function () {
                             '    </ul>' +
                             '</div>' +
                             '<div class="skype-notification"></div>\n' +
+                            '<div class="remove-tag update-skype-notification"><button id="assign-skype' + clientId + '" type="button" onclick="updateNotification(' + clientId + ')" class="btn btn-success update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить уведомление</button></div>' +
                             '</div>')
                     } else {
                         btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>\n' +

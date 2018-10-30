@@ -9,4 +9,8 @@ public interface AssignSkypeCallService extends CommonService<AssignSkypeCall> {
 	void addSkypeCall(AssignSkypeCall assignSkypeCall);
 
 	List<AssignSkypeCall> getSkypeCallDate();
+
+	void deleteByIdSkypeCall(Long id);
+
+	AssignSkypeCall getAssignSkypeCallBySkypeLogin(String login);
 }
