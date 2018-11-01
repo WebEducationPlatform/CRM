@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface AssignSkypeCallRepository extends CommonGenericRepository<AssignSkypeCall> {
 
-	@Query(value = "select sl from AssignSkypeCall sl where now() >= sl.remindBeforeOfSkypeCall")
+	@Query(value = "select sl from AssignSkypeCall sl where now() >= sl.notificationBeforeOfSkypeCall")
 	List<AssignSkypeCall> getSkypeCallDate();
 
-	AssignSkypeCall getAssignSkypeCallBylogin(String login);
+	AssignSkypeCall getAssignSkypeCallBySkypeClientlogin(String skypeClientlogin);
 }

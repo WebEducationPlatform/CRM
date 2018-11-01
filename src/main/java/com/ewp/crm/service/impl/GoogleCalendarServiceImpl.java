@@ -102,7 +102,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                     client.calendars().get(calendarMentor).execute();
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String formattedDateOld = Instant.ofEpochMilli(oldDate)
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(outputFormatter);
@@ -128,7 +128,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String format = Instant.ofEpochMilli(date)
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(dateTimeFormatter);
@@ -148,7 +148,8 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         Event event = new Event();
         event.setSummary("Skype(crm) - " + skype);
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String format = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startDate), ZoneId.systemDefault())
+        String format = Instant.ofEpochMilli(startDate)
+                .atZone(ZoneId.of("+00:00"))
 				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                 .format(outputFormatter);
         DateTime start = new DateTime(format);
@@ -165,7 +166,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                     client.calendars().get(calendarMentor).execute();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             String format = Instant.ofEpochMilli(oldDate)
-					.atZone(ZoneId.systemDefault())
+					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
                     .withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
                     .format(dateTimeFormatter);

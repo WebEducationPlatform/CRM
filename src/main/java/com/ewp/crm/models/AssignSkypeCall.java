@@ -15,16 +15,22 @@ public class AssignSkypeCall {
 	private Long id;
 
 	@Column(name = "assign_skype_call_login")
-	private String login;
+	private String skypeClientlogin;
 
 	@Column(name = "assign_skype_call_created_time")
 	private ZonedDateTime createdTime;
 
-	@Column(name = "remind_before_of_skype_call")
-	private ZonedDateTime remindBeforeOfSkypeCall;
+	@Column(name = "date_Skype_Call")
+	private ZonedDateTime dateSkypeCall;
+
+	@Column(name = "notification_before_of_skype_call")
+	private ZonedDateTime notificationBeforeOfSkypeCall;
 
 	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
+
+	@Column(name = "the_notification_is_sent")
+	private boolean TheNotificationIsSent;
 
 	@ManyToOne
 	@JoinTable(name = "assign_user_skype_call",
@@ -38,21 +44,23 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
-	public AssignSkypeCall(ZonedDateTime remindBeforeOfSkypeCall,
-						   String login,
-						   User fromAssignSkypeCall,
-						   ZonedDateTime createdTime,
-						   Client toAssignSkypeCall,
-						   String selectNetworkForNotifications) {
-		this.login = login;
-		this.createdTime = createdTime;
-		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
-		this.selectNetworkForNotifications = selectNetworkForNotifications;
-		this.fromAssignSkypeCall = fromAssignSkypeCall;
-		this.toAssignSkypeCall = toAssignSkypeCall;
+	public AssignSkypeCall() {
 	}
 
-	public AssignSkypeCall() {
+	public AssignSkypeCall(String skypeClientlogin,
+						   User fromAssignSkypeCall,
+						   Client toAssignSkypeCall,
+						   ZonedDateTime createdTime,
+						   ZonedDateTime dateSkypeCall,
+						   ZonedDateTime notificationBeforeOfSkypeCall,
+						   String selectNetworkForNotifications) {
+		this.skypeClientlogin = skypeClientlogin;
+		this.fromAssignSkypeCall = fromAssignSkypeCall;
+		this.toAssignSkypeCall = toAssignSkypeCall;
+		this.createdTime = createdTime;
+		this.dateSkypeCall = dateSkypeCall;
+		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
+		this.selectNetworkForNotifications = selectNetworkForNotifications;
 	}
 
 	public Long getId() {
@@ -63,12 +71,12 @@ public class AssignSkypeCall {
 		this.id = id;
 	}
 
-	public String getLogin() {
-		return login;
+	public String getSkypeClientlogin() {
+		return skypeClientlogin;
 	}
 
-	public void setLogin(String login) {
-		this.login = login;
+	public void setSkypeClientlogin(String skypeClientlogin) {
+		this.skypeClientlogin = skypeClientlogin;
 	}
 
 	public ZonedDateTime getCreatedTime() {
@@ -79,12 +87,20 @@ public class AssignSkypeCall {
 		this.createdTime = createdTime;
 	}
 
-	public ZonedDateTime getRemindBeforeOfSkypeCall() {
-		return remindBeforeOfSkypeCall;
+	public ZonedDateTime getDateSkypeCall() {
+		return dateSkypeCall;
 	}
 
-	public void setRemindBeforeOfSkypeCall(ZonedDateTime remindBeforeOfSkypeCall) {
-		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
+	public void setDateSkypeCall(ZonedDateTime dateSkypeCall) {
+		this.dateSkypeCall = dateSkypeCall;
+	}
+
+	public ZonedDateTime getNotificationBeforeOfSkypeCall() {
+		return notificationBeforeOfSkypeCall;
+	}
+
+	public void setNotificationBeforeOfSkypeCall(ZonedDateTime notificationBeforeOfSkypeCall) {
+		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
 	}
 
 	public String getSelectNetworkForNotifications() {
@@ -109,5 +125,13 @@ public class AssignSkypeCall {
 
 	public void setToAssignSkypeCall(Client toAssignSkypeCall) {
 		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
+
+	public boolean isTheNotificationIsSent() {
+		return TheNotificationIsSent;
+	}
+
+	public void setTheNotificationIsSent(boolean theNotificationIsSent) {
+		TheNotificationIsSent = theNotificationIsSent;
 	}
 }

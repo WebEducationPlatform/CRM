@@ -23,16 +23,19 @@ public class AdminRestClientController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
 	public AdminRestClientController(ClientService clientService,
 									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
-									 StatusService statusService) {
+									 StatusService statusService,
+									 AssignSkypeCallService assignSkypeCallService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
+		this.assignSkypeCallService = assignSkypeCallService;
 	}
 
 	@PostMapping(value = "/add")
@@ -60,6 +63,10 @@ public class AdminRestClientController {
 					socialProfile.getSocialProfileType().getName()).getId());
 		}
 		Client clientFromDB = clientService.get(currentClient.getId());
+		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(clientFromDB.getSkype());
+		if (assignSkypeCallBySkypeLogin != null){
+			assignSkypeCallBySkypeLogin.setSkypeClientlogin(currentClient.getSkype());
+		}
 		currentClient.setHistory(clientFromDB.getHistory());
 		currentClient.setComments(clientFromDB.getComments());
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
