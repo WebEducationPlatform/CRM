@@ -1237,7 +1237,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
 
     let formData1 = {
         idMentor: idMentor,
-        startDateOld: startDateOld.getTime(),
+        startDateOld: Date.UTC(startDateOld.getFullYear(), startDateOld.getMonth(), startDateOld.getDate(), startDateOld.getHours(), startDateOld.getMinutes() , 0, 0),
         clientId: clientId
     };
 
@@ -1317,8 +1317,7 @@ function updateCallDate(id) {
             var oldDate = new Date(new Date(client.dateCallSkype).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
             var date = new Date();
             var minutes =  Math.ceil((date.getMinutes() +1)/10)*10;
-            var minDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), minutes , 0, 0);
-            var startDate = minDate;
+            var startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), minutes , 0, 0);
             btnBlockTask.attr('id', 'assign-skype' + clientId);
             // Get the list of mentors
             $.ajax({
@@ -1393,14 +1392,14 @@ $(document).on('click','.update-skype-call', function (e) {
     let formData1 = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateOld: startDateNew.getTime()
+        startDateOld: Date.UTC(startDateNew.getFullYear(), startDateNew.getMonth(), startDateNew.getDate(), startDateNew.getHours(), startDateNew.getMinutes() , 0, 0),
     };
 
     let formData = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateNew: startDateNew.getTime(),
-        startDateOld: startDateOld.getTime()
+        startDateNew: Date.UTC(startDateNew.getFullYear(), startDateNew.getMonth(), startDateNew.getDate(), startDateNew.getHours(), startDateNew.getMinutes() , 0, 0),
+        startDateOld: Date.UTC(startDateOld.getFullYear(), startDateOld.getMonth(), startDateOld.getDate(), startDateOld.getHours(), startDateOld.getMinutes() , 0, 0)
     };
 
     // Check free date
@@ -1464,13 +1463,12 @@ function deleteCallDate(id) {
         success: function (client) {
             // Delete date
             var date = new Date(new Date(client.dateCallSkype).toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-            var oldDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() , 0, 0);
-            startDateOld = oldDate;
+            var startDateOld = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() , 0, 0);
 
             let formData = {
                 clientId: clientId,
-                idMentor: idMentor,
-                startDateOld: startDateOld.getTime()
+                    idMentor: idMentor,
+                startDateOld: startDateOld
             };
 
             $.ajax({
@@ -1521,7 +1519,7 @@ function updateNotification(id) {
         url: 'rest/client/' + clientId,
         dataType: 'json',
         success: function (result) {
-            $.ajsx({
+            $.ajax({
                 type: 'GET',
                 url: 'rest/skype/getSkypeCallNotificationChecked',
                 dataType: 'json',
@@ -1590,7 +1588,7 @@ $(document).on('click','.send-skype-message', function (e) {
     };
     $.ajax({
         type: "POST",
-        url: 'rest/skype/addSkypeCallNotification',
+        url: 'rest/skype/addSkypeCallAndNotification',
         data: formData,
         success: function (result) {
             $('.skype-panel').remove();
@@ -1604,6 +1602,7 @@ $(document).on('click','.send-skype-message', function (e) {
         },
         error: function (e) {
             var currentStatus = $(".skype-notification");
+            currentStatus.css('color','#d01717');
             currentStatus.text(e.responseText);
             console.log(e.responseText)
         }

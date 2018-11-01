@@ -87,17 +87,17 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-	                     YouTubeTrackingCardService youTubeTrackingCardService,
-	                     ClientService clientService, StudentService studentService,
-	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
-	                     MailingService mailingService, SocialProfileService socialProfileService,
-	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-	                     MailSendService mailSendService, Environment env, ReportService reportService,
-	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 YouTubeTrackingCardService youTubeTrackingCardService,
+						 ClientService clientService, StudentService studentService,
+						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
+						 MailingService mailingService, SocialProfileService socialProfileService,
+						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 MailSendService mailSendService, Environment env, ReportService reportService,
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -147,41 +147,55 @@ public class ScheduleTasks {
 	}
 
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 15_000)
 	private void checkTimeSkypeCall() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
-			String skypeTemplate = env.getRequiredProperty("skype.template");
-			User principal = assignSkypeCall.getFromAssignSkypeCall();
-			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
-			Long clientId = client.getId();
-			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
-					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
-			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-
-			if (selectNetworks.contains("vk")) {
-				try {
-					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
-				} catch (Exception e) {
-					logger.warn("VK message not sent", e);
+			ZonedDateTime zonedDateTimeNow = ZonedDateTime.now();
+			ZonedDateTime dateSkypeCall = assignSkypeCall.getDateSkypeCall();
+			if (dateSkypeCall.isBefore(zonedDateTimeNow) || dateSkypeCall.isEqual(zonedDateTimeNow)) {
+				client.setLiveSkypeCall(false);
+				clientService.updateClient(client);
+				assignSkypeCallService.delete(assignSkypeCall);
+				continue;
+			}
+			if (assignSkypeCall.isTheNotificationIsSent()) {
+				if (ZonedDateTime.now().isAfter(assignSkypeCall.getNotificationBeforeOfSkypeCall().minusMinutes(2))) {
+					String skypeTemplate = env.getRequiredProperty("skype.template");
+					User principal = assignSkypeCall.getFromAssignSkypeCall();
+					String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
+					Long clientId = client.getId();
+					String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
+							.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
+					sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
+					if (selectNetworks.contains("vk")) {
+						try {
+							vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
+						} catch (Exception e) {
+							logger.warn("VK message not sent", e);
+						}
+					}
+					if (selectNetworks.contains("sms")) {
+						try {
+							smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
+						} catch (Exception e) {
+							logger.warn("SMS message not sent", e);
+						}
+					}
+					if (selectNetworks.contains("email")) {
+						try {
+							mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
+						} catch (Exception e) {
+							logger.warn("E-mail message not sent");
+						}
+					}
+					assignSkypeCall.setTheNotificationIsSent(true);
+					assignSkypeCallService.update(assignSkypeCall);
+//					if (notificationBeforeOfSkypeCall.isBefore(zonedDateTimeNow) || notificationBeforeOfSkypeCall.isEqual(zonedDateTimeNow)){
+//						continue;
+//					}
 				}
 			}
-			if (selectNetworks.contains("sms")) {
-				try {
-					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
-				} catch (Exception e) {
-					logger.warn("SMS message not sent", e);
-				}
-			}
-			if (selectNetworks.contains("email")) {
-				try {
-					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
-				} catch (Exception e) {
-					logger.warn("E-mail message not sent");
-				}
-			}
-			assignSkypeCallService.delete(assignSkypeCall);
-			clientService.updateClient(client);
 		}
 	}
 

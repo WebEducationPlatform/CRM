@@ -159,17 +159,8 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private SlackProfile slackProfile;
 
-    @Column(name = "owner_call_skype")
-    private Long ownerCallSkype;
-
-    @Column(name = "live_owner_call_skype")
-    private boolean liveOwnerCallSkype = false;
-
-    @Column(name = "date_call_skype")
-    private ZonedDateTime dateCallSkype;
-
-    @Column(name = "date_notify_call_skype")
-    private ZonedDateTime dateCallSkypeNotify;
+    @Column(name = "live_skype_call")
+    private boolean liveSkypeCall = false;
 
     public Client() {
         this.state = State.NEW;
@@ -246,36 +237,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.clientDescriptionComment = clientDescriptionComment;
     }
 
-    public ZonedDateTime getDateNotifyCallSkypeNotify() {
-        return dateCallSkypeNotify;
+    public boolean isLiveSkypeCall() {
+        return liveSkypeCall;
     }
 
-    public void setDateNotifyCallSkypeNotify(ZonedDateTime dateNotifyCallSkypeNotify) {
-        this.dateCallSkypeNotify = dateNotifyCallSkypeNotify;
-    }
-
-    public ZonedDateTime getDateCallSkype() {
-        return dateCallSkype;
-    }
-
-    public void setDateCallSkype(ZonedDateTime dateCallSkype) {
-        this.dateCallSkype = dateCallSkype;
-    }
-
-    public Long getOwnerCallSkype() {
-        return ownerCallSkype;
-    }
-
-    public void setOwnerCallSkype(Long ownerCallSkype) {
-        this.ownerCallSkype = ownerCallSkype;
-    }
-
-    public boolean isLiveOwnerCallSkype() {
-        return liveOwnerCallSkype;
-    }
-
-    public void setLiveOwnerCallSkype(boolean liveOwnerCallSkype) {
-        this.liveOwnerCallSkype = liveOwnerCallSkype;
+    public void setLiveSkypeCall(boolean liveSkypeCall) {
+        this.liveSkypeCall = liveSkypeCall;
     }
 
     public String getSkype() {

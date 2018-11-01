@@ -34,7 +34,7 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	}
 
 	@Override
-	public AssignSkypeCall getAssignSkypeCallBySkypeLogin(String login) {
-		return assignSkypeCallRepository.getAssignSkypeCallBylogin(login);
+	public AssignSkypeCall getAssignSkypeCallBySkypeLogin(String skypeClientlogin) {
+		return assignSkypeCallRepository.getAssignSkypeCallBySkypeClientlogin(skypeClientlogin);
 	}
 }
