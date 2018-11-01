@@ -1,5 +1,8 @@
 package com.ewp.crm.security.config;
 
+import com.ewp.crm.security.auth.AuthenticationProvider;
+import com.ewp.crm.security.auth.CustomPasswordEncoder;
+import com.ewp.crm.security.filter.AjaxRequestHandlingFilter;
 import com.ewp.crm.security.handlers.CustomAuthenticationSuccessHandler;
 import com.ewp.crm.security.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -26,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationService authenticationService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final RequestMatcher csrfRequestMatcher = new RequestMatcher() {
-    private final RegexRequestMatcher requestMatcher = new RegexRequestMatcher("/processing-url", null);
+        private final RegexRequestMatcher requestMatcher = new RegexRequestMatcher("/processing-url", null);
 
         @Override
         public boolean matches(HttpServletRequest request) {
@@ -34,10 +39,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
     };
 
+    private final AuthenticationProvider authenticationProvider;
+    private final AjaxRequestHandlingFilter ajaxRequestHandlingFilter;
+
     @Autowired
-    public SecurityConfig(AuthenticationService authenticationService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+    public SecurityConfig(AuthenticationService authenticationService
+            ,CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler
+            ,AuthenticationProvider authenticationProvider
+            ,AjaxRequestHandlingFilter ajaxRequestHandlingFilter
+    ) {
         this.authenticationService = authenticationService;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.authenticationProvider = authenticationProvider;
+        this.ajaxRequestHandlingFilter = ajaxRequestHandlingFilter;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider);
     }
 
     @Override
@@ -69,6 +88,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .maxSessionsPreventsLogin(false)
                 .expiredUrl("/login?logout")
                 .sessionRegistry(sessionRegistry());
+
+        http
+                .addFilterAfter(ajaxRequestHandlingFilter, ExceptionTranslationFilter.class);
     }
 
     @Bean
@@ -77,12 +99,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public static NoOpPasswordEncoder passwordEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    public static CustomPasswordEncoder passwordEncoder() {
+        return new CustomPasswordEncoder();
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(authenticationService);
+        auth
+                .userDetailsService(authenticationService)
+                .passwordEncoder(passwordEncoder());
     }
 }

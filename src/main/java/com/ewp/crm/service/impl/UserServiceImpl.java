@@ -1,11 +1,13 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.ImageConfig;
+import com.ewp.crm.exceptions.user.UserEntityException;
 import com.ewp.crm.exceptions.user.UserExistsException;
 import com.ewp.crm.exceptions.user.UserPhotoException;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
+import com.ewp.crm.security.auth.CustomPasswordEncoder;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +28,15 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserDAO userDAO;
     private final ImageConfig imageConfig;
+    private final CustomPasswordEncoder customPasswordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig
+            , CustomPasswordEncoder customPasswordEncoder
+    ) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
+        this.customPasswordEncoder = customPasswordEncoder;
     }
 
     @Override
@@ -51,6 +57,9 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+
+        customPasswordEncoder.encodePasswordForUser(user);
+
         logger.info("{}: user saved successfully", UserServiceImpl.class.getName());
         return userDAO.saveAndFlush(user);
     }
@@ -64,6 +73,17 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+
+        if (user.getPassword() != null &&
+                currentUserByEmail != null && !user.getPassword().equals(currentUserByEmail.getPassword())) {
+                customPasswordEncoder.encodePasswordForUser(user);
+        }
+
+        if (user.getPassword() == null) {
+            logger.error("Input password is null for user email {}", user.getEmail());
+            throw new UserEntityException("Input password is null.");
+        }
+
         logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
         userDAO.saveAndFlush(user);
     }
@@ -99,12 +119,11 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
 
     @Override
     public void setColorBackground(String color, User user) {
-        logger.info("{}: set color background...", UserServiceImpl.class.getName());
-
+        String precolor = user.getColorBackground();
         user.setColorBackground(color);
         update(user);
 
-        logger.info("{}: color background set to " + color, UserServiceImpl.class.getName());
+        logger.info("{}: color background set from {} to {}",user.getFullName(), precolor, color);
     }
 
     private void phoneNumberValidation(User user) {

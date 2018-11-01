@@ -104,6 +104,10 @@ public class User implements UserDetails {
 	@Column(name = "color_background")
 	private String colorBackground;
 
+	@JsonIgnore
+	@Column(name = "salt")
+	private byte[] salt;
+
 	public User() {
 		this.isEnabled = false;
 		this.isVerified = false;
@@ -123,6 +127,14 @@ public class User implements UserDetails {
 		this.ipTelephony = ipTelephony;
 		this.isVerified = isVerified;
 		this.isEnabled = isVerified;
+	}
+
+	public byte[] getSalt() {
+		return salt;
+	}
+
+	public void setSalt(byte[] salt) {
+		this.salt = salt;
 	}
 
 	public String getVkToken() {
