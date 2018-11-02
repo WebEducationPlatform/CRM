@@ -34,7 +34,7 @@ import java.util.*;
 
 
 @Component
-public class VKService {
+public class VKServiceImpl implements VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
     private final YoutubeClientService youtubeClientService;
@@ -69,7 +69,7 @@ public class VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKService(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
         clubId = vkConfig.getClubId();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -94,6 +94,7 @@ public class VKService {
         this.firstContactMessage = vkConfig.getFirstContactMessage();
     }
 
+    @Override
     public String receivingTokenUri() {
 
         return "https://oauth.vk.com/authorize" +
@@ -105,6 +106,7 @@ public class VKService {
                 "&v" + version;
     }
 
+    @Override
     public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
         logger.info("VKService: getting new messages...");
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
@@ -142,6 +144,7 @@ public class VKService {
         return Optional.empty();
     }
 
+    @Override
     public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
         Client client = clientService.getClientByID(clientId);
         String fullName = client.getName() + " " + client.getLastName();
@@ -213,10 +216,11 @@ public class VKService {
      * @param clientId recipient client.
      * @param templateText email template text.
      */
+    @Override
     public void simpleVKNotification(Long clientId, String templateText) {
         sendMessageToClient(clientId, templateText, "", null);
     }
-
+    @Override
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
         if (groupId == null) {
@@ -250,12 +254,12 @@ public class VKService {
         return Optional.empty();
     }
 
-
+    @Override
     public String sendMessageById(Long id, String msg) {
         return sendMessageById(id, msg, robotAccessToken);
     }
 
-
+    @Override
     public String sendMessageById(Long id, String msg, String token) {
         logger.info("VKService: sending message to client with id {}...", id);
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
@@ -298,6 +302,7 @@ public class VKService {
         }
     }
 
+    @Override
     public Optional<List<Long>> getUsersIdFromCommunityMessages() {
         logger.info("VKService: getting user ids from community messages...");
         String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
@@ -347,6 +352,7 @@ public class VKService {
         }
     }
 
+    @Override
     public Optional<Client> getClientFromVkId(Long id) {
         logger.info("VKService: getting client by VK id...");
         String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
@@ -383,6 +389,7 @@ public class VKService {
         return Optional.empty();
     }
 
+    @Override
     public Client parseClientFromMessage(String message) throws ParseClientException {
         logger.info("VKService: parsing client from VK message...");
         if (!message.startsWith("Новая заявка")) {
@@ -419,6 +426,7 @@ public class VKService {
         return field.substring(field.indexOf("A: ") + 3);
     }
 
+    @Override
     public String refactorAndValidateVkLink(String link) {
         logger.info("VKService: refactoring and validation of VK link...");
         String userName = link.replaceAll("^.+\\.(com/)", "");
@@ -460,15 +468,18 @@ public class VKService {
         return vkText;
     }
 
+    @Override
     public void setTechnicalAccountToken(String technicalAccountToken) {
         this.technicalAccountToken = technicalAccountToken;
     }
 
+    @Override
     public String replaceApplicationTokenFromUri(String uri) {
         return uri.replaceAll(".+(access_token=)", "")
                 .replaceAll("&.+", "");
     }
 
+    @Override
     public String createNewAudience(String groupName, String idVkCabinet) throws Exception {
         logger.info("VKService: creation of new audience...");
         String createGroup = "https://api.vk.com/method/ads.createTargetGroup";
@@ -484,6 +495,7 @@ public class VKService {
         return groupId;
     }
 
+    @Override
     public void addUsersToAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         logger.info("VKService: adding users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.importTargetContacts";
@@ -497,6 +509,7 @@ public class VKService {
         Response response = service.execute(request);
     }
 
+    @Override
     public void removeUsersFromAudience(String groupId, String contacts, String idVkCabinet) throws Exception {
         logger.info("VKService: removing users to audience...");
         String addContactsToGroup = "https://api.vk.com/method/ads.removeTargetContacts";
@@ -537,10 +550,12 @@ public class VKService {
 
     }
 
+    @Override
     public String getFirstContactMessage() {
         return firstContactMessage;
     }
 
+    @Override
     public boolean hasTechnicalAccountToken() {
         if (technicalAccountToken == null) {
             if (projectPropertiesService.get() == null) {
@@ -552,6 +567,7 @@ public class VKService {
         return true;
     }
 
+    @Override
     public String getLongIDFromShortName(String vkGroupShortName) {
         if (hasTechnicalAccountToken()) {
             String uriGetGroup = VK_API_METHOD_TEMPLATE + "groups.getById?" +
@@ -580,6 +596,7 @@ public class VKService {
         return null;
     }
 
+    @Override
     public Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient) {
         if (hasTechnicalAccountToken()) {
             youtubeClient.setChecked(true);
@@ -631,5 +648,6 @@ public class VKService {
         }
         return Optional.empty();
     }
+
 }
 

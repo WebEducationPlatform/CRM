@@ -3,7 +3,7 @@ package com.ewp.crm.service.email;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
