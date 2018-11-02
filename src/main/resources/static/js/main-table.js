@@ -1149,6 +1149,10 @@ function assignSkype(id) {
     });
 };
 
+var idMentor;
+var skypeCallDateNew;
+var skypeCallDateOld;
+
 function confirmSkype(id) {
     var currentBtn = $(document).find('.assign-skype-call-btn');
     var clientId = id;
@@ -1157,8 +1161,7 @@ function confirmSkype(id) {
     var formData = {clientId: clientId, skypeLogin: skypeLogin};
     var nowDate = new Date();
     var minutes =  Math.ceil((nowDate.getMinutes() +1)/10)*10;
-    var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
-    var startDate = minDate;
+    var startDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     $.ajax({
         type: 'POST',
         url: 'rest/client/setSkypeLogin',
@@ -1224,7 +1227,7 @@ function confirmSkype(id) {
 };
 
 $(document).on('click','.confirm-skype-btn', function (e) {
-    startDateOld = $('input[name="skypePostponeDateOld"]').data('daterangepicker').startDate._d;
+    skypeCallDateOld = $('input[name="skypePostponeDateOld"]').data('daterangepicker').startDate._d;
     idMentor = document.getElementsByTagName("option")[document.getElementById("mentor").selectedIndex].value;
     var currentForm = $('.box-window');
     var skypeBtn = $('.skype-postpone-date');
@@ -1237,7 +1240,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
 
     let formData1 = {
         idMentor: idMentor,
-        startDateOld: Date.UTC(startDateOld.getFullYear(), startDateOld.getMonth(), startDateOld.getDate(), startDateOld.getHours(), startDateOld.getMinutes() , 0, 0),
+        startDate: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes() , 0, 0),
         clientId: clientId
     };
 
@@ -1255,7 +1258,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 // Add Event in calendar mentor
                 $.ajax({
                     type: 'POST',
-                    url: 'rest/mentor/addEvent',
+                    url: 'rest/skype/addSkypeCallAndNotification',
                     data: formData1,
                     success: function (e) {
                         if (e === null || e.length === 0) {
@@ -1296,10 +1299,6 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         },
     });
 });
-
-var idMentor;
-var startDateNew;
-var startDateOld;
 
 function updateCallDate(id) {
     var clientId = id;
@@ -1370,7 +1369,7 @@ function updateCallDate(id) {
                 minDate: new Date(new Date(startDate).toLocaleString('en-US', { timeZone: 'Europe/Moscow' })),
                 startDate: oldDate
             });
-            startDateOld = oldDate;
+            skypeCallDateOld = oldDate;
         },
         error: function (error) {
             console.log(error);
@@ -1381,7 +1380,7 @@ function updateCallDate(id) {
 };
 
 $(document).on('click','.update-skype-call', function (e) {
-    startDateNew = $('input[name="skypePostponeDateNew"]').data('daterangepicker').startDate._d;
+    skypeCallDateNew = $('input[name="skypePostponeDateNew"]').data('daterangepicker').startDate._d;
     idMentor = document.getElementsByTagName("option")[document.getElementById("mentor").selectedIndex].value;
     var skypeBtn2 = $('.confirm-skype-btn, #mentor');
     var skypeBtn = $('.skype-postpone-date');
@@ -1392,14 +1391,14 @@ $(document).on('click','.update-skype-call', function (e) {
     let formData1 = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateOld: Date.UTC(startDateNew.getFullYear(), startDateNew.getMonth(), startDateNew.getDate(), startDateNew.getHours(), startDateNew.getMinutes() , 0, 0),
+        startDateOld: Date.UTC(skypeCallDateNew.getFullYear(), skypeCallDateNew.getMonth(), skypeCallDateNew.getDate(), skypeCallDateNew.getHours(), skypeCallDateNew.getMinutes() , 0, 0),
     };
 
     let formData = {
         clientId: clientId,
         idMentor: idMentor,
-        startDateNew: Date.UTC(startDateNew.getFullYear(), startDateNew.getMonth(), startDateNew.getDate(), startDateNew.getHours(), startDateNew.getMinutes() , 0, 0),
-        startDateOld: Date.UTC(startDateOld.getFullYear(), startDateOld.getMonth(), startDateOld.getDate(), startDateOld.getHours(), startDateOld.getMinutes() , 0, 0)
+        startDateNew: Date.UTC(skypeCallDateNew.getFullYear(), skypeCallDateNew.getMonth(), skypeCallDateNew.getDate(), skypeCallDateNew.getHours(), skypeCallDateNew.getMinutes() , 0, 0),
+        startDateOld: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes() , 0, 0)
     };
 
     // Check free date
@@ -1431,7 +1430,7 @@ $(document).on('click','.update-skype-call', function (e) {
                                 skypeBtn.hide();
                                 $('.skype-notification').hide();
                                 $('.skype-panel').remove();
-                                startDateOld = startDateNew;
+                                skypeCallDateOld = skypeCallDateNew;
                             }
                         },
 
@@ -1573,6 +1572,7 @@ $(document).on('click','.send-skype-notification', function (e) {
 });
 
 $(document).on('click','.send-skype-message', function (e) {
+
     var clientId = $(this).parents('#main-modal-window').data('clientId');
     var sel = $('.soc-network-box input:checkbox:checked').map(function (i, el) {
         return $(el).val();
