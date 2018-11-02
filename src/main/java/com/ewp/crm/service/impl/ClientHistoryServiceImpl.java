@@ -89,7 +89,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ");
 				title.append("(");
 				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getDateSkypeCall().toString())
+						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getSkypeCallDate().toString())
 						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
 				title.append(")");
 				break;
@@ -97,7 +97,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ");
 				title.append("(");
 				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getDateSkypeCall().toString())
+						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getSkypeCallDate().toString())
 						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
 				title.append(")");
 				break;
@@ -105,7 +105,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ");
 				title.append("(");
 				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getDateSkypeCall().toString())
+						assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getSkypeCallDate().toString())
 						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
 				title.append(")");
 				break;

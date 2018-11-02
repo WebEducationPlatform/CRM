@@ -24,8 +24,13 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	}
 
 	@Override
-	public List<AssignSkypeCall> getSkypeCallDate() {
-		return assignSkypeCallRepository.getSkypeCallDate();
+	public List<AssignSkypeCall> getAssignSkypeCallIfNotificationWasNoSent() {
+		return assignSkypeCallRepository.getAssignSkypeCallIfNotificationWasNoSent();
+	}
+
+	@Override
+	public List<AssignSkypeCall> getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient() {
+		return assignSkypeCallRepository.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient();
 	}
 
 	@Override
