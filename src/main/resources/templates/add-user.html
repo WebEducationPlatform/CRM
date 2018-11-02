@@ -115,7 +115,7 @@
                                id="add-user-city"/>
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group" id="add-user-roles" sec:authorize="hasAnyAuthority('OWNER')">
+                    <div class="form-group" id="add-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="add-user-roles">Роли</label>
                         <div class="checkbox" th:each="role : ${roles}">
                             <input type="checkbox" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}"
