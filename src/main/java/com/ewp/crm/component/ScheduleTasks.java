@@ -146,56 +146,51 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
+	@Scheduled(fixedRate = 15_000)
+	private void checkCallInSkype() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
+			Client client = assignSkypeCall.getToAssignSkypeCall();
+			client.setLiveSkypeCall(false);
+			assignSkypeCall.setSkypeCallDateCompleted(true);
+			clientService.updateClient(client);
+			assignSkypeCallService.update(assignSkypeCall);
+		}
+	}
 
 	@Scheduled(fixedRate = 15_000)
-	private void checkTimeSkypeCall() {
-		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
+	private void checkCallInSkypeToSendTheNotification() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
-			ZonedDateTime zonedDateTimeNow = ZonedDateTime.now();
-			ZonedDateTime dateSkypeCall = assignSkypeCall.getDateSkypeCall();
-			if (dateSkypeCall.isBefore(zonedDateTimeNow) || dateSkypeCall.isEqual(zonedDateTimeNow)) {
-				client.setLiveSkypeCall(false);
-				clientService.updateClient(client);
-				assignSkypeCallService.delete(assignSkypeCall);
-				continue;
-			}
-			if (assignSkypeCall.isTheNotificationIsSent()) {
-				if (ZonedDateTime.now().isAfter(assignSkypeCall.getNotificationBeforeOfSkypeCall().minusMinutes(2))) {
-					String skypeTemplate = env.getRequiredProperty("skype.template");
-					User principal = assignSkypeCall.getFromAssignSkypeCall();
-					String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
-					Long clientId = client.getId();
-					String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
-							.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
-					sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-					if (selectNetworks.contains("vk")) {
-						try {
-							vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
-						} catch (Exception e) {
-							logger.warn("VK message not sent", e);
-						}
-					}
-					if (selectNetworks.contains("sms")) {
-						try {
-							smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
-						} catch (Exception e) {
-							logger.warn("SMS message not sent", e);
-						}
-					}
-					if (selectNetworks.contains("email")) {
-						try {
-							mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
-						} catch (Exception e) {
-							logger.warn("E-mail message not sent");
-						}
-					}
-					assignSkypeCall.setTheNotificationIsSent(true);
-					assignSkypeCallService.update(assignSkypeCall);
-//					if (notificationBeforeOfSkypeCall.isBefore(zonedDateTimeNow) || notificationBeforeOfSkypeCall.isEqual(zonedDateTimeNow)){
-//						continue;
-//					}
+			String skypeTemplate = env.getRequiredProperty("skype.template");
+			User principal = assignSkypeCall.getFromAssignSkypeCall();
+			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
+			Long clientId = client.getId();
+			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
+					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
+			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
+			if (selectNetworks.contains("vk")) {
+				try {
+					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("VK message not sent", e);
 				}
 			}
+			if (selectNetworks.contains("sms")) {
+				try {
+					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("SMS message not sent", e);
+				}
+			}
+			if (selectNetworks.contains("email")) {
+				try {
+					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
+				} catch (Exception e) {
+					logger.warn("E-mail message not sent");
+				}
+			}
+			assignSkypeCall.setTheNotificationWasIsSent(true);
+			assignSkypeCallService.update(assignSkypeCall);
 		}
 	}
 

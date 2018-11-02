@@ -69,11 +69,11 @@ public class SkypeCallRestController {
 		Client client = clientService.getClientByID(clientId);
 		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype());
 		if (assignSkypeCallBySkypeLogin != null) {
-			ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate)
+			ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
 					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 					.withZoneSameInstant(ZoneId.systemDefault());
-			if (assignSkypeCallBySkypeLogin.getDateSkypeCall() == dateSkypeCall) {
+			if (assignSkypeCallBySkypeLogin.getSkypeCallDate() == skypeCallDate) {
 				return ResponseEntity.status(HttpStatus.OK).build();
 			}
 		}
@@ -96,9 +96,9 @@ public class SkypeCallRestController {
 		try {
 			calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
-			ZonedDateTime dateSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow"));
+			ZonedDateTime skypeCallDate = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow"));
 			ZonedDateTime notificationBeforeOfSkypeCall = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.of("Europe/Moscow")).minusHours(1);
-			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(client.getSkype(), userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
+			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(client.getSkype(), userFromSession, client, ZonedDateTime.now(), skypeCallDate, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE));
@@ -125,7 +125,7 @@ public class SkypeCallRestController {
 		assignSkypeCall.setCreatedTime(ZonedDateTime.now());
 		if (!Objects.equals(startDate, startDateOld)) {
 			calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
-			assignSkypeCall.setDateSkypeCall(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
+			assignSkypeCall.setSkypeCallDate(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
 			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
 		}
 		assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
