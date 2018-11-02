@@ -1,4 +1,24 @@
 $(document).ready(function () {
+    var autorizedUser
+    $.get('/rest/client/getPrincipal', function (user) {
+        autorizedUser = user;
+    });
+    //закрываем возможность не OWNER'y создавать пользователей со статусом OWNER
+//хардкод на Owner
+    $('.checkbox').each(function () {
+        if ($(this).text().trim() === 'OWNER') {
+            var ownerCheckbox = $(this).hide();
+            $.each(autorizedUser.role, function (i, v) {
+                if (v.roleName === 'OWNER') {
+                    ownerCheckbox.show();
+                }
+            });
+        }
+    });
+});
+
+
+$(document).ready(function () {
     $(document.getElementsByTagName("option")).each(function () {
         var val = $(this).closest('select').attr('value');
         var inText = $(this).text();
@@ -9,10 +29,10 @@ $(document).ready(function () {
 });
 
 function changeUser(id, authId) {
-    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+    if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
         return;
     }
-    if($("input[name='roleCheckBx']:checked").length === 0) {
+    if ($("input[name='roleCheckBx']:checked").length === 0) {
         var current = document.getElementById("message");
         current.textContent = "Необходимо указать минимум одну роль!";
         current.style.color = "red";
@@ -39,11 +59,11 @@ function changeUser(id, authId) {
         sex: $('#edit-user-sex').find('option:selected').text(),
         country: $('#edit-user-country').val(),
         city: $('#edit-user-city').val(),
-        vk:$('#edit-user-VKid').val(),
-        password:$('#edit-user-password').val(),
+        vk: $('#edit-user-VKid').val(),
+        password: $('#edit-user-password').val(),
         isVerified: true,
         enabled: true,
-        role:myRows
+        role: myRows
     };
 
     $.ajax({
@@ -51,7 +71,7 @@ function changeUser(id, authId) {
         url: url,
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(wrap),
-        beforeSend: function(){
+        beforeSend: function () {
             var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
@@ -68,7 +88,7 @@ function changeUser(id, authId) {
     });
 }
 
-$(document).on('click','#editUser',function editUserBtn() {
+$(document).on('click', '#editUser', function editUserBtn() {
     $('#column1').find('input').each(function () {
         $(this)[0].disabled = $(this)[0].disabled !== true;
     });
@@ -82,8 +102,8 @@ $(document).on('click','#editUser',function editUserBtn() {
         $("#photoBtn")[0].removeAttribute("disabled");
         $('#editUser').attr("class", "btn btn-secondary")[0].innerText = 'Заблокировать';
     } else {
-        $("#photoBtn")[0].setAttribute("disabled","disabled");
-        $("#photoSelectBtn")[0].setAttribute("disabled","disabled");
+        $("#photoBtn")[0].setAttribute("disabled", "disabled");
+        $("#photoSelectBtn")[0].setAttribute("disabled", "disabled");
         $('#editUser').attr("class", "btn btn-primary")[0].innerText = 'Редактировать';
     }
 });
@@ -94,13 +114,13 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     var spans = $('#current-user-roles').find("span");
-    var currRoles=[];
+    var currRoles = [];
     spans.each(function () {
         currRoles.push($(this)[0].getAttribute("value"))
     });
     $('#edit-user-roles').find('input').each(function () {
-        if(currRoles.indexOf($(this)[0].value)!== -1){
-            $(this).attr("checked","checked");
+        if (currRoles.indexOf($(this)[0].value) !== -1) {
+            $(this).attr("checked", "checked");
         }
     })
 });
@@ -124,14 +144,14 @@ function sendPhoto(id, authId) {
         return;
     }
 
-    if(file.size >  $("#photoBtn").attr("max")){
+    if (file.size > $("#photoBtn").attr("max")) {
         setErrorMessage("Ошибка сохранения фотографии. Файл слишком велик");
         return;
     }
 
     var dataValue = new FormData();
     dataValue.append("0", file);
-    dataValue.append("id",id);
+    dataValue.append("id", id);
     $.ajax({
         url: '/admin/rest/user/update/photo',
         type: 'POST',
@@ -167,20 +187,20 @@ function readURL(input) {
 
 function setErrorMessage(message) {
     var current = document.getElementById("message");
-    if(typeof message === 'undefined'){
+    if (typeof message === 'undefined') {
         current.textContent = "Ошибка сохранения";
         current.style.color = "red";
-    }else {
+    } else {
         current.textContent = message;
         current.style.color = "red";
     }
 }
 
 function addUser() {
-    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+    if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
         return;
     }
-    if($("input[name='roleCheckBx']:checked").length === 0) {
+    if ($("input[name='roleCheckBx']:checked").length === 0) {
         var current = document.getElementById("message");
         current.textContent = "Необходимо указать минимум одну роль!";
         current.style.color = "red";
@@ -206,11 +226,11 @@ function addUser() {
         sex: $('#add-user-sex').find('option:selected').text(),
         country: $('#add-user-country').val(),
         city: $('#add-user-city').val(),
-        vk:$('#add-user-VKid').val(),
-        password:$('#add-user-password').val(),
+        vk: $('#add-user-VKid').val(),
+        password: $('#add-user-password').val(),
         isVerified: true,
         iaEnabled: true,
-        role:myRows
+        role: myRows
     };
 
     $.ajax({
@@ -218,7 +238,7 @@ function addUser() {
         url: url,
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(wrap),
-        beforeSend: function(){
+        beforeSend: function () {
             var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
@@ -235,10 +255,10 @@ function addUser() {
 }
 
 function registerUser() {
-    if($("#saveChanges")[0].className ==="btn btn-primary disabled"){
+    if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
         return;
     }
-    if($("input[name='roleCheckBx']:checked").length === 0) {
+    if ($("input[name='roleCheckBx']:checked").length === 0) {
         var current = document.getElementById("message");
         current.textContent = "Необходимо указать минимум одну роль!";
         current.style.color = "red";
@@ -259,8 +279,8 @@ function registerUser() {
         sex: $('#add-user-sex').find('option:selected').text(),
         country: $('#add-user-country').val(),
         city: $('#add-user-city').val(),
-        vk:$('#add-user-VKid').val(),
-        password:$('#add-user-password').val(),
+        vk: $('#add-user-VKid').val(),
+        password: $('#add-user-password').val(),
         isVerified: false,
         isEnabled: false,
         role: myRows
@@ -271,7 +291,7 @@ function registerUser() {
         url: url,
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify(wrap),
-        beforeSend: function(){
+        beforeSend: function () {
             var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
@@ -286,11 +306,9 @@ function registerUser() {
     });
 }
 
-
-
 function disableInputE() {
-	var disMas = [69, 187, 189, 109];
-	if (disMas.indexOf(event.keyCode)!==-1) {
-		event.preventDefault()
-	}
+    var disMas = [69, 187, 189, 109];
+    if (disMas.indexOf(event.keyCode) !== -1) {
+        event.preventDefault()
+    }
 }

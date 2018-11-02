@@ -210,7 +210,7 @@
             </form>
         </div>
     </div>
-
+    <!--Меню у админов и овнеров-->
     <div id="panel">
         <div id="panel-content">
             <div class="panel-group">
@@ -335,7 +335,7 @@
 </div>
 
 <!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop" >
+<div id="msg_pop" sec:authorize="hasAnyAuthority('OWNER')">
     <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для клиентов вошедших в Slack
