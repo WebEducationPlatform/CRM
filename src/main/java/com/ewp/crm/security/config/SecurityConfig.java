@@ -13,64 +13,76 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private final AuthenticationService authenticationService;
-	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final AuthenticationService authenticationService;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final RequestMatcher csrfRequestMatcher = new RequestMatcher() {
+    private final RegexRequestMatcher requestMatcher = new RegexRequestMatcher("/processing-url", null);
 
-	@Autowired
-	public SecurityConfig(AuthenticationService authenticationService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
-		this.authenticationService = authenticationService;
-		this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
-	}
+        @Override
+        public boolean matches(HttpServletRequest request) {
+            return requestMatcher.matches(request);
+        }
+    };
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.authorizeRequests()
-				.antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER")
-				.antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
-				.antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
-				.and()
-				.formLogin()
-				.loginPage("/login")
-				.loginProcessingUrl("/processing-url")
-				.successHandler(customAuthenticationSuccessHandler)
-				.usernameParameter("username")
-				.passwordParameter("password")
-				.and()
-				.logout()
-				.logoutUrl("/logout")
-				.logoutSuccessUrl("/login?logout")
-				.invalidateHttpSession(true)
-				.permitAll()
-				.and()
-				.csrf().disable();
+    @Autowired
+    public SecurityConfig(AuthenticationService authenticationService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+        this.authenticationService = authenticationService;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+    }
 
-		http
-				.sessionManagement()
-				.maximumSessions(10000)
-				.maxSessionsPreventsLogin(false)
-				.expiredUrl("/login?logout")
-				.sessionRegistry(sessionRegistry());
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER")
+                .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
+                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/processing-url")
+                .successHandler(customAuthenticationSuccessHandler)
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .permitAll().and()
+                .csrf().requireCsrfProtectionMatcher(csrfRequestMatcher);
 
-	@Bean
-	public SessionRegistry sessionRegistry() {
-		return new SessionRegistryImpl();
-	}
 
-	@Bean
-	public static NoOpPasswordEncoder passwordEncoder() {
-		return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
-	}
+        http
+                .sessionManagement()
+                .maximumSessions(10000)
+                .maxSessionsPreventsLogin(false)
+                .expiredUrl("/login?logout")
+                .sessionRegistry(sessionRegistry());
+    }
 
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(authenticationService);
-	}
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public static NoOpPasswordEncoder passwordEncoder() {
+        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    }
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(authenticationService);
+    }
 }

@@ -2,7 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 @Entity
@@ -21,7 +21,7 @@ public class Passport implements Serializable {
     private String number;
 
     @Column(name = "date_of_issue")
-    private Date dateOfIssue;
+    private LocalDate dateOfIssue;
 
     @Column(name = "issued_by")
     private String issuedBy;
@@ -40,7 +40,7 @@ public class Passport implements Serializable {
     public Passport() {
     }
 
-    public Passport(String series, String number, Date dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
+    public Passport(String series, String number, LocalDate dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
         this.series = series;
         this.number = number;
         this.dateOfIssue = dateOfIssue;
@@ -74,11 +74,11 @@ public class Passport implements Serializable {
         this.number = number;
     }
 
-    public Date getDateOfIssue() {
+    public LocalDate getDateOfIssue() {
         return dateOfIssue;
     }
 
-    public void setDateOfIssue(Date dateOfIssue) {
+    public void setDateOfIssue(LocalDate dateOfIssue) {
         this.dateOfIssue = dateOfIssue;
     }
 
