@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Настройка заявки</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+
+<div class="container-fluid">
+    <br/>
+    <br/>
+    <table class="table table-striped">
+        <h1>Настройка заявки</h1>
+        <br/>
+        <thead th:align="center">
+        <th>Номер заполнения</th>
+        <th>Название поля</th>
+        <th>Тип поля</th>
+        </thead>
+        <tbody>
+        <th:block th:each="c : ${bid}">
+            <tr>
+                <td th:text="${c.number}"></td>
+                <td th:text="${c.name}"></td>
+                <td th:text="${c.type}"></td>
+                <td class="fit">
+                    <button class="btn btn-info" data-toggle="modal" data-target="#myModal"
+                            th:onclick="'getBidById('+ ${c.id} +')'"
+                            th:text="Изменить">
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-danger"
+                            th:onclick="'deleteBidById('+ ${c.id} +')'"
+                            th:text="Удалить">
+                    </button>
+                </td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+    <button class="btn btn-info" data-toggle="modal" data-target="#createModal">Создать поле</button>
+    <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Изменение поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-id">id:</label>
+                            <input id="app-id" type="text" class="form-control" readonly="readonly"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-number">Номер заполнения:</label>
+                            <input id="app-number" type="text" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-name">Название поля:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Список полей клиента: Имя, Фамилия, Электронная почта, Телефон, Skype, Возраст, Город, Страна, Пол.">
+                            </button>
+                            <input id="app-name" type="text" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-type">Тип поля:</label>
+                            <select class="form-control" id="app-type">
+                                <option value="1">Обязательное</option>
+                                <option value="2">В заметки</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="updateBid()">Сохранить
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Создание поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-number-create">Номер заполнения:</label>
+                            <input id="app-number-create" type="text" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-name-create">Название поля:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Список полей клиента: Имя, Фамилия, Электронная почта, Телефон, Skype, Возраст, Город, Страна, Пол.">
+                            </button>
+                            <input id="app-name-create" type="text" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-type-create">Тип поля:</label>
+                            <select class="form-control" id="app-type-create">
+                                <option value="1">Обязательное</option>
+                                <option value="2">В заметки</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="createBid()">Создать
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/bid-control.js}"></script>
+</body>
+</html>

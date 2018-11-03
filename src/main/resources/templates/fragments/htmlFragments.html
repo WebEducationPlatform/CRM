@@ -156,12 +156,11 @@
 <th:block th:fragment="custom-style">
     <style th:inline="text" th:if="${#authorization.expression('isAuthenticated()')}">
         body {
-            background-color:[[${#authentication.getPrincipal().colorBackground}]];
+            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
-
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear,left top,left bottom,from(#fbd8cf),to([[${#authentication.getPrincipal().colorBackground}]]));
-            border-color: [[${#authentication.getPrincipal().colorBackground}]];
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#fbd8cf), to([ [${#authentication.getPrincipal().colorBackground}] ]));
+            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
     </style>
 </th:block>
@@ -737,12 +736,13 @@
                     <form role="form">
                         <div class="form-group">
                             <h5>Введите заметку</h5>
-                            <textarea class="form-control" id="content-area" rows="4"></textarea>
+                            <textarea class="form-control" rows="4" id="content-area"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success btn-sm" id="save-description">Сохранить</button>
+                    <button type="button" class="btn btn-success btn-sm" id="save-description">Сохранить
+                    </button>
                 </div>
             </div>
         </div>

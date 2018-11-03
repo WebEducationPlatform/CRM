@@ -8,7 +8,7 @@
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -88,7 +88,7 @@
                             <li class="divider"></li>
 
                             <li class="open-description-btn" th:attr="data-id=${client.id}">
-                                <a>Добавить комментарий</a>
+                                <a>Добавить заметку</a>
                             </li>
                             <th:block>
                                 <li>
@@ -103,13 +103,15 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
-                    <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
+                <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}"
+                     th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
+                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
-                    </div><div class="portlet-content">
+                    </div>
+                    <div class="portlet-content">
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
@@ -335,7 +337,7 @@
 </div>
 
 <!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop" >
+<div id="msg_pop">
     <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для клиентов вошедших в Slack

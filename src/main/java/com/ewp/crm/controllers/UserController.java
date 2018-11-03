@@ -5,6 +5,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VkBidService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +27,18 @@ public class UserController {
 	private final RoleService roleService;
 	private final ImageConfig imageConfig;
 	private final NotificationService notificationService;
+	private final VkBidService vkBidService;
 
 	@Autowired
 	public UserController(UserService userService,
 						  RoleService roleService,
 						  ImageConfig imageConfig,
-						  NotificationService notificationService) {
+						  NotificationService notificationService, VkBidService vkBidService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
 		this.notificationService = notificationService;
+		this.vkBidService = vkBidService;
 	}
 
 	@GetMapping(value = "/admin/user/{id}")
@@ -98,6 +101,14 @@ public class UserController {
 	public ModelAndView getAutoAnswerView(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-autoanswer");
 		modelAndView.addObject("userCustomize",userFromSession);
+		return modelAndView;
+	}
+	@GetMapping(value = "/user/vkBid")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ModelAndView settingsVkBid(@AuthenticationPrincipal User userFromSession) {
+		ModelAndView modelAndView = new ModelAndView("vk-bid");
+		modelAndView.addObject("userCustomize", userFromSession);
+		modelAndView.addObject("bid", vkBidService.getAll());
 		return modelAndView;
 	}
 
