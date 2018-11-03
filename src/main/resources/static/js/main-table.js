@@ -1480,6 +1480,7 @@ $(function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
+
         $.ajax({
             type: 'GET',
             url: 'rest/client/' + clientId,
@@ -1513,6 +1514,8 @@ $(function () {
 
                     // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
+                    $('#vk-im-button').hide();
+
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
@@ -1520,6 +1523,11 @@ $(function () {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
                             $('#vk-href').show();
+
+
+                            var vkref = client.socialProfiles[i].link;
+                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
+                            $('#vk-im-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
