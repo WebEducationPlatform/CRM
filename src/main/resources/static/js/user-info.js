@@ -1,17 +1,30 @@
-var autorizedUser;
+var isAutorizedUserOwner = false;
+var isAutorizedUserAdmin = false;
+var isUpdatedUserOwner = false;
 $(document).ready(function () {
+    $.each(updatedUserRoles, function (i, role) {
+        if (role.roleName === 'OWNER') {
+            isUpdatedUserOwner = true;
+        }
+    });
     $.when($.get('/rest/client/getPrincipal')).done(function (user) {
-        autorizedUser = user;
+        let autorizedUser = user;
+        $.each(autorizedUser.role, function (i, role) {
+            if (role.roleName === 'OWNER') {
+                isAutorizedUserOwner = true;
+            }
+            if (role.roleName === 'ADMIN') {
+                isAutorizedUserAdmin = true;
+            }
+        });
         //закрываем возможность не OWNER'y создавать пользователей со статусом OWNER
         //хардкод на Owner
         $('.checkbox').each(function () {
             if ($(this).text().trim() === 'OWNER') {
                 var ownerCheckbox = $(this).hide();
-                $.each(autorizedUser.role, function (i, v) {
-                    if (v.roleName === 'OWNER') {
-                        ownerCheckbox.show();
-                    }
-                });
+                if (isAutorizedUserOwner) {
+                    ownerCheckbox.show();
+                }
             }
         });
     });
@@ -94,19 +107,26 @@ $(document).on('click', '#editUser', function editUserBtn() {
 
     $('#column1').find('select').each(function () {
         $(this)[0].disabled = $(this)[0].disabled !== true;
+
     });
 
     if ($("#photoSelectBtn")[0].hasAttribute("disabled")) {
         $("#photoSelectBtn")[0].removeAttribute("disabled");
         $("#photoBtn")[0].removeAttribute("disabled");
         $('#editUser').attr("class", "btn btn-secondary")[0].innerText = 'Заблокировать';
+        //блокируем не ОВНЕРУ возможность изменять пароль ОВНЕРУ
+        if (!isAutorizedUserOwner) {
+            $("#edit-user-password").prop("disabled", true);
+            if (isAutorizedUserAdmin && !isUpdatedUserOwner) {
+                $("#edit-user-password").prop("disabled", false);
+            }
+        }
     } else {
         $("#photoBtn")[0].setAttribute("disabled", "disabled");
         $("#photoSelectBtn")[0].setAttribute("disabled", "disabled");
         $('#editUser').attr("class", "btn btn-primary")[0].innerText = 'Редактировать';
+        $("#edit-user-password").prop("disabled", true);
     }
-
-
 });
 
 $(document).ready(function () {
