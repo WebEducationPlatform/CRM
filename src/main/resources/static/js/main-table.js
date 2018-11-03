@@ -1504,7 +1504,9 @@ $(function () {
                         $('#client-age').text(client.age);
                     }
                     $('#client-sex').text(client.sex);
-
+                    if(client.clientDescriptionComment.length > 0) {
+                        $('#client-label').text(client.clientDescriptionComment);
+                    }
                     if (client.email == null) {
                         $('#email-href').hide();
                     } else {
@@ -1838,7 +1840,7 @@ function getAllUrlParams(url) {
                 // если индекс задан...
                 else {
                     // размещаем элемент по заданному индексу
-                    obj[paramName][paramNum] = paramValue;
+                    obj[paramName][paramNum] = paramValue;хо
                 }
             }
             // если параметр не задан, делаем это вручную

@@ -58,6 +58,9 @@ public class DataInitializer {
 	@Autowired
 	private StudentStatusService studentStatusService;
 
+	@Autowired
+	private VkBidService vkBidService;
+
 	private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -272,5 +275,11 @@ public class DataInitializer {
                         statusService.getStatusByName("pauseLearnStatus").getId(),
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
+        vkBidService.add(new VkBid(1,"Имя","Обязательное"));
+        vkBidService.add(new VkBid(2,"Телефон","Обязательное"));
+        vkBidService.add(new VkBid(3,"Электронная почта","Обязательное"));
+        vkBidService.add(new VkBid(4,"Товары","В заметки"));
+        vkBidService.add(new VkBid(5,"Пожелания по заявке","В заметки"));
+        vkBidService.add(new VkBid(6,"Фамилия","В заметки"));
     }
 }
