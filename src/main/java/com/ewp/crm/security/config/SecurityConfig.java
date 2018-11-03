@@ -30,8 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Override
         public boolean matches(HttpServletRequest request) {
-            if (requestMatcher.matches(request)) return true;
-            return false;
+            return requestMatcher.matches(request);
         }
     };
 
