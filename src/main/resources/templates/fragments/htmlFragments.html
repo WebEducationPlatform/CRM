@@ -30,10 +30,10 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/client">Доска</a></li>
                     <li><a href="/client/allClients">Все клиенты</a></li>
-                    <li><a href="/student/all">Все студенты</a></li>
-                    <li><a href="/student-status/all">Статусы обучения</a></li>
-                    <li><a href="/client/mailing">Рассылка</a></li>
-                    <li><a href="/template/all">Шаблоны</a></li>
+                    <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
+                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER')">Статусы обучения</a></li>
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER')">Рассылка</a></li>
+                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER')">Шаблоны</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
