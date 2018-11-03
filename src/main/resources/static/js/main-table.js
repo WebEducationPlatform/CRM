@@ -1840,7 +1840,7 @@ function getAllUrlParams(url) {
                 // если индекс задан...
                 else {
                     // размещаем элемент по заданному индексу
-                    obj[paramName][paramNum] = paramValue;хо
+                    obj[paramName][paramNum] = paramValue;
                 }
             }
             // если параметр не задан, делаем это вручную
