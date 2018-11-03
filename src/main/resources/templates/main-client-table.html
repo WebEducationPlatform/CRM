@@ -8,7 +8,7 @@
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -103,59 +103,57 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}"
-                     th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
-                    <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
+                    <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
-                    </div>
-                    <div class="portlet-content">
-                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
-                            <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
-                            <p th:if="${client.ownerUser != null}" class="user-icon"
-                               th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                    </div><div class="portlet-content">
+                    <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
+                        <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
+                        <p th:if="${client.ownerUser != null}" class="user-icon"
+                           th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
-                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
-                               th:id="'own-' + ${client.id}">
-                            </p>
-                            <p th:if="${client.ownerUser != null}" style="display:none"
-                               th:text="${client.ownerUser.fullName}"></p>
+                           th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                           th:id="'own-' + ${client.id}">
+                        </p>
+                        <p th:if="${client.ownerUser != null}" style="display:none"
+                           th:text="${client.ownerUser.fullName}"></p>
 
-                            <th:block th:each="notification_comment:${notifications_type_comment}">
-                                <th:block th:if="${notification_comment.client == client}">
+                        <th:block th:each="notification_comment:${notifications_type_comment}">
+                            <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                                <th:block th:if="${notification_new_user.client == client}">
+                        <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                            <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
+                        <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                            <th:block th:if="${notification_assign_skype.client == client}">
                                    <span id="notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                                <th:block th:if="${notification_postpone.client == client}">
+                        <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                            <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
-                        </div>
+                        </th:block>
                     </div>
+                </div>
                 </div>
                 <div class="btn-group">
                     <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
@@ -212,7 +210,7 @@
             </form>
         </div>
     </div>
-
+    <!--Меню у админов и овнеров-->
     <div id="panel">
         <div id="panel-content">
             <div class="panel-group">
@@ -281,11 +279,11 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
                                 </tr>
@@ -337,7 +335,7 @@
 </div>
 
 <!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop">
+<div id="msg_pop" sec:authorize="hasAnyAuthority('OWNER')">
     <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для клиентов вошедших в Slack
@@ -349,6 +347,7 @@
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
@@ -370,5 +369,7 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
+
 </body>
 </html>
