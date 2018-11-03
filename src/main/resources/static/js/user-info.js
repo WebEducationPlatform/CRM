@@ -107,7 +107,6 @@ $(document).on('click', '#editUser', function editUserBtn() {
 
     $('#column1').find('select').each(function () {
         $(this)[0].disabled = $(this)[0].disabled !== true;
-
     });
 
     if ($("#photoSelectBtn")[0].hasAttribute("disabled")) {
