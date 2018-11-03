@@ -568,6 +568,35 @@
     </div>
 </th:block>
 
+
+<!--Модельное окно чата с клиентом в контакте VKONTAKTE-->
+<th:block th:fragment="vkontakteIMModal">
+    <div class="modal fade" th:id="'customVKIMMessage'" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header padding-top-bot">
+                    <div id="VK-IM-HEADER">Чат с пользователем </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="im-vk-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">
+                        <!--here js insert vk_messages!-->
+
+                </div>
+                <div class="modal-body padding-bot">
+                    <div class="form-group">
+                            <textarea id="IM-VK-Text" class="form-control"
+                                      placeholder="messages" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="send-custom-vk-im-status"></span>
+                    <button type="button" id="send-vk-im-btn" class="btn btn-primary send-vk-im-btn">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <!--Отправка кастомного сообщения в EMAIL , из модального окна с расширенной информацией-->
 <th:block th:fragment="emailMessageTemplateModal">
     <div class="modal fade" th:id="'customEmailMessageTemplate'" role="dialog" aria-hidden="true">
