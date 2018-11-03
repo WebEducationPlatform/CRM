@@ -1,22 +1,21 @@
+var autorizedUser;
 $(document).ready(function () {
-    var autorizedUser
-    $.get('/rest/client/getPrincipal', function (user) {
+    $.when($.get('/rest/client/getPrincipal')).done(function (user) {
         autorizedUser = user;
-    });
-    //закрываем возможность не OWNER'y создавать пользователей со статусом OWNER
-//хардкод на Owner
-    $('.checkbox').each(function () {
-        if ($(this).text().trim() === 'OWNER') {
-            var ownerCheckbox = $(this).hide();
-            $.each(autorizedUser.role, function (i, v) {
-                if (v.roleName === 'OWNER') {
-                    ownerCheckbox.show();
-                }
-            });
-        }
+        //закрываем возможность не OWNER'y создавать пользователей со статусом OWNER
+        //хардкод на Owner
+        $('.checkbox').each(function () {
+            if ($(this).text().trim() === 'OWNER') {
+                var ownerCheckbox = $(this).hide();
+                $.each(autorizedUser.role, function (i, v) {
+                    if (v.roleName === 'OWNER') {
+                        ownerCheckbox.show();
+                    }
+                });
+            }
+        });
     });
 });
-
 
 $(document).ready(function () {
     $(document.getElementsByTagName("option")).each(function () {
@@ -106,6 +105,8 @@ $(document).on('click', '#editUser', function editUserBtn() {
         $("#photoSelectBtn")[0].setAttribute("disabled", "disabled");
         $('#editUser').attr("class", "btn btn-primary")[0].innerText = 'Редактировать';
     }
+
+
 });
 
 $(document).ready(function () {
