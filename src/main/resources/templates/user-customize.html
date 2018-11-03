@@ -67,15 +67,6 @@
         </button>
         <br/>
         <br/>
-        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
-        <br/>
-        <br/>
-        <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
-                Статус клиента не студента
-            </button>
-        </div>
-        <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
@@ -83,8 +74,19 @@
         </div>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/user/autoAnswer" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                автоответ</a>
+        </div>
+        <br/>
+        <div id="choice-status-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
+                Статус клиента не студента
+            </button>
+        </div>
+        <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Оповещение об оплате
             </button>
         </div>
