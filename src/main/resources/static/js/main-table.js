@@ -1293,7 +1293,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                     data: addCallSkype,
                     success: function () {
                         $('.assign-skype-call-btn').hide();
-                        $('.skype-panel, .skype-notification, .enter-mentor-list, .confirm-skype-btn').remove();
+                        $('#freeDate, .skype-panel, .skype-notification, .enter-mentor-list, .confirm-skype-btn').remove();
                         editDate.after(
                             '<div class="remove-tag confirm-skype-interceptor">' +
                                 '<div class="update btn-group">' +

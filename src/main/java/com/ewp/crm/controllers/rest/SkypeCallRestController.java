@@ -73,7 +73,7 @@ public class SkypeCallRestController {
 					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 					.withZoneSameInstant(ZoneId.systemDefault());
-			if (assignSkypeCallBySkypeLogin.getSkypeCallDate() == skypeCallDate) {
+			if (assignSkypeCallBySkypeLogin.getSkypeCallDate().equals(skypeCallDate)) {
 				return ResponseEntity.status(HttpStatus.OK).build();
 			}
 		}
@@ -91,12 +91,12 @@ public class SkypeCallRestController {
 													  @RequestParam Long clientId,
 													  @RequestParam String selectNetwork) {
 		Client client = clientService.getClientByID(clientId);
-		User user = userService.get(mentorId);
+		User mentor = userService.get(mentorId);
 		ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
-			calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
-			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
+			calendarService.addEvent(mentor.getEmail(), startDate, client.getSkype());
+			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE));
@@ -111,7 +111,7 @@ public class SkypeCallRestController {
 
 	@PostMapping(value = "rest/mentor/updateEvent")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity updateEvent(@AuthenticationPrincipal User principal,
+	public ResponseEntity updateEvent(@AuthenticationPrincipal User userFromSession,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
 									  @RequestParam Long skypeCallDateNew,
@@ -127,7 +127,8 @@ public class SkypeCallRestController {
 			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
 		}
 		assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
-		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_UPDATE));
+		assignSkypeCall.setWhoCreatedTheSkypeCall(userFromSession);
+		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
 		assignSkypeCallService.update(assignSkypeCall);
 		clientService.updateClient(client);
 		return ResponseEntity.ok(HttpStatus.OK);

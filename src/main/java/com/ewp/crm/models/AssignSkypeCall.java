@@ -42,15 +42,23 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
+	@ManyToOne
+	@JoinTable(name = "assign_admin_skype_call",
+			joinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))},
+			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_USER"))})
+	private User whoCreatedTheSkypeCall;
+
 	public AssignSkypeCall() {
 	}
 
-	public AssignSkypeCall(User fromAssignSkypeCall,
+	public AssignSkypeCall(User whoCreatedTheSkypeCall,
+						   User fromAssignSkypeCall,
 						   Client toAssignSkypeCall,
 						   ZonedDateTime createdTime,
 						   ZonedDateTime skypeCallDate,
 						   ZonedDateTime notificationBeforeOfSkypeCall,
 						   String selectNetworkForNotifications) {
+		this.whoCreatedTheSkypeCall = whoCreatedTheSkypeCall;
 		this.fromAssignSkypeCall = fromAssignSkypeCall;
 		this.toAssignSkypeCall = toAssignSkypeCall;
 		this.createdTime = createdTime;
@@ -113,6 +121,14 @@ public class AssignSkypeCall {
 
 	public void setToAssignSkypeCall(Client toAssignSkypeCall) {
 		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
+
+	public User getWhoCreatedTheSkypeCall() {
+		return whoCreatedTheSkypeCall;
+	}
+
+	public void setWhoCreatedTheSkypeCall(User whoCreatedTheSkypeCall) {
+		this.whoCreatedTheSkypeCall = whoCreatedTheSkypeCall;
 	}
 
 	public boolean isTheNotificationWasIsSent() {
