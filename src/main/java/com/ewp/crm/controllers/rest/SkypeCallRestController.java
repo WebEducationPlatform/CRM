@@ -47,26 +47,22 @@ public class SkypeCallRestController {
 		this.calendarService = calendarService;
 	}
 
-//	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-//	public ResponseEntity<Client, AssignSkypeCall> getClientByID(@PathVariable Long id) {
-//		AssignSkypeCall assignSkypeCallByClientId = assignSkypeCallService.getAssignSkypeCallByClientId(id);
-//		if (assignSkypeCallByClientId == null) {
-//			return ResponseEntity.ok(clientService.get(id));
-//		}
-//		return ResponseEntity.ok(clientService.get(id), assignSkypeCallByClientId);
-//	}
-
+	@GetMapping(value = "rest/skype/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/skype/allMentors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<AssignSkypeCall> getAssignSkypeCallByClientId(@PathVariable Long clientId) {
+		return ResponseEntity.ok(assignSkypeCallService.getAssignSkypeCallByClientId(clientId));
+	}
+
+	@GetMapping(value = "rest/skype/allMentors", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<List<User>> getAllMentors(@AuthenticationPrincipal User currentUser) {
 		List<User> users = userService.getByRole(roleService.getRoleByName("MENTOR"));
 		users.remove(userService.get(currentUser.getId()));
 		return ResponseEntity.ok(users);
 	}
 
+	@GetMapping(value = "rest/skype/checkFreeDate", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/skype/checkFreeDate", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> checkFreeDate(@RequestParam Long clientId,
 												@RequestParam(name = "idMentor") Long idMentor,
 												@RequestParam Long startDate) {
@@ -88,8 +84,8 @@ public class SkypeCallRestController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
+	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/skype/addSkypeCallAndNotification", method = RequestMethod.POST)
 	public ResponseEntity addSkypeCallAndNotification(@AuthenticationPrincipal User userFromSession,
 													  @RequestParam(name = "idMentor") Long mentorId,
 													  @RequestParam Long startDate,
@@ -104,7 +100,6 @@ public class SkypeCallRestController {
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
-			client.setOwnerCallSkype(mentorId);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE));
 			clientService.update(client);
 			logger.info("{} assign skype client id:{} until {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
@@ -115,8 +110,8 @@ public class SkypeCallRestController {
 		}
 	}
 
+	@PostMapping(value = "rest/mentor/updateEvent")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/mentor/updateEvent", method = RequestMethod.POST)
 	public ResponseEntity updateEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
@@ -139,8 +134,8 @@ public class SkypeCallRestController {
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
+	@PostMapping(value = "rest/mentor/deleteEvent")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	@RequestMapping(value = "rest/mentor/deleteEvent", method = RequestMethod.POST)
 	public ResponseEntity deleteEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
