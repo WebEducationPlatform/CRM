@@ -13,16 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,6 +47,16 @@ public class SkypeCallRestController {
 		this.calendarService = calendarService;
 	}
 
+//	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+//	public ResponseEntity<Client, AssignSkypeCall> getClientByID(@PathVariable Long id) {
+//		AssignSkypeCall assignSkypeCallByClientId = assignSkypeCallService.getAssignSkypeCallByClientId(id);
+//		if (assignSkypeCallByClientId == null) {
+//			return ResponseEntity.ok(clientService.get(id));
+//		}
+//		return ResponseEntity.ok(clientService.get(id), assignSkypeCallByClientId);
+//	}
+
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	@RequestMapping(value = "rest/skype/allMentors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<User>> getAllMentors(@AuthenticationPrincipal User currentUser) {
@@ -67,7 +72,7 @@ public class SkypeCallRestController {
 												@RequestParam Long startDate) {
 		User user = userService.get(idMentor);
 		Client client = clientService.getClientByID(clientId);
-		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype());
+		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 		if (assignSkypeCallBySkypeLogin != null) {
 			ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
 					.atZone(ZoneId.of("+00:00"))
@@ -96,9 +101,10 @@ public class SkypeCallRestController {
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
 			calendarService.addEvent(user.getEmail(), startDate, client.getSkype());
-			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(client.getSkype(), userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
+			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
+			client.setOwnerCallSkype(mentorId);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE));
 			clientService.update(client);
 			logger.info("{} assign skype client id:{} until {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
@@ -119,7 +125,7 @@ public class SkypeCallRestController {
 									  @RequestParam String selectNetwork) {
 		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
-		AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype());
+		AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 		assignSkypeCall.setCreatedTime(ZonedDateTime.now());
 		if (!Objects.equals(startDate, startDateOld)) {
 			calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
@@ -142,7 +148,7 @@ public class SkypeCallRestController {
 		User user = userService.get(mentorId);
 		calendarService.delete(startDateOld, user.getEmail());
 		Client client = clientService.get(clientId);
-		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallBySkypeLogin(client.getSkype()).getId());
+		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
 		client.setLiveSkypeCall(false);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
 		clientService.updateClient(client);
