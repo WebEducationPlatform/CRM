@@ -63,10 +63,6 @@ public class AdminRestClientController {
 					socialProfile.getSocialProfileType().getName()).getId());
 		}
 		Client clientFromDB = clientService.get(currentClient.getId());
-		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallBySkypeLogin(clientFromDB.getSkype());
-		if (assignSkypeCallBySkypeLogin != null){
-			assignSkypeCallBySkypeLogin.setSkypeClientlogin(currentClient.getSkype());
-		}
 		currentClient.setHistory(clientFromDB.getHistory());
 		currentClient.setComments(clientFromDB.getComments());
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());

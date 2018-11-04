@@ -12,5 +12,6 @@ public interface AssignSkypeCallRepository extends CommonGenericRepository<Assig
 	@Query(value = "select sl from AssignSkypeCall sl where now() >= sl.skypeCallDate and sl.skypeCallDateCompleted = false")
 	List<AssignSkypeCall> getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient();
 
-	AssignSkypeCall getAssignSkypeCallBySkypeClientlogin(String skypeClientlogin);
+	@Query(value = "select sl from AssignSkypeCall sl where sl.toAssignSkypeCall.id = ?1 and sl.skypeCallDateCompleted = false")
+	AssignSkypeCall getAssignSkypeCallByClientId(Long clientId);
 }

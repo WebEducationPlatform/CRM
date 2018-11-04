@@ -12,9 +12,6 @@ public class AssignSkypeCall {
 	@Column(name = "assign_skype_call_id")
 	private Long id;
 
-	@Column(name = "assign_skype_call_login")
-	private String skypeClientlogin;
-
 	@Column(name = "assign_skype_call_created_time")
 	private ZonedDateTime createdTime;
 
@@ -48,14 +45,12 @@ public class AssignSkypeCall {
 	public AssignSkypeCall() {
 	}
 
-	public AssignSkypeCall(String skypeClientlogin,
-						   User fromAssignSkypeCall,
+	public AssignSkypeCall(User fromAssignSkypeCall,
 						   Client toAssignSkypeCall,
 						   ZonedDateTime createdTime,
 						   ZonedDateTime skypeCallDate,
 						   ZonedDateTime notificationBeforeOfSkypeCall,
 						   String selectNetworkForNotifications) {
-		this.skypeClientlogin = skypeClientlogin;
 		this.fromAssignSkypeCall = fromAssignSkypeCall;
 		this.toAssignSkypeCall = toAssignSkypeCall;
 		this.createdTime = createdTime;
@@ -70,14 +65,6 @@ public class AssignSkypeCall {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getSkypeClientlogin() {
-		return skypeClientlogin;
-	}
-
-	public void setSkypeClientlogin(String skypeClientlogin) {
-		this.skypeClientlogin = skypeClientlogin;
 	}
 
 	public ZonedDateTime getCreatedTime() {

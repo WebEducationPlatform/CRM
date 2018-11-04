@@ -97,6 +97,10 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "owner_user_id")
     private User ownerUser;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_call_skype_id")
+    private Long ownerCallSkype;
+
     @JsonIgnore
     @OrderBy("date DESC")
     @OneToMany
@@ -487,6 +491,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
         this.clientAssignSkypeCall = clientAssignSkypeCall;
+    }
+
+    public Long getOwnerCallSkype() {
+        return ownerCallSkype;
+    }
+
+    public void setOwnerCallSkype(Long ownerCallSkype) {
+        this.ownerCallSkype = ownerCallSkype;
     }
 
     @Override
