@@ -1140,7 +1140,7 @@ function assignSkype(id) {
                         '<div class="panel panel-default"><div class="panel-heading skype-panel-head">Напомнить клиенту за час до созвона</div>' +
                         '<div class="panel-body">' +
                             '<form class="add-box-window">' +
-                                '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
+                                // '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
                             '</form>' +
                         '</div>' +
                         '</div>' +
@@ -1227,7 +1227,7 @@ function confirmSkype(id) {
                     '<div class="panel panel-default"><div class="panel-heading skype-panel-head">Напомнить клиенту за час до созвона</div>' +
                     '<div class="panel-body">' +
                         '<form class="add-box-window">' +
-                            '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
+                            // '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
                         '</form>' +
                     '</div>' +
                     '</div>' +
@@ -1387,15 +1387,17 @@ function updateCallDate(id) {
 
             currentBtn.attr("disabled", "true");
             currentBtn.after(
-                '<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
+                '<div class="panel-group skype-panel">' +
+                '<div class="panel panel-default">' +
+                '<div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
                 '<div class="panel-body">' + '<input readonly="false" type="text" class="form-control skype-postpone-date" name="skypePostponeDateNew" id="skypePostpone' + clientId +'"> </input>' +
-                ' <form class="box-window"></form>' +'</div></div>');
+                ' <form class="box-window"></form>' +'</div></div></div>');
             $('.skype-panel').after(
                 '<div class="panel-group skype-panel">' +
                 '<div class="panel panel-default"><div class="panel-heading skype-panel-head">Напомнить клиенту за час до созвона</div>' +
                 '<div class="panel-body">' +
                 '<form class="add-box-window">' +
-                '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
+                // '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
                 '</form>' +
                 '</div>' +
                 '</div>' +
@@ -1515,7 +1517,7 @@ function deleteCallDate(id) {
 
             let deleteEvent = {
                 clientId: clientId,
-                idMentor: idMentor,
+                idMentor: assignSkypeCall.fromAssignSkypeCall.id,
                 skypeCallDateOld: startDateOld
             };
 
