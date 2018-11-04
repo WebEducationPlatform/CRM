@@ -125,10 +125,11 @@ public class SkypeCallRestController {
 			calendarService.update(skypeCallDateNew, skypeCallDateOld, user.getEmail(), client.getSkype());
 			assignSkypeCall.setSkypeCallDate(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
 			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
 		}
 		assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
 		assignSkypeCall.setWhoCreatedTheSkypeCall(userFromSession);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
+		assignSkypeCall.setTheNotificationWasIsSent(false);
 		assignSkypeCallService.update(assignSkypeCall);
 		clientService.updateClient(client);
 		return ResponseEntity.ok(HttpStatus.OK);
