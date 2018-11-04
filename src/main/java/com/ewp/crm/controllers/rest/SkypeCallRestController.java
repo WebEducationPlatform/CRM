@@ -55,9 +55,8 @@ public class SkypeCallRestController {
 
 	@GetMapping(value = "rest/skype/allMentors", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity<List<User>> getAllMentors(@AuthenticationPrincipal User currentUser) {
+	public ResponseEntity<List<User>> getAllMentors() {
 		List<User> users = userService.getByRole(roleService.getRoleByName("MENTOR"));
-		users.remove(userService.get(currentUser.getId()));
 		return ResponseEntity.ok(users);
 	}
 
@@ -115,17 +114,17 @@ public class SkypeCallRestController {
 	public ResponseEntity updateEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
-									  @RequestParam(name = "skypeCallDateNew") Long startDate,
-									  @RequestParam(name = "skypeCallDateOld") Long startDateOld,
+									  @RequestParam Long skypeCallDateNew,
+									  @RequestParam Long skypeCallDateOld,
 									  @RequestParam String selectNetwork) {
 		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
 		AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 		assignSkypeCall.setCreatedTime(ZonedDateTime.now());
-		if (!Objects.equals(startDate, startDateOld)) {
-			calendarService.update(startDate, startDateOld, user.getEmail(), client.getSkype());
-			assignSkypeCall.setSkypeCallDate(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
-			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
+		if (!Objects.equals(skypeCallDateNew, skypeCallDateOld)) {
+			calendarService.update(skypeCallDateNew, skypeCallDateOld, user.getEmail(), client.getSkype());
+			assignSkypeCall.setSkypeCallDate(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
+			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
 		}
 		assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_UPDATE));
@@ -139,14 +138,14 @@ public class SkypeCallRestController {
 	public ResponseEntity deleteEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
-									  @RequestParam(name = "skypeCallDateOld") Long startDateOld) {
+									  @RequestParam Long skypeCallDateOld) {
 		User user = userService.get(mentorId);
-		calendarService.delete(startDateOld, user.getEmail());
+		calendarService.delete(skypeCallDateOld, user.getEmail());
 		Client client = clientService.get(clientId);
-		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
 		client.setLiveSkypeCall(false);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
 		clientService.updateClient(client);
+		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 }
