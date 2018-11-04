@@ -151,6 +151,7 @@ public class ScheduleTasks {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
 			client.setLiveSkypeCall(false);
+			client.setOwnerCallSkype(null);
 			assignSkypeCall.setSkypeCallDateCompleted(true);
 			clientService.updateClient(client);
 			assignSkypeCallService.update(assignSkypeCall);
