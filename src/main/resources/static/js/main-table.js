@@ -1527,6 +1527,8 @@ $(function () {
 
                             var vkref = client.socialProfiles[i].link;
                             $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
+                            $('#vk-im-button').attr("clientID", client.id);
+                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
                             $('#vk-im-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {

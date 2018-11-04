@@ -35,6 +35,7 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final SocialProfileService socialProfileService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -43,12 +44,15 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-								ClientHistoryService clientHistoryService, MessageService messageService) {
+								ClientHistoryService clientHistoryService,
+								MessageService messageService,
+								SocialProfileService socialProfileService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.socialProfileService = socialProfileService;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -103,6 +107,28 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.get(id));
+	}
+
+	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
+																	   @RequestParam(name = "ss") String ss,
+																	   @RequestParam(name = "unread") String unreadCount) {
+
+		String link;
+		switch (ss){
+			case "vk": link = "https://vk.com/id"+userID; break;
+			case "facebook": link = "https://vk.com/id"+userID; break;
+			default: link = "";
+		}
+		SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+		Client client = clientService.getClientBySocialProfile(socialProfile);
+
+		Map<String, String> returnMap = new HashMap<>();
+		returnMap.put("clientID", Long.toString(client.getId()));
+		returnMap.put("unreadCount", unreadCount.isEmpty()?"":unreadCount);
+		returnMap.put("userID", userID);
+		return ResponseEntity.ok(returnMap);
 	}
 
 	@PostMapping(value = "/assign")
