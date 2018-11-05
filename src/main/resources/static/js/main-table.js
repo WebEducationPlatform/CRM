@@ -1291,6 +1291,22 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         data: checkCallSkype,
         dataType: 'json',
         statusCode: {
+            401: function () {
+                $('.skype-panel').hide();
+                $('.skype-notification').hide();
+                $('.enter-mentor-list').hide();
+                $('.confirm-skype-btn').hide();
+                $('.assign-skype-call-btn').after(
+                    '<p> ' +
+                    '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
+                    '<div class="inline">' +
+                    '    <form class="form" method="get" action="/login/google">' +
+                    '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
+                    '    </form>' +
+                    '</div>' +
+                    '</p>');
+                console.log("Авторизируйтесь в Google аккаунте");
+            },
             200: function () {
                 // Add Event in calendar mentor
                 $.ajax({
@@ -1466,6 +1482,22 @@ $(document).on('click','.update-skype-call', function (e) {
         data: checkFreeDate,
         dataType: 'json',
             statusCode: {
+                401: function () {
+                    $('.skype-panel').hide();
+                    $('.skype-notification').hide();
+                    $('.enter-mentor-list').hide();
+                    $('.confirm-skype-btn').hide();
+                    $('.assign-skype-call-btn').after(
+                        '<p> ' +
+                        '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
+                        '<div class="inline">' +
+                        '    <form class="form" method="get" action="/login/google">' +
+                        '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
+                        '    </form>' +
+                        '</div>' +
+                        '</p>');
+                    console.log("Авторизируйтесь в Google аккаунте");
+                },
                 400: function() {
                     if (!document.getElementById('freeDate')) {
                         currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');

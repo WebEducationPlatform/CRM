@@ -4,6 +4,7 @@ import com.ewp.crm.models.AssignSkypeCall;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.impl.GoogleCalendarServiceImpl;
 import com.ewp.crm.service.interfaces.*;
 import com.google.api.services.calendar.Calendar;
 import org.slf4j.Logger;
@@ -79,10 +80,14 @@ public class SkypeCallRestController {
 				return ResponseEntity.status(HttpStatus.OK).build();
 			}
 		}
-		if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		try {
+			if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
+			return ResponseEntity.status(HttpStatus.OK).build();
+		} catch (Exception e){
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")

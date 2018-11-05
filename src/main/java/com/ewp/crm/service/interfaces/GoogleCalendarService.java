@@ -14,7 +14,7 @@ public interface GoogleCalendarService {
 
     Calendar tokenResponse(String code);
 
-    boolean checkFreeDate(Long newDate, String calendarMentor);
+    boolean checkFreeDate(Long newDate, String calendarMentor) throws IOException;
 
     void delete(Long oldDate, String calendarMentor);
 
