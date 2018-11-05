@@ -100,10 +100,10 @@ public class DataInitializer {
         userService.add(user1);
 
         User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
         userService.add(user2);
 
-		User user3 = new User("Vlad", "Mentor", "89118465234", "user3@mail.ru",
+		User user3 = new User("Vlad", "Mentor", "89118465234", "photolife9112@gmail.com",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user3);
 

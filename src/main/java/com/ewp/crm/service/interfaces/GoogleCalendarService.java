@@ -8,7 +8,7 @@ public interface GoogleCalendarService {
 
     void addEvent(String calendarMentor, Long startDate, String skype) throws IOException;
 
-    void update(Long newDate, Long oldDate, String calendarMentor, String skype);
+    void update(Long newDate, Long oldDate, String calendarMentor, String skype) throws IOException;
 
     String authorize();
 
