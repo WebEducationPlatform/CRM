@@ -5,6 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
+import com.google.api.services.calendar.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class SkypeCallRestController {
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
 			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
-				return ResponseEntity.badRequest().body("У ментора отсуствует почта или неверный формат");
+				return ResponseEntity.badRequest().body("Неверный формат почты. (Нужен ...@gmail.com)");
 			}
 			calendarService.addEvent(mentor.getEmail(), startDate, client.getSkype());
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
@@ -128,7 +129,7 @@ public class SkypeCallRestController {
 		User mentor = userService.get(mentorId);
 		try {
 			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
-				return ResponseEntity.badRequest().body("У ментора отсуствует почта или неверный формат");
+				return ResponseEntity.badRequest().body("Неверный формат почты. (Нужен ...@gmail.com)");
 			}
 			AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 			assignSkypeCall.setCreatedTime(ZonedDateTime.now());
