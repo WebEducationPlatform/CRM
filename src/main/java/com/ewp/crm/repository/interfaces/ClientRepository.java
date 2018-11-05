@@ -12,7 +12,7 @@ import java.util.List;
 public interface ClientRepository extends CommonGenericRepository<Client>, ClientRepositoryCustom {
 
 	Client getClientBySocialProfiles(List<SocialProfile> list);
-
+	Client getClientBySocialProfilesEquals(SocialProfile socialProfile);
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
 	List<Client> getAllByStatus(Status status);

@@ -192,14 +192,14 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id1", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id1", socialProfileTypeService.getByTypeName("facebook"))));
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id2", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id2", socialProfileTypeService.getByTypeName("facebook"))));
+		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id3", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id3", socialProfileTypeService.getByTypeName("facebook"))));
+		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id4", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id4", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
