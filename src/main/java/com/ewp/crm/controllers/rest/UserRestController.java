@@ -50,4 +50,19 @@ public class UserRestController {
 	public ResponseEntity getPrincipal(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession);
 	}
+
+	@PostMapping(value = "/user/ColorBackground")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity addColor(@RequestParam(name = "color") String color,
+								   @AuthenticationPrincipal User userFromSession) {
+		userService.setColorBackground(color, userFromSession);
+		return ResponseEntity.ok(color);
+	}
+
+	@GetMapping(value = "/user/ColorBackground")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity getColor(@AuthenticationPrincipal User userFromSession) {
+		return ResponseEntity.ok(userFromSession.getColorBackground());
+	}
+
 }

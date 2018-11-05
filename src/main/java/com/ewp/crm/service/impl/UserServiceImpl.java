@@ -10,6 +10,7 @@ import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,9 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserDAO userDAO;
     private final ImageConfig imageConfig;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
@@ -51,6 +55,8 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         logger.info("{}: user saved successfully", UserServiceImpl.class.getName());
         return userDAO.saveAndFlush(user);
     }
@@ -64,6 +70,11 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
         }
+
+        if (!user.getPassword().equals(currentUserByEmail.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
         logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
         userDAO.saveAndFlush(user);
     }
@@ -95,6 +106,15 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public User getUserByFirstNameAndLastName(String firstName, String lastName) {
         return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
+    }
+
+    @Override
+    public void setColorBackground(String color, User user) {
+        String precolor = user.getColorBackground();
+        user.setColorBackground(color);
+        update(user);
+
+        logger.info("{}: color background set from {} to {}", user.getFullName(), precolor, color);
     }
 
     private void phoneNumberValidation(User user) {

@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @RestController
 @RequestMapping("/admin/rest/client")
@@ -23,19 +23,18 @@ public class AdminRestClientController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
-	private final AssignSkypeCallService assignSkypeCallService;
+	private final StudentService studentService;
 
 	@Autowired
 	public AdminRestClientController(ClientService clientService,
 									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
-									 StatusService statusService,
-									 AssignSkypeCallService assignSkypeCallService) {
+									 StatusService statusService, StudentService studentService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
-		this.assignSkypeCallService = assignSkypeCallService;
+		this.studentService = studentService;
 	}
 
 	@PostMapping(value = "/add")
@@ -50,6 +49,7 @@ public class AdminRestClientController {
 		client.setStatus(status);
 		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
 		clientService.addClient(client);
+		studentService.addStudentForClient(client);
 		logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -67,7 +67,7 @@ public class AdminRestClientController {
 		currentClient.setComments(clientFromDB.getComments());
 		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
 		currentClient.setStatus(clientFromDB.getStatus());
-		currentClient.setDateOfRegistration(LocalDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
+		currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
 		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
 		currentClient.setNotifications(clientFromDB.getNotifications());
 		currentClient.setCanCall(clientFromDB.isCanCall());

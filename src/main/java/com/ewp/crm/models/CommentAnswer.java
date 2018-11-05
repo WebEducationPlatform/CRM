@@ -2,7 +2,7 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "comment_answer")
@@ -25,7 +25,7 @@ public class CommentAnswer {
 	private Client client;
 
 	@Column(name = "date")
-	private LocalDateTime dateFormat;
+	private ZonedDateTime dateFormat;
 
 	@Column(name = "content")
 	@Lob
@@ -46,7 +46,7 @@ public class CommentAnswer {
 		this.user = user;
 		this.content = content;
 		this.client = client;
-		setDateFormat(LocalDateTime.now());
+		setDateFormat(ZonedDateTime.now());
 	}
 
 	public Long getId() {
@@ -89,11 +89,11 @@ public class CommentAnswer {
 		this.client = client;
 	}
 
-	public LocalDateTime getDateFormat() {
+	public ZonedDateTime getDateFormat() {
 		return dateFormat;
 	}
 
-	public void setDateFormat(LocalDateTime dateFormat) {
+	public void setDateFormat(ZonedDateTime dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 }

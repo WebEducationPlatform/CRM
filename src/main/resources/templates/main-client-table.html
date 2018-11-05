@@ -2,12 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <title>Управление клиентами</title>
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
 <div style="margin: 4%">
@@ -152,42 +154,42 @@
                             </th:block>
                         </div>
                     </div>
-                    <div class="btn-group">
-                        <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name="emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
-                        </button>
-                        <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                            <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                                <a class="glyphicon glyphicon-ok portlet-send-btn"
-                                   th:if="${!template.hasBody()}"
-                                   th:id="'eTemplateBtn' + ${template.id}"
-                                   data-toggle="modal"
-                                   th:attrappend="data-target='#sendTemplateModal'"
-                                   th:text="' ' + ${template.name}"
-                                   th:attrprepend="data-template-id=${template.id}"></a>
-                                <a class="glyphicon glyphicon-plus portlet-custom-btn"
-                                   th:if="${template.hasBody()}"
-                                   th:id="'eTemplateBtn' + ${template.id}"
-                                   data-toggle="modal" th:attrappend="
+                </div>
+                <div class="btn-group">
+                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                    <button name="emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
+                    </button>
+                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                        <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                            <a class="glyphicon glyphicon-ok portlet-send-btn"
+                               th:if="${!template.hasBody()}"
+                               th:id="'eTemplateBtn' + ${template.id}"
+                               data-toggle="modal"
+                               th:attrappend="data-target='#sendTemplateModal'"
+                               th:text="' ' + ${template.name}"
+                               th:attrprepend="data-template-id=${template.id}"></a>
+                            <a class="glyphicon glyphicon-plus portlet-custom-btn"
+                               th:if="${template.hasBody()}"
+                               th:id="'eTemplateBtn' + ${template.id}"
+                               data-toggle="modal" th:attrappend="
                                data-target='#customMessageTemplate'"
-                                   th:text="' ' + ${template.name}"
-                                   th:attrprepend="data-template-id=${template.id}"></a>
-                              </li>
-                        </ul>
-                        <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+                               th:text="' ' + ${template.name}"
+                               th:attrprepend="data-template-id=${template.id}"></a>
+                        </li>
+                    </ul>
+                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
-                        <!-- SMS ERROR INFO BTN -->
-                        <th:block th:each="notification_sms:${notifications_type_sms}">
-                            <th:block th:if="${notification_sms.client == client}">
-                                <button type="button"
-                                        style="color:red"
-                                        class="glyphicon glyphicon-exclamation-sign sms-error-btn"
-                                        th:attrappend="data-id=${client.id}"></button>
-                            </th:block>
+                    <!-- SMS ERROR INFO BTN -->
+                    <th:block th:each="notification_sms:${notifications_type_sms}">
+                        <th:block th:if="${notification_sms.client == client}">
+                            <button type="button"
+                                    style="color:red"
+                                    class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                    th:attrappend="data-id=${client.id}"></button>
                         </th:block>
-                        <!--/ SMS ERROR INFO BTN -->
+                    </th:block>
+                    <!--/ SMS ERROR INFO BTN -->
 
-                    </div>
                 </div>
             </div>
         </div>
@@ -208,7 +210,7 @@
             </form>
         </div>
     </div>
-
+    <!--Меню у админов и овнеров-->
     <div id="panel">
         <div id="panel-content">
             <div class="panel-group">
@@ -277,11 +279,11 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
                                 </tr>
@@ -333,7 +335,7 @@
 </div>
 
 <!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop" >
+<div id="msg_pop" sec:authorize="hasAnyAuthority('OWNER')">
     <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для клиентов вошедших в Slack
@@ -345,12 +347,14 @@
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
@@ -365,5 +369,7 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
+
 </body>
 </html>

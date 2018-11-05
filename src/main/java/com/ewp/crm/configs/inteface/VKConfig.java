@@ -3,6 +3,8 @@ package com.ewp.crm.configs.inteface;
 public interface VKConfig {
 
     String getClubId();
+    String getClubIdClear();
+    String getVkAPIUrl();
     String getVersion();
     String getCommunityToken();
     String getApplicationId();

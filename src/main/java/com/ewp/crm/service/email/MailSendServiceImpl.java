@@ -52,26 +52,27 @@ public class MailSendServiceImpl implements MailSendService {
     private final ClientService clientService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
-    private final MessageTemplateService messageTemplateService;
     private final MailConfig mailConfig;
     private String emailLogin;
-    private UserService userService;
     private final Environment env;
 
-
     @Autowired
-    public MailSendServiceImpl(JavaMailSender javaMailSender, @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                               ImageConfig imageConfig, Environment environment, ClientService clientService, ClientHistoryService clientHistoryService, MessageService messageService, MailConfig mailConfig,UserService userservice, MessageTemplateService messageTemplateService) {
+    public MailSendServiceImpl(JavaMailSender javaMailSender,
+                               @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
+                               ImageConfig imageConfig,
+                               Environment environment,
+                               ClientService clientService,
+                               ClientHistoryService clientHistoryService,
+                               MessageService messageService,
+                               MailConfig mailConfig) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
-        this.messageTemplateService = messageTemplateService;
         this.env = environment;
         this.mailConfig = mailConfig;
-        this.userService = userservice;
         checkConfig(environment);
     }
 
@@ -87,8 +88,9 @@ public class MailSendServiceImpl implements MailSendService {
             System.exit(-1);
         }
     }
+
     public void sendEmailInAllCases(Client client) {
-        User principal = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper;
         try {
@@ -102,6 +104,7 @@ public class MailSendServiceImpl implements MailSendService {
         }
         javaMailSender.send(mimeMessage);
     }
+
     public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
@@ -167,7 +170,6 @@ public class MailSendServiceImpl implements MailSendService {
         questionExplanation.put(4, env.getRequiredProperty("explanation.question.four"));
         questionExplanation.put(5, env.getRequiredProperty("explanation.question.five"));
         questionExplanation.put(6, env.getRequiredProperty("explanation.question.six"));
-
 
         Map<Integer, Integer> wrong = new HashMap<>();
         int countOfRight = 0;
@@ -254,6 +256,11 @@ public class MailSendServiceImpl implements MailSendService {
             logger.error("Can't send mail to {}", recipient, e);
             throw new MessageTemplateException(e.getMessage());
         }
+    }
+
+    @Override
+    public void sendSimpleNotification(Long clientId, String templateText) {
+        prepareAndSend(clientId, templateText, "", null);
     }
 
     @Async
