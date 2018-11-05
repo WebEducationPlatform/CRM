@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -65,10 +66,10 @@ public class SkypeCallRestController {
 	public ResponseEntity<Object> checkFreeDate(@RequestParam Long clientId,
 												@RequestParam(name = "idMentor") Long idMentor,
 												@RequestParam Long startDate) {
-		User user = userService.get(idMentor);
+		User mentor = userService.get(idMentor);
 		Client client = clientService.getClientByID(clientId);
 		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-		if (assignSkypeCallBySkypeLogin != null) {
+		if (assignSkypeCallBySkypeLogin != null && idMentor.equals(assignSkypeCallBySkypeLogin.getFromAssignSkypeCall().getId())) {
 			ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
 					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
@@ -77,7 +78,7 @@ public class SkypeCallRestController {
 				return ResponseEntity.status(HttpStatus.OK).build();
 			}
 		}
-		if (calendarService.checkFreeDate(startDate, user.getEmail())) {
+		if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 		return ResponseEntity.status(HttpStatus.OK).build();
@@ -95,17 +96,23 @@ public class SkypeCallRestController {
 		ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
+			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
+				return ResponseEntity.badRequest().body("У ментора отсуствует почта или неверный формат");
+			}
 			calendarService.addEvent(mentor.getEmail(), startDate, client.getSkype());
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE));
 			clientService.update(client);
-			logger.info("{} assign skype client id:{} until {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
+			logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
 			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (IOException e){
+			logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), startDate, e);
+			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
 		} catch (Exception e) {
-			logger.info("{}  do not assign skype client id:{} until {}", userFromSession.getFullName(), client.getId(), startDate, e);
-			return ResponseEntity.badRequest().body("Произошла ошибка");
+			logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), startDate, e);
+			return ResponseEntity.badRequest().body("Произошла ошибка.");
 		}
 	}
 
@@ -117,22 +124,35 @@ public class SkypeCallRestController {
 									  @RequestParam Long skypeCallDateNew,
 									  @RequestParam Long skypeCallDateOld,
 									  @RequestParam String selectNetwork) {
-		User user = userService.get(mentorId);
 		Client client = clientService.get(clientId);
-		AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-		assignSkypeCall.setCreatedTime(ZonedDateTime.now());
-		if (!Objects.equals(skypeCallDateNew, skypeCallDateOld)) {
-			calendarService.update(skypeCallDateNew, skypeCallDateOld, user.getEmail(), client.getSkype());
-			assignSkypeCall.setSkypeCallDate(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")));
-			assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
+		User mentor = userService.get(mentorId);
+		try {
+			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
+				return ResponseEntity.badRequest().body("У ментора отсуствует почта или неверный формат");
+			}
+			AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
+			assignSkypeCall.setCreatedTime(ZonedDateTime.now());
+			ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
+			if (!(Objects.equals(skypeCallDateNew, skypeCallDateOld) && assignSkypeCall.getFromAssignSkypeCall().getId().equals(mentorId))) {
+				calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client.getSkype());
+				assignSkypeCall.setSkypeCallDate(dateSkypeCall);
+				assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
+				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
+			}
+			assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
+			assignSkypeCall.setWhoCreatedTheSkypeCall(userFromSession);
+			assignSkypeCall.setTheNotificationWasIsSent(false);
+			assignSkypeCallService.update(assignSkypeCall);
+			clientService.updateClient(client);
+			logger.info("{} изменил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (IOException e){
+			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
+			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
+		} catch (Exception e) {
+			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
+			return ResponseEntity.badRequest().body("Произошла ошибка.");
 		}
-		assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
-		assignSkypeCall.setWhoCreatedTheSkypeCall(userFromSession);
-		assignSkypeCall.setTheNotificationWasIsSent(false);
-		assignSkypeCallService.update(assignSkypeCall);
-		clientService.updateClient(client);
-		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@PostMapping(value = "rest/mentor/deleteEvent")

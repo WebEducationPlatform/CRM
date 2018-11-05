@@ -1097,7 +1097,7 @@ function assignSkype(id) {
                 currentStatus.text("Введите Skype пользователя");
                 currentStatus.after('<input class="enter-skype-login form-control"> </input>');
                 $('.enter-skype-login').after('<br/>' + '<button onclick="confirmSkype(' + id + ')" type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
-            } else {updateCallDate
+            } else {
                 // Get the list of mentors
                 $.ajax({
                     type: 'GET',
@@ -1310,8 +1310,8 @@ $(document).on('click','.confirm-skype-btn', function (e) {
 
                     error: function (error) {
                         console.log(error);
-                        currentStatus.css('color','#229922');
-                        currentStatus.text(error);
+                        currentStatus.css('color','#d01717');
+                        currentStatus.text(error.responseText);
                     }
                 });
             },
@@ -1365,6 +1365,7 @@ function updateCallDate(id) {
                             if (assignSkypeCall.fromAssignSkypeCall.id === value.id) {
                                 $('.enter-mentor-list')
                                     .append($("<option></option>")
+                                        .prop('selected', true)
                                         .attr("value", value.id)
                                         .text(value.firstName + " " + value.lastName + " (Текущий ментор)"));
                             } else {
@@ -1379,7 +1380,7 @@ function updateCallDate(id) {
 
                 error: function (error) {
                     console.log(error);
-                    currentStatus.css('color','#229922');
+                    currentStatus.css('color','#d01717');
                     currentStatus.text(error);
                 }
 
@@ -1418,7 +1419,7 @@ function updateCallDate(id) {
         },
         error: function (error) {
             console.log(error);
-            currentStatus.css('color','#229922');
+            currentStatus.css('color','#d01717');
             currentStatus.text(error);
         }
     });
@@ -1487,8 +1488,8 @@ $(document).on('click','.update-skype-call', function (e) {
 
                         error: function (error) {
                             console.log(error);
-                            currentStatus.css('color','#229922');
-                            currentStatus.text(error);
+                            currentStatus.css('color','#d01717');
+                            currentStatus.text(error.responseText);
                         }
                     });
                 }
