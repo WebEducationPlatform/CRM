@@ -162,8 +162,8 @@ public class SkypeCallRestController {
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
 									  @RequestParam Long skypeCallDateOld) {
-		User user = userService.get(mentorId);
-		calendarService.delete(skypeCallDateOld, user.getEmail());
+		User mentor = userService.get(mentorId);
+		calendarService.delete(skypeCallDateOld, mentor.getEmail());
 		Client client = clientService.get(clientId);
 		client.setLiveSkypeCall(false);
 		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
