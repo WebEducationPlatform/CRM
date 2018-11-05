@@ -118,25 +118,19 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public boolean checkFreeDate(Long date, String calendarMentor) {
-		try {
+	public boolean checkFreeDate(Long date, String calendarMentor) throws IOException {
 			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
 			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
-
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 			String format = Instant.ofEpochMilli(date)
 					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
 					.format(dateTimeFormatter);
-
-			for (int i = 0; i < eventAll.size(); i++) {
-				if (eventAll.get(i).getStart().toString().contains(format)) {
-					return true;
-				}
+		for (Event anEventAll : eventAll) {
+			if (anEventAll.getStart().toString().contains(format)) {
+				return true;
 			}
-		} catch (IOException e) {
-			logger.error("Error to send message ", e);
 		}
 		return false;
 	}
