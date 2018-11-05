@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -79,7 +81,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case POSTPONE:
 				title.append(" ");
 				title.append("(");
-				title.append(LocalDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
+				title.append(ZonedDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
 				title.append(")");
 				break;
 			case REMOVE_POSTPONE:

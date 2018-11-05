@@ -1,6 +1,6 @@
 package com.ewp.crm.models;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class FilteringCondition {
 
@@ -16,13 +16,15 @@ public class FilteringCondition {
 
     private String country;
 
-    private Date dateFrom;
+    private LocalDate dateFrom;
 
-    private Date dateTo;
+    private LocalDate dateTo;
 
     private Status status;
 
     private String selected;
+
+    private int pageNumber;
 
     public FilteringCondition() {
     }
@@ -67,19 +69,19 @@ public class FilteringCondition {
         this.city = city;
     }
 
-    public Date getDateFrom() {
+    public LocalDate getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(Date dateFrom) {
+    public void setDateFrom(LocalDate dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public Date getDateTo() {
+    public LocalDate getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(Date dateTo) {
+    public void setDateTo(LocalDate dateTo) {
         this.dateTo = dateTo;
     }
 
@@ -105,5 +107,13 @@ public class FilteringCondition {
 
     public void setSelected(String selected) {
         this.selected = selected;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
     }
 }

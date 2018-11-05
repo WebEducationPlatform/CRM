@@ -97,6 +97,27 @@ $("#save-description").on("click", function saveDescription() {
     })
 });
 
+//Search clients in main
+function clientsSearch() {
+    $("#search-clients").keyup(function () {
+        let jo = $(".portlet");
+        let jo2 = jo.find($(".search_text"));
+        let data = this.value.toLowerCase().split(" ");
+        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
+
+        for (let i = 0; i < jo2.length; i++) {
+            let count = 0;
+            for (let z = 0; z < data.length; z++) {
+                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
+                    count++;
+                }
+            }
+            if (count === data.length) {
+                jo[i].style.display = 'block';
+            }
+        }
+    });
+}
 
 $(document).ready(function () {
     $(".column").sortable({
@@ -141,31 +162,7 @@ $(document).ready(function () {
         $("#create-new-status-btn").show();
     });
 
-    /* $("#new-status-form").focusout(
-         function () {
-             $(this).hide();
-             $("#create-new-status-span").show();
-         });*/
-
-    //Search clients in main
-    $("#search-clients").keyup(function () {
-        let jo = $(".portlet");
-        let jo2 = jo.find($(".search_text"));
-        let data = this.value.toLowerCase().split(" ");
-        this.value.localeCompare("") === 0 ? jo.show() : jo.hide();
-
-        for (let i = 0; i < jo2.length; i++) {
-            let count = 0;
-            for (let z = 0; z < data.length; z++) {
-                if (jo2[i].innerText.toLowerCase().includes(data[z])) {
-                    count++;
-                }
-            }
-            if (count === data.length) {
-                jo[i].style.display = 'block';
-            }
-        }
-    });
+    clientsSearch();
 
     $(".sms-error-btn").on("click", function smsInfoModalOpen() {
         let modal = $("#sms_error_modal"),
@@ -254,7 +251,10 @@ function changeStatusName(id) {
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = $("#trial_offset_" + id).val();
     let next_payment_offset = $("#next_payment_offset_" + id).val();
-    if (!validate_status_input(trial_offset, next_payment_offset)) {return};
+    if (!validate_status_input(trial_offset, next_payment_offset)) {
+        return
+    }
+    ;
     let formData = {
         statusName: statusName,
         oldStatusId: id,
@@ -515,11 +515,18 @@ $(document).ready(function () {
 
 $(document).ready(fillFilterList);
 
-$(document).on('click', function () {
+//добавляем упоминания юзеров в полях комментариев карточки клиента
+document.querySelector('.modal-comments').onclick = (e) => {
+    const target = e.target;
+    const area = target.getAttribute('id');
+    if (area.indexOf("new-text-for-client") === 0 || area.indexOf("new-answer-for-comment") === 0) {
+        mentionUser();
+    }
+};
+//функция упоминания юзера
+function mentionUser() {
     var url = '/rest/user';
-
     var userNames = [];
-
     $.ajax({
         type: 'get',
         url: url,
@@ -534,7 +541,7 @@ $(document).on('click', function () {
         }
     });
 
-    $('#main-modal-window  .textcomplete').textcomplete([
+    $('#main-modal-window .textcomplete').textcomplete([
         {
             replace: function (mention) {
                 return '@' + mention + ' ';
@@ -545,12 +552,11 @@ $(document).on('click', function () {
                 callback($.map(this.mentions, function (mention) {
                     $('.textcomplete-dropdown').css('z-index', '999999');
                     return mention.indexOf(term) === 0 ? mention : null;
-
                 }));
             },
             index: 1
         }])
-});
+}
 
 function reAvailableUser(id) {
     let url = '/admin/rest/user/reaviable';
@@ -624,7 +630,7 @@ $(function () {
 
 // Отправка кастомного сообщения в вк
 $(function () {
-    $('.send-vk-btn').on('click', function(event) {
+    $('.send-vk-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-custom-vk-status');
@@ -641,11 +647,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -671,7 +677,7 @@ $(function () {
 
 // Отправка кастомного сообщения в email
 $(function () {
-    $('.send-email-btn').on('click', function(event) {
+    $('.send-email-btn').on('click', function (event) {
         var clientId = $(this).data('clientId');
         var templateId = $(this).data('templateId');
         var currentStatus = $(this).prev('.send-email-err-status');
@@ -689,11 +695,11 @@ $(function () {
 
             success: function (result) {
                 $(".modal").modal('hide');
-                currentStatus.css('color','limegreen');
+                currentStatus.css('color', 'limegreen');
                 currentStatus.text("Отправлено");
             },
             error: function (e) {
-                currentStatus.css('color','red');
+                currentStatus.css('color', 'red');
                 currentStatus.text("Ошибка");
                 console.log(e)
             }
@@ -1024,14 +1030,14 @@ $(document).ready(function () {
     var nowDate = new Date();
     var minutes = Math.ceil((nowDate.getMinutes() + 1) / 10) * 10;
     var minDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes, 0, 0);
-    var startDate = moment(minDate).utcOffset(180);
+    var startDate = moment(minDate)/*.utcOffset(180)*/;
     $('input[name="postponeDate"]').daterangepicker({
         singleDatePicker: true,
         timePicker: true,
         timePickerIncrement: 10,
         timePicker24Hour: true,
         locale: {
-            format: 'DD.MM.YYYY HH:mm МСК'
+            format: 'DD.MM.YYYY HH:mm'
         },
         minDate: startDate,
         startDate: startDate
@@ -1669,7 +1675,7 @@ $(function () {
             type: 'GET',
             url: 'rest/client/' + clientId,
             data: formData,
-            success: function(client) {
+            success: function (client) {
                 $.get('rest/client/getPrincipal', function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
@@ -1695,21 +1701,33 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
-                    // здесь вставка ссылок в кнопки вк и фб
 
-
+                    // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
+                    $('#vk-im-button').hide();
+
                     $('#fb-href').hide();
+                    $('#slack-href').hide();
 
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
                             $('#vk-href').show();
+
+
+                            var vkref = client.socialProfiles[i].link;
+                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
+                            $('#vk-im-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
+                    }
+
+                    if (client.slackProfile != undefined) {
+                        $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
+                        $('#slack-href').show();
                     }
 
                     var btnBlock = $('div#assign-unassign-btns');
@@ -1783,6 +1801,8 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
+        backUrl();
+        clientsSearch();
     });
 });
 
@@ -1805,7 +1825,7 @@ function callToClient(userPhone, clientPhone) {
         type: 'post',
         url: url,
         data: formData,
-        success: function() {
+        success: function () {
             console.log("PROCESS CALL");
             icon.css("background", "green");
             icon.css("color", "white");
@@ -1836,7 +1856,7 @@ function webCallToClient(clientPhone) {
         type: 'post',
         url: url,
         data: formData,
-        success: function(callRecordId) {
+        success: function (callRecordId) {
             console.log("PROCESS WEBCALL");
             callerId = callRecordId.id;
             icon.css("background", "green");

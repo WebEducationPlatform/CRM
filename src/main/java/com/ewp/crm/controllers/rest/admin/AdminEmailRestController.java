@@ -6,6 +6,7 @@ import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,9 +45,9 @@ public class AdminEmailRestController {
 
     @PostMapping(value = {"/admin/editMessageTemplate"})
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity editETemplate(@RequestParam("templateId") Long templateId,
-                                        @RequestParam("templateText") String templateText,
-                                        @RequestParam String otherTemplateText) {
+    public HttpStatus editETemplate(@RequestParam("templateId") Long templateId,
+                                    @RequestParam("templateText") String templateText,
+                                    @RequestParam String otherTemplateText) {
         //TODO Убрать хардкод
         if (templateText.contains("%bodyText%") ^ otherTemplateText.contains("%bodyText%")) {
             throw new MessageTemplateException("%bodyText% должен присутствовать/остутствовать на обоих типах сообщения");
@@ -55,7 +56,7 @@ public class AdminEmailRestController {
         messageTemplate.setTemplateText(templateText);
         messageTemplate.setOtherText(otherTemplateText);
         messageTemplateService.update(messageTemplate);
-        return ResponseEntity.ok().build();
+        return HttpStatus.OK;
     }
 
     @ResponseBody

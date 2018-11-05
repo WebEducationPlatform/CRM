@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
+    <title>Настройки пользователя</title>
     <meta charset="UTF-8"/>
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
 <div style="margin: 2%">
@@ -32,10 +34,16 @@
         </form>
 
         <h1>Настройка оповещений о новых клиентах:</h1>
-
-        <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-            Включить/Выключить
-        </button>
+        <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Выключить
+            </button>
+        </div>
+        <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
+                Включить
+            </button>
+        </div>
 
     </div>
 
@@ -48,19 +56,16 @@
         </div>
         <br/>
         <button type="button" class="btn btn-primary pull" data-toggle="modal"
+                data-target="#InterfaceSettings">
+            Настройка оформления
+        </button>
+        <br/>
+        <br/>
+        <button type="button" class="btn btn-primary pull" data-toggle="modal"
                 data-target="#vkAuthModal">
             Авторизация Вконтакте
         </button>
         <br/>
-        <br/>
-        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
-        <br/>
-        <br/>
-        <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
-                Статус клиента не студента
-            </button>
-        </div>
         <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
@@ -69,13 +74,55 @@
         </div>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/user/autoAnswer" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                автоответ</a>
+        </div>
+        <br/>
+        <div id="choice-status-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
+                Статус клиента не студента
+            </button>
+        </div>
+        <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Оповещение об оплате
             </button>
         </div>
     </div>
 
+</div>
+
+<!--Модалка для настройки оформления системы-->
+<div class="modal fade" id="InterfaceSettings" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 id="modal-header-color" class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <label for="selected-color">Цвет фона оформления</label>
+                        <div id="wrap-selected-color" class="input-group colorpicker-component">
+                            <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
+                            <input id="selected-color" type="text" style="width: 100%" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
+                        </div>
+                        <script>
+                            $(function () {
+                                $('#wrap-selected-color').colorpicker({format:'hex'});
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="update-interface" class="btn btn-default" data-dismiss="modal">Применить</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Модальное окно для получения токена -->
@@ -146,5 +193,9 @@
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+<script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
+<link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>
 </html>

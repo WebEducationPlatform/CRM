@@ -66,12 +66,13 @@ $('#create_student_status').click(function () {
 
 //Delete Student status button action
 $('.button_delete_status').click(function () {
+    if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
     let status_id = this.value;
     $.ajax({
         type: 'GET',
         url: '/rest/student/status/delete/' + status_id,
         success: function (response) {
-            if (response == "CONFLICT") {
+            if (response === "CONFLICT") {
                 alert("Статус занят студентами.\r\nНе могу удалить статус!");
             }
             location.reload();

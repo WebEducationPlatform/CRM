@@ -1,14 +1,11 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.PotentialClient;
-import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.YouTubeTrackingCard;
-import com.ewp.crm.service.impl.VKService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.FileService;
 import com.ewp.crm.service.interfaces.PotentialClientService;
 import com.ewp.crm.service.interfaces.YouTubeTrackingCardService;
 import com.ewp.crm.service.interfaces.YoutubeService;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

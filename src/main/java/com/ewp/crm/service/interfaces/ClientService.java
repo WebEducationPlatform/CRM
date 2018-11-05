@@ -51,4 +51,6 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
 	List<Client> getAllClientsByPage(Pageable pageable);
+
+	List<Client> getClientsBySearchPhrase(String search);
 }

@@ -1,13 +1,11 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.service.impl.VKService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.VkMemberService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -31,16 +31,19 @@ public class VkRestController {
 	private final VkTrackedClubService vkTrackedClubService;
 	private final VkMemberService vkMemberService;
 	private final MessageTemplateService messageTemplateService;
+	private final VKConfig vkConfig;
 
 	@Autowired
 	public VkRestController(VKService vkService,
 							VkTrackedClubService vkTrackedClubService,
 							VkMemberService vkMemberService,
-							MessageTemplateService messageTemplateService) {
+							MessageTemplateService messageTemplateService,
+							VKConfig vkConfig) {
 		this.vkService = vkService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
 		this.messageTemplateService = messageTemplateService;
+		this.vkConfig = vkConfig;
 	}
 
     @PostMapping
@@ -112,5 +115,17 @@ public class VkRestController {
 		}
 		vkTrackedClubService.add(newVkClub);
 		return ResponseEntity.ok(HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/connectParam")
+	public Map<String,String> vkGetAccessToken() {
+
+		Map<String, String> param = new HashMap<>();
+		param.put("groupID", vkConfig.getClubIdClear());
+		param.put("accessToken", vkConfig.getCommunityToken());
+		param.put("version", vkConfig.getVersion());
+		param.put("url", vkConfig.getVkAPIUrl());
+
+		return param;
 	}
 }
