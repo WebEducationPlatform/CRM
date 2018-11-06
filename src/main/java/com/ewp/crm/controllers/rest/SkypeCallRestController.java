@@ -70,8 +70,17 @@ public class SkypeCallRestController {
 		if (calendarService.googleAuthorizationIsNotNull()){
 			User mentor = userService.get(idMentor);
 			Client client = clientService.getClientByID(clientId);
+			if (!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("У этого ментора неверный формат почты. (Нужен ...@gmail.com)");
+			} else {
+				try {
+					calendarService.getClient().calendars().get(mentor.getEmail()).execute();
+				} catch (Exception e){
+					return ResponseEntity.badRequest().body("Календарь ментора не привязан к календарю администратора.");
+				}
+			}
 			AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-			//Блок для того чтоб менеджер мог изменить только уведомления и оставить время
+			//Возможность менеджеру изменить только уведомления и оставить время
 			//    чтобы не было ошибки(Текущая дата занята) у одного и того же клиента.
 			if (assignSkypeCallBySkypeLogin != null && idMentor.equals(assignSkypeCallBySkypeLogin.getFromAssignSkypeCall().getId())) {
 				ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
@@ -81,9 +90,6 @@ public class SkypeCallRestController {
 				if (assignSkypeCallBySkypeLogin.getSkypeCallDate().equals(skypeCallDate)) {
 					return ResponseEntity.status(HttpStatus.OK).build();
 				}
-			}
-			if (!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Неверный формат почты. (Нужен ...@gmail.com)");
 			}
 			if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Текущая дата уже занята, выберите другую.");
@@ -113,9 +119,6 @@ public class SkypeCallRestController {
 			clientService.update(client);
 			logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
 			return ResponseEntity.ok(HttpStatus.OK);
-		} catch (IOException e) {
-			logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), startDate, e);
-			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
 		} catch (Exception e) {
 			logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), startDate, e);
 			return ResponseEntity.badRequest().body("Произошла ошибка.");
@@ -149,9 +152,6 @@ public class SkypeCallRestController {
 			clientService.updateClient(client);
 			logger.info("{} изменил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
 			return ResponseEntity.ok(HttpStatus.OK);
-		} catch (IOException e) {
-			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
-			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
 		} catch (Exception e) {
 			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
 			return ResponseEntity.badRequest().body("Произошла ошибка.");

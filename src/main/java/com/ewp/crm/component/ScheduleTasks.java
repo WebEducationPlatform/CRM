@@ -156,7 +156,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 15_000)
+	@Scheduled(fixedRate = 30_000)
 	private void checkCallInSkypeToSendTheNotification() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();

@@ -1314,7 +1314,6 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                                 '<div class="skype-notification" style="color:#229922">Время беседы назначено.</div>' +
                             '</div>');
                     },
-
                     error: function (error) {
                         console.log(error);
                         currentStatus.css('color','#d01717');
@@ -1323,12 +1322,17 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 });
             },
             400: function (error) {
-                if(error.responseText.indexOf('Неверный формат') >= 0){
+                $('#freeDate').remove();
+                if(error.responseText.indexOf('@gmail.com)') >= 0){
+                    currentStatus.css('color','#d01717');
+                    currentStatus.text(error.responseText);
+                }
+                if(error.responseText.indexOf('Календарь ментора не привязан к календарю администратора.') >= 0){
                     currentStatus.css('color','#d01717');
                     currentStatus.text(error.responseText);
                 }
                 if (error.responseText.indexOf('Текущая дата уже занята') >= 0) {
-                    currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
+                    currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
                 }
                 // if (!document.getElementById('freeDate')) {
                 //     currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
@@ -1535,9 +1539,18 @@ $(document).on('click','.update-skype-call', function (e) {
                         }
                     });
                 },
-                400: function() {
-                    if (!document.getElementById('freeDate')) {
-                        currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
+                400: function (error) {
+                    $('#freeDate').remove();
+                    if(error.responseText.indexOf('@gmail.com)') >= 0){
+                        currentStatus.css('color','#d01717');
+                        currentStatus.text(error.responseText);
+                    }
+                    if(error.responseText.indexOf('Календарь ментора не привязан к календарю администратора.') >= 0){
+                        currentStatus.css('color','#d01717');
+                        currentStatus.text(error.responseText);
+                    }
+                    if (error.responseText.indexOf('Текущая дата уже занята') >= 0) {
+                            currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
                     }
                 },
                 401: function () {

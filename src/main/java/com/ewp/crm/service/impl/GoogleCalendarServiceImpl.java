@@ -89,8 +89,35 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
+	public Calendar getClient() {
+		return client;
+	}
+
+	@Override
 	public boolean googleAuthorizationIsNotNull(){
 		return client != null;
+	}
+
+	@Override
+	public boolean checkFreeDate(Long date, String calendarMentor) {
+		try {
+			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
+			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			String format = Instant.ofEpochMilli(date)
+					.atZone(ZoneId.of("+00:00"))
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+					.format(dateTimeFormatter);
+			for (Event anEventAll : eventAll) {
+				if (anEventAll.getStart().toString().contains(format)) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Error to send message ", e);
+		}
+		return false;
 	}
 
 	@Override
@@ -123,43 +150,6 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public boolean checkFreeDate(Long date, String calendarMentor) {
-		try {
-			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
-			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-			String format = Instant.ofEpochMilli(date)
-					.atZone(ZoneId.of("+00:00"))
-					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
-					.format(dateTimeFormatter);
-			for (Event anEventAll : eventAll) {
-				if (anEventAll.getStart().toString().contains(format)) {
-					return true;
-				}
-			}
-		} catch (IOException e) {
-			logger.error("Error to send message ", e);
-		}
-		return false;
-	}
-
-	private Event newEvent(Long startDate, String skype) {
-		Event event = new Event();
-		event.setSummary("Skype(crm) - " + skype);
-		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-		String format = Instant.ofEpochMilli(startDate)
-				.atZone(ZoneId.of("+00:00"))
-				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-				.format(outputFormatter);
-		DateTime start = new DateTime(format);
-		event.setStart(new EventDateTime().setDateTime(start));
-		DateTime end = new DateTime(format);
-		event.setEnd(new EventDateTime().setDateTime(end));
-		return event;
-	}
-
-	@Override
 	public void delete(Long oldDate, String calendarMentor) {
 		try {
 			com.google.api.services.calendar.model.Calendar calendar =
@@ -180,5 +170,20 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		} catch (IOException e) {
 			logger.error("Error to send message ", e);
 		}
+	}
+
+	private Event newEvent(Long startDate, String skype) {
+		Event event = new Event();
+		event.setSummary("Skype(crm) - " + skype);
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		String format = Instant.ofEpochMilli(startDate)
+				.atZone(ZoneId.of("+00:00"))
+				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+				.format(outputFormatter);
+		DateTime start = new DateTime(format);
+		event.setStart(new EventDateTime().setDateTime(start));
+		DateTime end = new DateTime(format);
+		event.setEnd(new EventDateTime().setDateTime(end));
+		return event;
 	}
 }
