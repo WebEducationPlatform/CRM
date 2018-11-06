@@ -119,7 +119,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER')")
     public ModelAndView mailingPage() {
         return new ModelAndView("mailing");
     }
@@ -134,7 +134,6 @@ public class ClientController {
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-
         return modelAndView;
     }
 
