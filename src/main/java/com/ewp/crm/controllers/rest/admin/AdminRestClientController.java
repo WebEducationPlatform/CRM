@@ -24,12 +24,15 @@ public class AdminRestClientController {
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
 	private final StudentService studentService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
-	public AdminRestClientController(ClientService clientService,
+	public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
+									 ClientService clientService,
 									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
 									 StatusService statusService, StudentService studentService) {
+		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
@@ -73,6 +76,7 @@ public class AdminRestClientController {
 		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.setCallRecords(clientFromDB.getCallRecords());
 		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
+		currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
 		if (currentClient.equals(clientFromDB)) {
 			return ResponseEntity.noContent().build();
 		}

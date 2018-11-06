@@ -77,13 +77,6 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "date")
     private ZonedDateTime dateOfRegistration;
 
-    @OneToMany
-    @JsonIgnore
-    @JoinTable(name = "assign_client_skype_call",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))})
-    private List<AssignSkypeCall> clientAssignSkypeCall;
-
     @ManyToOne
     @JoinColumn(name = "status_id")
     @JoinTable(name = "status_clients",
@@ -158,7 +151,7 @@ public class Client implements Serializable, Diffable<Client> {
     private SlackProfile slackProfile;
 
     @Column(name = "live_skype_call")
-    private boolean liveSkypeCall = false;
+    private boolean liveSkypeCall;
 
     public Client() {
         this.state = State.NEW;
@@ -476,14 +469,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
-    }
-
-    public List<AssignSkypeCall> getClientAssignSkypeCall() {
-        return clientAssignSkypeCall;
-    }
-
-    public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
-        this.clientAssignSkypeCall = clientAssignSkypeCall;
     }
 
     @Override

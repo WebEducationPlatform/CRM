@@ -10,6 +10,8 @@ public interface GoogleCalendarService {
 
     Calendar tokenResponse(String code);
 
+    Calendar getClient();
+
     boolean googleAuthorizationIsNotNull();
 
     void addEvent(String calendarMentor, Long startDate, String skype) throws IOException;
