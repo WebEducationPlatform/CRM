@@ -48,7 +48,6 @@ $("#update-payment-notification").click( function () {
 
 //Validate input data
 function validate_input(data) {
-    console.log(data);
     if ((data.paymentNotificationEnabled == true) && (data.paymentMessageTemplate == '')) {
         alert("Выберите шаблон или отключите оповещение!");
         return false;
@@ -59,3 +58,16 @@ function validate_input(data) {
     }
     return true;
 }
+
+$("#telegram-auth-send-phone").click( function () {
+    let phone = $("#telegram-auth-phone").val();
+    console.log(phone);
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/phone-code',
+        data: {phone: phone},
+        success: function () {
+            console.log("SSS");
+        }
+    })
+});
