@@ -4,9 +4,7 @@ import com.ewp.crm.models.AssignSkypeCall;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.impl.GoogleCalendarServiceImpl;
 import com.ewp.crm.service.interfaces.*;
-import com.google.api.services.calendar.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,26 +66,31 @@ public class SkypeCallRestController {
 	public ResponseEntity<Object> checkFreeDate(@RequestParam Long clientId,
 												@RequestParam(name = "idMentor") Long idMentor,
 												@RequestParam Long startDate) {
-		User mentor = userService.get(idMentor);
-		Client client = clientService.getClientByID(clientId);
-		AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-		if (assignSkypeCallBySkypeLogin != null && idMentor.equals(assignSkypeCallBySkypeLogin.getFromAssignSkypeCall().getId())) {
-			ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
-					.atZone(ZoneId.of("+00:00"))
-					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-					.withZoneSameInstant(ZoneId.systemDefault());
-			if (assignSkypeCallBySkypeLogin.getSkypeCallDate().equals(skypeCallDate)) {
-				return ResponseEntity.status(HttpStatus.OK).build();
+		// Проверка менеджера на авторизацию в гугл аккаунте, чтоб можно было в будущем назначить звонок
+		if (calendarService.googleAuthorizationIsNotNull()){
+			User mentor = userService.get(idMentor);
+			Client client = clientService.getClientByID(clientId);
+			AssignSkypeCall assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
+			//Блок для того чтоб менеджер мог изменить только уведомления и оставить время
+			//    чтобы не было ошибки(Текущая дата занята) у одного и того же клиента.
+			if (assignSkypeCallBySkypeLogin != null && idMentor.equals(assignSkypeCallBySkypeLogin.getFromAssignSkypeCall().getId())) {
+				ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
+						.atZone(ZoneId.of("+00:00"))
+						.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+						.withZoneSameInstant(ZoneId.systemDefault());
+				if (assignSkypeCallBySkypeLogin.getSkypeCallDate().equals(skypeCallDate)) {
+					return ResponseEntity.status(HttpStatus.OK).build();
+				}
 			}
-		}
-		try {
+			if (!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Неверный формат почты. (Нужен ...@gmail.com)");
+			}
 			if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Текущая дата уже занята, выберите другую.");
 			}
 			return ResponseEntity.status(HttpStatus.OK).build();
-		} catch (Exception e){
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
 	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")
@@ -102,9 +105,6 @@ public class SkypeCallRestController {
 		ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
-			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
-				return ResponseEntity.badRequest().body("Неверный формат почты. (Нужен ...@gmail.com)");
-			}
 			calendarService.addEvent(mentor.getEmail(), startDate, client.getSkype());
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
@@ -113,7 +113,7 @@ public class SkypeCallRestController {
 			clientService.update(client);
 			logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
 			return ResponseEntity.ok(HttpStatus.OK);
-		} catch (IOException e){
+		} catch (IOException e) {
 			logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), startDate, e);
 			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
 		} catch (Exception e) {
@@ -133,26 +133,23 @@ public class SkypeCallRestController {
 		Client client = clientService.get(clientId);
 		User mentor = userService.get(mentorId);
 		try {
-			if(!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null){
-				return ResponseEntity.badRequest().body("Неверный формат почты. (Нужен ...@gmail.com)");
-			}
 			AssignSkypeCall assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 			assignSkypeCall.setCreatedTime(ZonedDateTime.now());
 			ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
-			if (!(Objects.equals(skypeCallDateNew, skypeCallDateOld) && assignSkypeCall.getFromAssignSkypeCall().getId().equals(mentorId))) {
-				calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client.getSkype());
-				assignSkypeCall.setSkypeCallDate(dateSkypeCall);
-				assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
-				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
-			}
 			assignSkypeCall.setSelectNetworkForNotifications(selectNetwork);
 			assignSkypeCall.setWhoCreatedTheSkypeCall(userFromSession);
 			assignSkypeCall.setTheNotificationWasIsSent(false);
+			if (!(Objects.equals(skypeCallDateNew, skypeCallDateOld) && assignSkypeCall.getFromAssignSkypeCall().getId().equals(mentorId))) {
+				assignSkypeCall.setSkypeCallDate(dateSkypeCall);
+				assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
+				calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client.getSkype());
+				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
+			}
 			assignSkypeCallService.update(assignSkypeCall);
 			clientService.updateClient(client);
 			logger.info("{} изменил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
 			return ResponseEntity.ok(HttpStatus.OK);
-		} catch (IOException e){
+		} catch (IOException e) {
 			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
 			return ResponseEntity.badRequest().body("Почта ментора не привязана к почте администратора.");
 		} catch (Exception e) {
@@ -167,13 +164,16 @@ public class SkypeCallRestController {
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam(name = "idMentor") Long mentorId,
 									  @RequestParam Long skypeCallDateOld) {
-		User mentor = userService.get(mentorId);
-		calendarService.delete(skypeCallDateOld, mentor.getEmail());
-		Client client = clientService.get(clientId);
-		client.setLiveSkypeCall(false);
-		client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
-		clientService.updateClient(client);
-		assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
-		return ResponseEntity.ok(HttpStatus.OK);
+		if (calendarService.googleAuthorizationIsNotNull()){
+			User mentor = userService.get(mentorId);
+			Client client = clientService.get(clientId);
+			client.setLiveSkypeCall(false);
+			calendarService.delete(skypeCallDateOld, mentor.getEmail());
+			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
+			clientService.updateClient(client);
+			assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 }

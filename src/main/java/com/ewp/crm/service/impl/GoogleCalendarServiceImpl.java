@@ -89,6 +89,11 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
+	public boolean googleAuthorizationIsNotNull(){
+		return client != null;
+	}
+
+	@Override
 	public void addEvent(String calendarMentor, Long startDate, String skype) throws IOException {
 		Event event = newEvent(startDate, skype);
 		com.google.api.services.calendar.model.Calendar calendar =
@@ -118,7 +123,8 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public boolean checkFreeDate(Long date, String calendarMentor) throws IOException {
+	public boolean checkFreeDate(Long date, String calendarMentor) {
+		try {
 			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
 			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -127,10 +133,13 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
 					.format(dateTimeFormatter);
-		for (Event anEventAll : eventAll) {
-			if (anEventAll.getStart().toString().contains(format)) {
-				return true;
+			for (Event anEventAll : eventAll) {
+				if (anEventAll.getStart().toString().contains(format)) {
+					return true;
+				}
 			}
+		} catch (IOException e) {
+			logger.error("Error to send message ", e);
 		}
 		return false;
 	}

@@ -1136,6 +1136,7 @@ function assignSkype(id) {
 
                 });
 
+
                 currentBtn.attr("disabled", "true");
                 currentBtn.after(
                     '<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
@@ -1151,7 +1152,8 @@ function assignSkype(id) {
                         '</div>' +
                         '</div>' +
                     '</div>');
-                drawCheckbox($(".add-box-window"), clientId);
+                $(drawCheckbox($(".add-box-window"), clientId));
+                // drawCheckbox($(".add-box-window"), clientId);
                 $('input[name="skypePostponeDateOld"]').daterangepicker({
                     singleDatePicker: true,
                     timePicker: true,
@@ -1238,8 +1240,7 @@ function confirmSkype(id) {
                     '</div>' +
                     '</div>' +
                 '</div>');
-            drawCheckbox($(".add-box-window"), clientId);
-
+            $(drawCheckbox($(".add-box-window"), clientId));
             $('input[name="skypePostponeDateOld"]').daterangepicker({
                 singleDatePicker: true,
                 timePicker: true,
@@ -1291,22 +1292,6 @@ $(document).on('click','.confirm-skype-btn', function (e) {
         data: checkCallSkype,
         dataType: 'json',
         statusCode: {
-            401: function () {
-                $('.skype-panel').hide();
-                $('.skype-notification').hide();
-                $('.enter-mentor-list').hide();
-                $('.confirm-skype-btn').hide();
-                $('.assign-skype-call-btn').after(
-                    '<p> ' +
-                    '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
-                    '<div class="inline">' +
-                    '    <form class="form" method="get" action="/login/google">' +
-                    '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
-                    '    </form>' +
-                    '</div>' +
-                    '</p>');
-                console.log("Авторизируйтесь в Google аккаунте");
-            },
             200: function () {
                 // Add Event in calendar mentor
                 $.ajax({
@@ -1337,10 +1322,33 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                     }
                 });
             },
-            400: function () {
-                if (!document.getElementById('freeDate')) {
+            400: function (error) {
+                if(error.responseText.indexOf('Неверный формат') >= 0){
+                    currentStatus.css('color','#d01717');
+                    currentStatus.text(error.responseText);
+                }
+                if (error.responseText.indexOf('Текущая дата уже занята') >= 0) {
                     currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
                 }
+                // if (!document.getElementById('freeDate')) {
+                //     currentBtn.after('<span id="freeDate" style="color:#d01717">Текущая дата уже занята, выберите другую.</span>');
+                // }
+            },
+            401: function () {
+                $('.skype-panel').hide();
+                $('.skype-notification').hide();
+                $('.enter-mentor-list').hide();
+                $('.confirm-skype-btn').hide();
+                $('.assign-skype-call-btn').after(
+                    '<p> ' +
+                    '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
+                    '<div class="inline">' +
+                    '    <form class="form" method="get" action="/login/google">' +
+                    '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
+                    '    </form>' +
+                    '</div>' +
+                    '</p>');
+                console.log("Авторизируйтесь в Google аккаунте");
             }
         },
     });
@@ -1364,6 +1372,7 @@ function updateCallDate(id) {
             var minutes =  Math.ceil((date.getMinutes() +1)/10)*10;
             var startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), minutes , 0, 0);
             btnBlockTask.attr('id', 'assign-skype' + clientId);
+            var socialNetworks = assignSkypeCall.selectNetworkForNotifications;
             // Get the list of mentors
             $.ajax({
                 type: 'GET',
@@ -1425,7 +1434,23 @@ function updateCallDate(id) {
                 '</div>' +
                 '</div>' +
                 '</div>');
-            drawCheckbox($(".add-box-window"), clientId);
+            $(drawCheckbox($(".add-box-window"), clientId)).ready(function(){
+                setTimeout(function() {
+                    if (socialNetworks.indexOf('email') > 0) {
+                        $(".my-checkbox-soc:checkbox[value='email']").prop("checked", "true")
+                    }
+                    if (socialNetworks.indexOf('vk') > 0) {
+                        $(".my-checkbox-soc:checkbox[value='vk']").prop("checked", "true")
+                    }
+                    if (socialNetworks.indexOf('sms') > 0) {
+                        $(".my-checkbox-soc:checkbox[value='sms']").prop("checked", "true")
+                    }
+                    if (socialNetworks.indexOf('facebook') > 0) {
+                        $(".my-checkbox-soc:checkbox[value='facebook']").prop("checked", "true")
+                    }
+                }, 100);
+            });
+            // drawCheckbox($(".add-box-window"), clientId);
             $('input[name="skypePostponeDateNew"]').daterangepicker({
                 singleDatePicker: true,
                 timePicker: true,
@@ -1482,27 +1507,6 @@ $(document).on('click','.update-skype-call', function (e) {
         data: checkFreeDate,
         dataType: 'json',
             statusCode: {
-                401: function () {
-                    $('.skype-panel').hide();
-                    $('.skype-notification').hide();
-                    $('.enter-mentor-list').hide();
-                    $('.confirm-skype-btn').hide();
-                    $('.assign-skype-call-btn').after(
-                        '<p> ' +
-                        '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
-                        '<div class="inline">' +
-                        '    <form class="form" method="get" action="/login/google">' +
-                        '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
-                        '    </form>' +
-                        '</div>' +
-                        '</p>');
-                    console.log("Авторизируйтесь в Google аккаунте");
-                },
-                400: function() {
-                    if (!document.getElementById('freeDate')) {
-                        currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
-                    }
-                },
                 200: function() {
                     if (document.getElementById('freeDate')) {
                         document.getElementById('freeDate').remove();
@@ -1530,6 +1534,27 @@ $(document).on('click','.update-skype-call', function (e) {
                             currentStatus.text(error.responseText);
                         }
                     });
+                },
+                400: function() {
+                    if (!document.getElementById('freeDate')) {
+                        currentBtn.after('<div id="freeDate"><span style="color:#d01717">Текущая дата уже занята, выберите другую.</span></div>');
+                    }
+                },
+                401: function () {
+                    $('.skype-panel').hide();
+                    $('.skype-notification').hide();
+                    $('.enter-mentor-list').hide();
+                    $('.confirm-skype-btn').hide();
+                    $('.assign-skype-call-btn').after(
+                        '<p> ' +
+                        '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
+                        '<div class="inline">' +
+                        '    <form class="form" method="get" action="/login/google">' +
+                        '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
+                        '    </form>' +
+                        '</div>' +
+                        '</p>');
+                    console.log("Авторизируйтесь в Google аккаунте");
                 }
             }
     });
@@ -1584,7 +1609,22 @@ function deleteCallDate(id) {
                         $('.assign-skype-call-btn').show().removeAttr("disabled");
                     }
                 },
-
+                401: function () {
+                    $('.skype-panel').hide();
+                    $('.skype-notification').hide();
+                    $('.enter-mentor-list').hide();
+                    $('.confirm-skype-btn').hide();
+                    $('.assign-skype-call-btn').after(
+                        '<p> ' +
+                        '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
+                        '<div class="inline">' +
+                        '    <form class="form" method="get" action="/login/google">' +
+                        '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
+                        '    </form>' +
+                        '</div>' +
+                        '</p>');
+                    console.log("Авторизируйтесь в Google аккаунте");
+                },
                 error: function (error) {
                     console.log(error);
                     currentStatus.css('color','#229922');
