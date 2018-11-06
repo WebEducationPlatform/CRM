@@ -52,6 +52,7 @@ public class UserRestController {
 	}
 
 	@PostMapping(value = "/user/ColorBackground")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity addColor(@RequestParam(name = "color") String color,
 								   @AuthenticationPrincipal User userFromSession) {
 		userService.setColorBackground(color, userFromSession);
@@ -59,6 +60,7 @@ public class UserRestController {
 	}
 
 	@GetMapping(value = "/user/ColorBackground")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getColor(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession.getColorBackground());
 	}

@@ -86,7 +86,7 @@ public class UserController {
 		return new ModelAndView("redirect:/user/customize");
 	}
 	@PostMapping(value = "/user/autoAnswer")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER')")
 	public ModelAndView changeAutoAnswer(@RequestParam String text,
 											@AuthenticationPrincipal User userFromSession) {
 	    userFromSession.setAutoAnswer(text);
@@ -94,7 +94,7 @@ public class UserController {
 		return new ModelAndView("redirect:/user/customize");
 	}
 	@GetMapping(value = "/user/autoAnswer")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER')")
 	public ModelAndView getAutoAnswerView(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-autoanswer");
 		modelAndView.addObject("userCustomize",userFromSession);

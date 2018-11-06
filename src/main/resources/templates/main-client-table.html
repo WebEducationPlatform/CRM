@@ -210,7 +210,7 @@
             </form>
         </div>
     </div>
-
+    <!--Меню у админов и овнеров-->
     <div id="panel">
         <div id="panel-content">
             <div class="panel-group">
@@ -279,11 +279,11 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}">
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
                                 </tr>
@@ -335,7 +335,7 @@
 </div>
 
 <!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop" >
+<div id="msg_pop" sec:authorize="hasAnyAuthority('OWNER')">
     <span class="msg_close" onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для клиентов вошедших в Slack
@@ -347,6 +347,7 @@
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
 <div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
@@ -368,5 +369,7 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
+
 </body>
 </html>

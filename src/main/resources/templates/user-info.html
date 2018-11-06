@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
 <head>
     <title>Информация о пользователе</title>
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
-    <script type="text/javascript" th:src="@{/js/user-info.js}"></script>
-    <script th:src="@{/js/validator.min.js}"></script>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -33,7 +33,7 @@
                         <input class="form-control" data-error="Фамилия должна начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$"  required="required" id="edit-user-last-name" disabled="disabled" th:value="${user.lastName}"/>
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="edit-user-password">Пароль</label>
                         <input type="password" class="form-control" required="required" disabled="disabled" id="edit-user-password" th:value="${user.password}"/>
                     </div>
@@ -82,7 +82,7 @@
                         <label for="edit-user-city">Город</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-city" th:value="${user.city}"/>
                     </div>
-                    <div class="form-group" id = "edit-user-roles">
+                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="edit-user-roles">Роли</label>
                         <div id="current-user-roles">
                             <span th:each="role : ${user.role}" th:value="${role.id}"></span>
@@ -109,5 +109,12 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var updatedUserRoles = [[${user.role}]];
+    /*]]>*/
+</script>
+<script type="text/javascript" th:src="@{/js/user-info.js}"></script>
+<script th:src="@{/js/validator.min.js}"></script>
 </body>
 </html>
