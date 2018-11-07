@@ -114,21 +114,25 @@ public class ClientRestController {
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
 																	   @RequestParam(name = "ss") String ss,
 																	   @RequestParam(name = "unread") String unreadCount) {
+        String link;
+        switch (ss) {
+            case "vk":
+                link = "https://vk.com/id" + userID;
+                break;
+            case "facebook":
+                link = "https://vk.com/id" + userID;
+                break;
+            default:
+                link = "";
+        }
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
 
-		String link;
-		switch (ss){
-			case "vk": link = "https://vk.com/id"+userID; break;
-			case "facebook": link = "https://vk.com/id"+userID; break;
-			default: link = "";
-		}
-		SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
-		Client client = clientService.getClientBySocialProfile(socialProfile);
-
-		Map<String, String> returnMap = new HashMap<>();
-		returnMap.put("clientID", Long.toString(client.getId()));
-		returnMap.put("unreadCount", unreadCount.isEmpty()?"":unreadCount);
-		returnMap.put("userID", userID);
-		return ResponseEntity.ok(returnMap);
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("clientID", Long.toString(client.getId()));
+        returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
+        returnMap.put("userID", userID);
+        return ResponseEntity.ok(returnMap);
 	}
 
 	@PostMapping(value = "/assign")
