@@ -70,11 +70,11 @@ public class VKConfigImpl implements VKConfig {
         }
     }
 
-    public String getClubId() {
+    public String getClubIdWithMinus() {
         return "-" + clubId;
     }
 
-    public String getClubIdClear() {
+    public String getClubId() {
         return clubId;
     }
 
