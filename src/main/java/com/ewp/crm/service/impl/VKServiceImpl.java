@@ -36,7 +36,6 @@ import java.util.*;
 @Component
 public class VKServiceImpl implements VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
-    private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
     private final YoutubeClientService youtubeClientService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
@@ -46,6 +45,8 @@ public class VKServiceImpl implements VKService {
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
+
+    private String vk_API;
     //Токен аккаунта, отправляющего сообщения
     private String robotAccessToken;
     //Айди группы
@@ -70,13 +71,14 @@ public class VKServiceImpl implements VKService {
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
-        clubId = vkConfig.getClubId();
+        clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
         applicationId = vkConfig.getApplicationId();
         display = vkConfig.getDisplay();
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
+        vk_API = vkConfig.getVkAPIUrl();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -112,7 +114,7 @@ public class VKServiceImpl implements VKService {
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
             throw new VKAccessTokenException("VK access token has not got");
         }
-        String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
+        String uriGetMassages = vk_API + "messages.getHistory" +
                 "?user_id=" + clubId +
                 "&rev=0" +
                 "&version=" + version +
@@ -189,7 +191,7 @@ public class VKServiceImpl implements VKService {
             result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
         } else if (url.matches("(.*)://vk.com/(.*)")) {
             String screenName = url.substring(url.lastIndexOf("/") + 1);
-            String urlGetMessages = VK_API_METHOD_TEMPLATE + "users.get" +
+            String urlGetMessages = vk_API + "users.get" +
                     "?user_ids=" + screenName +
                     "&version=" + version +
                     "&access_token=" + communityToken;
@@ -226,7 +228,7 @@ public class VKServiceImpl implements VKService {
         if (groupId == null) {
             groupId = Long.parseLong(clubId) * (-1);
         }
-        String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
+        String urlGetMessages = vk_API + "groups.getMembers" +
                 "?group_id=" + groupId +
                 "&offset=" + offset +
                 "&version=" + version +
@@ -266,7 +268,7 @@ public class VKServiceImpl implements VKService {
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
-        String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+        String sendMsgRequest = vk_API + "messages.send" +
                 "?user_id=" + id +
                 "&v=" + version +
                 "&message=" + uriMsg +
@@ -305,7 +307,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public Optional<List<Long>> getUsersIdFromCommunityMessages() {
         logger.info("VKService: getting user ids from community messages...");
-        String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
+        String uriGetDialog = vk_API + "messages.getDialogs" +
                 "?v=" + version +
                 "&unread=1" +
                 "&access_token=" +
@@ -339,7 +341,7 @@ public class VKServiceImpl implements VKService {
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
 
-        String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
+        String uriMarkAsRead = vk_API + "messages.markAsRead" +
                 "?peer_id=" + userId +
                 "&version=" + version +
                 "&access_token=" + token;
@@ -355,7 +357,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public Optional<Client> getClientFromVkId(Long id) {
         logger.info("VKService: getting client by VK id...");
-        String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
+        String uriGetClient = vk_API + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
                 "&access_token=" + technicalAccountToken;
@@ -430,7 +432,7 @@ public class VKServiceImpl implements VKService {
     public String refactorAndValidateVkLink(String link) {
         logger.info("VKService: refactoring and validation of VK link...");
         String userName = link.replaceAll("^.+\\.(com/)", "");
-        String request = VK_API_METHOD_TEMPLATE + "users.get?"
+        String request = vk_API + "users.get?"
                 + "user_ids=" + userName
                 + "&fields=first_name"
                 + "&access_token=" + communityToken
@@ -570,7 +572,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public String getLongIDFromShortName(String vkGroupShortName) {
         if (hasTechnicalAccountToken()) {
-            String uriGetGroup = VK_API_METHOD_TEMPLATE + "groups.getById?" +
+            String uriGetGroup = vk_API + "groups.getById?" +
                     "group_id=" + vkGroupShortName +
                     "&v=" + version +
                     "&access_token=" + technicalAccountToken;
@@ -603,7 +605,7 @@ public class VKServiceImpl implements VKService {
             youtubeClientService.update(youtubeClient);
             String fullName = youtubeClient.getFullName().replaceAll("(?U)[\\pP\\s]", "%20");
             logger.info("VKService: getting client from YouTube Live Stream by name: " + fullName);
-            String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
+            String uriGetClient = vk_API + "users.search?" +
                     "q=" + fullName +
                     "&count=1" +
                     "&group_id=" + youtubeClient.getYouTubeTrackingCard().getVkGroupID() +
