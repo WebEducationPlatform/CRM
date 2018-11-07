@@ -1322,6 +1322,8 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 });
             },
             400: function (error) {
+                currentStatus.css('color','#515151');
+                currentStatus.text('Выбирете ментора из списка');
                 $('#freeDate').remove();
                 if(error.responseText.indexOf('@gmail.com)') >= 0){
                     currentStatus.css('color','#d01717');
