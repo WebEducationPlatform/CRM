@@ -128,6 +128,7 @@ function vk_sendMessage_CallBack(vk_data) {
 function vk_getUnreadMessages_CallBack(vk_data) {
 
     $('.vk-notification.glyphicon.glyphicon-send.pull-right').each(function(i, elem){
+        $(elem).text('');
         $(elem).hide();
     });
     $('#vk-im-count').text('');
