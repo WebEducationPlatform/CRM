@@ -192,9 +192,9 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id50498", socialProfileTypeService.getByTypeName("vk")),
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id54618879", socialProfileTypeService.getByTypeName("vk")),
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
