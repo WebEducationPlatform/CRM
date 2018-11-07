@@ -215,13 +215,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 						link = "https://" + link;
 					}
 				}
-			} else {
+			} else if(!type.getName().equals("vk")){
 				int indexOfLastSlash = link.lastIndexOf("/");
 				if (indexOfLastSlash != -1) {
 					link = link.substring(indexOfLastSlash + 1);
 				}
 				link = "https://" + type.getName() + ".com/" + link;
 			}
+
 			client.getSocialProfiles().get(i).setLink(link);
 		}
 	}
