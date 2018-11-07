@@ -59,13 +59,26 @@ function validate_input(data) {
     return true;
 }
 
+//Send sms to phone number
 $("#telegram-auth-send-phone").click( function () {
     let phone = $("#telegram-auth-phone").val();
-    console.log(phone);
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/phone-code',
         data: {phone: phone},
+        success: function () {
+            $("#telegram-auth-send").prop("disabled", null);
+        }
+    })
+});
+
+//send SMS authorization code
+$("#telegram-auth-send").click( function () {
+    let code = $("#telegram-auth-code").val();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/sms-code',
+        data: {code: code},
         success: function () {
             console.log("SSS");
         }
