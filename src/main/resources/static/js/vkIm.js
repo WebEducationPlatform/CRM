@@ -141,7 +141,7 @@ function vk_getUnreadMessages_CallBack(vk_data) {
         var clientId = vkIdMappingClientId[unreadUserID];
         if (clientId == undefined){
             ///{ss}/{link}
-            $.when($.get("/rest/client/socialID",{ss:"vk", userID: unreadUserID, unread: unreadCount})).done(function (result){
+            $.when($.get("/rest/client/socialID",{socialProfileType:"vk", userID: unreadUserID, unread: unreadCount})).done(function (result){
                 clientId = result.clientID;
                 unreadCount = result.unreadCount;
                 unreadUserID = result.userID;

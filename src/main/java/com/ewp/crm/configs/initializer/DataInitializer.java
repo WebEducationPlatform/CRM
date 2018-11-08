@@ -202,7 +202,7 @@ public class DataInitializer {
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubIdWithMinus()) * (-1),
+		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
 				vkConfig.getCommunityToken(),
 				"JavaMentorTest",
 				Long.parseLong(vkConfig.getApplicationId())));

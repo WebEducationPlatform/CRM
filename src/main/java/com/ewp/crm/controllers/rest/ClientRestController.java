@@ -112,10 +112,10 @@ public class ClientRestController {
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
-																	   @RequestParam(name = "ss") String ss,
+																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
         String link;
-        switch (ss) {
+        switch (socialProfileType) {
             case "vk":
                 link = "https://vk.com/id" + userID;
                 break;
