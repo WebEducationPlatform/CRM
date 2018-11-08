@@ -57,7 +57,7 @@ public class VKConfigImpl implements VKConfig {
             robotPassword = env.getRequiredProperty("vk.robot.profile.password");
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
-            apiUrl  = env.getProperty("vk.ApiUrl");
+            apiUrl  = env.getProperty("vk.apiUrl");
 
             targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
