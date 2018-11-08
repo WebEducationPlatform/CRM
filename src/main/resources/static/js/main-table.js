@@ -1454,7 +1454,7 @@ function updateCallDate(id) {
                     if (socialNetworks.indexOf('facebook') > 0) {
                         $(".my-checkbox-soc:checkbox[value='facebook']").prop("checked", "true")
                     }
-                }, 100);
+                }, 500);
             });
             // drawCheckbox($(".add-box-window"), clientId);
             $('input[name="skypePostponeDateNew"]').daterangepicker({
