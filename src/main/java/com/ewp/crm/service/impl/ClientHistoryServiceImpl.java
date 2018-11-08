@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
+import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.MessageService;
 import org.apache.commons.lang3.builder.DiffResult;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -22,11 +26,15 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	private final ClientHistoryRepository clientHistoryRepository;
 	private final MessageService messageService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
-	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository, MessageService messageService) {
+	public ClientHistoryServiceImpl(ClientHistoryRepository clientHistoryRepository,
+									MessageService messageService,
+									AssignSkypeCallService assignSkypeCallService) {
 		this.clientHistoryRepository = clientHistoryRepository;
 		this.messageService = messageService;
+		this.assignSkypeCallService = assignSkypeCallService;
 	}
 
 	@Override
@@ -82,7 +90,25 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			case SKYPE:
 				title.append(" ");
 				title.append("(");
-				title.append(ZonedDateTime.parse(client.getPostponeDate().toString()).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm")));
+				title.append(ZonedDateTime.parse(
+						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
+						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
+				title.append(")");
+				break;
+			case SKYPE_UPDATE:
+				title.append(" ");
+				title.append("(");
+				title.append(ZonedDateTime.parse(
+						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
+						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
+				title.append(")");
+				break;
+			case SKYPE_DELETE:
+				title.append(" ");
+				title.append("(");
+				title.append(ZonedDateTime.parse(
+						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
+						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
 				title.append(")");
 				break;
 			case STATUS:

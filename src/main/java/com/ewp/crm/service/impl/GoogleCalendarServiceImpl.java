@@ -1,7 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.GoogleCalendarConfigImpl;
-import com.ewp.crm.controllers.GoogleCalendarController;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.GoogleCalendarService;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
@@ -26,127 +26,165 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
-    private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
-    private Calendar client;
-    private final String APPLICATION_NAME = "client-app";
-    private HttpTransport httpTransport;
-    private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+	private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
+	private Calendar calendarBuilder;
+	private final String APPLICATION_NAME = "client-app";
+	private HttpTransport httpTransport;
+	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private String clientId;
-    private String clientSecret;
-    private String redirectURI;
-    private GoogleClientSecrets clientSecrets;
-    private GoogleAuthorizationCodeFlow flow;
-    private Credential credential;
+	private String clientId;
+	private String clientSecret;
+	private String redirectURI;
+	private GoogleClientSecrets clientSecrets;
+	private GoogleAuthorizationCodeFlow flow;
+	private Credential credential;
 
-    @Autowired
-    public GoogleCalendarServiceImpl(GoogleCalendarConfigImpl config) {
-        this.clientId = config.getClientId();
-        this.clientSecret = config.getClientSecret();
-        this.redirectURI = config.getRedirectURI();
-    }
+	@Autowired
+	public GoogleCalendarServiceImpl(GoogleCalendarConfigImpl config) {
+		this.clientId = config.getClientId();
+		this.clientSecret = config.getClientSecret();
+		this.redirectURI = config.getRedirectURI();
+	}
 
-    @Override
-    public String authorize() {
-        AuthorizationCodeRequestUrl authorizationUrl;
-        if (flow == null) {
-            GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
-            web.setClientId(clientId);
-            web.setClientSecret(clientSecret);
-            clientSecrets = new GoogleClientSecrets().setWeb(web);
-            try {
-                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            } catch (GeneralSecurityException | IOException e) {
-                logger.error("Error to send message ", e);
-            }
-            flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
-                    Collections.singleton(CalendarScopes.CALENDAR)).setAccessType("offline").build();
-        }
-        authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectURI);
-        return authorizationUrl.build();
-    }
+	@Override
+	public String authorize() {
+		AuthorizationCodeRequestUrl authorizationUrl;
+		if (flow == null) {
+			GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+			web.setClientId(clientId);
+			web.setClientSecret(clientSecret);
+			clientSecrets = new GoogleClientSecrets().setWeb(web);
+			try {
+				httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+			} catch (GeneralSecurityException | IOException e) {
+				logger.error("Error to send message ", e);
+			}
+			flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
+					Collections.singleton(CalendarScopes.CALENDAR)).setAccessType("offline").build();
+		}
+		authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectURI);
+		return authorizationUrl.build();
+	}
 
-    @Override
-    public Calendar tokenResponse(String code) {
-        try {
-            TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            credential = flow.createAndStoreCredential(response, "userID");
-            return client = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-                    .setApplicationName(APPLICATION_NAME).build();
+	@Override
+	public Calendar tokenResponse(String code) {
+		try {
+			TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
+			credential = flow.createAndStoreCredential(response, "userID");
+			return calendarBuilder = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
+					.setApplicationName(APPLICATION_NAME).build();
 
-        } catch (IOException e) {
-            logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")."
-                    + " Redirecting to google connection status page.");
-            logger.error("Error to send message ", e);
-        }
-        return client;
-    }
+		} catch (IOException e) {
+			logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")."
+					+ " Redirecting to google connection status page.");
+			logger.error("Error to send message ", e);
+		}
+		return calendarBuilder;
+	}
 
-    @Override
-    public void addEvent(String calendarMentor, Long startDate, String skype) throws IOException {
-        Event event = newEvent(startDate, skype);
-        com.google.api.services.calendar.model.Calendar calendar =
-                client.calendars().get(calendarMentor).execute();
-        client.events().insert(calendar.getId(), event).execute();
-    }
+	@Override
+	public Calendar getCalendarBuilder() {
+		return calendarBuilder;
+	}
 
-    @Override
-    public void update(Long newDate, Long oldDate, String calendarMentor, String skype) {
-        try {
-            com.google.api.services.calendar.model.Calendar calendar =
-                    client.calendars().get(calendarMentor).execute();
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-            String formattedDateOld = ZonedDateTime.ofInstant(Instant.ofEpochMilli(oldDate), ZoneId.systemDefault()).format(outputFormatter);
+	@Override
+	public boolean googleAuthorizationIsNotNull(){
+		return calendarBuilder != null;
+	}
 
-            List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
-            Event newEvent = newEvent(newDate, skype);
+	@Override
+	public boolean checkFreeDate(Long date, String calendarMentor) {
+		try {
+			com.google.api.services.calendar.model.Calendar calendar = calendarBuilder.calendars().get(calendarMentor).execute();
+			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			String format = Instant.ofEpochMilli(date)
+					.atZone(ZoneId.of("+00:00"))
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+					.format(dateTimeFormatter);
+			for (Event anEventAll : eventAll) {
+				if (anEventAll.getStart().toString().contains(format)) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Error to send message ", e);
+		}
+		return false;
+	}
 
-            for (int i = 0; i < eventAll.size(); i++) {
-                if (eventAll.get(i).getStart().toString().contains(formattedDateOld)) {
-                    String eventId = eventAll.get(i).getId();
-                    client.events().delete(calendarMentor, eventId).execute();
-                    client.events().insert(calendar.getId(), newEvent).execute();
-                }
-            }
-        } catch (IOException e) {
-            logger.error("Error to send message ", e);
-        }
-    }
+	@Override
+	public void addEvent(String calendarMentor, Long startDate, Client client) throws IOException {
+		Event event = newEvent(startDate, client);
+		com.google.api.services.calendar.model.Calendar calendar =
+				calendarBuilder.calendars().get(calendarMentor).execute();
+		calendarBuilder.events().insert(calendar.getId(), event).execute();
+	}
 
-    @Override
-    public boolean checkFreeDate(Long date, String calendarMentor) {
-        try {
-            com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
-            List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+	@Override
+	public void update(Long newDate, Long oldDate, String calendarMentor, Client client) throws IOException {
+		com.google.api.services.calendar.model.Calendar calendar =
+				calendarBuilder.calendars().get(calendarMentor).execute();
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		String formattedDateOld = Instant.ofEpochMilli(oldDate)
+				.atZone(ZoneId.of("+00:00"))
+				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+				.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+				.format(outputFormatter);
+		Event newEvent = newEvent(newDate, client);
+		List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
+		for (int i = 0; i < eventAll.size(); i++) {
+			if (eventAll.get(i).getStart().toString().contains(formattedDateOld)) {
+				String eventId = eventAll.get(i).getId();
+				calendarBuilder.events().delete(calendarMentor, eventId).execute();
+				calendarBuilder.events().insert(calendar.getId(), newEvent).execute();
+			}
+		}
+	}
 
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
-            String formattedDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.systemDefault()).format(outputFormatter);
+	@Override
+	public void delete(Long oldDate, String calendarMentor) {
+		try {
+			com.google.api.services.calendar.model.Calendar calendar =
+					calendarBuilder.calendars().get(calendarMentor).execute();
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+			String format = Instant.ofEpochMilli(oldDate)
+					.atZone(ZoneId.of("+00:00"))
+					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+					.format(dateTimeFormatter);
+			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
+			for (int i = 0; i < eventAll.size(); i++) {
+				if (eventAll.get(i).getStart().toString().contains(format)) {
+					String eventId = eventAll.get(i).getId();
+					calendarBuilder.events().delete(calendarMentor, eventId).execute();
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Error to send message ", e);
+		}
+	}
 
-            for (int i = 0; i < eventAll.size(); i++) {
-                if (eventAll.get(i).getStart().toString().contains(formattedDate)) {
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            logger.error("Error to send message ", e);
-        }
-        return false;
-    }
-
-    private Event newEvent(Long startDate, String skype) {
-        Event event = new Event();
-        event.setSummary("Skype(crm) - " + skype);
-        DateTime start = new DateTime(startDate);
-        event.setStart(new EventDateTime().setDateTime(start));
-        DateTime end = new DateTime(startDate);
-        event.setEnd(new EventDateTime().setDateTime(end));
-        return event;
-    }
+	private Event newEvent(Long startDate, Client client) {
+		Event event = new Event();
+		event.setSummary("CRM - " + client.getName() + " " + client.getLastName() + " (Skype: " + client.getSkype() + ")");
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		String format = Instant.ofEpochMilli(startDate)
+				.atZone(ZoneId.of("+00:00"))
+				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+				.format(outputFormatter);
+		DateTime start = new DateTime(format);
+		event.setStart(new EventDateTime().setDateTime(start));
+		DateTime end = new DateTime(format);
+		event.setEnd(new EventDateTime().setDateTime(end));
+		return event;
+	}
 }

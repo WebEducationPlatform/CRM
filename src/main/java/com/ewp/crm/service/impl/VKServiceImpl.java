@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.VKService;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -31,7 +32,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
-
 
 @Component
 public class VKServiceImpl implements VKService {
