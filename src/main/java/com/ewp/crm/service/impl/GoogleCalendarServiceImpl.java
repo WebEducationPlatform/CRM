@@ -104,12 +104,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		try {
 			com.google.api.services.calendar.model.Calendar calendar = calendarBuilder.calendars().get(calendarMentor).execute();
 			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-			String format = Instant.ofEpochMilli(date)
-					.atZone(ZoneId.of("+00:00"))
-					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
-					.format(dateTimeFormatter);
+			String format = getFormatZonedDateTime(date, calendar);
 			for (Event anEventAll : eventAll) {
 				if (anEventAll.getStart().toString().contains(format)) {
 					return true;
@@ -133,12 +128,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	public void update(Long newDate, Long oldDate, String calendarMentor, Client client) throws IOException {
 		com.google.api.services.calendar.model.Calendar calendar =
 				calendarBuilder.calendars().get(calendarMentor).execute();
-		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-		String formattedDateOld = Instant.ofEpochMilli(oldDate)
-				.atZone(ZoneId.of("+00:00"))
-				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-				.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
-				.format(outputFormatter);
+		String formattedDateOld = getFormatZonedDateTime(oldDate, calendar);
 		Event newEvent = newEvent(newDate, client);
 		List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
 		for (int i = 0; i < eventAll.size(); i++) {
@@ -155,12 +145,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		try {
 			com.google.api.services.calendar.model.Calendar calendar =
 					calendarBuilder.calendars().get(calendarMentor).execute();
-			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-			String format = Instant.ofEpochMilli(oldDate)
-					.atZone(ZoneId.of("+00:00"))
-					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
-					.format(dateTimeFormatter);
+			String format = getFormatZonedDateTime(oldDate, calendar);
 			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
 			for (int i = 0; i < eventAll.size(); i++) {
 				if (eventAll.get(i).getStart().toString().contains(format)) {
@@ -186,5 +171,13 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		DateTime end = new DateTime(format);
 		event.setEnd(new EventDateTime().setDateTime(end));
 		return event;
+	}
+
+	private String getFormatZonedDateTime(Long date, com.google.api.services.calendar.model.Calendar calendar) {
+		return Instant.ofEpochMilli(date)
+				.atZone(ZoneId.of("+00:00"))
+				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
+				.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
 	}
 }
