@@ -15,10 +15,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,13 +76,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "date")
     private ZonedDateTime dateOfRegistration;
-
-    @OneToMany
-    @JsonIgnore
-    @JoinTable(name = "assign_client_skype_call",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))})
-    private List<AssignSkypeCall> clientAssignSkypeCall;
 
     @ManyToOne
     @JoinColumn(name = "status_id")
@@ -159,16 +150,13 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "slack_profile_id")
     private SlackProfile slackProfile;
 
+    @Column(name = "live_skype_call")
+    private boolean liveSkypeCall;
+
     public Client() {
         this.state = State.NEW;
         this.dateOfRegistration = ZonedDateTime.now();
     }
-
-    @Column(name = "owner_call_skype")
-    private Long ownerCallSkype;
-
-    @Column(name = "date_call_skype")
-    private Long dateCallSkype;
 
     public Client(String name, String lastName) {
         this();
@@ -239,20 +227,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.clientDescriptionComment = clientDescriptionComment;
     }
 
-    public Long getDateCallSkype() {
-        return dateCallSkype;
+    public boolean isLiveSkypeCall() {
+        return liveSkypeCall;
     }
 
-    public void setDateCallSkype(Long dateCallSkype) {
-        this.dateCallSkype = dateCallSkype;
-    }
-
-    public Long getOwnerCallSkype() {
-        return ownerCallSkype;
-    }
-
-    public void setOwnerCallSkype(Long ownerCallSkype) {
-        this.ownerCallSkype = ownerCallSkype;
+    public void setLiveSkypeCall(boolean liveSkypeCall) {
+        this.liveSkypeCall = liveSkypeCall;
     }
 
     public String getSkype() {
@@ -489,14 +469,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
-    }
-
-    public List<AssignSkypeCall> getClientAssignSkypeCall() {
-        return clientAssignSkypeCall;
-    }
-
-    public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
-        this.clientAssignSkypeCall = clientAssignSkypeCall;
     }
 
     @Override
