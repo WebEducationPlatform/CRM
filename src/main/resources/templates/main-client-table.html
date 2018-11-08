@@ -12,6 +12,13 @@
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
+
+<style>
+    .modal-vk {
+        width: 70%;
+    }
+</style>
+
 <div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
@@ -120,7 +127,9 @@
                             </p>
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
-
+                            <span th:id="'VK-notification'+${client.id}"
+                                  class="vk-notification glyphicon glyphicon-send pull-right"
+                                  style="color: darkblue;display: none;"></span>
                             <th:block th:each="notification_comment:${notifications_type_comment}">
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"

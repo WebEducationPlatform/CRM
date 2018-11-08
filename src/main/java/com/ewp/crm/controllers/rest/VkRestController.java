@@ -118,10 +118,10 @@ public class VkRestController {
 	}
 
 	@GetMapping(value = "/connectParam")
-	public Map<String,String> vkGetAccessToken() {
+	public Map<String, String> vkGetAccessToken() {
 
 		Map<String, String> param = new HashMap<>();
-		param.put("groupID", vkConfig.getClubIdClear());
+		param.put("groupID", vkConfig.getClubId());
 		param.put("accessToken", vkConfig.getCommunityToken());
 		param.put("version", vkConfig.getVersion());
 		param.put("url", vkConfig.getVkAPIUrl());
