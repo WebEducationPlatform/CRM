@@ -15,10 +15,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -158,6 +156,9 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     @JoinColumn(name = "slack_profile_id")
     private SlackProfile slackProfile;
+
+    @Column(name = "telegram_id")
+    private Integer telegramId;
 
     public Client() {
         this.state = State.NEW;
@@ -423,6 +424,14 @@ public class Client implements Serializable, Diffable<Client> {
         this.slackProfile = slackProfile;
     }
 
+    public Integer getTelegramId() {
+        return telegramId;
+    }
+
+    public void setTelegramId(Integer telegramId) {
+        this.telegramId = telegramId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -514,6 +523,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .append("Работа", this.jobs.toString(), client.jobs.toString())
                 .append("Социальные сети", this.socialProfiles.toString(), client.socialProfiles.toString())
                 .append("Состояние", this.state, client.state)
+                .append("Telegram", this.telegramId, client.telegramId)
                 .build();
     }
 

@@ -78,7 +78,7 @@
         <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
-                <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google"/>
             </form>
         </div>
         <br/>
@@ -89,10 +89,19 @@
             </button>
         </div>
         <br/>
-        <div id="telegram-auth-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#telegram-auth-modal">
-                Авторизация в Telegram
-            </button>
+        <div>
+            <th:block th:if="isTdlibInstalled">
+                <th:block th:if="${isTelegramAuthenticated}">
+                    <button id="telegram-logout-button" class="btn btn-primary pull">
+                        Выйти из Telegram
+                    </button>
+                </th:block>
+                <th:block th:if="!${isTelegramAuthenticated}">
+                    <button id="telegram-auth-button" class="btn btn-primary pull" data-toggle="modal" data-target="#telegram-auth-modal">
+                        Авторизация в Telegram
+                    </button>
+                </th:block>
+            </th:block>
         </div>
     </div>
 

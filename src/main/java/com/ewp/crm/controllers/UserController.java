@@ -4,6 +4,7 @@ import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
 import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.TelegramService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,19 @@ public class UserController {
 	private final RoleService roleService;
 	private final ImageConfig imageConfig;
 	private final NotificationService notificationService;
+	private final TelegramService telegramService;
 
 	@Autowired
 	public UserController(UserService userService,
 						  RoleService roleService,
 						  ImageConfig imageConfig,
-						  NotificationService notificationService) {
+						  NotificationService notificationService,
+						  TelegramService telegramService) {
 		this.userService = userService;
 		this.roleService = roleService;
 		this.imageConfig = imageConfig;
 		this.notificationService = notificationService;
+		this.telegramService = telegramService;
 	}
 
 	@GetMapping(value = "/admin/user/{id}")
@@ -72,8 +76,9 @@ public class UserController {
 	public ModelAndView getUserCustomize(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("userCustomize", userService.get(userFromSession.getId()
-		));
+		modelAndView.addObject("userCustomize", userService.get(userFromSession.getId()));
+		modelAndView.addObject("isTelegramAuthenticated", telegramService.isAuthenticated());
+		modelAndView.addObject("isTdlibInstalled", telegramService.isTdlibInstalled());
 		return modelAndView;
 	}
 

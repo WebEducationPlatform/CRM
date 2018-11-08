@@ -1,12 +1,15 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.TelegramService;
-import com.ewp.crm.utils.tdlib.Example;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.locks.Condition;
@@ -14,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
+@PropertySource(value = "file:./telegram.properties", encoding = "Cp1251")
 public class TelegramServiceImpl implements TelegramService {
 
     private static Client client = null;
@@ -24,16 +28,31 @@ public class TelegramServiceImpl implements TelegramService {
     private static final Lock authorizationLock = new ReentrantLock();
     private static final Condition gotAuthorization = authorizationLock.newCondition();
 
+    private static boolean tdlibInstalled = false;
+
     private static String phoneNumber = null;
     private static String code = null;
     private static String password = null;
 
+    private static final Client.ResultHandler defaultHandler = new TelegramServiceImpl.DefaultHandler();
+
+    private static Environment env;
     private static Logger logger = LoggerFactory.getLogger(TelegramServiceImpl.class);
 
-    public TelegramServiceImpl() {
-        System.loadLibrary("tdjni");
-        Log.setVerbosityLevel(0);
-        client = Client.create(new UpdatesHandler(), null, null);
+    private final ClientRepository clientRepository;
+
+    @Autowired
+    public TelegramServiceImpl(Environment env, ClientRepository clientRepository) {
+        this.env = env;
+        this.clientRepository = clientRepository;
+        try {
+            System.loadLibrary("tdjni");
+            Log.setVerbosityLevel(0);
+            client = Client.create(new UpdatesHandler(), null, null);
+            tdlibInstalled = true;
+        } catch (Exception e) {
+            logger.error("Telegram database library not installed!", e);
+        }
     }
 
     @Override
@@ -46,35 +65,71 @@ public class TelegramServiceImpl implements TelegramService {
         code = smsCode;
     }
 
-    private static class UpdatesHandler implements Client.ResultHandler {
+    @Override
+    public void logout() {
+        client.send(new TdApi.LogOut(), defaultHandler);
+        haveAuthorization = false;
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        return haveAuthorization;
+    }
+
+    @Override
+    public boolean isTdlibInstalled() {
+        return tdlibInstalled;
+    }
+
+    private class UpdatesHandler implements Client.ResultHandler {
         @Override
         public void onResult(TdApi.Object object) {
             switch (object.getConstructor()) {
                 case TdApi.UpdateAuthorizationState.CONSTRUCTOR:
                     onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
                     break;
+                case TdApi.UpdateNewChat.CONSTRUCTOR: {
+                    TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
+                    TdApi.ChatType type = chat.type;
+                    System.out.println("New chat!");
+                    if (type instanceof TdApi.ChatTypePrivate && !chat.lastMessage.isOutgoing) {
+                        System.out.println("Private");
+                        int userId = chat.lastMessage.senderUserId;
+                        client.send(new TdApi.GetUser(userId), new NewClientHandler());
+                    }
+
+//                    System.out.println(chat.lastMessage);
+//                    System.out.println(type);
+//                    client.send(new TdApi.GetChat(chat.id), defaultHandler);
+//                    client.send(new TdApi.GetUser(143568873), defaultHandler);
+//                    client.send(new TdApi.GetUser(681461282), defaultHandler);
+                    break;
+                }
             }
         }
     }
 
-    private static void onAuthorizationStateUpdated(TdApi.AuthorizationState authorizationState) {
+    /**
+     * Handle telegram user authentication.
+     * @param authorizationState authorization state type.
+     */
+    private void onAuthorizationStateUpdated(TdApi.AuthorizationState authorizationState) {
         if (authorizationState != null) {
             TelegramServiceImpl.authorizationState = authorizationState;
         }
         switch (TelegramServiceImpl.authorizationState.getConstructor()) {
-            //TODO save in properties
             case TdApi.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
                 TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
-                parameters.databaseDirectory = "tdlib";
-                parameters.useMessageDatabase = true;
-                parameters.useSecretChats = true;
-                parameters.apiId = 94575;
-                parameters.apiHash = "a3406de8d171bb422bb6ddf3bbd800e2";
-                parameters.systemLanguageCode = "en";
-                parameters.deviceModel = "Desktop";
-                parameters.systemVersion = "Unknown";
-                parameters.applicationVersion = "1.0";
-                parameters.enableStorageOptimizer = true;
+                parameters.databaseDirectory = env.getRequiredProperty("telegram.databaseDirectory");
+                parameters.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
+                parameters.useSecretChats = Boolean.parseBoolean(env.getRequiredProperty("telegram.useSecretChats"));
+                parameters.apiId = Integer.parseInt(env.getRequiredProperty("telegram.apiId"));
+                parameters.apiHash = env.getRequiredProperty("telegram.apiHash");
+                parameters.systemLanguageCode = env.getRequiredProperty("telegram.systemLanguageCode");
+                parameters.deviceModel = env.getRequiredProperty("telegram.deviceModel");
+                parameters.systemVersion = env.getRequiredProperty("telegram.systemVersion");
+                parameters.applicationVersion = env.getRequiredProperty("telegram.applicationVersion");
+                parameters.enableStorageOptimizer = Boolean.parseBoolean(env.getRequiredProperty("telegram.enableStorageOptimizer"));
 
                 client.send(new TdApi.SetTdlibParameters(parameters), new TelegramServiceImpl.AuthorizationRequestHandler());
                 break;
@@ -128,7 +183,6 @@ public class TelegramServiceImpl implements TelegramService {
                 } finally {
                     authorizationLock.unlock();
                 }
-                System.out.println("Telegram authorization success");
                 logger.info("Telegram authorization success");
                 break;
             case TdApi.AuthorizationStateLoggingOut.CONSTRUCTOR:
@@ -142,7 +196,7 @@ public class TelegramServiceImpl implements TelegramService {
             case TdApi.AuthorizationStateClosed.CONSTRUCTOR:
                 logger.info("Telegram closed");
                 if (!quiting) {
-                    client = Client.create(new TelegramServiceImpl.UpdatesHandler(), null, null); // recreate client after previous has closed
+                    client = Client.create(new UpdatesHandler(), null, null); // recreate client after previous has closed
                 }
                 break;
             default:
@@ -150,7 +204,7 @@ public class TelegramServiceImpl implements TelegramService {
         }
     }
 
-    private static class AuthorizationRequestHandler implements Client.ResultHandler {
+    private class AuthorizationRequestHandler implements Client.ResultHandler {
         @Override
         public void onResult(TdApi.Object object) {
             switch (object.getConstructor()) {
@@ -164,6 +218,22 @@ public class TelegramServiceImpl implements TelegramService {
                 default:
                     System.err.println("Receive wrong response from TDLib:" + System.lineSeparator() + object);
             }
+        }
+    }
+
+    private static class DefaultHandler implements Client.ResultHandler {
+        @Override
+        public void onResult(TdApi.Object object) {
+            System.out.println(object.toString());
+        }
+    }
+
+    private class NewClientHandler implements Client.ResultHandler {
+        @Override
+        public void onResult(TdApi.Object object) {
+            System.out.println(object.toString());
+            //TODO Handler
+//            clientRepository.getClientByTele
         }
     }
 

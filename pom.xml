@@ -210,12 +210,6 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.telegram/telegramapi -->
-		<dependency>
-			<groupId>org.telegram</groupId>
-			<artifactId>telegramapi</artifactId>
-			<version>66.2</version>
-		</dependency>
 	</dependencies>
 
 	<build>
