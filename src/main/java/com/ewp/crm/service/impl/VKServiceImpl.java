@@ -341,17 +341,6 @@ public class VKServiceImpl implements VKService {
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
         //помечать как прочитанные будем в чате!
-//        String uriMarkAsRead = vkAPI + "messages.markAsRead" +
-//                "?peer_id=" + userId +
-//                "&version=" + version +
-//                "&access_token=" + token;
-//
-//        HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
-//        try {
-//            httpClient.execute(httpMarkMessages);
-//        } catch (IOException e) {
-//            logger.error("Failed to mark as read message from community", e);
-//        }
     }
 
     @Override
