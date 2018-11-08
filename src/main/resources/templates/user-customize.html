@@ -67,6 +67,11 @@
         </button>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/vk/request/form" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                форму заявки ВК</a>
+        </div>
+        <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
@@ -80,13 +85,15 @@
         </div>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
                 Статус клиента не студента
             </button>
         </div>
         <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
                 Оповещение об оплате
             </button>
         </div>
@@ -108,11 +115,13 @@
                         <label for="selected-color">Цвет фона оформления</label>
                         <div id="wrap-selected-color" class="input-group colorpicker-component">
                             <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
-                            <input id="selected-color" type="text" style="width: 100%" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
+                            <input id="selected-color" type="text" style="width: 100%"
+                                   th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677"
+                                   class="form-control"/>
                         </div>
                         <script>
                             $(function () {
-                                $('#wrap-selected-color').colorpicker({format:'hex'});
+                                $('#wrap-selected-color').colorpicker({format: 'hex'});
                             });
                         </script>
                     </div>
@@ -167,7 +176,8 @@
     </div>
 </div>
 <!--Модалка для выбора дефолтного статуса клиента не студента при входе в слак-->
-<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
+<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true"
+     sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -196,6 +206,7 @@
 <script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
 <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>
 </html>
