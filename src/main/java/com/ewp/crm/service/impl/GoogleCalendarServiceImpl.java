@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.configs.GoogleCalendarConfigImpl;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.GoogleCalendarService;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
@@ -33,7 +34,7 @@ import java.util.List;
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
 	private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
-	private Calendar client;
+	private Calendar calendarBuilder;
 	private final String APPLICATION_NAME = "client-app";
 	private HttpTransport httpTransport;
 	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -77,7 +78,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		try {
 			TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
 			credential = flow.createAndStoreCredential(response, "userID");
-			return client = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
+			return calendarBuilder = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
 					.setApplicationName(APPLICATION_NAME).build();
 
 		} catch (IOException e) {
@@ -85,24 +86,24 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 					+ " Redirecting to google connection status page.");
 			logger.error("Error to send message ", e);
 		}
-		return client;
+		return calendarBuilder;
 	}
 
 	@Override
-	public Calendar getClient() {
-		return client;
+	public Calendar getCalendarBuilder() {
+		return calendarBuilder;
 	}
 
 	@Override
 	public boolean googleAuthorizationIsNotNull(){
-		return client != null;
+		return calendarBuilder != null;
 	}
 
 	@Override
 	public boolean checkFreeDate(Long date, String calendarMentor) {
 		try {
-			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get(calendarMentor).execute();
-			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+			com.google.api.services.calendar.model.Calendar calendar = calendarBuilder.calendars().get(calendarMentor).execute();
+			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 			String format = Instant.ofEpochMilli(date)
 					.atZone(ZoneId.of("+00:00"))
@@ -121,30 +122,30 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public void addEvent(String calendarMentor, Long startDate, String skype) throws IOException {
-		Event event = newEvent(startDate, skype);
+	public void addEvent(String calendarMentor, Long startDate, Client client) throws IOException {
+		Event event = newEvent(startDate, client);
 		com.google.api.services.calendar.model.Calendar calendar =
-				client.calendars().get(calendarMentor).execute();
-		client.events().insert(calendar.getId(), event).execute();
+				calendarBuilder.calendars().get(calendarMentor).execute();
+		calendarBuilder.events().insert(calendar.getId(), event).execute();
 	}
 
 	@Override
-	public void update(Long newDate, Long oldDate, String calendarMentor, String skype) throws IOException {
+	public void update(Long newDate, Long oldDate, String calendarMentor, Client client) throws IOException {
 		com.google.api.services.calendar.model.Calendar calendar =
-				client.calendars().get(calendarMentor).execute();
+				calendarBuilder.calendars().get(calendarMentor).execute();
 		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		String formattedDateOld = Instant.ofEpochMilli(oldDate)
 				.atZone(ZoneId.of("+00:00"))
 				.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 				.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
 				.format(outputFormatter);
-		Event newEvent = newEvent(newDate, skype);
-		List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+		Event newEvent = newEvent(newDate, client);
+		List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
 		for (int i = 0; i < eventAll.size(); i++) {
 			if (eventAll.get(i).getStart().toString().contains(formattedDateOld)) {
 				String eventId = eventAll.get(i).getId();
-				client.events().delete(calendarMentor, eventId).execute();
-				client.events().insert(calendar.getId(), newEvent).execute();
+				calendarBuilder.events().delete(calendarMentor, eventId).execute();
+				calendarBuilder.events().insert(calendar.getId(), newEvent).execute();
 			}
 		}
 	}
@@ -153,18 +154,18 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	public void delete(Long oldDate, String calendarMentor) {
 		try {
 			com.google.api.services.calendar.model.Calendar calendar =
-					client.calendars().get(calendarMentor).execute();
+					calendarBuilder.calendars().get(calendarMentor).execute();
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 			String format = Instant.ofEpochMilli(oldDate)
 					.atZone(ZoneId.of("+00:00"))
 					.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
 					.withZoneSameInstant(ZoneId.of(calendar.getTimeZone()))
 					.format(dateTimeFormatter);
-			List<Event> eventAll = client.events().list(calendar.getId()).execute().getItems();
+			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();
 			for (int i = 0; i < eventAll.size(); i++) {
 				if (eventAll.get(i).getStart().toString().contains(format)) {
 					String eventId = eventAll.get(i).getId();
-					client.events().delete(calendarMentor, eventId).execute();
+					calendarBuilder.events().delete(calendarMentor, eventId).execute();
 				}
 			}
 		} catch (IOException e) {
@@ -172,9 +173,9 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 		}
 	}
 
-	private Event newEvent(Long startDate, String skype) {
+	private Event newEvent(Long startDate, Client client) {
 		Event event = new Event();
-		event.setSummary("Skype(crm) - " + skype);
+		event.setSummary("CRM - " + client.getName() + " " + client.getLastName() + " (Skype: " + client.getSkype() + ")");
 		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		String format = Instant.ofEpochMilli(startDate)
 				.atZone(ZoneId.of("+00:00"))

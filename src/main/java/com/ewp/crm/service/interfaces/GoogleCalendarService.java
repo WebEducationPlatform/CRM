@@ -1,5 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.Client;
 import com.google.api.services.calendar.Calendar;
 
 import java.io.IOException;
@@ -10,13 +11,13 @@ public interface GoogleCalendarService {
 
     Calendar tokenResponse(String code);
 
-    Calendar getClient();
+    Calendar getCalendarBuilder();
 
     boolean googleAuthorizationIsNotNull();
 
-    void addEvent(String calendarMentor, Long startDate, String skype) throws IOException;
+    void addEvent(String calendarMentor, Long startDate, Client skype) throws IOException;
 
-    void update(Long newDate, Long oldDate, String calendarMentor, String skype) throws IOException;
+    void update(Long newDate, Long oldDate, String calendarMentor, Client skype) throws IOException;
 
     boolean checkFreeDate(Long newDate, String calendarMentor);
 

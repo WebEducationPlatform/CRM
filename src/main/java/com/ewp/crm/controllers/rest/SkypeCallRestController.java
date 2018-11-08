@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -74,7 +73,7 @@ public class SkypeCallRestController {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("У этого ментора неверный формат почты. (Нужен ...@gmail.com)");
 			} else {
 				try {
-					calendarService.getClient().calendars().get(mentor.getEmail()).execute();
+					calendarService.getCalendarBuilder().calendars().get(mentor.getEmail()).execute();
 				} catch (Exception e){
 					return ResponseEntity.badRequest().body("Календарь ментора не привязан к календарю администратора.");
 				}
@@ -111,7 +110,7 @@ public class SkypeCallRestController {
 		ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 		ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 		try {
-			calendarService.addEvent(mentor.getEmail(), startDate, client.getSkype());
+			calendarService.addEvent(mentor.getEmail(), startDate, client);
 			AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
 			assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 			client.setLiveSkypeCall(true);
@@ -145,7 +144,7 @@ public class SkypeCallRestController {
 			if (!(Objects.equals(skypeCallDateNew, skypeCallDateOld) && assignSkypeCall.getFromAssignSkypeCall().getId().equals(mentorId))) {
 				assignSkypeCall.setSkypeCallDate(dateSkypeCall);
 				assignSkypeCall.setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
-				calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client.getSkype());
+				calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client);
 				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE));
 			}
 			assignSkypeCallService.update(assignSkypeCall);
