@@ -160,6 +160,9 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "slack_profile_id")
     private SlackProfile slackProfile;
 
+    @Column(name = "telegram_id")
+    private Integer telegramId;
+
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
@@ -437,6 +440,14 @@ public class Client implements Serializable, Diffable<Client> {
         this.postponeComment = postponeComment;
     }
 
+    public Integer getTelegramId() {
+        return telegramId;
+    }
+
+    public void setTelegramId(Integer telegramId) {
+        this.telegramId = telegramId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -520,6 +531,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .append("Работа", this.jobs.toString(), client.jobs.toString())
                 .append("Социальные сети", this.socialProfiles.toString(), client.socialProfiles.toString())
                 .append("Состояние", this.state, client.state)
+                .append("Telegram", this.telegramId, client.telegramId)
                 .build();
     }
 

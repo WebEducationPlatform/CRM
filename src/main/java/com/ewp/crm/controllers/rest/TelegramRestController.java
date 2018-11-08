@@ -32,4 +32,10 @@ public class TelegramRestController {
         telegramService.sentAuthCode(code);
         return HttpStatus.OK;
     }
+
+    @GetMapping("/logout")
+    public HttpStatus logoutFromTelegram() {
+        telegramService.logout();
+        return HttpStatus.OK;
+    }
 }

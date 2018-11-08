@@ -176,6 +176,7 @@ function validate_new_student_parameters(price, status) {
 
 //Send sms to phone number
 $("#telegram-auth-send-phone").click( function () {
+    if(!$("#telegram-auth-phone")[0].checkValidity()){alert("Не верный формат телефона: +74951234567");return}
     let phone = $("#telegram-auth-phone").val();
     $.ajax({
         type: 'GET',
@@ -195,7 +196,19 @@ $("#telegram-auth-send").click( function () {
         url: '/rest/telegram/sms-code',
         data: {code: code},
         success: function () {
-            console.log("SSS");
+            location.reload();
+        }
+    })
+});
+
+//Logout from Telegram
+$("#telegram-logout-button").click( function () {
+    if(!confirm("На данный момент сервер авторизован в Telegram.\r\nВы уверены, что хотите выйти?")) {return}
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/logout',
+        success: function () {
+            location.reload();
         }
     })
 });
