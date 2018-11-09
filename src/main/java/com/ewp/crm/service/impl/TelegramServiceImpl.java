@@ -1,6 +1,9 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.TelegramService;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
@@ -40,11 +43,17 @@ public class TelegramServiceImpl implements TelegramService {
     private static Logger logger = LoggerFactory.getLogger(TelegramServiceImpl.class);
 
     private final ClientRepository clientRepository;
+    private final StatusDAO statusRepository;
+    private final ClientHistoryService clientHistoryService;
+    private final SendNotificationService sendNotificationService;
 
     @Autowired
-    public TelegramServiceImpl(Environment env, ClientRepository clientRepository) {
+    public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository, ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService) {
         this.env = env;
         this.clientRepository = clientRepository;
+        this.statusRepository = statusRepository;
+        this.clientHistoryService = clientHistoryService;
+        this.sendNotificationService = sendNotificationService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -90,19 +99,12 @@ public class TelegramServiceImpl implements TelegramService {
                     break;
                 case TdApi.UpdateNewChat.CONSTRUCTOR: {
                     TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
-                    TdApi.ChatType type = chat.type;
-                    System.out.println("New chat!");
-                    if (type instanceof TdApi.ChatTypePrivate && !chat.lastMessage.isOutgoing) {
-                        System.out.println("Private");
-                        int userId = chat.lastMessage.senderUserId;
-                        client.send(new TdApi.GetUser(userId), new NewClientHandler());
+//                    System.out.println("New chat!");
+//                    System.out.println(chat);
+                    if (chat.type instanceof TdApi.ChatTypePrivate) {
+                        TdApi.ChatTypePrivate chatTypePrivate = (TdApi.ChatTypePrivate) chat.type;
+                        client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
                     }
-
-//                    System.out.println(chat.lastMessage);
-//                    System.out.println(type);
-//                    client.send(new TdApi.GetChat(chat.id), defaultHandler);
-//                    client.send(new TdApi.GetUser(143568873), defaultHandler);
-//                    client.send(new TdApi.GetUser(681461282), defaultHandler);
                     break;
                 }
             }
@@ -228,12 +230,25 @@ public class TelegramServiceImpl implements TelegramService {
         }
     }
 
-    private class NewClientHandler implements Client.ResultHandler {
+    private class NewUserHandler implements Client.ResultHandler {
+
         @Override
         public void onResult(TdApi.Object object) {
-            System.out.println(object.toString());
-            //TODO Handler
-//            clientRepository.getClientByTele
+            //TODO Конструктор? username куда ?
+            TdApi.User user = (TdApi.User) object;
+            if (!clientRepository.isTelegramClientPresent(user.id)) {
+                System.out.println("Adding");
+                com.ewp.crm.models.Client newClient = new com.ewp.crm.models.Client();
+                newClient.setName(user.firstName);
+                newClient.setLastName(user.lastName);
+                newClient.setPhoneNumber(user.phoneNumber);
+                newClient.setTelegramId(user.id);
+                //TODO в меню?
+                newClient.setStatus(statusRepository.findById(1L).get());
+                newClient.addHistory(clientHistoryService.createHistory("Telegram"));
+                clientRepository.saveAndFlush(newClient);
+                sendNotificationService.sendNotificationsAllUsers(newClient);
+            }
         }
     }
 
