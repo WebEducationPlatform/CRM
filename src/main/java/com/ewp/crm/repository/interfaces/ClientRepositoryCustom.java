@@ -35,4 +35,6 @@ public interface ClientRepositoryCustom {
 	Long countByDate(String date);
 
 	List<Client> getClientsBySearchPhrase(String search);
+
+	boolean isTelegramClientPresent(Integer id);
 }
