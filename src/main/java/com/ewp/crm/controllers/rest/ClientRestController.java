@@ -323,6 +323,7 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity postponeClient(@RequestParam Long clientId,
 										 @RequestParam String date,
+										 @RequestParam Boolean isPostponeFlag,
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
@@ -332,11 +333,16 @@ public class ClientRestController {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeDate(postponeDate);
-			client.setOwnerUser(userFromSession);
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
-			clientService.updateClient(client);
-			logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			if(isPostponeFlag) {
+				client.setPostponeDate(postponeDate);
+				client.setOwnerUser(userFromSession);
+				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
+				clientService.updateClient(client);
+				logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			}else {
+				client.setOwnerUser(userFromSession);
+				clientService.updateClient(client);
+			}
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
