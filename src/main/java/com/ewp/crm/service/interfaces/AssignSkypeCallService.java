@@ -8,5 +8,11 @@ public interface AssignSkypeCallService extends CommonService<AssignSkypeCall> {
 
 	void addSkypeCall(AssignSkypeCall assignSkypeCall);
 
-	List<AssignSkypeCall> getSkypeCallDate();
+	List<AssignSkypeCall> getAssignSkypeCallIfNotificationWasNoSent();
+
+	List<AssignSkypeCall> getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient();
+
+	void deleteByIdSkypeCall(Long id);
+
+	AssignSkypeCall getAssignSkypeCallByClientId(Long clientId);
 }

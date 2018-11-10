@@ -67,6 +67,11 @@
         </button>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/vk/request/form" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                форму заявки ВК</a>
+        </div>
+        <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
@@ -167,7 +172,7 @@
     </div>
 </div>
 <!--Модалка для выбора дефолтного статуса клиента не студента при входе в слак-->
-<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">

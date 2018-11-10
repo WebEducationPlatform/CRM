@@ -17,32 +17,27 @@ var count = 40;
 var rev = 0; //порядок сортировки сообщений
 var intervalID;
 var unreadMessages = [];
-
+var vkIdMappingClientId = {};
 var vkPhotodef = "https://vk.com/images/camera_50.png?ava=1";
 
 $(function () {
     $('#customVKIMMessage').on('show.bs.modal', function () {
-
+         //$('#customVKIMMessage').css('width', '90%');
+        // $('#customVKIMMessage').css('margin', '100px auto 100px auto');
         //init paramatres
         //id берем из данных установленных при формировании карточки в main-table.js
         userID = $('#vk-im-button').data().userID;
 
-        $.when($.get('/rest/vkontakte/connectParam')).done(function(dataParam){//сначала получаем параметры подключения
-            accessToken = dataParam.accessToken;
-            groupID     = dataParam.groupID;
-            version     = dataParam.version;
-            url         = dataParam.url;
+        $.when($.ajax(vk_getUserDataRequest(),{dataType:'jsonp'}), $.ajax(vk_getGroupDataRequest(),{dataType:'jsonp'})).done(function (userDataRes, groupDataRes) { //вытаскиваем данные по группе и юзеру
+            userData = userDataRes[0].response[0];
+            groupData = groupDataRes[0].response[0];
 
-            $.when($.ajax(vk_getUserDataRequest(),{dataType:'jsonp'}), $.ajax(vk_getGroupDataRequest(),{dataType:'jsonp'})).done(function (userDataRes, groupDataRes) { //вытаскиваем данные по группе и юзеру
-                userData = userDataRes[0].response[0];
-                groupData = groupDataRes[0].response[0];
+            $('#VK-IM-HEADER').text("Общение с "+ userData[fldUserNameIns]+" "+userData[fldLastNameIns]);
+            $('#VK-IM-LINK').attr('href','https://vk.com/id'+userID);
 
-                $('#VK-IM-HEADER').text("Общение с "+ userData[fldUserNameIns]+" "+userData[fldLastNameIns]);
-                $('.message-vk-im').remove();
-                vk_getMessages();
-                intervalID = setInterval(vk_getMessages, 5000);
-            });
-
+            $('.message-vk-im').remove();
+            vk_getMessages();
+            intervalID = setInterval(vk_getMessages, 5000);
         });
 
     });
@@ -54,16 +49,29 @@ $(function () {
     $('#IM-VK-Text').focus(function () {
         unreadMessages.sort();
 
-        if (unreadMessages.length > 0){
-            sendRequest('messages.markAsRead', {peer_id: userID, start_message_id: unreadMessages[0], group_id: groupID,access_token:accessToken, v:version}, function (){})
-            unreadMessages = [];
+        for(var i = 0; i < unreadMessages.length; i++){
+            //отправляются все сообщения как помеченные, по мануалу можно отправлять одно, но одно не работает.
+            sendRequest('messages.markAsRead', {peer_id: userID, start_message_id: unreadMessages[i], group_id: groupID,access_token:accessToken, v:version}, function (){})
         }
+        unreadMessages = [];
     });
 });
 
 $(document).on("click","#send-vk-im-btn", function (){
     var text = $('#IM-VK-Text').val();
     vk_sendMessage(text);
+});
+
+$(document).ready(function () {
+    vkIdMappingClientId = {};
+    $.when($.get('/rest/vkontakte/connectParam')).done(function(dataParam){//сначала получаем параметры подключения
+        accessToken = dataParam.accessToken;
+        groupID     = dataParam.groupID;
+        version     = dataParam.version;
+        url         = dataParam.url;
+
+        setInterval(vk_getUnreadMessages,5000);
+    });
 });
 
 function vk_getUserDataRequest(){
@@ -97,10 +105,14 @@ function vk_sendMessage(text) {
     sendRequest("messages.send", {user_id:userID, message:text, access_token:accessToken, v:version}, vk_sendMessage_CallBack);
 }
 
+function vk_getUnreadMessages() {
+    return sendRequest("messages.getConversations", {filter:'unread', group_id:groupID, access_token:accessToken, v:version}, vk_getUnreadMessages_CallBack);
+}
+
 function vk_getMessages_CallBack(vk_data){
     var arr = vk_data.response.items.reverse();
 
-    for(var i = 0; i< arr.length; i++){
+    for(var i = 0; i < arr.length; i++){
         vk_addMessage(arr[i].body, arr[i].from_id,arr[i].id, arr[i].date, arr[i].read_state, arr[i].out);
     }
 }
@@ -109,8 +121,53 @@ function vk_sendMessage_CallBack(vk_data) {
     var textBox =$('#IM-VK-Text');
     var msgid = vk_data.response;
     var text = textBox.val();
-    vk_addMessage(text, '-'+groupID, msgid, (new Date().getTime())/1000, 1, 1);
+    vk_addMessage(text, '-'+groupID, msgid, (new Date().getTime())/1000, 0, 1);
     textBox.val('');
+}
+
+function vk_getUnreadMessages_CallBack(vk_data) {
+
+    $('.vk-notification.glyphicon.glyphicon-send.pull-right').each(function(i, elem){
+        $(elem).text('');
+        $(elem).hide();
+    });
+    $('#vk-im-count').text('');
+
+    var arr = vk_data.response.items;
+    for(var i = 0; i < arr.length; i++){
+        var unreadUserID = arr[i].conversation.peer.id;
+        var unreadCount  = arr[i].conversation.unread_count;
+
+        var clientId = vkIdMappingClientId[unreadUserID];
+        if (clientId == undefined){
+            ///{ss}/{link}
+            $.when($.get("/rest/client/socialID",{socialProfileType:"vk", userID: unreadUserID, unread: unreadCount})).done(function (result){
+                clientId = result.clientID;
+                unreadCount = result.unreadCount;
+                unreadUserID = result.userID;
+
+                showVkNotification(clientId, unreadUserID, unreadCount);
+            });
+        }
+        else{
+            showVkNotification(clientId, unreadUserID, unreadCount);
+        }
+    }
+}
+
+function showVkNotification(clientId, unreadUserID, unreadCount){
+    if (clientId != "" && unreadCount != ""){
+        vkIdMappingClientId[unreadUserID] = clientId;
+        var dom = $('#VK-notification'+clientId);
+        dom.text(unreadCount);
+        dom.show();
+
+        if ($('#main-modal-window').is(':visible')){
+            if ($('#vk-im-button').attr("clientid") == clientId){
+                $('#vk-im-count').text(unreadCount);
+            }
+        }
+    }
 }
 
 function vk_addMessage(msg, fromid, msgid, date, read_state, out) {
@@ -118,11 +175,13 @@ function vk_addMessage(msg, fromid, msgid, date, read_state, out) {
 
     var currentID = fromid;
     var currentUnit = "id";
-    var style = '';
+    //var style = '';
+    var alertInfo ='';//выделение голубым новых сообщений
 
     if (read_state == 0){
-        unreadMessages.push(msgid);
-        style = "style='color: blue'";
+        addAsUnread(msgid);
+        unreadMessages.push();
+        alertInfo = "alert-info";
     }
 
     var photo = userData[fldPhotoSize];
@@ -143,9 +202,11 @@ function vk_addMessage(msg, fromid, msgid, date, read_state, out) {
     }
     OutTimeTimeString += dateTime.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
 
-    if ($('#vkMsgId'+msgid).length == 0){
+    var msgDiv = $('#vkMsgId'+msgid);
+    if (msgDiv.length == 0){
 
-        var dom = $("<div class='conteiner message-vk-im' id='vkMsgId"+msgid+"' style='padding-top: 10px;'>"+
+
+        var dom = $("<div class='conteiner message-vk-im "+alertInfo+"' id='vkMsgId"+msgid+"' style='padding-top: 10px;'>"+
             "<div class='row'> "+
                 "<div class='col-xs-1'>"+
                     "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +
@@ -162,7 +223,7 @@ function vk_addMessage(msg, fromid, msgid, date, read_state, out) {
                         "</div>"+
                     "</div>"+
                     "<div class='row-xs-auto'>"+
-                        "<div class='col-sm-11' "+style+" id='vkTextId"+msgid+"'>" +
+                        "<div class='col-sm-11' id='vkTextId"+msgid+"'>" +
                             msg +
                         "</div>"+
                     "</div>"+
@@ -181,7 +242,20 @@ function vk_addMessage(msg, fromid, msgid, date, read_state, out) {
             textDiv.text(msg);
         }
         if (read_state == 1){
-            textDiv.attr('style','');
+            msgDiv.removeClass("alert-info");
         }
+    }
+}
+
+function addAsUnread(msgid){
+    var exist = false;
+    for(var i = 0; i < unreadMessages.length; i++){
+        if (unreadMessages[i] == msgid){
+            exist = true;
+        }
+    }
+
+    if (!exist){
+        unreadMessages.push(msgid);
     }
 }

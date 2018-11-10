@@ -101,14 +101,14 @@ public class DataInitializer {
         userService.add(user1);
 
         User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("USER")), true, true);
+                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
         userService.add(user2);
 
-		User user3 = new User("Vlad", "Mentor", "89118465234", "user3@mail.ru",
+		User user3 = new User("Vlad", "Mentor", "89118465234", "photolife9112@gmail.com",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user3);
 
-		User user4 = new User("Nikita", "Mentor", "89118465234", "eefilee@gmail.com",
+		User user4 = new User("Nikita", "Mentor", "89118465234", "ccfilcc@gmail.com",
 				"user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
 		userService.add(user4);
 
@@ -202,7 +202,7 @@ public class DataInitializer {
 				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()) * (-1),
+		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
 				vkConfig.getCommunityToken(),
 				"JavaMentorTest",
 				Long.parseLong(vkConfig.getApplicationId())));

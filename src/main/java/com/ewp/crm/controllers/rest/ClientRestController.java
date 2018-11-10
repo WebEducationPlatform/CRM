@@ -36,6 +36,8 @@ public class ClientRestController {
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
 	private final ProjectPropertiesService propertiesService;
+	private final SocialProfileService socialProfileService;
+
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -44,7 +46,9 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-								ClientHistoryService clientHistoryService, MessageService messageService,
+                SocialProfileService socialProfileService,
+								ClientHistoryService clientHistoryService,
+                MessageService messageService,
 								ProjectPropertiesService propertiesService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
@@ -52,6 +56,8 @@ public class ClientRestController {
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
 		this.propertiesService = propertiesService;
+		this.socialProfileService = socialProfileService;
+
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -106,6 +112,32 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.get(id));
+	}
+
+	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
+																	   @RequestParam(name = "socialProfileType") String socialProfileType,
+																	   @RequestParam(name = "unread") String unreadCount) {
+        String link;
+        switch (socialProfileType) {
+            case "vk":
+                link = "https://vk.com/id" + userID;
+                break;
+            case "facebook":
+                link = "https://vk.com/id" + userID;
+                break;
+            default:
+                link = "";
+        }
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
+
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("clientID", Long.toString(client.getId()));
+        returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
+        returnMap.put("userID", userID);
+        return ResponseEntity.ok(returnMap);
 	}
 
 	@PostMapping(value = "/assign")
@@ -296,6 +328,7 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity postponeClient(@RequestParam Long clientId,
 										 @RequestParam String date,
+										 @RequestParam Boolean isPostponeFlag,
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
@@ -305,11 +338,16 @@ public class ClientRestController {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeDate(postponeDate);
-			client.setOwnerUser(userFromSession);
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
-			clientService.updateClient(client);
-			logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			if(isPostponeFlag) {
+				client.setPostponeDate(postponeDate);
+				client.setOwnerUser(userFromSession);
+				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
+				clientService.updateClient(client);
+				logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			}else {
+				client.setOwnerUser(userFromSession);
+				clientService.updateClient(client);
+			}
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
