@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -85,17 +86,17 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-                         YouTubeTrackingCardService youTubeTrackingCardService,
-                         ClientService clientService, StudentService studentService,
-                         StatusService statusService, MailingMessageRepository mailingMessageRepository,
-                         MailingService mailingService, SocialProfileService socialProfileService,
-                         SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-                         SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-                         ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-                         VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-                         YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-                         MailSendService mailSendService, Environment env, ReportService reportService,
-                         MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+	                     YouTubeTrackingCardService youTubeTrackingCardService,
+	                     ClientService clientService, StudentService studentService,
+	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
+	                     MailingService mailingService, SocialProfileService socialProfileService,
+	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+	                     MailSendService mailSendService, Environment env, ReportService reportService,
+	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -144,19 +145,28 @@ public class ScheduleTasks {
 		logger.info("Client with id{} has updated from VK", updateClient.getId());
 	}
 
+	@Scheduled(fixedRate = 15_000)
+	private void checkCallInSkype() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
+			Client client = assignSkypeCall.getToAssignSkypeCall();
+			client.setLiveSkypeCall(false);
+			assignSkypeCall.setSkypeCallDateCompleted(true);
+			clientService.updateClient(client);
+			assignSkypeCallService.update(assignSkypeCall);
+		}
+	}
 
-	@Scheduled(fixedRate = 6_000)
-	private void checkTimeSkypeCall() {
-		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
+	@Scheduled(fixedRate = 30_000)
+	private void checkCallInSkypeToSendTheNotification() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
 			String skypeTemplate = env.getRequiredProperty("skype.template");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
-			String dateOfSkypeCall = LocalDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
+			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
 					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-
 			if (selectNetworks.contains("vk")) {
 				try {
 					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
@@ -178,8 +188,8 @@ public class ScheduleTasks {
 					logger.warn("E-mail message not sent");
 				}
 			}
-			assignSkypeCallService.delete(assignSkypeCall);
-			clientService.updateClient(client);
+			assignSkypeCall.setTheNotificationWasIsSent(true);
+			assignSkypeCallService.update(assignSkypeCall);
 		}
 	}
 

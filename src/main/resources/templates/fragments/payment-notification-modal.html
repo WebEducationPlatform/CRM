@@ -6,7 +6,7 @@
 <body>
 
 <th:block th:fragment="paymentNotificationModal">
-    <div th:id="payment-notification-modal" class="modal fade payment-notification-modal" role="dialog" data-keyboard="false">
+    <div th:id="payment-notification-modal" class="modal fade payment-notification-modal" role="dialog" data-keyboard="false" sec:authorize="hasAnyAuthority('OWNER')">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
