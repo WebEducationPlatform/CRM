@@ -127,10 +127,15 @@
                         </div>
                         <div th:id="'hideClientCollapse'" class="panel-collapse collapse hide-client-collapse">
                             <div class="panel-body">
-                                <span>Скрыть клиента до: </span>
+                                <span>Добавить напоминание на: </span>
                                 <div class="form-group" id="postpone-div">
                                     <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
                                            name="postponeDate"/>
+                                    <span>Скрывать? </span>
+                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag" name="isPostponeFlag"/>
+                                    <span><h4>Причина:</h4></span>
+                                    <textarea class="form-control postponeComment"
+                                    placeholder="причина напоминания"></textarea>
                                 </div>
 
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>
