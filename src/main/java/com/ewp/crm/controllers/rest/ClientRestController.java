@@ -35,7 +35,9 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
+
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -44,15 +46,18 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
+                SocialProfileService socialProfileService,
 								ClientHistoryService clientHistoryService,
-								MessageService messageService,
-								SocialProfileService socialProfileService) {
+                MessageService messageService,
+								ProjectPropertiesService propertiesService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.propertiesService = propertiesService;
 		this.socialProfileService = socialProfileService;
+
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
