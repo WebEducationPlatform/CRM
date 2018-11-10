@@ -393,8 +393,8 @@ public class VKServiceImpl implements VKService {
         Client newClient = new Client();
         try {
             StringBuilder description = new StringBuilder();
-            int number = 0;
-            boolean flag = true;
+            int number = 0; // позиция поля в сообщении вк
+            boolean flag = true; // флаг для проверки заполненности не обязательного поля
             for (VkRequestForm vkRequestForm : vkRequestFormService.getAllVkRequestForm()) {
                 if (flag) {
                     number = vkRequestForm.getNumberVkField();
