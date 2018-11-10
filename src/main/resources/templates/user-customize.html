@@ -67,6 +67,11 @@
         </button>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/vk/request/form" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                форму заявки ВК</a>
+        </div>
+        <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
                 <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>

@@ -4,6 +4,7 @@ import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client.Sex;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.VKService;
 import com.github.scribejava.apis.VkontakteApi;
@@ -45,6 +46,7 @@ public class VKServiceImpl implements VKService {
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
+    private final VkRequestFormService vkRequestFormService;
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
@@ -70,7 +72,7 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService) {
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -88,6 +90,7 @@ public class VKServiceImpl implements VKService {
         this.userService = userService;
         this.messageTemplateService = messageTemplateService;
         this.projectPropertiesService = projectPropertiesService;
+        this.vkRequestFormService = vkRequestFormService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.robotClientSecret = vkConfig.getRobotClientSecret();
         this.robotClientId = vkConfig.getRobotClientId();
@@ -389,16 +392,59 @@ public class VKServiceImpl implements VKService {
         String[] fields = message.replaceAll("<br>", "").split("Q:");
         Client newClient = new Client();
         try {
-            newClient.setName(getValue(fields[1]));
-            newClient.setLastName(getValue(fields[2]));
-            newClient.setPhoneNumber(getValue(fields[3]));
-            newClient.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
-            StringBuilder description = new StringBuilder(getValue(fields[5]));
-            if (message.contains("Ваши пожелания по заявке")) {
-                description.append(" ");
-                String wishes = getValue(fields[6]);
-                if (!wishes.contains("аши пожелания по заявке:A:")) {
-                    description.append(wishes);
+            StringBuilder description = new StringBuilder();
+            int number = 0; // позиция поля в сообщении вк
+            boolean flag = true; // флаг для проверки заполненности не обязательного поля
+            for (VkRequestForm vkRequestForm : vkRequestFormService.getAllVkRequestForm()) {
+                if (flag) {
+                    number = vkRequestForm.getNumberVkField();
+                }
+                if ("Обязательное".equals(vkRequestForm.getTypeVkField())) {
+                    switch (vkRequestForm.getNameVkField()) {
+                        case "Имя":
+                            newClient.setName(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Фамилия":
+                            newClient.setLastName(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Email":
+                            newClient.setEmail(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Номер телефона":
+                            newClient.setPhoneNumber(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Skype":
+                            newClient.setSkype(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Возраст":
+                            newClient.setAge(Byte.parseByte(getValue(fields[number])));
+                            flag = true;
+                            break;
+                        case "Город":
+                            newClient.setCity(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Страна":
+                            newClient.setCountry(getValue(fields[number]));
+                            flag = true;
+                            break;
+                        case "Пол":
+                            newClient.setSex(Sex.valueOf(getValue(fields[number])));
+                            flag = true;
+                            break;
+                    }
+                } else {
+                    if (message.contains(vkRequestForm.getNameVkField())) {
+                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[number])).append(" \n");
+                        flag = true;
+                    } else {
+                        flag = false;
+                    }
                 }
             }
 
