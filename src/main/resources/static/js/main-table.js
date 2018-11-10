@@ -1007,23 +1007,39 @@ $(function () {
 
 function hideClient(clientId) {
     let url = 'rest/client/postpone';
+    let flag = document.querySelector(".isPostponeFlag").checked;
+    let commentUrl = '/rest/comment/add';
+    let comment = document.querySelector(".postponeComment").value;
     let formData = {
         clientId: clientId,
-        date: $('#postponeDate' + clientId).val()
+        date: $('#postponeDate' + clientId).val(),
+        isPostponeFlag: flag,
     };
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            location.reload();
-        },
-        error: function (e) {
-            currentStatus = $("#postponeStatus" + clientId)[0];
-            currentStatus.textContent = "Произошла ошибка";
-            console.log(e.responseText)
-        }
-    })
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function () {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: commentUrl,
+                    data: {
+                        clientId: clientId,
+                        content: comment
+                    },
+                    success: function () {
+                        location.reload();
+                    },
+                });
+            },
+            error: function (e) {
+                currentStatus = $("#postponeStatus" + clientId)[0];
+                currentStatus.textContent = "Произошла ошибка";
+                console.log(e.responseText)
+            }
+        });
 }
 
 $(document).ready(function () {
@@ -1288,7 +1304,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDate',
+        url: 'rest/skype/checkFreeDateAndCorrectEmail',
         data: checkCallSkype,
         dataType: 'json',
         statusCode: {
@@ -1509,7 +1525,7 @@ $(document).on('click','.update-skype-call', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDate',
+        url: 'rest/skype/checkFreeDateAndCorrectEmail',
         data: checkFreeDate,
         dataType: 'json',
             statusCode: {
@@ -1542,6 +1558,8 @@ $(document).on('click','.update-skype-call', function (e) {
                     });
                 },
                 400: function (error) {
+                    currentStatus.css('color','#515151');
+                    currentStatus.text('Выбирете ментора из списка');
                     $('#freeDate').remove();
                     if(error.responseText.indexOf('@gmail.com)') >= 0){
                         currentStatus.css('color','#d01717');
@@ -1684,7 +1702,9 @@ $(function () {
                         $('#client-age').text(client.age);
                     }
                     $('#client-sex').text(client.sex);
-
+                    if(client.clientDescriptionComment.length > 0) {
+                     $('#client-label').text(client.clientDescriptionComment);
+                    }
                     if (client.email == null) {
                         $('#email-href').hide();
                     } else {
@@ -1755,7 +1775,7 @@ $(function () {
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
                 $('#postponeDate').attr('id', 'postponeDate' + client.id);
-                $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Скрыть карточку  </a>' + '</h4>');
+                $('#postpone-accordion').append('<h4 class="panel-title remove-element">' + '<a href="#hideClientCollapse' + client.id + '" сlass="font-size" data-toggle="collapse" data-parent="#hideAccordion" > Добавить напоминание  </a>' + '</h4>');
                 $('#postpone-div').append('<button class="btn btn-md btn-info remove-element" onclick="hideClient(' + client.id + ')"> OK </button>');
                 $('.postponeStatus').attr('id', 'postponeStatus' + client.id);
                 $('.textcomplete').attr('id', 'new-text-for-client' + client.id);

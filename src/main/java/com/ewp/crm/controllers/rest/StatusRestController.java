@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Bool;
 import org.slf4j.Logger;
@@ -39,6 +36,11 @@ public class StatusRestController {
 		this.notificationService = notificationService;
 		this.studentService = studentService;
 		this.studentStatusService = studentStatusService;
+	}
+
+	@GetMapping
+	public ResponseEntity<List<Status>> getAllStudentStatuses() {
+		return ResponseEntity.ok(statusService.getAll());
 	}
 
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

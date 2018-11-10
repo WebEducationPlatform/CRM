@@ -39,6 +39,9 @@ public class ProjectProperties {
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
 
+    @Column(name = "status_color")
+    private String statusColor;
+
     public ProjectProperties() {
     }
 
@@ -97,6 +100,14 @@ public class ProjectProperties {
 
     public void setPaymentNotificationEnabled(boolean paymentNotificationEnabled) {
         this.paymentNotificationEnabled = paymentNotificationEnabled;
+    }
+
+    public String getStatusColor() {
+        return statusColor;
+    }
+
+    public void setStatusColor(String statusColor) {
+        this.statusColor = statusColor;
     }
 
     @Override

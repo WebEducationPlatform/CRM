@@ -35,7 +35,9 @@ public class ClientRestController {
 	private final UserService userService;
 	private final ClientHistoryService clientHistoryService;
 	private final MessageService messageService;
+	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
+
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
@@ -44,15 +46,18 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
+                SocialProfileService socialProfileService,
 								ClientHistoryService clientHistoryService,
-								MessageService messageService,
-								SocialProfileService socialProfileService) {
+                MessageService messageService,
+								ProjectPropertiesService propertiesService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
 		this.clientHistoryService = clientHistoryService;
 		this.messageService = messageService;
+		this.propertiesService = propertiesService;
 		this.socialProfileService = socialProfileService;
+
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -323,6 +328,7 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity postponeClient(@RequestParam Long clientId,
 										 @RequestParam String date,
+										 @RequestParam Boolean isPostponeFlag,
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
@@ -332,11 +338,16 @@ public class ClientRestController {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			client.setPostponeDate(postponeDate);
-			client.setOwnerUser(userFromSession);
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
-			clientService.updateClient(client);
-			logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			if(isPostponeFlag) {
+				client.setPostponeDate(postponeDate);
+				client.setOwnerUser(userFromSession);
+				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
+				clientService.updateClient(client);
+				logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
+			}else {
+				client.setOwnerUser(userFromSession);
+				clientService.updateClient(client);
+			}
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");

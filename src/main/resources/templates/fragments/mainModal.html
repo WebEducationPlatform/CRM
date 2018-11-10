@@ -19,7 +19,7 @@
                             <table class="table table-condensed font-size">
                                 <tbody>
                                 <tr>
-                                    <td>Электронная почта:</td>
+                                    <td>Email:</td>
                                     <td id="client-email"></td>
                                     <td>
                                         <div class="btn-group">
@@ -85,6 +85,11 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td>Заметка:</td>
+                                    <td id="client-label"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Социальные сети:</td>
                                     <td>
                                         <div class="box-button">
@@ -127,10 +132,15 @@
                         </div>
                         <div th:id="'hideClientCollapse'" class="panel-collapse collapse hide-client-collapse">
                             <div class="panel-body">
-                                <span>Скрыть клиента до: </span>
+                                <span>Добавить напоминание на: </span>
                                 <div class="form-group" id="postpone-div">
                                     <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
                                            name="postponeDate"/>
+                                    <span>Скрывать? </span>
+                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag" name="isPostponeFlag"/>
+                                    <span><h4>Причина:</h4></span>
+                                    <textarea class="form-control postponeComment"
+                                    placeholder="причина напоминания"></textarea>
                                 </div>
 
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>
