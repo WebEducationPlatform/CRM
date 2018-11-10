@@ -55,4 +55,12 @@ public class ProjectPropertiesRestController {
         }
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
+
+    @PostMapping("/saveColorByStatus")
+    public HttpStatus saveColorByStatus(@RequestParam( name = "colors") String colors) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setStatusColor(colors);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
 }

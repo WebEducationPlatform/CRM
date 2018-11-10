@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Настройка заявки</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+<div class="container-fluid">
+    <br/>
+    <br/>
+    <table class="table table-striped tablesorter" id="vk-request-table">
+        <h1>Настройка заявки</h1>
+        <br/>
+        <thead th:align="center">
+        <th style="display:none;"></th>
+        <th>Название поля в заявке</th>
+        <th>Тип поля</th>
+        <th data-type="number" style="display:none;"></th>
+        </thead>
+        <tbody id="vk-request-body">
+        <th:block th:each="c : ${vkRequest}">
+            <tr>
+                <td style="display:none;" th:text="${c.id}"></td>
+                <td th:text="${c.nameVkField}"></td>
+                <td th:text="${c.typeVkField}"></td>
+                <td style="display: none;" th:text="${c.numberVkField}"></td>
+                <td class="fit">
+                    <button class="btn btn-info" data-toggle="modal" data-target="#myModal"
+                            th:onclick="'getVkRequestById('+ ${c.id} +')'"
+                            th:text="Изменить">
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-danger"
+                            th:onclick="'deleteVkReqestById('+ ${c.id} +')'"
+                            th:text="Удалить">
+                    </button>
+                </td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+    <button class="btn btn-info" data-toggle="modal" data-target="#createModal">Создать обязательное поле</button>
+    <button class="btn btn-info" data-toggle="modal" data-target="#createLabelModal">Создать не обязательное поле (для
+        заметок)
+    </button>
+
+    <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Изменение поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-id">id:</label>
+                            <input id="app-id" type="text" class="form-control" readonly="readonly"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-name">Название поля в заявке:</label>
+                            <select class="form-control" id="app-name">
+                                <option value="0"></option>
+                                <option value="1">Имя</option>
+                                <option value="2">Фамилия</option>
+                                <option value="3">Номер телефона</option>
+                                <option value="4">Email</option>
+                                <option value="5">Skype</option>
+                                <option value="6">Возраст</option>
+                                <option value="7">Пол</option>
+                                <option value="8">Страна</option>
+                                <option value="9">Город</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-type">Тип поля в заявке:</label>
+                            <select class="form-control" id="app-type">
+                                <option value="1">Обязательное</option>
+                                <option value="2">В заметки</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-label">Название не обязательного поля:</label>
+                            <input id="app-label" type="text" class="form-control"/>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="updateVkRequest()">
+                        Сохранить
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Создание обязательного поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-name-create">Название поля в заявке:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Созданное поле  обязательно для заполнения в заявке.">
+                            </button>
+                            <select class="form-control" id="app-name-create">
+                                <option value="0"></option>
+                                <option value="1">Имя</option>
+                                <option value="2">Фамилия</option>
+                                <option value="3">Номер телефона</option>
+                                <option value="4">Email</option>
+                                <option value="5">Skype</option>
+                                <option value="6">Возраст</option>
+                                <option value="7">Пол</option>
+                                <option value="8">Страна</option>
+                                <option value="9">Город</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-type-create">Тип поля:</label>
+                            <select class="form-control" id="app-type-create">
+                                <option value="1">Обязательное</option>
+                                <option value="2">В заметки</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="createVkRequestField()">
+                        Создать
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="createLabelModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Создание не обязательного поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-name-create-label">Название поля в заявке:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Содержимое созданного поля при заполнении пользователем будет добавлено в заметки.">
+                            </button>
+                            <div class="form-group">
+                                <input id="app-name-create-label" type="text" class="form-control"/>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal"
+                            onclick="createVkRequestFieldForLabel()">Создать
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript" th:src="@{/js/vk-request-form.js}"></script>
+</body>
+</html>

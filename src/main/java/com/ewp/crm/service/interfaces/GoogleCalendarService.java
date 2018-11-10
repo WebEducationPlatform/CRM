@@ -19,7 +19,7 @@ public interface GoogleCalendarService {
 
     void update(Long newDate, Long oldDate, String calendarMentor, Client skype) throws IOException;
 
-    boolean checkFreeDate(Long newDate, String calendarMentor);
+    boolean checkFreeDateAndCorrectEmail(Long newDate, String calendarMentor);
 
     void delete(Long oldDate, String calendarMentor);
 

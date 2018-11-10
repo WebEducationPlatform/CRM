@@ -100,7 +100,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public boolean checkFreeDate(Long date, String calendarMentor) {
+	public boolean checkFreeDateAndCorrectEmail(Long date, String calendarMentor) {
 		try {
 			com.google.api.services.calendar.model.Calendar calendar = calendarBuilder.calendars().get(calendarMentor).execute();
 			List<Event> eventAll = calendarBuilder.events().list(calendar.getId()).execute().getItems();

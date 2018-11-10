@@ -60,9 +60,9 @@ public class SkypeCallRestController {
 		return ResponseEntity.ok(users);
 	}
 
-	@GetMapping(value = "rest/skype/checkFreeDate", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "rest/skype/checkFreeDateAndCorrectEmail", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity<Object> checkFreeDate(@RequestParam Long clientId,
+	public ResponseEntity<Object> checkFreeDateAndCorrectEmail(@RequestParam Long clientId,
 												@RequestParam(name = "idMentor") Long idMentor,
 												@RequestParam Long startDate) {
 		// Проверка менеджера на авторизацию в гугл аккаунте, чтоб можно было в будущем назначить звонок
@@ -90,7 +90,7 @@ public class SkypeCallRestController {
 					return ResponseEntity.status(HttpStatus.OK).build();
 				}
 			}
-			if (calendarService.checkFreeDate(startDate, mentor.getEmail())) {
+			if (calendarService.checkFreeDateAndCorrectEmail(startDate, mentor.getEmail())) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Текущая дата уже занята, выберите другую.");
 			}
 			return ResponseEntity.status(HttpStatus.OK).build();
@@ -171,6 +171,7 @@ public class SkypeCallRestController {
 			client.addHistory(clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE));
 			clientService.updateClient(client);
 			assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getId());
+			logger.info("{} удалил клиенту id:{} звонок по скайпу на {}", principal.getFullName(), client.getId(), skypeCallDateOld);
 			return ResponseEntity.ok(HttpStatus.OK);
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
