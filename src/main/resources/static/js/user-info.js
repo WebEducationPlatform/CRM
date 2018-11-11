@@ -190,7 +190,7 @@ function sendPhoto(id, authId) {
             }
         },
         error: function (data) {
-            setErrorMessage(data.responseJSON.message)
+            setErrorMessage(data.message)
         }
     });
 }
@@ -264,7 +264,8 @@ function addUser() {
             current.textContent = "Загрузка...";
         },
         success: function (result) {
-            sendPhoto(result);
+            sendPhoto(result.id);
+            window.location.replace("/client")
         },
         error: function (e) {
             setErrorMessage(e);
@@ -315,7 +316,6 @@ function registerUser() {
             var current = document.getElementById("message");
             current.style.color = "darkorange";
             current.textContent = "Загрузка...";
-
         },
         success: function (result) {
             window.location.replace("/login")
