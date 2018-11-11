@@ -136,10 +136,16 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
                 if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-                    resultList.add(jsonMessage.getString("body"));
+
+                    String messageBody = jsonMessage.getString("body");
+                    resultList.add(messageBody);
+
+                    if(messageBody.startsWith("Новая заявка")){
+                        markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+                    }
+
                 }
             }
-            markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -331,7 +337,6 @@ public class VKServiceImpl implements VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient, technicalAccountToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -343,7 +348,17 @@ public class VKServiceImpl implements VKService {
     }
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
-        //помечать как прочитанные будем в чате!
+        String uriMarkAsRead = vkAPI + "messages.markAsRead" +
+                "?peer_id=" + userId +
+                "&version=" + version +
+                "&access_token=" + token;
+
+        HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
+        try {
+            httpClient.execute(httpMarkMessages);
+        } catch (IOException e) {
+            logger.error("Failed to mark as read message from community", e);
+        }
     }
 
     @Override
@@ -404,7 +419,7 @@ public class VKServiceImpl implements VKService {
         Client newClient = new Client();
         try {
             StringBuilder description = new StringBuilder();
-            int number = 0; // позиция поля в сообщении вк
+            long number = 0; // позиция поля в заявке
             boolean flag = true; // флаг для проверки заполненности не обязательного поля
             for (VkRequestForm vkRequestForm : vkRequestFormService.getAllVkRequestForm()) {
                 if (flag) {
@@ -413,45 +428,45 @@ public class VKServiceImpl implements VKService {
                 if ("Обязательное".equals(vkRequestForm.getTypeVkField())) {
                     switch (vkRequestForm.getNameVkField()) {
                         case "Имя":
-                            newClient.setName(getValue(fields[number]));
+                            newClient.setName(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Фамилия":
-                            newClient.setLastName(getValue(fields[number]));
+                            newClient.setLastName(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Email":
-                            newClient.setEmail(getValue(fields[number]));
+                            newClient.setEmail(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Номер телефона":
-                            newClient.setPhoneNumber(getValue(fields[number]));
+                            newClient.setPhoneNumber(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Skype":
-                            newClient.setSkype(getValue(fields[number]));
+                            newClient.setSkype(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Возраст":
-                            newClient.setAge(Byte.parseByte(getValue(fields[number])));
+                            newClient.setAge(Byte.parseByte(getValue(fields[(int) number])));
                             flag = true;
                             break;
                         case "Город":
-                            newClient.setCity(getValue(fields[number]));
+                            newClient.setCity(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Страна":
-                            newClient.setCountry(getValue(fields[number]));
+                            newClient.setCountry(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Пол":
-                            newClient.setSex(Sex.valueOf(getValue(fields[number])));
+                            newClient.setSex(Sex.valueOf(getValue(fields[(int) number])));
                             flag = true;
                             break;
                     }
                 } else {
                     if (message.contains(vkRequestForm.getNameVkField())) {
-                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[number])).append(" \n");
+                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[(int) number])).append(" \n");
                         flag = true;
                     } else {
                         flag = false;
