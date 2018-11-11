@@ -9,13 +9,12 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
     @Id
-    @GeneratedValue
-    @Column(name = "id")
-    private Long id;
     @Column(name = "number_vk_field")
-    private Integer numberVkField;
+    private Long numberVkField;
+
     @Column(name = "name_vk_field")
     private String nameVkField;
+
     @Column(name = "type_vk_field")
     private String typeVkField;
 
@@ -23,18 +22,18 @@ public class VkRequestForm {
 
     }
 
-    public Integer getNumberVkField() {
+    public Long getNumberVkField() {
         return numberVkField;
     }
 
-    public void setNumberVkField(Integer numberVkField) {
+    public void setNumberVkField(Long numberVkField) {
         this.numberVkField = numberVkField;
     }
 
-    public VkRequestForm(Long id, String nameVkField, String typeVkField) {
-        this.id = id;
-        this.nameVkField = nameVkField;
-        this.typeVkField = typeVkField;
+    public VkRequestForm(Long numberVkField, String nameVkField, String typeVkField) {
+        this.numberVkField = numberVkField;
+        this.nameVkField   = nameVkField;
+        this.typeVkField   = typeVkField;
     }
 
     public String getNameVkField() {
@@ -47,14 +46,6 @@ public class VkRequestForm {
 
     public String getTypeVkField() {
         return typeVkField;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setTypeVkField(String typeVkField) {

@@ -43,7 +43,7 @@ public class VkRequestFormRestController {
 
     @RequestMapping(value = "/vk/request/update/{id}", method = RequestMethod.PUT)
     public ResponseEntity<VkRequestForm> updateVkRequestForm(@PathVariable("id") Long id, @RequestBody VkRequestForm vkRequestForm) {
-        vkRequestForm.setId(id);
+        vkRequestForm.setNumberVkField(id);
         vkRequestFormService.updateVkRequestForm(vkRequestForm);
         return new ResponseEntity<>(vkRequestForm, HttpStatus.OK);
     }
@@ -54,5 +54,3 @@ public class VkRequestFormRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
-
-

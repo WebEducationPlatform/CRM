@@ -235,18 +235,17 @@ $(function () {
             var table = document.getElementById("vk-request-table");
             for (var i = 1; i < table.rows.length; i++) {
                 var row = table.rows[i];
-                var id = row.cells[0].textContent;
-                var name = row.cells[1].textContent;
-                var type = row.cells[2].textContent;
-                updateVkRequestAfterSort(id, name, type, i);
+                var name = row.cells[0].textContent;
+                var type = row.cells[1].textContent;
+                updateVkRequestAfterSort(name, type, i);
             }
         }
     }).disableSelection();
 
 });
 
-function updateVkRequestAfterSort(id, name, type, rowNumber) {
-    var url = "/vk/request/update/" + id;
+function updateVkRequestAfterSort(name, type, rowNumber) {
+    var url = "/vk/request/update/" + rowNumber;
     var mass = {
         numberVkField: rowNumber,
         nameVkField: name,
@@ -266,34 +265,3 @@ function updateVkRequestAfterSort(id, name, type, rowNumber) {
         }
     });
 }
-
-$(document).ready(function () {
-    sortGrid(3, 'number');
-});
-
-function sortGrid(colNum, type) {
-    var grid = document.getElementById("vk-request-table");
-    var tbody = grid.getElementsByTagName('tbody')[0];
-    var rowsArray = [].slice.call(tbody.rows);
-    var compare;
-
-    switch (type) {
-        case 'number':
-            compare = function (rowA, rowB) {
-                return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-            };
-            break;
-    }
-    rowsArray.sort(compare);
-
-    grid.removeChild(tbody);
-    for (var i = 0; i < rowsArray.length; i++) {
-        tbody.appendChild(rowsArray[i]);
-    }
-
-    grid.appendChild(tbody);
-
-}
-
-
-

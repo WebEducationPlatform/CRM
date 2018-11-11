@@ -26,19 +26,18 @@
         <tbody id="vk-request-body">
         <th:block th:each="c : ${vkRequest}">
             <tr>
-                <td style="display:none;" th:text="${c.id}"></td>
                 <td th:text="${c.nameVkField}"></td>
                 <td th:text="${c.typeVkField}"></td>
                 <td style="display: none;" th:text="${c.numberVkField}"></td>
                 <td class="fit">
                     <button class="btn btn-info" data-toggle="modal" data-target="#myModal"
-                            th:onclick="'getVkRequestById('+ ${c.id} +')'"
+                            th:onclick="'getVkRequestById('+ ${c.numberVkField} +')'"
                             th:text="Изменить">
                     </button>
                     <button
                             type="button"
                             class="btn btn-danger"
-                            th:onclick="'deleteVkReqestById('+ ${c.id} +')'"
+                            th:onclick="'deleteVkReqestById('+ ${c.numberVkField} +')'"
                             th:text="Удалить">
                     </button>
                 </td>
