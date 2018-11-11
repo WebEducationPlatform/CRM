@@ -15,4 +15,9 @@ public class MainController {
 			return "redirect:/client";
 		}
 	}
+
+	@GetMapping(value = {"/accessDenied"})
+	public String accessDenied() {
+		return "login";
+	}
 }
