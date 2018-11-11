@@ -99,8 +99,6 @@ public class TelegramServiceImpl implements TelegramService {
                     break;
                 case TdApi.UpdateNewChat.CONSTRUCTOR: {
                     TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
-//                    System.out.println("New chat!");
-//                    System.out.println(chat);
                     if (chat.type instanceof TdApi.ChatTypePrivate) {
                         TdApi.ChatTypePrivate chatTypePrivate = (TdApi.ChatTypePrivate) chat.type;
                         client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
@@ -121,6 +119,14 @@ public class TelegramServiceImpl implements TelegramService {
         }
         switch (TelegramServiceImpl.authorizationState.getConstructor()) {
             case TdApi.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
+                if(Boolean.parseBoolean(env.getRequiredProperty("telegram.proxy.enable"))) {
+                    client.send(new TdApi.AddProxy(env.getRequiredProperty("telegram.proxy.server"),
+                            Integer.parseInt(env.getRequiredProperty("telegram.proxy.port")),true,
+                            new TdApi.ProxyTypeSocks5(env.getRequiredProperty("telegram.proxy.username"),
+                                    env.getRequiredProperty("telegram.proxy.password"))), defaultHandler);
+                } else {
+                    client.send(new TdApi.DisableProxy(), defaultHandler);
+                }
                 TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
                 parameters.databaseDirectory = env.getRequiredProperty("telegram.databaseDirectory");
                 parameters.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
@@ -230,24 +236,25 @@ public class TelegramServiceImpl implements TelegramService {
         }
     }
 
+    /**
+     * Create new Client if not present.
+     */
     private class NewUserHandler implements Client.ResultHandler {
-
         @Override
         public void onResult(TdApi.Object object) {
-            //TODO Конструктор? username куда ?
             TdApi.User user = (TdApi.User) object;
-            if (!clientRepository.isTelegramClientPresent(user.id)) {
-                System.out.println("Adding");
+            if (user.type.getConstructor() == TdApi.UserTypeRegular.CONSTRUCTOR && !clientRepository.isTelegramClientPresent(user.id)) {
                 com.ewp.crm.models.Client newClient = new com.ewp.crm.models.Client();
                 newClient.setName(user.firstName);
                 newClient.setLastName(user.lastName);
                 newClient.setPhoneNumber(user.phoneNumber);
                 newClient.setTelegramId(user.id);
-                //TODO в меню?
+                //TODO Хардкод. Вынести в меню?
                 newClient.setStatus(statusRepository.findById(1L).get());
                 newClient.addHistory(clientHistoryService.createHistory("Telegram"));
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
+                logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
         }
     }
