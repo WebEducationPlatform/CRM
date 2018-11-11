@@ -12,8 +12,8 @@ import java.io.File;
 
 @Component
 @PropertySources(value = {
-		@PropertySource("classpath:application.properties"),
-		@PropertySource("file:./image.properties")
+        @PropertySource("classpath:application.properties"),
+        @PropertySource("file:./image.properties")
 })
 public class ImageConfig {
 
@@ -53,8 +53,8 @@ public class ImageConfig {
                 System.exit(-1);
             }
         }
-        pathForAvatar = pathForAvatar + "\\";
-        pathForImages = pathForImages + "\\";
+        pathForAvatar = pathForAvatar + "/";
+        pathForImages = pathForImages + "/";
         if (maxImageSize == 0) {
             maxImageSize = 1024;
             logger.info("The size of the uploaded file is not specified. The value in 1MB is set");
