@@ -11,6 +11,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Comparator;
+import java.util.List;
+
 @RestController
 public class VkRequestFormRestController {
     private final VkRequestFormService vkRequestFormService;
@@ -25,7 +28,9 @@ public class VkRequestFormRestController {
     public ModelAndView vkRequestForm(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("vk-request-form");
         modelAndView.addObject("userCustomize", userFromSession);
-        modelAndView.addObject("vkRequest", vkRequestFormService.getAllVkRequestForm());
+        List<VkRequestForm> vkRequestFormList = vkRequestFormService.getAllVkRequestForm();
+        vkRequestFormList.sort(Comparator.comparingInt(VkRequestForm::getNumberVkField));
+        modelAndView.addObject("vkRequest", vkRequestFormList);
         return modelAndView;
     }
 

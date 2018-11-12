@@ -17,6 +17,9 @@ function deleteVkReqestById(id) {
 function createVkRequestField() {
     var table = document.getElementById("vk-request-table");
     var rowCount = table.rows.length;
+    if (rowCount === 0) {
+        rowCount = 1;
+    }
     var indexForNameRequest = document.getElementById("app-name-create").options.selectedIndex;
     var nameRequest = document.getElementById("app-name-create").options[indexForNameRequest].text;
     if (nameRequest === "") {
@@ -59,6 +62,9 @@ function createVkRequestField() {
 function createVkRequestFieldForLabel() {
     var table = document.getElementById("vk-request-table");
     var rowCount = table.rows.length;
+    if (rowCount === 0) {
+        rowCount = 1;
+    }
     var nameRequestField = document.getElementById("app-name-create-label").value;
     if (nameRequestField === "") {
         return;
@@ -235,17 +241,18 @@ $(function () {
             var table = document.getElementById("vk-request-table");
             for (var i = 1; i < table.rows.length; i++) {
                 var row = table.rows[i];
-                var name = row.cells[0].textContent;
-                var type = row.cells[1].textContent;
-                updateVkRequestAfterSort(name, type, i);
+                var id = row.cells[0].textContent;
+                var name = row.cells[1].textContent;
+                var type = row.cells[2].textContent;
+                updateVkRequestAfterSort(id, name, type, i);
             }
         }
     }).disableSelection();
 
 });
 
-function updateVkRequestAfterSort(name, type, rowNumber) {
-    var url = "/vk/request/update/" + rowNumber;
+function updateVkRequestAfterSort(id, name, type, rowNumber) {
+    var url = "/vk/request/update/" + id;
     var mass = {
         numberVkField: rowNumber,
         nameVkField: name,
@@ -265,3 +272,7 @@ function updateVkRequestAfterSort(name, type, rowNumber) {
         }
     });
 }
+
+
+
+
