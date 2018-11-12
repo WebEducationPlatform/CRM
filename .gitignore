@@ -26,3 +26,5 @@ nbdist/
 /Images/
 /DownloadData
 /CallRecords/
+
+telegram.properties
