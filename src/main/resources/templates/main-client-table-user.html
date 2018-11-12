@@ -86,7 +86,7 @@
                             </th:block>
                         </div>
                     </div>
-                    <div class="btn-group">
+                    <div class="btn-group" th:id="'notiff' +${client.id}" th:onclick="'javascript:openCardMenu(' + ${client.id} + ');'">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                         <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
                         </button>
