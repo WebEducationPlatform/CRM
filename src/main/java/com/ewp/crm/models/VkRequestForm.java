@@ -3,14 +3,19 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.util.Comparator;
 
 @Entity
 @Table(name = "vk_request_form")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
     @Id
+    @GeneratedValue
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "number_vk_field")
-    private Long numberVkField;
+    private Integer numberVkField;
 
     @Column(name = "name_vk_field")
     private String nameVkField;
@@ -22,18 +27,18 @@ public class VkRequestForm {
 
     }
 
-    public Long getNumberVkField() {
+    public Integer getNumberVkField() {
         return numberVkField;
     }
 
-    public void setNumberVkField(Long numberVkField) {
+    public void setNumberVkField(Integer numberVkField) {
         this.numberVkField = numberVkField;
     }
 
-    public VkRequestForm(Long numberVkField, String nameVkField, String typeVkField) {
-        this.numberVkField = numberVkField;
-        this.nameVkField   = nameVkField;
-        this.typeVkField   = typeVkField;
+    public VkRequestForm(Long id, String nameVkField, String typeVkField) {
+        this.id = id;
+        this.nameVkField = nameVkField;
+        this.typeVkField = typeVkField;
     }
 
     public String getNameVkField() {
@@ -46,6 +51,14 @@ public class VkRequestForm {
 
     public String getTypeVkField() {
         return typeVkField;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setTypeVkField(String typeVkField) {
