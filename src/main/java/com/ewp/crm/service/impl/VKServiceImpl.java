@@ -185,6 +185,7 @@ public class VKServiceImpl implements VKService {
 
     /**
      * Get user VK id by profile url.
+     *
      * @param url user profile url.
      * @return optional of user VK id.
      */
@@ -218,13 +219,15 @@ public class VKServiceImpl implements VKService {
 
     /**
      * Send VK notification to client without logging and additional body parameters.
-     * @param clientId recipient client.
+     *
+     * @param clientId     recipient client.
      * @param templateText email template text.
      */
     @Override
     public void simpleVKNotification(Long clientId, String templateText) {
         sendMessageToClient(clientId, templateText, "", null);
     }
+
     @Override
     public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
@@ -343,7 +346,17 @@ public class VKServiceImpl implements VKService {
     }
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
-        //помечать как прочитанные будем в чате!
+        String uriMarkAsRead = vkAPI + "messages.markAsRead" +
+                "?peer_id=" + userId +
+                "&version=" + version +
+                "&access_token=" + token;
+
+        HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
+        try {
+            httpClient.execute(httpMarkMessages);
+        } catch (IOException e) {
+            logger.error("Failed to mark as read message from community", e);
+        }
     }
 
     @Override
@@ -393,57 +406,50 @@ public class VKServiceImpl implements VKService {
         Client newClient = new Client();
         try {
             StringBuilder description = new StringBuilder();
-            int number = 0; // позиция поля в сообщении вк
-            boolean flag = true; // флаг для проверки заполненности не обязательного поля
-            for (VkRequestForm vkRequestForm : vkRequestFormService.getAllVkRequestForm()) {
-                if (flag) {
-                    number = vkRequestForm.getNumberVkField();
+            int numberVkPosition = 0; // позиция поля в заявке
+            int numberMissedPosition = 0;
+            List<VkRequestForm> vkRequestForms = vkRequestFormService.getAllVkRequestForm();
+            vkRequestForms.sort(Comparator.comparingInt(VkRequestForm::getNumberVkField));
+            for (VkRequestForm vkRequestForm : vkRequestForms) {
+                numberVkPosition = vkRequestForm.getNumberVkField() - numberMissedPosition;
+                if (numberVkPosition > fields.length - 1) {
+                    break;
                 }
                 if ("Обязательное".equals(vkRequestForm.getTypeVkField())) {
                     switch (vkRequestForm.getNameVkField()) {
                         case "Имя":
-                            newClient.setName(getValue(fields[number]));
-                            flag = true;
+                            newClient.setName(getValue(fields[numberVkPosition]));
                             break;
                         case "Фамилия":
-                            newClient.setLastName(getValue(fields[number]));
-                            flag = true;
+                            newClient.setLastName(getValue(fields[numberVkPosition]));
                             break;
                         case "Email":
-                            newClient.setEmail(getValue(fields[number]));
-                            flag = true;
+                            newClient.setEmail(getValue(fields[numberVkPosition]));
                             break;
                         case "Номер телефона":
-                            newClient.setPhoneNumber(getValue(fields[number]));
-                            flag = true;
+                            newClient.setPhoneNumber(getValue(fields[numberVkPosition]));
                             break;
                         case "Skype":
-                            newClient.setSkype(getValue(fields[number]));
-                            flag = true;
+                            newClient.setSkype(getValue(fields[numberVkPosition]));
                             break;
                         case "Возраст":
-                            newClient.setAge(Byte.parseByte(getValue(fields[number])));
-                            flag = true;
+                            newClient.setAge(Byte.parseByte(getValue(fields[numberVkPosition])));
                             break;
                         case "Город":
-                            newClient.setCity(getValue(fields[number]));
-                            flag = true;
+                            newClient.setCity(getValue(fields[numberVkPosition]));
                             break;
                         case "Страна":
-                            newClient.setCountry(getValue(fields[number]));
-                            flag = true;
+                            newClient.setCountry(getValue(fields[numberVkPosition]));
                             break;
                         case "Пол":
-                            newClient.setSex(Sex.valueOf(getValue(fields[number])));
-                            flag = true;
+                            newClient.setSex(Sex.valueOf(getValue(fields[numberVkPosition])));
                             break;
                     }
                 } else {
                     if (message.contains(vkRequestForm.getNameVkField())) {
-                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[number])).append(" \n");
-                        flag = true;
+                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[numberVkPosition])).append(" \n");
                     } else {
-                        flag = false;
+                        numberMissedPosition++;
                     }
                 }
             }
