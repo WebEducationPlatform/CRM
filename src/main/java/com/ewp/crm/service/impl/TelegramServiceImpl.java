@@ -1,10 +1,12 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.TelegramService;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -15,6 +17,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -59,7 +65,7 @@ public class TelegramServiceImpl implements TelegramService {
             Log.setVerbosityLevel(0);
             client = Client.create(new UpdatesHandler(), null, null);
             tdlibInstalled = true;
-        } catch (Exception e) {
+        } catch (UnsatisfiedLinkError e) {
             logger.error("Telegram database library not installed!", e);
         }
     }
@@ -72,6 +78,11 @@ public class TelegramServiceImpl implements TelegramService {
     @Override
     public void sentAuthCode(String smsCode) {
         code = smsCode;
+    }
+
+    @Override
+    public void getChatMessages(Long chatId) {
+        client.send(new TdApi.GetChatMessageCount(chatId, new TdApi.SearchMessagesFilterEmpty(), true), defaultHandler);
     }
 
     @Override
@@ -248,7 +259,7 @@ public class TelegramServiceImpl implements TelegramService {
                 newClient.setName(user.firstName);
                 newClient.setLastName(user.lastName);
                 newClient.setPhoneNumber(user.phoneNumber);
-                newClient.setTelegramId(user.id);
+                newClient.setSocialProfiles(Collections.singletonList(new SocialProfile(String.valueOf(user.id))));
                 //TODO Хардкод. Вынести в меню?
                 newClient.setStatus(statusRepository.findById(1L).get());
                 newClient.addHistory(clientHistoryService.createHistory("Telegram"));

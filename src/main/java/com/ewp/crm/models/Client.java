@@ -531,7 +531,6 @@ public class Client implements Serializable, Diffable<Client> {
                 .append("Работа", this.jobs.toString(), client.jobs.toString())
                 .append("Социальные сети", this.socialProfiles.toString(), client.socialProfiles.toString())
                 .append("Состояние", this.state, client.state)
-                .append("Telegram", this.telegramId, client.telegramId)
                 .build();
     }
 

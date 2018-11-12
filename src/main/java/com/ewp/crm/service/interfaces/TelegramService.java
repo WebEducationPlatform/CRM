@@ -10,5 +10,7 @@ public interface TelegramService {
 
     boolean isTdlibInstalled();
 
+    void getChatMessages(Long chatId);
+
     void logout();
 }
