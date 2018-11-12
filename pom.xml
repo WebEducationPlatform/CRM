@@ -23,6 +23,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<thymeleaf.version>2.1.3.RELEASE</thymeleaf.version>
+		<!--<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>-->
 		<thymeleaf.java8time.version>2.1.0.RELEASE</thymeleaf.java8time.version>
 		<guava.version>21.0</guava.version>
 		<scribejava.version>5.5.0</scribejava.version>
@@ -31,7 +32,8 @@
 		<spring-integration-mail.version>4.3.14.RELEASE</spring-integration-mail.version>
 		<commons-email.version>1.4</commons-email.version>
 		<jquery.version>3.2.1</jquery.version>
-		<bootstrap.version>3.3.7</bootstrap.version>
+		<!--<bootstrap.version>3.3.7</bootstrap.version>-->
+		<bootstrap.version>4.1.2</bootstrap.version>
 		<jquery-ui.version>1.12.1</jquery-ui.version>
 		<httpclient.version>4.5.5</httpclient.version>
 		<android-json.version>0.0.20131108.vaadin1</android-json.version>
@@ -209,6 +211,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<version>1.9.21</version>
 		</dependency>
 	</dependencies>
 

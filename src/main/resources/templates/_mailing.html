@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Рассылка</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/global.css"/>
+    <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div style="margin: 4%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+    <div class="container head-padding">
+        <div class="container head-padding">
+            <div class="row">
+                <div class="col-sm-1">
+                    <select style="font-size: 20px" class="form-inline" id="socNetworkChoose"
+                            th:onchange="'switchMailingType()'">
+                        <option value="email">email</option>
+                        <option value="vk">vk</option>
+                        <option value="sms">sms</option>
+                    </select>
+                </div>
+                <div class="col-sm-1">
+                    <input type="text" name="mailingDate" id="mailingDate"/>
+                </div>
+                <div class="col-sm-1" style="margin-left: 9%">
+                    <button class="btn btn-primary" id="mailingStart" onclick="mail(0)">Рассылка</button>
+                </div>
+                <div class="col-sm-1" style="margin-left: 2%">
+                    <button class="btn btn-primary" id="mailingNow" onclick="mail(1)">Отправить сейчас</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <fieldset id="field">
+                <label for="body1"></label>
+                <textarea class="container" id="body1" required="required">&lt;p&gt;Example template layout.&lt;/p&gt;</textarea>
+                <br/>
+            </fieldset>
+            <div class="col-md-12" style="display: none;padding-left: 0%" id="vkArea">
+                <textarea style="width: 1138px" th:id="vkArea1" rows="16"></textarea>
+            </div>
+            <div class="col-md-12" style="display: none;padding-left: 0%" id="smsArea">
+                <textarea style="width: 1138px" th:id="smsArea1" rows="16"></textarea>
+            </div>
+            <div class="col-md-12" style="padding-left: 0%" id="clientData">
+                <textarea style="width: 1138px" th:id="clientData1" rows="16"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

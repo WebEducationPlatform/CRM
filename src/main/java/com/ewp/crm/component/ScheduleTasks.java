@@ -193,7 +193,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 6_00000)
 	private void handleRequestsFromVk() {
 		try {
 			Optional<List<String>> newMassages = vkService.getNewMassages();
@@ -238,7 +238,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 6_00000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {

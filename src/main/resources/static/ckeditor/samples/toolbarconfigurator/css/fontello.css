@@ -40,7 +40,7 @@
   line-height: 1em;
 
   /* Animation center compensation - margins should be symmetric */
-  /* removeUsersFromAudience if not needed */
+  /* remove if not needed */
   margin-left: .2em;
 
   /* you can be more comfortable with increased icons size */
