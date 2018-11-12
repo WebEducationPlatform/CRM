@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.util.Comparator;
 
 @Entity
 @Table(name = "vk_request_form")
@@ -12,10 +13,13 @@ public class VkRequestForm {
     @GeneratedValue
     @Column(name = "id")
     private Long id;
+
     @Column(name = "number_vk_field")
     private Integer numberVkField;
+
     @Column(name = "name_vk_field")
     private String nameVkField;
+
     @Column(name = "type_vk_field")
     private String typeVkField;
 
