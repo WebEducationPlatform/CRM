@@ -72,7 +72,7 @@
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
-                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
+                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}" >
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
@@ -110,7 +110,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
+                     th:onclick="'changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
@@ -163,9 +164,9 @@
                             </th:block>
                         </div>
                     </div>
-                    <div class="btn-group" th:id="'notiff' +${client.id}" th:onclick="'javascript:openCardMenu(' + ${client.id} + ');'">
+                    <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name="emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
+                        <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
                         </button>
                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                             <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
