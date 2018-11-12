@@ -128,7 +128,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-primary pull" data-toggle="modal" data-target="#conversations-modal">
+                                        <button class="btn btn-primary pull" data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
                                             Чаты
                                         </button>
                                     </td>
@@ -170,7 +170,6 @@
                 </div>
                 <div th:replace="fragments/htmlFragments::comments"></div>
                 <div th:replace="fragments/htmlFragments::clientHistory"></div>
-                <div th:replace="fragments/Conversations::conversationsModal"></div>
             </div>
         </div>
     </div>

@@ -94,6 +94,19 @@
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
                                th:value="${client.city}"/>
                     </div>
+
+                    <div class="form-group">
+                        <label for="edit-client-visible">Видимость клиента</label>
+                        <input type="hidden" id="postpone" th:attr="postponeDate = ${client.postponeDate}"/>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-client-visible"
+                               data-value-function="isHide"/>
+                        <p/>
+                    </div>
+                    <input type="hidden" id="telegram-id" th:value="${client.telegramId}"/>
+                    <button type="button" id="makeVisible" class="btn btn-md btn-info" disabled="disabled">
+                        Показать клиента
+                    </button>
+
                     <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">

@@ -1694,6 +1694,16 @@ function deleteCallDate(id) {
     });
 };
 
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    $("#vk-li").removeClass('active');
+    $("#telegram-li").removeClass('active');
+    $("#whatsapp-li").removeClass('active');
+    $("#vk-tab").removeClass('active', 'in');
+    $("#telegram-tab").removeClass('active', 'in');
+    $("#whatsapp-tab").removeClass('active', 'in');
+});
+
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
@@ -1751,10 +1761,11 @@ $(function () {
 
                     // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
-                    $('#vk-im-button').hide();
-
                     $('#fb-href').hide();
                     $('#slack-href').hide();
+                    $("#vk-li").hide();
+                    $("#telegram-li").hide();
+                    $("#whatsapp-li").hide();
 
                     $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
@@ -1777,11 +1788,7 @@ $(function () {
 
                             $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
-
-                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
-                            $('#vk-im-button').attr("clientID", client.id);
-                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
-                            $('#vk-im-button').show();
+                            $("#vk-li").show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
@@ -1793,6 +1800,11 @@ $(function () {
                         $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
                         $('#slack-href').show();
                     }
+                    if (client.telegramId != undefined) {
+                        $("#telegram-li").show();
+                    }
+
+                    //TODO Check and show Watsapp li
 
                     var btnBlock = $('div#assign-unassign-btns');
 
