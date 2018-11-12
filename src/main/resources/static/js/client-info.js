@@ -243,9 +243,11 @@ $(document).ready(function () {
         url: url,
         dataType: 'json',
         success: function (res) {
+
             socialNetworkTypes = res;
             $.each(socialNetworkTypes, function (index, type) {
                 SNs = SNs + "<option>" + type + "</option>"
+
             });
         },
         error: function (error) {
@@ -276,4 +278,18 @@ $(function () {
         }
     });
 });
+
+var th = $('#SocialNetworks').find('th');
+
+    $('#SocialNetworks').find('tbody tr').each(function (i, tr) {
+        var tds = $(tr).find('td');
+        th.each(function (index, th) {
+            if(tds.eq(index).text() === "vk"){
+              var idVK =  tds.eq(index-1).text();
+              var linkVK = 'https://vk.com/id'+idVK;
+                tds.eq(index-1).text(linkVK);
+            }
+
+        });
+    });
 

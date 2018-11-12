@@ -47,8 +47,14 @@ public class AdminRestClientController {
 					socialProfile.getSocialProfileType().getName()).getId());
 			if(socialProfile.getSocialProfileType().getName().equals("vk")){
 				StringBuilder idVK = new StringBuilder(socialProfile.getLink());
-				idVK.delete(0,idVK.lastIndexOf("/id")+3);
-				socialProfile.setLink(idVK.toString());
+				if(idVK.lastIndexOf("/id")!=-1){
+					idVK.delete(0,idVK.lastIndexOf("/id")+3);
+					socialProfile.setLink(idVK.toString());
+				} else {
+					idVK.delete(0,idVK.lastIndexOf("vk.com/")+7);
+					socialProfile.setLink(idVK.toString());
+				}
+
 
 			}
 		}

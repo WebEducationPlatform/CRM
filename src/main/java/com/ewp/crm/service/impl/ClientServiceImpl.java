@@ -7,13 +7,17 @@ import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
+
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +34,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	public ClientServiceImpl(ClientRepository clientRepository) {
 		this.clientRepository = clientRepository;
 	}
+
+	@Autowired
+	RestTemplate restTemplate;
 
 	@Override
 	public List<Client> getAllClientsByStatus(Status status) {
@@ -215,7 +222,22 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 						link = "https://" + link;
 					}
 				}
-			} else if(!type.getName().equals("vk")){
+			} else if(type.getName().equals("vk")) {
+				link = client.getSocialProfiles().get(i).getLink();
+				if(!link.matches("[-+]?\\d+") && !link.equals("https://vk.com/id")){
+					link = restTemplate.getForObject("https://api.vk.com/method/users.get?access_token=beb3e3ed96e19e2401868a11e7f68e69213377d8cce91eb1fe81ab7fc1bb39ec9fd94f99d45b11d11c09d&v=5.78&user_ids="+link,String.class);
+					try {
+						JSONArray response = new JSONObject(link).getJSONArray("response");
+						JSONObject jo = response.getJSONObject(0);
+						link = jo.getString("id");
+
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+
+                }
+
+			} else {
 				int indexOfLastSlash = link.lastIndexOf("/");
 				if (indexOfLastSlash != -1) {
 					link = link.substring(indexOfLastSlash + 1);
