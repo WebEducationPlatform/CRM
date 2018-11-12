@@ -58,6 +58,8 @@ public class DataInitializer {
 	@Autowired
 	private StudentStatusService studentStatusService;
 
+	@Autowired
+	private VkRequestFormService vkRequestFormService;
 	private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -192,14 +194,14 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook"))));
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook"))));
+		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook"))));
+		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-4", socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
@@ -272,5 +274,21 @@ public class DataInitializer {
                         statusService.getStatusByName("pauseLearnStatus").getId(),
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
+
+		VkRequestForm vkRequestForm1 = new VkRequestForm(1L,"Имя","Обязательное");
+		VkRequestForm vkRequestForm2 = new VkRequestForm(2L,"Номер телефона","Обязательное");
+		VkRequestForm vkRequestForm3 = new VkRequestForm(3L,"Email","Обязательное");
+		VkRequestForm vkRequestForm4 = new VkRequestForm(4L,"Товары","В заметки");
+		VkRequestForm vkRequestForm5 = new VkRequestForm(5L,"Пожелания","В заметки");
+		VkRequestForm vkRequestForm6 = new VkRequestForm(6L,"Фамилия","Обязательное");
+		VkRequestForm vkRequestForm7 = new VkRequestForm(7L,"Test","В заметки");
+
+		vkRequestFormService.addVkRequestForm(vkRequestForm1);
+		vkRequestFormService.addVkRequestForm(vkRequestForm2);
+		vkRequestFormService.addVkRequestForm(vkRequestForm3);
+		vkRequestFormService.addVkRequestForm(vkRequestForm4);
+		vkRequestFormService.addVkRequestForm(vkRequestForm5);
+		vkRequestFormService.addVkRequestForm(vkRequestForm6);
+		vkRequestFormService.addVkRequestForm(vkRequestForm7);
     }
 }

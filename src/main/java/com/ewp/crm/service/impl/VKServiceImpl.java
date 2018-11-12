@@ -136,10 +136,16 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
                 if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-                    resultList.add(jsonMessage.getString("body"));
+
+                    String messageBody = jsonMessage.getString("body");
+                    resultList.add(messageBody);
+
+                    if(messageBody.startsWith("Новая заявка")){
+                        markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+                    }
+
                 }
             }
-            markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -334,7 +340,6 @@ public class VKServiceImpl implements VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient, technicalAccountToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -362,10 +367,21 @@ public class VKServiceImpl implements VKService {
     @Override
     public Optional<Client> getClientFromVkId(Long id) {
         logger.info("VKService: getting client by VK id...");
+
+        //сначала ищем у себя в базе
+        String vkLink = "https://vk.com/id" + id;
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(vkLink);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
+
+        if (client != null){
+            return Optional.of(client);
+        }
+
+        //потом ломимся в контакт
         String uriGetClient = vkAPI + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
         HttpClient httpClient = HttpClients.custom()
@@ -380,9 +396,9 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
             String name = jsonUser.getString("first_name");
             String lastName = jsonUser.getString("last_name");
-            String vkLink = "https://vk.com/id" + id;
-            Client client = new Client(name, lastName);
-            SocialProfile socialProfile = new SocialProfile(vkLink);
+
+            client = new Client(name, lastName);
+            socialProfile = new SocialProfile(vkLink);
             List<SocialProfile> socialProfiles = new ArrayList<>();
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);
@@ -398,7 +414,7 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public Client parseClientFromMessage(String message) throws ParseClientException {
-        logger.info("VKService: parsing client from VK message...");
+         logger.info("VKService: parsing client from VK message...");
         if (!message.startsWith("Новая заявка")) {
             throw new ParseClientException("Invalid message format");
         }
@@ -601,11 +617,13 @@ public class VKServiceImpl implements VKService {
     @Override
     public boolean hasTechnicalAccountToken() {
         if (technicalAccountToken == null) {
-            if (projectPropertiesService.get() == null) {
+            //токен берется из первой строки таблицы project_properties (при этом сохраняется последняя строка авторизованного в вк пользователя срм)
+            //можно изменить функции где он исползуется и убрать его из проекта за ненадобностью, так как похож на костыль.
+            technicalAccountToken = projectPropertiesService.getOrCreate().getTechnicalAccountToken();
+            if (technicalAccountToken == null) {
                 logger.error("VK access token has not got");
                 return false;
             }
-            technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken();
         }
         return true;
     }

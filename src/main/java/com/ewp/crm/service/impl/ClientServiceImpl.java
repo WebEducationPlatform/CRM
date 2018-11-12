@@ -6,11 +6,14 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +29,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 	private SendNotificationService sendNotificationService;
 
+	private final SocialProfileService socialProfileService;
+
 	@Autowired
-	public ClientServiceImpl(ClientRepository clientRepository) {
+	public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService) {
 		this.clientRepository = clientRepository;
+		this.socialProfileService = socialProfileService;
 	}
 
 	@Override
@@ -109,26 +115,44 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			client.setLastName("");
 		}
 		checkSocialLinks(client);
-		Status firstStatus = statusService.getFirstStatusForClient();
+
+		Client existClient = null;
+
 		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 			phoneNumberValidation(client);
-			Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-			if (clientByPhone != null) {
-				clientByPhone.setStatus(firstStatus);
-				clientRepository.saveAndFlush(clientByPhone);
-				sendNotificationService.sendNotificationsAllUsers(clientByPhone);
-				return;
+			existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
+
+		}
+
+		if (existClient == null && client.getEmail() != null && !client.getEmail().isEmpty()) {
+			existClient = clientRepository.getClientByEmail(client.getEmail());
+
+		}
+
+		for(SocialProfile socialProfile: client.getSocialProfiles()) {
+			if (existClient == null) {
+				socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+				if (socialProfile != null) {
+					existClient = getClientBySocialProfile(socialProfile);
+				}
+			}
+			else{
+				break;
 			}
 		}
-		if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-			Client clientByEmail = clientRepository.getClientByEmail(client.getEmail());
-			if (clientByEmail != null) {
-				clientByEmail.setStatus(firstStatus);
-				clientRepository.saveAndFlush(clientByEmail);
-				sendNotificationService.sendNotificationsAllUsers(clientByEmail);
-				return;
+
+		if (existClient != null) {
+			//если с новым клиентом пришла история, то добавим ее к старому клиенту.
+			for(ClientHistory clientHistory : client.getHistory()){
+				existClient.addHistory(clientHistory);
 			}
+
+            existClient.setStatus(statusService.getFirstStatusForClient());
+			clientRepository.saveAndFlush(existClient);
+			sendNotificationService.sendNotificationsAllUsers(existClient);
+			return;
 		}
+
 		clientRepository.saveAndFlush(client);
 		sendNotificationService.sendNotificationsAllUsers(client);
 	}
