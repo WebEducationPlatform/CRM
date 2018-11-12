@@ -55,7 +55,6 @@ public class AdminRestClientController {
 					socialProfile.setLink(idVK.toString());
 				}
 
-
 			}
 		}
 
@@ -75,13 +74,18 @@ public class AdminRestClientController {
 		for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
 			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
 					socialProfile.getSocialProfileType().getName()).getId());
-			if(socialProfile.getSocialProfileType().getName().equals("vk")){
-				StringBuilder idVK = new StringBuilder(socialProfile.getLink());
-				idVK.delete(0,idVK.lastIndexOf("/id")+3);
-				socialProfile.setLink(idVK.toString());
-
+			StringBuilder idVK = new StringBuilder(socialProfile.getLink());
+			if(socialProfile.getSocialProfileType().getName().equals("vk")) {
+				if (idVK.lastIndexOf("/id") != -1) {
+					idVK.delete(0, idVK.lastIndexOf("/id") + 3);
+					socialProfile.setLink(idVK.toString());
+				} else {
+					idVK.delete(0, idVK.lastIndexOf("vk.com/") + 7);
+					socialProfile.setLink(idVK.toString());
+				}
 			}
 		}
+
 		Client clientFromDB = clientService.get(currentClient.getId());
 		currentClient.setHistory(clientFromDB.getHistory());
 		currentClient.setComments(clientFromDB.getComments());
