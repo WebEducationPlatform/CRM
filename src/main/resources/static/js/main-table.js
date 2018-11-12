@@ -1702,7 +1702,7 @@ $(function () {
                         $('#client-age').text(client.age);
                     }
                     $('#client-sex').text(client.sex);
-                    if(client.clientDescriptionComment.length > 0) {
+                    if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
                      $('#client-label').text(client.clientDescriptionComment);
                     }
                     if (client.email == null) {

@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class VkRequestFormImpl implements VkRequestFormService {
+public class VkRequestFormServiceImpl implements VkRequestFormService {
     private final VkRequestFormRepository vkRequestFormRepository;
 
     @Autowired
-    public VkRequestFormImpl(VkRequestFormRepository vkRequestFormRepository) {
+    public VkRequestFormServiceImpl(VkRequestFormRepository vkRequestFormRepository) {
         this.vkRequestFormRepository = vkRequestFormRepository;
     }
 
