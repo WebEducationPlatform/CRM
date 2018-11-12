@@ -7,6 +7,7 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.StatusServiceImpl;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -134,17 +135,6 @@ public class ScheduleTasks {
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
-	private void updateClient(Client newClient) {
-		SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-		Client updateClient = clientService.getClientBySocialProfile(socialProfile);
-		updateClient.setPhoneNumber(newClient.getPhoneNumber());
-		updateClient.setEmail(newClient.getEmail());
-		updateClient.setAge(newClient.getAge());
-		updateClient.setSex(newClient.getSex());
-		clientService.updateClient(updateClient);
-		logger.info("Client with id{} has updated from VK", updateClient.getId());
-	}
-
 	@Scheduled(fixedRate = 15_000)
 	private void checkCallInSkype() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
@@ -201,12 +191,7 @@ public class ScheduleTasks {
 				for (String message : newMassages.get()) {
 					try {
 						Client newClient = vkService.parseClientFromMessage(message);
-						SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-						if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
-							updateClient(newClient);
-						} else {
-							addClient(newClient);
-						}
+						addClient(newClient);
 					} catch (ParseClientException e) {
 						logger.error(e.getMessage());
 					}

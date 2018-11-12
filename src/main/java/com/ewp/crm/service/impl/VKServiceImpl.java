@@ -136,10 +136,16 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
                 if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-                    resultList.add(jsonMessage.getString("body"));
+
+                    String messageBody = jsonMessage.getString("body");
+                    resultList.add(messageBody);
+
+                    if(messageBody.startsWith("Новая заявка")){
+                        markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+                    }
+
                 }
             }
-            markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -331,7 +337,6 @@ public class VKServiceImpl implements VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient, technicalAccountToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -343,16 +348,37 @@ public class VKServiceImpl implements VKService {
     }
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
-        //помечать как прочитанные будем в чате!
+        String uriMarkAsRead = vkAPI + "messages.markAsRead" +
+                "?peer_id=" + userId +
+                "&version=" + version +
+                "&access_token=" + token;
+
+        HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
+        try {
+            httpClient.execute(httpMarkMessages);
+        } catch (IOException e) {
+            logger.error("Failed to mark as read message from community", e);
+        }
     }
 
     @Override
     public Optional<Client> getClientFromVkId(Long id) {
         logger.info("VKService: getting client by VK id...");
+
+        //сначала ищем у себя в базе
+        String vkLink = "https://vk.com/id" + id;
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(vkLink);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
+
+        if (client != null){
+            return Optional.of(client);
+        }
+
+        //потом ломимся в контакт
         String uriGetClient = vkAPI + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
         HttpClient httpClient = HttpClients.custom()
@@ -367,9 +393,9 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
             String name = jsonUser.getString("first_name");
             String lastName = jsonUser.getString("last_name");
-            String vkLink = "https://vk.com/id" + id;
-            Client client = new Client(name, lastName);
-            SocialProfile socialProfile = new SocialProfile(vkLink);
+
+            client = new Client(name, lastName);
+            socialProfile = new SocialProfile(vkLink);
             List<SocialProfile> socialProfiles = new ArrayList<>();
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);
@@ -393,7 +419,7 @@ public class VKServiceImpl implements VKService {
         Client newClient = new Client();
         try {
             StringBuilder description = new StringBuilder();
-            int number = 0; // позиция поля в сообщении вк
+            long number = 0; // позиция поля в заявке
             boolean flag = true; // флаг для проверки заполненности не обязательного поля
             for (VkRequestForm vkRequestForm : vkRequestFormService.getAllVkRequestForm()) {
                 if (flag) {
@@ -402,45 +428,45 @@ public class VKServiceImpl implements VKService {
                 if ("Обязательное".equals(vkRequestForm.getTypeVkField())) {
                     switch (vkRequestForm.getNameVkField()) {
                         case "Имя":
-                            newClient.setName(getValue(fields[number]));
+                            newClient.setName(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Фамилия":
-                            newClient.setLastName(getValue(fields[number]));
+                            newClient.setLastName(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Email":
-                            newClient.setEmail(getValue(fields[number]));
+                            newClient.setEmail(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Номер телефона":
-                            newClient.setPhoneNumber(getValue(fields[number]));
+                            newClient.setPhoneNumber(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Skype":
-                            newClient.setSkype(getValue(fields[number]));
+                            newClient.setSkype(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Возраст":
-                            newClient.setAge(Byte.parseByte(getValue(fields[number])));
+                            newClient.setAge(Byte.parseByte(getValue(fields[(int) number])));
                             flag = true;
                             break;
                         case "Город":
-                            newClient.setCity(getValue(fields[number]));
+                            newClient.setCity(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Страна":
-                            newClient.setCountry(getValue(fields[number]));
+                            newClient.setCountry(getValue(fields[(int) number]));
                             flag = true;
                             break;
                         case "Пол":
-                            newClient.setSex(Sex.valueOf(getValue(fields[number])));
+                            newClient.setSex(Sex.valueOf(getValue(fields[(int) number])));
                             flag = true;
                             break;
                     }
                 } else {
                     if (message.contains(vkRequestForm.getNameVkField())) {
-                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[number])).append(" \n");
+                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[(int) number])).append(" \n");
                         flag = true;
                     } else {
                         flag = false;
@@ -595,11 +621,13 @@ public class VKServiceImpl implements VKService {
     @Override
     public boolean hasTechnicalAccountToken() {
         if (technicalAccountToken == null) {
-            if (projectPropertiesService.get() == null) {
+            //токен берется из первой строки таблицы project_properties (при этом сохраняется последняя строка авторизованного в вк пользователя срм)
+            //можно изменить функции где он исползуется и убрать его из проекта за ненадобностью, так как похож на костыль.
+            technicalAccountToken = projectPropertiesService.getOrCreate().getTechnicalAccountToken();
+            if (technicalAccountToken == null) {
                 logger.error("VK access token has not got");
                 return false;
             }
-            technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken();
         }
         return true;
     }
