@@ -4,6 +4,17 @@ $('.fix-modal').on('show.bs.modal', function () {
     drawCheckbox(currentForm, clientId);
 });
 
+function openCardMenu(id) {
+    var clientID = id;
+    $('#notiff' + clientID).toggleClass("open");
+
+}
+
+$('.btn-group').click(function (e) {
+    openCardMenu();
+    e.stopPropagation();
+});
+
 
 $('.custom-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
