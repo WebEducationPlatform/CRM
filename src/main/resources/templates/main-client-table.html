@@ -72,7 +72,7 @@
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
-                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
+                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}" >
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
@@ -110,7 +110,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +');changeUrl('+ ${client.id} +')'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
+                     th:onclick="'changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
@@ -163,42 +164,42 @@
                             </th:block>
                         </div>
                     </div>
-                </div>
-                <div class="btn-group">
-                    <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                    <button name="emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
-                    </button>
-                    <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                        <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                            <a class="glyphicon glyphicon-ok portlet-send-btn"
-                               th:if="${!template.hasBody()}"
-                               th:id="'eTemplateBtn' + ${template.id}"
-                               data-toggle="modal"
-                               th:attrappend="data-target='#sendTemplateModal'"
-                               th:text="' ' + ${template.name}"
-                               th:attrprepend="data-template-id=${template.id}"></a>
-                            <a class="glyphicon glyphicon-plus portlet-custom-btn"
-                               th:if="${template.hasBody()}"
-                               th:id="'eTemplateBtn' + ${template.id}"
-                               data-toggle="modal" th:attrappend="
+                    <div class="btn-group" th:id="'notiff' +${client.id}">
+                        <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                        <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
+                        </button>
+                        <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                            <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                                <a class="glyphicon glyphicon-ok portlet-send-btn"
+                                   th:if="${!template.hasBody()}"
+                                   th:id="'eTemplateBtn' + ${template.id}"
+                                   data-toggle="modal"
+                                   th:attrappend="data-target='#sendTemplateModal'"
+                                   th:text="' ' + ${template.name}"
+                                   th:attrprepend="data-template-id=${template.id}"></a>
+                                <a class="glyphicon glyphicon-plus portlet-custom-btn"
+                                   th:if="${template.hasBody()}"
+                                   th:id="'eTemplateBtn' + ${template.id}"
+                                   data-toggle="modal" th:attrappend="
                                data-target='#customMessageTemplate'"
-                               th:text="' ' + ${template.name}"
-                               th:attrprepend="data-template-id=${template.id}"></a>
-                        </li>
-                    </ul>
-                    <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+                                   th:text="' ' + ${template.name}"
+                                   th:attrprepend="data-template-id=${template.id}"></a>
+                            </li>
+                        </ul>
+                        <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
-                    <!-- SMS ERROR INFO BTN -->
-                    <th:block th:each="notification_sms:${notifications_type_sms}">
-                        <th:block th:if="${notification_sms.client == client}">
-                            <button type="button"
-                                    style="color:red"
-                                    class="glyphicon glyphicon-exclamation-sign sms-error-btn"
-                                    th:attrappend="data-id=${client.id}"></button>
+                        <!-- SMS ERROR INFO BTN -->
+                        <th:block th:each="notification_sms:${notifications_type_sms}">
+                            <th:block th:if="${notification_sms.client == client}">
+                                <button type="button"
+                                        style="color:red"
+                                        class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                        th:attrappend="data-id=${client.id}"></button>
+                            </th:block>
                         </th:block>
-                    </th:block>
-                    <!--/ SMS ERROR INFO BTN -->
+                        <!--/ SMS ERROR INFO BTN -->
 
+                    </div>
                 </div>
             </div>
         </div>

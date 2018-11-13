@@ -47,7 +47,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" th:onclick="'markAsReadMenu('+ ${client.id} +')'">
+                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id}" >
                     <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="portlet-content">
@@ -86,9 +86,9 @@
                             </th:block>
                         </div>
                     </div>
-                    <div class="btn-group">
+                    <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name= "emailTmplList" type="button" class="f-18 icon-email-card" data-toggle="dropdown">
+                        <button name= "emailTmplList" th:id="'emailTmplList' +${client.id}" type="button" class="f-18 icon-email-card" data-toggle="dropdown"  >
                         </button>
                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                             <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
