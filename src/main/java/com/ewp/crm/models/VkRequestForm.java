@@ -35,8 +35,8 @@ public class VkRequestForm {
         this.numberVkField = numberVkField;
     }
 
-    public VkRequestForm(Long id, String nameVkField, String typeVkField) {
-        this.id = id;
+    public VkRequestForm(Integer numberVkField, String nameVkField, String typeVkField) {
+        this.numberVkField = numberVkField;
         this.nameVkField = nameVkField;
         this.typeVkField = typeVkField;
     }
@@ -64,4 +64,5 @@ public class VkRequestForm {
     public void setTypeVkField(String typeVkField) {
         this.typeVkField = typeVkField;
     }
+
 }
