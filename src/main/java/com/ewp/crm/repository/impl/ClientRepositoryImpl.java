@@ -145,10 +145,9 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    //TODO
     public boolean isTelegramClientPresent(Integer id) {
-        List<Client> result = entityManager.createQuery("SELECT c FROM Client c WHERE c.telegramId = :telegramId", Client.class)
-                .setParameter("telegramId", id)
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.link = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+                .setParameter("telegramId", id.toString())
                 .getResultList();
         return !result.isEmpty();
     }
