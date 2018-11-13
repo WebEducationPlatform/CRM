@@ -1,5 +1,10 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
+src/main/resources/application.properties
+src/main/java/com/ewp/crm/controllers/ClientController.java
+src/main/java/com/ewp/crm/component/ScheduleTasks.java
+pom.xml
+.gitignore
 
 ### STS ###
 .apt_generated
