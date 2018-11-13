@@ -11,8 +11,6 @@ const SEND_TO_VK = "Enter VK ids here:";
 
 var messageType = 'email';
 
-//let text;
-
 function sendMessages(sendnow) {
     console.warn(sendnow);
     let date = $('#messageSendingTime').val();
