@@ -60,7 +60,8 @@ public class IPTelephonyRestController {
 		if (Optional.ofNullable(callRecord).isPresent()) {
 			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
 			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setRecordLink(url);
+			callRecord.getClientHistory().setLink(url);
+			callRecord.getClientHistory().setRecordLink(downloadLink);
 			callRecordService.update(callRecord);
 			logger.info("CallRecord to client id {} has download", clientCallId);
 		}
@@ -71,7 +72,7 @@ public class IPTelephonyRestController {
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
-		Path fileLocation = Paths.get("CallRecords\\" + file + ".mp3");
+		Path fileLocation = Paths.get("CallRecords\\" + file);
 		return Files.readAllBytes(fileLocation);
 	}
 
