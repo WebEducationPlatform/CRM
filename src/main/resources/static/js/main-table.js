@@ -18,7 +18,6 @@ $('.fix-modal').on('show.bs.modal', function () {
     drawCheckbox(currentForm, clientId);
 });
 
-
 $('.custom-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
     var clientId = $(this).find('.send-all-custom-message').data('clientId');
