@@ -16,48 +16,20 @@
                 <div class="modal-body padding-bot">
                     <div class="container-fluid">
                         <div class="row">
-                            <ul class="nav nav-pills">
-                                <li id="vk-li"><a data-toggle="pill" href="#vk-tab">VK</a></li>
-                                <li id="telegram-li"><a data-toggle="pill" href="#telegram-tab">Telegram</a></li>
-                                <li id="whatsapp-li"><a data-toggle="pill" href="#whatsapp-tab">WhatsApp</a></li>
-                            </ul>
-                        </div>
-                        <div class="tab-content">
-                            <div id="vk-tab" class="tab-pane fade">
-                                <div id="im-vk-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">
-                                    <!--here js insert vk_messages!-->
-                                    <div class="form-group">
-                                        <textarea id="IM-VK-Text" class="form-control" placeholder="Напишите сообщение..." rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <span class="send-custom-vk-im-status"></span>
-                                    <button type="button" id="send-vk-im-btn" class="btn btn-primary send-vk-im-btn">Отправить</button>
+                            <div id="conversations-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">
+                                <!--here js insert vk_messages!-->
+                                <div class="form-group">
+                                    <textarea id="conversations-text" class="form-control" placeholder="Напишите сообщение..." rows="2"></textarea>
                                 </div>
                             </div>
-                            <div id="telegram-tab" class="tab-pane fade">
-                                <div id="telegram-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">
-                                    <!--here js insert vk_messages!-->
-                                    <div class="form-group">
-                                        <textarea id="telegram-text" class="form-control" placeholder="Напишите сообщение..." rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <!--<span class="send-custom-vk-im-status"></span>-->
-                                    <button type="button" id="telegram-send-btn" class="btn btn-primary telegram-send-btn">Отправить</button>
-                                </div>
-                            </div>
-                            <div id="whatsapp-tab" class="tab-pane fade">
-                                <!--<div id="im-vk-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">-->
-                                <!--&lt;!&ndash;here js insert vk_messages!&ndash;&gt;-->
-                                <!--<div class="form-group">-->
-                                <!--<textarea id="IM-VK-Text" class="form-control" placeholder="Напишите сообщение..." rows="2"></textarea>-->
-                                <!--</div>-->
-                                <!--</div>-->
-                                <!--<div class="modal-footer">-->
-                                <!--<span class="send-custom-vk-im-status"></span>-->
-                                <!--<button type="button" id="send-vk-im-btn" class="btn btn-primary send-vk-im-btn">Отправить</button>-->
-                                <!--</div>-->
+                            <div class="modal-footer">
+                                <span class="send-custom-vk-im-status"></span>
+                                <select id="send-selector" class="btn btn-primary">
+                                    <option id="send-vk">Отправить в ВК</option>
+                                    <option id="send-telegram">Отправить в Telegram</option>
+                                    <option id="send-whatsapp">Отправить в Whatsapp</option>
+                                </select>
+                                <button type="button" id="conversations-send-btn" class="btn btn-primary conversations-send-btn">Отправить</button>
                             </div>
                         </div>
                     </div>

@@ -107,7 +107,6 @@ function changeClient(id) {
         state: $('#edit-client-state').val(),
         country: $('#edit-client-country').val(),
         city: $('#edit-client-city').val(),
-        telegramId: $('#telegram-id').val(),
         skype: $('#edit-client-skype').val(),
         postponeDate: $('#postpone').val(),
         socialProfiles: SN,

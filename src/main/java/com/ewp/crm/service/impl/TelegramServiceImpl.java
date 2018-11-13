@@ -2,11 +2,12 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.SocialProfileRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.TelegramService;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -17,7 +18,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,14 +52,20 @@ public class TelegramServiceImpl implements TelegramService {
     private final StatusDAO statusRepository;
     private final ClientHistoryService clientHistoryService;
     private final SendNotificationService sendNotificationService;
+    private final SocialProfileRepository socialProfileRepository;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
-    public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository, ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService) {
+    public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository,
+                               ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
+                               SocialProfileRepository socialProfileRepository, SocialProfileTypeService socialProfileTypeService) {
         this.env = env;
         this.clientRepository = clientRepository;
         this.statusRepository = statusRepository;
         this.clientHistoryService = clientHistoryService;
         this.sendNotificationService = sendNotificationService;
+        this.socialProfileRepository = socialProfileRepository;
+        this.socialProfileTypeService = socialProfileTypeService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -82,7 +88,19 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public void getChatMessages(Long chatId) {
-        client.send(new TdApi.GetChatMessageCount(chatId, new TdApi.SearchMessagesFilterEmpty(), true), defaultHandler);
+        GetChatMessagesHandler handler = new GetChatMessagesHandler();
+        client.send(new TdApi.GetChatHistory(chatId, 0, 0, 40, false), handler);
+        //TODO second call?
+        //https://github.com/tdlib/td/issues/168
+        while (handler.isLoading()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.warn("Message loading interrupted", e);
+                break;
+            }
+        }
+        System.out.println(handler.getMessages().totalCount);
     }
 
     @Override
@@ -259,14 +277,38 @@ public class TelegramServiceImpl implements TelegramService {
                 newClient.setName(user.firstName);
                 newClient.setLastName(user.lastName);
                 newClient.setPhoneNumber(user.phoneNumber);
-                newClient.setSocialProfiles(Collections.singletonList(new SocialProfile(String.valueOf(user.id))));
+                SocialProfile profile  = new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram"));
+                newClient.setSocialProfiles(Collections.singletonList(profile));
                 //TODO Хардкод. Вынести в меню?
                 newClient.setStatus(statusRepository.findById(1L).get());
                 newClient.addHistory(clientHistoryService.createHistory("Telegram"));
-                clientRepository.saveAndFlush(newClient);
+                com.ewp.crm.models.Client x = clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
+        }
+    }
+
+    /**
+     * Load Telegram messages by chat id.
+     */
+    private class GetChatMessagesHandler implements Client.ResultHandler {
+
+        private TdApi.Messages messages;
+        private boolean loading = true;
+
+        public TdApi.Messages getMessages() {
+            return messages;
+        }
+
+        public boolean isLoading() {
+            return loading;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.messages = (TdApi.Messages) object;
+            this.loading = false;
         }
     }
 
