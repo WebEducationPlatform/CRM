@@ -1,3 +1,17 @@
+var initialized = false; // SDK загружено
+
+const sdk = VoxImplant.getInstance();
+sdk.on(VoxImplant.Events.SDKReady, onSdkReady);
+sdk.on(VoxImplant.Events.ConnectionEstablished, onConnectionEstablished);
+sdk.on(VoxImplant.Events.AuthResult, onAuthResult);
+
+var currentCall;
+var voxLogin;
+var voxPassword;
+var callerId;
+var callToPhone;
+var micMuted;
+
 $('.fix-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
     var clientId = $(this).find('.send-all-message').data('clientId');
@@ -1694,8 +1708,15 @@ $(function () {
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
-                        $('#client-phone').after('<td id="web-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        $('#client-phone')
+                            .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
                             .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                        $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                        $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                        $('#btn-call-off').css("background", "red");
+                        $('#btn-call-off').css("color", "white");
+                        $('#btn-mic-off').hide();
+                        $('#btn-call-off').hide();
                     }
 
                     if (client.age > 0) {
@@ -1852,27 +1873,29 @@ function callToClient(userPhone, clientPhone) {
 //web call to client by using Voximplant SDK
 function webCallToClient(clientPhone) {
     console.log("Trying to call by using Voximplant SDK");
-    const sdk = VoxImplant.getInstance();
-    var voxLogin;
-    var voxPassword;
-    var callerId;
     var url = "/user/rest/call/sendData";
     var credentialsUrl = "/user/rest/call/voximplantCredentials";
     var formData = {
         to: clientPhone
     };
-    let icon = $(".call-to-client");
+    // var incr = 0;
+    var icon = $(".call-to-client");
+    micMuted = false;
+    callToPhone = clientPhone;
 
     $.ajax({
+        async: false,
         type: 'post',
         url: url,
         data: formData,
-        success: function (callRecordId) {
+        success: function(callRecordId) {
             console.log("PROCESS WEBCALL");
             callerId = callRecordId.id;
             icon.css("background", "green");
             icon.css("color", "white");
             icon.attr("disabled", "true");
+
+            callToolControl('showWebCallClientTools');
         },
         error: function (error) {
             console.log("ERROR WEBCALL");
@@ -1881,6 +1904,7 @@ function webCallToClient(clientPhone) {
     });
 
     $.ajax({
+        async: false,
         type: 'get',
         url: credentialsUrl,
         success: function (credensials) {
@@ -1893,43 +1917,119 @@ function webCallToClient(clientPhone) {
         }
     });
 
-    sdk.init()
-        .then(() => {
-            console.log('This code is executed after SDK successfully initializes');
-            // connecting to the Voximplant Cloud;
-            // "false" argument disables checking of UDP connection (for fastest connect)
-            return sdk.connect(false);
-        })
-        .then(() => {
-            console.log('This code is executed after SDK is successfully connected to Voximplant');
-            //return sdk.login(voxLogin, voxPassword);
-            sdk.requestOneTimeLoginKey(voxLogin);
-
-            sdk.addEventListener(VoxImplant.Events.AuthResult, e => {
-                console.log('AuthResult: ' + e.result);
-                if (e.result) {
-                    console.log('This code is executed on successfull login');
-
-                    const call = sdk.call({number: clientPhone, customData: callerId});
-                    call.on(VoxImplant.CallEvents.Connected, () => console.log('You can hear audio from the cloud'));
-                    call.on(VoxImplant.CallEvents.Failed, (e) => console.log(`Call failed with the ${e.code} error`));
-                    call.on(VoxImplant.CallEvents.Disconnected, () => console.log('The call has ended'));
-                } else {
-                    if (e.code == 302) {
-                        $.post('/user/rest/call/calcKey', {
-                            key: e.key
-                        }, token => {
-                            sdk.loginWithOneTimeKey(voxLogin, token);
-                        }, 'text');
-                    }
-                }
-            })
-            return VoxImplant.AuthResult.result;
-        })
-        .catch((e) => {
-            console.log(e);
+    if (!initialized) {
+        sdk.init({
+            micRequired: true,
+            videoSupport: false,
+            progressTone: true
         });
+    } else {
+        startCall();
+    };
 }
+
+function callToolControl(operation) {
+    let iconCallBackCall = $(".callback-call");
+    let iconWebCallToClint = $(".call-to-client");
+
+    if (operation == 'showWebCallClientTools') {
+        $('#callback-call-voximplant').hide();
+
+        $('#btn-call-off').show();
+        $('#btn-mic-off').show();
+    } else if (operation == 'default') {
+        $('#callback-call-voximplant').show();
+
+        $('#btn-call-off').hide();
+        $('#btn-mic-off').hide();
+
+        $(".call-to-client").css("background", "");
+        $(".call-to-client").css("color", "");
+        $(".call-to-client").removeAttr("disabled");
+    }
+}
+
+//voximplant handlers
+function onSdkReady() {
+    sdk.connect(false);
+    console.log('sdk is initialized');
+}
+
+
+function onConnectionEstablished() {
+    console.log('It is connected to vox cloud');
+    if (sdk.getClientState() !== "LOGGED_SUCCESS") {
+        // sdk.login(voxLogin, voxPassword);
+        sdk.requestOneTimeLoginKey(voxLogin)
+        console.log('request for authentication');
+    } else {
+        console.log('already authorize.');
+        startCall();
+    }
+}
+
+function onAuthResult(eAuth) {
+    if (eAuth.result) {
+        initialized = true;
+        console.log('Athentication successfull');
+        startCall();// авторизовались - теперь можно звонить или принимать звонки
+    } else {
+        if (eAuth.code == 302) {
+            console.log("generating token ... ");
+            $.post('/user/rest/call/calcKey', {
+                key: eAuth.key
+            }, token => {
+                sdk.loginWithOneTimeKey(voxLogin, token);
+            }, 'text');
+        } else {
+            console.log("Athentication is unsuccessful with code " + eAuth.code);
+        }
+    }
+}
+
+function startCall() {
+    console.log('Starting call .... ');
+    currentCall = sdk.call({number: callToPhone, customData: callerId});
+    currentCall.on(VoxImplant.CallEvents.Connected, () => {
+        // console.log('You can hear audio from the cloud')
+    });
+    currentCall.on(VoxImplant.CallEvents.Failed, (e) => {
+        console.log(`Call failed with the ${e.code} error`);
+        callToolControl('default');
+    });
+    currentCall.on(VoxImplant.CallEvents.Disconnected, () => {
+        console.log('The call has ended');
+        callToolControl('default');
+    } );
+}
+
+//call hangup voximplant
+$(document).on('click','#btn-call-off',function(){
+    console.log("Client-state: " + sdk.getClientState());
+    if (currentCall && currentCall.state() != "ENDED") {
+        currentCall.hangup();
+    }
+    callToolControl('default');
+});
+
+//mute microphone voximplant
+$(document).on('click','#btn-mic-off',function(){
+    if (currentCall && currentCall.active()) {
+        let elBtnMic = $('#btn-mic-off');
+        if (micMuted) {
+            currentCall.unmuteMicrophone();
+            elBtnMic.css("background", "");
+            elBtnMic.css("color", "");
+            // console.log("mic is unmuted");
+        } else {
+            currentCall.muteMicrophone();
+            elBtnMic.css("background", "red");
+            elBtnMic.css("color", "white");
+            // console.log("mic is muted");
+        };
+        micMuted = !micMuted;
+    };
+});
 
 //авторизация Вконтакте
 function vk_popup(options) {
