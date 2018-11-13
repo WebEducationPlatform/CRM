@@ -258,6 +258,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
+			client.setHideCard(false);
 			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}

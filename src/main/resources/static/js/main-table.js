@@ -1014,8 +1014,8 @@ function hideClient(clientId) {
         clientId: clientId,
         date: $('#postponeDate' + clientId).val(),
         isPostponeFlag: flag,
+        postponeComment: comment,
     };
-
         $.ajax({
             type: "POST",
             url: url,
@@ -1820,9 +1820,52 @@ $(function () {
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var clean = $('.history-line').find("tbody");
+        let clientId = $(this).data('clientId');
+        let formData = {
+            clientId: clientId
+        };
         clean.empty();
+
+        $.ajax({
+            type: "POST",
+            url: "/user/notification/postpone/getAll",
+            data: formData,
+
+            success: function (result) {
+            if(result[0].type == "POSTPONE") {
+                $.ajax({
+                    type: "POST",
+                    url: "rest/client/postpone/getComment",
+                    data: formData,
+
+                    success: function (result) {
+                        let currentModal = $('#postponeCommentModal');
+                        currentModal.modal('show');
+                        let div = document.querySelector(".colorChoose");
+                        div.innerHTML = "";
+                        var node = document.createElement('div');
+                        node.innerHTML = '<p> ' + result;
+                        div.appendChild(node);
+                    },
+                    error: function (e) {
+                        console.log(e)
+                    }
+                });
+            }
+
+            },
+            error: function (e) {
+                console.log(e)
+            }
+        });
+
     });
 });
+
+$('#postponeCommentModal').on('hidden.bs.modal', function () {
+    let currentModal = $('#main-modal-window');
+    currentModal.css("overflow-y","auto");
+})
 
 function callToClient(userPhone, clientPhone) {
     console.log("TRY TO CALL");
@@ -2098,3 +2141,27 @@ function deleteNewUser(deleteId) {
         }
     });
 }
+
+/*
+$(function () {
+    $('#main-modal-window').on('show.bs.modal', function () {
+        let clientId = $(this).data('clientId');
+        let url = "/user/notification/postnope/getAll";
+        console.log("clientId", clientId);
+        let formData = {
+            clientId: clientId
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+            success: function (result) {
+                console.log("крутяк")
+            },
+            error: function (e) {
+                console.log(e)
+            }
+        });
+    });
+});*/

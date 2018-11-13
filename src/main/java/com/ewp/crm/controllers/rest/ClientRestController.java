@@ -329,6 +329,7 @@ public class ClientRestController {
 	public ResponseEntity postponeClient(@RequestParam Long clientId,
 										 @RequestParam String date,
 										 @RequestParam Boolean isPostponeFlag,
+                                         @RequestParam String postponeComment,
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
@@ -338,16 +339,15 @@ public class ClientRestController {
 				logger.info("Wrong postpone date: {}", date);
 				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
 			}
-			if(isPostponeFlag) {
-				client.setPostponeDate(postponeDate);
-				client.setOwnerUser(userFromSession);
-				client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
-				clientService.updateClient(client);
-				logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
-			}else {
-				client.setOwnerUser(userFromSession);
-				clientService.updateClient(client);
-			}
+            if(isPostponeFlag) {
+                client.setHideCard(true);
+            }
+            client.setPostponeComment(postponeComment);
+            client.setPostponeDate(postponeDate);
+            client.setOwnerUser(userFromSession);
+            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
+            clientService.updateClient(client);
+            logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Произошла ошибка");
@@ -422,4 +422,11 @@ public class ClientRestController {
 	public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
 		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
 	}
+
+    @PostMapping(value = "/postpone/getComment")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
+        String postponeComment = clientService.get(clientId).getPostponeComment();
+        return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
+    }
 }
