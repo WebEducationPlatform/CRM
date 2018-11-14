@@ -12,7 +12,7 @@ public interface TelegramService {
 
     boolean isTdlibInstalled();
 
-    TdApi.Messages getChatMessages(Long chatId, int limit);
+    TdApi.Messages getChatMessages(long chatId, int limit);
 
     void logout();
 }
