@@ -1465,7 +1465,36 @@ $('#conversations-modal').on('show.bs.modal', function () {
         url: '/rest/telegram/messages/chat',
         data: {clientId: clientId},
         success: function (response) {
-            console.log(response);
+            let chat = $("#chat-messages");
+            let data = response.messages.reverse();
+            for (let i in data) {
+                console.log(data[i]);
+                var dom = $("<div class='conteiner message-vk-im "+ ' ' +"' id='vkMsgId" + data[i].id + "' style='padding-top: 10px;'>"+
+                    "<div class='row'> "+
+                    "<div class='col-xs-1'>"+
+                    // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +
+                    "<img class='vk-im-photo img-circle' src='"+ 'photo' +"' class='img-circle' id='vkPhotoId"+ 'fromid' +"'/>" +
+                    "</a>"+
+                    "</div>"+
+                    "<div class='col-xs-11'>"+
+                    "<div class='row-xs-12'>" +
+                    "<div class='col-sm-4'>" +
+                    // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>"+name+"</a>"+
+                    "</div>"+
+                    "<div class='col-sm-8'>" +
+                    new Date(data[i].date) + " " +
+                    "</div>"+
+                    "</div>"+
+                    "<div class='row-xs-auto'>"+
+                    "<div class='col-sm-11' id='vkTextId"+ data[i].id +"'>" +
+                    data[i].content.text.text +
+                    "</div>"+
+                    "</div>"+
+                    "</div>"+
+                    "</div>");
+                chat.append(dom);
+            }
+            // console.log(response);
         }
     })
 });

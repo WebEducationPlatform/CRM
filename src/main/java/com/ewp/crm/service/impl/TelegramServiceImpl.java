@@ -18,8 +18,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -87,20 +85,18 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public void getChatMessages(Long chatId) {
+    public TdApi.Messages getChatMessages(Long chatId, int limit) {
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
-        client.send(new TdApi.GetChatHistory(chatId, 0, 0, 40, false), handler);
-        //TODO second call?
-        //https://github.com/tdlib/td/issues/168
+        client.send(new TdApi.GetChatHistory(chatId, 0, 0, limit, false), handler);
         while (handler.isLoading()) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 logger.warn("Message loading interrupted", e);
                 break;
             }
         }
-        System.out.println(handler.getMessages().totalCount);
+        return handler.getMessages();
     }
 
     @Override
@@ -303,6 +299,10 @@ public class TelegramServiceImpl implements TelegramService {
 
         public boolean isLoading() {
             return loading;
+        }
+
+        public void setLoading(boolean loading) {
+            this.loading = loading;
         }
 
         @Override

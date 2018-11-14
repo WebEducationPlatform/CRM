@@ -1,5 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
+import org.drinkless.tdlib.TdApi;
+
 public interface TelegramService {
 
     void sendAuthPhone(String phone);
@@ -10,7 +12,7 @@ public interface TelegramService {
 
     boolean isTdlibInstalled();
 
-    void getChatMessages(Long chatId);
+    TdApi.Messages getChatMessages(Long chatId, int limit);
 
     void logout();
 }
