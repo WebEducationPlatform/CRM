@@ -53,8 +53,8 @@ public class ImageConfig {
                 System.exit(-1);
             }
         }
-        pathForAvatar = pathForAvatar + "/";
-        pathForImages = pathForImages + "/";
+        pathForAvatar = pathForAvatar + File.separator;
+        pathForImages = pathForImages + File.separator;
         if (maxImageSize == 0) {
             maxImageSize = 1024;
             logger.info("The size of the uploaded file is not specified. The value in 1MB is set");
