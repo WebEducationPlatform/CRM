@@ -70,7 +70,7 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
-            <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}"
+            <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
                  th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}" >
                 <div class="portlet-title">
@@ -364,6 +364,8 @@
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
+
 
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
