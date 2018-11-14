@@ -85,7 +85,7 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public TdApi.Messages getChatMessages(Long chatId, int limit) {
+    public TdApi.Messages getChatMessages(long chatId, int limit) {
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
         client.send(new TdApi.GetChatHistory(chatId, 0, 0, limit, false), handler);
         while (handler.isLoading()) {

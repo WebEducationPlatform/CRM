@@ -51,9 +51,9 @@ public class TelegramRestController {
                 String chatId = profile.getLink();
                 TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
                 //TODO Call second time because of tdlib library optimization.
-//                while (messages.totalCount == 1) {
-//                    messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-//                }
+                while (messages.totalCount <= 1) {
+                    messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+                }
                 result = new ResponseEntity<>(messages, HttpStatus.OK);
                 break;
             }
