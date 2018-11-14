@@ -3,8 +3,10 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.TelegramService;
+import org.drinkless.tdlib.TdApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ public class TelegramRestController {
 
     private final TelegramService telegramService;
     private final ClientService clientService;
+    private static final int MESSAGE_LIMIT = 40;
 
     @Autowired
     public TelegramRestController(TelegramService telegramService, ClientService clientService) {
@@ -40,17 +43,22 @@ public class TelegramRestController {
     }
 
     @GetMapping("/messages/chat")
-    public HttpStatus getChatMessages(@RequestParam("clientId") Long clientId) {
+    public ResponseEntity<TdApi.Messages> getChatMessages(@RequestParam("clientId") Long clientId) {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        String chatId = "";
+        ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         for (SocialProfile profile : profiles) {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
-                chatId = profile.getLink();
+                String chatId = profile.getLink();
+                TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+                //TODO Call second time because of tdlib library optimization.
+//                while (messages.totalCount == 1) {
+//                    messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+//                }
+                result = new ResponseEntity<>(messages, HttpStatus.OK);
                 break;
             }
         }
-        telegramService.getChatMessages(Long.parseLong(chatId));
-        return HttpStatus.OK;
+        return result;
     }
 
     @GetMapping("/logout")
