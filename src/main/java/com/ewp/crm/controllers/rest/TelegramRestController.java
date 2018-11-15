@@ -59,6 +59,21 @@ public class TelegramRestController {
         return result;
     }
 
+    @GetMapping("/messages/unread")
+    public ResponseEntity<TdApi.Messages> getUnreadChatMessages(@RequestParam("clientId") Long clientId) {
+        List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
+        ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        for (SocialProfile profile : profiles) {
+//            if("telegram".equals(profile.getSocialProfileType().getName())) {
+//                String chatId = profile.getLink();
+//                TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+//                result = new ResponseEntity<>(messages, HttpStatus.OK);
+//                break;
+//            }
+//        }
+        return result;
+    }
+
     @PostMapping("/message/send")
     public HttpStatus getChatMessages(@RequestParam("clientId") long clientId, @RequestParam("text") String text) {
         HttpStatus result = HttpStatus.NOT_FOUND;
