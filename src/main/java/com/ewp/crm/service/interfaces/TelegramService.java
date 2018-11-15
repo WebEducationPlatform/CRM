@@ -14,5 +14,7 @@ public interface TelegramService {
 
     TdApi.Messages getChatMessages(long chatId, int limit);
 
+    void sendChatMessage(long chatId, String text);
+
     void logout();
 }

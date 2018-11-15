@@ -35,6 +35,9 @@ public class TelegramServiceImpl implements TelegramService {
     private static final Lock authorizationLock = new ReentrantLock();
     private static final Condition gotAuthorization = authorizationLock.newCondition();
 
+    private static final int OPTIMIZATION_THRESHOLD = 2;
+    private static final int RETRY_COUNT = 15;
+
     private static boolean tdlibInstalled = false;
 
     private static String phoneNumber = null;
@@ -87,16 +90,30 @@ public class TelegramServiceImpl implements TelegramService {
     @Override
     public TdApi.Messages getChatMessages(long chatId, int limit) {
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
-        client.send(new TdApi.GetChatHistory(chatId, 0, 0, limit, false), handler);
-        while (handler.isLoading()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("Message loading interrupted", e);
+        int iter = 0;
+        while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
+            client.send(new TdApi.GetChatHistory(chatId, 0, 0, limit, false), handler);
+            while (handler.isLoading()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.warn("Message loading interrupted", e);
+                    break;
+                }
+            }
+            handler.setLoading(true);
+            iter++;
+            if(iter > RETRY_COUNT) {
                 break;
             }
         }
         return handler.getMessages();
+    }
+
+    @Override
+    public void sendChatMessage(long chatId, String text) {
+        TdApi.InputMessageContent content = new TdApi.InputMessageText(new TdApi.FormattedText(text, null), false, true);
+        client.send(new TdApi.SendMessage(chatId, 0, false, false, null, content ), defaultHandler);
     }
 
     @Override
@@ -290,7 +307,7 @@ public class TelegramServiceImpl implements TelegramService {
      */
     private class GetChatMessagesHandler implements Client.ResultHandler {
 
-        private TdApi.Messages messages;
+        private TdApi.Messages messages = new TdApi.Messages(0, new TdApi.Message[]{});
         private boolean loading = true;
 
         public TdApi.Messages getMessages() {

@@ -1466,6 +1466,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
         data: {clientId: clientId},
         success: function (response) {
             append_message(response.messages.reverse());
+            $("#send-selector").prop('value', 'telegram');
         }
     })
 });
@@ -1473,10 +1474,15 @@ $('#conversations-modal').on('show.bs.modal', function () {
 function append_message(data) {
         let chat = $("#chat-messages");
         for (let i in data) {
-            let date = new Date(data[i].date);
+            let date = new Date(data[i].date * 1000);
+            let sendDate = date.toLocaleDateString() + ' ';
+            if (date.getDate() === new Date().getDate()){
+                sendDate = "";
+            }
+            sendDate += date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
             let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
             let message_id = data[i].id;
-            console.log(data[i]);
+            // console.log(data[i]);
             var dom = $("<div class='conteiner message-vk-im "+ ' ' +"' id='message_id" + message_id + "' style='padding-top: 10px;'>"+
                 "<div class='row'> "+
                 "<div class='col-xs-1'>"+
@@ -1490,7 +1496,7 @@ function append_message(data) {
                 // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>"+name+"</a>"+
                 "</div>"+
                 "<div class='col-sm-8'>" +
-                date + " " +
+                sendDate + " " +
                 "</div>"+
                 "</div>"+
                 "<div class='row-xs-auto'>"+
@@ -1501,8 +1507,11 @@ function append_message(data) {
                 "</div>"+
                 "</div>");
             chat.append(dom);
+
+            chat.stop().animate({
+                scrollTop: 100000
+            }, 800);
         }
-        // console.log(response);
 }
 
 
