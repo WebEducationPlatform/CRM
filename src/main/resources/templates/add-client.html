@@ -31,6 +31,7 @@
                         <!--<input type="hidden" id="client-status" th:value="pop"/>-->
                         <select th:field="*{statuses}" id="client-status" class="form-control">
                             <option th:each="statu : ${statuses}"
+                                    th:if="${statu.name != 'deleted'}"
                                     th:value="${statu.name}"
                                     th:text="${statu.name}" />
                         </select>

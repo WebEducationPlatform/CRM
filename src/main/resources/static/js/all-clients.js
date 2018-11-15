@@ -25,10 +25,7 @@ $.get('/rest/status', function getStatuses(studentStuses) {
 //при закрытии фильтра отображаем дефолтный вывод таблицы
 $("#open-filter").click(function () {
     if ($("#filter").hasClass('in')) {
-        clearClientsTable();
         drawDefaultClients();
-    } else {
-        clearClientsTable();
     }
     document.getElementById("searchInput").value = "";
 });

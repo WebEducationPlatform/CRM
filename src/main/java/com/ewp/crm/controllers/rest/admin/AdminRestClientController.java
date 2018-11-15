@@ -44,16 +44,18 @@ public class AdminRestClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ResponseEntity addClient(@RequestBody Client client,
 									@AuthenticationPrincipal User userFromSession) {
-		for (SocialProfile socialProfile : client.getSocialProfiles()) {
-			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-					socialProfile.getSocialProfileType().getName()).getId());
+		if (!"deleted".equals(client.getStatus().getName())) {
+			for (SocialProfile socialProfile : client.getSocialProfiles()) {
+				socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+						socialProfile.getSocialProfileType().getName()).getId());
+			}
+			Status status = statusService.get(client.getStatus().getName());
+			client.setStatus(status);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+			clientService.addClient(client);
+			studentService.addStudentForClient(client);
+			logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
 		}
-		Status status = statusService.get(client.getStatus().getName());
-		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
-		clientService.addClient(client);
-		studentService.addStudentForClient(client);
-		logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
