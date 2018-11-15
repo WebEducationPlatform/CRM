@@ -1458,6 +1458,9 @@ function confirmSkype(id) {
     });
 };
 
+//Update chat message interval.
+let update_chat_interval;
+
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
@@ -1465,55 +1468,24 @@ $('#conversations-modal').on('show.bs.modal', function () {
         url: '/rest/telegram/messages/chat',
         data: {clientId: clientId},
         success: function (response) {
-            append_message(response.messages.reverse());
+            let data = response.messages.reverse();
+            $("#chat-messages").empty();
+            for (let i in data) {
+                let message_id = data[i].id;
+                let send_date = new Date(data[i].date * 1000);
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
+                append_message(message_id, send_date, text);
+            }
             $("#send-selector").prop('value', 'telegram');
+            update_chat_interval = setInterval(update_chat(), 3000);
         }
     })
 });
 
-function append_message(data) {
-        let chat = $("#chat-messages");
-        for (let i in data) {
-            let date = new Date(data[i].date * 1000);
-            let sendDate = date.toLocaleDateString() + ' ';
-            if (date.getDate() === new Date().getDate()){
-                sendDate = "";
-            }
-            sendDate += date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
-            let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
-            let message_id = data[i].id;
-            // console.log(data[i]);
-            var dom = $("<div class='conteiner message-vk-im "+ ' ' +"' id='message_id" + message_id + "' style='padding-top: 10px;'>"+
-                "<div class='row'> "+
-                "<div class='col-xs-1'>"+
-                // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +
-                "<img class='vk-im-photo img-circle' src='"+ 'photo' +"' class='img-circle' id='vkPhotoId"+ 'fromid' +"'/>" +
-                "</a>"+
-                "</div>"+
-                "<div class='col-xs-11'>"+
-                "<div class='row-xs-12'>" +
-                "<div class='col-sm-4'>" +
-                // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>"+name+"</a>"+
-                "</div>"+
-                "<div class='col-sm-8'>" +
-                sendDate + " " +
-                "</div>"+
-                "</div>"+
-                "<div class='row-xs-auto'>"+
-                "<div class='col-sm-11' id='message_id"+ message_id +"'>" +
-                text +
-                "</div>"+
-                "</div>"+
-                "</div>"+
-                "</div>");
-            chat.append(dom);
-
-            chat.stop().animate({
-                scrollTop: 100000
-            }, 800);
-        }
-}
-
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    $("#chat-messages").empty();
+    clearInterval(update_chat_interval);
+});
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
