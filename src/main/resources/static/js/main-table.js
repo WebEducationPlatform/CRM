@@ -1852,7 +1852,7 @@ $(function () {
             data: formData,
 
             success: function (result) {
-            if(result[0].type == "POSTPONE") {
+            if(result.length > 0) {
                 $.ajax({
                     type: "POST",
                     url: "rest/client/postpone/getComment",
