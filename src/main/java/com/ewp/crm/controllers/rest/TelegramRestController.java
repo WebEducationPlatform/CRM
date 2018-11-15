@@ -2,18 +2,17 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.TelegramService;
 import org.drinkless.tdlib.TdApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/telegram")
@@ -22,12 +21,15 @@ public class TelegramRestController {
 
     private final TelegramService telegramService;
     private final ClientService clientService;
+    private final SocialProfileService socialProfileService;
     private static final int MESSAGE_LIMIT = 40;
 
     @Autowired
-    public TelegramRestController(TelegramService telegramService, ClientService clientService) {
+    public TelegramRestController(TelegramService telegramService, ClientService clientService,
+                                  SocialProfileService socialProfileService) {
         this.telegramService = telegramService;
         this.clientService = clientService;
+        this.socialProfileService = socialProfileService;
     }
 
     @GetMapping("/phone-code")
@@ -50,13 +52,20 @@ public class TelegramRestController {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
                 TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-                //TODO Call second time because of tdlib library optimization.
-                while (messages.totalCount <= 1) {
-                    messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-                }
                 result = new ResponseEntity<>(messages, HttpStatus.OK);
                 break;
             }
+        }
+        return result;
+    }
+
+    @PostMapping("/message/send")
+    public HttpStatus getChatMessages(@RequestParam("clientId") long clientId, @RequestParam("text") String text) {
+        HttpStatus result = HttpStatus.NOT_FOUND;
+        Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(clientId, "telegram");
+        if (profile.isPresent()) {
+            telegramService.sendChatMessage(Long.parseLong(profile.get().getLink()), text);
+            result = HttpStatus.OK;
         }
         return result;
     }
