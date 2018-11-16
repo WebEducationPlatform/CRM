@@ -207,7 +207,7 @@ public class ScheduleTasks {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
-			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
 					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
