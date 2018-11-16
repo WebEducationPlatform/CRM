@@ -20,6 +20,9 @@ public class ProjectProperties {
     @Column(name = "default_status")
     private Long defaultStatusId;
 
+    @Column(name = "new_client_status")
+    private Long newClientStatus = 1L;
+
     /**
      * Message template for scheduled payment notification.
      */
@@ -108,6 +111,14 @@ public class ProjectProperties {
 
     public void setStatusColor(String statusColor) {
         this.statusColor = statusColor;
+    }
+
+    public Long getNewClientStatus() {
+        return newClientStatus;
+    }
+
+    public void setNewClientStatus(Long newClientStatus) {
+        this.newClientStatus = newClientStatus;
     }
 
     @Override
