@@ -86,7 +86,7 @@
         <br/>
         <div id="choice-status-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
-                Статус клиента не студента
+                Статусы по-умолчанию
             </button>
         </div>
         <br/>
@@ -171,7 +171,7 @@
         </div>
     </div>
 </div>
-<!--Модалка для выбора дефолтного статуса клиента не студента при входе в слак-->
+<!--Модалка для настройки статусов-->
 <div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -181,6 +181,10 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
+                    <div class="row">
+                        <label for="new-client-status">Выберите статус нового клиента по-умолчанию</label>
+                        <select id="new-client-status" class="form-control"> </select>
+                    </div>
                     <div class="row">
                         <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
                         <select id="status-column" class="form-control"> </select>
