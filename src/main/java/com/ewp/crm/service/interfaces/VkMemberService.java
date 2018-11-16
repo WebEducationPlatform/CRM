@@ -21,4 +21,6 @@ public interface VkMemberService {
     void addAllMembers(List<VkMember> vkMembers);
 
     List<VkMember> getAllMembersByGroupId(Long id);
+
+    VkMember getVkMemberById(Long id);
 }
