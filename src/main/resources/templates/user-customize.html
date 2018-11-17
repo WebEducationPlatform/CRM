@@ -11,46 +11,36 @@
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div class="col-md-6 col-md-offset-2">
+    <div class="col-md-6 col-md-offset-2" id="notification-buttons">
 
         <div><h3>Настройки</h3></div>
-
-        <h1>Настройка оповещений:</h1>
-        <form method="post" th:action="@{/user/enableNotifications}">
-            <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-                <select class="form-control" name="notifications">
-                    <option th:value="true" selected="selected">Включить</option>
-                    <option th:value="false">Отключить</option>
-                </select>
-            </div>
-            <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
-                <select class="form-control" name="notifications">
-                    <option th:value="true">Включить</option>
-                    <option th:value="false" selected="selected">Отключить</option>
-                </select>
-            </div>
-            <br/>
-            <button type="submit" class="btn btn-primary pull-right" role="button">Сохранить</button>
-        </form>
-
-        <h1>Настройка оповещений о новых клиентах:</h1>
-        <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-                Выключить
+        <br/>
+        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
+            <button onclick="setAllNotifications(false)" type="button" class="btn btn-primary pull">
+                Выключить оповещения
             </button>
         </div>
-        <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-                Включить
-            </button>
+        <br/>
+        <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
+            <button onclick="setAllNotifications(true)" type="button" class="btn btn-primary pull">
+                Включить оповещения</button>
         </div>
-
-    </div>
-
-    <div class="col-md-6 col-md-offset-2" id="notification-buttons">
+        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
+            <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
+                    Не оповещать о новых клиентах
+                </button>
+            </div>
+            <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
+                    Оповещать о новых клиентах
+                </button>
+            </div>
+        </div>
+        <br/>
         <div id="change-profile-button">
             <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
-                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pul">Изменить профиль
+                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pull">Изменить профиль
                 </button>
             </a>
         </div>
