@@ -33,7 +33,7 @@
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${client.active}" th:value="${client.id}"  th:onmouseover="'displayOption('+${client.id}+')'" th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}">
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
-                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown"></button>
+                        <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option" data-toggle="dropdown" sec:authorize="hasAnyAuthority('OWNER','ADMIN','MENTOR')"></button>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Скрыть в статус</li>
                             <li  th:each="inv_status:${statuses}" th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
@@ -88,7 +88,7 @@
                     </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name= "emailTmplList" th:id="'emailTmplList' +${client.id}" type="button" class="f-18 icon-email-card" data-toggle="dropdown"  >
+                        <button name= "emailTmplList" th:id="'emailTmplList' +${client.id}" type="button" class="f-18 icon-email-card" data-toggle="dropdown"  sec:authorize="hasAnyAuthority('OWNER','ADMIN','MENTOR')">
                         </button>
                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                             <li th:id  = "'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
