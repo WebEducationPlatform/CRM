@@ -71,7 +71,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
             throw new UserExistsException();
         }
 
-        if (!user.getPassword().equals(currentUserByEmail.getPassword())) {
+        if (!user.getPassword().equals(userDAO.getOne(user.getId()).getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
