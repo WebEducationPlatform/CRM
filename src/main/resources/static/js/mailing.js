@@ -20,18 +20,18 @@ function sendMessages(sendnow) {
     let recipients = $('#addresses-area').val();
     console.warn(recipients);
     let x;
-    if (type !== "email") {
+    if (messageType !== "email") {
         x = text.value;
     } else {
         x = "";
     }
     let wrap = {
         sendnow: sendnow,
-        type: type,
-        content: text,
-        text: x,
+        type: messageType,
+        templateText: text,
+        text: "x",
         date: date,
-        clientData: clientData
+        clientData: recipients
     };
     $.ajax({
         type: "POST",
