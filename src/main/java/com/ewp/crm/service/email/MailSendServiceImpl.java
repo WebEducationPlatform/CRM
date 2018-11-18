@@ -254,7 +254,7 @@ public class MailSendServiceImpl implements MailSendService {
             }
         } catch (Exception e) {
             logger.error("Can't send mail to {}", recipient, e);
-            throw new MessageTemplateException(e.getMessage());
+//            throw new MessageTemplateException(e.getMessage());
         }
     }
 
