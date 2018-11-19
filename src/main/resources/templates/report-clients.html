@@ -37,15 +37,21 @@
                             <input class="form-control input-sm form-control-report" name="email"
                                    th:value="${currentMail}" th:id="email"/>
                         </div>
-                        <button class="btn btn-primary" onclick="sendReport()">Отправить отчет</button>
+                        <br/>
+                        <button class="form-control form-control-report btn btn-primary btn-block"
+                                onclick="sendReport()">Отправить отчет
+                        </button>
                     </div>
                 </div>
-                <!--Этот блок скрыт, т.к. никто не знает зачем он нужен и что точно делает: надо разобраться позже-->
-                <div class="pos-f-t" style="visibility:hidden;">
+                <br/>
+                <!--Дополнительные Настройки-->
+                <div class="pos-f-t">
                     <nav class="navbar navbar-dark bg-dark">
                         <span class="navbar-toggler" data-toggle="collapse"
                               data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
-                              aria-expanded="false" aria-label="Toggle navigation">Дополнительные</span>
+                              aria-expanded="false" aria-label="Toggle navigation">
+                            <button class="form-control form-control-report btn btn-primary btn-block">Дополнительные Настройки</button>
+                        </span>
                     </nav>
                     <div class="collapse" id="navbarToggleExternalContent">
                         <div class="bg-dark p-4">
@@ -83,10 +89,11 @@
                                 <button class="btn btn-primary" onclick="updateReportsStatus()">Обновить статусы
                                 </button>
                             </form>
+                            <br/>
                         </div>
                     </div>
                 </div>
-                <a href="/client" style="color:blue">Назад</a>
+                <a class="form-control form-control-report btn btn-primary btn-block" href="/client">Назад</a>
             </div>
         </div>
     </div>
