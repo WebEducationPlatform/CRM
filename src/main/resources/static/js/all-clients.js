@@ -22,13 +22,6 @@ $.get('/rest/status', function getStatuses(studentStuses) {
 
 });
 
-//при закрытии фильтра отображаем дефолтный вывод таблицы
-$("#open-filter").click(function () {
-    if ($("#filter").hasClass('in')) {
-        drawDefaultClients();
-    }
-    document.getElementById("searchInput").value = "";
-});
 
 function clearClientsTable() {
     $("#table-body").remove();
@@ -168,11 +161,20 @@ let table = $("#clients-table").find("tbody");
 //Draw clients first page to the table
 function drawDefaultClients() {
     $.get('/rest/client/pagination/new/first', {page: 0}, function upload(clients) {
-        table.empty();
-        drawClients(table, clients);
+        let body = $("#table-body");
+        body.empty();
+        drawClients(body, clients);
         page = 1;
     })
 }
+
+//при закрытии фильтра отображаем дефолтный вывод таблицы
+$("#open-filter").click(function () {
+    if ($("#filter").hasClass('in')) {
+        drawDefaultClients();
+    }
+    document.getElementById("searchInput").value = "";
+});
 
 //Draw clients list to the table
 function drawClients(table, res) {
@@ -240,9 +242,10 @@ function drawClients(table, res) {
 
 //Search by keyword
 $("#searchInput").keyup(function (e) {
+    let body = $("#table-body");
     if (e.keyCode === 13) {
         let search = this.value.toLowerCase();
-        table.empty();
+        body.empty();
         if (search === "") {
             drawDefaultClients();
         } else {
@@ -251,7 +254,7 @@ $("#searchInput").keyup(function (e) {
                 url: "/rest/client/search",
                 data: {search: search},
                 success: function (response) {
-                    drawClients(table, response);
+                    drawClients(body, response);
                 }
             })
         }
@@ -268,7 +271,7 @@ $("#searchInput").keyup(function (e) {
 
 $(document).ready(function () {
     let win = $(window);
-
+    let body = $("#table-body");
     win.scroll(function () {
         if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
             //пагинация при фильтрации
@@ -282,14 +285,13 @@ $(document).ready(function () {
                     url: url,
                     data: JSON.stringify(data),
                     success: function (clients) {
-                        console.log(clients);
-                        drawClients(table, clients);
+                        drawClients(body, clients);
                     }
                 });
                 //пагинация при обычном просмотре страницы
             } else {
                 $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
-                    drawClients(table, clients, page);
+                    drawClients(body, clients, page);
                     page++;
                 });
             }
