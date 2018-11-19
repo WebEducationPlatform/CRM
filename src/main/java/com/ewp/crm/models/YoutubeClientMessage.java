@@ -11,7 +11,7 @@ public class YoutubeClientMessage {
     @Column(name = "youtube_client_message_id")
     private Long id;
 
-    @Column(name = "messages")
+    @Column(name = "messages") //
     private String messages;
 
     @ManyToOne

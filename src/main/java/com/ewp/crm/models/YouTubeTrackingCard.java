@@ -10,7 +10,7 @@ public class YouTubeTrackingCard {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "youtube_tracking_card_id")
+	@Column(name = "youtube_tracking_card_id") //просто "id" удобней?
 	private Long id;
 
 	@NotNull
@@ -18,10 +18,10 @@ public class YouTubeTrackingCard {
 	private String youTubeChannelID;
 
 	@NotNull
-	@Column(name = "vk_group", nullable = false)
+	@Column(name = "vk_group", nullable = false) //группа youtube канала в ВК
 	private String vkGroupID;
 
-	@Column(name = "has_live_stream")
+	@Column(name = "has_live_stream") //идет ли стрим в прямом эфире???
 	private boolean hasLiveStream;
 
 	@Column(name = "channel_name")
