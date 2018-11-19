@@ -58,13 +58,13 @@ public class User implements UserDetails {
 	private String photoType;
 
 	@Column(name = "ip_telephony")
-	private boolean ipTelephony;
+	private boolean ipTelephony; //некорректное названия поля типа boolean
 
 	@Column(name = "is_enabled")
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")
-	private boolean newClienNotifyIsEnabled = true;
+	private boolean newClienNotifyIsEnabled = true; //ошибка в названии поля
 
 	@Column(name = "is_verified")
 	private boolean isVerified;
