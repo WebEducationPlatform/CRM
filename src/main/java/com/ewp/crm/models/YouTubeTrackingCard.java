@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 
+
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -9,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class YouTubeTrackingCard {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "youtube_tracking_card_id")
 	private Long id;
 

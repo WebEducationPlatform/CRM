@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 public class Student implements Diffable<Student> {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column (name = "id")
     private Long id;
 
