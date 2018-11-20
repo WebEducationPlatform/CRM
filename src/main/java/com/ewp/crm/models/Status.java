@@ -17,15 +17,15 @@ public class Status implements Serializable {
 	@Column(name = "status_id")
 	private Long id;
 
-	@Column(name = "status_name", nullable = false, unique = true)
+	@Column(name = "status_name", nullable = false, unique = true) // название статуса клиента (inLearningStatus, trialLearnStatus и тд)
 	private String name;
 
 	@Basic
-	@Column(name = "is_invisible")
+	@Column(name = "is_invisible") // видимость колонки карточек клиентов с данным статусом на главной странице CRM
 	private Boolean isInvisible = false;
 
 	@Basic
-	@Column(name = "position")
+	@Column(name = "position") // позиция колонки карточек клиентов с данным статусом на главной странице CRM
 	private Long position;
 
 	@JsonIgnore
@@ -35,13 +35,13 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	@Column (name = "create_student")
+	@Column (name = "create_student") // создавать ли студента для клиента с таким статусом ???
 	private boolean createStudent;
 
-	@Column(name = "trial_offset")
+	@Column(name = "trial_offset") // пробный период (дни, недели месяцы???)
 	private Integer trialOffset;
 
-	@Column(name = "next_payment_offset")
+	@Column(name = "next_payment_offset") // отсрочка следующего платежа (дней, недель, месяцев???)
 	private Integer nextPaymentOffset;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {

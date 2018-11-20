@@ -20,37 +20,37 @@ public class Student implements Diffable<Student> {
 
     @JoinColumn (name = "client_id")
     @OneToOne
-    private Client client;
+    private Client client; // клиент, который стал студентом (изначально клиенты студентами не являются)
 
     @Column (name = "end_trial")
-    private LocalDateTime trialEndDate;
+    private LocalDateTime trialEndDate; // дата окончания пробного периода обучения
 
     @Column (name = "next_pay")
-    private LocalDateTime nextPaymentDate;
+    private LocalDateTime nextPaymentDate; // дата следующего платежа
 
-    @Column (name = "price")
+    @Column (name = "price") // стоимость обучения в месяц, руб
     private BigDecimal price;
 
-    @Column (name = "amount")
+    @Column (name = "amount") // уже получено от студента, руб
     private BigDecimal paymentAmount;
 
-    @Column (name = "later")
+    @Column (name = "later") // осталось получить со студента: price - paymentAmount
     private BigDecimal payLater;
 
-    @JoinColumn (name = "status_id")
+    @JoinColumn (name = "status_id") // статус студента (новый клиент, уже учится, на пробном периоде, выбыл и тд)
     @OneToOne
     private StudentStatus status;
 
-    @Column (name = "notes")
+    @Column (name = "notes") // заметки по студенту
     private String notes;
 
-    @Column (name = "notify_email")
+    @Column (name = "notify_email") // уведомлять ли студента по электронке. о чем?
     private boolean notifyEmail = false;
 
-    @Column (name = "notify_sms")
+    @Column (name = "notify_sms") // уведомлять ли студента по смс. о чем?
     private boolean notifySMS = false;
 
-    @Column (name = "notify_vk")
+    @Column (name = "notify_vk") // уведомлять ли студента в ВК. о чем?
     private boolean notifyVK = false;
 
     public Student() {

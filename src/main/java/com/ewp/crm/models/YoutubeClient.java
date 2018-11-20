@@ -11,7 +11,7 @@ public class YoutubeClient {
 
     @Id
     @GeneratedValue
-    @Column(name = "youtube_client_id")
+    @Column(name = "youtube_client_id") // аккаунт клиента на youtube ???
     private Long id;
 
     @Column(name = "full_name", nullable = false)
