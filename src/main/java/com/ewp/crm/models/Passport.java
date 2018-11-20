@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,7 +12,7 @@ import java.util.Arrays;
 public class Passport implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
