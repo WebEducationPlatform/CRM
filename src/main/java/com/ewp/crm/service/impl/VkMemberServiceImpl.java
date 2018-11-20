@@ -57,4 +57,9 @@ public class VkMemberServiceImpl implements VkMemberService {
     public List<VkMember> getAllMembersByGroupId(Long id) {
         return vkMemberRepository.getAllByGroupId(id);
     }
+
+    @Override
+    public VkMember getVkMemberById(Long id) {
+        return vkMemberRepository.getByVkId(id);
+    }
 }

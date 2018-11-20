@@ -118,7 +118,7 @@ public class GoogleEmail {
                     if (parser.getHtmlContent().contains("Java Test")) {
                         prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
-                    client.setStatus(statusService.get(1L));
+                    client.setStatus(statusService.getFirstStatusForClient());
                     client.addHistory(clientHistoryService.createHistory("GMail"));
                     clientService.addClient(client);
                     prepareAndSend.sendEmailInAllCases(client);

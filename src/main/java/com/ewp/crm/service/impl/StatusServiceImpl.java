@@ -5,6 +5,7 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +19,15 @@ import java.util.Optional;
 public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
 	private final ClientService clientService;
+	private final ProjectPropertiesService propertiesService;
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ClientService clientService) {
+	public StatusServiceImpl(StatusDAO statusDAO, ClientService clientService, ProjectPropertiesService propertiesService) {
 		this.statusDAO = statusDAO;
 		this.clientService = clientService;
+		this.propertiesService = propertiesService;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public Status getFirstStatusForClient() {
-		Optional<Status> optional = statusDAO.findById(1L);
+		Optional<Status> optional = statusDAO.findById(propertiesService.getOrCreate().getNewClientStatus());
 		return optional.orElse(null);
 	}
 

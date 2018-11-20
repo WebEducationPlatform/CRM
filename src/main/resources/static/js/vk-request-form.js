@@ -110,6 +110,7 @@ function getVkRequestById(id) {
         dataType: 'JSON',
         success: function (obj) {
             document.getElementById("app-id").value = id;
+            document.getElementById("app-rowNumber").value = obj.numberVkField;
             var nameVk = obj.nameVkField;
             if (nameVk === "Имя" || nameVk === "Фамилия" || nameVk === "Номер телефона" || nameVk === "Email" || nameVk === "Skype"
                 || nameVk === "Возраст" || nameVk === "Пол" || nameVk === "Страна" || nameVk === "Город") {
@@ -171,8 +172,10 @@ function updateVkRequestField() {
     }
     var index = document.getElementById("app-type").options.selectedIndex;
     var typeRequest = document.getElementById("app-type").options[index].text;
+    var  rowNumber = document.getElementById("app-rowNumber").value;
     var url = "/vk/request/update/" + id;
     var mass = {
+        numberVkField: rowNumber,
         nameVkField: nameRequest,
         typeVkField: typeRequest
     };
@@ -194,9 +197,9 @@ function updateVkRequestField() {
 }
 
 function updateVkRequestFieldForLabel() {
-    var table = document.getElementById("vk-request-table");
     var id = document.getElementById("app-id").value;
     var nameRequestField = document.getElementById("app-label").value;
+    var  rowNumber = document.getElementById("app-rowNumber").value;
     if ("" === nameRequestField) {
         alert("Нельзя создать пустое поле!");
         return;
@@ -204,6 +207,7 @@ function updateVkRequestFieldForLabel() {
     var typeRequestField = "В заметки";
     var url = "/vk/request/update/" + id;
     var mass = {
+        numberVkField: rowNumber,
         nameVkField: nameRequestField,
         typeVkField: typeRequestField
     };

@@ -47,6 +47,7 @@ public class VKServiceImpl implements VKService {
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
+    private final VkMemberService vkMemberService;
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
@@ -72,7 +73,7 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService) {
+    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService, VkMemberService vkMemberService) {
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -91,6 +92,7 @@ public class VKServiceImpl implements VKService {
         this.messageTemplateService = messageTemplateService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkRequestFormService = vkRequestFormService;
+        this.vkMemberService = vkMemberService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.robotClientSecret = vkConfig.getRobotClientSecret();
         this.robotClientId = vkConfig.getRobotClientId();
@@ -235,7 +237,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
+    public Optional<List<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
         if (groupId == null) {
             groupId = Long.parseLong(clubId) * (-1);
@@ -255,9 +257,12 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONObject responeJson = json.getJSONObject("response");
             JSONArray jsonArray = responeJson.getJSONArray("users");
-            ArrayList<VkMember> vkMembers = new ArrayList<>();
+            List<VkMember> vkMembers = new LinkedList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
-                vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
+                VkMember vkMember = new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId);
+                if (vkMemberService.getVkMemberById(vkMember.getVkId()) == null) {
+                    vkMembers.add(vkMember);
+                }
             }
             return Optional.of(vkMembers);
         } catch (IOException e) {

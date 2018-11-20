@@ -46,6 +46,14 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/new-user-status")
+    public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        properties.setNewClientStatus(statusId);
+        projectPropertiesService.saveAndFlash(properties);
+        return HttpStatus.OK;
+    }
+
     @GetMapping("/status")
     public ResponseEntity<Long> getStatus() {
         ProjectProperties projectProperties = projectPropertiesService.getOrCreate();

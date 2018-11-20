@@ -1,0 +1,22 @@
+
+.green-border-focus .form-control:focus {
+    border: 1px solid #8bc34a;
+    box-shadow: 0 0 0 0.2rem rgba(139, 195, 74, .25);
+}
+
+.box.has-advanced-upload {
+    background-color: white;
+    outline: 2px dashed black;
+    outline-offset: -10px;
+}
+
+.drop-zone-is-dragover {
+    background-color: lightgrey;
+    border: 3px dotted grey;
+}
+
+.drop-zone-error {
+    background-color: orange;
+    border: 3px dotted darkorange;
+}
+

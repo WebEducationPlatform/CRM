@@ -207,7 +207,7 @@ public class ScheduleTasks {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
-			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
 					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
@@ -243,6 +243,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
+			client.setHideCard(false);
 			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}
