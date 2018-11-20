@@ -77,6 +77,12 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "date")
     private ZonedDateTime dateOfRegistration;
 
+    @Column(name = "hide_card")
+    private boolean isHideCard;
+
+    @Column(name = "postpone_comment")
+    private String postponeComment;
+
     @ManyToOne
     @JoinColumn(name = "status_id")
     @JoinTable(name = "status_clients",
@@ -401,6 +407,22 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setSlackProfile(SlackProfile slackProfile) {
         this.slackProfile = slackProfile;
+    }
+
+    public boolean isHideCard() {
+        return isHideCard;
+    }
+
+    public void setHideCard(boolean hideCard) {
+        isHideCard = hideCard;
+    }
+
+    public String getPostponeComment() {
+        return postponeComment;
+    }
+
+    public void setPostponeComment(String postponeComment) {
+        this.postponeComment = postponeComment;
     }
 
     @Override

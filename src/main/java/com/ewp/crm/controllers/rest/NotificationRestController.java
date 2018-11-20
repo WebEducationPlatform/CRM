@@ -60,6 +60,7 @@ public class NotificationRestController {
     public ResponseEntity markAsRead(@PathVariable("clientId") long id,
                                      @AuthenticationPrincipal User userFromSession) {
         Client client = clientService.get(id);
+        //client.setPostponeComment("");
         List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
         notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.COMMENT, client, userFromSession);
         notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.POSTPONE, client, userFromSession);
@@ -109,4 +110,11 @@ public class NotificationRestController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+    @PostMapping(value = "/postpone/getAll")
+    public ResponseEntity getPostnopeNotify(@RequestParam(name = "clientId") long id,
+                                            @AuthenticationPrincipal User userFromSession) {
+        Client client = clientService.getClientByID(id);
+        List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
+        return ResponseEntity.ok(notifications);
+    }
 }

@@ -52,6 +52,18 @@ function cleanAll() {
         })
     }
 }
+
+function setAllNotifications(notifications) {
+    $.ajax({
+        type: "POST",
+        url: "/user/enableNotifications",
+        data: {notifications:notifications},
+        success: function () {
+            location.reload();
+        }
+    })
+}
+
 function cleanAllNewUserNotify() {
     if ($('.notify').length) {
 

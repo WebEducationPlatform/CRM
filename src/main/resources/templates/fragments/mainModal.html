@@ -43,7 +43,7 @@
                                                        th:text="' ' + ${template.name}"
                                                        th:attrprepend="data-template-id=${template.id}"></a>
                                                     <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
-                                                       th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                       th:href="'/template/edit/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal"
                                                                 name="editETemplateBtn"
