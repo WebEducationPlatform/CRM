@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user") // пользователь CRM, менеджер, ментор и тд
 public class User implements UserDetails {
 
 	@Id
@@ -42,7 +42,7 @@ public class User implements UserDetails {
 	@Column(name = "vk")
 	private String vk;
 
-	@Column(name = "sex", nullable = false)
+	@Column(name = "sex", nullable = false) // gender (пол или мужской/женский род) правильнее. sex - это ебатсо
 	private String sex;
 
 	@Column(name = "city", nullable = false)
@@ -51,16 +51,16 @@ public class User implements UserDetails {
 	@Column(name = "country", nullable = false)
 	private String country;
 
-	@Column(name = "photo")
+	@Column(name = "photo") // ссылка на фото?
 	private String photo;
 
-	@Column(name = "photoType")
+	@Column(name = "photoType") // тип фото???
 	private String photoType;
 
-	@Column(name = "ip_telephony")
-	private boolean ipTelephony; //некорректное названия поля типа boolean
+	@Column(name = "ip_telephony") // можно ли позвонить пользователю по IP-телефонии
+	private boolean ipTelephony; // некорректное названия поля типа boolean и вообще
 
-	@Column(name = "is_enabled")
+	@Column(name = "is_enabled") // заблокирован?? удален?? работает или нет??
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")

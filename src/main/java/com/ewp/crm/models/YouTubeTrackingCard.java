@@ -10,7 +10,7 @@ public class YouTubeTrackingCard {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "youtube_tracking_card_id") //просто "id" удобней?
+	@Column(name = "youtube_tracking_card_id") //просто "id" не удобней?
 	private Long id;
 
 	@NotNull
