@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+
 import javax.persistence.*;
 import java.util.Comparator;
 
@@ -10,7 +11,7 @@ import java.util.Comparator;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

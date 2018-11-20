@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.List;
 public class MessageDialog {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 
