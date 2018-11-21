@@ -40,6 +40,8 @@ public class IncomeStringToClient {
                 client = parseClientFormOne(workString);
             } else if (income.contains("Остались вопросы")) {
                 client = parseClientFormTwo(workString);
+            } else if (income.contains("Задать вопрос")) {
+                client = parseClientFormTwo(workString);
             } else if (income.contains("Java Test")) {
                 client = parseClientFormFour(workString);
             } else {
@@ -69,8 +71,8 @@ public class IncomeStringToClient {
         client.setCity(clientData.get("Город"));
         if (clientData.containsKey("Соцсеть")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть"));
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
@@ -100,8 +102,8 @@ public class IncomeStringToClient {
         client.setClientDescriptionComment(clientData.get("Vopros"));
         if (clientData.containsKey("Social1")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social1"));
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
@@ -121,9 +123,9 @@ public class IncomeStringToClient {
         setClientName(client, clientData.get("Имя"));
         if (clientData.containsKey("Social2")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social2"));
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
-                                                " недействительна");
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
+                        " недействительна");
                 logger.warn("Unknown social network");
             }
             client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
@@ -141,7 +143,7 @@ public class IncomeStringToClient {
         socialProfile.setLink(link);
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
-            if (validLink.equals("undefined")){
+            if (validLink.equals("undefined")) {
                 socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
             } else {
                 socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
