@@ -19,7 +19,7 @@
                             <table class="table table-condensed font-size">
                                 <tbody>
                                 <tr>
-                                    <td>Электронная почта:</td>
+                                    <td>Email:</td>
                                     <td id="client-email"></td>
                                     <td>
                                         <div class="btn-group">
@@ -43,7 +43,7 @@
                                                        th:text="' ' + ${template.name}"
                                                        th:attrprepend="data-template-id=${template.id}"></a>
                                                     <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
-                                                       th:href="'admin/editMessageTemplate/' +  ${template.id}">
+                                                       th:href="'/template/edit/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal"
                                                                 name="editETemplateBtn"
@@ -85,14 +85,22 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td>Заметка:</td>
+                                    <td id="client-label"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Социальные сети:</td>
                                     <td>
                                         <div class="box-button">
                                             <div>
                                                 <a id="vk-href" target="_blank" name="emailTmplList"
-                                                   class="btn btn-social-icon btn-vk btn-sm">
+                                                   class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
                                                     <span class="fa fa-vk"></span>
                                                 </a>
+                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customVKIMMessage">
+                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count" class="badge"></span></a>
+                                                </button>
                                             </div>
                                             <div>
                                                 <a id="fb-href" target="_blank"
@@ -129,10 +137,15 @@
                         </div>
                         <div th:id="'hideClientCollapse'" class="panel-collapse collapse hide-client-collapse">
                             <div class="panel-body">
-                                <span>Скрыть клиента до: </span>
+                                <span>Добавить напоминание на: </span>
                                 <div class="form-group" id="postpone-div">
                                     <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
                                            name="postponeDate"/>
+                                    <span>Скрывать? </span>
+                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag" name="isPostponeFlag"/>
+                                    <span><h4>Причина:</h4></span>
+                                    <textarea class="form-control postponeComment"
+                                    placeholder="причина напоминания"></textarea>
                                 </div>
 
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>

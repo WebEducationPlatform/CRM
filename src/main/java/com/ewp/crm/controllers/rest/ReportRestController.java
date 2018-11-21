@@ -35,12 +35,12 @@ public class ReportRestController {
 
     @PostMapping(value = "/getReportsStatus")
     public ResponseEntity<ReportsStatus> getReportsStatus(){
-        return ResponseEntity.ok(reportsStatusService.getAll().get(0));
+        return ResponseEntity.ok(reportsStatusService.getAll().stream().findAny().orElse(null));
     }
 
     @PostMapping(value = "/setReportsStatus")
     public ResponseEntity updateReportsStatus(@Valid @RequestBody ReportsStatus reportsStatus){
-        ReportsStatus currentReportsStatus = reportsStatusService.getAll().get(0);
+        ReportsStatus currentReportsStatus = reportsStatusService.getAll().stream().findAny().orElse(new ReportsStatus());
         currentReportsStatus.setDropOutStatus(reportsStatus.getDropOutStatus());
         currentReportsStatus.setEndLearningStatus(reportsStatus.getEndLearningStatus());
         currentReportsStatus.setInLearningStatus(reportsStatus.getInLearningStatus());

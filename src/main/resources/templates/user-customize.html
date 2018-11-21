@@ -11,46 +11,36 @@
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div class="col-md-6 col-md-offset-2">
+    <div class="col-md-6 col-md-offset-2" id="notification-buttons">
 
         <div><h3>Настройки</h3></div>
-
-        <h1>Настройка оповещений:</h1>
-        <form method="post" th:action="@{/user/enableNotifications}">
-            <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-                <select class="form-control" name="notifications">
-                    <option th:value="true" selected="selected">Включить</option>
-                    <option th:value="false">Отключить</option>
-                </select>
-            </div>
-            <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
-                <select class="form-control" name="notifications">
-                    <option th:value="true">Включить</option>
-                    <option th:value="false" selected="selected">Отключить</option>
-                </select>
-            </div>
-            <br/>
-            <button type="submit" class="btn btn-primary pull-right" role="button">Сохранить</button>
-        </form>
-
-        <h1>Настройка оповещений о новых клиентах:</h1>
-        <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-                Выключить
+        <br/>
+        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
+            <button onclick="setAllNotifications(false)" type="button" class="btn btn-primary pull">
+                Выключить оповещения
             </button>
         </div>
-        <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-            <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull-right notify">
-                Включить
-            </button>
+        <br/>
+        <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
+            <button onclick="setAllNotifications(true)" type="button" class="btn btn-primary pull">
+                Включить оповещения</button>
         </div>
-
-    </div>
-
-    <div class="col-md-6 col-md-offset-2" id="notification-buttons">
+        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
+            <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
+                    Не оповещать о новых клиентах
+                </button>
+            </div>
+            <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
+                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
+                    Оповещать о новых клиентах
+                </button>
+            </div>
+        </div>
+        <br/>
         <div id="change-profile-button">
             <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
-                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pul">Изменить профиль
+                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pull">Изменить профиль
                 </button>
             </a>
         </div>
@@ -67,13 +57,9 @@
         </button>
         <br/>
         <br/>
-        <a class="btn btn-primary pull" href="/user/autoAnswer">Настроить автоответ</a>
-        <br/>
-        <br/>
-        <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal">
-                Статус клиента не студента
-            </button>
+        <div>
+            <a class="btn btn-primary pull" href="/vk/request/form" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                форму заявки ВК</a>
         </div>
         <br/>
         <div class="inline">
@@ -83,8 +69,19 @@
         </div>
         <br/>
         <br/>
+        <div>
+            <a class="btn btn-primary pull" href="/user/autoAnswer" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                автоответ</a>
+        </div>
+        <br/>
+        <div id="choice-status-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
+                Статусы по-умолчанию
+            </button>
+        </div>
+        <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Оповещение об оплате
             </button>
         </div>
@@ -118,22 +115,16 @@
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <label for="status-column">Выберите цвет фона оформления</label>
-
-                        <div class="example-content well">
-                            <div class="example-content-widget">
-                                <div id="wrap-selected-color" class="input-group colorpicker-component">
-                                    <input id="selected-color" type="text" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
-                                    <span class="input-group-addon"><i></i></span>
-                                </div>
-                                <script>
-                                    $(function () {
-                                        $('#wrap-selected-color').colorpicker({format:'hex'});
-                                    });
-                                </script>
-
-                            </div>
+                        <label for="selected-color">Цвет фона оформления</label>
+                        <div id="wrap-selected-color" class="input-group colorpicker-component">
+                            <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
+                            <input id="selected-color" type="text" style="width: 100%" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
                         </div>
+                        <script>
+                            $(function () {
+                                $('#wrap-selected-color').colorpicker({format:'hex'});
+                            });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -185,8 +176,8 @@
         </div>
     </div>
 </div>
-<!--Модалка для выбора дефолтного статуса клиента не студента при входе в слак-->
-<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<!--Модалка для настройки статусов-->
+<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -195,6 +186,10 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
+                    <div class="row">
+                        <label for="new-client-status">Выберите статус нового клиента по-умолчанию</label>
+                        <select id="new-client-status" class="form-control"> </select>
+                    </div>
                     <div class="row">
                         <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
                         <select id="status-column" class="form-control"> </select>
@@ -214,7 +209,7 @@
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"/>
+<link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>

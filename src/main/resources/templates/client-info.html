@@ -14,6 +14,8 @@
     <div id="client-info-container" class="container-fluid">
         <div class="row-fluid">
             <div class="col-md-6" id="column1">
+                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
+                        id="editClientBtn" onclick="revertUnable()">Редактировать</button>
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="edit-client-first-name">Имя</label>
@@ -57,13 +59,6 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="edit-client-state">Статус</label>
-                        <select class="form-control" disabled="disabled" id="edit-client-state"
-                                th:value="${client.state}">
-                            <option th:each="state: ${states}" th:value="${state}" th:text="${state}"></option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label for="edit-client-country">Страна</label>
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-country"
                                th:value="${client.country}"/>
@@ -81,10 +76,6 @@
                                data-value-function="isHide"/>
                         <p/>
                     </div>
-                    <button type="button" id="makeVisible" class="btn btn-md btn-info" disabled="disabled">
-                        Показать клиента
-                    </button>
-
                     <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">
@@ -143,10 +134,6 @@
                     Добавить работу
                 </button>
                 <div class="btn-group client-info-edit-save-back-btns">
-                    <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
-                            id="editClientBtn" onclick="revertUnable()">
-                        Редактировать
-                    </button>
                     <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="submit" class="btn btn-primary"
                             id="saveChanges"
                             th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить

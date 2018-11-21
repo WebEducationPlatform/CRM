@@ -32,6 +32,7 @@ public class ClientController {
     private final SocialProfileTypeService socialProfileTypeService;
     private final NotificationService notificationService;
     private final RoleService roleService;
+    private final ProjectPropertiesService propertiesService;
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -44,7 +45,8 @@ public class ClientController {
                             MessageTemplateService MessageTemplateService,
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
-                            RoleService roleService) {
+                            RoleService roleService,
+                            ProjectPropertiesService propertiesService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -52,6 +54,7 @@ public class ClientController {
         this.socialProfileTypeService = socialProfileTypeService;
         this.notificationService = notificationService;
         this.roleService = roleService;
+        this.propertiesService = propertiesService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -115,11 +118,12 @@ public class ClientController {
         modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
+        modelAndView.addObject("projectProperties", propertiesService.get());
         return modelAndView;
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER')")
     public ModelAndView mailingPage() {
         return new ModelAndView("mailing");
     }
@@ -134,7 +138,6 @@ public class ClientController {
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-
         return modelAndView;
     }
 

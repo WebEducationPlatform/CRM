@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -26,7 +27,7 @@ import java.util.Objects;
 public class Client implements Serializable, Diffable<Client> {
 
 	@Id
-	@GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "client_id")
 	private Long id;
 
@@ -77,12 +78,11 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "date")
     private ZonedDateTime dateOfRegistration;
 
-    @OneToMany
-    @JsonIgnore
-    @JoinTable(name = "assign_client_skype_call",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))})
-    private List<AssignSkypeCall> clientAssignSkypeCall;
+    @Column(name = "hide_card")
+    private boolean isHideCard;
+
+    @Column(name = "postpone_comment")
+    private String postponeComment;
 
     @ManyToOne
     @JoinColumn(name = "status_id")
@@ -157,16 +157,13 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "slack_profile_id")
     private SlackProfile slackProfile;
 
+    @Column(name = "live_skype_call")
+    private boolean liveSkypeCall;
+
     public Client() {
         this.state = State.NEW;
         this.dateOfRegistration = ZonedDateTime.now();
     }
-
-    @Column(name = "owner_call_skype")
-    private Long ownerCallSkype;
-
-    @Column(name = "date_call_skype")
-    private Long dateCallSkype;
 
     public Client(String name, String lastName) {
         this();
@@ -237,20 +234,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.clientDescriptionComment = clientDescriptionComment;
     }
 
-    public Long getDateCallSkype() {
-        return dateCallSkype;
+    public boolean isLiveSkypeCall() {
+        return liveSkypeCall;
     }
 
-    public void setDateCallSkype(Long dateCallSkype) {
-        this.dateCallSkype = dateCallSkype;
-    }
-
-    public Long getOwnerCallSkype() {
-        return ownerCallSkype;
-    }
-
-    public void setOwnerCallSkype(Long ownerCallSkype) {
-        this.ownerCallSkype = ownerCallSkype;
+    public void setLiveSkypeCall(boolean liveSkypeCall) {
+        this.liveSkypeCall = liveSkypeCall;
     }
 
     public String getSkype() {
@@ -421,6 +410,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.slackProfile = slackProfile;
     }
 
+    public boolean isHideCard() {
+        return isHideCard;
+    }
+
+    public void setHideCard(boolean hideCard) {
+        isHideCard = hideCard;
+    }
+
+    public String getPostponeComment() {
+        return postponeComment;
+    }
+
+    public void setPostponeComment(String postponeComment) {
+        this.postponeComment = postponeComment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -487,14 +492,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
-    }
-
-    public List<AssignSkypeCall> getClientAssignSkypeCall() {
-        return clientAssignSkypeCall;
-    }
-
-    public void setClientAssignSkypeCall(List<AssignSkypeCall> clientAssignSkypeCall) {
-        this.clientAssignSkypeCall = clientAssignSkypeCall;
     }
 
     @Override

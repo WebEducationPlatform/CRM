@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -9,8 +11,8 @@ import java.util.Objects;
 public class Job implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_id")
-    @GeneratedValue
     private Long id;
 
     @Column(name = "organization")

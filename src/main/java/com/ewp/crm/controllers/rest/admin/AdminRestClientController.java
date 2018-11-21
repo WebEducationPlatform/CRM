@@ -23,31 +23,39 @@ public class AdminRestClientController {
 	private final SocialProfileTypeService socialProfileTypeService;
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
+	private final StudentService studentService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
-	public AdminRestClientController(ClientService clientService,
+	public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
+									 ClientService clientService,
 									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
-									 StatusService statusService) {
+									 StatusService statusService, StudentService studentService) {
+		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
 		this.statusService = statusService;
+		this.studentService = studentService;
 	}
 
 	@PostMapping(value = "/add")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ResponseEntity addClient(@RequestBody Client client,
 									@AuthenticationPrincipal User userFromSession) {
-		for (SocialProfile socialProfile : client.getSocialProfiles()) {
-			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-					socialProfile.getSocialProfileType().getName()).getId());
+		if (!"deleted".equals(client.getStatus().getName())) {
+			for (SocialProfile socialProfile : client.getSocialProfiles()) {
+				socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+						socialProfile.getSocialProfileType().getName()).getId());
+			}
+			Status status = statusService.get(client.getStatus().getName());
+			client.setStatus(status);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+			clientService.addClient(client);
+			studentService.addStudentForClient(client);
+			logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
 		}
-		Status status = statusService.get(client.getStatus().getName());
-		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
-		clientService.addClient(client);
-		logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -70,6 +78,7 @@ public class AdminRestClientController {
 		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.setCallRecords(clientFromDB.getCallRecords());
 		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
+		currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
 		if (currentClient.equals(clientFromDB)) {
 			return ResponseEntity.noContent().build();
 		}

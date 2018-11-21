@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/template")
-@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+@PreAuthorize("hasAnyAuthority('OWNER')")
 public class MessageTemplateController {
 
     private static Logger logger = LoggerFactory.getLogger(MessageTemplateController.class);
@@ -29,15 +29,15 @@ public class MessageTemplateController {
 
     @Autowired
     public MessageTemplateController(MessageTemplateService messageTemplateService,
-                           ImageConfig imageConfig,
-                           NotificationService notificationService) {
+                                     ImageConfig imageConfig,
+                                     NotificationService notificationService) {
         this.messageTemplateService = messageTemplateService;
         this.imageConfig = imageConfig;
         this.notificationService = notificationService;
     }
 
     @GetMapping(value = "/all")
-    public ModelAndView showMessageTemplatePage (@AuthenticationPrincipal User userFromSession) {
+    public ModelAndView showMessageTemplatePage(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("all-templates");
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("user", userFromSession);

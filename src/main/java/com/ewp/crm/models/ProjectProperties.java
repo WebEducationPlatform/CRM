@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 
+
+
 import javax.persistence.*;
 import java.time.LocalTime;
 
@@ -10,6 +12,7 @@ import java.time.LocalTime;
 public class ProjectProperties {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id = 1L;
 
@@ -19,6 +22,9 @@ public class ProjectProperties {
     //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
     @Column(name = "default_status")
     private Long defaultStatusId;
+
+    @Column(name = "new_client_status")
+    private Long newClientStatus = 1L;
 
     /**
      * Message template for scheduled payment notification.
@@ -38,6 +44,9 @@ public class ProjectProperties {
      */
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
+
+    @Column(name = "status_color")
+    private String statusColor;
 
     public ProjectProperties() {
     }
@@ -97,6 +106,22 @@ public class ProjectProperties {
 
     public void setPaymentNotificationEnabled(boolean paymentNotificationEnabled) {
         this.paymentNotificationEnabled = paymentNotificationEnabled;
+    }
+
+    public String getStatusColor() {
+        return statusColor;
+    }
+
+    public void setStatusColor(String statusColor) {
+        this.statusColor = statusColor;
+    }
+
+    public Long getNewClientStatus() {
+        return newClientStatus;
+    }
+
+    public void setNewClientStatus(Long newClientStatus) {
+        this.newClientStatus = newClientStatus;
     }
 
     @Override

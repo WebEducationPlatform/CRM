@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,7 +11,7 @@ import java.util.Set;
 @Table(name = "mailing_message")
 public class MailingMessage {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mailing_message_id")
     private Long id;
 

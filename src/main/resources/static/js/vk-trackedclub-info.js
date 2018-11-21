@@ -51,7 +51,7 @@ function addVkTrackedClub() {
     };
 
     $.ajax({
-        type: "PUT",
+        type: "POST",
         url: url,
         data: vkTrackedClub,
         success: function () {

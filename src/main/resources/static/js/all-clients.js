@@ -1,17 +1,27 @@
 var data = {};
-
 //Current clients page for pagination
 let page = 1;
-//при закрытии фильтра отображаем дефолтный вывод таблицы
-$("#open-filter").click(function () {
-    if ($("#filter").hasClass('in')) {
-        clearClientsTable();
-        drawDefaultClients();
-    } else {
-        clearClientsTable();
+//объект статус-цвет, массив его ключей
+let statuscol, arrKeys;
+//массив статусов
+let statuses = [];
+
+//Получаем объект Статус - цвет, и массив ключей
+$.get('/rest/properties', function getStatusesColor(projectProperties) {
+    statuscol = JSON.parse(projectProperties.statusColor);
+    if (statuscol) {
+        arrKeys = Object.keys(JSON.parse(projectProperties.statusColor));
     }
-    document.getElementById("searchInput").value = "";
 });
+
+//Получаем массив статусов
+$.get('/rest/status', function getStatuses(studentStuses) {
+    studentStuses.forEach(function (element, index, array) {
+        statuses[index] = element.name;
+    });
+
+});
+
 
 function clearClientsTable() {
     $("#table-body").remove();
@@ -151,11 +161,20 @@ let table = $("#clients-table").find("tbody");
 //Draw clients first page to the table
 function drawDefaultClients() {
     $.get('/rest/client/pagination/new/first', {page: 0}, function upload(clients) {
-        table.empty();
-        drawClients(table, clients);
+        let body = $("#table-body");
+        body.empty();
+        drawClients(body, clients);
         page = 1;
     })
 }
+
+//при закрытии фильтра отображаем дефолтный вывод таблицы
+$("#open-filter").click(function () {
+    if ($("#filter").hasClass('in')) {
+        drawDefaultClients();
+    }
+    document.getElementById("searchInput").value = "";
+});
 
 //Draw clients list to the table
 function drawClients(table, res) {
@@ -194,10 +213,10 @@ function drawClients(table, res) {
             }
         }
 
-        $("#table-body").append(
+        table.append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
-            '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id + '">' + res[i].name + '</a></td>' +
+            '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
             '        <td>' + res[i].lastName + '</td>' +
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +
@@ -206,19 +225,27 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
-            '        <td>' + res[i].status.name + ' </td>' +
+            '        <td class="colorTd">' + res[i].status.name + ' </td>' +
             '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
-        )
+        );
+
+        if (statuscol) {
+            $('#clients-table tr:last').after(function () {
+                var tds = $(this).find('td.colorTd');
+                $(this).css("background-color", statuscol[tds.html().trim()]);
+            })
+        }
     }
 }
 
 //Search by keyword
 $("#searchInput").keyup(function (e) {
+    let body = $("#table-body");
     if (e.keyCode === 13) {
         let search = this.value.toLowerCase();
-        table.empty();
+        body.empty();
         if (search === "") {
             drawDefaultClients();
         } else {
@@ -227,7 +254,7 @@ $("#searchInput").keyup(function (e) {
                 url: "/rest/client/search",
                 data: {search: search},
                 success: function (response) {
-                    drawClients(table, response);
+                    drawClients(body, response);
                 }
             })
         }
@@ -244,7 +271,7 @@ $("#searchInput").keyup(function (e) {
 
 $(document).ready(function () {
     let win = $(window);
-
+    let body = $("#table-body");
     win.scroll(function () {
         if (($(document).height() - win.height() === Math.ceil(win.scrollTop())) && ($("#searchInput").val() === "")) {
             //пагинация при фильтрации
@@ -258,14 +285,13 @@ $(document).ready(function () {
                     url: url,
                     data: JSON.stringify(data),
                     success: function (clients) {
-                        console.log(clients);
-                        drawClients(table, clients);
+                        drawClients(body, clients);
                     }
                 });
                 //пагинация при обычном просмотре страницы
             } else {
                 $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
-                    drawClients(table, clients, page);
+                    drawClients(body, clients, page);
                     page++;
                 });
             }
@@ -287,4 +313,103 @@ $(document).on('input', '.clearable', function () {
     ev.preventDefault();
     $(this).removeClass('x onX').val('').change();
     drawDefaultClients();
+});
+
+/*
+*Отрисовываем модальное окно. Инпуты со значением цвета берём из объекта statusCol , если объект еще не заполнен
+*то формируем инпуты с цветами по умолчанию
+*/
+$('.selectColorBtn').click(function () {
+    let currentModal = $('#changeColorByStatusModal');
+    currentModal.data('statuses', statuses);
+    currentModal.modal('show');
+
+    let div = document.querySelector(".colorChoose");
+    div.innerHTML = "";
+
+    if (statuscol) {
+        for (let i = 0; i < statuses.length; i++) {
+            for (var property in statuscol) {
+                if (statuses[i] === property) {
+                    var node = document.createElement('div');
+                    node.className = "input-group colorpicker-component";
+                    node.innerHTML = '<label style="margin-right:0.5em;width:10em;float:left;text-align:left;display:block;" for="' + statuses[i] + '">' + statuses[i] + '</label>' +
+                        '<span style="width: 30%" class="input-group-addon"><i></i></span>' +
+                        '<input type="text" class="form-control" ' +
+                        'id="' + statuses[i] + '" value = "' + statuscol[statuses[i]] +
+                        '" name = "' + statuses[i] + '">';
+                    div.appendChild(node);
+                }
+                $(function () {
+                    $('.colorpicker-component').colorpicker();
+                });
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < statuses.length; i++) {
+            var node = document.createElement('div');
+            node.className = "input-group colorpicker-component";
+            node.innerHTML = '<label style="margin-right:0.5em;width:10em;float:left;text-align:left;display:block;" for="' + statuses[i] + '">' + statuses[i] + '</label>' +
+                '<span style="width: 30%" class="input-group-addon"><i></i></span>' +
+                '<input type="text" class="form-control" ' +
+                'id="' + statuses[i] + '" value = "#ffff" name = "' + statuses[i] + '">';
+            div.appendChild(node);
+        }
+        $(function () {
+            $('.colorpicker-component').colorpicker();
+        });
+    }
+});
+
+/*
+Отправка данных с выбранными цветами, формирование json
+ */
+$(document).on('submit','form.color_form',function(e){
+    e.preventDefault();
+    let url = '/rest/properties/saveColorByStatus';
+    let tmpData = {};
+
+    for(let i = 0; i < statuses.length; i++) {
+        tmpData[statuses[i]] = document.getElementById(statuses[i]).value;
+    }
+
+    let data = {
+        colors : JSON.stringify(tmpData)
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+        success: function () {
+            location.reload();
+        },
+        error: function (e) {
+            console.log(e.responseText);
+        }
+    });
+});
+
+/*
+По загрузке страницы, пробегаем по таблице, ищем td с цветом, сопоставляем
+ со статусом из объекта statusCol , красим tr
+ */
+$(document).ready(function () {
+    $.get('/rest/properties', function upload(projectProperties) {
+        var statuscol = JSON.parse(projectProperties.statusColor);
+        if (statuscol) {
+            var arrKeys = Object.keys(JSON.parse(projectProperties.statusColor));
+
+            $('#clients-table tr').each(function () {
+                var tds = $(this).find('td.colorTd');
+                $.each(arrKeys, function (key, value) {
+
+                    if (value === tds.html()) {
+                        tds.closest('tr').css("background-color", statuscol[value]);
+                    }
+                });
+            });
+        }
+    })
 });

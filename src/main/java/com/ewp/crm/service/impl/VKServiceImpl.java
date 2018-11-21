@@ -4,7 +4,9 @@ import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client.Sex;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.VKService;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -32,11 +34,9 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 
-
 @Component
 public class VKServiceImpl implements VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
-    private final String VK_API_METHOD_TEMPLATE = "https://api.vk.com/method/";
     private final YoutubeClientService youtubeClientService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
@@ -46,6 +46,10 @@ public class VKServiceImpl implements VKService {
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
+    private final VkRequestFormService vkRequestFormService;
+    private final VkMemberService vkMemberService;
+
+    private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
     private String robotAccessToken;
     //Айди группы
@@ -69,14 +73,15 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
-        clubId = vkConfig.getClubId();
+    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService, VkMemberService vkMemberService) {
+        clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
         applicationId = vkConfig.getApplicationId();
         display = vkConfig.getDisplay();
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
+        vkAPI = vkConfig.getVkAPIUrl();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -86,6 +91,8 @@ public class VKServiceImpl implements VKService {
         this.userService = userService;
         this.messageTemplateService = messageTemplateService;
         this.projectPropertiesService = projectPropertiesService;
+        this.vkRequestFormService = vkRequestFormService;
+        this.vkMemberService = vkMemberService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.robotClientSecret = vkConfig.getRobotClientSecret();
         this.robotClientId = vkConfig.getRobotClientId();
@@ -112,7 +119,7 @@ public class VKServiceImpl implements VKService {
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
             throw new VKAccessTokenException("VK access token has not got");
         }
-        String uriGetMassages = VK_API_METHOD_TEMPLATE + "messages.getHistory" +
+        String uriGetMassages = vkAPI + "messages.getHistory" +
                 "?user_id=" + clubId +
                 "&rev=0" +
                 "&version=" + version +
@@ -131,10 +138,16 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
                 if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-                    resultList.add(jsonMessage.getString("body"));
+
+                    String messageBody = jsonMessage.getString("body");
+                    resultList.add(messageBody);
+
+                    if(messageBody.startsWith("Новая заявка")){
+                        markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+                    }
+
                 }
             }
-            markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
             return Optional.of(resultList);
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
@@ -180,6 +193,7 @@ public class VKServiceImpl implements VKService {
 
     /**
      * Get user VK id by profile url.
+     *
      * @param url user profile url.
      * @return optional of user VK id.
      */
@@ -189,7 +203,7 @@ public class VKServiceImpl implements VKService {
             result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
         } else if (url.matches("(.*)://vk.com/(.*)")) {
             String screenName = url.substring(url.lastIndexOf("/") + 1);
-            String urlGetMessages = VK_API_METHOD_TEMPLATE + "users.get" +
+            String urlGetMessages = vkAPI + "users.get" +
                     "?user_ids=" + screenName +
                     "&version=" + version +
                     "&access_token=" + communityToken;
@@ -213,20 +227,22 @@ public class VKServiceImpl implements VKService {
 
     /**
      * Send VK notification to client without logging and additional body parameters.
-     * @param clientId recipient client.
+     *
+     * @param clientId     recipient client.
      * @param templateText email template text.
      */
     @Override
     public void simpleVKNotification(Long clientId, String templateText) {
         sendMessageToClient(clientId, templateText, "", null);
     }
+
     @Override
-    public Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset) {
+    public Optional<List<VkMember>> getAllVKMembers(Long groupId, Long offset) {
         logger.info("VKService: getting all VK members...");
         if (groupId == null) {
             groupId = Long.parseLong(clubId) * (-1);
         }
-        String urlGetMessages = VK_API_METHOD_TEMPLATE + "groups.getMembers" +
+        String urlGetMessages = vkAPI + "groups.getMembers" +
                 "?group_id=" + groupId +
                 "&offset=" + offset +
                 "&version=" + version +
@@ -241,9 +257,12 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONObject responeJson = json.getJSONObject("response");
             JSONArray jsonArray = responeJson.getJSONArray("users");
-            ArrayList<VkMember> vkMembers = new ArrayList<>();
+            List<VkMember> vkMembers = new LinkedList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
-                vkMembers.add(new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId));
+                VkMember vkMember = new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId);
+                if (vkMemberService.getVkMemberById(vkMember.getVkId()) == null) {
+                    vkMembers.add(vkMember);
+                }
             }
             return Optional.of(vkMembers);
         } catch (IOException e) {
@@ -266,7 +285,7 @@ public class VKServiceImpl implements VKService {
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
 
-        String sendMsgRequest = VK_API_METHOD_TEMPLATE + "messages.send" +
+        String sendMsgRequest = vkAPI + "messages.send" +
                 "?user_id=" + id +
                 "&v=" + version +
                 "&message=" + uriMsg +
@@ -305,7 +324,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public Optional<List<Long>> getUsersIdFromCommunityMessages() {
         logger.info("VKService: getting user ids from community messages...");
-        String uriGetDialog = VK_API_METHOD_TEMPLATE + "messages.getDialogs" +
+        String uriGetDialog = vkAPI + "messages.getDialogs" +
                 "?v=" + version +
                 "&unread=1" +
                 "&access_token=" +
@@ -326,7 +345,6 @@ public class VKServiceImpl implements VKService {
             for (int i = 0; i < jsonUsers.length(); i++) {
                 JSONObject jsonMessage = jsonUsers.getJSONObject(i).getJSONObject("message");
                 resultList.add(jsonMessage.getLong("user_id"));
-                markAsRead(jsonMessage.getLong("user_id"), httpClient, technicalAccountToken);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -338,8 +356,7 @@ public class VKServiceImpl implements VKService {
     }
 
     private void markAsRead(long userId, HttpClient httpClient, String token) {
-
-        String uriMarkAsRead = VK_API_METHOD_TEMPLATE + "messages.markAsRead" +
+        String uriMarkAsRead = vkAPI + "messages.markAsRead" +
                 "?peer_id=" + userId +
                 "&version=" + version +
                 "&access_token=" + token;
@@ -355,10 +372,21 @@ public class VKServiceImpl implements VKService {
     @Override
     public Optional<Client> getClientFromVkId(Long id) {
         logger.info("VKService: getting client by VK id...");
-        String uriGetClient = VK_API_METHOD_TEMPLATE + "users.get?" +
+
+        //сначала ищем у себя в базе
+        String vkLink = "https://vk.com/id" + id;
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(vkLink);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
+
+        if (client != null){
+            return Optional.of(client);
+        }
+
+        //потом ломимся в контакт
+        String uriGetClient = vkAPI + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
-                "&access_token=" + technicalAccountToken;
+                "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
         HttpClient httpClient = HttpClients.custom()
@@ -373,9 +401,9 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
             String name = jsonUser.getString("first_name");
             String lastName = jsonUser.getString("last_name");
-            String vkLink = "https://vk.com/id" + id;
-            Client client = new Client(name, lastName);
-            SocialProfile socialProfile = new SocialProfile(vkLink);
+
+            client = new Client(name, lastName);
+            socialProfile = new SocialProfile(vkLink);
             List<SocialProfile> socialProfiles = new ArrayList<>();
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);
@@ -391,23 +419,59 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public Client parseClientFromMessage(String message) throws ParseClientException {
-        logger.info("VKService: parsing client from VK message...");
+         logger.info("VKService: parsing client from VK message...");
         if (!message.startsWith("Новая заявка")) {
             throw new ParseClientException("Invalid message format");
         }
         String[] fields = message.replaceAll("<br>", "").split("Q:");
         Client newClient = new Client();
         try {
-            newClient.setName(getValue(fields[1]));
-            newClient.setLastName(getValue(fields[2]));
-            newClient.setPhoneNumber(getValue(fields[3]));
-            newClient.setEmail(getValue(fields[4]).replaceAll("\\s+", ""));
-            StringBuilder description = new StringBuilder(getValue(fields[5]));
-            if (message.contains("Ваши пожелания по заявке")) {
-                description.append(" ");
-                String wishes = getValue(fields[6]);
-                if (!wishes.contains("аши пожелания по заявке:A:")) {
-                    description.append(wishes);
+            StringBuilder description = new StringBuilder();
+            int numberVkPosition = 0; // позиция поля в заявке
+            int numberMissedPosition = 0;
+            List<VkRequestForm> vkRequestForms = vkRequestFormService.getAllVkRequestForm();
+            vkRequestForms.sort(Comparator.comparingInt(VkRequestForm::getNumberVkField));
+            for (VkRequestForm vkRequestForm : vkRequestForms) {
+                numberVkPosition = vkRequestForm.getNumberVkField() - numberMissedPosition;
+                if (numberVkPosition > fields.length - 1) {
+                    break;
+                }
+                if ("Обязательное".equals(vkRequestForm.getTypeVkField())) {
+                    switch (vkRequestForm.getNameVkField()) {
+                        case "Имя":
+                            newClient.setName(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Фамилия":
+                            newClient.setLastName(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Email":
+                            newClient.setEmail(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Номер телефона":
+                            newClient.setPhoneNumber(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Skype":
+                            newClient.setSkype(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Возраст":
+                            newClient.setAge(Byte.parseByte(getValue(fields[numberVkPosition])));
+                            break;
+                        case "Город":
+                            newClient.setCity(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Страна":
+                            newClient.setCountry(getValue(fields[numberVkPosition]));
+                            break;
+                        case "Пол":
+                            newClient.setSex(Sex.valueOf(getValue(fields[numberVkPosition])));
+                            break;
+                    }
+                } else {
+                    if (message.contains(vkRequestForm.getNameVkField())) {
+                        description.append(vkRequestForm.getNameVkField()).append(": ").append(getValue(fields[numberVkPosition])).append(" \n");
+                    } else {
+                        numberMissedPosition++;
+                    }
                 }
             }
 
@@ -430,7 +494,7 @@ public class VKServiceImpl implements VKService {
     public String refactorAndValidateVkLink(String link) {
         logger.info("VKService: refactoring and validation of VK link...");
         String userName = link.replaceAll("^.+\\.(com/)", "");
-        String request = VK_API_METHOD_TEMPLATE + "users.get?"
+        String request = vkAPI + "users.get?"
                 + "user_ids=" + userName
                 + "&fields=first_name"
                 + "&access_token=" + communityToken
@@ -558,11 +622,13 @@ public class VKServiceImpl implements VKService {
     @Override
     public boolean hasTechnicalAccountToken() {
         if (technicalAccountToken == null) {
-            if (projectPropertiesService.get() == null) {
+            //токен берется из первой строки таблицы project_properties (при этом сохраняется последняя строка авторизованного в вк пользователя срм)
+            //можно изменить функции где он исползуется и убрать его из проекта за ненадобностью, так как похож на костыль.
+            technicalAccountToken = projectPropertiesService.getOrCreate().getTechnicalAccountToken();
+            if (technicalAccountToken == null) {
                 logger.error("VK access token has not got");
                 return false;
             }
-            technicalAccountToken = projectPropertiesService.get().getTechnicalAccountToken();
         }
         return true;
     }
@@ -570,7 +636,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public String getLongIDFromShortName(String vkGroupShortName) {
         if (hasTechnicalAccountToken()) {
-            String uriGetGroup = VK_API_METHOD_TEMPLATE + "groups.getById?" +
+            String uriGetGroup = vkAPI + "groups.getById?" +
                     "group_id=" + vkGroupShortName +
                     "&v=" + version +
                     "&access_token=" + technicalAccountToken;
@@ -603,7 +669,7 @@ public class VKServiceImpl implements VKService {
             youtubeClientService.update(youtubeClient);
             String fullName = youtubeClient.getFullName().replaceAll("(?U)[\\pP\\s]", "%20");
             logger.info("VKService: getting client from YouTube Live Stream by name: " + fullName);
-            String uriGetClient = VK_API_METHOD_TEMPLATE + "users.search?" +
+            String uriGetClient = vkAPI + "users.search?" +
                     "q=" + fullName +
                     "&count=1" +
                     "&group_id=" + youtubeClient.getYouTubeTrackingCard().getVkGroupID() +
