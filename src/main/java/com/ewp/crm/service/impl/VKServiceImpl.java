@@ -626,7 +626,7 @@ public class VKServiceImpl implements VKService {
             //можно изменить функции где он исползуется и убрать его из проекта за ненадобностью, так как похож на костыль.
             technicalAccountToken = projectPropertiesService.getOrCreate().getTechnicalAccountToken();
             if (technicalAccountToken == null) {
-                logger.error("VK access token has not got");
+                logger.info("VK access token has not got");
                 return false;
             }
         }
@@ -658,6 +658,8 @@ public class VKServiceImpl implements VKService {
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server ", e);
             }
+        } else {
+            logger.error("VK access token has not got");
         }
         return null;
     }
@@ -711,6 +713,8 @@ public class VKServiceImpl implements VKService {
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server ", e);
             }
+        } else {
+            logger.error("VK access token has not got");
         }
         return Optional.empty();
     }
