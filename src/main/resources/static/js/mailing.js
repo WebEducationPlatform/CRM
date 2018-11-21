@@ -151,17 +151,39 @@ $(document).ready(function () {
 /**
  * Начальная настройка CKEditor
  */
+
 $(document).ready(function () {
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
-    CKEDITOR.replace(EDITOR, {
-        customConfig: '/ckeditor/add-all-toolbars.js'
+    let rep = CKEDITOR.replace(EDITOR, {
+        customConfig: '/ckeditor/add-all-toolbars.js',
+        filebrowserImageUploadUrl: '/image/upload',
+
     });
+    CKEDITOR.config.extraPlugins = 'uploadimage';
+    CKEDITOR.config.imageUploadUrl = '/image/upload';
+
+    // CKEDITOR.ajax.load(rep.);
+
+    CKEDITOR.on('dialogDefinition', function (e) {
+        var dialogName = e.data.name;
+        var dialogDefinition = e.data.definition;
+        if (dialogName === 'image') {
+            // dialogDefinition.removeContents('info');
+            dialogDefinition.removeContents('Link');
+            dialogDefinition.removeContents('advanced');
+        }
+    });
+
+
 });
+
 
 function ckeditorAddAllToolbars() {
     CKEDITOR.instances[EDITOR].destroy(true);
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js'
+
+
     });
 }
 
