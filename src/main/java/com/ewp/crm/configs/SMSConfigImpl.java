@@ -23,7 +23,7 @@ public class SMSConfigImpl implements SMSConfig {
         try {
             this.login = env.getRequiredProperty("sms.login");
             this.password = env.getRequiredProperty("sms.password");
-            this.alphaName = env.getRequiredProperty("sms.alphaName");
+            this.alphaName = env.getRequiredProperty("sms.alpha-name");
             if (login.isEmpty() || password.isEmpty() || alphaName.isEmpty()) {
                 throw new NullPointerException();
             }
