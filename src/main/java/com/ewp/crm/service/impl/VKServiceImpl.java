@@ -73,7 +73,18 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService, VkMemberService vkMemberService) {
+    public VKServiceImpl(VKConfig vkConfig,
+                         YoutubeClientService youtubeClientService,
+                         SocialProfileService socialProfileService,
+                         ClientHistoryService clientHistoryService,
+                         ClientService clientService,
+                         MessageService messageService,
+                         SocialProfileTypeService socialProfileTypeService,
+                         UserService userService,
+                         MessageTemplateService messageTemplateService,
+                         ProjectPropertiesService projectPropertiesService,
+                         VkRequestFormService vkRequestFormService,
+                         VkMemberService vkMemberService) {
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();

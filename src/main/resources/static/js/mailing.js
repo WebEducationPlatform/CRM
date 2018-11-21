@@ -21,7 +21,7 @@ function sendMessages(sendnow) {
     console.warn(recipients);
     let x;
     if (messageType !== "email") {
-        x = text.value;
+        x = CKEDITOR.instances.editor.document.getBody().getText();
     } else {
         x = "";
     }
@@ -29,7 +29,7 @@ function sendMessages(sendnow) {
         sendnow: sendnow,
         type: messageType,
         templateText: text,
-        text: "x",
+        text: x,
         date: date,
         clientData: recipients
     };
