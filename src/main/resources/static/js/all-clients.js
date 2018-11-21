@@ -84,7 +84,7 @@ $('#filtration').click(function () {
                             '</div>'
                     }
 
-                    if (res[i].postponeDate != undefined) {
+                    if (res[i].hideCard) {
                         returnBtn =
                             '<div class="button-return-from-postpone">' +
                             '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="' + res[i].id + '"> Вернуть </button>' +
@@ -205,7 +205,7 @@ function drawClients(table, res) {
                     '</div>'
             }
 
-            if (res[i].postponeDate != undefined) {
+            if (res[i].hideCard) {
                 returnBtn =
                     '<div class="button-return-from-postpone">' +
                     '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="' + res[i].id + '"> Вернуть </button>' +
