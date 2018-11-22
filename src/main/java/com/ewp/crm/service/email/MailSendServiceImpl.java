@@ -50,7 +50,6 @@ public class MailSendServiceImpl implements MailSendService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
-    private final ImageConfig imageConfig;
     private final ClientService clientService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
@@ -61,7 +60,6 @@ public class MailSendServiceImpl implements MailSendService {
     @Autowired
     public MailSendServiceImpl(JavaMailSender javaMailSender,
                                @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                               ImageConfig imageConfig,
                                Environment environment,
                                ClientService clientService,
                                ClientHistoryService clientHistoryService,
@@ -69,7 +67,6 @@ public class MailSendServiceImpl implements MailSendService {
                                MailConfig mailConfig) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
-        this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
@@ -214,11 +211,6 @@ public class MailSendServiceImpl implements MailSendService {
         javaMailSender.send(mimeMessage);
     }
 
-    public static void main(String[] args) {
-        String str = "images\\";
-        System.out.println(str);
-        System.out.println(str.trim());
-    }
 
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";
@@ -250,9 +242,8 @@ public class MailSendServiceImpl implements MailSendService {
             //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
             Matcher matcher = pattern.matcher(templateText);
             while (matcher.find()) {
-                String path = "static" + matcher.group().replaceAll("/", "\\" + File.separator);
-                File file = new ClassPathResource(path).getFile();
-                InputStreamSource inputStreamSource = new FileSystemResource(file);
+                String path = ("target/classes/static" + matcher.group()).replaceAll("/", "\\" + File.separator);
+                InputStreamSource inputStreamSource = new FileSystemResource(new File(path));
                 mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
             }
             javaMailSender.send(mimeMessage);
