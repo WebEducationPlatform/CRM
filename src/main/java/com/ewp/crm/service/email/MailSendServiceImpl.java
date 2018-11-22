@@ -214,6 +214,12 @@ public class MailSendServiceImpl implements MailSendService {
         javaMailSender.send(mimeMessage);
     }
 
+    public static void main(String[] args) {
+        String str = "images\\";
+        System.out.println(str);
+        System.out.println(str.trim());
+    }
+
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";
         Client client = clientService.getClientByID(clientId);
@@ -244,8 +250,7 @@ public class MailSendServiceImpl implements MailSendService {
             //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
             Matcher matcher = pattern.matcher(templateText);
             while (matcher.find()) {
-                String sep = File.separator;
-                String path = "static" + sep + imageConfig.getPathForImages() + matcher.group().replaceAll("/", "\\" + sep);
+                String path = "static" + matcher.group().replaceAll("/", "\\" + File.separator);
                 File file = new ClassPathResource(path).getFile();
                 InputStreamSource inputStreamSource = new FileSystemResource(file);
                 mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
