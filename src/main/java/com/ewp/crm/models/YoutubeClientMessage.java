@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "youtube_client_message")
+@Table(name = "youtube_client_message") // сообщение клиента или от клиента
 public class YoutubeClientMessage {
 
     @Id

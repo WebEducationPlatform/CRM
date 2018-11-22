@@ -35,13 +35,13 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	@Column (name = "create_student") // создавать ли студента для клиента с таким статусом ???
+	@Column (name = "create_student") // создавать ли студента для данного статуса
 	private boolean createStudent;
 
-	@Column(name = "trial_offset") // пробный период (дни, недели месяцы???) // разве не правильней отнести это к студенту???
+	@Column(name = "trial_offset") // пробный период, дней для данного статуса
 	private Integer trialOffset;
 
-	@Column(name = "next_payment_offset") // отсрочка следующего платежа (дней, недель, месяцев???) // к студенту???
+	@Column(name = "next_payment_offset") // дней до следующей оплаты (все правильно!)
 	private Integer nextPaymentOffset;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {

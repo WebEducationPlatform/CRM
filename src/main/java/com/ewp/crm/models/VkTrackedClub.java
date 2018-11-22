@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "vk_tracked_club") // отслеживаемая группа в ВК??
+@Table(name = "vk_tracked_club") // отслеживаемая группа в ВК?? СТАЛЬНОЙ КОПИБАР
 public class VkTrackedClub implements Serializable{
 
     @Id

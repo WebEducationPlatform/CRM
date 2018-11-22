@@ -37,20 +37,20 @@ public class Student implements Diffable<Student> {
     @Column (name = "later") // осталось получить со студента: price - paymentAmount
     private BigDecimal payLater;
 
-    @JoinColumn (name = "status_id") // статус студента (специальность, Java Core, Java Web и тд) СХУЯЛИ СТАТУС???
+    @JoinColumn (name = "status_id") // статус студента (специальность, Java Core, Java Web и тд) ПОЧЕМУ СТАТУС???
     @OneToOne
     private StudentStatus status;
 
     @Column (name = "notes") // заметки по студенту
     private String notes;
 
-    @Column (name = "notify_email") // уведомлять ли студента по электронке. о чем?
+    @Column (name = "notify_email") // уведомлять (напоминать) ли студенту по электронке об оплате
     private boolean notifyEmail = false;
 
-    @Column (name = "notify_sms") // уведомлять ли студента по смс. о чем?
+    @Column (name = "notify_sms") // уведомлять (напоминать) ли студенту по смс об оплате
     private boolean notifySMS = false;
 
-    @Column (name = "notify_vk") // уведомлять ли студента в ВК. о чем?
+    @Column (name = "notify_vk") // уведомлять (напоминать) ли студенту в ВК об оплате
     private boolean notifyVK = false;
 
     public Student() {
