@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -31,6 +32,7 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -242,7 +244,10 @@ public class MailSendServiceImpl implements MailSendService {
             //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
             Matcher matcher = pattern.matcher(templateText);
             while (matcher.find()) {
-                InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
+                String sep = File.separator;
+                String path = "static" + sep + imageConfig.getPathForImages() + matcher.group().replaceAll("/", "\\" + sep);
+                File file = new ClassPathResource(path).getFile();
+                InputStreamSource inputStreamSource = new FileSystemResource(file);
                 mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
             }
             javaMailSender.send(mimeMessage);
@@ -254,7 +259,6 @@ public class MailSendServiceImpl implements MailSendService {
             }
         } catch (Exception e) {
             logger.error("Can't send mail to {}", recipient, e);
-//            throw new MessageTemplateException(e.getMessage());
         }
     }
 
