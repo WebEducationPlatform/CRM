@@ -206,3 +206,55 @@ $(document).ready(function () {
             $(this).removeClass(DROP_ZONE_IS_DRAGOVER_CLASS);
         })
 });
+
+var file;
+
+function sendImg(templateID) {
+    file = $("#imgBtn")[0].files[0];
+    if (file.size > $("#imgBtn").attr("max")) {
+        setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
+        return;
+    }
+    $("#imgBtn").val("");
+    var dataValue = new FormData();
+    dataValue.append("0", file);
+    let url = '/admin/savePicture?templateID='+templateID;
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: dataValue,
+        cache: false,
+        dataType: 'json',
+        enctype: "multipart/form-data",
+        processData: false,
+        contentType: false,
+        success: function (userId) {
+            insertNewPicture(userId,templateID);
+        },
+        error: function (data) {
+            if (typeof data.responseJSON === 'undefined') {
+                setErrorMessage();
+            }
+            setErrorMessage(data.responseJSON.message);
+        }
+    });
+}
+
+function setErrorMessage(message) {
+    if (typeof message === 'undefined') {
+        current.textContent = "Ошибка сохранения";
+        current.style.color = "red";
+    } else {
+        current.textContent = message;
+        current.style.color = "red";
+    }
+}
+
+function insertNewPicture(userID,templateID) {
+    filename = file.name.replace(/\.[^.]+$/, "");
+    let xx = CKEDITOR.dom;
+
+    let path = "/images/templateID_" + templateID + '/' + filename +".png";
+    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src=\"" + path + "\"/>");
+    CKEDITOR.instances.editor.insertElement(text);
+}
