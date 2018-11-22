@@ -1692,11 +1692,13 @@ $(function () {
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
         $.ajax({
+            async: false,
             type: 'GET',
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
                 $.get('rest/client/getPrincipal', function (user) {
+                }).done(function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
                     }
@@ -1723,7 +1725,7 @@ $(function () {
                     }
                     $('#client-sex').text(client.sex);
                     if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
-                     $('#client-label').text(client.clientDescriptionComment);
+                        $('#client-label').text(client.clientDescriptionComment);
                     }
                     if (client.email == null) {
                         $('#email-href').hide();
@@ -1776,8 +1778,8 @@ $(function () {
                     } else {
                         btnBlock.after(
                             '<div class="remove-tag confirm-skype-interceptor">' +
-                                '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
-                                '<div class="skype-notification"></div>' +
+                            '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                            '<div class="skype-notification"></div>' +
                             '</div>')
                     }
 
