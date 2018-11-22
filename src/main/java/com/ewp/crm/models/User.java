@@ -69,7 +69,7 @@ public class User implements UserDetails {
 	@Column(name = "is_verified") // проверен? На ВИЧ? На неуплату налогов? На штрафы в ГИБДД? На адекватность?
 	private boolean isVerified;
 
-	@Column(name = "autoAnswer") // автоответ. в какой ситуации?
+	@Column(name = "autoAnswer") // автоответ. в какой ситуации? РОМАН ГАПОНОВ
 	private String autoAnswer;
 
 	@Column(name = "vkToken")

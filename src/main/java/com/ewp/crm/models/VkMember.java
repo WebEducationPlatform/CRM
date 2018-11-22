@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "vk_member") // членство в группе ВК??
+@Table(name = "vk_member") // участник некоторой группы в ВК. В частности JavaMentor
 public class VkMember implements Serializable{
 
     @Id
@@ -13,10 +13,10 @@ public class VkMember implements Serializable{
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "vk_id", unique = true)
+    @Column(name = "vk_id", unique = true) // id участника
     private Long vkId;
 
-    @Column(name = "group_id", nullable = false)
+    @Column(name = "group_id", nullable = false) // id группы, в которой он состоит
     private Long groupId;
 
     public VkMember(Long vkId, Long groupId){
