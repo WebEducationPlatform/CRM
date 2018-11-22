@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -35,12 +36,14 @@ public class ReportRestController {
 
     @PostMapping(value = "/getReportsStatus")
     public ResponseEntity<ReportsStatus> getReportsStatus(){
-        return ResponseEntity.ok(reportsStatusService.getAll().stream().findAny().orElse(null));
+        List<ReportsStatus> listReportStatus = reportsStatusService.getAll();
+        return ResponseEntity.ok(listReportStatus.size() == 0 ? null : listReportStatus.get(0));
     }
 
     @PostMapping(value = "/setReportsStatus")
     public ResponseEntity updateReportsStatus(@Valid @RequestBody ReportsStatus reportsStatus){
-        ReportsStatus currentReportsStatus = reportsStatusService.getAll().stream().findAny().orElse(new ReportsStatus());
+        List<ReportsStatus> listReportStatus = reportsStatusService.getAll();
+        ReportsStatus currentReportsStatus = listReportStatus.size() == 0 ? new ReportsStatus() : listReportStatus.get(0);
         currentReportsStatus.setDropOutStatus(reportsStatus.getDropOutStatus());
         currentReportsStatus.setEndLearningStatus(reportsStatus.getEndLearningStatus());
         currentReportsStatus.setInLearningStatus(reportsStatus.getInLearningStatus());
