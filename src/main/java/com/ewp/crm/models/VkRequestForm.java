@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Comparator;
 
 @Entity
-@Table(name = "vk_request_form")
+@Table(name = "vk_request_form") // форма запроса из ВК
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
     @Id
@@ -14,13 +14,13 @@ public class VkRequestForm {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "number_vk_field")
+    @Column(name = "number_vk_field") // номер поля в ВК
     private Integer numberVkField;
 
-    @Column(name = "name_vk_field")
+    @Column(name = "name_vk_field") // имя поля в ВК
     private String nameVkField;
 
-    @Column(name = "type_vk_field")
+    @Column(name = "type_vk_field") // тип поля в ВК
     private String typeVkField;
 
     public VkRequestForm() {

@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "vk_tracked_club")
+@Table(name = "vk_tracked_club") // отслеживаемая группа в ВК??
 public class VkTrackedClub implements Serializable{
 
     @Id
@@ -23,7 +23,7 @@ public class VkTrackedClub implements Serializable{
 
 //    private String clientSecret;
 
-    @Column(name = "client_id")
+    @Column(name = "client_id") // клиент??
     private Long clientId;
 
     public VkTrackedClub(Long groupId, String token, String groupName, Long clientId) {

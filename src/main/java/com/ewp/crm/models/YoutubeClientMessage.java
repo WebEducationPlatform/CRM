@@ -14,7 +14,7 @@ public class YoutubeClientMessage {
     @Column(name = "messages") // сообщение ???
     private String messages;
 
-    @ManyToOne // связь youtube клиента и youtube сообщения
+    @ManyToOne // связь youtube-клиента и youtube сообщения
     @JoinTable(name = "youtube_client_youtube_client_message",
             inverseJoinColumns = {@JoinColumn(name = "youtube_client_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES"))},
             joinColumns = {@JoinColumn(name = "youtube_client_messages_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_MESSAGES"))})

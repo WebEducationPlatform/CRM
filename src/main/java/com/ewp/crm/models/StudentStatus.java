@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table (name = "student_status")
+@Table (name = "student_status") // специальность, Java Core, Java Web и тд. Схуяли статус???
 public class StudentStatus {
 
     @Id

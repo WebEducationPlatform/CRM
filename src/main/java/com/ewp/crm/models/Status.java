@@ -38,10 +38,10 @@ public class Status implements Serializable {
 	@Column (name = "create_student") // создавать ли студента для клиента с таким статусом ???
 	private boolean createStudent;
 
-	@Column(name = "trial_offset") // пробный период (дни, недели месяцы???)
+	@Column(name = "trial_offset") // пробный период (дни, недели месяцы???) // разве не правильней отнести это к студенту???
 	private Integer trialOffset;
 
-	@Column(name = "next_payment_offset") // отсрочка следующего платежа (дней, недель, месяцев???)
+	@Column(name = "next_payment_offset") // отсрочка следующего платежа (дней, недель, месяцев???) // к студенту???
 	private Integer nextPaymentOffset;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {

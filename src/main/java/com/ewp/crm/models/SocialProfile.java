@@ -15,10 +15,10 @@ public class SocialProfile implements Serializable {
 	@Column(name = "id")
 	private long id;
 
-	@Column(name = "link")
+	@Column(name = "link")  // ссылка на профиль, по которой и так понятно, что это за соцсеть. зачем связанная таблица?
 	private String link;
 
-	@ManyToOne
+	@ManyToOne // зачем??
 	@JoinTable(name = "social_network_social_network_type",
 			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})

@@ -42,7 +42,7 @@ public class User implements UserDetails {
 	@Column(name = "vk")
 	private String vk;
 
-	@Column(name = "sex", nullable = false) // gender (пол или мужской/женский род) правильнее. sex - это ебатсо
+	@Column(name = "sex", nullable = false) // gender (пол или мужской/женский род) правильнее. sex - это ибатсо
 	private String sex;
 
 	@Column(name = "city", nullable = false)
@@ -60,16 +60,16 @@ public class User implements UserDetails {
 	@Column(name = "ip_telephony") // можно ли позвонить пользователю по IP-телефонии
 	private boolean ipTelephony; // некорректное названия поля типа boolean и вообще
 
-	@Column(name = "is_enabled") // заблокирован?? удален?? работает или нет??
+	@Column(name = "is_enabled") // заблокирован?? удален?? работает или уволен??
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")
 	private boolean newClienNotifyIsEnabled = true; //ошибка в названии поля
 
-	@Column(name = "is_verified")
+	@Column(name = "is_verified") // проверен? На ВИЧ? На неуплату налогов? На штрафы в ГИБДД? На адекватность?
 	private boolean isVerified;
 
-	@Column(name = "autoAnswer")
+	@Column(name = "autoAnswer") // автоответ. в какой ситуации?
 	private String autoAnswer;
 
 	@Column(name = "vkToken")
@@ -91,17 +91,17 @@ public class User implements UserDetails {
 	private boolean enableMailNotifications = true;
 
 	@JsonIgnore
-	@OneToMany(mappedBy = "ownerUser")
+	@OneToMany(mappedBy = "ownerUser") // закреплен за клиентами
 	private List<Client> ownedClients;
 
 	@NotNull
-	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
+	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class) // роль
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
 	private List<Role> role = new ArrayList<>();
 
-	@Column(name = "color_background")
+	@Column(name = "color_background") // индивидуальная настройка интрефейса
 	private String colorBackground;
 
 	public User() {

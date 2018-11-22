@@ -24,10 +24,10 @@ public class YoutubeClient {
 			inverseJoinColumns = {@JoinColumn(name = "youtube_tracking_card_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE__TRACKING_CARD"))})
     private YouTubeTrackingCard youTubeTrackingCard;
 
-	@Column(name = "checked")
+	@Column(name = "checked") // проверен, подтвержден
 	private boolean checked;
 
-	@Column(name = "upload_date")
+	@Column(name = "upload_date") // дата загрузки?? чего??
 	private LocalDateTime uploadDate;
 
     @OneToMany(cascade = CascadeType.ALL)
