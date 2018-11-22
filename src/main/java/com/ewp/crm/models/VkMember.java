@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "vk_member")
+@Table(name = "vk_member") // членство в группе ВК??
 public class VkMember implements Serializable{
 
     @Id

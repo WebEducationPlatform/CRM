@@ -14,19 +14,19 @@ public class SMSInfo implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "sms_id")
+	@Column(name = "sms_id") // идентефикатор сообщения. где? во внешней системе? кто его сетит?
 	private Long smsId;
 
-	@Column(name = "delivery_status")
+	@Column(name = "delivery_status") // статус доставки. кто сетит?
 	private String deliveryStatus;
 
 	@Basic
 	@Lob
-	@Column(name = "message")
+	@Column(name = "message") // собсно сообщение. почему не content? потому что класс называется инфо об смс.
 	private String message;
 
 	@Basic
-	@Column(name = "is_checked")
+	@Column(name = "is_checked") // проверено. что проверено?? номер, орфография, длина смс или его содержимое?
 	private boolean isChecked = false;
 
 	@ManyToOne
@@ -35,7 +35,7 @@ public class SMSInfo implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
 	private Client client;
 
-	@ManyToOne
+	@ManyToOne // работник отправляет сообщение. кому? куда? зачем? кто просил?
 	@JoinTable(name = "worker_send_sms",
 			joinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))},
 			inverseJoinColumns = {@JoinColumn(name = "worker_id", foreignKey = @ForeignKey(name = "FK_USER"))})

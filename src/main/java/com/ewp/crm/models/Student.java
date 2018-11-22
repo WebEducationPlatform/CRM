@@ -37,7 +37,7 @@ public class Student implements Diffable<Student> {
     @Column (name = "later") // осталось получить со студента: price - paymentAmount
     private BigDecimal payLater;
 
-    @JoinColumn (name = "status_id") // статус студента (новый клиент, уже учится, на пробном периоде, выбыл и тд)
+    @JoinColumn (name = "status_id") // статус студента (специальность, Java Core, Java Web и тд) СХУЯЛИ СТАТУС???
     @OneToOne
     private StudentStatus status;
 

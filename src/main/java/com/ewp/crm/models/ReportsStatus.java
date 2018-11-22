@@ -3,7 +3,7 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "reports_status")
+@Table(name = "reports_status") //????
 public class ReportsStatus {
 
     @Id

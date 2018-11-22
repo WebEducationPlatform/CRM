@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "social_network_type")
+@Table(name = "social_network_type") // зачем давайть разные имена таблице и классу-сущности??
 public class SocialProfileType implements Serializable {
 
 	@Id

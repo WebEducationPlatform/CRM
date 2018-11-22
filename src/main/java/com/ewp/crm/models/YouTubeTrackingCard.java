@@ -18,7 +18,7 @@ public class YouTubeTrackingCard {
 	private String youTubeChannelID;
 
 	@NotNull
-	@Column(name = "vk_group", nullable = false) //группа youtube канала в ВК
+	@Column(name = "vk_group", nullable = false) //группа youtube-канала в ВК
 	private String vkGroupID;
 
 	@Column(name = "has_live_stream") //идет ли стрим в прямом эфире???
