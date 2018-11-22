@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.CrmApplication;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.dto.ImageUploadDto;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileSystems;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -111,6 +113,8 @@ public class SendMailsController {
         return ResponseEntity.ok("");
     }
 
+
+
     @Value("${ckeditor.img.upload.path}")
     String uploadPath;
     @Value("${ckediror.img.uri}")
@@ -120,20 +124,16 @@ public class SendMailsController {
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping(value = "/image/upload", produces = "application/json")
-    public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload,
-                                                 HttpServletRequest request
-    ) throws IOException {
-
+    public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload, HttpServletRequest request) throws IOException {
         String sourceName = upload.getOriginalFilename();
         String sourceExt = FilenameUtils.getExtension(sourceName).toLowerCase();
-
         File destFile;
         File destTargetFile;
         String destFileName;
 
-        destFileName = RandomStringUtils.randomAlphabetic(8).concat(String.valueOf(System.currentTimeMillis())).concat(".").concat(sourceExt);
-        destFile = new File(uploadPath.concat(destFileName));
-        destTargetFile = new File(uploadTargetPath.concat(destFileName));
+        destFileName = String.valueOf(System.currentTimeMillis())+"."+sourceExt;
+        destFile = new File(uploadPath+destFileName);
+        destTargetFile = new File(uploadTargetPath+destFileName);
 
         destFile.getParentFile().mkdirs();
         destTargetFile.getParentFile().mkdirs();
@@ -141,7 +141,7 @@ public class SendMailsController {
         upload.transferTo(destFile);
         upload.transferTo(destTargetFile);
 
-        URI imgUrl = URI.create(request.getScheme().concat("://").concat(request.getServerName()).concat(uploadUri).concat(destFileName));
+        URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
 
         ImageUploadDto imageUploadDto = new ImageUploadDto(1, destFileName, imgUrl);
 
