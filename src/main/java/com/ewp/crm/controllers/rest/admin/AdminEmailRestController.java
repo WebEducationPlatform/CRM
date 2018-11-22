@@ -67,8 +67,9 @@ public class AdminEmailRestController {
                                       @AuthenticationPrincipal User currentAdmin) throws IOException {
         BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
         String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
-        File fileTarget = new File("target/classes/static/" + imageConfig.getPathForImages() + "templateID_" + templateID + "/" + fileName);
-        File fileSource = new File("src/main/resources/static/" + imageConfig.getPathForImages() + "templateID_" + templateID + "/" + fileName);
+        String path = "images/templateID_" + templateID + "/" + fileName;
+        File fileTarget = new File(("target/classes/static/" + path).replaceAll("/", "\\" + File.separator));
+        File fileSource = new File(("src/main/resources/static/" + path).replaceAll("/", "\\" + File.separator));
         if (!fileTarget.exists() || !fileSource.exists()) {
             boolean mkdirs = fileTarget.mkdirs();
             boolean mkSource = fileSource.mkdirs();
