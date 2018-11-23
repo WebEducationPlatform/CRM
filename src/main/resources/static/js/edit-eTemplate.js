@@ -114,7 +114,7 @@ function insertNewPicture(userID,templateID, input) {
         let reader = new FileReader();
         reader.onload = function (e) {
             filename = file.name.replace(/\.[^.]+$/, "");
-            let path = "/images/templateID_" + templateID + '/' + filename +".png";
+            let path = "images/templateID_" + templateID + '/' + filename +".png";
             let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
             CKEDITOR.instances.body.insertElement(text);
         };
