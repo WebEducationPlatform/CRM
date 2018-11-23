@@ -9,6 +9,8 @@ const SEND_EMAILS = "Enter the recipients email address here:";
 const SEND_SMSS = "Enter phone numbers here:";
 const SEND_TO_VK = "Enter VK ids here:";
 
+let current = $("#message");
+
 var messageType = 'email';
 
 function sendMessages(sendnow) {
@@ -31,7 +33,7 @@ function sendMessages(sendnow) {
         templateText: text,
         text: x,
         date: date,
-        clientData: recipients
+        recipients: recipients
     };
     $.ajax({
         type: "POST",
@@ -163,6 +165,7 @@ function ckeditorAddAllToolbars() {
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js'
     });
+    $("#imgSelectBtn").show()
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -170,6 +173,7 @@ function ckeditorRemoveAllToolbars() {
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
+    $("#imgSelectBtn").hide()
 }
 
 /**
@@ -187,13 +191,15 @@ $(document).ready(function () {
 
 var file;
 
-function sendImg(templateID) {
+function sendImg(input) {
+    let templateID = 0;
     file = $("#imgBtn")[0].files[0];
+
     if (file.size > $("#imgBtn").attr("max")) {
         setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
         return;
     }
-    $("#imgBtn").val("");
+
     var dataValue = new FormData();
     dataValue.append("0", file);
     let url = '/admin/savePicture?templateID='+templateID;
@@ -207,7 +213,7 @@ function sendImg(templateID) {
         processData: false,
         contentType: false,
         success: function (userId) {
-            insertNewPicture(userId,templateID);
+            insertNewPicture(userId,templateID,input);
         },
         error: function (data) {
             if (typeof data.responseJSON === 'undefined') {
@@ -217,6 +223,8 @@ function sendImg(templateID) {
         }
     });
 }
+
+
 
 function setErrorMessage(message) {
     if (typeof message === 'undefined') {
@@ -228,13 +236,15 @@ function setErrorMessage(message) {
     }
 }
 
-function insertNewPicture(userID,templateID) {
-    filename = file.name.replace(/\.[^.]+$/, "");
-    let xx = CKEDITOR.dom;
-    var url = window.location.href;
-    var arr = url.split("/");
-    var result = arr[0] + "//" + arr[2];
-    let path = "/images/templateID_" + templateID + '/' + filename +".png";
-    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src=\"" + result + path + "\"/>");
-    CKEDITOR.instances.editor.insertElement(text);
+function insertNewPicture(userID, templateID, input) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            filename = file.name.replace(/\.[^.]+$/, "");
+            let path = "/images/templateID_" + templateID + '/' + filename +".png";
+            let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
+            CKEDITOR.instances.editor.insertElement(text);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 }

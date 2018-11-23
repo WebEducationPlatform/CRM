@@ -65,13 +65,16 @@
                 <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Send now</button>
             </div>
         </div>
-    </div>
-    <br/>
-    <div class="btn-group">
-        <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ 0 +'\')'" style="display: none"/>
-        <label for="imgBtn">
-            <span id="imgSelectBtn" class="btn btn-primary btn-info">Вставить картинку</span>
-        </label>
+        <br/>
+        <div class="row">
+            <div class="col-xs-1">
+                <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(this)'" style="display: none"/>
+                <label for="imgBtn">
+                    <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
+                </label>
+            </div>
+            <p><span id = "message"></span></p>
+        </div>
     </div>
     <div class="container-fluid" id="editor-block">
         <div class="row">
