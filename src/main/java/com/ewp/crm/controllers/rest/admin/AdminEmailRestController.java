@@ -64,18 +64,22 @@ public class AdminEmailRestController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity savePicture(@RequestParam("0") MultipartFile file,
                                       @RequestParam Integer templateID,
-                                      @AuthenticationPrincipal User currentAdmin) throws IOException {
-        BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
-        String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
-        String path = "images/templateID_" + templateID + "/" + fileName;
-        File fileTarget = new File(("target/classes/static/" + path).replaceAll("/", "\\" + File.separator));
-        if (fileTarget.exists()) {
-            ImageIO.write(image, "png", fileTarget);
-        } else {
-            boolean mkdirs = fileTarget.mkdirs();
-            if (mkdirs) {
+                                      @AuthenticationPrincipal User currentAdmin) {
+        try {
+            BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
+            String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
+            String path = "images/templateID_" + templateID + "/" + fileName;
+            File fileTarget = new File((path).replaceAll("/", "\\" + File.separator));
+            if (fileTarget.exists()) {
                 ImageIO.write(image, "png", fileTarget);
+            } else {
+                boolean mkdirs = fileTarget.mkdirs();
+                if (mkdirs) {
+                    ImageIO.write(image, "png", fileTarget);
+                }
             }
+        } catch (IOException e) {
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(currentAdmin.getId());
     }

@@ -19,6 +19,7 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,17 +49,20 @@ public class MailingService {
     }
 
 
-    public void sendMessage(MailingMessage message) {
+    public boolean sendMessage(MailingMessage message) {
+        boolean result = true;
         if (message.getType().equals("email")) {
-            sendingMailingsEmails(message);
+            result = sendingMailingsEmails(message);
         } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
         } else if (message.getType().equals("vk")) {
             sendingMailingVk(message);
         }
+        return result;
     }
 
-    private void sendingMailingsEmails(MailingMessage message) {
+    private boolean sendingMailingsEmails(MailingMessage message) {
+        boolean result = false;
         try {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -74,19 +78,29 @@ public class MailingService {
                 Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
                 Matcher matcher = pattern.matcher(message.getText());
                 while (matcher.find()) {
-                    String path = ("target/classes/static" + matcher.group()).replaceAll("/", "\\" + File.separator);
-                    InputStreamSource inputStreamSource = new FileSystemResource(new File(path));
-                    mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                    String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
+                    File file = new File(path);
+                    if (file.exists()) {
+                        InputStreamSource inputStreamSource = new FileSystemResource(file);
+                        mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                    } else {
+                        logger.error("Can not send message! Attachment file {} not found. Reimport file.", file.getCanonicalPath());
+                        return false;
+                    }
                 }
                 javaMailSender.send(mimeMessage);
             }
             message.setReadedMessage(true);
             mailingMessageRepository.save(message);
+            result = true;
         } catch (MessagingException e) {
-            logger.info("message no sent ", e);
+            logger.info("Message no sent.", e);
         } catch (NullPointerException e) {
-            logger.info("there is nowhere to send, clientData is empty ", e);
+            logger.info("No recipients found, clientData is empty.", e);
+        } catch (IOException e) {
+            logger.info("Can not read template file.", e);
         }
+        return result;
     }
 
     private void sendingMailingSMS(MailingMessage message) {

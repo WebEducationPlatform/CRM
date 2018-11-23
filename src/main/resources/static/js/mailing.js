@@ -12,13 +12,11 @@ const SEND_TO_VK = "Enter VK ids here:";
 var messageType = 'email';
 
 function sendMessages(sendnow) {
-    console.warn(sendnow);
     let date = $('#messageSendingTime').val();
-    console.warn(date);
     let text = CKEDITOR.instances.editor.getData();
-    console.warn(text);
     let recipients = $('#addresses-area').val();
     console.warn(recipients);
+    if (recipients === '') {alert("Введите получателей!"); return}
     let x;
     if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
@@ -37,11 +35,12 @@ function sendMessages(sendnow) {
         type: "POST",
         url: URL_POST_DATA,
         data: wrap,
-        success: function () {
-            setErrorMessage('Сообщение отправлено', 'green')
-        },
-        error: function (error) {
-            setErrorMessage("Неверный формат записи, добавте clientData перед данными\n" + error, 'red')
+        success: function (data, textStatus, xhr) {
+            if (xhr.status === 204) {
+                setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
+            } else {
+                setErrorMessage('Сообщение отправлено', 'green')
+            }
         }
     });
 }
@@ -254,7 +253,7 @@ function insertNewPicture(userID, templateID, input) {
         let reader = new FileReader();
         reader.onload = function (e) {
             filename = file.name.replace(/\.[^.]+$/, "");
-            let path = "/images/templateID_" + templateID + '/' + filename +".png";
+            let path = "images/templateID_" + templateID + '/' + filename +".png";
             let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
             CKEDITOR.instances.editor.insertElement(text);
         };

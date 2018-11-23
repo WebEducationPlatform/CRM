@@ -242,9 +242,15 @@ public class MailSendServiceImpl implements MailSendService {
             //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
             Matcher matcher = pattern.matcher(templateText);
             while (matcher.find()) {
-                String path = ("target/classes/static" + matcher.group()).replaceAll("/", "\\" + File.separator);
-                InputStreamSource inputStreamSource = new FileSystemResource(new File(path));
-                mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
+                File file = new File(path);
+                if (file.exists()) {
+                    InputStreamSource inputStreamSource = new FileSystemResource(file);
+                    mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                } else {
+                    logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
+                    return;
+                }
             }
             javaMailSender.send(mimeMessage);
             if (principal != null) {
