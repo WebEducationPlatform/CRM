@@ -12,13 +12,11 @@ const SEND_TO_VK = "Enter VK ids here:";
 var messageType = 'email';
 
 function sendMessages(sendnow) {
-    console.warn(sendnow);
     let date = $('#messageSendingTime').val();
-    console.warn(date);
     let text = CKEDITOR.instances.editor.getData();
-    console.warn(text);
     let recipients = $('#addresses-area').val();
     console.warn(recipients);
+    if (recipients === '') {alert("Введите получателей!"); return}
     let x;
     if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
@@ -31,17 +29,18 @@ function sendMessages(sendnow) {
         templateText: text,
         text: x,
         date: date,
-        clientData: recipients
+        recipients: recipients
     };
     $.ajax({
         type: "POST",
         url: URL_POST_DATA,
         data: wrap,
-        success: function (result) {
-            console.log("success " + result);
-        },
-        error: function (error) {
-            console.log("неверный формат записи, добавте clientData перед данными\n" + error);
+        success: function (data, textStatus, xhr) {
+            if (xhr.status === 204) {
+                setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
+            } else {
+                setErrorMessage('Сообщение отправлено', 'green')
+            }
         }
     });
 }
@@ -137,9 +136,8 @@ $(document).ready(function () {
             $("#addresses-area").val(content.toLowerCase());
         };
         reader.onerror = function (event) {
-            console.error("The file could not be read!" + event.target.error.code);
+            setErrorMessage("The file could not be read!" + event.target.error.code, 'red')
             let fileInfo = $("#file-info");
-            //TODO переделать с проверкой, чтобы все было корректно
             $(fileInfo).text("The file could not be read!" + event.target.error.code);
             $(fileInfo).removeClass(BADGE_SUCCESS_CLASS);
             $(fileInfo).addClass(BADGE_WARNING_CLASS);
@@ -185,6 +183,7 @@ function ckeditorAddAllToolbars() {
 
 
     });
+    $("#imgSelectBtn").show()
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -192,6 +191,7 @@ function ckeditorRemoveAllToolbars() {
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
+    $("#imgSelectBtn").hide()
 }
 
 /**
@@ -206,3 +206,57 @@ $(document).ready(function () {
             $(this).removeClass(DROP_ZONE_IS_DRAGOVER_CLASS);
         })
 });
+
+var file;
+
+function sendImg(input) {
+    let templateID = 0;
+    file = $("#imgBtn")[0].files[0];
+
+    if (file.size > $("#imgBtn").attr("max")) {
+        setErrorMessage("Ошибка добавления фотографии. Файл слишком велик", 'red');
+        return;
+    }
+
+    var dataValue = new FormData();
+    dataValue.append("0", file);
+    let url = '/admin/savePicture?templateID='+templateID;
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: dataValue,
+        cache: false,
+        dataType: 'json',
+        enctype: "multipart/form-data",
+        processData: false,
+        contentType: false,
+        success: function (userId) {
+            insertNewPicture(userId,templateID,input);
+        },
+        error: function (data) {client_social_network
+            if (typeof data.responseJSON === 'undefined') {
+                setErrorMessage('undefined', 'red');
+            }
+            setErrorMessage(data.responseJSON.message, 'red');
+        }
+    });
+}
+
+function setErrorMessage(message, color) {
+    let label = $("#message");
+    label.prop('innerHTML', message)
+    label.css('color', color);
+}
+
+function insertNewPicture(userID, templateID, input) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            filename = file.name.replace(/\.[^.]+$/, "");
+            let path = "images/templateID_" + templateID + '/' + filename +".png";
+            let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
+            CKEDITOR.instances.editor.insertElement(text);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}

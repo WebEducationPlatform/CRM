@@ -66,13 +66,15 @@ function saveTemplate(templateId) {
 
 var file;
 
-function sendImg(templateID) {
+function sendImg(templateID, input) {
+
     file = $("#imgBtn")[0].files[0];
+
     if (file.size > $("#imgBtn").attr("max")) {
         setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
         return;
     }
-    $("#imgBtn").val("");
+
     var dataValue = new FormData();
     dataValue.append("0", file);
     let url = '/admin/savePicture?templateID='+templateID;
@@ -86,7 +88,7 @@ function sendImg(templateID) {
         processData: false,
         contentType: false,
         success: function (userId) {
-            insertNewPicture(userId,templateID);
+            insertNewPicture(userId,templateID, input);
         },
         error: function (data) {
             if (typeof data.responseJSON === 'undefined') {
@@ -107,11 +109,17 @@ function setErrorMessage(message) {
     }
 }
 
-function insertNewPicture(userID,templateID) {
-    filename = file.name.replace(/\.[^.]+$/, "");
-    let xx = CKEDITOR.dom;
-    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:"+ '_' + filename + "|\" src=\"/images/"+"templateID_"+templateID+"/"+filename+".png"+"\"/>");
-    CKEDITOR.instances.body.insertElement(text);
+function insertNewPicture(userID,templateID, input) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            filename = file.name.replace(/\.[^.]+$/, "");
+            let path = "images/templateID_" + templateID + '/' + filename +".png";
+            let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
+            CKEDITOR.instances.body.insertElement(text);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 
 $(document).ready(function () {
