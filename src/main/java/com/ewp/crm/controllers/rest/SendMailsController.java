@@ -28,8 +28,6 @@ public class SendMailsController {
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private String pattern;
     private String template;
-    private String[] textData; //todo это че?
-    private String textData1;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
 
@@ -43,7 +41,7 @@ public class SendMailsController {
     @PostMapping(value = "/client/mailing/send")
     public ResponseEntity<String> parseClientData(@RequestParam("type") String type,
                                                   @RequestParam("templateText") String templateText,
-                                                  @RequestParam("clientData") String clientData,
+                                                  @RequestParam("recipients") String recipients,
                                                   @RequestParam("text") String text,
                                                   @RequestParam("date") String date,
                                                   @RequestParam("sendnow") boolean sendnow) {
@@ -52,17 +50,13 @@ public class SendMailsController {
             case "vk":
                 pattern = vkPattern;
                 template = text;
-                clientData = clientData.replaceAll("\\p{Punct}|", "");
-                //textData = text.split("clientData", 2);
-                //textData[1] = textData[1].replaceAll("\\p{Punct}|", "");
+                recipients = recipients.replaceAll("\\p{Punct}|", "");
                 break;
             case "sms":
-                //textData = text.split("clientData", 2);
                 pattern = smsPattern;
                 template = text;
                 break;
             case "email":
-                //textData = templateText.split("clientData", 2);
                 pattern = emailPattern;
                 template = templateText;
                 break;
@@ -74,7 +68,7 @@ public class SendMailsController {
 
         Set<ClientData> clientsInfo = new HashSet<>();
         if (type.equals("vk")) {
-            String[] vkIds = clientData.split("\n");
+            String[] vkIds = recipients.split("\n");
             Arrays.asList(vkIds).forEach(x -> {
                 Matcher vkMatcher = p.matcher(x);
                 if (vkMatcher.find() && !x.contains(" ") && !x.equals("")) {
@@ -82,17 +76,18 @@ public class SendMailsController {
                 }
             });
         } else {
-            Matcher matcher2 = p.matcher(clientData);
+            Matcher matcher2 = p.matcher(recipients);
             while (matcher2.find()) {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
 
         MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
-        MailingMessage executeMessage = mailingService.addMailingMessage(message);
 
         if (sendnow) {
-            mailingService.sendMessage(executeMessage);
+            mailingService.sendMessage(message);
+        } else {
+            mailingService.addMailingMessage(message);
         }
 
         return ResponseEntity.ok("");

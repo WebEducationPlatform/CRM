@@ -69,16 +69,14 @@ public class AdminEmailRestController {
         String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
         String path = "images/templateID_" + templateID + "/" + fileName;
         File fileTarget = new File(("target/classes/static/" + path).replaceAll("/", "\\" + File.separator));
-        File fileSource = new File(("src/main/resources/static/" + path).replaceAll("/", "\\" + File.separator));
-        if (!fileTarget.exists() || !fileSource.exists()) {
+        if (fileTarget.exists()) {
+            ImageIO.write(image, "png", fileTarget);
+        } else {
             boolean mkdirs = fileTarget.mkdirs();
-            boolean mkSource = fileSource.mkdirs();
-            if (mkdirs || mkSource) {
+            if (mkdirs) {
                 ImageIO.write(image, "png", fileTarget);
-                ImageIO.write(image, "png", fileSource);
             }
         }
-
         return ResponseEntity.ok(currentAdmin.getId());
     }
 
