@@ -908,14 +908,14 @@ $(function () {
 
 });
 // Кнопка  вк
-// $(function () {
-//     $(function (client) {
-//
-//  var clientId = client.age;
-//
-//     $('#vk-href').attr('href', clientId);
-//     });
-// });
+/* $(function () {
+     $(function (client) {
+
+  var clientId = client.age;
+
+     $('#vk-href').attr('href', clientId);
+     });
+ });*/
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -1521,7 +1521,8 @@ $(function () {
 
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialProfiles[i].link);
+                            // $('#vk-href').attr('href', client.socialProfiles[i].link);
+                            $('#vk-href').attr('href','https://vk.com/id'+ client.socialProfiles[i].link);
                             $('#vk-href').show();
 
 

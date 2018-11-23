@@ -75,6 +75,7 @@ public class AdminRestClientController {
 			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
 					socialProfile.getSocialProfileType().getName()).getId());
 			StringBuilder idVK = new StringBuilder(socialProfile.getLink());
+
 			if(socialProfile.getSocialProfileType().getName().equals("vk")) {
 				if (idVK.lastIndexOf("/id") != -1) {
 					idVK.delete(0, idVK.lastIndexOf("/id") + 3);

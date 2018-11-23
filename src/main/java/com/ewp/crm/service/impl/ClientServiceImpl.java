@@ -231,6 +231,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 						JSONObject jo = response.getJSONObject(0);
 						link = jo.getString("id");
 
+
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
