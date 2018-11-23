@@ -253,8 +253,10 @@ function setErrorMessage(message) {
 function insertNewPicture(userID,templateID) {
     filename = file.name.replace(/\.[^.]+$/, "");
     let xx = CKEDITOR.dom;
-
+    var url = window.location.href;
+    var arr = url.split("/");
+    var result = arr[0] + "//" + arr[2];
     let path = "/images/templateID_" + templateID + '/' + filename +".png";
-    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src=\"" + path + "\"/>");
+    let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src=\"" + result + path + "\"/>");
     CKEDITOR.instances.editor.insertElement(text);
 }
