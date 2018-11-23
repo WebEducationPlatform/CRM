@@ -61,7 +61,6 @@ public class SendMailsController {
                 template = templateText;
                 break;
         }
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
@@ -81,15 +80,14 @@ public class SendMailsController {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-
         MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
-
         if (sendnow) {
-            mailingService.sendMessage(message);
+            if (!mailingService.sendMessage(message)) {
+                return ResponseEntity.noContent().build();
+            }
         } else {
             mailingService.addMailingMessage(message);
         }
-
         return ResponseEntity.ok("");
     }
 }
