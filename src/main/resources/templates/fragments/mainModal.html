@@ -16,7 +16,7 @@
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
-                            <table class="table table-condensed font-size">
+                            <table class="table table-condensed font-size" style="table-layout: fixed; width: 100%">
                                 <tbody>
                                 <tr>
                                     <td>Email:</td>
@@ -86,9 +86,10 @@
                                 </tr>
                                 <tr>
                                     <td>Заметка:</td>
-                                    <td id="client-label"></td>
+                                    <td id="client-label" style="word-wrap:break-word"></td>
                                     <td></td>
                                 </tr>
+                                <br/>
                                 <tr>
                                     <td>Социальные сети:</td>
                                     <td>
@@ -98,8 +99,10 @@
                                                    class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
                                                     <span class="fa fa-vk"></span>
                                                 </a>
-                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customVKIMMessage">
-                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count" class="badge"></span></a>
+                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm"
+                                                        data-toggle="modal" data-target="#customVKIMMessage">
+                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count"
+                                                                                                    class="badge"></span></a>
                                                 </button>
                                             </div>
                                             <div>
@@ -137,10 +140,11 @@
                                     <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
                                            name="postponeDate"/>
                                     <span>Скрывать? </span>
-                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag" name="isPostponeFlag"/>
+                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag"
+                                           name="isPostponeFlag"/>
                                     <span><h4>Причина:</h4></span>
                                     <textarea class="form-control postponeComment"
-                                    placeholder="причина напоминания"></textarea>
+                                              placeholder="причина напоминания"></textarea>
                                 </div>
 
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>

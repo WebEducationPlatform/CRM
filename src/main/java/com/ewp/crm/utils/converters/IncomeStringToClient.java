@@ -1,21 +1,25 @@
 package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Comment;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.models.User;
+import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
+import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class IncomeStringToClient {
+
+    @Autowired
+    UserDAO userService;
 
     private final SocialProfileTypeService socialProfileTypeService;
 
@@ -41,7 +45,7 @@ public class IncomeStringToClient {
             } else if (income.contains("Остались вопросы")) {
                 client = parseClientFormTwo(workString);
             } else if (income.contains("Задать вопрос")) {
-                client = parseClientFormTwo(workString);
+                client = parseClientFormThree(workString);
             } else if (income.contains("Java Test")) {
                 client = parseClientFormFour(workString);
             } else {
@@ -59,7 +63,7 @@ public class IncomeStringToClient {
     private Client parseClientFormOne(String form) {
         logger.info("Parsing FormOne...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
                 .replaceAll(" ", "")
                 .replaceAll("Name[0-9]", "Name")
                 .replaceAll("Email[0-9]", "Email");
@@ -78,12 +82,10 @@ public class IncomeStringToClient {
             }
             client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
-        if (form.contains("Согласен")) {
-            client.setEmail(clientData.get("Email"));
-        } else {
-            client.setEmail(clientData.get("Email"));
-            client.setClientDescriptionComment("На пробные 3 дня");
-        }
+        client.setEmail(clientData.get("Email"));
+        String comment = clientData.get("Форма");
+        client.setClientDescriptionComment(comment);
+
         logger.info("FormOne parsing finished");
         return client;
     }
@@ -94,14 +96,24 @@ public class IncomeStringToClient {
         String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
                 .replaceAll(" ", "")
                 .replaceAll("Name[0-9]", "Name")
-                .replaceAll("Email[0-9]", "Email");
+                .replaceAll("Email[0-9]", "Email")
+                .replaceAll("Phone[0-9]", "Phone")
+                .replaceAll("Social[0-9]", "Social")
+                .replaceAll("Вопрос[0-9]", "Vopros");
         String[] createArrayFromString = removeExtraCharacters.split("<br/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
         setClientName(client, clientData.get("Name"));
+        client.setEmail(clientData.get("Email"));
         client.setPhoneNumber(clientData.get("Phone"));
         client.setClientDescriptionComment(clientData.get("Vopros"));
-        if (clientData.containsKey("Social1")) {
-            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social1"));
+        checkSocialNetworks(client, clientData);
+        logger.info("FormTwo parsing finished");
+        return client;
+    }
+
+    private void checkSocialNetworks(Client client, Map<String, String> clientData) {
+        if (clientData.containsKey("Social")) {
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social"));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
                 client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
                         " недействительна");
@@ -109,7 +121,27 @@ public class IncomeStringToClient {
             }
             client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
-        logger.info("FormTwo parsing finished");
+    }
+
+    private Client parseClientFormThree(String form) {
+        logger.info("Parsing FormThree...");
+        Client client = new Client();
+        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
+                .replaceAll(" ", "")
+                .replaceAll("Name[0-9]", "Name")
+                .replaceAll("Email[0-9]", "Email")
+                .replaceAll("Phone[0-9]", "Phone")
+                .replaceAll("Social[0-9]", "Social")
+                .replaceAll("Вопрос[0-9]", "Вопрос");
+        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+        setClientName(client, clientData.get("Name"));
+        client.setEmail(clientData.get("Email"));
+        client.setPhoneNumber(clientData.get("Phone"));
+        client.setClientDescriptionComment(clientData.get("Вопрос"));
+
+        checkSocialNetworks(client, clientData);
+        logger.info("FormThree parsing finished");
         return client;
     }
 
