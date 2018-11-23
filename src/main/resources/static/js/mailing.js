@@ -9,8 +9,6 @@ const SEND_EMAILS = "Enter the recipients email address here:";
 const SEND_SMSS = "Enter phone numbers here:";
 const SEND_TO_VK = "Enter VK ids here:";
 
-let current = $("#message");
-
 var messageType = 'email';
 
 function sendMessages(sendnow) {
@@ -39,11 +37,11 @@ function sendMessages(sendnow) {
         type: "POST",
         url: URL_POST_DATA,
         data: wrap,
-        success: function (result) {
-            console.log("success " + result);
+        success: function () {
+            setErrorMessage('Сообщение отправлено', 'green')
         },
         error: function (error) {
-            console.log("неверный формат записи, добавте clientData перед данными\n" + error);
+            setErrorMessage("Неверный формат записи, добавте clientData перед данными\n" + error, 'red')
         }
     });
 }
@@ -139,9 +137,8 @@ $(document).ready(function () {
             $("#addresses-area").val(content.toLowerCase());
         };
         reader.onerror = function (event) {
-            console.error("The file could not be read!" + event.target.error.code);
+            setErrorMessage("The file could not be read!" + event.target.error.code, 'red')
             let fileInfo = $("#file-info");
-            //TODO переделать с проверкой, чтобы все было корректно
             $(fileInfo).text("The file could not be read!" + event.target.error.code);
             $(fileInfo).removeClass(BADGE_SUCCESS_CLASS);
             $(fileInfo).addClass(BADGE_WARNING_CLASS);
@@ -196,7 +193,7 @@ function sendImg(input) {
     file = $("#imgBtn")[0].files[0];
 
     if (file.size > $("#imgBtn").attr("max")) {
-        setErrorMessage("Ошибка добавления фотографии. Файл слишком велик");
+        setErrorMessage("Ошибка добавления фотографии. Файл слишком велик", 'red');
         return;
     }
 
@@ -215,25 +212,19 @@ function sendImg(input) {
         success: function (userId) {
             insertNewPicture(userId,templateID,input);
         },
-        error: function (data) {
+        error: function (data) {client_social_network
             if (typeof data.responseJSON === 'undefined') {
-                setErrorMessage();
+                setErrorMessage('undefined', 'red');
             }
-            setErrorMessage(data.responseJSON.message);
+            setErrorMessage(data.responseJSON.message, 'red');
         }
     });
 }
 
-
-
-function setErrorMessage(message) {
-    if (typeof message === 'undefined') {
-        current.textContent = "Ошибка сохранения";
-        current.style.color = "red";
-    } else {
-        current.textContent = message;
-        current.style.color = "red";
-    }
+function setErrorMessage(message, color) {
+    let label = $("#message");
+    label.prop('innerHTML', message)
+    label.css('color', color);
 }
 
 function insertNewPicture(userID, templateID, input) {
