@@ -80,8 +80,7 @@ public class IncomeStringToClient {
             client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
         client.setEmail(clientData.get("Email"));
-        String comment = clientData.get("Форма");
-        client.setClientDescriptionComment(comment);
+        client.setClientDescriptionComment("Месяц в подарок");
 
         logger.info("FormOne parsing finished");
         return client;
@@ -116,25 +115,29 @@ public class IncomeStringToClient {
     private Client parseClientFormThree(String form) {
         logger.info("Parsing FormThree...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
-                .replaceAll(" ", "")
-                .replaceAll("Name[0-9]", "Name")
-                .replaceAll("Email[0-9]", "Email")
-                .replaceAll("Phone[0-9]", "Phone")
-                .replaceAll("Social[0-9]", "Social")
-                .replaceAll("Вопрос[0-9]", "Вопрос");
+        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
 
-        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+                .replaceAll(" ", "~")
+                .replaceAll("Name~3", "Name")
+                .replaceAll("Phone~6", "Phone")
+                .replaceAll("Email~2", "Email")
+                .replaceAll("Social~2", "Social");
+
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
-        setClientName(client, clientData.get("Name"));
-        client.setEmail(clientData.get("Email"));
-        client.setPhoneNumber(clientData.get("Phone"));
+        String name = clientData.get("Name");
+        String formattedName = name.replaceAll("~", "");
+        setClientName(client, formattedName);
 
-        client.setClientDescriptionComment(clientData.get("Вопрос"));
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
 
+        String question = clientData.get("Вопрос");
+        String formattedQuestion = question.replaceAll("~", " ");
+        client.setClientDescriptionComment("Вопрос: " + formattedQuestion);
         checkSocialNetworks(client, clientData);
-        logger.info("FormThree parsing finished");
+        logger.info("FormTwo parsing finished");
         return client;
     }
 
@@ -196,9 +199,9 @@ public class IncomeStringToClient {
 
     private Map<String, String> createMapFromClientData(String[] res) {
         Map<String, String> clientData = new HashMap<>();
-        for (String re : res) {
-            String name = re.substring(0, re.indexOf(":"));
-            String value = re.substring(re.indexOf(":") + 1, re.length());
+        for (int i = 0; i < res.length; i++) {
+            String name = res[i].substring(0, res[i].indexOf(":"));
+            String value = res[i].substring(res[i].indexOf(":") + 1, res[i].length());
             clientData.put(name, value);
         }
         return clientData;
