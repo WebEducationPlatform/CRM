@@ -18,8 +18,6 @@ import java.util.Map;
 @Component
 public class IncomeStringToClient {
 
-    @Autowired
-    UserDAO userService;
     private final SocialProfileTypeService socialProfileTypeService;
     private final VKService vkService;
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
@@ -61,15 +59,23 @@ public class IncomeStringToClient {
         logger.info("Parsing FormOne...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
-                .replaceAll(" ", "")
-                .replaceAll("Name[0-9]", "Name")
-                .replaceAll("Email[0-9]", "Email");
-        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+                .replaceAll(" ", "~")
+                .replaceAll("Name~5", "Name")
+                .replaceAll("Email~5", "Email")
+                .replaceAll("Соц~сеть", "Соцсеть");
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
-        setClientName(client, clientData.get("Name"));
-        client.setPhoneNumber(clientData.get("Телефон"));
-        client.setCountry(clientData.get("Страна"));
-        client.setCity(clientData.get("Город"));
+
+        String name = clientData.get("Name");
+        String formattedName = name.replaceAll("~", " ");
+        setClientName(client, formattedName);
+
+        client.setPhoneNumber(clientData.get("Телефон").replace("~", ""));
+        client.setCountry(clientData.get("Страна").replace("~", ""));;
+        client.setCity(clientData.get("Город").replace("~", ""));
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+
         if (clientData.containsKey("Соцсеть")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть"));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
@@ -79,9 +85,6 @@ public class IncomeStringToClient {
             }
             client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
-        client.setEmail(clientData.get("Email"));
-        client.setClientDescriptionComment("Месяц в подарок");
-
         logger.info("FormOne parsing finished");
         return client;
     }
