@@ -16,14 +16,14 @@ public class SMSConfigImpl implements SMSConfig {
     private String login;
     private String password;
     private String alphaName;
-    private static Logger logger = LoggerFactory.getLogger(GMailMailConfigImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(SMSConfigImpl.class);
 
     @Autowired
     public SMSConfigImpl(Environment env) {
         try {
             this.login = env.getRequiredProperty("sms.login");
             this.password = env.getRequiredProperty("sms.password");
-            this.alphaName = env.getRequiredProperty("sms.alphaName");
+            this.alphaName = env.getRequiredProperty("sms.alpha-name");
             if (login.isEmpty() || password.isEmpty() || alphaName.isEmpty()) {
                 throw new NullPointerException();
             }

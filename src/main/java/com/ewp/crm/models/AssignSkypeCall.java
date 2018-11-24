@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
@@ -8,7 +10,7 @@ import java.time.ZonedDateTime;
 public class AssignSkypeCall {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "assign_skype_call_id")
 	private Long id;
 

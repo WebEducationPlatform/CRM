@@ -16,8 +16,8 @@ public class YoutubeClient {
      *
      */
     @Id
-    @GeneratedValue
-    @Column(name = "youtube_client_id") // аккаунт клиента на youtube ???
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "youtube_client_id")
     private Long id;
 
     @Column(name = "full_name", nullable = false)

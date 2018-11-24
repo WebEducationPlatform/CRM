@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -26,7 +27,7 @@ import java.util.Objects;
 public class Client implements Serializable, Diffable<Client> {
 
 	@Id
-	@GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "client_id")
 	private Long id;
 
