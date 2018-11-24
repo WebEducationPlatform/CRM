@@ -1,9 +1,7 @@
 package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Comment;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.VKService;
@@ -13,18 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class IncomeStringToClient {
 
     @Autowired
     UserDAO userService;
-
     private final SocialProfileTypeService socialProfileTypeService;
-
     private final VKService vkService;
-
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
 
     @Autowired
@@ -93,34 +90,27 @@ public class IncomeStringToClient {
     private Client parseClientFormTwo(String form) {
         logger.info("Parsing FormTwo...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Name"), form.length())
-                .replaceAll(" ", "")
-                .replaceAll("Name[0-9]", "Name")
-                .replaceAll("Email[0-9]", "Email")
-                .replaceAll("Phone[0-9]", "Phone")
-                .replaceAll("Social[0-9]", "Social")
-                .replaceAll("Вопрос[0-9]", "Vopros");
-        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+
+                .replaceAll(" ", "~")
+                .replaceAll("Name~3", "Name");
+
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
-        setClientName(client, clientData.get("Name"));
-        client.setEmail(clientData.get("Email"));
-        client.setPhoneNumber(clientData.get("Phone"));
-        client.setClientDescriptionComment(clientData.get("Vopros"));
+
+        String name = clientData.get("Name");
+        String formattedName = name.replaceAll("~", "");
+        setClientName(client, formattedName);
+
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
+
+        String question = clientData.get("Vopros");
+        String formattedQuestion = question.replaceAll("~", " ");
+        client.setClientDescriptionComment("Вопрос: " + formattedQuestion);
         checkSocialNetworks(client, clientData);
         logger.info("FormTwo parsing finished");
         return client;
-    }
-
-    private void checkSocialNetworks(Client client, Map<String, String> clientData) {
-        if (clientData.containsKey("Social")) {
-            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social"));
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
-                        " недействительна");
-                logger.warn("Unknown social network");
-            }
-            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
-        }
     }
 
     private Client parseClientFormThree(String form) {
@@ -133,11 +123,14 @@ public class IncomeStringToClient {
                 .replaceAll("Phone[0-9]", "Phone")
                 .replaceAll("Social[0-9]", "Social")
                 .replaceAll("Вопрос[0-9]", "Вопрос");
+
         String[] createArrayFromString = removeExtraCharacters.split("<br/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+
         setClientName(client, clientData.get("Name"));
         client.setEmail(clientData.get("Email"));
         client.setPhoneNumber(clientData.get("Phone"));
+
         client.setClientDescriptionComment(clientData.get("Вопрос"));
 
         checkSocialNetworks(client, clientData);
@@ -170,6 +163,18 @@ public class IncomeStringToClient {
         return client;
     }
 
+    private void checkSocialNetworks(Client client, Map<String, String> clientData) {
+        if (clientData.containsKey("Social")) {
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social"));
+            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
+                        " недействительна");
+                logger.warn("Unknown social network");
+            }
+            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
+        }
+    }
+
     private SocialProfile getSocialNetwork(String link) {
         SocialProfile socialProfile = new SocialProfile();
         socialProfile.setLink(link);
@@ -191,9 +196,9 @@ public class IncomeStringToClient {
 
     private Map<String, String> createMapFromClientData(String[] res) {
         Map<String, String> clientData = new HashMap<>();
-        for (int i = 0; i < res.length; i++) {
-            String name = res[i].substring(0, res[i].indexOf(":"));
-            String value = res[i].substring(res[i].indexOf(":") + 1, res[i].length());
+        for (String re : res) {
+            String name = re.substring(0, re.indexOf(":"));
+            String value = re.substring(re.indexOf(":") + 1, re.length());
             clientData.put(name, value);
         }
         return clientData;
