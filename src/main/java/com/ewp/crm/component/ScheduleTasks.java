@@ -87,17 +87,17 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-	                     YouTubeTrackingCardService youTubeTrackingCardService,
-	                     ClientService clientService, StudentService studentService,
-	                     StatusService statusService, MailingMessageRepository mailingMessageRepository,
-	                     MailingService mailingService, SocialProfileService socialProfileService,
-	                     SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-	                     SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-	                     ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-	                     VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-	                     YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-	                     MailSendService mailSendService, Environment env, ReportService reportService,
-	                     MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 YouTubeTrackingCardService youTubeTrackingCardService,
+						 ClientService clientService, StudentService studentService,
+						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
+						 MailingService mailingService, SocialProfileService socialProfileService,
+						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 MailSendService mailSendService, Environment env, ReportService reportService,
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -185,20 +185,22 @@ public class ScheduleTasks {
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
-		try {
-			Optional<List<String>> newMassages = vkService.getNewMassages();
-			if (newMassages.isPresent()) {
-				for (String message : newMassages.get()) {
-					try {
-						Client newClient = vkService.parseClientFromMessage(message);
-						addClient(newClient);
-					} catch (ParseClientException e) {
-						logger.error(e.getMessage());
+		if (vkService.hasTechnicalAccountToken()) {
+			try {
+				Optional<List<String>> newMassages = vkService.getNewMassages();
+				if (newMassages.isPresent()) {
+					for (String message : newMassages.get()) {
+						try {
+							Client newClient = vkService.parseClientFromMessage(message);
+							addClient(newClient);
+						} catch (ParseClientException e) {
+							logger.error(e.getMessage());
+						}
 					}
 				}
+			} catch (VKAccessTokenException ex) {
+				logger.error(ex.getMessage());
 			}
-		} catch (VKAccessTokenException ex) {
-			logger.error(ex.getMessage());
 		}
 	}
 

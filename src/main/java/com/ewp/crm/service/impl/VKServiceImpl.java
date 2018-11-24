@@ -73,7 +73,18 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
 
     @Autowired
-    public VKServiceImpl(VKConfig vkConfig, YoutubeClientService youtubeClientService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, ClientService clientService, MessageService messageService, SocialProfileTypeService socialProfileTypeService, UserService userService, MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, VkRequestFormService vkRequestFormService, VkMemberService vkMemberService) {
+    public VKServiceImpl(VKConfig vkConfig,
+                         YoutubeClientService youtubeClientService,
+                         SocialProfileService socialProfileService,
+                         ClientHistoryService clientHistoryService,
+                         ClientService clientService,
+                         MessageService messageService,
+                         SocialProfileTypeService socialProfileTypeService,
+                         UserService userService,
+                         MessageTemplateService messageTemplateService,
+                         ProjectPropertiesService projectPropertiesService,
+                         VkRequestFormService vkRequestFormService,
+                         VkMemberService vkMemberService) {
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -626,7 +637,7 @@ public class VKServiceImpl implements VKService {
             //можно изменить функции где он исползуется и убрать его из проекта за ненадобностью, так как похож на костыль.
             technicalAccountToken = projectPropertiesService.getOrCreate().getTechnicalAccountToken();
             if (technicalAccountToken == null) {
-                logger.error("VK access token has not got");
+                logger.info("VK access token has not got");
                 return false;
             }
         }
@@ -658,6 +669,8 @@ public class VKServiceImpl implements VKService {
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server ", e);
             }
+        } else {
+            logger.error("VK access token has not got");
         }
         return null;
     }
@@ -711,6 +724,8 @@ public class VKServiceImpl implements VKService {
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server ", e);
             }
+        } else {
+            logger.error("VK access token has not got");
         }
         return Optional.empty();
     }

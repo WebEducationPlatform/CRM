@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -13,7 +14,7 @@ import java.util.Objects;
 public class Notification implements Serializable {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 

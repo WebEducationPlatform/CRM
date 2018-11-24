@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 
+
+
 import javax.persistence.*;
 import java.time.LocalTime;
 
@@ -10,6 +12,7 @@ import java.time.LocalTime;
 public class ProjectProperties {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id = 1L;
 

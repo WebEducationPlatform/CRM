@@ -11,8 +11,8 @@
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 
     <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
-            <!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-            <!--crossorigin="anonymous"/>-->
+    <!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
+    <!--crossorigin="anonymous"/>-->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!--из локальной коппии, так как конфигурация редактора кастомная-->
@@ -21,8 +21,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 
-    <script type="text/javascript" src="/js/mailing.js"></script>
-
+    <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
     <script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>
     <link rel="stylesheet" type="text/css" href="/css/mailing.css"/>
 
@@ -66,12 +65,22 @@
                 <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Send now</button>
             </div>
         </div>
+        <br/>
+        <div class="row">
+            <div class="col-xs-1">
+                <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(this)'" style="display: none"/>
+                <label for="imgBtn">
+                    <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
+                </label>
+            </div>
+        </div>
     </div>
     <div class="container-fluid" id="editor-block">
         <div class="row">
             <div class="col-xs-9 col-sm-12 col-md-12 col-lg-12 col-xl-8">
                 <!--Блок редактора CKEditor-->
-                <label for="editor">Editor</label>
+                <!--<label for="editor">Editor</label>-->
+                <p><label id = "message" ></label></p>
                 <textarea id="editor" name="editor">
                     Put your text here
                 </textarea>

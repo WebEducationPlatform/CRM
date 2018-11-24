@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
@@ -8,9 +10,9 @@ import java.time.ZonedDateTime;
 @Table(name = "comment_answer")
 public class CommentAnswer {
 
-	@Column(name = "answer_id")
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "answer_id")
 	private Long id;
 
 	@ManyToOne(targetEntity = User.class)

@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,7 +14,7 @@ import java.util.Objects;
 public class VkMember implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

@@ -1,12 +1,14 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "client_data")
 public class ClientData {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_data_id")
     private Long id;
 
