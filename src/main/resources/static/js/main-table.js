@@ -1722,10 +1722,14 @@ $(function () {
 
                     if (client.age > 0) {
                         $('#client-age').text(client.age);
+                    } else {
+                        $('#client-age').text('');
                     }
                     $('#client-sex').text(client.sex);
                     if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
                         $('#client-label').text(client.clientDescriptionComment);
+                    } else {
+                        $('#client-label').text('');
                     }
                     if (client.email == null) {
                         $('#email-href').hide();
