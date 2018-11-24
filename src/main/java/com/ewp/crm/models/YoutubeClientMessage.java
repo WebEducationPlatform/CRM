@@ -2,19 +2,28 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 
+/**
+ * Сообщение клиента или от клиента????
+ */
 @Entity
-@Table(name = "youtube_client_message") // сообщение клиента или от клиента
+@Table(name = "youtube_client_message")
 public class YoutubeClientMessage {
 
     @Id
     @GeneratedValue
-    @Column(name = "youtube_client_message_id") // id ??
+    @Column(name = "youtube_client_message_id")
     private Long id;
 
-    @Column(name = "messages") // сообщение ???
+    /**
+     * Сообщение???
+     */
+    @Column(name = "messages")
     private String messages;
 
-    @ManyToOne // связь youtube-клиента и youtube сообщения
+    /**
+     * ????????
+     */
+    @ManyToOne
     @JoinTable(name = "youtube_client_youtube_client_message",
             inverseJoinColumns = {@JoinColumn(name = "youtube_client_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES"))},
             joinColumns = {@JoinColumn(name = "youtube_client_messages_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_MESSAGES"))})

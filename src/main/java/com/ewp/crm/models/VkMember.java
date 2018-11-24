@@ -4,27 +4,36 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Участник некоторой группы в vk. Например JavaMentorTest
+ */
 @Entity
-@Table(name = "vk_member") // участник некоторой группы в ВК. В частности JavaMentor
-public class VkMember implements Serializable{
+@Table(name = "vk_member")
+public class VkMember implements Serializable {
 
     @Id
     @GeneratedValue
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "vk_id", unique = true) // id участника
+    /**
+     * id участника
+     */
+    @Column(name = "vk_id", unique = true)
     private Long vkId;
 
-    @Column(name = "group_id", nullable = false) // id группы, в которой он состоит
+    /**
+     * id группы, в которой состоит VkMember c vkId
+     */
+    @Column(name = "group_id", nullable = false) //
     private Long groupId;
 
-    public VkMember(Long vkId, Long groupId){
+    public VkMember(Long vkId, Long groupId) {
         this.vkId = vkId;
         this.groupId = groupId;
     }
 
-    public VkMember(){
+    public VkMember() {
 
     }
 
