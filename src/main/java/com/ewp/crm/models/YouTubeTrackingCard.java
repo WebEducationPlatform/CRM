@@ -4,24 +4,33 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+/**
+ * ????????
+ */
 @Entity
 @Table(name = "youtube_tracking_card")
 public class YouTubeTrackingCard {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "youtube_tracking_card_id") //просто "id" не удобней?
+	@Column(name = "youtube_tracking_card_id")
 	private Long id;
 
 	@NotNull
 	@Column(name = "youtube_channel", nullable = false)
 	private String youTubeChannelID;
 
+	/**
+     * Группа youtube-канала в vk
+     */
 	@NotNull
-	@Column(name = "vk_group", nullable = false) //группа youtube-канала в ВК
+	@Column(name = "vk_group", nullable = false)
 	private String vkGroupID;
 
-	@Column(name = "has_live_stream") //идет ли стрим в прямом эфире???
+	/**
+     * Идет ли стрим в прямом эфире???
+     */
+	@Column(name = "has_live_stream")
 	private boolean hasLiveStream;
 
 	@Column(name = "channel_name")

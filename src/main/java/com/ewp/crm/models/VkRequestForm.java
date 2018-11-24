@@ -3,24 +3,36 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
-import java.util.Comparator;
 
+/**
+ * Форма запроса из vk
+ */
 @Entity
 @Table(name = "vk_request_form") // форма запроса из ВК
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
+
     @Id
     @GeneratedValue
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "number_vk_field") // номер поля в ВК
+    /**
+     * Номер поля
+     */
+    @Column(name = "number_vk_field")
     private Integer numberVkField;
 
-    @Column(name = "name_vk_field") // имя поля в ВК
+    /**
+     * Имя поля
+     */
+    @Column(name = "name_vk_field")
     private String nameVkField;
 
-    @Column(name = "type_vk_field") // тип поля в ВК
+    /**
+     * Тип поля
+     */
+    @Column(name = "type_vk_field")
     private String typeVkField;
 
     public VkRequestForm() {

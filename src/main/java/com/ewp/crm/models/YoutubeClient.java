@@ -5,10 +5,16 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ *
+ */
 @Entity
 @Table(name = "youtube_client")
 public class YoutubeClient {
 
+    /**
+     *
+     */
     @Id
     @GeneratedValue
     @Column(name = "youtube_client_id") // аккаунт клиента на youtube ???
@@ -17,6 +23,9 @@ public class YoutubeClient {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    /**
+     *
+     */
 	@NotNull
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinTable(name = "youtube_client_youtube_tracking_card",
@@ -24,12 +33,21 @@ public class YoutubeClient {
 			inverseJoinColumns = {@JoinColumn(name = "youtube_tracking_card_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE__TRACKING_CARD"))})
     private YouTubeTrackingCard youTubeTrackingCard;
 
+    /**
+     *
+     */
 	@Column(name = "checked") // проверен, подтвержден
 	private boolean checked;
 
+    /**
+     *
+     */
 	@Column(name = "upload_date") // дата загрузки?? чего??
 	private LocalDateTime uploadDate;
 
+    /**
+     *
+     */
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "youtube_client_youtube_client_message",
             joinColumns = {@JoinColumn(name = "youtube_client_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES"))},
