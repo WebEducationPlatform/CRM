@@ -2,7 +2,6 @@ package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
@@ -62,22 +61,21 @@ public class IncomeStringToClient {
                 .replaceAll(" ", "~")
                 .replaceAll("Name~5", "Name")
                 .replaceAll("Email~5", "Email")
-                .replaceAll("Соц~сеть", "Соцсеть");
+                .replaceAll("Соц~~сеть", "Соцсеть");
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
         String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", " ");
+        String formattedName = name.replaceAll("~", " ").replaceFirst(" ", "");
         setClientName(client, formattedName);
-
         client.setPhoneNumber(clientData.get("Телефон").replace("~", ""));
-        client.setCountry(clientData.get("Страна").replace("~", ""));;
+        client.setCountry(clientData.get("Страна").replace("~", ""));
         client.setCity(clientData.get("Город").replace("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
 
         if (clientData.containsKey("Соцсеть")) {
-            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть"));
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть").replace("~", ""));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
                 client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
                         " недействительна");
@@ -93,17 +91,14 @@ public class IncomeStringToClient {
         logger.info("Parsing FormTwo...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
-
                 .replaceAll(" ", "~")
                 .replaceAll("Name~3", "Name");
-
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
         String name = clientData.get("Name");
         String formattedName = name.replaceAll("~", "");
         setClientName(client, formattedName);
-
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
 
@@ -171,7 +166,7 @@ public class IncomeStringToClient {
 
     private void checkSocialNetworks(Client client, Map<String, String> clientData) {
         if (clientData.containsKey("Social")) {
-            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social"));
+            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social").replace("~", ""));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
                 client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
                         " недействительна");
