@@ -1,3 +1,5 @@
+let last_telegram_message_id = 0;
+
 $("#conversations-send-btn").click(function sendMessage() {
     let text = $("#conversations-text").val();
     let clientId = $("#main-modal-window").data('clientId');
@@ -14,18 +16,22 @@ $("#conversations-send-btn").click(function sendMessage() {
 
 });
 
+
 function update_chat() {
+    console.log("Upadate!");
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
         type: 'GET',
-        url: '/rest/telegram/messages/unread',
-        data: {clientId: clientId},
+        url: '/rest/telegram/messages/chat/unread',
+        data: {clientId: clientId, lastMessageId: last_telegram_message_id},
         success: function (response) {
+            console.log(response);
+            last_telegram_message_id = response.messages[0].id;
             let data = response.messages.reverse();
             for (let i in data) {
                 let message_id = data[i].id;
                 let send_date = new Date(data[i].date * 1000);
-                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Error: Stickers not supported!';
                 append_message(message_id, send_date, text);
             }
             $("#send-selector").prop('value', 'telegram');
@@ -52,7 +58,7 @@ function append_message(message_id, send_date, text) {
             sendDate = "";
         }
         sendDate += send_date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
-        var dom = $("<div class='container message-chat "+ ' ' +"' id='message_id" + message_id + "' style='padding-top: 10px;'>"+
+        var dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
             "<div class='row'> "+
             "<div class='col-xs-1'>"+
             // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +

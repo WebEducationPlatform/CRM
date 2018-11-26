@@ -18,6 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -107,6 +108,40 @@ public class TelegramServiceImpl implements TelegramService {
                 break;
             }
         }
+        //TODO separate methods
+        client.send(new TdApi.OpenChat(chatId), defaultHandler);
+        TdApi.Messages result = handler.getMessages();
+        long[] messageIds = new long[result.totalCount];
+        for (int i = 0; i < result.messages.length; i++) {
+            messageIds[i] = result.messages[i].id;
+        }
+        client.send(new TdApi.ViewMessages(chatId, messageIds, false), defaultHandler);
+        return handler.getMessages();
+    }
+
+    @Override
+    public TdApi.Messages getUnreadMessagesFromChat(long chatId, long lastMessageId, int limit) {
+        GetChatMessagesHandler handler = new GetChatMessagesHandler();
+        int iter = 0;
+        while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
+            //TODO limits!
+            client.send(new TdApi.GetChatHistory(chatId, lastMessageId, -(limit - 1), limit, false), handler);
+            while (handler.isLoading()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.warn("Message loading interrupted", e);
+                    break;
+                }
+            }
+            handler.setLoading(true);
+            iter++;
+            if(iter > RETRY_COUNT) {
+                break;
+            }
+        }
+        //TODO Mark as read.
+        client.send(new TdApi.GetChatHistory(chatId, lastMessageId, 0, limit, false), handler);
         return handler.getMessages();
     }
 
@@ -114,6 +149,13 @@ public class TelegramServiceImpl implements TelegramService {
     public void sendChatMessage(long chatId, String text) {
         TdApi.InputMessageContent content = new TdApi.InputMessageText(new TdApi.FormattedText(text, null), false, true);
         client.send(new TdApi.SendMessage(chatId, 0, false, false, null, content ), defaultHandler);
+    }
+
+    @Override
+    public TdApi.Chat getChat(long chatId) {
+        GetChatHandler getChatHandler = new GetChatHandler();
+        client.send(new TdApi.GetChat(chatId), getChatHandler);
+        return getChatHandler.getChat();
     }
 
     @Override
@@ -136,9 +178,10 @@ public class TelegramServiceImpl implements TelegramService {
         @Override
         public void onResult(TdApi.Object object) {
             switch (object.getConstructor()) {
-                case TdApi.UpdateAuthorizationState.CONSTRUCTOR:
+                case TdApi.UpdateAuthorizationState.CONSTRUCTOR: {
                     onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
                     break;
+                }
                 case TdApi.UpdateNewChat.CONSTRUCTOR: {
                     TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
                     if (chat.type instanceof TdApi.ChatTypePrivate) {
@@ -299,6 +342,23 @@ public class TelegramServiceImpl implements TelegramService {
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
+        }
+    }
+
+    /**
+     * Get telegram chat by id.
+     */
+    private class GetChatHandler implements Client.ResultHandler {
+
+        private TdApi.Chat chat;
+
+        public TdApi.Chat getChat() {
+            return chat;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.chat = (TdApi.Chat) object;
         }
     }
 

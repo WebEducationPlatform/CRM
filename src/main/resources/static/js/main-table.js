@@ -1680,6 +1680,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
         url: '/rest/telegram/messages/chat',
         data: {clientId: clientId},
         success: function (response) {
+            last_telegram_message_id = response.messages[0].id;
             let data = response.messages.reverse();
             $("#chat-messages").empty();
             for (let i in data) {
@@ -1689,7 +1690,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
                 append_message(message_id, send_date, text);
             }
             $("#send-selector").prop('value', 'telegram');
-            update_chat_interval = setInterval(update_chat(), 3000);
+            update_chat_interval = setInterval(update_chat, 10000);
         }
     })
 });
