@@ -5,11 +5,13 @@ import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Студент
+ */
 @Table (name = "student")
 @Entity
 public class Student implements Diffable<Student> {
@@ -19,39 +21,66 @@ public class Student implements Diffable<Student> {
     @Column (name = "id")
     private Long id;
 
+    /**
+     * Клиент, который стал студентом (изначально клиент студентом не является)
+     */
     @JoinColumn (name = "client_id")
     @OneToOne
-    private Client client; // клиент, который стал студентом (изначально клиенты студентами не являются)
+    private Client client;
 
+    /**
+     * Дата окончания пробного периода обучения
+     */
     @Column (name = "end_trial")
-    private LocalDateTime trialEndDate; // дата окончания пробного периода обучения
+    private LocalDateTime trialEndDate;
 
+    /**
+     * Дата следующего платежа
+     */
     @Column (name = "next_pay")
-    private LocalDateTime nextPaymentDate; // дата следующего платежа
+    private LocalDateTime nextPaymentDate;
 
-    @Column (name = "price") // стоимость обучения в месяц, руб
+    /**
+     * Стоимость обучения в месяц, руб
+     */
+    @Column (name = "price")
     private BigDecimal price;
 
-    @Column (name = "amount") // уже получено от студента, руб
+    /**
+     * Уже получено от студента, руб
+     */
+    @Column (name = "amount")
     private BigDecimal paymentAmount;
 
-    @Column (name = "later") // осталось получить со студента: price - paymentAmount
+    /**
+     * Осталось получить со студента (долг): price - paymentAmount
+     */
+    @Column (name = "later")
     private BigDecimal payLater;
 
-    @JoinColumn (name = "status_id") // статус студента (специальность, Java Core, Java Web и тд) ПОЧЕМУ СТАТУС???
+    /**
+     * Специальность (направление обучения) студента (Java Core, Java Web и тд) (Статус???)
+     */
+    @JoinColumn (name = "status_id")
     @OneToOne
     private StudentStatus status;
 
-    @Column (name = "notes") // заметки по студенту
+    /**
+     * Заметки по студенту
+     */
+    @Column (name = "notes")
     private String notes;
 
-    @Column (name = "notify_email") // уведомлять (напоминать) ли студенту по электронке об оплате
+    /**
+     * Напоминать ли студенту по электронке (поля ниже по смс, в vk) об оплате
+     */
+    @Column (name = "notify_email")
     private boolean notifyEmail = false;
 
-    @Column (name = "notify_sms") // уведомлять (напоминать) ли студенту по смс об оплате
+    @Column (name = "notify_sms")
     private boolean notifySMS = false;
 
-    @Column (name = "notify_vk") // уведомлять (напоминать) ли студенту в ВК об оплате
+    @Column (name = "notify_vk")
     private boolean notifyVK = false;
 
     public Student() {

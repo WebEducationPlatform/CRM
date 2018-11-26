@@ -6,15 +6,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- *
+ * Пользователь, что-то написавший в группе vk youtube канала
  */
 @Entity
 @Table(name = "youtube_client")
 public class YoutubeClient {
 
-    /**
-     *
-     */
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "youtube_client_id")
@@ -24,7 +21,7 @@ public class YoutubeClient {
     private String fullName;
 
     /**
-     *
+     * Youtube канал, в vk группе которого что-то написал пользователь
      */
 	@NotNull
 	@ManyToOne(cascade = CascadeType.MERGE)
@@ -34,19 +31,19 @@ public class YoutubeClient {
     private YouTubeTrackingCard youTubeTrackingCard;
 
     /**
-     *
+     * Удалось ли установить vk id пользователя
      */
-	@Column(name = "checked") // проверен, подтвержден
+	@Column(name = "checked")
 	private boolean checked;
 
     /**
-     *
+     * Дата добавления пользователя
      */
-	@Column(name = "upload_date") // дата загрузки?? чего??
+	@Column(name = "upload_date")
 	private LocalDateTime uploadDate;
 
     /**
-     *
+     * Сообщения пользователя
      */
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "youtube_client_youtube_client_message",

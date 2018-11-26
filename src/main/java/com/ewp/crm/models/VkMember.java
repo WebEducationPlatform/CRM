@@ -1,7 +1,5 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;

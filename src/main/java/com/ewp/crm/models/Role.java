@@ -1,10 +1,12 @@
 package com.ewp.crm.models;
 
-
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
+/**
+ * Роль (user, admin, mentor и тд)
+ */
 @Entity
 @Table(name = "role")
 public class Role implements GrantedAuthority {
