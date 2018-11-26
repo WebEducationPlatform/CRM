@@ -47,15 +47,17 @@ $(document).ready(function () {
         url: "/rest/report/getReportsStatus",
         type: "POST",
         success: function (response) {
-            var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus];
-            for (var i = 0; i < field.length; i++) {
-                var select = $(document.getElementById("select" + i));
-                select.find('option').each(function () {
-                    var val = $(this).attr('value');
-                    if (val == field[i]) {
-                        $(this).attr("selected", "selected");
-                    }
-                });
+            if (response != null) {
+                var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus];
+                for (var i = 0; i < field.length; i++) {
+                    var select = $(document.getElementById("select" + i));
+                    select.find('option').each(function () {
+                        var val = $(this).attr('value');
+                        if (val == field[i]) {
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+                }
             }
         },
         error: function (response) {

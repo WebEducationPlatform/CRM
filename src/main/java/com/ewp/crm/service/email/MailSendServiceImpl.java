@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -31,6 +32,7 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -48,7 +50,6 @@ public class MailSendServiceImpl implements MailSendService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
-    private final ImageConfig imageConfig;
     private final ClientService clientService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
@@ -59,7 +60,6 @@ public class MailSendServiceImpl implements MailSendService {
     @Autowired
     public MailSendServiceImpl(JavaMailSender javaMailSender,
                                @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
-                               ImageConfig imageConfig,
                                Environment environment,
                                ClientService clientService,
                                ClientHistoryService clientHistoryService,
@@ -67,7 +67,6 @@ public class MailSendServiceImpl implements MailSendService {
                                MailConfig mailConfig) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
-        this.imageConfig = imageConfig;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
@@ -212,6 +211,7 @@ public class MailSendServiceImpl implements MailSendService {
         javaMailSender.send(mimeMessage);
     }
 
+
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";
         Client client = clientService.getClientByID(clientId);
@@ -242,8 +242,15 @@ public class MailSendServiceImpl implements MailSendService {
             //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
             Matcher matcher = pattern.matcher(templateText);
             while (matcher.find()) {
-                InputStreamSource inputStreamSource = new FileSystemResource(new File(imageConfig.getPathForImages() + matcher.group() + ".png"));
-                mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
+                File file = new File(path);
+                if (file.exists()) {
+                    InputStreamSource inputStreamSource = new FileSystemResource(file);
+                    mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                } else {
+                    logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
+                    return;
+                }
             }
             javaMailSender.send(mimeMessage);
             if (principal != null) {
@@ -254,7 +261,6 @@ public class MailSendServiceImpl implements MailSendService {
             }
         } catch (Exception e) {
             logger.error("Can't send mail to {}", recipient, e);
-//            throw new MessageTemplateException(e.getMessage());
         }
     }
 

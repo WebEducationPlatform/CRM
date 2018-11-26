@@ -118,10 +118,12 @@ public class GoogleEmail {
                     if (parser.getHtmlContent().contains("Java Test")) {
                         prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
-                    client.setStatus(statusService.getFirstStatusForClient());
-                    client.addHistory(clientHistoryService.createHistory("GMail"));
-                    clientService.addClient(client);
-                    prepareAndSend.sendEmailInAllCases(client);
+                    if (clientService.getClientByEmail(client.getEmail()) == null) {
+                        client.setStatus(statusService.getFirstStatusForClient());
+                        client.addHistory(clientHistoryService.createHistory("GMail"));
+                        clientService.addClient(client);
+                        prepareAndSend.sendEmailInAllCases(client);
+                    }
                 }
             } catch (Exception e) {
                 logger.error("MimeMessageParser can't parse income data ", e);

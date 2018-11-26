@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -10,7 +12,7 @@ import java.util.List;
 public class YoutubeClient {
 
     @Id
-    @GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "youtube_client_id")
     private Long id;
 
