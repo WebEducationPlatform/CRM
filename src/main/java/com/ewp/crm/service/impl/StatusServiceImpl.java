@@ -18,16 +18,20 @@ import java.util.Optional;
 @Service
 public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
-	private final ClientService clientService;
+	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ClientService clientService, ProjectPropertiesService propertiesService) {
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService) {
 		this.statusDAO = statusDAO;
-		this.clientService = clientService;
 		this.propertiesService = propertiesService;
+	}
+
+	@Autowired
+	private void setStatusService(ClientService clientService) {
+		this.clientService = clientService;
 	}
 
 	@Override
