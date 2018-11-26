@@ -1,13 +1,13 @@
 package com.ewp.crm.models;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Тип социальной сети (справочник)
+ */
 @Entity
 @Table(name = "social_network_type") // зачем давайть разные имена таблице и классу-сущности??
 public class SocialProfileType implements Serializable {
@@ -20,6 +20,9 @@ public class SocialProfileType implements Serializable {
 	@Column(name = "name")
 	private String name;
 
+	/**
+	 * Соцсеть клиента (студента)
+	 */
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "social_network_social_network_type",

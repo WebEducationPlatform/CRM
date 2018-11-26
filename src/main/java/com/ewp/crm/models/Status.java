@@ -2,13 +2,15 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Статус студента, новый клиент, учится, бросил, закончил и тп.
+ */
 @Entity
 @Table(name = "status")
 public class Status implements Serializable {
@@ -18,17 +20,29 @@ public class Status implements Serializable {
 	@Column(name = "status_id")
 	private Long id;
 
-	@Column(name = "status_name", nullable = false, unique = true) // название статуса клиента (inLearningStatus, trialLearnStatus и тд)
+	/**
+	 * Название статуса клиента (inLearningStatus, trialLearnStatus и тд)
+	 */
+	@Column(name = "status_name", nullable = false, unique = true)
 	private String name;
 
+	/**
+	 * Видимость колонки карточек клиентов с данным статусом на главной странице CRM
+	 */
 	@Basic
-	@Column(name = "is_invisible") // видимость колонки карточек клиентов с данным статусом на главной странице CRM
+	@Column(name = "is_invisible")
 	private Boolean isInvisible = false;
 
+	/**
+	 * Позиция колонки карточек клиентов с данным статусом на главной странице CRM
+	 */
 	@Basic
-	@Column(name = "position") // позиция колонки карточек клиентов с данным статусом на главной странице CRM
+	@Column(name = "position")
 	private Long position;
 
+	/**
+	 * Клиенты (студенты) с данным статусом
+	 */
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "status_clients",
@@ -36,13 +50,22 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	@Column (name = "create_student") // создавать ли студента для данного статуса
+	/**
+	 * Становится ли клиент студентом при присвении ему данного статуса
+	 */
+	@Column (name = "create_student")
 	private boolean createStudent;
 
-	@Column(name = "trial_offset") // пробный период, дней для данного статуса
+	/**
+	 * Пробный период, дней, для данного статуса
+	 */
+	@Column(name = "trial_offset")
 	private Integer trialOffset;
 
-	@Column(name = "next_payment_offset") // дней до следующей оплаты (все правильно!)
+	/**
+	 * Дней до следующей оплаты
+	 */
+	@Column(name = "next_payment_offset")
 	private Integer nextPaymentOffset;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {

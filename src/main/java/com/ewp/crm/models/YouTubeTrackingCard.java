@@ -1,13 +1,10 @@
 package com.ewp.crm.models;
 
-
-
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
- * ????????
+ * Отслеживаемый канал конкурентов школы JavaMentor на youtube
  */
 @Entity
 @Table(name = "youtube_tracking_card")
@@ -23,14 +20,14 @@ public class YouTubeTrackingCard {
 	private String youTubeChannelID;
 
 	/**
-     * Группа youtube-канала в vk
+     * Группа отслеживаемого канала в vk
      */
 	@NotNull
 	@Column(name = "vk_group", nullable = false)
 	private String vkGroupID;
 
 	/**
-     * Идет ли стрим в прямом эфире???
+     * Есть ли прямые трансляции на канале
      */
 	@Column(name = "has_live_stream")
 	private boolean hasLiveStream;

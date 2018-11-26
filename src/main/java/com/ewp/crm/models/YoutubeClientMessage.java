@@ -1,11 +1,9 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 
 /**
- * Сообщение клиента или от клиента????
+ * Сообщения пользователя в группе vk youtube канала
  */
 @Entity
 @Table(name = "youtube_client_message")
@@ -17,13 +15,13 @@ public class YoutubeClientMessage {
     private Long id;
 
     /**
-     * Сообщение???
+     * Текст сообщения
      */
     @Column(name = "messages")
     private String messages;
 
     /**
-     * ????????
+     * Пользователь, что-то написавший в группе vk youtube канала
      */
     @ManyToOne
     @JoinTable(name = "youtube_client_youtube_client_message",

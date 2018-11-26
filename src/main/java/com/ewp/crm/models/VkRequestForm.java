@@ -2,14 +2,13 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 import javax.persistence.*;
 
 /**
- * Форма запроса из vk
+ * Форма заявки из vk
  */
 @Entity
-@Table(name = "vk_request_form") // форма запроса из ВК
+@Table(name = "vk_request_form")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
 
@@ -25,13 +24,13 @@ public class VkRequestForm {
     private Integer numberVkField;
 
     /**
-     * Имя поля
+     * Название поля
      */
     @Column(name = "name_vk_field")
     private String nameVkField;
 
     /**
-     * Тип поля
+     * Тип поля, обязательное или нет
      */
     @Column(name = "type_vk_field")
     private String typeVkField;

@@ -1,11 +1,12 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 
+/**
+ * Специальность (направление обучения), Java Core, Java Web и тд. (Статус???)
+ */
 @Entity
-@Table (name = "student_status") // специальность, Java Core, Java Web и тд. Почему статус???
+@Table (name = "student_status")
 public class StudentStatus {
 
     @Id

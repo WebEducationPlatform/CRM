@@ -14,8 +14,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Пользователь CRM, менеджер, ментор и тд
+ */
 @Entity
-@Table(name = "user") // пользователь CRM, менеджер, ментор и тд
+@Table(name = "user")
 public class User implements UserDetails {
 
 	@Id
@@ -52,34 +55,61 @@ public class User implements UserDetails {
 	@Column(name = "country", nullable = false)
 	private String country;
 
-	@Column(name = "photo") // ссылка на фото?
+	/**
+	 * Ссылка на фото
+	 */
+	@Column(name = "photo")
 	private String photo;
 
-	@Column(name = "photoType") // тип фото???
+	/**
+	 * Тип фотографии???
+	 */
+	@Column(name = "photoType")
 	private String photoType;
 
-	@Column(name = "ip_telephony") // можно ли позвонить пользователю по IP-телефонии
+	/**
+	 * Доступна ли пользователю ip-телефония
+	 */
+	@Column(name = "ip_telephony")
 	private boolean ipTelephony; // некорректное названия поля типа boolean и вообще
 
-	@Column(name = "is_enabled") // заблокирован?? удален?? работает или уволен??
+	/**
+	 * ????????
+	 */
+	@Column(name = "is_enabled") // включен, разрешен??? user-info.js, всегда false
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")
 	private boolean newClienNotifyIsEnabled = true; //ошибка в названии поля
 
-	@Column(name = "is_verified") // проверен? На ВИЧ? На неуплату налогов? На штрафы в ГИБДД? На адекватность?
+	/**
+	 * ????????
+	 */
+	@Column(name = "is_verified") // проверен на что??? user-info.js, всегда false
 	private boolean isVerified;
 
+	/**
+	 * ????????
+	 */
 	@Column(name = "autoAnswer") // автоответ. в какой ситуации? РОМАН ГАПОНОВ
 	private String autoAnswer;
 
+	/**
+	 * Настройки авторизации пользователя в vk
+	 */
 	@Column(name = "vkToken")
 	private String vkToken;
 
+	/**
+	 * Настройки авторизации пользователя в google
+	 */
 	@Column(name = "googleToken")
 	private String googleToken;
 
 
+	/**
+	 * Уведомления, полученные пользователем
+	 */
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
@@ -87,22 +117,34 @@ public class User implements UserDetails {
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
 	private List<Notification> notifications;
 
+	/**
+	 * Присылать ли уведомления на электронную почту
+	 */
 	@JsonIgnore
 	@Column(name = "enable_mail_notifications")
 	private boolean enableMailNotifications = true;
 
+	/**
+	 * Закреплен за клиентами (студентами)
+	 */
 	@JsonIgnore
-	@OneToMany(mappedBy = "ownerUser") // закреплен за клиентами
+	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
 
+	/**
+	 * Права (роль)
+	 */
 	@NotNull
-	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class) // роль
+	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
 	private List<Role> role = new ArrayList<>();
 
-	@Column(name = "color_background") // индивидуальная настройка интрефейса
+	/**
+	 * Индивидуальная настройка интрефейса
+	 */
+	@Column(name = "color_background")
 	private String colorBackground;
 
 	public User() {

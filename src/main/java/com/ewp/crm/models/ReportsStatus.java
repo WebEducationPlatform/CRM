@@ -1,9 +1,11 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 
+/**
+ * Сущность для формирования отчета по студентам.
+ * Сколько учится, сколько бросило учебу, сколько на пробном периоде и тд.
+ */
 @Entity
 @Table(name = "reports_status") //????
 public class ReportsStatus {

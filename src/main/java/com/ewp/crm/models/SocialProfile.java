@@ -1,12 +1,12 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Ссылка на профиль соцсети клиента (студента)
+ */
 @Entity
 @Table(name = "social_network")
 public class SocialProfile implements Serializable {
@@ -16,10 +16,14 @@ public class SocialProfile implements Serializable {
 	@Column(name = "id")
 	private long id;
 
-	@Column(name = "link")  // ссылка на профиль, по которой и так понятно, что это за соцсеть. зачем связанная таблица?
+	@Column(name = "link")
 	private String link;
 
-	@ManyToOne // зачем??
+
+    /**
+     * Тип соцсети
+     */
+	@ManyToOne
 	@JoinTable(name = "social_network_social_network_type",
 			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
 			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
