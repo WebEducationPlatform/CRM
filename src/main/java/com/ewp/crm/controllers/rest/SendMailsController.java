@@ -116,24 +116,25 @@ public class SendMailsController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping(value = "/image/upload", produces = "application/json")
     public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload, HttpServletRequest request) throws IOException {
+
         String sourceName = upload.getOriginalFilename();
         String sourceExt = FilenameUtils.getExtension(sourceName).toLowerCase();
+
         File destFile;
         String destFileName;
 
         String absolutePath = System.getProperty("user.dir");
-        System.out.println(absolutePath);
 
         destFileName = System.currentTimeMillis()+"."+sourceExt;
-        destFile = new File(absolutePath+FilenameUtils.separatorsToSystem(uploadPath)+destFileName);
+        destFile = new File(absolutePath+FilenameUtils.separatorsToSystem("/"+uploadPath)+destFileName);
 
         destFile.getParentFile().mkdirs();
 
         upload.transferTo(destFile);
 
-        URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
+        URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+":"+request.getLocalPort()+uploadUri+destFileName);
 
-        ImageUploadDto imageUploadDto = new ImageUploadDto(1, destFileName, imgUrl);
+        ImageUploadDto imageUploadDto = new ImageUploadDto(destFileName, imgUrl);
 
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
