@@ -112,8 +112,6 @@ public class SendMailsController {
     String uploadPath;
     @Value("${ckediror.img.uri}")
     String uploadUri;
-    @Value("${ckeditor.img.upload.target.path}")
-    String uploadTargetPath;
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping(value = "/image/upload", produces = "application/json")
@@ -121,18 +119,17 @@ public class SendMailsController {
         String sourceName = upload.getOriginalFilename();
         String sourceExt = FilenameUtils.getExtension(sourceName).toLowerCase();
         File destFile;
-        File destTargetFile;
         String destFileName;
 
-        destFileName = String.valueOf(System.currentTimeMillis())+"."+sourceExt;
-        destFile = new File(uploadPath+destFileName);
-        destTargetFile = new File(uploadTargetPath+destFileName);
+        String absolutePath = System.getProperty("user.dir");
+        System.out.println(absolutePath);
+
+        destFileName = System.currentTimeMillis()+"."+sourceExt;
+        destFile = new File(absolutePath+FilenameUtils.separatorsToSystem(uploadPath)+destFileName);
 
         destFile.getParentFile().mkdirs();
-        destTargetFile.getParentFile().mkdirs();
 
         upload.transferTo(destFile);
-        upload.transferTo(destTargetFile);
 
         URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
 
