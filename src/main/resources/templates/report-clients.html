@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Отчет о клиентах</title>
+    <meta charset="utf-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <script th:src="@{/js/validator.min.js}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+    <div id="user-info-container" class="container-fluid">
+        <div class="row-fluid">
+            <label class="h2">Создать отчет:</label><br/>
+            <div class="col-md-3" style="width: 20%; padding:30px;">
+                <label class="p-user">Выберите дату:</label>
+                <input class="form-control input-sm form-control-report" type="text" name="mailingDate"
+                       id="mailingDate"/>
+                <div id="formToSend">
+                    <div id="formCreate"><br/>
+                        <div class="form-group">
+                            <label class="p-user">Отчет:</label>
+                            <textarea style="resize: both" class="form-control input-sm form-control-report"
+                                      name="reportArea" th:id="reportArea" placeholder="Choose a date range above..."/>
+                        </div>
+                        <div class="form-group">
+                            <label class="p-user">Отправить на Email:</label>
+                            <input class="form-control input-sm form-control-report" name="email"
+                                   th:value="${currentMail}" th:id="email"/>
+                        </div>
+                        <br/>
+                        <button class="form-control form-control-report btn btn-primary btn-block"
+                                onclick="sendReport()">Отправить отчет
+                        </button>
+                    </div>
+                </div>
+                <br/>
+                <!--Дополнительные Настройки-->
+                <div class="pos-f-t">
+                    <nav class="navbar navbar-dark bg-dark">
+                        <span class="navbar-toggler" data-toggle="collapse"
+                              data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
+                              aria-expanded="false" aria-label="Toggle navigation">
+                            <button class="form-control form-control-report btn btn-primary btn-block">Дополнительные Настройки</button>
+                        </span>
+                    </nav>
+                    <div class="collapse" id="navbarToggleExternalContent">
+                        <div class="bg-dark p-4">
+                            <form>
+                                <div class="form-group">
+                                    <label class="p-user">проходит обучение</label>
+                                    <select th:id="select0" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">закончили обучение</label>
+                                    <select th:id="select1" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">бросили обучение</label>
+                                    <select th:id="select2" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">Приостановили обучение</label>
+                                    <select th:id="select3" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="p-user">Пробное обучение</label>
+                                    <select th:id="select4" class="form-control input-sm form-control-report">
+                                        <div th:replace="fragments/htmlFragments::status_name_in_selection"></div>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="updateReportsStatus()">Обновить статусы
+                                </button>
+                            </form>
+                            <br/>
+                        </div>
+                    </div>
+                </div>
+                <a class="form-control form-control-report btn btn-primary btn-block" href="/client">Назад</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="application/javascript" src="/js/report.js"></script>
+</body>
+</html>

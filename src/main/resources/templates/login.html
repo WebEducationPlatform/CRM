@@ -1,0 +1,29 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Вход</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<div class="container">
+
+    <form class="form-signin" name='loginForm' action="/processing-url" method='POST'>
+        <input
+                type="hidden"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}" />
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <input class="form-control" placeholder="Login" type="text" name="username"/>
+        <input class="form-control" placeholder="Password" type="password" name="password"/>
+        <br/>
+        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" value="Login"/>
+        <a href="/user/register" class="btn btn-lg btn-primary btn-block" id="registerUser">Registration</a>
+    </form>
+
+
+</div>
+</body>
+</html>

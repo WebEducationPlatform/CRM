@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Настройка автоответа</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/userAutoanswer.js}"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+
+<div class="container">
+   <div class="autoanswer">
+        <form class="form" method="post" action="/user/autoAnswer">
+            <div>
+                <div class="container">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="body">Автоматический ответ</label>
+                            <textarea id="body" required="required" class="form-control" rows="5"
+                                      name="text"
+                                      th:text="${userCustomize.autoAnswer}">test</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <input class="btn-primary btn-sm" type="submit"
+                       role="button"
+                       value="Сохранить"/>
+            </div>
+        </form>
+    </div>
+ </div>
+<!-- Модальное окно для получения информации -->
+<div class="modal fade" id="infoModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Краткая информация о редакторе</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h5>Ключевые слова заключены в знаки процента %</h5>
+                <h5>При отправке сообщения они будут заменены на соответсвующие им значения</h5>
+                <h5><b>Например:</b></h5>
+                <h5>%fullName% будет заменен на имя и фамилию клиента</h5>
+                <h5><b>Поддерживаемые ключевые слова:</b></h5>
+                <ul>
+                    <li>%fullName% - Фамилия и имя клиента;</li>
+                </ul>
+                <ul>
+                    <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого
+                        текста;
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

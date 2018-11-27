@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+</head>
+<body>
+
+<th:block th:fragment="mainModalWindow">
+    <div th:id="'main-modal-window'" class="modal fade main-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" th:onclick="'backUrl()'" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+
+                                <tbody>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td id="client-email"></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                                            <a name="emailTmplList" data-toggle="dropdown"
+                                               class="btn-default btn btn-light btn-xs"><span
+                                                    class="glyphicon glyphicon-envelope"></span></a>
+                                            <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                                                <li th:id="'eTemplate' + ${template.id}"
+                                                    th:each="template : ${emailTmpl}">
+                                                    <a class="glyphicon glyphicon-plus test-fix-btn test-custom-btn"
+                                                       th:if="${!template.hasBody()}"
+                                                       th:id="'eTemplateBtn' + ${template.id}" data-toggle="modal"
+                                                       th:attrappend="data-target='#sendTemplateModal'"
+                                                       th:text="' ' + ${template.name}"
+                                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                                    <a class="glyphicon glyphicon-plus test-custom-btn"
+                                                       th:if="${template.hasBody()}"
+                                                       th:id="'eTemplateBtn' + ${template.id}" data-toggle="modal"
+                                                       th:attrappend="data-target='#customMessageTemplate'"
+                                                       th:text="' ' + ${template.name}"
+                                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
+                                                       th:href="'/template/edit/' +  ${template.id}">
+                                                        <button
+                                                                type="button" data-toggle="modal"
+                                                                name="editETemplateBtn"
+                                                                class="glyphicon glyphicon-edit">
+                                                        </button>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+
+                                            <!-- SMS ERROR INFO BTN -->
+                                            <th:block th:each="notification_sms:${notifications_type_sms}">
+                                                <th:block th:if="${notification_sms.client == client}">
+                                                    <button type="button" style="color:red"
+                                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                                            th:attrappend="data-id=${client.id}"></button>
+                                                </th:block>
+                                            </th:block>
+                                            <!--/ SMS ERROR INFO BTN -->
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Номер телефона:</td>
+                                    <td id="client-phone"></td>
+                                </tr>
+                                <tr>
+                                    <td>Возраст:</td>
+                                    <td id="client-age">
+                                        <th:block>
+                                        </th:block>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Пол:</td>
+                                    <td id="client-sex"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Заметка:</td>
+                                    <td id="client-label" style="word-wrap:break-word; width: 300px;"></td>
+                                    <td></td>
+                                </tr>
+                                <br/>
+                                <tr>
+                                    <td>Социальные сети:</td>
+                                    <td>
+                                        <div class="box-button">
+                                            <div>
+                                                <a id="vk-href" target="_blank" name="emailTmplList"
+                                                   class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
+                                                    <span class="fa fa-vk"></span>
+                                                </a>
+                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm"
+                                                        data-toggle="modal" data-target="#customVKIMMessage">
+                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count"
+                                                                                                    class="badge"></span></a>
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <a id="fb-href" target="_blank"
+                                                   class="btn btn-social-icon btn-facebook btn-sm">
+                                                    <span class="fa fa-facebook"></span></a>
+                                            </div>
+                                            <div class="btn-slack">
+                                                <a id="slack-href" target="_blank" class="slack-button">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:id="'sendSocialTemplateStatus'"></div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div id="assign-unassign-btns">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-header">
+                    <div class="panel-group" id="hideAccordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" id="postpone-accordion">
+                            </div>
+                        </div>
+                        <div th:id="'hideClientCollapse'" class="panel-collapse collapse hide-client-collapse">
+                            <div class="panel-body">
+                                <span>Добавить напоминание на: </span>
+                                <div class="form-group" id="postpone-div">
+                                    <input type="text" class="form-control postpone-date" th:id="'postponeDate'"
+                                           name="postponeDate"/>
+                                    <span>Скрывать? </span>
+                                    <input type="checkbox" class="isPostponeFlag" id="isPostponeFlag"
+                                           name="isPostponeFlag"/>
+                                    <span><h4>Причина:</h4></span>
+                                    <textarea class="form-control postponeComment"
+                                              placeholder="причина напоминания"></textarea>
+                                </div>
+
+                                <span class="postponeStatus" th:id="'postponeStatus'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="fragments/htmlFragments::comments"></div>
+                <div th:replace="fragments/htmlFragments::clientHistory"></div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>
