@@ -1,0 +1,29 @@
+<!--MODAL-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<th:block th:fragment="modalClientHistoryMessage">
+    <div class="modal fade modal-client-history-message" id="modalClientHistoryMessage" tabindex="-1" role="dialog" data-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal">x</button>
+                    <h4 class="modal-title" id="myModalLabel">История изменений</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="message_content"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" type="button" data-dismiss="modal">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

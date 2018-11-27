@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head>
+    <title>Информация о пользователе</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+<div style="margin-top: 3%">
+    <div id = "user-info-container" class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-md-3" id="column1">
+                <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" id="editUser">Редактировать</button>
+                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + ${#authentication.getPrincipal().getId()} + '\')'">Сохранить</button>
+						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+					</div>
+                    <p><span id = "message"></span></p>
+                    <input type="checkbox" checked="checked" class="form-control"  style="display:none"    id="edit-user-isVerified"/>
+                    <div class="form-group">
+                        <label for="edit-user-first-name">Имя</label>
+                        <input class="form-control" data-error="Имя должно начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$" required="required" disabled="disabled" id="edit-user-first-name" th:value="${user.firstName}"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-last-name">Фамилия</label>
+                        <input class="form-control" data-error="Фамилия должна начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$"  required="required" id="edit-user-last-name" disabled="disabled" th:value="${user.lastName}"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <label for="edit-user-password">Пароль</label>
+                        <input type="password" class="form-control" required="required" disabled="disabled" id="edit-user-password" th:value="${user.password}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-phone-number">Номер телефона</label>
+                        <input type="tel" class="form-control" required="required" disabled="disabled" id="edit-user-phone-number" th:value="${user.phoneNumber}"/>
+                    </div>
+
+                       <div class="form-group" id="ipTelephony">
+                             <label for="ipTelephony">Дать доступ к IP Телефонии:</label>
+
+                                      <div class="checkbox">
+                                        <th:block th:if="${user.ipTelephony}">
+                                         <input type="checkbox" name="ipTelephony" disabled="disabled" title="" th:id="ipTel" checked="checked"/>
+                                         <label th:for="ipTel"></label>
+                                        </th:block>
+                                        <th:block th:if="${!user.ipTelephony}">
+                                        <input type="checkbox" name="ipTelephony" disabled="disabled" th:id="ipTel"/>
+                                        <label th:for="ipTel"></label>
+                                        </th:block>
+                                      </div>
+                          </div>
+
+                    <div class="form-group">
+                        <label for="edit-user-email">Email</label>
+                        <input type="email" data-error="Неверный формат Email" class="form-control" required = "required" pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$" disabled="disabled" id="edit-user-email" th:value="${user.email}"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-VKid">VK id</label>
+                        <input type="text" class="form-control" disabled="disabled" id="edit-user-VKid" th:value="${user.vk}"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-user-sex">Выберите пол</label>
+                        <select class="form-control" disabled="disabled" id="edit-user-sex" th:value="${user.sex}">
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-country">Страна</label>
+                        <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-country" th:value="${user.country}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-city">Город</label>
+                        <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-city" th:value="${user.city}"/>
+                    </div>
+                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <label for="edit-user-roles">Роли</label>
+                        <div id="current-user-roles">
+                            <span th:each="role : ${user.role}" th:value="${role.id}"></span>
+                        </div>
+                        <div class="checkbox" th:each="role : ${roles}">
+                            <input type="checkbox" disabled="disabled" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}" name = "roleCheckBx" title=""/>
+                            <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" id="column2" style="margin-top: 2%">
+                <div class="form-group" id="user-photo-group">
+                    <label>Фото</label>
+                    <img id="userPhoto" alt="" class="img-rounded img-responsive centre"
+                         th:src="${user.photo}"  />
+                    <input accept="image/*" th:max = "${maxSize}" type="file" disabled="disabled" id='photoBtn' onchange="selectPhoto()" style="display: none"/>
+                    <label for="photoBtn" >
+                        <span id="photoSelectBtn" class="btn btn-primary" disabled="disabled">Выбрать</span>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    var updatedUserRoles = [[${user.role}]];
+    /*]]>*/
+</script>
+<script type="text/javascript" th:src="@{/js/user-info.js}"></script>
+<script th:src="@{/js/validator.min.js}"></script>
+</body>
+</html>

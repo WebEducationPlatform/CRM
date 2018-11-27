@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Сообщение</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/edit-eTemplate.js}"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body style="background-color: #ccc3c6;">
+<fieldset>
+    <label for="body"></label>
+    <textarea readonly="readonly" id="body" th:text="${message.getContent()}">
+    </textarea>
+</fieldset>
+</body>
+</html>
