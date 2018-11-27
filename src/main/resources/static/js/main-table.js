@@ -1701,7 +1701,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
         type: 'GET',
-        url: '/rest/telegram/messages/chat',
+        url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
         success: function (response) {
             last_telegram_message_id = response.messages[0].id;
@@ -1714,14 +1714,20 @@ $('#conversations-modal').on('show.bs.modal', function () {
                 append_message(message_id, send_date, text);
             }
             $("#send-selector").prop('value', 'telegram');
-            update_chat_interval = setInterval(update_chat, 10000);
+            update_chat_interval = setInterval(update_chat, 2000);
         }
     })
 });
 
 $('#conversations-modal').on('hidden.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
     $("#chat-messages").empty();
     clearInterval(update_chat_interval);
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/close',
+        data: {clientId: clientId}
+    })
 });
 
 $(function () {

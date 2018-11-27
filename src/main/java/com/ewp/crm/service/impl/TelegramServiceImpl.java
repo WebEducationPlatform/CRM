@@ -18,6 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.locks.Condition;
@@ -90,6 +91,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public TdApi.Messages getChatMessages(long chatId, int limit) {
+        client.send(new TdApi.OpenChat(chatId), defaultHandler);
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
         int iter = 0;
         while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
@@ -108,24 +110,17 @@ public class TelegramServiceImpl implements TelegramService {
                 break;
             }
         }
-        //TODO separate methods
-        client.send(new TdApi.OpenChat(chatId), defaultHandler);
-        TdApi.Messages result = handler.getMessages();
-        long[] messageIds = new long[result.totalCount];
-        for (int i = 0; i < result.messages.length; i++) {
-            messageIds[i] = result.messages[i].id;
-        }
-        client.send(new TdApi.ViewMessages(chatId, messageIds, false), defaultHandler);
+        markMessagesAsRead(chatId, handler.getMessages());
         return handler.getMessages();
     }
 
     @Override
     public TdApi.Messages getUnreadMessagesFromChat(long chatId, long lastMessageId, int limit) {
+        TdApi.Chat chat = getChat(chatId);
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
         int iter = 0;
         while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
-            //TODO limits!
-            client.send(new TdApi.GetChatHistory(chatId, lastMessageId, -(limit - 1), limit, false), handler);
+            client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.unreadCount, false), handler);
             while (handler.isLoading()) {
                 try {
                     Thread.sleep(10);
@@ -140,9 +135,17 @@ public class TelegramServiceImpl implements TelegramService {
                 break;
             }
         }
-        //TODO Mark as read.
-        client.send(new TdApi.GetChatHistory(chatId, lastMessageId, 0, limit, false), handler);
-        return handler.getMessages();
+        TdApi.Messages messages = handler.getMessages();
+        markMessagesAsRead(chatId, messages);
+        return messages;
+    }
+
+    private void markMessagesAsRead(long chatId, TdApi.Messages messages) {
+        long[] messageIds = new long[messages.totalCount];
+        for (int i = 0; i < messages.messages.length; i++) {
+            messageIds[i] = messages.messages[i].id;
+        }
+        client.send(new TdApi.ViewMessages(chatId, messageIds, false), defaultHandler);
     }
 
     @Override
@@ -155,7 +158,20 @@ public class TelegramServiceImpl implements TelegramService {
     public TdApi.Chat getChat(long chatId) {
         GetChatHandler getChatHandler = new GetChatHandler();
         client.send(new TdApi.GetChat(chatId), getChatHandler);
+        while (getChatHandler.isLoading()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("Chat loading interrupted", e);
+                break;
+            }
+        }
         return getChatHandler.getChat();
+    }
+
+    @Override
+    public void closeChat(long chatId) {
+        client.send(new TdApi.CloseChat(chatId), defaultHandler);
     }
 
     @Override
@@ -349,16 +365,18 @@ public class TelegramServiceImpl implements TelegramService {
      * Get telegram chat by id.
      */
     private class GetChatHandler implements Client.ResultHandler {
-
         private TdApi.Chat chat;
-
+        private boolean loading = true;
         public TdApi.Chat getChat() {
-            return chat;
+            return this.chat;
         }
-
+        public boolean isLoading() {
+            return loading;
+        }
         @Override
         public void onResult(TdApi.Object object) {
             this.chat = (TdApi.Chat) object;
+            this.loading = false;
         }
     }
 
