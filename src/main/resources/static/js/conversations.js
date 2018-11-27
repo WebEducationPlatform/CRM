@@ -18,14 +18,12 @@ $("#conversations-send-btn").click(function sendMessage() {
 
 
 function update_chat() {
-    console.log("Upadate!");
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/unread',
         data: {clientId: clientId, lastMessageId: last_telegram_message_id},
         success: function (response) {
-            console.log(response);
             last_telegram_message_id = response.messages[0].id;
             let data = response.messages.reverse();
             for (let i in data) {

@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.TelegramService;
 import org.drinkless.tdlib.TdApi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,7 +45,7 @@ public class TelegramRestController {
         return HttpStatus.OK;
     }
 
-    @GetMapping("/messages/chat")
+    @GetMapping("/messages/chat/open")
     public ResponseEntity<TdApi.Messages> getChatMessages(@RequestParam("clientId") Long clientId) {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
         ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -53,6 +54,21 @@ public class TelegramRestController {
                 String chatId = profile.getLink();
                 TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
                 result = new ResponseEntity<>(messages, HttpStatus.OK);
+                break;
+            }
+        }
+        return result;
+    }
+
+    @GetMapping("/messages/chat/close")
+    public HttpStatus closeChat(@RequestParam("clientId") Long clientId) {
+        List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
+        HttpStatus result = HttpStatus.NOT_FOUND;
+        for (SocialProfile profile : profiles) {
+            if("telegram".equals(profile.getSocialProfileType().getName())) {
+                String chatId = profile.getLink();
+                telegramService.closeChat(Long.parseLong(chatId));
+                result = HttpStatus.OK;
                 break;
             }
         }
