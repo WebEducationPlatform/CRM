@@ -112,31 +112,28 @@ public class SendMailsController {
     String uploadPath;
     @Value("${ckediror.img.uri}")
     String uploadUri;
-    @Value("${ckeditor.img.upload.target.path}")
-    String uploadTargetPath;
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping(value = "/image/upload", produces = "application/json")
     public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload, HttpServletRequest request) throws IOException {
+
         String sourceName = upload.getOriginalFilename();
         String sourceExt = FilenameUtils.getExtension(sourceName).toLowerCase();
+
         File destFile;
-        File destTargetFile;
         String destFileName;
 
-        destFileName = String.valueOf(System.currentTimeMillis())+"."+sourceExt;
-        destFile = new File(uploadPath+destFileName);
-        destTargetFile = new File(uploadTargetPath+destFileName);
+        String absolutePath = System.getProperty("user.dir");
+
+        destFileName = System.currentTimeMillis()+"."+sourceExt;
+        destFile = new File(absolutePath+FilenameUtils.separatorsToSystem("/"+uploadPath)+destFileName);
 
         destFile.getParentFile().mkdirs();
-        destTargetFile.getParentFile().mkdirs();
 
         upload.transferTo(destFile);
-        upload.transferTo(destTargetFile);
-
         URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
 
-        ImageUploadDto imageUploadDto = new ImageUploadDto(1, destFileName, imgUrl);
+        ImageUploadDto imageUploadDto = new ImageUploadDto(destFileName, imgUrl);
 
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
