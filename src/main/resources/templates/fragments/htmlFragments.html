@@ -134,7 +134,7 @@
                                 <form action="/logout" id="logout" method="post">
                                     <input type="hidden"
                                            th:name="${_csrf.parameterName}"
-                                           th:value="${_csrf.token}" />
+                                           th:value="${_csrf.token}"/>
                                 </form>
                             </li>
                         </ul>
@@ -161,14 +161,17 @@
 </th:block>
 
 <th:block th:fragment="custom-style">
-    <style th:inline="text" th:if="${#authorization.expression('isAuthenticated()')}">
+
+    <!--removed  th:if="${#authorization.expression('isAuthenticated()')}" from the line below-->
+    <!--card from 'Форма: Java Test' doesn't appear on a board with it-->
+    <style th:inline="text">
         body {
-            background-color:[[${#authentication.getPrincipal().colorBackground}]];
+            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
 
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear,left top,left bottom,from([[${#authentication.getPrincipal().colorBackground}]]),to([[${#authentication.getPrincipal().colorBackground}]]));
-            border-color: [[${#authentication.getPrincipal().colorBackground}]];
+            background-image: -webkit-gradient(linear, left top, left bottom, from([ [${#authentication.getPrincipal().colorBackground}] ]), to([ [${#authentication.getPrincipal().colorBackground}] ]));
+            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
         }
     </style>
 </th:block>
@@ -582,11 +585,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header padding-top-bot">
-                    <a id="VK-IM-LINK" href='https://vk.com/' target='_blank' ><div id="VK-IM-HEADER">Чат с пользователем </div></a>
+                    <a id="VK-IM-LINK" href='https://vk.com/' target='_blank'>
+                        <div id="VK-IM-HEADER">Чат с пользователем</div>
+                    </a>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div id="im-vk-body" class="modal-body padding-bot" style="max-height: 400px; overflow-y: auto;">
-                        <!--here js insert vk_messages!-->
+                    <!--here js insert vk_messages!-->
 
                 </div>
                 <div class="modal-body padding-bot">
