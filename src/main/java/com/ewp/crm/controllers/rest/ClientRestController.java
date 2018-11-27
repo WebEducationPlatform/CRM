@@ -360,6 +360,7 @@ public class ClientRestController {
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
 			Client client = clientService.get(clientId);
+			client.setHideCard(false);
 			client.setPostponeDate(null);
 			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE));
 			clientService.updateClient(client);
