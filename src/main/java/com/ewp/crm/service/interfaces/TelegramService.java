@@ -20,5 +20,7 @@ public interface TelegramService {
 
     TdApi.Chat getChat(long chatId);
 
+    void closeChat(long chatId);
+
     void logout();
 }
