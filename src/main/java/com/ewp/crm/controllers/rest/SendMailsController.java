@@ -131,7 +131,7 @@ public class SendMailsController {
         destFile.getParentFile().mkdirs();
 
         upload.transferTo(destFile);
-        URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
+        URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+":"+request.getLocalPort()+uploadUri+destFileName);
 
         ImageUploadDto imageUploadDto = new ImageUploadDto(destFileName, imgUrl);
 
