@@ -22,5 +22,11 @@ public interface TelegramService {
 
     void closeChat(long chatId);
 
+    public TdApi.User getMe();
+
+    public TdApi.User getUserById(int userId);
+
+    public TdApi.UserProfilePhotos getUserPhotos(int userId);
+
     void logout();
 }
