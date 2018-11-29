@@ -4,6 +4,7 @@ package com.ewp.crm.models;
 
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 //TODO Дополнить при необходимости полями для системных настроек
@@ -47,6 +48,18 @@ public class ProjectProperties {
 
     @Column(name = "status_color")
     private String statusColor;
+
+    /**
+     * Цена месяца обучения по-умолчанию.
+     */
+    @Column(name = "default_price_per_month")
+    private BigDecimal defaultPricePerMonth = new BigDecimal(12000.00);
+
+    /**
+     * Имя статуса по-умолчанию для нового студента.
+     */
+    @Column(name = "default_student_status_name")
+    private String defaultStudentStatusName = "Новый студент";
 
     public ProjectProperties() {
     }
@@ -122,6 +135,22 @@ public class ProjectProperties {
 
     public void setNewClientStatus(Long newClientStatus) {
         this.newClientStatus = newClientStatus;
+    }
+
+    public BigDecimal getDefaultPricePerMonth() {
+        return defaultPricePerMonth;
+    }
+
+    public void setDefaultPricePerMonth(BigDecimal defaultPricePerMonth) {
+        this.defaultPricePerMonth = defaultPricePerMonth;
+    }
+
+    public String getDefaultStudentStatusName() {
+        return defaultStudentStatusName;
+    }
+
+    public void setDefaultStudentStatusName(String defaultStudentStatusName) {
+        this.defaultStudentStatusName = defaultStudentStatusName;
     }
 
     @Override
