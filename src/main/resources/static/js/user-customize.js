@@ -59,3 +59,41 @@ function validate_input(data) {
     }
     return true;
 }
+
+//Fill values on new student configuration modal show up.
+$('#new-student-config-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/properties',
+        dataType: 'JSON',
+        success: function (response) {
+            $("#month-price").val(response.defaultPricePerMonth);
+            $("#new-student-status").val(response.defaultStudentStatusName);
+        }
+    });
+});
+
+//Update new student creation properties
+$("#update-new-student-settings").click( function () {
+    let price = $("#month-price").val();
+    let status = $("#new-student-status").val();
+    if (!validate_new_student_parameters(price, status)) {return}
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/new-student-properties',
+        dataType: 'JSON',
+        data: {price: price, status: status}
+    });
+});
+
+function validate_new_student_parameters(price, status) {
+    if (price === '') {
+        alert("Введите корректную цену!");
+        return false;
+    }
+    if (status === '') {
+        alert("Введите имя статуса!");
+        return false;
+    }
+    return true;
+}

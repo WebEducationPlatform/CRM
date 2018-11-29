@@ -473,11 +473,9 @@
                         <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
                         <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}"
                                maxlength="30" th:value="${status.name}"/>
-                        <label th:for="'trial_offset_' + ${status.id}">Интервал по-умолчанию для даты пробного
-                            периода</label>
+                        <label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label>
                         <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
-                        <label th:for="'next_payment_offset_' + ${status.id}">Интервал по-умолчанию для даты следующей
-                            оплаты</label>
+                        <label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label>
                         <input th:id="'next_payment_offset_' + ${status.id}" type="number"
                                th:value="${status.nextPaymentOffset}"/>
                     </div>
