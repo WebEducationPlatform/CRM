@@ -26,6 +26,7 @@
         <tbody id="vk-request-body">
         <th:block th:each="c : ${vkRequest}">
             <tr>
+                <td style="display:none;" th:text="${c.id}"></td>
                 <td th:text="${c.nameVkField}"></td>
                 <td th:text="${c.typeVkField}"></td>
                 <td style="display: none;" th:text="${c.numberVkField}"></td>
