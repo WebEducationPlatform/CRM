@@ -121,7 +121,7 @@ public class ClientRestController {
 			case "facebook": link = "https://vk.com/id"+userID; break;
 			default: link = "";
 		}
-		SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+		SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialNetworkId(Long.parseLong(userID));
 		Client client = clientService.getClientBySocialProfile(socialProfile);
 
 		Map<String, String> returnMap = new HashMap<>();
@@ -227,7 +227,7 @@ public class ClientRestController {
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
 				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
 				for (SocialProfile socialProfile : socialProfiles) {
-					bufferedWriter.write(socialProfile.getLink() + "\r\n");
+					bufferedWriter.write(socialProfile.getSocialNetworkId() + "\r\n");
 				}
 			}
 			if (selected.equals("email")) {

@@ -212,9 +212,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 	private void checkSocialLinks(Client client) {
 		for (int i = 0; i < client.getSocialProfiles().size(); i++) {
-			String link = client.getSocialProfiles().get(i).getLink();
+			long link1 = client.getSocialProfiles().get(i).getSocialNetworkId();
+			String link = String.valueOf(link1);
 			SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
-			if (type.getName().equals("unknown")) {
+			/*if (type.getName().equals("unknown")) {
 				if (!link.startsWith("https")) {
 					if (link.startsWith("http")) {
 						link = link.replaceFirst("http", "https");
@@ -222,31 +223,54 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 						link = "https://" + link;
 					}
 				}
-			} else if(type.getName().equals("vk")) {
-				link = client.getSocialProfiles().get(i).getLink();
+			} else */
+			if(type.getName().equals("vk")) {
+//				link = client.getSocialProfiles().get(i).getSocialNetworkId();
 				if(!link.matches("[-+]?\\d+") && !link.equals("https://vk.com/id")){
-					link = restTemplate.getForObject("https://api.vk.com/method/users.get?access_token=beb3e3ed96e19e2401868a11e7f68e69213377d8cce91eb1fe81ab7fc1bb39ec9fd94f99d45b11d11c09d&v=5.78&user_ids="+link,String.class);
+					String idVK = restTemplate.getForObject("https://api.vk.com/method/users.get?access_token=beb3e3ed96e19e2401868a11e7f68e69213377d8cce91eb1fe81ab7fc1bb39ec9fd94f99d45b11d11c09d&v=5.78&user_ids="+link,String.class);
 					try {
-						JSONArray response = new JSONObject(link).getJSONArray("response");
+						JSONArray response = new JSONObject(idVK).getJSONArray("response");
 						JSONObject jo = response.getJSONObject(0);
-						link = jo.getString("id");
+						idVK = jo.getString("id");
 
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+//					client.getSocialProfiles().get(i).setSocialNetworkId(idVK);
+                }
+
+			} else if(type.getName().equals("facebook")) {
+//				link = client.getSocialProfiles().get(i).getSocialNetworkId();
+				if(!link.matches("[-+]?\\d+") && !link.equals("https://fb.com/id")) {
+
+					String idFB = restTemplate.getForObject("https://graph.facebook.com/v3.2/https://cocacola?access_token=EAAEeyqp8Ft0BANiIiZAQ0nJu3vZBm1xNpFGZBIwVS5SqL4gQt15erJY5PtytEd0y3YnsGGbotEg9fwlzQZBUXdnIkkKRhkUjZB5ymVncFZCv3VZBLcKv2fQbJKOfArH6ZCGWFyjHahsJq0zmD5tQiVfbEa9FywM9U5OrYwwOMs2YsQaH58yKQDJm",String.class);
+
+//					String jSon = restTemplate.getForObject("https://graph.facebook.com/v3.2/"+link+"?fields=id&access_token=EAAIZBdSihu1cBABH4jF0ueLU8iIlrDBLi78n0ksB1LgSgcGWwvVRSZBZAdFveAU26M5sN75oh3gFyhOwDZA590DA0mteq9TWotLQcaS44b3vVHZAQvZA3f7p9lRm58pcibEsNifUCFZAN1Et2a885u3nEYYCjozwCXc3sLMQBkzZCwZDZD",String.class);
+//					JSONObject jSon = restTemplate.getForObject("https://graph.facebook.com/v3.2/"+link+"+?fields=id&access_token=EAAEeyqp8Ft0BANiIiZAQ0nJu3vZBm1xNpFGZBIwVS5SqL4gQt15erJY5PtytEd0y3YnsGGbotEg9fwlzQZBUXdnIkkKRhkUjZB5ymVncFZCv3VZBLcKv2fQbJKOfArH6ZCGWFyjHahsJq0zmD5tQiVfbEa9FywM9U5OrYwwOMs2YsQaH58yKQDJm&format=json",JSONObject.class);
+//					 link = restTemplate.getForObject( "https://graph.facebook.com/v3.2/me?fields=id&access_token=EAAEeyqp8Ft0BANiIiZAQ0nJu3vZBm1xNpFGZBIwVS5SqL4gQt15erJY5PtytEd0y3YnsGGbotEg9fwlzQZBUXdnIkkKRhkUjZB5ymVncFZCv3VZBLcKv2fQbJKOfArH6ZCGWFyjHahsJq0zmD5tQiVfbEa9FywM9U5OrYwwOMs2YsQaH58yKQDJm", String.class);
+
+					try {
+
+                        JSONObject jo = new JSONObject(link);
+						link = jo.get("id").toString();
 
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 
-                }
-
-			} else {
-				int indexOfLastSlash = link.lastIndexOf("/");
-				if (indexOfLastSlash != -1) {
-					link = link.substring(indexOfLastSlash + 1);
+//					client.getSocialProfiles().get(i).setSocialNetworkId(idFB);
 				}
-				link = "https://" + type.getName() + ".com/" + link;
+
+				} else {
+					int indexOfLastSlash = link.lastIndexOf("/");
+					if (indexOfLastSlash != -1) {
+					link = link.substring(indexOfLastSlash + 1);
+					}
+					link = "https://" + type.getName() + ".com/" + link;
+//				    client.getSocialProfiles().get(i).setSocialNetworkId(link);
 			}
 
-			client.getSocialProfiles().get(i).setLink(link);
+
 		}
 	}
 

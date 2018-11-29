@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SocialProfileService {
 
-	SocialProfile getSocialProfileByLink(String link);
+	SocialProfile getSocialProfileBySocialNetworkId(long socialNetworkId);
 }

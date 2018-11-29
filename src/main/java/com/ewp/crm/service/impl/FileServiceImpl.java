@@ -23,15 +23,15 @@ public class FileServiceImpl implements FileService{
 		for (PotentialClient potentialClient : potentialClientService.getAllPotentialClients()) {
 			for (SocialProfile socialProfile : potentialClient.getSocialProfiles()) {
 				if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-					String link = socialProfile.getLink();
-					int indexOfLastSlash = link.lastIndexOf("/");
+					Long link = socialProfile.getSocialNetworkId();
+				/*	int indexOfLastSlash = link.lastIndexOf("/");
 					if (indexOfLastSlash != -1) {
 						link = link.substring(indexOfLastSlash + 1);
 					}
 					if (link.startsWith("id")) {
 						link = link.replaceFirst("id", "");
-					}
-					result += link + "\n";
+					}*/
+					result += "https://vk.com/id" + link + "\n";
 				}
 			}
 		}

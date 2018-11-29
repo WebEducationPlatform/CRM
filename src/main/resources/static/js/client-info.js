@@ -286,10 +286,14 @@ var th = $('#SocialNetworks').find('th');
         th.each(function (index, th) {
             if(tds.eq(index).text() === "vk"){
               var idVK =  tds.eq(index-1).text();
-              var linkVK = 'https://vk.com/id'+idVK;
+              var linkVK = 'https://vk.com/id' + idVK;
                 tds.eq(index-1).text(linkVK);
+            } else if(tds.eq(index).text() === "facebook") {
+                var idFB = tds.eq(index - 1).text();
+                var linkFB = 'http://www.facebook.com/profile.php?id=' + idFB;
+                tds.eq(index - 1).text(linkFB);
             }
-
         });
     });
+
 

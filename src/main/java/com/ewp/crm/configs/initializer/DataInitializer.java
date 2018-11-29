@@ -75,10 +75,10 @@ public class DataInitializer {
 
         SocialProfileType VK = new SocialProfileType("vk");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
-        SocialProfileType UNKNOWN = new SocialProfileType("unknown");
+//        SocialProfileType UNKNOWN = new SocialProfileType("unknown");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
-        socialProfileTypeService.add(UNKNOWN);
+//        socialProfileTypeService.add(UNKNOWN);
 
         User admin = new User(
                 "Stanislav",
@@ -192,14 +192,14 @@ public class DataInitializer {
 		client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
 		client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-		client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
-		client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id", socialProfileTypeService.getByTypeName("vk")),
-				new SocialProfile("https://fb.com/id", socialProfileTypeService.getByTypeName("facebook"))));
+		client1.setSocialProfiles(Arrays.asList(new SocialProfile(123453346L, socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile(123456789L, socialProfileTypeService.getByTypeName("facebook"))));
+		client2.setSocialProfiles(Arrays.asList(new SocialProfile(123452226789L, socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile(12345678L, socialProfileTypeService.getByTypeName("facebook"))));
+		client3.setSocialProfiles(Arrays.asList(new SocialProfile(1234221153346L, socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile(1234567L, socialProfileTypeService.getByTypeName("facebook"))));
+		client4.setSocialProfiles(Arrays.asList(new SocialProfile(123454466672226789L, socialProfileTypeService.getByTypeName("vk")),
+				new SocialProfile(123456L, socialProfileTypeService.getByTypeName("facebook"))));
 		client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
 		vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),

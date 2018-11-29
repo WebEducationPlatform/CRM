@@ -19,8 +19,8 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 		this.socialProfileRepository = socialProfileRepository;
 	}
 
-	@Override
-	public SocialProfile getSocialProfileByLink(String link) {
-		return socialProfileRepository.getByLink(link);
-	}
+    @Override
+    public SocialProfile getSocialProfileBySocialNetworkId(long socialNetworkId) {
+        return socialProfileRepository.getBySocialNetworkId(socialNetworkId);
+    }
 }

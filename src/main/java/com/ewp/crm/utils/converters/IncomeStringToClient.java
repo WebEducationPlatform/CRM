@@ -70,7 +70,7 @@ public class IncomeStringToClient {
         if (clientData.containsKey("Соцсеть")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть"));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getSocialNetworkId() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
@@ -101,7 +101,7 @@ public class IncomeStringToClient {
         if (clientData.containsKey("Social1")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social1"));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getSocialNetworkId() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
@@ -122,7 +122,7 @@ public class IncomeStringToClient {
         if (clientData.containsKey("Social2")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social2"));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")){
-                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getLink() +
+                client.setComment("Ссылка на социальную сеть "+ currentSocialProfile.getSocialNetworkId() +
                                                 " недействительна");
                 logger.warn("Unknown social network");
             }
@@ -138,7 +138,7 @@ public class IncomeStringToClient {
 
     private SocialProfile getSocialNetwork(String link) {
         SocialProfile socialProfile = new SocialProfile();
-        socialProfile.setLink(link);
+//        socialProfile.setSocialNetworkId(link);
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")){

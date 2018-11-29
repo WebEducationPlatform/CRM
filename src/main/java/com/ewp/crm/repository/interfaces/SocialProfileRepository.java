@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface SocialProfileRepository extends JpaRepository <SocialProfile, Long> {
 
-	SocialProfile getByLink(String ling);
+	SocialProfile getBySocialNetworkId(long socialNetworkId);
+
+
 }

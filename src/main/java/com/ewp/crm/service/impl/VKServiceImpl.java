@@ -157,7 +157,7 @@ public class VKServiceImpl implements VKService {
         List<SocialProfile> socialProfiles = client.getSocialProfiles();
         for (SocialProfile socialProfile : socialProfiles) {
             if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-                String link = socialProfile.getLink();
+                String link = "https://vk.com/id"+ socialProfile.getSocialNetworkId();
                 Optional<Long> optId = getVKIdByUrl(link);
                 if (optId.isPresent()) {
                     Long id = optId.get();
@@ -375,9 +375,10 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
             String name = jsonUser.getString("first_name");
             String lastName = jsonUser.getString("last_name");
-            String vkLink = "https://vk.com/id" + id;
+//            String vkLink = "https://vk.com/id" + id;
+
             Client client = new Client(name, lastName);
-            SocialProfile socialProfile = new SocialProfile(vkLink);
+            SocialProfile socialProfile = new SocialProfile(id);
             List<SocialProfile> socialProfiles = new ArrayList<>();
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);
@@ -416,7 +417,7 @@ public class VKServiceImpl implements VKService {
             newClient.setClientDescriptionComment(description.toString());
             SocialProfileType socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
-            SocialProfile socialProfile = new SocialProfile("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")), socialProfileType);
+            SocialProfile socialProfile = new SocialProfile(Long.parseLong(social), socialProfileType);
             newClient.setSocialProfiles(Collections.singletonList(socialProfile));
         } catch (Exception e) {
             logger.error("Parse error, can't parse income string", e);
@@ -633,9 +634,9 @@ public class VKServiceImpl implements VKService {
                     long id = jsonUser.getLong("id");
                     String firstName = jsonUser.getString("first_name");
                     String lastName = jsonUser.getString("last_name");
-                    String vkLink = "https://vk.com/id" + id;
+//                    String vkLink = "https://vk.com/id" + id;
                     PotentialClient potentialClient = new PotentialClient(firstName, lastName);
-                    SocialProfile socialProfile = new SocialProfile(vkLink);
+                    SocialProfile socialProfile = new SocialProfile(id);
                     socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
                     List<SocialProfile> socialProfiles = new ArrayList<>();
                     socialProfiles.add(socialProfile);

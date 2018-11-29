@@ -192,7 +192,7 @@ public class ScheduleTasks {
 					try {
 						Client newClient = vkService.parseClientFromMessage(message);
 						SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-						if (Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent()) {
+						if (Optional.ofNullable(socialProfileService.getSocialProfileBySocialNetworkId(socialProfile.getSocialNetworkId())).isPresent()) {
 							updateClient(newClient);
 						} else {
 							addClient(newClient);
@@ -236,7 +236,7 @@ public class ScheduleTasks {
 				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
 					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-					if (!(Optional.ofNullable(socialProfileService.getSocialProfileByLink(socialProfile.getLink())).isPresent())) {
+					if (!(Optional.ofNullable(socialProfileService.getSocialProfileBySocialNetworkId(socialProfile.getSocialNetworkId())).isPresent())) {
 						addClient(newClient.get());
 					}
 				}
@@ -331,7 +331,7 @@ public class ScheduleTasks {
 			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
 			if (newPotentialClient.isPresent()) {
 				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
-				if (socialProfileService.getSocialProfileByLink(socialProfile.getLink()) == null) {
+				if (socialProfileService.getSocialProfileBySocialNetworkId(socialProfile.getSocialNetworkId()) == null) {
 					potentialClientService.addPotentialClient(newPotentialClient.get());
 				}
 			}

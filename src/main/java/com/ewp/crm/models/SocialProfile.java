@@ -15,8 +15,11 @@ public class SocialProfile implements Serializable {
 	@Column(name = "id")
 	private long id;
 
-	@Column(name = "link")
-	private String link;
+/*	@Column(name = "link")
+	private String link;*/
+
+	@Column(name = "socialNetworkId")
+	private long socialNetworkId;
 
 	@ManyToOne
 	@JoinTable(name = "social_network_social_network_type",
@@ -27,13 +30,13 @@ public class SocialProfile implements Serializable {
 	public SocialProfile() {
 	}
 
-	public SocialProfile(String link, SocialProfileType socialProfileType) {
-		this.link = link;
+	public SocialProfile(long socialNetworkId, SocialProfileType socialProfileType) {
+		this.socialNetworkId = socialNetworkId;
 		this.socialProfileType = socialProfileType;
 	}
 
-	public SocialProfile(String link) {
-		this.link = link;
+	public SocialProfile(long socialNetworkId) {
+		this.socialNetworkId = socialNetworkId;
 	}
 
 	@Override
@@ -42,18 +45,18 @@ public class SocialProfile implements Serializable {
 		if (!(o instanceof SocialProfile)) return false;
 		SocialProfile that = (SocialProfile) o;
 		return id == that.id &&
-				Objects.equals(link, that.link) &&
+				Objects.equals(socialNetworkId, that.socialNetworkId) &&
 				Objects.equals(socialProfileType, that.socialProfileType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, link, socialProfileType);
+		return Objects.hash(id, socialNetworkId, socialProfileType);
 	}
 
 	@Override
 	public String toString() {
-		return this.link;
+		return String.valueOf(this.socialNetworkId);
 	}
 
 	public long getId() {
@@ -64,12 +67,20 @@ public class SocialProfile implements Serializable {
 		this.id = id;
 	}
 
-	public String getLink() {
+	/*public String getLink() {
 		return link;
 	}
 
 	public void setLink(String link) {
 		this.link = link;
+	}*/
+
+	public long getSocialNetworkId() {
+		return socialNetworkId;
+	}
+
+	public void setSocialNetworkId(long socialNetworkId) {
+		this.socialNetworkId = socialNetworkId;
 	}
 
 	public SocialProfileType getSocialProfileType() {
