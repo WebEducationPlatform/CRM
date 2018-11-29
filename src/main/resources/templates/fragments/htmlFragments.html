@@ -41,8 +41,21 @@
                                    placeholder="Search"/>
                         </div>
                     </li>
+
+
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li class="nav-item dropdown">
+                        <a class="vk-notifications glyphicon glyphicon-send pull-right" href="#"
+                           id="VKNavbarDropdown" role="button" data-toggle="dropdown"
+                           style="color: darkblue;display: none;">
+
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="VKNavbarDropdown" id="VKNewMessageMenu">
+                            <!--<a class="dropdown-item vk-items" href="#">Action</a>-->
+                        </div>
+                    </li>
+
                     <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <a class="glyphicon glyphicon-bell redBell"
                            th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
