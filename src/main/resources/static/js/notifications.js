@@ -23,7 +23,7 @@ function markAsReadMenu(clientId) {
             dataType: 'json',
             url: url,
             success: function () {
-                $('#not-bar').load(location.href + ' #not-bar');
+                //$('#not-bar').load(location.href + ' #not-bar');
                 $('#info-client' + clientId).find(".notification").remove();
                 $('.menu' + clientId).remove();
                 $('#notification-postpone' + clientId).hide();
@@ -57,7 +57,7 @@ function setAllNotifications(notifications) {
     $.ajax({
         type: "POST",
         url: "/user/enableNotifications",
-        data: {notifications:notifications},
+        data: {notifications: notifications},
         success: function () {
             location.reload();
         }
