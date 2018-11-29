@@ -959,6 +959,9 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
+        if ($('#custom-eTemplate-body').val().length===0){
+            return currentStatus.text("Введите текст сообщения!");
+        }
         var formData = {
             clientId: clientId, templateId: templateId,
             body: $('#custom-eTemplate-body').val()
