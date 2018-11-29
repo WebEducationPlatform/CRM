@@ -170,6 +170,51 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
+    public TdApi.User getMe() {
+        GetTelegramUserHandler handler = new GetTelegramUserHandler();
+        client.send(new TdApi.GetMe(), handler);
+        while (handler.isLoading()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("Current user loading interrupted", e);
+                break;
+            }
+        }
+        return handler.getUser();
+    }
+
+    @Override
+    public TdApi.User getUserById(int userId) {
+        GetTelegramUserHandler handler = new GetTelegramUserHandler();
+        client.send(new TdApi.GetUser(userId), handler);
+        while (handler.isLoading()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("User loading interrupted", e);
+                break;
+            }
+        }
+        return handler.getUser();
+    }
+
+    @Override
+    public TdApi.UserProfilePhotos getUserPhotos(int userId) {
+        GetProfilePhotoHandler handler = new GetProfilePhotoHandler();
+        client.send(new TdApi.GetUserProfilePhotos(userId, 0, 5), defaultHandler);
+        while (handler.isLoading()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("User loading interrupted", e);
+                break;
+            }
+        }
+        return handler.getPhotos();
+    }
+
+    @Override
     public void closeChat(long chatId) {
         client.send(new TdApi.CloseChat(chatId), defaultHandler);
     }
@@ -376,6 +421,50 @@ public class TelegramServiceImpl implements TelegramService {
         @Override
         public void onResult(TdApi.Object object) {
             this.chat = (TdApi.Chat) object;
+            this.loading = false;
+        }
+    }
+
+    /**
+     * Get telegram user.
+     */
+    private class GetTelegramUserHandler implements Client.ResultHandler {
+        private TdApi.User user;
+        private boolean loading = true;
+
+        public TdApi.User getUser() {
+            return user;
+        }
+
+        public boolean isLoading() {
+            return loading;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.user = (TdApi.User) object;
+            this.loading = false;
+        }
+    }
+
+    /**
+     * Get profile photos by user ID.
+     */
+    private class GetProfilePhotoHandler implements Client.ResultHandler {
+        private TdApi.UserProfilePhotos photos;
+        private boolean loading = true;
+
+        public TdApi.UserProfilePhotos getPhotos() {
+            return photos;
+        }
+
+        public boolean isLoading() {
+            return loading;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.photos = (TdApi.UserProfilePhotos) object;
             this.loading = false;
         }
     }
