@@ -23,6 +23,10 @@ public class ProjectProperties {
     @Column(name = "default_status")
     private Long defaultStatusId;
 
+    //ID статуса по умолчанию для повторно обративщихся клиентов
+    @Column(name = "repeated_default_status")
+    private Long repeatedDefaultStatusId = 1L;
+
     @Column(name = "new_client_status")
     private Long newClientStatus = 1L;
 
@@ -74,6 +78,14 @@ public class ProjectProperties {
 
     public void setTechnicalAccountToken(String technicalAccountToken) {
         this.technicalAccountToken = technicalAccountToken;
+    }
+
+    public Long getRepeatedDefaultStatusId() {
+        return repeatedDefaultStatusId;
+    }
+
+    public void setRepeatedDefaultStatusId(Long repeatedDefaultStatusId) {
+        this.repeatedDefaultStatusId = repeatedDefaultStatusId;
     }
 
     public Long getDefaultStatusId() {
