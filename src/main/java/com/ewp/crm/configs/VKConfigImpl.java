@@ -36,8 +36,6 @@ public class VKConfigImpl implements VKConfig {
 
     private String firstContactMessage;
 
-    private String targetVkGroup;
-
     private String apiUrl;
 
     private String chatId;
@@ -65,7 +63,6 @@ public class VKConfigImpl implements VKConfig {
             chatId  = env.getProperty("vk.chatId");
             vkClientToken = env.getProperty("vk.clientToken");
 
-            targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
                 throw new NullPointerException();
@@ -126,10 +123,6 @@ public class VKConfigImpl implements VKConfig {
 
     public String getFirstContactMessage() {
         return firstContactMessage;
-    }
-
-    public String getTargetVkGroup() {
-        return targetVkGroup;
     }
 
     public String getVkAPIUrl() {

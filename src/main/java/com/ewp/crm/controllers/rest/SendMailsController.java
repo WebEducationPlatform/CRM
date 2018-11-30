@@ -43,8 +43,6 @@ public class SendMailsController {
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private String pattern;
     private String template;
-    private String[] textData; //todo это че?
-    private String textData1;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
 
@@ -58,7 +56,7 @@ public class SendMailsController {
     @PostMapping(value = "/client/mailing/send")
     public ResponseEntity<String> parseClientData(@RequestParam("type") String type,
                                                   @RequestParam("templateText") String templateText,
-                                                  @RequestParam("clientData") String clientData,
+                                                  @RequestParam("recipients") String recipients,
                                                   @RequestParam("text") String text,
                                                   @RequestParam("date") String date,
                                                   @RequestParam("sendnow") boolean sendnow) {
@@ -67,29 +65,24 @@ public class SendMailsController {
             case "vk":
                 pattern = vkPattern;
                 template = text;
-                clientData = clientData.replaceAll("\\p{Punct}|", "");
-                //textData = text.split("clientData", 2);
-                //textData[1] = textData[1].replaceAll("\\p{Punct}|", "");
+                recipients = recipients.replaceAll("\\p{Punct}|", "");
                 break;
             case "sms":
-                //textData = text.split("clientData", 2);
                 pattern = smsPattern;
                 template = text;
                 break;
             case "email":
-                //textData = templateText.split("clientData", 2);
                 pattern = emailPattern;
                 template = templateText;
                 break;
         }
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 
         Set<ClientData> clientsInfo = new HashSet<>();
         if (type.equals("vk")) {
-            String[] vkIds = clientData.split("\n");
+            String[] vkIds = recipients.split("\n");
             Arrays.asList(vkIds).forEach(x -> {
                 Matcher vkMatcher = p.matcher(x);
                 if (vkMatcher.find() && !x.contains(" ") && !x.equals("")) {
@@ -97,19 +90,19 @@ public class SendMailsController {
                 }
             });
         } else {
-            Matcher matcher2 = p.matcher(clientData);
+            Matcher matcher2 = p.matcher(recipients);
             while (matcher2.find()) {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-
         MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
-        MailingMessage executeMessage = mailingService.addMailingMessage(message);
-
         if (sendnow) {
-            mailingService.sendMessage(executeMessage);
+            if (!mailingService.sendMessage(message)) {
+                return ResponseEntity.noContent().build();
+            }
+        } else {
+            mailingService.addMailingMessage(message);
         }
-
         return ResponseEntity.ok("");
     }
 
@@ -119,31 +112,28 @@ public class SendMailsController {
     String uploadPath;
     @Value("${ckediror.img.uri}")
     String uploadUri;
-    @Value("${ckeditor.img.upload.target.path}")
-    String uploadTargetPath;
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping(value = "/image/upload", produces = "application/json")
     public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload, HttpServletRequest request) throws IOException {
+
         String sourceName = upload.getOriginalFilename();
         String sourceExt = FilenameUtils.getExtension(sourceName).toLowerCase();
+
         File destFile;
-        File destTargetFile;
         String destFileName;
 
-        destFileName = String.valueOf(System.currentTimeMillis())+"."+sourceExt;
-        destFile = new File(uploadPath+destFileName);
-        destTargetFile = new File(uploadTargetPath+destFileName);
+        String absolutePath = System.getProperty("user.dir");
+
+        destFileName = System.currentTimeMillis()+"."+sourceExt;
+        destFile = new File(absolutePath+FilenameUtils.separatorsToSystem("/"+uploadPath)+destFileName);
 
         destFile.getParentFile().mkdirs();
-        destTargetFile.getParentFile().mkdirs();
 
         upload.transferTo(destFile);
-        upload.transferTo(destTargetFile);
-
         URI imgUrl = URI.create(request.getScheme()+"://"+request.getServerName()+uploadUri+destFileName);
 
-        ImageUploadDto imageUploadDto = new ImageUploadDto(1, destFileName, imgUrl);
+        ImageUploadDto imageUploadDto = new ImageUploadDto(destFileName, imgUrl);
 
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
