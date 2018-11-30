@@ -6,9 +6,9 @@ import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import com.ewp.crm.repository.interfaces.StudentStatusRepository;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,36 +21,34 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     private final StudentRepository studentRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final StudentRepositoryCustom studentRepositoryCustom;
+    private final ProjectPropertiesService projectPropertiesService;
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
                               StudentStatusRepository studentStatusRepository,
-                              StudentRepositoryCustom studentRepositoryCustom) {
+                              StudentRepositoryCustom studentRepositoryCustom,
+                              ProjectPropertiesService projectPropertiesService) {
         this.studentRepository = studentRepository;
         this.studentStatusRepository = studentStatusRepository;
         this.studentRepositoryCustom = studentRepositoryCustom;
+        this.projectPropertiesService = projectPropertiesService;
     }
-
-    @Value("${price.month}")
-    private String PRICE;
-
-    @Value("${default.student.status}")
-    private String DEFAULT_STATUS;
 
     @Override
     public Student addStudentForClient(Client client) {
         Student result;
         if (client.getStudent() == null && client.getStatus().isCreateStudent()) {
-            StudentStatus status = studentStatusRepository.getStudentStatusByStatus(DEFAULT_STATUS);
+            String degaultStatusName = projectPropertiesService.getOrCreate().getDefaultStudentStatusName();
+            StudentStatus status = studentStatusRepository.getStudentStatusByStatus(degaultStatusName);
             if (status == null) {
-                status = studentStatusRepository.save(new StudentStatus(DEFAULT_STATUS));
+                status = studentStatusRepository.save(new StudentStatus(degaultStatusName));
             }
             int trialOffset = client.getStatus().getTrialOffset();
             int nextPaymentOffset = client.getStatus().getNextPaymentOffset();
             result = new Student(client,
                     LocalDateTime.now().plusDays(trialOffset),
                     LocalDateTime.now().plusDays(nextPaymentOffset),
-                    new BigDecimal(0.00),
+                    projectPropertiesService.getOrCreate().getDefaultPricePerMonth(),
                     new BigDecimal(0.00),
                     new BigDecimal(0.00),
                     status,

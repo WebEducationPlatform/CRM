@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @RestController
@@ -71,4 +72,14 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
+
+    @PostMapping("/new-student-properties")
+    public HttpStatus setNewStudentProperties(@RequestParam("price")BigDecimal price, @RequestParam("status") String status) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setDefaultPricePerMonth(price);
+        current.setDefaultStudentStatusName(status);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
 }
