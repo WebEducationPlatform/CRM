@@ -473,13 +473,19 @@
                         <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
                         <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}"
                                maxlength="30" th:value="${status.name}"/>
-                        <label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label>
-                        <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
-                        <label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label>
-                        <input th:id="'next_payment_offset_' + ${status.id}" type="number"
-                               th:value="${status.nextPaymentOffset}"/>
+                        <table style="margin: 2%">
+                            <tr>
+                                <td><label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label></td>
+                                <td><input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label></td>
+                                <td><input th:id="'next_payment_offset_' + ${status.id}" type="number"
+                                           th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
+                            </tr>
+                        </table>
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"
                             th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить
                     </button>
