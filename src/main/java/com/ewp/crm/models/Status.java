@@ -40,10 +40,10 @@ public class Status implements Serializable {
 	private boolean createStudent;
 
 	@Column(name = "trial_offset")
-	private Integer trialOffset;
+	private Integer trialOffset = 0;
 
 	@Column(name = "next_payment_offset")
-	private Integer nextPaymentOffset;
+	private Integer nextPaymentOffset = 0;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;
