@@ -6,6 +6,7 @@ import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,19 +44,32 @@ public class AdminEmailRestController {
         return Files.readAllBytes(fileLocation);
     }
 
+    @Value("%bodyText%")
+    private String msgTemplateDefaultTextBody;
+
     @PostMapping(value = {"/admin/editMessageTemplate"})
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public HttpStatus editETemplate(@RequestParam("templateId") Long templateId,
                                     @RequestParam("templateText") String templateText,
                                     @RequestParam String otherTemplateText) {
         //TODO Убрать хардкод
-        if (templateText.contains("%bodyText%") ^ otherTemplateText.contains("%bodyText%")) {
-            throw new MessageTemplateException("%bodyText% должен присутствовать/остутствовать на обоих типах сообщения");
+        if (templateText.contains(msgTemplateDefaultTextBody) ^ otherTemplateText.contains(msgTemplateDefaultTextBody)) {
+            throw new MessageTemplateException(msgTemplateDefaultTextBody + "должен присутствовать или остутствовать на обоих типах сообщения");
         }
+
         MessageTemplate messageTemplate = messageTemplateService.get(templateId);
+
+        if (templateText.length() == 0 || otherTemplateText.length() == 0) {
+            templateText = msgTemplateDefaultTextBody + templateText;
+            otherTemplateText = msgTemplateDefaultTextBody + otherTemplateText;
+        }
+
         messageTemplate.setTemplateText(templateText);
         messageTemplate.setOtherText(otherTemplateText);
+
+
         messageTemplateService.update(messageTemplate);
+
         return HttpStatus.OK;
     }
 
