@@ -40,6 +40,10 @@ public class VKConfigImpl implements VKConfig {
 
     private String apiUrl;
 
+    private String chatId;
+
+    private String vkClientToken;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -58,6 +62,8 @@ public class VKConfigImpl implements VKConfig {
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
+            chatId  = env.getProperty("vk.chatId");
+            vkClientToken = env.getProperty("vk.clientToken");
 
             targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
@@ -128,5 +134,13 @@ public class VKConfigImpl implements VKConfig {
 
     public String getVkAPIUrl() {
         return apiUrl;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public String getVkClientToken() {
+        return vkClientToken;
     }
 }

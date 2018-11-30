@@ -4,6 +4,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,4 +48,8 @@ public interface VKService {
     String getLongIDFromShortName(String vkGroupShortName);
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
+
+    void sendDailyYandexDirectReportToConference(String message, String messageBalance) throws ParseException;
+
+
 }

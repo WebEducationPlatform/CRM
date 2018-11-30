@@ -14,6 +14,9 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -29,13 +32,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
 public class VKServiceImpl implements VKService {
+    private final String OLD_FORMAT = "yyyy-MM-dd";
+    private final String NEW_FORMAT = "dd.MM.yyyy";
+    private static final String DAILY_REPORT_URL = "https://api.vk.com/method/messages.send?chat_id={chat_id}&message={message}&access_token={access_token}&v=5.37";
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final YoutubeClientService youtubeClientService;
     private final SocialProfileService socialProfileService;
@@ -48,6 +56,7 @@ public class VKServiceImpl implements VKService {
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
     private final VkMemberService vkMemberService;
+    private final RestTemplate restTemplate;
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
@@ -72,6 +81,11 @@ public class VKServiceImpl implements VKService {
     private String robotPassword;
     private String firstContactMessage;
 
+    //id беседы в вк
+    private String chatId;
+    //Токен доступа от страницы
+    private String vkClientToken;
+
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
                          YoutubeClientService youtubeClientService,
@@ -84,7 +98,7 @@ public class VKServiceImpl implements VKService {
                          MessageTemplateService messageTemplateService,
                          ProjectPropertiesService projectPropertiesService,
                          VkRequestFormService vkRequestFormService,
-                         VkMemberService vkMemberService) {
+                         VkMemberService vkMemberService, RestTemplate restTemplate) {
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -93,6 +107,8 @@ public class VKServiceImpl implements VKService {
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
+        chatId = vkConfig.getChatId();
+        vkClientToken = vkConfig.getVkClientToken();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -104,6 +120,7 @@ public class VKServiceImpl implements VKService {
         this.projectPropertiesService = projectPropertiesService;
         this.vkRequestFormService = vkRequestFormService;
         this.vkMemberService = vkMemberService;
+        this.restTemplate = restTemplate;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.robotClientSecret = vkConfig.getRobotClientSecret();
         this.robotClientId = vkConfig.getRobotClientId();
@@ -730,5 +747,54 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public void sendDailyYandexDirectReportToConference(String messageReport, String messageBalance) throws ParseException {
+        Map<String, String> variables = new HashMap<>();
+        variables.put("chat_id", chatId);
+        variables.put("message", formatMessageYandexDirect(messageReport, messageBalance));
+        variables.put("access_token", vkClientToken);
+        restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
+    }
+
+    private String formatMessageYandexDirect(String messageReport, String messageBalance) throws ParseException {
+        StringBuffer br = new StringBuffer();
+        String[] str = messageReport.split("\n");
+        String[] date = new String[10];
+        String[] tittle2 = new String[3];
+        long sum = 0;
+        JsonObject convertedObject = new Gson().fromJson(messageBalance, JsonObject.class);
+        JsonArray t = convertedObject.getAsJsonObject("result").getAsJsonArray("Campaigns");
+        for (int i = 0; i < t.size(); i++) {
+            JsonObject ob = new Gson().fromJson(t.get(i), JsonObject.class);
+            JsonObject ob2 = new Gson().fromJson(ob.getAsJsonObject("Funds").get("CampaignFunds"), JsonObject.class);
+            sum += ob2.get("Balance").getAsLong();
+
+        }
+        for(int i = 2; i < str.length; i++) {
+            if(str[i].contains("Total row")) {
+                break;
+            }
+            date = str[i].split("\t");
+        }
+        date[0] = formatDate(date[0]);
+        tittle2[0] = "Дата";
+        tittle2[1] = "Количество кликов";
+        tittle2[2] = "Денег потрачено";
+        br.append("Статистика по яндекс-директу:" + "\n\n");
+        for(int i = 0; i < tittle2.length; i++) {
+            br.append(tittle2[i] + ": " + date[i] + "\n\n");
+        }
+        br.append("Баланс: " + sum + "\n\n");
+        return br.toString();
+    }
+
+    private String formatDate(String date) throws ParseException {
+        String newDateString;
+        SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT);
+        Date d = sdf.parse(date);
+        sdf.applyPattern(NEW_FORMAT);
+        newDateString = sdf.format(d);
+        return newDateString;
+    }
 }
 

@@ -7,30 +7,35 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.StatusServiceImpl;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
+import com.squareup.okhttp.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @EnableScheduling
-@PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
+@PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251" )
+@PropertySource(value = "file:./yandex-direct.properties")
 public class ScheduleTasks {
 
 	private final VKService vkService;
@@ -84,6 +89,21 @@ public class ScheduleTasks {
 	private final MailingService mailingService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
+
+	@Value("${Authorization}")
+	private String auth;
+
+	@Value("${Accept-Language}")
+	private String acceptLanguage;
+
+	@Value("${urlReport}")
+	private String urlReport;
+
+	@Value("${urlBalance}")
+	private String urlBalance;
+
+	@Value("${Client-Login}")
+	private String loginClient;
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
@@ -363,5 +383,59 @@ public class ScheduleTasks {
 		} else {
 			logger.info("Payment notification properties not set!");
 		}
+	}
+
+	@Scheduled(cron = "0 30 00 * * ?")
+	private void sendYandexDirectInfo() throws JSONException, IOException, ParseException {
+
+		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+		JSONObject bodyForReport = new JSONObject("{\n" +
+				"    \"params\": {\n" +
+				"      \"SelectionCriteria\": { },\n" +
+				"      \"Goals\": [ \"20002\", \"20003\" ],\n" +
+				"      \"AttributionModels\": [ \"LSC\" ],\n" +
+				"      \"FieldNames\": [ \"Date\", \"Clicks\", \"Cost\"], \n" +
+				"      \"OrderBy\": [{\n" +
+				"        \"Field\": \"Date\"\n" +
+				"      }],\n" +
+				"      \"ReportName\": \"Conversions\",\n" +
+				"      \"ReportType\": \"ACCOUNT_PERFORMANCE_REPORT\",\n" +
+				"      \"DateRangeType\": \"YESTERDAY\",\n" +
+				"      \"Format\": \"TSV\",\n" +
+				"      \"IncludeVAT\": \"YES\",\n" +
+				"      \"IncludeDiscount\": \"YES\"\n" +
+				"    }\n" +
+				"  }");
+
+		JSONObject bodyForBalance = new JSONObject("{\n" +
+				"  \"method\": \"get\",\n" +
+				"  \"params\": {\n" +
+				"    \"SelectionCriteria\": {},\n" +
+				"    \"FieldNames\": [\"Funds\"]\n" +
+				"  }\n" +
+				"}");
+
+		RequestBody bodyReport = RequestBody.create(JSON, bodyForReport.toString());
+		RequestBody bodyBalance = RequestBody.create(JSON, bodyForBalance.toString());
+		Request requestReport = new Request.Builder()
+				.addHeader("Authorization", auth)
+				.addHeader("Accept-Language", acceptLanguage).url(urlReport).
+						addHeader("Client-Login", loginClient).
+						post(bodyReport).build();
+
+		Request requestBalance = new Request.Builder()
+				.addHeader("Authorization", auth)
+				.addHeader("Accept-Language", acceptLanguage).url(urlBalance).
+						addHeader("Client-Login", loginClient).
+						post(bodyBalance).build();
+
+		OkHttpClient client = new OkHttpClient();
+		Response responseReport = client.newCall(requestReport).execute();
+		Response responseBalance = client.newCall(requestBalance).execute();
+		String messageReport = responseReport.body().string();
+		String messageBalance = responseBalance.body().string();
+
+		vkService.sendDailyYandexDirectReportToConference(messageReport, messageBalance);
 	}
 }

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClientHistoryRepository extends JpaRepository<ClientHistory, Long> {
+public interface ClientHistoryRepository extends CommonGenericRepository<ClientHistory> {
 
 	List<ClientHistory> getByClientId(long id);
 
