@@ -166,12 +166,12 @@
     <!--card from 'Форма: Java Test' doesn't appear on a board with it-->
     <style th:inline="text">
         body {
-            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
 
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear, left top, left bottom, from([ [${#authentication.getPrincipal().colorBackground}] ]), to([ [${#authentication.getPrincipal().colorBackground}] ]));
-            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-image: -webkit-gradient(linear, left top, left bottom, from([[${#authentication.getPrincipal().colorBackground}]]), to([[${#authentication.getPrincipal().colorBackground}]]));
+            border-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
     </style>
 </th:block>
