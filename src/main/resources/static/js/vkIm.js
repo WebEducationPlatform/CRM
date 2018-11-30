@@ -183,7 +183,7 @@ function showVkNotification(clientId, unreadUserID, unreadCount){
         dom.show();
 
         if (notify.length == 0){
-            var dom = $("<a class='dropdown-item vk-items' data-clientId='"+clientId+"' id='VKNotifyItem"+clientId+"' onclick='showModal("+clientId+")'>"+clientName+"</a>");
+            var dom = $("<p><div class='dropdown-item vk-items' role='button' data-clientId='"+clientId+"' id='VKNotifyItem"+clientId+"' onclick='showModal("+clientId+")'>"+clientName+"</div></p>");
             msgDiv.prepend(dom);
         }
 
