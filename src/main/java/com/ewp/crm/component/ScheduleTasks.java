@@ -405,7 +405,7 @@ public class ScheduleTasks {
 				"      \"Format\": \"TSV\",\n" +
 				"      \"IncludeVAT\": \"YES\",\n" +
 				"      \"IncludeDiscount\": \"YES\"\n" +
-				"    }\n" +
+				"    }\n"+
 				"  }");
 
 		JSONObject bodyForBalance = new JSONObject("{\n" +
