@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
+	private final String REPEATED_CLIENT = "Повторный клиент";
+
 	private final ClientRepository clientRepository;
 
 	private StatusService statusService;
@@ -147,7 +149,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				existClient.addHistory(clientHistory);
 			}
 
-            existClient.setStatus(statusService.getFirstStatusForClient());
+			existClient.setClientDescriptionComment(REPEATED_CLIENT + existClient.getClientDescriptionComment());
+            existClient.setStatus(statusService.getRepeatedStatusForClient());
 			clientRepository.saveAndFlush(existClient);
 			sendNotificationService.sendNotificationsAllUsers(existClient);
 			return;
