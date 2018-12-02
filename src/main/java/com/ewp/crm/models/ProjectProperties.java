@@ -1,8 +1,5 @@
 package com.ewp.crm.models;
 
-
-
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -22,7 +19,7 @@ public class ProjectProperties {
 
     //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
     @Column(name = "default_status")
-    private Long defaultStatusId;
+    private Long defaultStatusId = -1L;
 
     @Column(name = "new_client_status")
     private Long newClientStatus = 1L;
@@ -56,10 +53,11 @@ public class ProjectProperties {
     private BigDecimal defaultPricePerMonth = new BigDecimal(12000.00);
 
     /**
-     * Имя статуса по-умолчанию для нового студента.
+     * Cтатус по-умолчанию для нового студента.
      */
-    @Column(name = "default_student_status_name")
-    private String defaultStudentStatusName = "Новый студент";
+    @OneToOne
+    @JoinColumn(name = "default_student_status")
+    private StudentStatus defaultStudentStatus;
 
     public ProjectProperties() {
     }
@@ -145,12 +143,12 @@ public class ProjectProperties {
         this.defaultPricePerMonth = defaultPricePerMonth;
     }
 
-    public String getDefaultStudentStatusName() {
-        return defaultStudentStatusName;
+    public StudentStatus getDefaultStudentStatus() {
+        return defaultStudentStatus;
     }
 
-    public void setDefaultStudentStatusName(String defaultStudentStatusName) {
-        this.defaultStudentStatusName = defaultStudentStatusName;
+    public void setDefaultStudentStatus(StudentStatus defaultStudentStatus) {
+        this.defaultStudentStatus = defaultStudentStatus;
     }
 
     @Override
