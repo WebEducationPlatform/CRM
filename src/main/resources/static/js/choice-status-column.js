@@ -3,6 +3,7 @@ $(function () {
     $('#choice-status-column-modal').on('show.bs.modal', function () {
         $("#status-column").empty();
         $("#new-client-status").empty();
+        $("#repeated-client-status").empty();
         $.ajax({
             type: 'POST',
             url: '/slack/get/students/statuses',
@@ -44,21 +45,48 @@ $(function () {
                 });
             }
         });
+
+        $.ajax({
+            type: 'GET',
+            url: '/rest/status',
+            dataType: 'json',
+            success: function (response) {
+                $.each(response, function (index, element) {
+                    $("#repeated-client-status").append("<option id = repeated_default_status_" + element.id + " value=" + element.id + ">" + element.name + "</option>");
+                });
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/rest/properties',
+                    dataType: 'json',
+                    success: function (response) {
+                        $("#repeated-client-status").val(response.repeatedDefaultStatusId);
+                    }
+                });
+            }
+        });
     });
 });
 
 //Выбираем и сохраняем дефолтный статус
 $('#update-status').click(function () {
-    let selectedId = $("select#status-column").val();
+    var selectedId = $("select#status-column").val();
     $.ajax({
         type: 'GET',
-        url: '/slack/set/default/' + selectedId,
+        url: '/slack/set/default/' + selectedId
     });
 
-    let new_client_status = $("#new-client-status").val();
+    var new_client_status = $("#new-client-status").val();
     $.ajax({
         type: 'POST',
         url: '/rest/properties/new-user-status',
         data: {statusId : new_client_status}
+    });
+
+    var repeated_client_status = $("#repeated-client-status").val();
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/repeated-user-status',
+        data: {statusId : repeated_client_status}
     });
 });

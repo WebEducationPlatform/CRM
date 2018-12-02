@@ -70,6 +70,24 @@ public class ProjectPropertiesRestController {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
+    @PostMapping("/repeated-user-status")
+    public HttpStatus setRepeatedUserStatus(@RequestParam("statusId") Long statusId) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        properties.setRepeatedDefaultStatusId(statusId);
+        projectPropertiesService.saveAndFlash(properties);
+        return HttpStatus.OK;
+    }
+
+    @GetMapping("/repeatedStatus")
+    public ResponseEntity<Long> getRepeatedStatus() {
+        ProjectProperties projectProperties = projectPropertiesService.getOrCreate();
+        Long status = -1L;
+        if (projectProperties.getRepeatedDefaultStatusId() != null) {
+            status = projectProperties.getRepeatedDefaultStatusId();
+        }
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
     @PostMapping("/saveColorByStatus")
     public HttpStatus saveColorByStatus(@RequestParam( name = "colors") String colors) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
