@@ -37,7 +37,7 @@
                                                        data-toggle="modal" th:value="${status.id}">Удалить статус</a>
                         </li>
                         <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
-                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a>
+                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
                         </li>
                         <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
                                th:value="${status.id}">Скрыть</a></li>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
-                    <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
+                    <div class="portlet-header"  th:id="'ClientName'+${client.id}" th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +

@@ -18,8 +18,8 @@
         <div class="container head-padding">
             <label style="font-size: 20px" for="socNetworkChoose">Редактирование шаблона </label>
             <select style="font-size: 20px" class="form-inline" id="socNetworkChoose" th:onchange="'switchTemplate()'">
-                <option value="email">email</option>
-                <option value="vk">vk,sms,facebook</option>
+                <option th:id="email" value="email">email</option>
+                <option th:id="socialNet" value="vk">vk,sms,facebook</option>
             </select>
         </div>
 

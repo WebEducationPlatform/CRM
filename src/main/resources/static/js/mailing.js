@@ -5,9 +5,9 @@ const BADGE_SUCCESS_CLASS = "badge-success";
 const BADGE_WARNING_CLASS = "badge-warning";
 const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
-const SEND_EMAILS = "Enter the recipients email address here:";
-const SEND_SMSS = "Enter phone numbers here:";
-const SEND_TO_VK = "Enter VK ids here:";
+const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
+const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
+const SEND_TO_VK = "Укажите список id профилей ВК получателей (каждый с новой строки):";
 
 var messageType = 'email';
 
@@ -23,6 +23,14 @@ function sendMessages(sendnow) {
     } else {
         x = "";
     }
+
+    let mesfeedback;
+    if (sendnow==1) {
+        mesfeedback = "Сообщение отправлено";
+    } else {
+        mesfeedback = "Отправка запланирована на " + date;
+    }
+
     let wrap = {
         sendnow: sendnow,
         type: messageType,
@@ -39,7 +47,7 @@ function sendMessages(sendnow) {
             if (xhr.status === 204) {
                 setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
             } else {
-                setErrorMessage('Сообщение отправлено', 'green')
+                setErrorMessage(mesfeedback, 'green')
             }
         }
     });

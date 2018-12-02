@@ -105,6 +105,9 @@ public class ScheduleTasks {
 	@Value("${Client-Login}")
 	private String loginClient;
 
+	@Value("${Id-Campaings}")
+	private String idCampaings;
+
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
@@ -393,7 +396,7 @@ public class ScheduleTasks {
 		JSONObject bodyForReport = new JSONObject("{\n" +
 				"    \"params\": {\n" +
 				"      \"SelectionCriteria\": { },\n" +
-				"      \"Goals\": [ \"20002\", \"20003\" ],\n" +
+				"      \"Goals\": [ " + idCampaings + "],\n" +
 				"      \"AttributionModels\": [ \"LSC\" ],\n" +
 				"      \"FieldNames\": [ \"Date\", \"Clicks\", \"Cost\"], \n" +
 				"      \"OrderBy\": [{\n" +
