@@ -19,7 +19,7 @@ public interface NotificationRepository extends CommonGenericRepository<Notifica
 
 	List<Notification> getByUserToNotifyAndTypeAndClient(User user, Notification.Type type, Client client);
 
-	@Query("SELECt notify.client FROM Notification notify")
+	@Query("SELECT notify.client FROM Notification notify")
 	List<Client> getClientWithNotification();
 
 }
