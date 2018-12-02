@@ -66,6 +66,12 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public Status getRepeatedStatusForClient() {
+		Optional<Status> optional = statusDAO.findById(propertiesService.getOrCreate().getRepeatedDefaultStatusId());
+		return optional.orElse(null);
+	}
+
+	@Override
 	public Status getStatusByName(String name) {
 		Status statusByName = statusDAO.getStatusByName(name);
 		assert statusByName!=null;

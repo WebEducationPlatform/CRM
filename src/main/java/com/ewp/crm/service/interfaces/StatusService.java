@@ -18,6 +18,8 @@ public interface StatusService {
 
     Status getFirstStatusForClient();
 
+    Status getRepeatedStatusForClient();
+
 	Status getStatusByName(String name);
 
 	void add(Status status);
