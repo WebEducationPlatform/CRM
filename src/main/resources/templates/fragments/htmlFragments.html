@@ -72,7 +72,7 @@
                                     </li>
                                 </th:block>
                                 <th:block th:each="notification : ${notifications}"
-                                          th:if="${!notification.client.status.invisible}">
+                                          th:if="${notification.client ne null and !notification.client.status.invisible}">
                                     <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                         <li th:class="'menu' + ${notification.client.id}">

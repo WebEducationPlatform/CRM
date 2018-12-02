@@ -353,6 +353,15 @@
     <a href="/user/customize">Настройки</a>
 </div>
 
+<!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
+<div id="msg_pop2" sec:authorize="hasAnyAuthority('OWNER')">
+    <span class="msg_close" onclick="document.getElementById('msg_pop2').style.display='none'; return false;">X</span>
+    <h4>Напоминание</h4>
+    Необходимо установить статус по умолчанию для новых студентов
+    <p></p>
+    <a href="/user/customize">Настройки</a>
+</div>
+
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>

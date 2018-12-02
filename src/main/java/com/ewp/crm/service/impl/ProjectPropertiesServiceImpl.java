@@ -27,7 +27,7 @@ public class ProjectPropertiesServiceImpl extends CommonServiceImpl<ProjectPrope
     }
 
     @Override
-    public ProjectProperties getOrCreate() {
+    public synchronized ProjectProperties getOrCreate() {
         ProjectProperties result = get(1L);
         if (result == null) {
             result = add(new ProjectProperties());
