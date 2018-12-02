@@ -46,4 +46,9 @@ public class NotificationServiceImpl extends CommonServiceImpl<Notification> imp
 	public List<Notification> getByUserToNotifyAndTypeAndClient(User user, Notification.Type type, Client client) {
 		return notificationRepository.getByUserToNotifyAndTypeAndClient(user, type, client);
 	}
+
+	@Override
+	public List<Client> getClientWithNotification() {
+		return notificationRepository.getClientWithNotification();
+	}
 }
