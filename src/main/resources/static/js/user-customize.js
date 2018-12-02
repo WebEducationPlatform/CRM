@@ -68,7 +68,26 @@ $('#new-student-config-modal').on('show.bs.modal', function () {
         dataType: 'JSON',
         success: function (response) {
             $("#month-price").val(response.defaultPricePerMonth);
-            $("#new-student-status").val(response.defaultStudentStatusName);
+            $.ajax({
+                type: 'GET',
+                url: '/rest/student/status',
+                dataType: 'JSON',
+                success: function (statuses) {
+                    $("#new-student-status").empty().append(
+                        $('<option>').val('0').text('Не выбрано')
+                    );
+                    $.each(statuses, function(i, item) {
+                        $("#new-student-status").append(
+                            $('<option>').val(item.id).text(item.status)
+                        )
+                    });
+                    if (response.defaultStudentStatus == null) {
+                        $("#new-student-status option[value='0']").prop('selected', true)
+                    } else {
+                        $("#new-student-status option[value=" + response.defaultStudentStatus.id + "]").prop('selected', true);
+                    }
+                }
+            });
         }
     });
 });
@@ -76,23 +95,21 @@ $('#new-student-config-modal').on('show.bs.modal', function () {
 //Update new student creation properties
 $("#update-new-student-settings").click( function () {
     let price = $("#month-price").val();
-    let status = $("#new-student-status").val();
+    let status_id = $("#new-student-status").val();
     if (!validate_new_student_parameters(price, status)) {return}
+    if (status_id === '0') {
+        sessionStorage.setItem('student_default_status', "false");
+    }
     $.ajax({
         type: 'POST',
         url: '/rest/properties/new-student-properties',
-        dataType: 'JSON',
-        data: {price: price, status: status}
-    });
+        data: {price: price, id: status_id},
+    })
 });
 
 function validate_new_student_parameters(price, status) {
     if (price === '') {
         alert("Введите корректную цену!");
-        return false;
-    }
-    if (status === '') {
-        alert("Введите имя статуса!");
         return false;
     }
     return true;
