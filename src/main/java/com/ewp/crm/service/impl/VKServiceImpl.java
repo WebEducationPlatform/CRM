@@ -747,54 +747,5 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
-    @Override
-    public void sendDailyYandexDirectReportToConference(String messageReport, String messageBalance) throws ParseException {
-        Map<String, String> variables = new HashMap<>();
-        variables.put("chat_id", chatId);
-        variables.put("message", formatMessageYandexDirect(messageReport, messageBalance));
-        variables.put("access_token", vkClientToken);
-        restTemplate.postForEntity(DAILY_REPORT_URL, null, String.class, variables);
-    }
-
-    private String formatMessageYandexDirect(String messageReport, String messageBalance) throws ParseException {
-        StringBuffer br = new StringBuffer();
-        String[] str = messageReport.split("\n");
-        String[] date = new String[10];
-        String[] tittle2 = new String[3];
-        long sum = 0;
-        JsonObject convertedObject = new Gson().fromJson(messageBalance, JsonObject.class);
-        JsonArray t = convertedObject.getAsJsonObject("result").getAsJsonArray("Campaigns");
-        for (int i = 0; i < t.size(); i++) {
-            JsonObject ob = new Gson().fromJson(t.get(i), JsonObject.class);
-            JsonObject ob2 = new Gson().fromJson(ob.getAsJsonObject("Funds").get("CampaignFunds"), JsonObject.class);
-            sum += ob2.get("Balance").getAsLong();
-
-        }
-        for(int i = 2; i < str.length; i++) {
-            if(str[i].contains("Total row")) {
-                break;
-            }
-            date = str[i].split("\t");
-        }
-        date[0] = formatDate(date[0]);
-        tittle2[0] = "Дата";
-        tittle2[1] = "Количество кликов";
-        tittle2[2] = "Денег потрачено";
-        br.append("Статистика по яндекс-директу:" + "\n\n");
-        for(int i = 0; i < tittle2.length; i++) {
-            br.append(tittle2[i] + ": " + date[i] + "\n\n");
-        }
-        br.append("Баланс: " + sum + "\n\n");
-        return br.toString();
-    }
-
-    private String formatDate(String date) throws ParseException {
-        String newDateString;
-        SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT);
-        Date d = sdf.parse(date);
-        sdf.applyPattern(NEW_FORMAT);
-        newDateString = sdf.format(d);
-        return newDateString;
-    }
 }
 

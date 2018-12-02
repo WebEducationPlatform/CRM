@@ -38,9 +38,6 @@ public class VKConfigImpl implements VKConfig {
 
     private String apiUrl;
 
-    private String chatId;
-
-    private String vkClientToken;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
@@ -60,8 +57,8 @@ public class VKConfigImpl implements VKConfig {
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
-            chatId  = env.getProperty("vk.chatId");
-            vkClientToken = env.getProperty("vk.clientToken");
+
+
 
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -129,11 +126,4 @@ public class VKConfigImpl implements VKConfig {
         return apiUrl;
     }
 
-    public String getChatId() {
-        return chatId;
-    }
-
-    public String getVkClientToken() {
-        return vkClientToken;
-    }
 }

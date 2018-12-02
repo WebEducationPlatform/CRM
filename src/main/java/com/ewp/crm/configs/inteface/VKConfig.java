@@ -16,7 +16,5 @@ public interface VKConfig {
     String getRobotUsername();
     String getRobotPassword();
     String getFirstContactMessage();
-    String getTargetVkGroup();
-    String getChatId();
-    String getVkClientToken();
+
 }

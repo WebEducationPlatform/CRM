@@ -49,7 +49,4 @@ public interface VKService {
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
-    void sendDailyYandexDirectReportToConference(String message, String messageBalance) throws ParseException;
-
-
 }

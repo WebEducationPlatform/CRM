@@ -90,23 +90,6 @@ public class ScheduleTasks {
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
-	@Value("${Authorization}")
-	private String auth;
-
-	@Value("${Accept-Language}")
-	private String acceptLanguage;
-
-	@Value("${urlReport}")
-	private String urlReport;
-
-	@Value("${urlBalance}")
-	private String urlBalance;
-
-	@Value("${Client-Login}")
-	private String loginClient;
-
-	@Value("${Id-Campaings}")
-	private String idCampaings;
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
@@ -388,57 +371,5 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(cron = "0 30 00 * * ?")
-	private void sendYandexDirectInfo() throws JSONException, IOException, ParseException {
 
-		MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-		JSONObject bodyForReport = new JSONObject("{\n" +
-				"    \"params\": {\n" +
-				"      \"SelectionCriteria\": { },\n" +
-				"      \"Goals\": [ " + idCampaings + "],\n" +
-				"      \"AttributionModels\": [ \"LSC\" ],\n" +
-				"      \"FieldNames\": [ \"Date\", \"Clicks\", \"Cost\"], \n" +
-				"      \"OrderBy\": [{\n" +
-				"        \"Field\": \"Date\"\n" +
-				"      }],\n" +
-				"      \"ReportName\": \"Conversions\",\n" +
-				"      \"ReportType\": \"ACCOUNT_PERFORMANCE_REPORT\",\n" +
-				"      \"DateRangeType\": \"YESTERDAY\",\n" +
-				"      \"Format\": \"TSV\",\n" +
-				"      \"IncludeVAT\": \"YES\",\n" +
-				"      \"IncludeDiscount\": \"YES\"\n" +
-				"    }\n"+
-				"  }");
-
-		JSONObject bodyForBalance = new JSONObject("{\n" +
-				"  \"method\": \"get\",\n" +
-				"  \"params\": {\n" +
-				"    \"SelectionCriteria\": {},\n" +
-				"    \"FieldNames\": [\"Funds\"]\n" +
-				"  }\n" +
-				"}");
-
-		RequestBody bodyReport = RequestBody.create(JSON, bodyForReport.toString());
-		RequestBody bodyBalance = RequestBody.create(JSON, bodyForBalance.toString());
-		Request requestReport = new Request.Builder()
-				.addHeader("Authorization", auth)
-				.addHeader("Accept-Language", acceptLanguage).url(urlReport).
-						addHeader("Client-Login", loginClient).
-						post(bodyReport).build();
-
-		Request requestBalance = new Request.Builder()
-				.addHeader("Authorization", auth)
-				.addHeader("Accept-Language", acceptLanguage).url(urlBalance).
-						addHeader("Client-Login", loginClient).
-						post(bodyBalance).build();
-
-		OkHttpClient client = new OkHttpClient();
-		Response responseReport = client.newCall(requestReport).execute();
-		Response responseBalance = client.newCall(requestBalance).execute();
-		String messageReport = responseReport.body().string();
-		String messageBalance = responseBalance.body().string();
-
-		vkService.sendDailyYandexDirectReportToConference(messageReport, messageBalance);
-	}
 }
