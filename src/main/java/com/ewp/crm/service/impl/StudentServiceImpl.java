@@ -8,6 +8,8 @@ import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import com.ewp.crm.repository.interfaces.StudentStatusRepository;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StudentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     private final StudentStatusRepository studentStatusRepository;
     private final StudentRepositoryCustom studentRepositoryCustom;
     private final ProjectPropertiesService projectPropertiesService;
+
+    private static Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
@@ -38,10 +42,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     public Student addStudentForClient(Client client) {
         Student result;
         if (client.getStudent() == null && client.getStatus().isCreateStudent()) {
-            String degaultStatusName = projectPropertiesService.getOrCreate().getDefaultStudentStatusName();
-            StudentStatus status = studentStatusRepository.getStudentStatusByStatus(degaultStatusName);
+            StudentStatus status = projectPropertiesService.getOrCreate().getDefaultStudentStatus();
             if (status == null) {
-                status = studentStatusRepository.save(new StudentStatus(degaultStatusName));
+                logger.error("Default student status not set!");
+                return null;
+//                status = studentStatusRepository.save(new StudentStatus("Новый студент"));
             }
             int trialOffset = client.getStatus().getTrialOffset();
             int nextPaymentOffset = client.getStatus().getNextPaymentOffset();
