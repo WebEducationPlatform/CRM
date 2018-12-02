@@ -1,9 +1,10 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 
+/**
+ * Сообщения пользователя в группе vk youtube канала
+ */
 @Entity
 @Table(name = "youtube_client_message")
 public class YoutubeClientMessage {
@@ -13,9 +14,15 @@ public class YoutubeClientMessage {
     @Column(name = "youtube_client_message_id")
     private Long id;
 
+    /**
+     * Текст сообщения
+     */
     @Column(name = "messages")
     private String messages;
 
+    /**
+     * Пользователь, что-то написавший в группе vk youtube канала
+     */
     @ManyToOne
     @JoinTable(name = "youtube_client_youtube_client_message",
             inverseJoinColumns = {@JoinColumn(name = "youtube_client_id", foreignKey = @ForeignKey(name = "FK_YOUTUBE_CLIENT_YOUTUBE_CLIENT_MESSAGES"))},
