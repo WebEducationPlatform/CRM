@@ -101,6 +101,21 @@ public class TelegramRestController {
         return result;
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<TdApi.User> getCurrentUser() {
+        return new ResponseEntity<>(telegramService.getMe(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<TdApi.User> getUserById(@RequestParam("id") int userId) {
+        return new ResponseEntity<>(telegramService.getUserById(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/photos")
+    public ResponseEntity<TdApi.UserProfilePhotos> getProfilePhotosByUserId(@RequestParam("id") int userId) {
+        return new ResponseEntity<>(telegramService.getUserPhotos(userId), HttpStatus.OK);
+    }
+
     @GetMapping("/logout")
     public HttpStatus logoutFromTelegram() {
         telegramService.logout();
