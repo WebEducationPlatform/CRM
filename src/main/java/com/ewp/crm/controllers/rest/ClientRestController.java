@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
+import com.github.javafaker.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -430,4 +431,20 @@ public class ClientRestController {
         String postponeComment = clientService.get(clientId).getPostponeComment();
         return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
     }
+
+	@PostMapping(value = "/setRepeated")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<String> setRepeated(@RequestParam(name = "clientId") Long clientId,
+											  @RequestParam(name = "isRepeated") Boolean isRepeated,
+											  @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		if (client == null) {
+			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+		}
+		client.setRepeated(isRepeated);
+		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
+		clientService.updateClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body("done");
+	}
 }

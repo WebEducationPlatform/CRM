@@ -203,6 +203,24 @@
     </div>
 </th:block>
 
+<th:block th:fragment="notifyAboutRepeatedClient">
+    <div class="notifyAboutRepeatedClient modal" id="notifyAboutRepeatedClient" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Внимание</h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Этот клиент оставил повторную заявку!</h6>
+                </div>
+                <div class="modal-footer">
+                    <button id="repeated-status-btn" type="button" class="btn btn-primary">Ок</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <!--Отправка фиксированного сообщения во все сети.-->
 <th:block th:fragment="sendTemplateModal">
     <div class="modal fade fix-modal" th:id="'sendTemplateModal'" tabindex="-1" role="dialog" aria-hidden="true">
