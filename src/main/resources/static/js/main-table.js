@@ -1677,6 +1677,39 @@ $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
         type: 'GET',
+        url: '/rest/telegram/me',
+        success: function (response) {
+            console.log(response);
+            // $.ajax({
+            //     type: 'GET',
+            //     url: '/rest/telegram/user/photos',
+            //     data: {id: response.id},
+            //     success: function (response) {
+            //         console.log(response);
+            //     }
+            // });
+        }
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/user',
+        data: {id: clientId},
+        success: function (response) {
+            console.log(response);
+            // $.ajax({
+            //     type: 'GET',
+            //     url: '/rest/telegram/user/photos',
+            //     data: {id: response.id},
+            //     success: function (response) {
+            //         console.log(response);
+            //     }
+            // });
+        }
+    });
+
+    $.ajax({
+        type: 'GET',
         url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
         success: function (response) {

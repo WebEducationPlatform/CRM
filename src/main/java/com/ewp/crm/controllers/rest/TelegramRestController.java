@@ -107,8 +107,13 @@ public class TelegramRestController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<TdApi.User> getUserById(@RequestParam("id") int userId) {
-        return new ResponseEntity<>(telegramService.getUserById(userId), HttpStatus.OK);
+    public ResponseEntity<TdApi.User> getUserById(@RequestParam("id") long clientId) {
+        ResponseEntity result = ResponseEntity.notFound().build();
+        Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(clientId, "telegram");
+        if (profile.isPresent()) {
+            result = new ResponseEntity(telegramService.getUserById(Integer.parseInt(profile.get().getLink())), HttpStatus.OK);
+        }
+        return result;
     }
 
     @GetMapping("/user/photos")
