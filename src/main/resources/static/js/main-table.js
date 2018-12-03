@@ -857,29 +857,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        current.attr("disabled", "true");
+                        console.log(e)
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    current.attr("disabled", "true");
-                    console.log(e)
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -920,15 +922,6 @@ $(function () {
     });
 
 });
-// Кнопка  вк
-// $(function () {
-//     $(function (client) {
-//
-//  var clientId = client.age;
-//
-//     $('#vk-href').attr('href', clientId);
-//     });
-// });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -985,29 +978,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
-                        $('#custom-eTemplate-body').val("");
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            $('#custom-eTemplate-body').val("");
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        console.log(e);
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    console.log(e);
-                }
-            });
+                });
+            }
         });
     });
 });
