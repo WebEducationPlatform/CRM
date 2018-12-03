@@ -76,7 +76,7 @@ public class NotificationRestController {
     }
 
     @PostMapping(value = "/comment/cleanAll")
-    public ResponseEntity markAsReadAll(@AuthenticationPrincipal User userFromSession) {
+    public List<Client> markAsReadAll(@AuthenticationPrincipal User userFromSession) {
         List<Client> clients = notificationService.getClientWithNotification();
         List<Notification> notifications;
         for (Client client : clients) {
@@ -92,7 +92,7 @@ public class NotificationRestController {
                 }
             }
         }
-        return ResponseEntity.ok(HttpStatus.OK);
+        return clients;
     }
 
     @PostMapping(value = "/comment/cleanAllNewUserNotify")
