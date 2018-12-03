@@ -215,15 +215,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 			long link1 = client.getSocialProfiles().get(i).getSocialNetworkId();
 			String link = String.valueOf(link1);
 			SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
-			/*if (type.getName().equals("unknown")) {
-				if (!link.startsWith("https")) {
-					if (link.startsWith("http")) {
-						link = link.replaceFirst("http", "https");
-					} else {
-						link = "https://" + link;
-					}
-				}
-			} else */
 			if(type.getName().equals("vk")) {
 //				link = client.getSocialProfiles().get(i).getSocialNetworkId();
 				if(!link.matches("[-+]?\\d+") && !link.equals("https://vk.com/id")){

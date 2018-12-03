@@ -55,7 +55,7 @@ public class AdminRestClientController {
 					idVK.delete(0,idVK.lastIndexOf("vk.com/")+7);
 					socialProfile.setSocialNetworkId(idVK.toString());
 				}*/
-
+				socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
 			}
 
 			if(socialProfile.getSocialProfileType().getName().equals("facebook")){
@@ -67,7 +67,7 @@ public class AdminRestClientController {
 					idFB.delete(0,idFB.lastIndexOf("facebook.com/")+13);
 					socialProfile.setSocialNetworkId(idFB.toString());
 				}*/
-
+				socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
 			}
 		}
 

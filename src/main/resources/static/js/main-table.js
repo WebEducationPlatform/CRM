@@ -1522,18 +1522,18 @@ $(function () {
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             // $('#vk-href').attr('href', client.socialProfiles[i].link);
-                            $('#vk-href').attr('href','https://vk.com/id'+ client.socialProfiles[i].link);
+                            $('#vk-href').attr('href','https://vk.com/id'+ client.socialProfiles[i].socialNetworkId);
                             $('#vk-href').show();
 
 
-                            var vkref = client.socialProfiles[i].link;
-                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
+                            var vkref = client.socialProfiles[i].socialNetworkId;
+                            $('#vk-im-button').data("userID", vkref);
                             $('#vk-im-button').attr("clientID", client.id);
                             $('#vk-im-count').text($('#VK-notification'+clientId).text());
                             $('#vk-im-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].link);
+                            $('#fb-href').attr('href','http://www.facebook.com/profile.php?id='+ client.socialProfiles[i].socialNetworkId);
                             $('#fb-href').show();
                         }
                     }

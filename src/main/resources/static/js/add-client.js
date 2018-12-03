@@ -28,7 +28,46 @@ function addClient() {
 					}
 				}
 			});
-			SN.push(obj);
+
+            //получаем id социальной сети пользователя и записываем в link место ссылки номер
+            if(obj.socialProfileType === 'vk'){
+                var vkLink = obj.link;
+                if(vkLink.indexOf('/id')!==-1){
+                   var vkSocialNetworkId = vkLink.substr(vkLink.indexOf('/id')+3);
+                } else {
+
+				}
+                var objWithSocialNetworkId ={
+                    id: obj.id,
+                    socialNetworkId: vkSocialNetworkId,
+                    socialProfileType: obj.socialProfileType
+                };
+            } else if(obj.socialProfileType === 'facebook'){
+                var fbLink = obj.link;
+                if(fbLink.indexOf('?id=')!==-1){
+                    var fbSocialNetworkId = fbLink.substr(fbLink.indexOf('?id=')+4);
+                } else {
+                	// url = fbLink + '/photos';
+                	url =  "https://graph.facebook.com/raymond.khoury.1297";
+                    $.ajax({
+                        type: 'get',
+                        url: url,
+                        dataType: 'json',
+                        success: function (res) {
+                            alert(res)
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                }
+                var objWithSocialNetworkId ={
+                    id: obj.id,
+                    socialNetworkId: fbSocialNetworkId,
+                    socialProfileType: obj.socialProfileType
+                };
+            }
+			SN.push(objWithSocialNetworkId);
 		});
 	} catch (e) {
 		return;

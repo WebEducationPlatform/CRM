@@ -98,7 +98,7 @@
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialProfiles}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td th:value="${socials.link}" th:text="${socials.link}"></td>
+                                <td th:value="${socials.socialNetworkId}" th:text="${socials.socialNetworkId}"></td>
                                 <td th:value="${socials.socialProfileType.id}"
                                     th:text="${socials.socialProfileType.name}"></td>
                                 <td>
