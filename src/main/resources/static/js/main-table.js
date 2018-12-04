@@ -262,8 +262,8 @@ function createNewStatus() {
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
-    let trial_offset = $("#trial_offset_" + id).val();
-    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    let trial_offset = parseInt($("#trial_offset_" + id).val());
+    let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
@@ -943,6 +943,9 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
+        if ($('#custom-eTemplate-body').val().length===0){
+            return currentStatus.text("Введите текст сообщения!");
+        }
         var formData = {
             clientId: clientId, templateId: templateId,
             body: $('#custom-eTemplate-body').val()

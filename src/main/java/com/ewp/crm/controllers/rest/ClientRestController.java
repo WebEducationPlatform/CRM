@@ -38,7 +38,6 @@ public class ClientRestController {
 	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
 
-
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
@@ -46,9 +45,9 @@ public class ClientRestController {
 	public ClientRestController(ClientService clientService,
 								SocialProfileTypeService socialProfileTypeService,
 								UserService userService,
-                SocialProfileService socialProfileService,
+                				SocialProfileService socialProfileService,
 								ClientHistoryService clientHistoryService,
-                MessageService messageService,
+                                MessageService messageService,
 								ProjectPropertiesService propertiesService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
@@ -91,8 +90,8 @@ public class ClientRestController {
 	@GetMapping(value = "/getClientsData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<InputStreamResource> getClientsData() {
-
-		String path = "DownloadData\\";
+        //TODO test cross-platform separator
+		String path = "DownloadData" + File.separator;
 		File file = new File(path + "data.txt");
 
 		InputStreamResource resource = null;
@@ -228,10 +227,8 @@ public class ClientRestController {
 			e.printStackTrace();
 		}
 
-		try {
-			FileWriter fileWriter = new FileWriter(file);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
+		try(FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
 				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
@@ -257,8 +254,6 @@ public class ClientRestController {
 					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
-
-			bufferedWriter.close();
 		} catch (IOException e) {
 			logger.error("File not created! ", e);
 		}
@@ -288,9 +283,8 @@ public class ClientRestController {
 			e.printStackTrace();
 		}
 
-		try {
-			FileWriter fileWriter = new FileWriter(file);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+		try(FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
@@ -316,8 +310,6 @@ public class ClientRestController {
 					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
-
-			bufferedWriter.close();
 		} catch (IOException e) {
 			logger.error("File not created! ", e);
 		}
