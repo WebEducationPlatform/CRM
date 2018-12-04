@@ -129,35 +129,35 @@
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                                <th:block th:if="${notification_new_user.client == client}">
+                        <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                            <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
+                        <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                            <th:block th:if="${notification_assign_skype.client == client}">
                                    <span id="notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                                <th:block th:if="${notification_postpone.client == client}">
+                        <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                            <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
                             </th:block>
-                        </div>
+                        </th:block>
                     </div>
+                </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
@@ -201,6 +201,7 @@
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
+                    <div id="sendSocialTemplateStatus"></div>
                     <input type="text" class="form-control" required="required" id="new-status-name"
                            placeholder="Новый статус..."/>
                 </div>
