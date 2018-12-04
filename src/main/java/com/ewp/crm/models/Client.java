@@ -81,6 +81,9 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "hide_card")
     private boolean isHideCard;
 
+    @Column(name = "isRepeated")
+    private boolean isRepeated;
+
     @Column(name = "postpone_comment")
     private String postponeComment;
 
@@ -408,6 +411,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setSlackProfile(SlackProfile slackProfile) {
         this.slackProfile = slackProfile;
+    }
+
+    public boolean isRepeated() {
+        return isRepeated;
+    }
+
+    public void setRepeated(boolean repeated) {
+        isRepeated = repeated;
     }
 
     public boolean isHideCard() {

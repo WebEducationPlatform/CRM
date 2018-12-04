@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +21,7 @@ import java.util.regex.Pattern;
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
-	private final String REPEATED_CLIENT = "Повторный клиент";
+	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
 	private final ClientRepository clientRepository;
 
@@ -149,10 +147,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				existClient.addHistory(clientHistory);
 			}
 
-			existClient.setClientDescriptionComment(REPEATED_CLIENT + existClient.getClientDescriptionComment());
+			String currectDescription = existClient.getClientDescriptionComment();
+			existClient.setClientDescriptionComment(REPEATED_CLIENT + ((currectDescription == null) ? "" : " "+currectDescription));
+            existClient.setRepeated(true);
+			sendNotificationService.sendNotificationsAllUsers(existClient);
             existClient.setStatus(statusService.getRepeatedStatusForClient());
 			clientRepository.saveAndFlush(existClient);
-			sendNotificationService.sendNotificationsAllUsers(existClient);
+
 			return;
 		}
 

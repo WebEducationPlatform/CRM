@@ -1689,6 +1689,7 @@ $(function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
+
         $.ajax({
             async: false,
             type: 'GET',
@@ -1809,11 +1810,37 @@ $(function () {
                 $('.client-collapse').attr('id', 'collapse' + client.id);
                 $('.history-line').attr('id', 'client-' + client.id + 'history');
                 $('.upload-more-history').attr('data-clientid', client.id);
+
+                if (client.repeated) {
+                    $('#repeated-status-btn').attr('onclick', 'dropRepeatedFlag(' + clientId + ', false)');
+                    $('#notifyAboutRepeatedClient').modal('show');
+                }
             }
         });
-    });
+    })
 });
 
+function dropRepeatedFlag(clientId, repeated) {
+    var url = '/rest/client/setRepeated';
+    var formData = {
+        clientId: clientId,
+        isRepeated: repeated
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+
+        },
+        error: function (e) {
+
+        }
+    });
+
+    $('#notifyAboutRepeatedClient').modal('hide');
+}
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
         $('.assign-skype-call-btn').removeAttr("disabled");

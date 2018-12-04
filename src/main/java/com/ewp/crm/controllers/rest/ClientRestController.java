@@ -416,10 +416,26 @@ public class ClientRestController {
 		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
 	}
 
-    @PostMapping(value = "/postpone/getComment")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
-        String postponeComment = clientService.get(clientId).getPostponeComment();
-        return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
-    }
+  @PostMapping(value = "/postpone/getComment")
+  @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+  public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
+      String postponeComment = clientService.get(clientId).getPostponeComment();
+      return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
+  }
+
+	@PostMapping(value = "/setRepeated")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<String> setRepeated(@RequestParam(name = "clientId") Long clientId,
+											  @RequestParam(name = "isRepeated") Boolean isRepeated,
+											  @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		if (client == null) {
+			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+		}
+		client.setRepeated(isRepeated);
+		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
+		clientService.updateClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body("done");
+	}
 }
