@@ -14,11 +14,7 @@ public class CommonServiceImpl<T> implements CommonService<T> {
     @Override
     public T get(Long id) {
         Optional<T> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        } else {
-            return null;
-        }
+        return optional.orElse(null);
     }
 
     @Override

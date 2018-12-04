@@ -3,12 +3,14 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @RestController
@@ -18,11 +20,15 @@ public class ProjectPropertiesRestController {
 
     private final ProjectPropertiesService projectPropertiesService;
     private final MessageTemplateService messageTemplateService;
+    private final StudentStatusService studentStatusService;
 
     @Autowired
-    public ProjectPropertiesRestController(ProjectPropertiesService projectPropertiesService, MessageTemplateService messageTemplateService) {
+    public ProjectPropertiesRestController(ProjectPropertiesService projectPropertiesService,
+                                           MessageTemplateService messageTemplateService,
+                                           StudentStatusService studentStatusService) {
         this.projectPropertiesService = projectPropertiesService;
         this.messageTemplateService = messageTemplateService;
+        this.studentStatusService = studentStatusService;
     }
 
     @GetMapping
@@ -89,4 +95,14 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
+
+    @PostMapping("/new-student-properties")
+    public HttpStatus setNewStudentProperties(@RequestParam BigDecimal price, @RequestParam("id") long statusId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setDefaultPricePerMonth(price);
+        current.setDefaultStudentStatus(studentStatusService.get(statusId));
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
 }

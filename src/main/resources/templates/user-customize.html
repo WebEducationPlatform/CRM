@@ -85,6 +85,12 @@
                 Оповещение об оплате
             </button>
         </div>
+        <br/>
+        <div id="new-student-config-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#new-student-config-modal" sec:authorize="hasAnyAuthority('OWNER')">
+                Параметры создания студента
+            </button>
+        </div>
     </div>
 
 </div>
@@ -192,6 +198,7 @@
     </div>
 </div>
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
+<div th:replace="fragments/new-student-config-modal::newStudentConfigModal"></div>
 <script type="text/javascript" th:src="@{/js/vk-auth.js}"></script>
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>

@@ -1,10 +1,11 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * СМС (API: https://api.prostor-sms.ru/messages/v2)
+ */
 @Entity
 @Table(name = "sms_info")
 public class SMSInfo implements Serializable {
@@ -16,27 +17,45 @@ public class SMSInfo implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
+    /**
+     * Идентефикатор сообщения
+     */
 	@Column(name = "sms_id")
 	private Long smsId;
 
+    /**
+     * Статус доставки
+     */
 	@Column(name = "delivery_status")
 	private String deliveryStatus;
 
+    /**
+     * Текст сообщения
+     */
 	@Basic
 	@Lob
 	@Column(name = "message")
 	private String message;
 
+	/**
+     * ?????????
+     */
 	@Basic
 	@Column(name = "is_checked")
 	private boolean isChecked = false;
 
+    /**
+     * Сообщения, отправленные клиенту (студенту)
+     */
 	@ManyToOne
 	@JoinTable(name = "client_sms_info",
 			joinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))},
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
 	private Client client;
 
+    /**
+     * Сообщения, отправленные работникУ или отправленные работникОМ
+     */
 	@ManyToOne
 	@JoinTable(name = "worker_send_sms",
 			joinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))},

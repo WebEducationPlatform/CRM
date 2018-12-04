@@ -282,6 +282,9 @@ public class ScheduleTasks {
 			if (!status.equals("queued")) {
 				if (status.equals("delivered")) {
 					sms.setDeliveryStatus("доставлено");
+				} else if (sms.getClient() == null) {
+					logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
+					sms.setDeliveryStatus("Клиент не найден");
 				} else {
 					String deliveryStatus = determineStatusOfResponse(status);
 					sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);

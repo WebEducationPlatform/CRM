@@ -2,13 +2,15 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Статус студента, новый клиент, учится, бросил, закончил и тп.
+ */
 @Entity
 @Table(name = "status")
 public class Status implements Serializable {
@@ -18,17 +20,29 @@ public class Status implements Serializable {
 	@Column(name = "status_id")
 	private Long id;
 
+	/**
+	 * Название статуса клиента (inLearningStatus, trialLearnStatus и тд)
+	 */
 	@Column(name = "status_name", nullable = false, unique = true)
 	private String name;
 
+	/**
+	 * Видимость колонки карточек клиентов с данным статусом на главной странице CRM
+	 */
 	@Basic
 	@Column(name = "is_invisible")
 	private Boolean isInvisible = false;
 
+	/**
+	 * Позиция колонки карточек клиентов с данным статусом на главной странице CRM
+	 */
 	@Basic
 	@Column(name = "position")
 	private Long position;
 
+	/**
+	 * Клиенты (студенты) с данным статусом
+	 */
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "status_clients",
@@ -36,14 +50,23 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
+	/**
+	 * Становится ли клиент студентом при присвении ему данного статуса
+	 */
 	@Column (name = "create_student")
 	private boolean createStudent;
 
+	/**
+	 * Пробный период, дней, для данного статуса
+	 */
 	@Column(name = "trial_offset")
-	private Integer trialOffset;
+	private Integer trialOffset = 0;
 
+	/**
+	 * Дней до следующей оплаты
+	 */
 	@Column(name = "next_payment_offset")
-	private Integer nextPaymentOffset;
+	private Integer nextPaymentOffset = 0;
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;

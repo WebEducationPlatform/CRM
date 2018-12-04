@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * Профиль клиента (студента) в Slack
+ */
 @Entity
 @Table(name = "slack_profile")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,11 +31,17 @@ public class SlackProfile {
     @Column(name = "email", unique = true)
     private String email;
 
+    /**
+     * Клиент (студент)
+     */
     @JsonIgnore
     @JoinColumn (name = "client_id")
     @OneToOne
     private Client client;
 
+    /**
+     * Hash имени клиента (студента), генерируется API Slack
+     */
     @JsonProperty("hashName")
     @Column(name = "hash_name")
     private String hashName;
