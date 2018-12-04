@@ -239,23 +239,31 @@ function createNewUser() {
 function createNewStatus() {
     let url = '/rest/status/add';
     let statusName = $('#new-status-name').val() || $('#default-status-name').val();
+    let currentStatus = document.getElementById("sendSocialTemplateStatus");
+
     if (typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
 
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            window.location.reload();
-        },
-        error: function (e) {
-            alert(e.responseText);
-            console.log(e.responseText);
-        }
-    });
+    if(statusName.length < 25) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (result) {
+                window.location.reload();
+            },
+            error: function (e) {
+                alert(e.responseText);
+                console.log(e.responseText);
+            }
+        });
+    }
+    else {
+        currentStatus.style.color = "red";
+        currentStatus.textContent = "Название уменьши ка, будь человеком";
+    }
 }
 
 //Change status button
@@ -1027,30 +1035,31 @@ function hideClient(clientId) {
         isPostponeFlag: flag,
         postponeComment: comment,
     };
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-            success: function () {
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: commentUrl,
-                    data: {
-                        clientId: clientId,
-                        content: comment
-                    },
-                    success: function () {
-                        location.reload();
-                    },
-                });
-            },
-            error: function (e) {
-                currentStatus = $("#postponeStatus" + clientId)[0];
-                currentStatus.textContent = "Произошла ошибка";
-                console.log(e.responseText)
-            }
-        });
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: commentUrl,
+                data: {
+                    clientId: clientId,
+                    content: comment
+                },
+                success: function () {
+                    //location.reload();
+                    console.log("напоминание добавлено");
+                },
+            });
+        },
+        error: function (e) {
+            currentStatus = $("#postponeStatus" + clientId)[0];
+            currentStatus.textContent = "Произошла ошибка";
+            console.log(e.responseText)
+        }
+    });
 }
 
 $(document).ready(function () {
