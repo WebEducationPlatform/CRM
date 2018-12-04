@@ -109,57 +109,56 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		clientRepository.addBatchClients(clients);
 	}
 
-	@Override
-	public void addClient(Client client) {
-		if (client.getLastName() == null) {
-			client.setLastName("");
-		}
-		checkSocialLinks(client);
+    @Override
+    public void addClient(Client client) {
+        if (client.getLastName() == null) {
+            client.setLastName("");
+        }
+        checkSocialLinks(client);
 
-		Client existClient = null;
+        Client existClient = null;
 
-		if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-			phoneNumberValidation(client);
-			existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
+        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+            phoneNumberValidation(client);
+            existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 
-		}
+        }
 
-		if (existClient == null && client.getEmail() != null && !client.getEmail().isEmpty()) {
-			existClient = clientRepository.getClientByEmail(client.getEmail());
+        if (existClient == null && client.getEmail() != null && !client.getEmail().isEmpty()) {
+            existClient = clientRepository.getClientByEmail(client.getEmail());
 
-		}
+        }
 
-		for(SocialProfile socialProfile: client.getSocialProfiles()) {
-			if (existClient == null) {
-				socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
-				if (socialProfile != null) {
-					existClient = getClientBySocialProfile(socialProfile);
-				}
-			}
-			else{
-				break;
-			}
-		}
+        for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if (existClient == null) {
+                socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+                if (socialProfile != null) {
+                    existClient = getClientBySocialProfile(socialProfile);
+                }
+            } else {
+                break;
+            }
+        }
 
-		if (existClient != null) {
-			//если с новым клиентом пришла история, то добавим ее к старому клиенту.
-			for(ClientHistory clientHistory : client.getHistory()){
-				existClient.addHistory(clientHistory);
-			}
+        if (existClient != null) {
+            //если с новым клиентом пришла история, то добавим ее к старому клиенту.
+            for (ClientHistory clientHistory : client.getHistory()) {
+                existClient.addHistory(clientHistory);
+            }
 
-			String currectDescription = existClient.getClientDescriptionComment();
-			existClient.setClientDescriptionComment(REPEATED_CLIENT + ((currectDescription == null) ? "" : " "+currectDescription));
+            String currectDescription = existClient.getClientDescriptionComment();
+            existClient.setClientDescriptionComment(REPEATED_CLIENT + ((currectDescription == null) ? "" : " " + currectDescription));
             existClient.setRepeated(true);
-			sendNotificationService.sendNotificationsAllUsers(existClient);
+            sendNotificationService.sendNotificationsAllUsers(existClient);
             existClient.setStatus(statusService.getRepeatedStatusForClient());
-			clientRepository.saveAndFlush(existClient);
+            clientRepository.saveAndFlush(existClient);
 
-			return;
-		}
+            return;
+        }
 
-		clientRepository.saveAndFlush(client);
-		sendNotificationService.sendNotificationsAllUsers(client);
-	}
+        clientRepository.saveAndFlush(client);
+        sendNotificationService.sendNotificationsAllUsers(client);
+    }
 
 	@Override
 	public List<String> getClientsEmails() {
