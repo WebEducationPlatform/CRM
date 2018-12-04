@@ -54,8 +54,8 @@
 
                     <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <a class="glyphicon glyphicon-bell redBell"
-                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
-                        <ul class="dropdown-menu notification-dropdown">
+                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown" id="bell"></a>
+                        <ul class="dropdown-menu notification-dropdown" id = "Notify">
                             <th:block th:if="${notifications.size() > 0}">
                                 <th:block>
                                     <li>
@@ -63,7 +63,7 @@
                                                 type="button" data-toggle="modal"
                                                 class="glyphicon glyphicon-trash pull-right"
                                                 title="Очистить всё"
-                                                th:onclick="'cleanAll()'">
+                                                th:onclick="'cleanAll()'" id="bucket">
                                         </button>
                                     </li>
                                 </th:block>
@@ -124,6 +124,7 @@
                             <th:block th:if="${notifications.size() == 0}">
                                 <li><a>У вас нет новых оповещений</a></li>
                             </th:block>
+                            <li><a id="noNotify"></a></li>
                         </ul>
                     </li>
                     <li>
@@ -850,6 +851,7 @@
         <option th:text="${status.name}" th:value="${status.id}"></option>
     </div>
 </th:block>
+
 
 </body>
 </html>
