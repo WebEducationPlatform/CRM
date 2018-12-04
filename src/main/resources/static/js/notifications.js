@@ -43,8 +43,12 @@ function cleanAll() {
             type: "POST",
             dataType: 'json',
             url: url,
-            success: function () {
-                location.reload();
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $('#info-client' + data[i].id).find(".notification").remove();
+                    $('.menu' + data[i].id).remove();
+                    $('#notification-postpone' + data[i].id).hide();
+                }
             },
             error: function (error) {
                 console.log(error);
