@@ -213,7 +213,7 @@ function drawClients(table, res) {
             }
         }
 
-        table.append(
+        $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
             '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +

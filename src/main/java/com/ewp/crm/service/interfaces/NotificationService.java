@@ -16,4 +16,6 @@ public interface NotificationService extends CommonService<Notification> {
     List<Notification> getByUserToNotifyAndType(User user, Notification.Type type);
 
     List<Notification> getByUserToNotifyAndTypeAndClient(User user, Notification.Type type, Client client);
+
+    List<Client> getClientWithNotification();
 }

@@ -39,30 +39,30 @@
     </div>
     <div class="container-fluid" id="menu-block">
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group" role="group" id="message-type-button-group">
-                        <button type="button" class="btn btn-secondary btn-info" id="email">Send via e-mail</button>
-                        <button type="button" class="btn btn-secondary" id="sms">Send via sms</button>
-                        <button type="button" class="btn btn-secondary" id="vk">Send to vk</button>
+                        <button type="button" class="btn btn-secondary btn-info" id="email">e-mail</button>
+                        <button type="button" class="btn btn-secondary" id="sms">sms</button>
+                        <button type="button" class="btn btn-secondary" id="vk">VK</button>
                     </div>
                 </div>
             </div>
             <div class="col-sm-3">
                 <div class="row-sm-6">
-                    <div class="col-sm-1">
-                        <span class="input-group-text text-light bg-info" id="date-addon">Date</span>
+                    <div class="col-sm-4" >
+                        <span class="input-group-text text-light bg-info" id="date-addon">время рассылки:</span>
                     </div>
-                    <div class="col-sm-11">
+                    <div class="col-sm-8">
                         <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="messageSendingTime"/>
                     </div>
                 </div>
             </div>
             <div class="col-xs-1">
-                <button class="btn btn-warning btn-sm" id="mailingStart" onclick="sendMessages(0)">Send later</button>
+                <button class="btn btn-warning btn-sm" id="mailingStart" onclick="sendMessages(0)">Запланировать</button>
             </div>
             <div class="col-sm-1">
-                <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Send now</button>
+                <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Отправить сейчас</button>
             </div>
         </div>
         <br/>
@@ -82,13 +82,13 @@
                 <!--<label for="editor">Editor</label>-->
                 <p><label id = "message" ></label></p>
                 <textarea id="editor" name="editor">
-                    Put your text here
+                    Заполните текст сообщения
                 </textarea>
             </div>
             <div class="col-xs-3 col-sm-12 col-md-12 col-lg-12 col-xl-4 green-border-focus">
                 <!--Блок адресов-->
                 <div class="form-group">
-                    <label for="addresses-area" id="addresses-label">Enter the recipients email address here:</label>
+                    <label for="addresses-area" id="addresses-label">Укажите список email получателей (каждый с новой строки):</label>
                     <textarea class="form-control text-lowercase" id="addresses-area" rows="12"
                               style="font-size: 10pt"></textarea>
                     <span class="badge badge-success" id="file-info"></span>

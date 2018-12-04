@@ -262,8 +262,8 @@ function createNewStatus() {
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
-    let trial_offset = $("#trial_offset_" + id).val();
-    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    let trial_offset = parseInt($("#trial_offset_" + id).val());
+    let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
@@ -857,29 +857,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        current.attr("disabled", "true");
+                        console.log(e)
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    current.attr("disabled", "true");
-                    console.log(e)
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -920,15 +922,6 @@ $(function () {
     });
 
 });
-// Кнопка  вк
-// $(function () {
-//     $(function (client) {
-//
-//  var clientId = client.age;
-//
-//     $('#vk-href').attr('href', clientId);
-//     });
-// });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -959,6 +952,9 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
+        if ($('#custom-eTemplate-body').val().length===0){
+            return currentStatus.text("Введите текст сообщения!");
+        }
         var formData = {
             clientId: clientId, templateId: templateId,
             body: $('#custom-eTemplate-body').val()
@@ -982,29 +978,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
-                        $('#custom-eTemplate-body').val("");
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            $('#custom-eTemplate-body').val("");
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        console.log(e);
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    console.log(e);
-                }
-            });
+                });
+            }
         });
     });
 });

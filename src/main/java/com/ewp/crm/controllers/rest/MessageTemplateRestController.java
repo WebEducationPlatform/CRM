@@ -38,7 +38,7 @@ public class MessageTemplateRestController {
     public HttpStatus createTemplate(@RequestParam("name") String name) {
         HttpStatus status = HttpStatus.OK;
         if (messageTemplateService.getByName(name) == null) {
-            messageTemplateService.add(new MessageTemplate(name));
+            messageTemplateService.add(new MessageTemplate(name,"%bodyText%","%bodyText%g"));
             logger.info("Template with name {} created", name);
         } else {
             logger.info("Template with name {} already exists", name);
