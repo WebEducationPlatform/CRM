@@ -3,9 +3,12 @@ function switchTemplate() {
     if (selected === 'email') {
         $('#field').show();
         $('#show-area').hide();
-    } else if (selected === 'vk') {
+    } else if (selected === 'vk,sms,facebook') {
         $('#field').hide();
         $('#show-area').show();
+        $('#field').show();
+
+
     }
 }
 

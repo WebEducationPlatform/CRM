@@ -68,7 +68,7 @@
                                     </li>
                                 </th:block>
                                 <th:block th:each="notification : ${notifications}"
-                                          th:if="${!notification.client.status.invisible}">
+                                          th:if="${notification.client ne null and !notification.client.status.invisible}">
                                     <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                         <li th:class="'menu' + ${notification.client.id}">
@@ -175,12 +175,12 @@
     <!--card from 'Форма: Java Test' doesn't appear on a board with it-->
     <style th:inline="text">
         body {
-            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
 
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear, left top, left bottom, from([ [${#authentication.getPrincipal().colorBackground}] ]), to([ [${#authentication.getPrincipal().colorBackground}] ]));
-            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-image: -webkit-gradient(linear, left top, left bottom, from([[${#authentication.getPrincipal().colorBackground}]]), to([[${#authentication.getPrincipal().colorBackground}]]));
+            border-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
     </style>
 </th:block>
@@ -500,15 +500,19 @@
                         <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
                         <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}"
                                maxlength="30" th:value="${status.name}"/>
-                        <label th:for="'trial_offset_' + ${status.id}">Интервал по-умолчанию для даты пробного
-                            периода</label>
-                        <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
-                        <label th:for="'next_payment_offset_' + ${status.id}">Интервал по-умолчанию для даты следующей
-                            оплаты</label>
-                        <input th:id="'next_payment_offset_' + ${status.id}" type="number"
-                               th:value="${status.nextPaymentOffset}"/>
+                        <table style="margin: 2%">
+                            <tr>
+                                <td><label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label></td>
+                                <td><input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label></td>
+                                <td><input th:id="'next_payment_offset_' + ${status.id}" type="number"
+                                           th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
+                            </tr>
+                        </table>
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"
                             th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить
                     </button>

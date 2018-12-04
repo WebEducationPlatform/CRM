@@ -94,7 +94,7 @@
                     </table>
                 </td>
                 <td th:text="${student.status.status}"></td>
-                <td th:text="${student.notes}"></td>
+                <td th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
                     <button class="button_edit btn btn-info glyphicon glyphicon-pencil" th:value="${student.id}" title="Изменить студента"></button>
                     <button class="button_delete btn btn-danger glyphicon glyphicon-remove" th:value="${student.id}" title="Удалить студента"></button>
