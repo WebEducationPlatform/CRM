@@ -1694,16 +1694,13 @@ function deleteCallDate(id) {
     });
 };
 
-//Update chat message interval.
-let update_chat_interval;
-
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
-    $.ajax({
-        type: 'GET',
-        url: '/rest/telegram/me',
-        success: function (response) {
-            console.log(response);
+    // $.ajax({
+    //     type: 'GET',
+    //     url: '/rest/telegram/me',
+    //     success: function (response) {
+    //         console.log(response);
             // $.ajax({
             //     type: 'GET',
             //     url: '/rest/telegram/user/photos',
@@ -1712,15 +1709,15 @@ $('#conversations-modal').on('show.bs.modal', function () {
             //         console.log(response);
             //     }
             // });
-        }
-    });
+    //     }
+    // });
 
-    $.ajax({
-        type: 'GET',
-        url: '/rest/telegram/user',
-        data: {id: clientId},
-        success: function (response) {
-            console.log(response);
+    // $.ajax({
+    //     type: 'GET',
+    //     url: '/rest/telegram/user',
+    //     data: {id: clientId},
+    //     success: function (response) {
+    //         console.log(response);
             // $.ajax({
             //     type: 'GET',
             //     url: '/rest/telegram/user/photos',
@@ -1729,8 +1726,8 @@ $('#conversations-modal').on('show.bs.modal', function () {
             //         console.log(response);
             //     }
             // });
-        }
-    });
+    //     }
+    // });
 
     $.ajax({
         type: 'GET',
@@ -1747,7 +1744,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
                 append_message(message_id, send_date, text);
             }
             $("#send-selector").prop('value', 'telegram');
-            update_chat_interval = setInterval(update_chat, 2000);
+            setTimeout(update_chat, 2000);
         }
     })
 });
@@ -1755,7 +1752,6 @@ $('#conversations-modal').on('show.bs.modal', function () {
 $('#conversations-modal').on('hidden.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
     $("#chat-messages").empty();
-    clearInterval(update_chat_interval);
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/close',

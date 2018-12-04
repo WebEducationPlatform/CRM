@@ -115,23 +115,18 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public TdApi.Messages getUnreadMessagesFromChat(long chatId, long lastMessageId, int limit) {
+    public TdApi.Messages getUnreadMessagesFromChat(long chatId, int limit) {
         TdApi.Chat chat = getChat(chatId);
+        if (chat.unreadCount == 0) {
+            return new TdApi.Messages(0, new TdApi.Message[]{});
+        }
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
-        int iter = 0;
-        while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
-            client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.unreadCount, false), handler);
-            while (handler.isLoading()) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.warn("Message loading interrupted", e);
-                    break;
-                }
-            }
-            handler.setLoading(true);
-            iter++;
-            if(iter > RETRY_COUNT) {
+        client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.unreadCount, false), handler);
+        while (handler.getMessages().totalCount != chat.unreadCount) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("Unread messages loading interrupted", e);
                 break;
             }
         }
