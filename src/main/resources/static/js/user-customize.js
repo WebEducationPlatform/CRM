@@ -59,3 +59,58 @@ function validate_input(data) {
     }
     return true;
 }
+
+//Fill values on new student configuration modal show up.
+$('#new-student-config-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/properties',
+        dataType: 'JSON',
+        success: function (response) {
+            $("#month-price").val(response.defaultPricePerMonth);
+            $.ajax({
+                type: 'GET',
+                url: '/rest/student/status',
+                dataType: 'JSON',
+                success: function (statuses) {
+                    $("#new-student-status").empty().append(
+                        $('<option>').val('0').text('Не выбрано')
+                    );
+                    $.each(statuses, function(i, item) {
+                        $("#new-student-status").append(
+                            $('<option>').val(item.id).text(item.status)
+                        )
+                    });
+                    if (response.defaultStudentStatus == null) {
+                        $("#new-student-status option[value='0']").prop('selected', true)
+                    } else {
+                        $("#new-student-status option[value=" + response.defaultStudentStatus.id + "]").prop('selected', true);
+                    }
+                }
+            });
+        }
+    });
+});
+
+//Update new student creation properties
+$("#update-new-student-settings").click( function () {
+    let price = $("#month-price").val();
+    let status_id = $("#new-student-status").val();
+    if (!validate_new_student_parameters(price, status)) {return}
+    if (status_id === '0') {
+        sessionStorage.setItem('student_default_status', "false");
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/new-student-properties',
+        data: {price: price, id: status_id},
+    })
+});
+
+function validate_new_student_parameters(price, status) {
+    if (price === '') {
+        alert("Введите корректную цену!");
+        return false;
+    }
+    return true;
+}

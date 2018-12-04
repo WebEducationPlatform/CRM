@@ -36,8 +36,6 @@ public class VKConfigImpl implements VKConfig {
 
     private String firstContactMessage;
 
-    private String targetVkGroup;
-
     private String apiUrl;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
@@ -59,7 +57,6 @@ public class VKConfigImpl implements VKConfig {
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
 
-            targetVkGroup = env.getRequiredProperty("youtube.target.vkclub.id");
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
                 throw new NullPointerException();
@@ -120,10 +117,6 @@ public class VKConfigImpl implements VKConfig {
 
     public String getFirstContactMessage() {
         return firstContactMessage;
-    }
-
-    public String getTargetVkGroup() {
-        return targetVkGroup;
     }
 
     public String getVkAPIUrl() {
