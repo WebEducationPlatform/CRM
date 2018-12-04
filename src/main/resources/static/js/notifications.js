@@ -15,7 +15,6 @@ var clearNotifications = function clearClientSmsNotifications(id) {
 };
 
 function markAsReadMenu(clientId) {
-    $("#noNotify").hide()
     if ($('.notify').length) {
 
         var url = "/user/notification/comment/clear/" + clientId;
