@@ -11,12 +11,12 @@ $("#create_template").click(function () {
         url: '/rest/message-template',
         dataType: "JSON",
         data: {name: name},
-        success: function (response) {
-            if (response === "CONFLICT") {
-                alert("Шаблон с таким именем уже существует!");
-            } else {
-                location.reload();
-            }
+        success: function () {
+            window.location = "/template/create/" + name;
+        },
+        error: function () {
+            alert("Шаблон с таким именем " + name + " уже существует!");
+
         }
     });
 });
