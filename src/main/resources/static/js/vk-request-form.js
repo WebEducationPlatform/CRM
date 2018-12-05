@@ -34,13 +34,11 @@ function createVkRequestField() {
         }
     }
 
-    var selectIndex = document.getElementById("app-type-create").options.selectedIndex;
-    var typeRequest = document.getElementById("app-type-create").options[selectIndex].text;
     var url = "/vk/request/create";
     var mass = {
         numberVkField: rowCount,
         nameVkField: nameRequest,
-        typeVkField: typeRequest
+        typeVkField: "Обязательное"
     };
     var emp = JSON.stringify(mass);
     $.ajax({
@@ -163,6 +161,9 @@ function updateVkRequestField() {
     var id = document.getElementById("app-id").value;
     var indexForNameRequest = document.getElementById("app-name").options.selectedIndex;
     var nameRequest = document.getElementById("app-name").options[indexForNameRequest].text;
+    if (nameRequest === "") {
+        return;
+    }
     for (var i = 1; i < table.rows.length; i++) {
         var row = table.rows[i];
         var name = row.cells[1].textContent;
@@ -172,7 +173,7 @@ function updateVkRequestField() {
     }
     var index = document.getElementById("app-type").options.selectedIndex;
     var typeRequest = document.getElementById("app-type").options[index].text;
-    var  rowNumber = document.getElementById("app-rowNumber").value;
+    var rowNumber = document.getElementById("app-rowNumber").value;
     var url = "/vk/request/update/" + id;
     var mass = {
         numberVkField: rowNumber,
@@ -199,7 +200,7 @@ function updateVkRequestField() {
 function updateVkRequestFieldForLabel() {
     var id = document.getElementById("app-id").value;
     var nameRequestField = document.getElementById("app-label").value;
-    var  rowNumber = document.getElementById("app-rowNumber").value;
+    var rowNumber = document.getElementById("app-rowNumber").value;
     if ("" === nameRequestField) {
         alert("Нельзя создать пустое поле!");
         return;
