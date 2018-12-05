@@ -58,7 +58,7 @@ public class AdminEmailRestController {
 
         MessageTemplate messageTemplate = messageTemplateService.getByName(templateName);
 
-        if (templateText.length() == 0 || otherTemplateText.length() == 0) {
+        if (templateText.length() == 0 || otherTemplateText.length() == 0|| (templateText.equals(msgTemplateDefaultTextBody) && otherTemplateText.equals(msgTemplateDefaultTextBody))) {
             throw new MessageTemplateException("Шаблон не должен быть пустым на обоих типах сообщения");
         }
 
