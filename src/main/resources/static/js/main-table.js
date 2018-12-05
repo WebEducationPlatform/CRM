@@ -1747,6 +1747,8 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
+                    $('#slack-invite-href').attr('action', 'http://localhost:9998/slack/' + client.email);
+
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
