@@ -68,6 +68,7 @@ function append_message(message_id, send_date, text) {
         "<div class='col-xs-1'>"+
         // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +
         "<img class='vk-im-photo img-circle' src='"+ 'photo' +"' class='img-circle' id='vkPhotoId"+ 'fromid' +"'/>" +
+        // <img src='data:image/jpeg;base64," + arrayBufferToBase64(data[i].car.photo) + "' alt='No image' height='240' width='240' onerror=\"this.src='./style/nophoto.jpg';\">
         "</a>"+
         "</div>"+
         "<div class='col-xs-11'>"+

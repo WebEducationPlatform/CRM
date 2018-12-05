@@ -1673,23 +1673,34 @@ function deleteCallDate(id) {
     });
 };
 
+function arrayBufferToBase64( buffer ) {
+    let binary = '';
+    let bytes = new Uint8Array( buffer );
+    let len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
+
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
-    // $.ajax({
-    //     type: 'GET',
-    //     url: '/rest/telegram/me',
-    //     success: function (response) {
-    //         console.log(response);
-            // $.ajax({
-            //     type: 'GET',
-            //     url: '/rest/telegram/user/photos',
-            //     data: {id: response.id},
-            //     success: function (response) {
-            //         console.log(response);
-            //     }
-            // });
-    //     }
-    // });
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/me',
+        success: function (response) {
+            console.log(response);
+            $.ajax({
+                type: 'GET',
+                url: '/rest/telegram/file/photo',
+                data: {id: response.profilePhoto.small.id},
+                success: function (response) {
+                    console.log("photo");
+                    console.log(response);
+                }
+            });
+        }
+    });
 
     // $.ajax({
     //     type: 'GET',
