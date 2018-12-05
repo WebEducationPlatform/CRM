@@ -123,7 +123,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'USER')")
     public ModelAndView mailingPage() {
         return new ModelAndView("mailing");
     }
