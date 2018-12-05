@@ -68,6 +68,13 @@ public class Status implements Serializable {
 	@Column(name = "next_payment_offset")
 	private Integer nextPaymentOffset = 0;
 
+	@OneToMany(
+			mappedBy = "primaryKey.status",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true
+	)
+	private List<SortedStatuses> sortedStatuses = new ArrayList<>();
+
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;
 		this.isInvisible = isInvisible;
@@ -176,5 +183,13 @@ public class Status implements Serializable {
 
 	public void setInvisible(Boolean invisible) {
 		isInvisible = invisible;
+	}
+
+	public List<SortedStatuses> getSortedStatuses() {
+		return sortedStatuses;
+	}
+
+	public void setSortedStatuses(List<SortedStatuses> sortedStatuses) {
+		this.sortedStatuses = sortedStatuses;
 	}
 }
