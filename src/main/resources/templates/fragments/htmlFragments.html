@@ -32,8 +32,8 @@
                     <li><a href="/client/allClients">Все клиенты</a></li>
                     <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
                     <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER')">Статусы обучения</a></li>
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'USER')">Рассылка</a></li>
-                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'USER')">Шаблоны</a></li>
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Рассылка</a></li>
+                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Шаблоны</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
