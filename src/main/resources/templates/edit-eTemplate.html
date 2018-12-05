@@ -26,7 +26,7 @@
         <div class="container">
             <fieldset id="field">
                 <div class="btn-group">
-                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ ${template.id} +'\',this)'" style="display: none"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ ${template.name} +'\',this)'" style="display: none"/>
                     <label for="imgBtn">
                         <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
                     </label>
@@ -44,7 +44,7 @@
                 <textarea  th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
             </div>
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
+                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.name} +'\')'">Сохранить</button>
                 <a href="/template/all" class="btn btn-primary" id="backToMain">Назад</a>
             </div>
             <p><span id = "message"></span></p>

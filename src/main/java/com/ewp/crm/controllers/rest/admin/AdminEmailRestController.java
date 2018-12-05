@@ -44,29 +44,30 @@ public class AdminEmailRestController {
         return Files.readAllBytes(fileLocation);
     }
 
-    @Value("%bodyText%")
-    private String msgTemplateDefaultTextBody;
 
     @PostMapping(value = {"/admin/editMessageTemplate"})
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public HttpStatus editETemplate(@RequestParam("templateId") Long templateId,
+    public HttpStatus editETemplate(@RequestParam("templateName") String templateName,
                                     @RequestParam("templateText") String templateText,
                                     @RequestParam String otherTemplateText) {
         //TODO Убрать хардкод
+        String msgTemplateDefaultTextBody = "%bodyText%";
         if (templateText.contains(msgTemplateDefaultTextBody) ^ otherTemplateText.contains(msgTemplateDefaultTextBody)) {
             throw new MessageTemplateException(msgTemplateDefaultTextBody + "должен присутствовать или остутствовать на обоих типах сообщения");
         }
 
-        MessageTemplate messageTemplate = messageTemplateService.get(templateId);
+        MessageTemplate messageTemplate = messageTemplateService.getByName(templateName);
 
-        if (templateText.length() == 0 || otherTemplateText.length() == 0) {
-            templateText = msgTemplateDefaultTextBody + templateText;
-            otherTemplateText = msgTemplateDefaultTextBody + otherTemplateText;
+        if (templateText.length() == 0 || otherTemplateText.length() == 0|| (templateText.equals(msgTemplateDefaultTextBody) && otherTemplateText.equals(msgTemplateDefaultTextBody))) {
+            throw new MessageTemplateException("Шаблон не должен быть пустым на обоих типах сообщения");
         }
 
-        messageTemplate.setTemplateText(templateText);
-        messageTemplate.setOtherText(otherTemplateText);
-
+        if (messageTemplate == null) {
+            messageTemplate = new MessageTemplate(templateName, templateText, otherTemplateText);
+        } else {
+            messageTemplate.setTemplateText(templateText);
+            messageTemplate.setOtherText(otherTemplateText);
+        }
 
         messageTemplateService.update(messageTemplate);
 
@@ -77,12 +78,12 @@ public class AdminEmailRestController {
     @PostMapping(value = "/admin/savePicture")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity savePicture(@RequestParam("0") MultipartFile file,
-                                      @RequestParam Integer templateID,
+                                      @RequestParam String templateName,
                                       @AuthenticationPrincipal User currentAdmin) {
         try {
             BufferedImage image = ImageIO.read(new BufferedInputStream(file.getInputStream()));
             String fileName = file.getOriginalFilename().replaceFirst("[.][^.]+$", "") + ".png";
-            String path = "images/templateID_" + templateID + "/" + fileName;
+            String path = "images/templateName_" + templateName + "/" + fileName;
             File fileTarget = new File((path).replaceAll("/", "\\" + File.separator));
             if (fileTarget.exists()) {
                 ImageIO.write(image, "png", fileTarget);
