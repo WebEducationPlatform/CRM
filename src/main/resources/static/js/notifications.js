@@ -27,6 +27,11 @@ function markAsReadMenu(clientId) {
                 $('#info-client' + clientId).find(".notification").remove();
                 $('.menu' + clientId).remove();
                 $('#notification-postpone' + clientId).hide();
+                if ($('.notify').length == 0) {
+                    $("#bell").css("color", "");
+                    $("#bucket").hide();
+                    $("#noNotify").text("У вас нет новых оповещений");
+                }
             },
             error: function (error) {
                 console.log(error);
@@ -49,6 +54,9 @@ function cleanAll() {
                     $('.menu' + data[i].id).remove();
                     $('#notification-postpone' + data[i].id).hide();
                 }
+                $("#bell").css("color", "");
+                $("#bucket").hide();
+                $("#noNotify").text("У вас нет новых оповещений");
             },
             error: function (error) {
                 console.log(error);
