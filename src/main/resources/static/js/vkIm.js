@@ -138,6 +138,8 @@ function vk_getUnreadMessages_CallBack(vk_data) {
     $('.vk-items').each(function(i, elem){
         $(elem).remove();
     });
+    var dom = $('#VKNavbarDropdown');
+    dom.hide();
 
     $('#vk-im-count').text('');
 
