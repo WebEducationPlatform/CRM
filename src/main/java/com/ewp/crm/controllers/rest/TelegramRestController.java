@@ -1,10 +1,13 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.service.impl.TelegramServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.TelegramService;
 import org.drinkless.tdlib.TdApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +29,8 @@ public class TelegramRestController {
     private final ClientService clientService;
     private final SocialProfileService socialProfileService;
     private static final int MESSAGE_LIMIT = 40;
+
+    private static Logger logger = LoggerFactory.getLogger(TelegramRestController.class);
 
     @Autowired
     public TelegramRestController(TelegramService telegramService, ClientService clientService,
@@ -77,7 +84,6 @@ public class TelegramRestController {
 
     @GetMapping("/messages/chat/unread")
     public ResponseEntity<TdApi.Messages> getUnreadChatMessages(@RequestParam("clientId") Long clientId) {
-        System.out.println("Here! " + clientId);
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
         ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.OK).build();
         for (SocialProfile profile : profiles) {
@@ -85,7 +91,6 @@ public class TelegramRestController {
                 String chatId = profile.getLink();
                 TdApi.Messages messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
                 result = new ResponseEntity<>(messages, HttpStatus.OK);
-                System.out.println("Controller " + messages);
                 break;
             }
         }
@@ -121,6 +126,20 @@ public class TelegramRestController {
     @GetMapping("/user/photos")
     public ResponseEntity<TdApi.UserProfilePhotos> getProfilePhotosByUserId(@RequestParam("id") int userId) {
         return new ResponseEntity<>(telegramService.getUserPhotos(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/file/photo")
+    public ResponseEntity<byte[]> getPhotoByFileId(@RequestParam("id") int fileId) {
+        TdApi.File file = telegramService.getFileById(fileId);
+        byte[] data = new byte[0];
+        ResponseEntity<byte[]> result = new ResponseEntity<>(data, HttpStatus.NOT_FOUND);
+        try {
+            data = telegramService.downloadFile(file);
+            result = new ResponseEntity<>(data, HttpStatus.OK);
+        } catch (IOException e) {
+            logger.error("Failed to download file {}", file, e);
+        }
+        return result;
     }
 
     @GetMapping("/logout")

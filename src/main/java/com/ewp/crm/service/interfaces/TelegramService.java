@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import org.drinkless.tdlib.TdApi;
+import java.io.IOException;
 
 public interface TelegramService {
 
@@ -22,11 +23,15 @@ public interface TelegramService {
 
     void closeChat(long chatId);
 
-    public TdApi.User getMe();
+    TdApi.User getMe();
 
-    public TdApi.User getUserById(int userId);
+    TdApi.User getUserById(int userId);
 
-    public TdApi.UserProfilePhotos getUserPhotos(int userId);
+    TdApi.UserProfilePhotos getUserPhotos(int userId);
+
+    TdApi.File getFileById(int fileId);
+
+    byte[] downloadFile(TdApi.File file) throws IOException;
 
     void logout();
 }

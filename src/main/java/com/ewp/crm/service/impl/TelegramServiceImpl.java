@@ -18,8 +18,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -207,6 +210,42 @@ public class TelegramServiceImpl implements TelegramService {
             }
         }
         return handler.getPhotos();
+    }
+
+    @Override
+    public TdApi.File getFileById(int fileId) {
+        GetFileHandler handler = new GetFileHandler();
+        client.send(new TdApi.GetFile(fileId), handler);
+        while (handler.getFile() == null) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("File retrieve interrupted", e);
+                break;
+            }
+        }
+        return handler.getFile();
+    }
+
+    @Override
+    public byte[] downloadFile(TdApi.File file) throws IOException {
+        DownloadFileHandler handler = new DownloadFileHandler(file);
+        while (handler.getFile().local.canBeDownloaded && !handler.getFile().local.isDownloadingCompleted) {
+            client.send(new TdApi.DownloadFile(file.id, 1), handler);
+            while (handler.isLoading()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.warn("File loading interrupted", e);
+                    break;
+                }
+            }
+            handler.setLoading(false);
+            System.out.println("Tick " + handler.getFile());
+        }
+        System.out.println("Downloaded " + handler.getFile());
+        Path fileLocation = Paths.get(handler.getFile().local.path);
+        return Files.readAllBytes(fileLocation);
     }
 
     @Override
@@ -487,6 +526,51 @@ public class TelegramServiceImpl implements TelegramService {
         @Override
         public void onResult(TdApi.Object object) {
             this.messages = (TdApi.Messages) object;
+            this.loading = false;
+        }
+    }
+
+    /**
+     * Get remote file by id and type.
+     */
+    private class GetFileHandler implements Client.ResultHandler {
+
+        private TdApi.File file;
+
+        public TdApi.File getFile() {
+            return file;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.file = (TdApi.File) object;
+        }
+    }
+
+    private class DownloadFileHandler implements Client.ResultHandler {
+
+        private TdApi.File file;
+        private boolean loading = true;
+
+        public TdApi.File getFile() {
+            return file;
+        }
+
+        public boolean isLoading() {
+            return loading;
+        }
+
+        public void setLoading(boolean loading) {
+            this.loading = loading;
+        }
+
+        public DownloadFileHandler(TdApi.File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.file = (TdApi.File) object;
             this.loading = false;
         }
     }
