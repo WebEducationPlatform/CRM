@@ -66,13 +66,14 @@ public class StatusServiceImpl implements StatusService {
 
     private List<Client> sortClients(List<Client> clients, String sortingType) {
         if ("oldFirst".equals(sortingType)) {
+			//clients.sort(Comparator.comparing(Client::getDateOfRegistration));
             return clients;
         }
         if ("newFirst".equals(sortingType)) {
             clients.sort(Comparator.comparing(Client::getDateOfRegistration).reversed());
             return clients;
         }
-        if ("newChangesFirst".equals(sortingType)) {
+        if ("oldChangesFirst".equals(sortingType)) {
             clients.sort((client1, client2) -> {
                 ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
                 ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
@@ -80,7 +81,7 @@ public class StatusServiceImpl implements StatusService {
             });
             return clients;
         }
-        if ("oldChangesFirst".equals(sortingType)) {
+        if ("newChangesFirst".equals(sortingType)) {
             clients.sort((client1, client2) -> {
                 ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
                 ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
