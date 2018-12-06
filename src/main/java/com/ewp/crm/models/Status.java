@@ -68,11 +68,8 @@ public class Status implements Serializable {
 	@Column(name = "next_payment_offset")
 	private Integer nextPaymentOffset = 0;
 
-	@OneToMany(
-			mappedBy = "primaryKey.status",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true
-	)
+	@JsonIgnore
+	@OneToMany(mappedBy = "sortedStatusesId.statusId")
 	private List<SortedStatuses> sortedStatuses = new ArrayList<>();
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
