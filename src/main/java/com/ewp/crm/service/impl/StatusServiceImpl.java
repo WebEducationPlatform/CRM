@@ -1,33 +1,38 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
+	private final ClientHistoryService clientHistoryService;
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService) {
+	public StatusServiceImpl(StatusDAO statusDAO,
+                             ProjectPropertiesService propertiesService,
+                             ClientHistoryService clientHistoryService) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
-	}
+        this.clientHistoryService = clientHistoryService;
+    }
 
 	@Autowired
 	private void setStatusService(ClientService clientService) {
@@ -38,6 +43,49 @@ public class StatusServiceImpl implements StatusService {
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
+
+    @Override
+    public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
+        List<Status> statuses = getAll();
+        SortedStatuses sorted;
+        for (Status status : statuses) {
+            sorted = new SortedStatuses(status, userFromSession);
+            if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
+                SortedStatuses finalSorted = sorted;
+                String sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+                //System.out.println(status.getName() + " " + sortingType);
+                status.setClients(sortClients(status.getClients(), sortingType));
+            }
+        }
+        return statuses;
+    }
+
+    private List<Client> sortClients(List<Client> clients, String sortingType) {
+        if ("oldFirst".equals(sortingType)) {
+            return clients;
+        }
+        if ("newFirst".equals(sortingType)) {
+            clients.sort(Comparator.comparing(Client::getDateOfRegistration).reversed());
+            return clients;
+        }
+        if ("newChangesFirst".equals(sortingType)) {
+            clients.sort((client1, client2) -> {
+                ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
+                ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
+                return lastChangesClient1.compareTo(lastChangesClient2);
+            });
+            return clients;
+        }
+        if ("oldChangesFirst".equals(sortingType)) {
+            clients.sort((client1, client2) -> {
+                ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
+                ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
+                return lastChangesClient2.compareTo(lastChangesClient1);
+            });
+            return clients;
+        }
+        return clients;
+    }
 
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {

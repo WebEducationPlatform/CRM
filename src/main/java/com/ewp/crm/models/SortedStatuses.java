@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity(name = "SortedStatuses")
 @Table(name = "sorted_statuses")
@@ -61,5 +62,20 @@ public class SortedStatuses implements Serializable {
 
     public void setSortingType(String sortingType) {
         this.sortingType = sortingType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SortedStatuses that = (SortedStatuses) o;
+        return Objects.equals(sortedStatusesId, that.sortedStatusesId) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(user, that.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sortedStatusesId, status, user);
     }
 }

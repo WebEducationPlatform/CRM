@@ -13,10 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -51,6 +50,14 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
 		return clientHistoryRepository.getAllByClientId(id, pageable);
 	}
+
+    @Override
+    public ZonedDateTime getLastClientChangesDate(Client client) {
+        List<ClientHistory> clientHistory = getClientById(client.getId());
+        clientHistory.sort(Comparator.comparing(ClientHistory::getDate));
+        ZonedDateTime zonedDateTime = clientHistory.get(0).getDate();
+        return zonedDateTime;
+    }
 
 	@Override
 	public ClientHistory createHistory(String socialRequest) {
