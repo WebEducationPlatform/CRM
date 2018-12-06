@@ -125,9 +125,22 @@ function insertNewPicture(userID,templateName, input) {
 $(document).ready(function () {
     editor = CKEDITOR.replace('body', {
         allowedContent: true,
-        height: '600px'
+        height: '600px',
+        filebrowserImageUploadUrl: '/image/upload'
+
     });
 
+    CKEDITOR.config.extraPlugins = 'uploadimage';
+    CKEDITOR.config.imageUploadUrl = '/image/upload';
+    CKEDITOR.on('dialogDefinition', function (e) {
+        var dialogName = e.data.name;
+        var dialogDefinition = e.data.definition;
+        if (dialogName === 'image') {
+            // dialogDefinition.removeContents('info');
+            dialogDefinition.removeContents('Link');
+            dialogDefinition.removeContents('advanced');
+        }
+    });
     editor.addCommand("infoCommend", {
         exec: function (edt) {
             $("#infoModal").modal('show');
