@@ -417,4 +417,5 @@ public class User implements UserDetails {
 	public void setIsVerified(boolean verified) {
 		isVerified = verified;
 	}
+
 }
