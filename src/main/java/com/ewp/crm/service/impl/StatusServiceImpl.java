@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -22,17 +23,20 @@ public class StatusServiceImpl implements StatusService {
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 	private final ClientHistoryService clientHistoryService;
+	private final SortedStatusesRepository sortedStatusesRepository;
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
 	public StatusServiceImpl(StatusDAO statusDAO,
-                             ProjectPropertiesService propertiesService,
-                             ClientHistoryService clientHistoryService) {
+							 ProjectPropertiesService propertiesService,
+							 ClientHistoryService clientHistoryService,
+							 SortedStatusesRepository sortedStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
         this.clientHistoryService = clientHistoryService;
-    }
+		this.sortedStatusesRepository = sortedStatusesRepository;
+	}
 
 	@Autowired
 	private void setStatusService(ClientService clientService) {
@@ -211,5 +215,12 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getAllStatusesForStudents() {
 		return statusDAO.getAllStatusesForStudents();
+	}
+
+	@Override
+	public void setNewOrderForChosenStatusForCurrentUser(String newOrder, Long statusId, User currentUser) {
+		SortedStatuses sortedStatus = new SortedStatuses(get(statusId), currentUser);
+		sortedStatus.setSortingType(newOrder);
+		sortedStatusesRepository.save(sortedStatus);
 	}
 }
