@@ -54,7 +54,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
     @Override
     public ZonedDateTime getLastClientChangesDate(Client client) {
         List<ClientHistory> clientHistory = getClientById(client.getId());
-        clientHistory.sort(Comparator.comparing(ClientHistory::getDate));
+        clientHistory.sort(Comparator.comparing(ClientHistory::getDate).reversed());
         ZonedDateTime zonedDateTime = clientHistory.get(0).getDate();
         return zonedDateTime;
     }

@@ -43,7 +43,7 @@ public class ClientRestController {
 	private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService,
+    public ClientRestController(ClientService clientService,
                                 SocialProfileTypeService socialProfileTypeService,
                                 UserService userService,
                                 SocialProfileService socialProfileService,
@@ -51,13 +51,13 @@ public class ClientRestController {
                                 MessageService messageService,
                                 ProjectPropertiesService propertiesService,
                                 StatusService statusService) {
-		this.clientService = clientService;
-		this.socialProfileTypeService = socialProfileTypeService;
-		this.userService = userService;
-		this.clientHistoryService = clientHistoryService;
-		this.messageService = messageService;
-		this.propertiesService = propertiesService;
-		this.socialProfileService = socialProfileService;
+        this.clientService = clientService;
+        this.socialProfileTypeService = socialProfileTypeService;
+        this.userService = userService;
+        this.clientHistoryService = clientHistoryService;
+        this.messageService = messageService;
+        this.propertiesService = propertiesService;
+        this.socialProfileService = socialProfileService;
         this.statusService = statusService;
     }
 
@@ -441,14 +441,14 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body("done");
 	}
 
-    @PostMapping(value = "/order")
-    public ResponseEntity<List<Client>> setNewClientsOrder(@RequestParam String newOrder,
-                                                    @RequestParam Long statusId,
-                                                    @AuthenticationPrincipal User userFromSession) {
-        System.out.println(newOrder + " " + statusId + " " + userFromSession.getFirstName());
-        statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
-        List<Client> clientListWithNewOrder = new ArrayList<>();
-             //   clientService.getClientListWithNewOrder(statusId);
-        return ResponseEntity.ok(clientListWithNewOrder);
-    }
+	@PostMapping(value = "/order")
+	public ResponseEntity<List<Client>> setNewClientsOrder(@RequestParam String newOrder,
+														   @RequestParam Long statusId,
+														   @AuthenticationPrincipal User userFromSession) {
+		System.out.println(newOrder + " " + statusId + " " + userFromSession.getFirstName());
+		statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
+		List<Client> clientListWithNewOrder = new ArrayList<>();
+		//   clientService.getClientListWithNewOrder(statusId);
+		return ResponseEntity.ok(clientListWithNewOrder);
+	}
 }
