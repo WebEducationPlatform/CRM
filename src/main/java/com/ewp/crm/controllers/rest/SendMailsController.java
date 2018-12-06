@@ -100,7 +100,7 @@ public class SendMailsController {
                     }
 
                     if (!vkIdentify.matches(allDigitPattern)) {
-                        vkIdentify = Long.toString(vkService.getVKIdByUrl(vkURL+vkIdentify).orElse(0L));
+                        vkIdentify = Long.toString(vkService.getVKIdByUrl(vkURL + vkIdentify).orElse(0L));
                     }
 
                     if (!zeroString.equals(vkIdentify)) {
