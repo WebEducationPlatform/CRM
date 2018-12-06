@@ -1694,35 +1694,32 @@ function deleteCallDate(id) {
     });
 };
 
-function arrayBufferToBase64( buffer ) {
-    let binary = '';
-    let bytes = new Uint8Array( buffer );
-    let len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
-    }
-    return window.btoa( binary );
-}
+let telegram_me;
+let telegram_me_photo;
 
-$('#conversations-modal').on('show.bs.modal', function () {
-    let clientId = $("#main-modal-window").data('clientId');
+function get_tg_me() {
+    console.log("Me");
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/me',
         success: function (response) {
             console.log(response);
+            telegram_me = response;
             $.ajax({
                 type: 'GET',
                 url: '/rest/telegram/file/photo',
                 data: {id: response.profilePhoto.small.id},
                 success: function (response) {
-                    console.log("photo");
                     console.log(response);
+                    telegram_me_photo = response;
                 }
             });
         }
     });
+}
 
+$('#conversations-modal').on('show.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
     // $.ajax({
     //     type: 'GET',
     //     url: '/rest/telegram/user',
