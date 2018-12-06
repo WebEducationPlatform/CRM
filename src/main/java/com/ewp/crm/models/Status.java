@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Статус студента, новый клиент, учится, бросил, закончил и тп.
@@ -70,7 +68,7 @@ public class Status implements Serializable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "sortedStatusesId.statusId")
-	private List<SortedStatuses> sortedStatuses = new ArrayList<>();
+	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;
@@ -182,11 +180,11 @@ public class Status implements Serializable {
 		isInvisible = invisible;
 	}
 
-	public List<SortedStatuses> getSortedStatuses() {
+	public Set<SortedStatuses> getSortedStatuses() {
 		return sortedStatuses;
 	}
 
-	public void setSortedStatuses(List<SortedStatuses> sortedStatuses) {
+	public void setSortedStatuses(Set<SortedStatuses> sortedStatuses) {
 		this.sortedStatuses = sortedStatuses;
 	}
 }

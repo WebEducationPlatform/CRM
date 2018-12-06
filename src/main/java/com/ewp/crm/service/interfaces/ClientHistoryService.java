@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.*;
 import org.springframework.data.domain.Pageable;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface ClientHistoryService {
@@ -32,4 +33,6 @@ public interface ClientHistoryService {
 	List<ClientHistory> getClientById(long id);
 
 	List<ClientHistory> getAllClientById(long id, Pageable pageable);
+
+	ZonedDateTime getLastClientChangesDate(Client client);
 }

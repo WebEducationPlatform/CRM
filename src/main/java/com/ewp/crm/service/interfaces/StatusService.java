@@ -3,12 +3,15 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.CommonGenericRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
 public interface StatusService {
 
     List<Status> getAll();
+
+    List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession);
 
     List<Status> getStatusesWithClientsForUser(User ownerUser);
 
