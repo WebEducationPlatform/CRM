@@ -37,18 +37,20 @@ public class ClientRestController {
 	private final MessageService messageService;
 	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
+	private final StatusService statusService;
 
 	@Value("${project.pagination.page-size.clients}")
 	private int pageSize;
 
 	@Autowired
 	public ClientRestController(ClientService clientService,
-								SocialProfileTypeService socialProfileTypeService,
-								UserService userService,
-                				SocialProfileService socialProfileService,
-								ClientHistoryService clientHistoryService,
+                                SocialProfileTypeService socialProfileTypeService,
+                                UserService userService,
+                                SocialProfileService socialProfileService,
+                                ClientHistoryService clientHistoryService,
                                 MessageService messageService,
-								ProjectPropertiesService propertiesService) {
+                                ProjectPropertiesService propertiesService,
+                                StatusService statusService) {
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.userService = userService;
@@ -56,8 +58,8 @@ public class ClientRestController {
 		this.messageService = messageService;
 		this.propertiesService = propertiesService;
 		this.socialProfileService = socialProfileService;
-
-	}
+        this.statusService = statusService;
+    }
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -416,12 +418,12 @@ public class ClientRestController {
 		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
 	}
 
-  @PostMapping(value = "/postpone/getComment")
-  @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-  public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
-      String postponeComment = clientService.get(clientId).getPostponeComment();
-      return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
-  }
+	@PostMapping(value = "/postpone/getComment")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
+		String postponeComment = clientService.get(clientId).getPostponeComment();
+		return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
+	}
 
 	@PostMapping(value = "/setRepeated")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -438,4 +440,15 @@ public class ClientRestController {
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body("done");
 	}
+
+    @PostMapping(value = "/order")
+    public ResponseEntity<List<Client>> setNewClientsOrder(@RequestParam String newOrder,
+                                                    @RequestParam Long statusId,
+                                                    @AuthenticationPrincipal User userFromSession) {
+        System.out.println(newOrder + " " + statusId + " " + userFromSession.getFirstName());
+        statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
+        List<Client> clientListWithNewOrder = new ArrayList<>();
+             //   clientService.getClientListWithNewOrder(statusId);
+        return ResponseEntity.ok(clientListWithNewOrder);
+    }
 }

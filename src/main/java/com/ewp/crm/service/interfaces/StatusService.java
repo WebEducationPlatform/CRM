@@ -39,5 +39,5 @@ public interface StatusService {
 
     List<Status> getAllStatusesForStudents();
 
-
+    void setNewOrderForChosenStatusForCurrentUser(String newOrder, Long statusId, User currentUser);
 }
