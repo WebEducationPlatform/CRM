@@ -129,10 +129,10 @@ public class TelegramRestController {
     }
 
     @GetMapping("/file/photo")
-    public ResponseEntity<byte[]> getPhotoByFileId(@RequestParam("id") int fileId) {
+    public ResponseEntity<String> getPhotoByFileId(@RequestParam("id") int fileId) {
         TdApi.File file = telegramService.getFileById(fileId);
-        byte[] data = new byte[0];
-        ResponseEntity<byte[]> result = new ResponseEntity<>(data, HttpStatus.NOT_FOUND);
+        String data = "";
+        ResponseEntity<String> result = new ResponseEntity<>(data, HttpStatus.NOT_FOUND);
         try {
             data = telegramService.downloadFile(file);
             result = new ResponseEntity<>(data, HttpStatus.OK);

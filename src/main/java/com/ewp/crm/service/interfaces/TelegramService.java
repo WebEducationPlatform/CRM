@@ -31,7 +31,7 @@ public interface TelegramService {
 
     TdApi.File getFileById(int fileId);
 
-    byte[] downloadFile(TdApi.File file) throws IOException;
+    String downloadFile(TdApi.File file) throws IOException;
 
     void logout();
 }

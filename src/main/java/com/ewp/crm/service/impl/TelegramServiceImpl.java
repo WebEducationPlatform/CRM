@@ -8,6 +8,7 @@ import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.TelegramService;
+import org.apache.commons.io.FileUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -171,7 +173,7 @@ public class TelegramServiceImpl implements TelegramService {
     public TdApi.User getMe() {
         GetTelegramUserHandler handler = new GetTelegramUserHandler();
         client.send(new TdApi.GetMe(), handler);
-        while (handler.isLoading()) {
+        while (handler.getUser() == null) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -186,7 +188,7 @@ public class TelegramServiceImpl implements TelegramService {
     public TdApi.User getUserById(int userId) {
         GetTelegramUserHandler handler = new GetTelegramUserHandler();
         client.send(new TdApi.GetUser(userId), handler);
-        while (handler.isLoading()) {
+        while (handler.getUser() == null) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -228,7 +230,8 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public byte[] downloadFile(TdApi.File file) throws IOException {
+    public String downloadFile(TdApi.File file) throws IOException {
+        System.out.println("Start " + file);
         DownloadFileHandler handler = new DownloadFileHandler(file);
         while (handler.getFile().local.canBeDownloaded && !handler.getFile().local.isDownloadingCompleted) {
             client.send(new TdApi.DownloadFile(file.id, 1), handler);
@@ -241,11 +244,10 @@ public class TelegramServiceImpl implements TelegramService {
                 }
             }
             handler.setLoading(false);
-            System.out.println("Tick " + handler.getFile());
         }
         System.out.println("Downloaded " + handler.getFile());
-        Path fileLocation = Paths.get(handler.getFile().local.path);
-        return Files.readAllBytes(fileLocation);
+        byte[] fileContent = FileUtils.readFileToByteArray(new File(handler.getFile().local.path));
+        return Base64.getEncoder().encodeToString(fileContent);
     }
 
     @Override
@@ -463,21 +465,15 @@ public class TelegramServiceImpl implements TelegramService {
      * Get telegram user.
      */
     private class GetTelegramUserHandler implements Client.ResultHandler {
-        private TdApi.User user;
-        private boolean loading = true;
 
+        private TdApi.User user;
         public TdApi.User getUser() {
             return user;
-        }
-
-        public boolean isLoading() {
-            return loading;
         }
 
         @Override
         public void onResult(TdApi.Object object) {
             this.user = (TdApi.User) object;
-            this.loading = false;
         }
     }
 
