@@ -1,13 +1,13 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.CrmApplication;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.interfaces.VKService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -39,12 +38,19 @@ import java.util.regex.Pattern;
 public class SendMailsController {
 
     private final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private final String vkPattern = "^[^a-zA-Z]*$";
+    private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
+    private final String allDigitPattern = "\\d+";
+    private final String idString = "id";
+    private final String zeroString = "0";
+    private final String vkURL = "https://vk.com/";
     private String pattern;
     private String template;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
+
+    @Autowired
+    private VKService vkService;
 
     @Autowired
     public SendMailsController(MailingMessageRepository mailingMessageRepository,
@@ -65,7 +71,6 @@ public class SendMailsController {
             case "vk":
                 pattern = vkPattern;
                 template = text;
-                recipients = recipients.replaceAll("\\p{Punct}|", "");
                 break;
             case "sms":
                 pattern = smsPattern;
@@ -80,15 +85,32 @@ public class SendMailsController {
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 
+
         Set<ClientData> clientsInfo = new HashSet<>();
         if (type.equals("vk")) {
             String[] vkIds = recipients.split("\n");
+            Set<String> vkIdSet = new HashSet<>();
             Arrays.asList(vkIds).forEach(x -> {
                 Matcher vkMatcher = p.matcher(x);
-                if (vkMatcher.find() && !x.contains(" ") && !x.equals("")) {
-                    clientsInfo.add(new ClientData(x));
+                if (vkMatcher.find() && !x.contains(" ") && !x.equals(Strings.EMPTY)) {
+
+                    String vkIdentify = vkMatcher.group();
+                    if (vkIdentify.startsWith(idString) && vkIdentify.replace(idString, Strings.EMPTY).matches(allDigitPattern)) {
+                        vkIdentify = vkIdentify.replace(idString, Strings.EMPTY);
+                    }
+
+                    if (!vkIdentify.matches(allDigitPattern)) {
+                        vkIdentify = Long.toString(vkService.getVKIdByUrl(vkURL+vkIdentify).orElse(0L));
+                    }
+
+                    if (!zeroString.equals(vkIdentify)) {
+                        vkIdSet.add(vkIdentify);
+                    }
                 }
             });
+
+            vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
+
         } else {
             Matcher matcher2 = p.matcher(recipients);
             while (matcher2.find()) {
