@@ -38,7 +38,7 @@ function createVkRequestField() {
     var mass = {
         numberVkField: rowCount,
         nameVkField: nameRequest,
-        typeVkField: "Обязательное"
+        typeVkField: "Контактные данные"
     };
     var emp = JSON.stringify(mass);
     $.ajax({
@@ -74,7 +74,7 @@ function createVkRequestFieldForLabel() {
             return;
         }
     }
-    var typeRequestField = "В заметки";
+    var typeRequestField = "Дополнительная информация";
     var url = "/vk/request/create";
     var mass = {
         numberVkField: rowCount,
@@ -135,7 +135,7 @@ function getVkRequestById(id) {
                 } else if (nameVk === "Город") {
                     document.getElementById("app-name").value = '9';
                 }
-                if (obj.typeVkField === "Обязательное") {
+                if (obj.typeVkField === "Контактные данные") {
                     document.getElementById("app-type").value = '1';
                 } else {
                     document.getElementById("app-type").value = '2';
@@ -205,7 +205,7 @@ function updateVkRequestFieldForLabel() {
         alert("Нельзя создать пустое поле!");
         return;
     }
-    var typeRequestField = "В заметки";
+    var typeRequestField = "Дополнительная информация";
     var url = "/vk/request/update/" + id;
     var mass = {
         numberVkField: rowNumber,

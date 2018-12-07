@@ -30,7 +30,7 @@ public class VkRequestForm {
     private String nameVkField;
 
     /**
-     * Тип поля, обязательное или нет
+     * Тип поля, Контактные данные или дополнительная информация
      */
     @Column(name = "type_vk_field")
     private String typeVkField;

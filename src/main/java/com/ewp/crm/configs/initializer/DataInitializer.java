@@ -277,13 +277,13 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
 
-        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Обязательное");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Обязательное");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Обязательное");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "В заметки");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "В заметки");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Обязательное");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "В заметки");
+        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Контактные данные");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Контактные данные");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Контактные данные");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
+        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Контактные данные");
+        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
