@@ -56,37 +56,45 @@ function send_telegram(clientId, text) {
     })
 }
 
-function append_message(message_id, send_date, text) {
+function append_message(message_id, send_date, text, is_outgoing) {
     let chat = $("#chat-messages");
     let sendDate = send_date.toLocaleDateString() + ' ';
     if (send_date.getDate() === new Date().getDate()){
         sendDate = "";
     }
     sendDate += send_date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
-    var dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
+    let avatar = "";
+    if (is_outgoing) {
+        let alt = telegram_me.firstName[0] + telegram_me.lastName[0];
+        avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_me_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+    } else if (telegram_user_photo == null) {
+        let alt = telegram_user.firstName[0] + telegram_user.lastName[0];
+        avatar = "<img class='tg-im-photo img-circle' src='/images/t_logo.png' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+    } else {
+        let alt = telegram_user.firstName[0] + telegram_user.lastName[0];
+        avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_user_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+    }
+    let dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
         "<div class='row'> "+
-        "<div class='col-xs-1'>"+
-        // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>" +
+            "<div class='col-xs-1'>"+
         // "<img class='vk-im-photo img-circle' src='"+ 'photo' +"' class='img-circle' id='vkPhotoId"+ 'fromid' +"'/>" +
-        // "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_me_photo + "' alt='No image' height='240' width='240' onerror=\"this.src='./style/nophoto.jpg';\">" +
-        "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_me_photo + "' alt='No image'/>" +
-        "</a>"+
-        "</div>"+
-        "<div class='col-xs-11'>"+
-        "<div class='row-xs-12'>" +
-        "<div class='col-sm-4'>" +
+                avatar +
+            "</div>"+
+            "<div class='col-xs-11'>"+
+                "<div class='row-xs-12'>" +
+                    "<div class='col-sm-4'>" +
         // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>"+name+"</a>"+
-        "</div>"+
-        "<div class='col-sm-8'>" +
-        sendDate + " " +
-        "</div>"+
-        "</div>"+
-        "<div class='row-xs-auto'>"+
-        "<div class='col-sm-11' id='message_id"+ message_id +"'>" +
-        text +
-        "</div>"+
-        "</div>"+
-        "</div>"+
+                    "</div>"+
+                    "<div class='col-sm-8'>" +
+                        sendDate + " " +
+                    "</div>"+
+                "</div>"+
+                "<div class='row-xs-auto'>"+
+                    "<div class='col-sm-11' id='message_id"+ message_id +"'>" +
+                    text +
+                    "</div>"+
+                "</div>"+
+            "</div>"+
         "</div>");
     chat.append(dom);
 
