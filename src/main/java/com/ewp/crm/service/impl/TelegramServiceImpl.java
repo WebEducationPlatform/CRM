@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,6 +57,8 @@ public class TelegramServiceImpl implements TelegramService {
 
     private static Environment env;
     private static Logger logger = LoggerFactory.getLogger(TelegramServiceImpl.class);
+
+    private static final ConcurrentMap<Integer, TdApi.File> downloadingFiles = new ConcurrentHashMap<Integer, TdApi.File>();
 
     private final ClientRepository clientRepository;
     private final StatusDAO statusRepository;
@@ -231,11 +235,11 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public String downloadFile(TdApi.File file) throws IOException {
-        System.out.println("Start " + file);
-        DownloadFileHandler handler = new DownloadFileHandler(file);
-        while (handler.getFile().local.canBeDownloaded && !handler.getFile().local.isDownloadingCompleted) {
-            client.send(new TdApi.DownloadFile(file.id, 1), handler);
-            while (handler.isLoading()) {
+        byte[] fileContent = new byte[0];
+        if (file.local.canBeDownloaded && !file.local.isDownloadingCompleted) {
+            client.send(new TdApi.DownloadFile(file.id, 1), defaultHandler);
+            downloadingFiles.putIfAbsent(file.id, file);
+            while (downloadingFiles.containsKey(file.id) && !downloadingFiles.get(file.id).local.isDownloadingCompleted) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -243,10 +247,11 @@ public class TelegramServiceImpl implements TelegramService {
                     break;
                 }
             }
-            handler.setLoading(false);
+            fileContent = FileUtils.readFileToByteArray(new File(downloadingFiles.get(file.id).local.path));
+            downloadingFiles.remove(file.id);
+        } else if (file.local.isDownloadingCompleted) {
+            fileContent = FileUtils.readFileToByteArray(new File(file.local.path));
         }
-        System.out.println("Downloaded " + handler.getFile());
-        byte[] fileContent = FileUtils.readFileToByteArray(new File(handler.getFile().local.path));
         return Base64.getEncoder().encodeToString(fileContent);
     }
 
@@ -286,6 +291,12 @@ public class TelegramServiceImpl implements TelegramService {
                         client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
                     }
                     break;
+                }
+                case TdApi.UpdateFile.CONSTRUCTOR: {
+                    TdApi.File file = ((TdApi.UpdateFile) object).file;
+                    if (downloadingFiles.containsKey(file.id)) {
+                        downloadingFiles.replace(file.id, file);
+                    }
                 }
             }
         }
@@ -540,34 +551,6 @@ public class TelegramServiceImpl implements TelegramService {
         @Override
         public void onResult(TdApi.Object object) {
             this.file = (TdApi.File) object;
-        }
-    }
-
-    private class DownloadFileHandler implements Client.ResultHandler {
-
-        private TdApi.File file;
-        private boolean loading = true;
-
-        public TdApi.File getFile() {
-            return file;
-        }
-
-        public boolean isLoading() {
-            return loading;
-        }
-
-        public void setLoading(boolean loading) {
-            this.loading = loading;
-        }
-
-        public DownloadFileHandler(TdApi.File file) {
-            this.file = file;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.file = (TdApi.File) object;
-            this.loading = false;
         }
     }
 

@@ -133,6 +133,7 @@ function clientsSearch() {
 }
 //func responsible for the client's cards motion
 $(document).ready(function () {
+    get_tg_me();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
@@ -1698,20 +1699,44 @@ let telegram_me;
 let telegram_me_photo;
 
 function get_tg_me() {
-    console.log("Me");
+    if (typeof telegram_me_photo !== 'undefined') {return;}
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/me',
         success: function (response) {
-            console.log(response);
             telegram_me = response;
             $.ajax({
                 type: 'GET',
                 url: '/rest/telegram/file/photo',
                 data: {id: response.profilePhoto.small.id},
                 success: function (response) {
-                    console.log(response);
                     telegram_me_photo = response;
+                }
+            });
+        }
+    });
+}
+
+let telegram_user;
+let telegram_user_photo;
+
+function get_tg_user(clientId) {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/user',
+        data: {id: clientId},
+        success: function (response) {
+            if (response.profilePhoto === 'undefined') {
+                telegram_user_photo = null;
+                return;
+            }
+            telegram_user = response;
+            $.ajax({
+                type: 'GET',
+                url: '/rest/telegram/file/photo',
+                data: {id: response.profilePhoto.small.id},
+                success: function (response) {
+                    telegram_user_photo = response;
                 }
             });
         }
@@ -1720,23 +1745,6 @@ function get_tg_me() {
 
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
-    // $.ajax({
-    //     type: 'GET',
-    //     url: '/rest/telegram/user',
-    //     data: {id: clientId},
-    //     success: function (response) {
-    //         console.log(response);
-            // $.ajax({
-            //     type: 'GET',
-            //     url: '/rest/telegram/user/photos',
-            //     data: {id: response.id},
-            //     success: function (response) {
-            //         console.log(response);
-            //     }
-            // });
-    //     }
-    // });
-
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/open',
@@ -1749,7 +1757,8 @@ $('#conversations-modal').on('show.bs.modal', function () {
                 let message_id = data[i].id;
                 let send_date = new Date(data[i].date * 1000);
                 let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
-                append_message(message_id, send_date, text);
+                let is_outgoing = data[i].isOutgoing;
+                append_message(message_id, send_date, text, is_outgoing);
             }
             $("#send-selector").prop('value', 'telegram');
             setTimeout(update_chat, 2000);
@@ -1771,6 +1780,7 @@ $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
+        get_tg_user(clientId);
         let formData = {clientId: clientId};
 
         $.ajax({
