@@ -31,7 +31,8 @@ function update_chat() {
                 let message_id = data[i].id;
                 let send_date = new Date(data[i].date * 1000);
                 let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Error: Stickers and photos not supported!';
-                append_message(message_id, send_date, text);
+                let is_outgoing = data[i].isOutgoing;
+                append_message(message_id, send_date, text, is_outgoing);
             }
             $("#send-selector").prop('value', 'telegram');
         },
@@ -51,7 +52,7 @@ function send_telegram(clientId, text) {
         data: {clientId: clientId, text: text},
         success: function () {
             $("#conversations-text").val('');
-            append_message(0, new Date(), text);
+            append_message(0, new Date(), text, true);
         }
     })
 }
