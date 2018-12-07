@@ -153,7 +153,7 @@ public class VKServiceImpl implements VKService {
                     String messageBody = jsonMessage.getString("body");
                     resultList.add(messageBody);
 
-                    if(messageBody.startsWith("Новая заявка")){
+                    if (messageBody.startsWith("Новая заявка")) {
                         markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
                     }
 
@@ -389,7 +389,7 @@ public class VKServiceImpl implements VKService {
         SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(vkLink);
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
-        if (client != null){
+        if (client != null) {
             return Optional.of(client);
         }
 
@@ -430,7 +430,7 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public Client parseClientFromMessage(String message) throws ParseClientException {
-         logger.info("VKService: parsing client from VK message...");
+        logger.info("VKService: parsing client from VK message...");
         if (!message.startsWith("Новая заявка")) {
             throw new ParseClientException("Invalid message format");
         }
@@ -465,7 +465,14 @@ public class VKServiceImpl implements VKService {
                             newClient.setSkype(getValue(fields[numberVkPosition]));
                             break;
                         case "Возраст":
-                            newClient.setAge(Byte.parseByte(getValue(fields[numberVkPosition])));
+                            String ageStringValue = getValue(fields[numberVkPosition]).replaceAll("\\D", "");
+                            byte age = 0;
+                            try {
+                                age = Byte.parseByte(ageStringValue);
+                            } catch (NumberFormatException e) {
+                                logger.info("В заявке формы вк был введено не допустимое значение возраста", e);
+                            }
+                            newClient.setAge(age);
                             break;
                         case "Город":
                             newClient.setCity(getValue(fields[numberVkPosition]));
@@ -474,7 +481,14 @@ public class VKServiceImpl implements VKService {
                             newClient.setCountry(getValue(fields[numberVkPosition]));
                             break;
                         case "Пол":
-                            newClient.setSex(Sex.valueOf(getValue(fields[numberVkPosition])));
+                            String sexStringValue = getValue(fields[numberVkPosition]).replaceAll("\\s+|\\d", "");
+                            if (sexStringValue.equals("Мужской")||sexStringValue.equals("Мужчина")) {
+                                newClient.setSex(Sex.MALE);
+                            } else if (sexStringValue.equals("Женский")||sexStringValue.equals("Женщина")) {
+                                newClient.setSex(Sex.FEMALE);
+                            }else {
+                                logger.info("В поле \"Пол\" в форме заявки ВК на выбор клиенту должен придоставляться выбор либо \"Мужской либо Женский\" либо \"Мужчина либо Женщина\"");
+                            }
                             break;
                     }
                 } else {
