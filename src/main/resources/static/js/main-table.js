@@ -1726,7 +1726,7 @@ function get_tg_user(clientId) {
         url: '/rest/telegram/user',
         data: {id: clientId},
         success: function (response) {
-            if (response.profilePhoto === 'undefined') {
+            if (response.profilePhoto === null) {
                 telegram_user_photo = null;
                 return;
             }
