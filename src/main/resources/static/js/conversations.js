@@ -65,15 +65,19 @@ function append_message(message_id, send_date, text, is_outgoing) {
     }
     sendDate += send_date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
     let avatar = "";
+    let alt = "";
+    let is_read = "";
     if (is_outgoing) {
-        let alt = telegram_me.firstName[0] + telegram_me.lastName[0];
+        alt = telegram_me.firstName[0] + telegram_me.lastName[0];
         avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_me_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
     } else if (telegram_user_photo == null) {
-        let alt = telegram_user.firstName[0] + telegram_user.lastName[0];
+        alt = telegram_user.firstName[0] + telegram_user.lastName[0];
         avatar = "<img class='tg-im-photo img-circle' src='/images/t_logo.png' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        is_read = "<img src='/images/sent.png' style='height: 15px; width: 15px' />";
     } else {
-        let alt = telegram_user.firstName[0] + telegram_user.lastName[0];
+        alt = telegram_user.firstName[0] + telegram_user.lastName[0];
         avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_user_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        is_read = "<img src='/images/sent.png' style='height: 15px; width: 15px' />";
     }
     let dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
         "<div class='row'> "+
@@ -84,11 +88,12 @@ function append_message(message_id, send_date, text, is_outgoing) {
             "<div class='col-xs-11'>"+
                 "<div class='row-xs-12'>" +
                     "<div class='col-sm-4'>" +
-        // "<a href='https://vk.com/"+currentUnit+currentID+"' target='_blank'>"+name+"</a>"+
                     "</div>"+
                     "<div class='col-sm-8'>" +
-                        sendDate + " " +
+                        sendDate + " " + is_read +
                     "</div>"+
+                    // "<div class='col-sm-4'>" +
+                    // "</div>"+
                 "</div>"+
                 "<div class='row-xs-auto'>"+
                     "<div class='col-sm-11' id='message_id"+ message_id +"'>" +
