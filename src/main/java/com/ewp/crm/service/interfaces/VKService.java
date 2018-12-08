@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VKService {
+    Optional<Long> getVKIdByUrl(String url);
+
     String receivingTokenUri();
 
     Optional<List<String>> getNewMassages() throws VKAccessTokenException;

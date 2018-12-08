@@ -7,6 +7,13 @@ import com.ewp.crm.models.MessageDialog;
 import com.ewp.crm.service.interfaces.FacebookDialogService;
 import com.ewp.crm.service.interfaces.FacebookMessageService;
 import com.ewp.crm.service.interfaces.FacebookService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,12 +24,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 import java.net.URI;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FacebookServiceImpl implements FacebookService {
@@ -47,6 +57,25 @@ public class FacebookServiceImpl implements FacebookService {
 	}
 
 	private final String FB_API_METHOD_TEMPLATE = "https://graph.facebook.com/";
+
+	@Override
+	public Optional<Long> getFBIdByUrl(String url) {
+		Optional<Long> result = Optional.empty();
+		if (url.matches("(.*)://www.facebook.com/profile.php?id(\\d*)")) {
+			result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
+		} else if (url.matches("(.*)://www.facebook.com/(.*)")) {
+			String screenName = url.substring(url.lastIndexOf("/") + 1);
+			try {
+				//использование стороннего сайта для получения id facebook
+				 String fbIdResponse =  restTemplate.getForObject("https://ru.piliapp.com/facebook/xhr-get-fb-id/?url=https://www.facebook.com/"+screenName,String.class);
+				 String fbId = fbIdResponse.replaceAll("(\\D+)","");
+				 result = Optional.of(Long.parseLong(fbId));
+			} catch (Exception e) {
+				logger.error("Failed to connect to https://ru.piliapp.com", e);
+			}
+		}
+		return result;
+	}
 
 	public void getFacebookMessages() throws FBAccessTokenException {
 		if (pageToken == null) {

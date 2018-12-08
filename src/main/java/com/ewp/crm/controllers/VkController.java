@@ -7,10 +7,14 @@ import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Optional;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
@@ -46,6 +50,18 @@ public class VkController {
     public String vkAuthPage() {
         String uri = vkService.receivingTokenUri();
         return "redirect:" + uri;
+    }
+
+
+    @GetMapping (value = "/admin/vkontakte/getVKSocialNetworkId")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity<Long> getSocialNetworkIdFromLink(@RequestParam("socialNetworkLink") String socialNetworkLink) {
+        if (vkService.getVKIdByUrl(socialNetworkLink).isPresent()){
+            return new ResponseEntity<>(vkService.getVKIdByUrl(socialNetworkLink).get(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(-1L, HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")

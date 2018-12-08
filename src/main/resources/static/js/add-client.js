@@ -7,6 +7,7 @@ function addClient() {
 	try {
 		$('#SocialNetworks').find('tbody tr').each(function (i, tr) {
 			var obj = {}, $tds = $(tr).find('td');
+            var url = '';
 			$th.each(function (index, th) {
 				if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
 					var current = document.getElementById("message");
@@ -29,46 +30,63 @@ function addClient() {
 				}
 			});
 
-            //получаем id социальной сети пользователя и записываем в link место ссылки номер
+//получаем id социальной сети пользователя и записываем этот id вместо link
+            var socialNetworkLink = obj.link;
             if(obj.socialProfileType === 'vk'){
-                var vkLink = obj.link;
-                if(vkLink.indexOf('/id')!==-1){
-                   var vkSocialNetworkId = vkLink.substr(vkLink.indexOf('/id')+3);
-                } else {
+                 url = '/admin/vkontakte/getVKSocialNetworkId';
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    async: false,
+                    dataType: 'json',
+					data: {socialNetworkLink:socialNetworkLink},
+                    success: function (res) {
+                        socialNetworkId = res;
+                        id = obj.id;
+                        socialProfileType = obj.socialProfileType;
 
-				}
-                var objWithSocialNetworkId ={
-                    id: obj.id,
-                    socialNetworkId: vkSocialNetworkId,
-                    socialProfileType: obj.socialProfileType
-                };
-            } else if(obj.socialProfileType === 'facebook'){
-                var fbLink = obj.link;
-                if(fbLink.indexOf('?id=')!==-1){
-                    var fbSocialNetworkId = fbLink.substr(fbLink.indexOf('?id=')+4);
-                } else {
-                	// url = fbLink + '/photos';
-                	url =  "https://graph.facebook.com/raymond.khoury.1297";
-                    $.ajax({
-                        type: 'get',
-                        url: url,
-                        dataType: 'json',
-                        success: function (res) {
-                            alert(res)
-                        },
-                        error: function (error) {
-                            console.log(error);
-                        }
-                    });
-                }
-                var objWithSocialNetworkId ={
-                    id: obj.id,
-                    socialNetworkId: fbSocialNetworkId,
-                    socialProfileType: obj.socialProfileType
-                };
-            }
-			SN.push(objWithSocialNetworkId);
-		});
+                        objWithSocialNetworkId = {
+                            id: id,
+                            socialNetworkId: socialNetworkId,
+                            socialProfileType: socialProfileType
+                        };
+
+                        SN.push(objWithSocialNetworkId);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            } else if(obj.socialProfileType === 'facebook') {
+                url = '/admin/facebook/getFBSocialNetworkId';
+                   $.ajax({
+                       type: 'GET',
+                       url: url,
+					   async: false,
+                       dataType: 'json',
+                       data: {socialNetworkLink: socialNetworkLink},
+                       success: function (res) {
+						    socialNetworkId = res;
+                            id = obj.id;
+                            socialProfileType = obj.socialProfileType;
+
+                            objWithSocialNetworkId = {
+                               id: id,
+                               socialNetworkId: socialNetworkId,
+                               socialProfileType: socialProfileType
+                            };
+
+                           SN.push(objWithSocialNetworkId);
+
+                       },
+                       error: function (error) {
+                           console.log(error);
+                       }
+                   });
+             }
+
+        });
+
 	} catch (e) {
 		return;
 	}
