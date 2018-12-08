@@ -69,7 +69,62 @@ function changeClient(id) {
                     }
                 }
             });
-            SN.push(obj);
+
+//получаем id социальной сети пользователя и записываем этот id вместо link
+            var socialNetworkLink = obj.link;
+            var url = '';
+            if(obj.socialProfileType === 'vk'){
+                url = '/admin/vkontakte/getVKSocialNetworkId';
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    async: false,
+                    dataType: 'json',
+                    data: {socialNetworkLink:socialNetworkLink},
+                    success: function (res) {
+                        socialNetworkId = res;
+                        idVk = obj.id;
+                        socialProfileType = obj.socialProfileType;
+
+                        objWithSocialNetworkId = {
+                            idSN: idVk,
+                            socialNetworkId: socialNetworkId,
+                            socialProfileType: socialProfileType
+                        };
+
+                        SN.push(objWithSocialNetworkId);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            } else if(obj.socialProfileType === 'facebook') {
+                url = '/admin/facebook/getFBSocialNetworkId';
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    async: false,
+                    dataType: 'json',
+                    data: {socialNetworkLink: socialNetworkLink},
+                    success: function (res) {
+                        socialNetworkId = res;
+                        idFb = obj.id;
+                        socialProfileType = obj.socialProfileType;
+
+                        objWithSocialNetworkId = {
+                            idSN: idFb,
+                            socialNetworkId: socialNetworkId,
+                            socialProfileType: socialProfileType
+                        };
+
+                        SN.push(objWithSocialNetworkId);
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
         });
     } catch (e) {
         return;

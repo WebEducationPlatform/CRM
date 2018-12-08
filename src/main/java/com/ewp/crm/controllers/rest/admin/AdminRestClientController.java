@@ -45,30 +45,7 @@ public class AdminRestClientController {
 		for (SocialProfile socialProfile : client.getSocialProfiles()) {
 			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
 					socialProfile.getSocialProfileType().getName()).getId());
-
-			if(socialProfile.getSocialProfileType().getName().equals("vk")){
-				/*StringBuilder idVK = new StringBuilder(socialProfile.getSocialNetworkId());
-				if(idVK.lastIndexOf("/id")!=-1){
-					idVK.delete(0,idVK.lastIndexOf("/id")+3);
-					socialProfile.setSocialNetworkId(idVK.toString());
-				} else {
-					idVK.delete(0,idVK.lastIndexOf("vk.com/")+7);
-					socialProfile.setSocialNetworkId(idVK.toString());
-				}*/
-				socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
-			}
-
-			if(socialProfile.getSocialProfileType().getName().equals("facebook")){
-				/*StringBuilder idFB = new StringBuilder(socialProfile.getSocialNetworkId());
-				if(idFB.lastIndexOf("?id=")!=-1){
-					idFB.delete(0,idFB.lastIndexOf("?id=")+4);
-					socialProfile.setSocialNetworkId(idFB.toString());
-				} else {
-					idFB.delete(0,idFB.lastIndexOf("facebook.com/")+13);
-					socialProfile.setSocialNetworkId(idFB.toString());
-				}*/
-				socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
-			}
+				    socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
 		}
 
 		Status status = statusService.get(client.getStatus().getName());
@@ -86,19 +63,9 @@ public class AdminRestClientController {
 									   @AuthenticationPrincipal User userFromSession) {
 		for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
 			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-					socialProfile.getSocialProfileType().getName()).getId());
-		/*	StringBuilder idVK = new StringBuilder(socialProfile.getSocialNetworkId());
-
-			if(socialProfile.getSocialProfileType().getName().equals("vk")) {
-				if (idVK.lastIndexOf("/id") != -1) {
-					idVK.delete(0, idVK.lastIndexOf("/id") + 3);
-					socialProfile.setSocialNetworkId(idVK.toString());
-				} else {
-//					idVK.delete(0, idVK.lastIndexOf("vk.com/") + 7);
-					socialProfile.setSocialNetworkId(idVK.toString());
-				}
-			}*/
-		}
+                socialProfile.getSocialProfileType().getName()).getId());
+                socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
+        }
 
 		Client clientFromDB = clientService.get(currentClient.getId());
 		currentClient.setHistory(clientFromDB.getHistory());
