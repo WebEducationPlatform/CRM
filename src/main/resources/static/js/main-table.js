@@ -1745,6 +1745,7 @@ function get_tg_user(clientId) {
 
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
+    $("#conversations-title").prop('innerHTML', 'Чат с ' + telegram_user.firstName + ' ' + telegram_user.lastName);
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/open',
