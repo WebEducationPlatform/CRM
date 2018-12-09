@@ -130,7 +130,7 @@ public class ClientRestController {
             default:
                 link = "";
         }
-        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialNetworkId(Long.parseLong(userID));
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
         Map<String, String> returnMap = new HashMap<>();

@@ -70,7 +70,7 @@ public class AdminRestClientController {
             logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
             return ResponseEntity.ok(HttpStatus.OK);
         }
-
+		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/update")

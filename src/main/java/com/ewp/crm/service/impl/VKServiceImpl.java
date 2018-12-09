@@ -386,7 +386,7 @@ public class VKServiceImpl implements VKService {
 
         //сначала ищем у себя в базе
         String vkLink = "https://vk.com/id" + id;
-        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(vkLink);
+        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialNetworkId(id);
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
         if (client != null){
@@ -414,8 +414,8 @@ public class VKServiceImpl implements VKService {
             String lastName = jsonUser.getString("last_name");
 //            String vkLink = "https://vk.com/id" + id;
 
-            Client client = new Client(name, lastName);
-            SocialProfile socialProfile = new SocialProfile(id);
+             client = new Client(name, lastName);
+             socialProfile = new SocialProfile(id);
             List<SocialProfile> socialProfiles = new ArrayList<>();
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);

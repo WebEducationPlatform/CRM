@@ -140,7 +140,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 		for(SocialProfile socialProfile: client.getSocialProfiles()) {
 			if (existClient == null) {
-				socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+				socialProfile = socialProfileService.getSocialProfileBySocialNetworkId(socialProfile.getSocialNetworkId());
 				if (socialProfile != null) {
 					existClient = getClientBySocialProfile(socialProfile);
 				}

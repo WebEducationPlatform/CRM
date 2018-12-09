@@ -111,6 +111,35 @@ public class IncomeStringToClient {
         return client;
     }
 
+    private Client parseClientFormThree(String form) {
+        logger.info("Parsing FormThree...");
+        Client client = new Client();
+        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+
+                .replaceAll(" ", "~")
+                .replaceAll("Name~3", "Name")
+                .replaceAll("Phone~6", "Phone")
+                .replaceAll("Email~2", "Email")
+                .replaceAll("Social~2", "Social");
+
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+
+        String name = clientData.get("Name");
+        String formattedName = name.replaceAll("~", "");
+        setClientName(client, formattedName);
+
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
+
+        String question = clientData.get("Вопрос");
+        String formattedQuestion = question.replaceAll("~", " ");
+        client.setClientDescriptionComment("Вопрос: " + formattedQuestion);
+        checkSocialNetworks(client, clientData);
+        logger.info("FormTwo parsing finished");
+        return client;
+    }
+
     private Client parseClientFormFour(String form) {
         logger.info("Parsing FormFour...");
         Client client = new Client();
@@ -140,7 +169,7 @@ public class IncomeStringToClient {
         if (clientData.containsKey("Social")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social").replace("~", ""));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
+                client.setComment("Ссылка на социальную сеть " +"https://vk.com/id"+ currentSocialProfile.getSocialNetworkId() +
                         " недействительна");
                 logger.warn("Unknown social network");
             }
