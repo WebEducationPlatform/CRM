@@ -1751,15 +1751,16 @@ $('#conversations-modal').on('show.bs.modal', function () {
         url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
         success: function (response) {
-            last_telegram_message_id = response.messages[0].id;
-            let data = response.messages.reverse();
+            let messages = response.messages.messages;
+            let last_read = response.chat.lastReadOutboxMessageId;
+            let data = messages.reverse();
             $("#chat-messages").empty();
             for (let i in data) {
                 let message_id = data[i].id;
                 let send_date = new Date(data[i].date * 1000);
-                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker!';
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker/photo!';
                 let is_outgoing = data[i].isOutgoing;
-                append_message(message_id, send_date, text, is_outgoing);
+                append_message(message_id, send_date, text, is_outgoing, last_read);
             }
             $("#send-selector").prop('value', 'telegram');
             setTimeout(update_chat, 2000);
@@ -1781,7 +1782,6 @@ $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
-        get_tg_user(clientId);
         let formData = {clientId: clientId};
 
         $.ajax({
@@ -1863,6 +1863,9 @@ $(function () {
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
+                        }
+                        if (client.socialProfiles[i].socialProfileType.name == 'telegram') {
+                            get_tg_user(clientId);
                         }
                     }
 
