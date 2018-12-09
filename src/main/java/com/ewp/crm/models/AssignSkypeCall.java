@@ -1,29 +1,36 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "assign_skype_call")
 public class AssignSkypeCall {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "assign_skype_call_id")
 	private Long id;
 
-	@Column(name = "assign_skype_call_login")
-	private String login;
-
 	@Column(name = "assign_skype_call_created_time")
-	private LocalDateTime createdTime;
+	private ZonedDateTime createdTime;
 
-	@Column(name = "remind_before_of_skype_call")
-	private LocalDateTime remindBeforeOfSkypeCall;
+	@Column(name = "skype_call_date")
+	private ZonedDateTime skypeCallDate;
+
+	@Column(name = "notification_before_of_skype_call")
+	private ZonedDateTime notificationBeforeOfSkypeCall;
 
 	@Column(name = "select_network_for_notifications")
 	private String selectNetworkForNotifications;
+
+	@Column(name = "the_notification_was_is_sent")
+	private boolean theNotificationWasIsSent;
+
+	@Column(name = "skype_call_date_completed")
+	private boolean skypeCallDateCompleted;
 
 	@ManyToOne
 	@JoinTable(name = "assign_user_skype_call",
@@ -37,18 +44,29 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_CLIENT"))})
 	private Client toAssignSkypeCall;
 
-	public AssignSkypeCall(LocalDateTime remindBeforeOfSkypeCall,
-						   String login,
+	@ManyToOne
+	@JoinTable(name = "assign_admin_skype_call",
+			joinColumns = {@JoinColumn(name = "assign_skype_call_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL"))},
+			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_USER"))})
+	private User whoCreatedTheSkypeCall;
+
+	public AssignSkypeCall() {
+	}
+
+	public AssignSkypeCall(User whoCreatedTheSkypeCall,
 						   User fromAssignSkypeCall,
-						   LocalDateTime createdTime,
 						   Client toAssignSkypeCall,
+						   ZonedDateTime createdTime,
+						   ZonedDateTime skypeCallDate,
+						   ZonedDateTime notificationBeforeOfSkypeCall,
 						   String selectNetworkForNotifications) {
-		this.login = login;
-		this.createdTime = createdTime;
-		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
-		this.selectNetworkForNotifications = selectNetworkForNotifications;
+		this.whoCreatedTheSkypeCall = whoCreatedTheSkypeCall;
 		this.fromAssignSkypeCall = fromAssignSkypeCall;
 		this.toAssignSkypeCall = toAssignSkypeCall;
+		this.createdTime = createdTime;
+		this.skypeCallDate = skypeCallDate;
+		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
+		this.selectNetworkForNotifications = selectNetworkForNotifications;
 	}
 
 	public Long getId() {
@@ -59,28 +77,28 @@ public class AssignSkypeCall {
 		this.id = id;
 	}
 
-	public String getLogin() {
-		return login;
-	}
-
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
-	public LocalDateTime getCreatedTime() {
+	public ZonedDateTime getCreatedTime() {
 		return createdTime;
 	}
 
-	public void setCreatedTime(LocalDateTime createdTime) {
+	public void setCreatedTime(ZonedDateTime createdTime) {
 		this.createdTime = createdTime;
 	}
 
-	public LocalDateTime getRemindBeforeOfSkypeCall() {
-		return remindBeforeOfSkypeCall;
+	public ZonedDateTime getSkypeCallDate() {
+		return skypeCallDate;
 	}
 
-	public void setRemindBeforeOfSkypeCall(LocalDateTime remindBeforeOfSkypeCall) {
-		this.remindBeforeOfSkypeCall = remindBeforeOfSkypeCall;
+	public void setSkypeCallDate(ZonedDateTime skypeCallDate) {
+		this.skypeCallDate = skypeCallDate;
+	}
+
+	public ZonedDateTime getNotificationBeforeOfSkypeCall() {
+		return notificationBeforeOfSkypeCall;
+	}
+
+	public void setNotificationBeforeOfSkypeCall(ZonedDateTime notificationBeforeOfSkypeCall) {
+		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
 	}
 
 	public String getSelectNetworkForNotifications() {
@@ -105,5 +123,29 @@ public class AssignSkypeCall {
 
 	public void setToAssignSkypeCall(Client toAssignSkypeCall) {
 		this.toAssignSkypeCall = toAssignSkypeCall;
+	}
+
+	public User getWhoCreatedTheSkypeCall() {
+		return whoCreatedTheSkypeCall;
+	}
+
+	public void setWhoCreatedTheSkypeCall(User whoCreatedTheSkypeCall) {
+		this.whoCreatedTheSkypeCall = whoCreatedTheSkypeCall;
+	}
+
+	public boolean isTheNotificationWasIsSent() {
+		return theNotificationWasIsSent;
+	}
+
+	public void setTheNotificationWasIsSent(boolean theNotificationWasIsSent) {
+		this.theNotificationWasIsSent = theNotificationWasIsSent;
+	}
+
+	public boolean isSkypeCallDateCompleted() {
+		return skypeCallDateCompleted;
+	}
+
+	public void setSkypeCallDateCompleted(boolean skypeCallDateCompleted) {
+		this.skypeCallDateCompleted = skypeCallDateCompleted;
 	}
 }

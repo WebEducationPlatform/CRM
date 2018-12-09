@@ -31,7 +31,7 @@ function sendData2Master()
 	{
 		if ( destination.XDTMaster )
 		{
-			var t = destination.XDTMaster.readedMessage( [ gup( 'cmd' ), gup( 'data' ) ] ) ;
+			var t = destination.XDTMaster.read( [ gup( 'cmd' ), gup( 'data' ) ] ) ;
 			window.clearInterval( interval ) ;
 		}
 	}
@@ -41,7 +41,7 @@ function sendData2Master()
 function OnMessage (event) {
 	        var message = event.data;
 	        var destination = window.parent.parent;
-	        destination.XDTMaster.readedMessage( [ 'end', message, 'fpm' ] ) ;
+	        destination.XDTMaster.read( [ 'end', message, 'fpm' ] ) ;
 }
 
 function listenPostMessage() {

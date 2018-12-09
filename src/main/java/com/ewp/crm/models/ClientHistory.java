@@ -1,6 +1,8 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -10,7 +12,7 @@ import java.util.Objects;
 public class ClientHistory {
 
 	@Id
-	@GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "history_id")
 	private Long id;
 
@@ -138,7 +140,9 @@ public class ClientHistory {
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
 		UPDATE("обновил информацию"),
-		SKYPE("назначил беседу по скайп на"),
+		SKYPE("назначил созвон по скайпу на"),
+		SKYPE_UPDATE("изменил созвон по скайпу на"),
+		SKYPE_DELETE("удалил созвон по скайпу на"),
 		ADD_LOGIN("установил клиенту логин в skype - "),
         ADD_STUDENT("сделал клиента студентом"),
         UPDATE_STUDENT("обновил информацию студента"),

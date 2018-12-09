@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+
+
 import javax.persistence.*;
 
 @Entity
@@ -7,7 +9,7 @@ import javax.persistence.*;
 public class Message {
 
 	@Id
-    @GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
     private Long id;
 

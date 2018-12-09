@@ -46,6 +46,14 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/new-user-status")
+    public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        properties.setNewClientStatus(statusId);
+        projectPropertiesService.saveAndFlash(properties);
+        return HttpStatus.OK;
+    }
+
     @GetMapping("/status")
     public ResponseEntity<Long> getStatus() {
         ProjectProperties projectProperties = projectPropertiesService.getOrCreate();
@@ -54,5 +62,13 @@ public class ProjectPropertiesRestController {
             status = projectProperties.getDefaultStatusId();
         }
         return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @PostMapping("/saveColorByStatus")
+    public HttpStatus saveColorByStatus(@RequestParam( name = "colors") String colors) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setStatusColor(colors);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
     }
 }

@@ -11,10 +11,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -47,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers("/init/**").permitAll()
                 .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER")
                 .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
                 .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
@@ -58,6 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .and()
+                .exceptionHandling().accessDeniedPage("/accessDenied")
+                .and()
                 .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
@@ -65,13 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll().and()
                 .csrf().requireCsrfProtectionMatcher(csrfRequestMatcher);
 
-
         http
                 .sessionManagement()
-                .maximumSessions(10000)
-                .maxSessionsPreventsLogin(false)
-                .expiredUrl("/login?logout")
-                .sessionRegistry(sessionRegistry());
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER);
     }
 
     @Bean

@@ -1,4 +1,3 @@
-
 $('#mailingDate').daterangepicker({
     locale: {
         format: 'DD.MM.YYYY'
@@ -13,7 +12,7 @@ $('#mailingDate').daterangepicker({
     },
     "startDate": moment().startOf('month'),
     "endDate": moment()
-}, function(start, end, label) {
+}, function (start, end, label) {
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
 
@@ -36,11 +35,6 @@ $('#mailingDate').on('apply.daterangepicker', function () {
     });
 });
 
-$(document).ready(function () {
-    var formCreate = document.getElementById('formToSend');
-    formCreate.style.visibility = "hidden";
-});
-
 $('textarea').each(function () {
     this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
 }).on('click', function () {
@@ -53,15 +47,17 @@ $(document).ready(function () {
         url: "/rest/report/getReportsStatus",
         type: "POST",
         success: function (response) {
-            var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus ];
-            for (var i = 0; i < field.length; i++) {
-                var select = $(document.getElementById("select"+i));
-                select.find('option').each(function () {
-                    var val = $(this).attr('value');
-                    if (val == field[i]) {
-                        $(this).attr("selected", "selected");
-                    }
-                 });
+            if (response != null) {
+                var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus];
+                for (var i = 0; i < field.length; i++) {
+                    var select = $(document.getElementById("select" + i));
+                    select.find('option').each(function () {
+                        var val = $(this).attr('value');
+                        if (val == field[i]) {
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+                }
             }
         },
         error: function (response) {

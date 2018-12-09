@@ -31,6 +31,7 @@
                         <!--<input type="hidden" id="client-status" th:value="pop"/>-->
                         <select th:field="*{statuses}" id="client-status" class="form-control">
                             <option th:each="statu : ${statuses}"
+                                    th:if="${statu.name != 'deleted'}"
                                     th:value="${statu.name}"
                                     th:text="${statu.name}" />
                         </select>
@@ -76,12 +77,6 @@
                         <select class="form-control" id="edit-client-sex">
                             <option>MALE</option>
                             <option>FEMALE</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-client-state">Статус</label>
-                        <select class="form-control" id="edit-client-state">
-                            <option th:each="state: ${states}" th:value="${state}" th:text="${state}"></option>
                         </select>
                     </div>
                     <div class="form-group">

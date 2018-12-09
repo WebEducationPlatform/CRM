@@ -65,6 +65,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if (authorities.contains(new Role("OWNER"))) {
             logger.info(user.getEmail() + " has been logged in like OWNER");
             return "/client";
+        } else if (authorities.contains(new Role("MENTOR"))) {
+            logger.info(user.getEmail() + "  access denied");
+            throw new IllegalStateException();
         } else {
             throw new IllegalStateException();
         }

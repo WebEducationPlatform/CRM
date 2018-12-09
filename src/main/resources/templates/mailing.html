@@ -1,65 +1,107 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8"/>
-    <title>Рассылка</title>
     <meta charset="UTF-8"/>
-    <div th:replace="fragments/htmlFragments::header"></div>
-    <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" href="/css/global.css"/>
-    <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
-    <script src="/ckeditor/ckeditor.js"></script>
+    <title>CRM - рассылка</title>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
+
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
+    <!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
+    <!--crossorigin="anonymous"/>-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--из локальной коппии, так как конфигурация редактора кастомная-->
+    <script src="/ckeditor/ckeditor.js"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+
+    <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>
+    <link rel="stylesheet" type="text/css" href="/css/mailing.css"/>
+
 </head>
 <body>
-<div style="margin: 4%">
-    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 
-    <div class="container head-padding">
-        <div class="container head-padding">
-            <div class="row">
-                <div class="col-sm-1">
-                    <select style="font-size: 20px" class="form-inline" id="socNetworkChoose"
-                            th:onchange="'switchMailingType()'">
-                        <option value="email">email</option>
-                        <option value="vk">vk</option>
-                        <option value="sms">sms</option>
-                    </select>
+<header>
+
+</header>
+
+<div style="margin: 4%">
+    <div class="container-fluid" id="header">
+        <!--Панель навигации. Убрана, тк не работает, нет нужных полей у некоторых объектов, что обрушивает Thymeleaf-->
+        <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    </div>
+    <div class="container-fluid" id="menu-block">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group" role="group" id="message-type-button-group">
+                        <button type="button" class="btn btn-secondary btn-info" id="email">Send via e-mail</button>
+                        <button type="button" class="btn btn-secondary" id="sms">Send via sms</button>
+                        <button type="button" class="btn btn-secondary" id="vk">Send to vk</button>
+                    </div>
                 </div>
-                <div class="col-sm-1">
-                    <input type="text" name="mailingDate" id="mailingDate"/>
+            </div>
+            <div class="col-sm-3">
+                <div class="row-sm-6">
+                    <div class="col-sm-1">
+                        <span class="input-group-text text-light bg-info" id="date-addon">Date</span>
+                    </div>
+                    <div class="col-sm-11">
+                        <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="messageSendingTime"/>
+                    </div>
                 </div>
-                <div class="col-sm-1" style="margin-left: 9%">
-                    <button class="btn btn-primary" id="mailingStart" onclick="mail(0)">Рассылка</button>
-                </div>
-                <div class="col-sm-1" style="margin-left: 2%">
-                    <button class="btn btn-primary" id="mailingNow" onclick="mail(1)">Отправить сейчас</button>
-                </div>
+            </div>
+            <div class="col-xs-1">
+                <button class="btn btn-warning btn-sm" id="mailingStart" onclick="sendMessages(0)">Send later</button>
+            </div>
+            <div class="col-sm-1">
+                <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Send now</button>
             </div>
         </div>
-
-        <div class="container">
-            <fieldset id="field">
-                <label for="body1"></label>
-                <textarea class="container" id="body1" required="required">&lt;p&gt;Example template layout.&lt;/p&gt;</textarea>
-                <br/>
-            </fieldset>
-            <div class="col-md-12" style="display: none;padding-left: 0%" id="vkArea">
-                <textarea style="width: 1138px" th:id="vkArea1" rows="16"></textarea>
+        <br/>
+        <div class="row">
+            <div class="col-xs-1">
+                <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(this)'" style="display: none"/>
+                <label for="imgBtn">
+                    <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
+                </label>
             </div>
-            <div class="col-md-12" style="display: none;padding-left: 0%" id="smsArea">
-                <textarea style="width: 1138px" th:id="smsArea1" rows="16"></textarea>
+        </div>
+    </div>
+    <div class="container-fluid" id="editor-block">
+        <div class="row">
+            <div class="col-xs-9 col-sm-12 col-md-12 col-lg-12 col-xl-8">
+                <!--Блок редактора CKEditor-->
+                <!--<label for="editor">Editor</label>-->
+                <p><label id = "message" ></label></p>
+                <textarea id="editor" name="editor">
+                    Put your text here
+                </textarea>
             </div>
-            <div class="col-md-12" style="padding-left: 0%" id="clientData">
-                <textarea style="width: 1138px" th:id="clientData1" rows="16"></textarea>
+            <div class="col-xs-3 col-sm-12 col-md-12 col-lg-12 col-xl-4 green-border-focus">
+                <!--Блок адресов-->
+                <div class="form-group">
+                    <label for="addresses-area" id="addresses-label">Enter the recipients email address here:</label>
+                    <textarea class="form-control text-lowercase" id="addresses-area" rows="12"
+                              style="font-size: 10pt"></textarea>
+                    <span class="badge badge-success" id="file-info"></span>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<footer>
+    <div class="container-fluid" id="footer">
+    </div>
+</footer>
+
 </body>
 </html>
