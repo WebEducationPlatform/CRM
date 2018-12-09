@@ -208,7 +208,8 @@ public class VKServiceImpl implements VKService {
      * @param url user profile url.
      * @return optional of user VK id.
      */
-    private Optional<Long> getVKIdByUrl(String url) {
+    @Override
+    public Optional<Long> getVKIdByUrl(String url) {
         Optional<Long> result = Optional.empty();
         if (url.matches("(.*)://vk.com/id(\\d*)")) {
             result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
@@ -286,7 +287,7 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String sendMessageById(Long id, String msg) {
-        return sendMessageById(id, msg, robotAccessToken);
+        return sendMessageById(id, msg, communityToken);
     }
 
     @Override
