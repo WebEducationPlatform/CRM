@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.ZonedDateTime;
 
 @RestController
@@ -25,12 +24,15 @@ public class AdminRestClientController {
 	private final ClientHistoryService clientHistoryService;
 	private final StatusService statusService;
 	private final StudentService studentService;
+	private final AssignSkypeCallService assignSkypeCallService;
 
 	@Autowired
-	public AdminRestClientController(ClientService clientService,
+	public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
+									 ClientService clientService,
 									 SocialProfileTypeService socialProfileTypeService,
 									 ClientHistoryService clientHistoryService,
 									 StatusService statusService, StudentService studentService) {
+		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientService = clientService;
 		this.socialProfileTypeService = socialProfileTypeService;
 		this.clientHistoryService = clientHistoryService;
@@ -42,19 +44,33 @@ public class AdminRestClientController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ResponseEntity addClient(@RequestBody Client client,
 									@AuthenticationPrincipal User userFromSession) {
-		for (SocialProfile socialProfile : client.getSocialProfiles()) {
-			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-					socialProfile.getSocialProfileType().getName()).getId());
-				    socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
-		}
+		if (!"deleted".equals(client.getStatus().getName())) {
+			for (SocialProfile socialProfile : client.getSocialProfiles()) {
+				socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+						socialProfile.getSocialProfileType().getName()).getId());
+			}
+			Status status = statusService.get(client.getStatus().getName());
+			client.setStatus(status);
+			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+			clientService.addClient(client);
+			studentService.addStudentForClient(client);
+			logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
+		} else {
+            for (SocialProfile socialProfile : client.getSocialProfiles()) {
+                socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+                        socialProfile.getSocialProfileType().getName()).getId());
+                socialProfile.setSocialNetworkId(socialProfile.getSocialNetworkId());
+            }
 
-		Status status = statusService.get(client.getStatus().getName());
-		client.setStatus(status);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
-		clientService.addClient(client);
-		studentService.addStudentForClient(client);
-		logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
-		return ResponseEntity.ok(HttpStatus.OK);
+            Status status = statusService.get(client.getStatus().getName());
+            client.setStatus(status);
+            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+            clientService.addClient(client);
+            studentService.addStudentForClient(client);
+            logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
+            return ResponseEntity.ok(HttpStatus.OK);
+        }
+
 	}
 
 	@PostMapping(value = "/update")
@@ -78,6 +94,7 @@ public class AdminRestClientController {
 		currentClient.setCanCall(clientFromDB.isCanCall());
 		currentClient.setCallRecords(clientFromDB.getCallRecords());
 		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
+		currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
 		if (currentClient.equals(clientFromDB)) {
 			return ResponseEntity.noContent().build();
 		}

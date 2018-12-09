@@ -7,6 +7,7 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.impl.StatusServiceImpl;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -85,17 +87,17 @@ public class ScheduleTasks {
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
-                         YouTubeTrackingCardService youTubeTrackingCardService,
-                         ClientService clientService, StudentService studentService,
-                         StatusService statusService, MailingMessageRepository mailingMessageRepository,
-                         MailingService mailingService, SocialProfileService socialProfileService,
-                         SocialProfileTypeService socialProfileTypeService, SMSService smsService,
-                         SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
-                         ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
-                         VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
-                         YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
-                         MailSendService mailSendService, Environment env, ReportService reportService,
-                         MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 YouTubeTrackingCardService youTubeTrackingCardService,
+						 ClientService clientService, StudentService studentService,
+						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
+						 MailingService mailingService, SocialProfileService socialProfileService,
+						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
+						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
+						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
+						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
+						 MailSendService mailSendService, Environment env, ReportService reportService,
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -133,30 +135,28 @@ public class ScheduleTasks {
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
-	private void updateClient(Client newClient) {
-		SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-		Client updateClient = clientService.getClientBySocialProfile(socialProfile);
-		updateClient.setPhoneNumber(newClient.getPhoneNumber());
-		updateClient.setEmail(newClient.getEmail());
-		updateClient.setAge(newClient.getAge());
-		updateClient.setSex(newClient.getSex());
-		clientService.updateClient(updateClient);
-		logger.info("Client with id{} has updated from VK", updateClient.getId());
+	@Scheduled(fixedRate = 15_000)
+	private void checkCallInSkype() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfCallDateHasAlreadyPassedButHasNotBeenClearedToTheClient()) {
+			Client client = assignSkypeCall.getToAssignSkypeCall();
+			client.setLiveSkypeCall(false);
+			assignSkypeCall.setSkypeCallDateCompleted(true);
+			clientService.updateClient(client);
+			assignSkypeCallService.update(assignSkypeCall);
+		}
 	}
 
-
-	@Scheduled(fixedRate = 6_000)
-	private void checkTimeSkypeCall() {
-		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getSkypeCallDate()) {
+	@Scheduled(fixedRate = 30_000)
+	private void checkCallInSkypeToSendTheNotification() {
+		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
 			String skypeTemplate = env.getRequiredProperty("skype.template");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
-			String dateOfSkypeCall = LocalDateTime.parse(assignSkypeCall.getRemindBeforeOfSkypeCall().toString())
+			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
 					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-
 			if (selectNetworks.contains("vk")) {
 				try {
 					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
@@ -178,32 +178,29 @@ public class ScheduleTasks {
 					logger.warn("E-mail message not sent");
 				}
 			}
-			assignSkypeCallService.delete(assignSkypeCall);
-			clientService.updateClient(client);
+			assignSkypeCall.setTheNotificationWasIsSent(true);
+			assignSkypeCallService.update(assignSkypeCall);
 		}
 	}
 
 	@Scheduled(fixedRate = 6_000)
 	private void handleRequestsFromVk() {
-		try {
-			Optional<List<String>> newMassages = vkService.getNewMassages();
-			if (newMassages.isPresent()) {
-				for (String message : newMassages.get()) {
-					try {
-						Client newClient = vkService.parseClientFromMessage(message);
-						SocialProfile socialProfile = newClient.getSocialProfiles().get(0);
-						if (Optional.ofNullable(socialProfileService.getSocialProfileBySocialNetworkId(socialProfile.getSocialNetworkId())).isPresent()) {
-							updateClient(newClient);
-						} else {
+		if (vkService.hasTechnicalAccountToken()) {
+			try {
+				Optional<List<String>> newMassages = vkService.getNewMassages();
+				if (newMassages.isPresent()) {
+					for (String message : newMassages.get()) {
+						try {
+							Client newClient = vkService.parseClientFromMessage(message);
 							addClient(newClient);
+						} catch (ParseClientException e) {
+							logger.error(e.getMessage());
 						}
-					} catch (ParseClientException e) {
-						logger.error(e.getMessage());
 					}
 				}
+			} catch (VKAccessTokenException ex) {
+				logger.error(ex.getMessage());
 			}
-		} catch (VKAccessTokenException ex) {
-			logger.error(ex.getMessage());
 		}
 	}
 
@@ -212,7 +209,7 @@ public class ScheduleTasks {
 		List<VkTrackedClub> vkTrackedClubList = vkTrackedClubService.getAll();
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
-			ArrayList<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
 					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
@@ -248,6 +245,7 @@ public class ScheduleTasks {
 	private void checkClientActivationDate() {
 		for (Client client : clientService.getChangeActiveClients()) {
 			client.setPostponeDate(null);
+			client.setHideCard(false);
 			sendNotificationService.sendNotificationType(client.getClientDescriptionComment(), client, client.getOwnerUser(), Notification.Type.POSTPONE);
 			clientService.updateClient(client);
 		}

@@ -4,7 +4,6 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +18,7 @@ public interface VKService {
 
     void simpleVKNotification(Long clientId, String templateText);
 
-    Optional<ArrayList<VkMember>> getAllVKMembers(Long groupId, Long offset);
+    Optional<List<VkMember>> getAllVKMembers(Long groupId, Long offset);
 
     String sendMessageById(Long id, String msg);
 
