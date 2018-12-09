@@ -11,9 +11,7 @@ public interface VKConfig {
     String getDisplay();
     String getRedirectUri();
     String getScope();
-    String getRobotClientSecret();
-    String getRobotClientId();
-    String getRobotUsername();
-    String getRobotPassword();
     String getFirstContactMessage();
+    String getManagerToken();
+    String getRobotToken();
 }

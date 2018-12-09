@@ -1,34 +1,31 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.CrmApplication;
-import com.ewp.crm.models.ClientData;
-import com.ewp.crm.models.MailingMessage;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.interfaces.ListMailingService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,12 +42,19 @@ public class SendMailsController {
     private String template;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
+    private final ListMailingService listMailingService;
+    private final UserService userService;
+
+
 
     @Autowired
     public SendMailsController(MailingMessageRepository mailingMessageRepository,
-                               MailingService mailingService) {
+                               MailingService mailingService, ListMailingService listMailingService, UserService userService) {
         this.mailingMessageRepository = mailingMessageRepository;
         this.mailingService = mailingService;
+        this.listMailingService = listMailingService;
+        this.userService = userService;
+
     }
 
     @PostMapping(value = "/client/mailing/send")
@@ -59,8 +63,26 @@ public class SendMailsController {
                                                   @RequestParam("recipients") String recipients,
                                                   @RequestParam("text") String text,
                                                   @RequestParam("date") String date,
-                                                  @RequestParam("sendnow") boolean sendnow) {
-
+                                                  @RequestParam("sendnow") boolean sendnow,
+                                                  @RequestParam("vkType") String vkType,
+                                                  @RequestParam("listMailing") String listMailingName,
+                                                  @AuthenticationPrincipal User userFromSession) {
+        MailingMessage message;
+        User user = userService.getUserByEmail(userFromSession.getEmail());
+        if(!listMailingName.equals("null")) {
+            ListMailing listMailing = listMailingService.getByListName(listMailingName);
+            switch (type) {
+                case "vk":
+                    recipients = listMailing.getRecipientsVk();
+                    break;
+                case "sms":
+                    recipients = listMailing.getRecipientsSms();
+                    break;
+                case "email":
+                    recipients = listMailing.getRecipientsEmail();
+                    break;
+            }
+        }
         switch (type) {
             case "vk":
                 pattern = vkPattern;
@@ -95,7 +117,12 @@ public class SendMailsController {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-        MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
+        if (type.equals("vk")) {
+            message = new MailingMessage(type, template, clientsInfo, destinationDate, vkType, user.getId());
+        }
+        else {
+            message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
+        }
         if (sendnow) {
             if (!mailingService.sendMessage(message)) {
                 return ResponseEntity.noContent().build();
@@ -136,5 +163,35 @@ public class SendMailsController {
         ImageUploadDto imageUploadDto = new ImageUploadDto(destFileName, imgUrl);
 
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/mailing/history", produces = "application/json")
+    public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
+        List<MailingMessage> list;
+        String role = "OWNER";
+        for (Role i : userFromSession.getRole()) {
+            if(i.getRoleName().equalsIgnoreCase("ADMIN")) {
+                role = i.getRoleName();
+            }
+        }
+        if(role.equals("ADMIN")) {
+            list = mailingMessageRepository.findAll();
+        } else {
+            list = mailingMessageRepository.getUserMail(userFromSession.getId());
+        }
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping("/mailing/manager/history")
+    public ResponseEntity<List<MailingMessage>> getHistoryMailForManager(@RequestParam("managerEmail") String email) {
+        List<MailingMessage> list;
+        if(!email.equalsIgnoreCase("null")) {
+            User user = userService.getUserByEmail(email);
+            list = mailingMessageRepository.getUserMail(user.getId());
+        } else {
+            list = mailingMessageRepository.findAll();
+        }
+        return ResponseEntity.ok(list);
+
     }
 }

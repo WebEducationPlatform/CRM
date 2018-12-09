@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +33,8 @@ public class ClientController {
     private final NotificationService notificationService;
     private final RoleService roleService;
     private final ProjectPropertiesService propertiesService;
+    private final ListMailingService listMailingService;
+    private final MailingMessageRepository messageService;
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -46,7 +48,7 @@ public class ClientController {
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
-                            ProjectPropertiesService propertiesService) {
+                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MessageService messageService, MailingMessageRepository messageService1) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -55,6 +57,9 @@ public class ClientController {
         this.notificationService = notificationService;
         this.roleService = roleService;
         this.propertiesService = propertiesService;
+        this.listMailingService = listMailingService;
+
+        this.messageService = messageService1;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -124,8 +129,11 @@ public class ClientController {
 
     @GetMapping(value = "/client/mailing")
     @PreAuthorize("hasAnyAuthority('OWNER')")
-    public ModelAndView mailingPage() {
-        return new ModelAndView("mailing");
+    public String mailingPage(Model model) {
+        model.addAttribute("listMailing", listMailingService.getAll());
+        model.addAttribute("chooseUser", userService.getAll());
+        model.addAttribute("mailingMessage", messageService.findAll());
+        return "mailing";
     }
 
     @GetMapping(value = "/client/clientInfo/{id}")
