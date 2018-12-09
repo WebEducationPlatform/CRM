@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/template")
-@PreAuthorize("hasAnyAuthority('OWNER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class MessageTemplateController {
 
     private static Logger logger = LoggerFactory.getLogger(MessageTemplateController.class);
