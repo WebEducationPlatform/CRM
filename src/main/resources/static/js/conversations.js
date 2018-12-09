@@ -63,6 +63,7 @@ function send_telegram(clientId, text) {
         url: '/rest/telegram/message/send',
         data: {clientId: clientId, text: text},
         success: function (response) {
+            console.log(response);
             $("#conversations-text").val('');
             append_message(response.id, new Date(), text, true);
         }
@@ -124,4 +125,15 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
     chat.stop().animate({
         scrollTop: 100000
     }, 800);
+}
+
+function get_id_by_phone(phone) {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/phone-id',
+        data: {phone: phone},
+        success: function (response) {
+           return parseInt(response);
+        }
+    })
 }

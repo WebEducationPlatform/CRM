@@ -1745,8 +1745,7 @@ function get_tg_user(clientId) {
 
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
-    $("#conversations-title").prop('innerHTML', 'Чат с ' + telegram_user.firstName + ' ' + telegram_user.lastName);
-    $.ajax({
+     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
@@ -1790,6 +1789,7 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
+                $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
