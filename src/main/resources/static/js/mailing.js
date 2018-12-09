@@ -10,13 +10,16 @@ const SEND_SMSS = "Укажите список телефонов получат
 const SEND_TO_VK = "Укажите список id профилей ВК получателей (каждый с новой строки):";
 
 var messageType = 'email';
+var vkPage;
+var listMailing;
 
 function sendMessages(sendnow) {
     let date = $('#messageSendingTime').val();
     let text = CKEDITOR.instances.editor.getData();
     let recipients = $('#addresses-area').val();
+    listMailing = $("#listMailingSelect").val();
     console.warn(recipients);
-    if (recipients === '') {alert("Введите получателей!"); return}
+    if (recipients === '' && listMailing === 'null') {alert("Введите получателей!"); return}
     let x;
     if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
@@ -37,7 +40,10 @@ function sendMessages(sendnow) {
         templateText: text,
         text: x,
         date: date,
-        recipients: recipients
+        recipients: recipients,
+        vkType: vkPage = $("#vkPage").val(),
+        listMailing: listMailing
+
     };
     $.ajax({
         type: "POST",
@@ -59,11 +65,12 @@ function sendMessages(sendnow) {
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    $("#vkPage").hide()
+    $("#falseHistory").hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
             return;
         }
-
         messageType = $(this).attr("id");
 
         if (messageType !== 'email') {
@@ -86,12 +93,15 @@ $(document).ready(function () {
         });
         $(this).addClass(BUTTON_INFO_CLASS);
     });
+    //showHistory()
 });
 
 /**
  * Функция, настраивающая datarangepicker
  */
 $(document).ready(function () {
+    $("#vkPage").hide()
+    $("#falseHistory").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
         "singleDatePicker": true, //отключаем выбор диапазона дат (range)
@@ -132,6 +142,8 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
  * Заполнение блока адресов
  */
 $(document).ready(function () {
+    $("#vkPage").hide()
+    $("#falseHistory").hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -159,6 +171,8 @@ $(document).ready(function () {
  */
 
 $(document).ready(function () {
+    $("#vkPage").hide();
+    $("#falseHistory").hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
@@ -192,6 +206,7 @@ function ckeditorAddAllToolbars() {
 
     });
     $("#imgSelectBtn").show()
+    $("#vkPage").hide()
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -200,12 +215,20 @@ function ckeditorRemoveAllToolbars() {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
     $("#imgSelectBtn").hide()
+    if(messageType === "vk") {
+        $("#vkPage").show()
+    } else {
+        $("#vkPage").hide()
+    }
+
 }
 
 /**
  * Визуализация событий dragover, dragleave, dragend, drop поля адресов
  */
 $(document).ready(function () {
+    $("#vkPage").hide()
+    $("#falseHistory").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
             $(this).addClass(DROP_ZONE_IS_DRAGOVER_CLASS);
@@ -267,4 +290,156 @@ function insertNewPicture(userID, templateID, input) {
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+function showHistory() {
+
+    function removeDuplicates( arr, prop ) {
+        let obj = {};
+        return Object.keys(arr.reduce((prev, next) => {
+            if(!obj[next[prop]]) obj[next[prop]] = next;
+            return obj;
+        }, obj)).map((i) => obj[i]);
+    }
+
+    $.ajax({
+        url: '/mailing/history',
+        contentType: "application/json",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                date = new Date(data[i].date);
+                year = date.getFullYear();
+                month = date.getMonth()+1;
+                dt = date.getDate();
+                hour = date.getHours();
+                minutes = date.getMinutes();
+                seconds = date.getSeconds();
+
+                if (dt < 10) {
+                    dt = '0' + dt;
+                }
+                if (month < 10) {
+                    month = '0' + month;
+                }
+
+                if(hour < 10) {
+                    hour = '0' + hour
+                }
+
+                if(minutes < 10) {
+                    minutes = '0' + minutes
+                }
+
+                for (var j = 0; j < data[i].clientsData.length; j++) {
+                    $("#historyBodyMailing").append("<tr> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + ':' + seconds + '0' +" </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td>" + data[i].clientsData[j].info + "</td> \
+                        </tr>");
+                }
+            }
+        }
+    });
+}
+
+function removeHistory() {
+    $('#managerSelect').val('null');
+    $('#historyBodyMailing').empty();
+
+};
+
+function addInput() {
+    $('<label>Данные пользователя:</label>\n' +
+        '                        <div class="row">\n' +
+        '                            <div class="col-sm-6">\n' +
+        '                        <input class="form-control " type="text" name="addressee" placeholder="https://vk.com/id234" />\n' +
+        '                            </div>\n' +
+        '                            <div class="col-sm-6">\n' +
+        '                                <select class="form-control" name = "typeMailing" th:field="*{typeMailing}" >\n' +
+        '                                    <option th:value="\'email\'">email</option>\n' +
+        '                                    <option th:value="\'sms\'">sms</option>\n' +
+        '                                    <option th:value="\'vk\'">vk</option>\n' +
+        '                                </select>\n' +
+        '                            </div>\n' +
+        '                        </div>')
+        .appendTo($('#listMailingDiv'));
+
+}
+
+
+function addToListMailing() {
+    let recipientsEmail = $('#listEmail').val();
+    let recipientsSms = $('#listSms').val();
+    let recipientsVk = $('#listVk').val();
+    let listName = $('#listName').val();
+
+    let wrap = {
+        recipientsEmail : recipientsEmail,
+        recipientsSms : recipientsSms,
+        recipientsVk : recipientsVk,
+        listName : listName
+    }
+
+    $.ajax({
+        type: "POST",
+        url: '/list-mailing',
+        data: wrap,
+        success: function () {
+            location.reload();
+        }
+    });
+}
+
+function showManagerHistory() {
+
+    var mangerEmail = $("#managerSelect").val();
+    var managerTime = $("#timeSelect").val();
+
+    $.ajax({
+        url: '/mailing/manager/history',
+        type: 'POST',
+        data: { managerEmail: mangerEmail,
+                managerTime: managerTime
+        },
+        success: function (data) {
+            $('#historyBodyMailing').empty();
+            for (var i = 0; i < data.length; i++) {
+                date = new Date(data[i].date);
+                year = date.getFullYear();
+                month = date.getMonth()+1;
+                dt = date.getDate();
+                hour = date.getHours();
+                minutes = date.getMinutes();
+                seconds = date.getSeconds();
+
+                if (dt < 10) {
+                    dt = '0' + dt;
+                }
+
+                if (month < 10) {
+                    month = '0' + month;
+                }
+
+                if(hour < 10) {
+                    hour = '0' + hour
+                }
+
+                if(minutes < 10) {
+                    minutes = '0' + minutes
+                }
+
+                for (var j = 0; j < data[i].clientsData.length; j++) {
+                    $("#historyBodyMailing").append("<tr> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + ':' + seconds + '0' +" </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td>" + data[i].clientsData[j].info + "</td> \
+                        </tr>");
+                }
+            }
+        }
+    });
 }

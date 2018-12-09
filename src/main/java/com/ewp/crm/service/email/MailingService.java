@@ -3,6 +3,7 @@ package com.ewp.crm.service.email;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
+import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.slf4j.Logger;
@@ -33,15 +34,18 @@ public class MailingService {
     private final VKService vkService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
+    private final UserService userService;
+
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
+        this.userService = userService;
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -55,8 +59,10 @@ public class MailingService {
             result = sendingMailingsEmails(message);
         } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
-        } else if (message.getType().equals("vk")) {
+        } else if (message.getType().equals("vk") && message.getVkType().equals("robotPage")) {
             sendingMailingVk(message);
+        } else if (message.getType().equals("vk") && message.getVkType().equals("managerPage")) {
+            sendingMailingVkWithManagerAccount(message);
         }
         return result;
     }
@@ -113,11 +119,26 @@ public class MailingService {
         for (ClientData idVk : message.getClientsData()) {
             try {
                 vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
             }
+
         }
-        message.setReadedMessage(true);
+        mailingMessageRepository.save(message);
+
+    }
+
+    private void sendingMailingVkWithManagerAccount(MailingMessage message) {
+        for (ClientData idVk : message.getClientsData()) {
+            try {
+                vkService.sendMessageByIdWithManagerAccount(Long.parseLong(idVk.getInfo()), message.getText());
+                message.setReadedMessage(true);
+            } catch (ClassCastException e) {
+                logger.info("bad vk id, " + idVk + ", ", e);
+            }
+
+        }
         mailingMessageRepository.save(message);
     }
 }

@@ -6,7 +6,6 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.Client.Sex;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.service.interfaces.VKService;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -19,7 +18,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 
@@ -44,14 +41,12 @@ public class VKServiceImpl implements VKService {
     private final MessageService messageService;
     private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
-    private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
     private final VkMemberService vkMemberService;
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
-    private String robotAccessToken;
     //Айди группы
     private String clubId;
     //Версия API ВК
@@ -66,11 +61,9 @@ public class VKServiceImpl implements VKService {
     private String scope;
     private String technicalAccountToken;
     private OAuth20Service service;
-    private String robotClientSecret;
-    private String robotClientId;
-    private String robotUsername;
-    private String robotPassword;
     private String firstContactMessage;
+    private String managerToken;
+    private String robotToken;
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
@@ -93,6 +86,8 @@ public class VKServiceImpl implements VKService {
         redirectUri = vkConfig.getRedirectUri();
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
+        managerToken = vkConfig.getManagerToken();
+        robotToken = vkConfig.getRobotToken();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -100,15 +95,10 @@ public class VKServiceImpl implements VKService {
         this.messageService = messageService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
-        this.messageTemplateService = messageTemplateService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkRequestFormService = vkRequestFormService;
         this.vkMemberService = vkMemberService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
-        this.robotClientSecret = vkConfig.getRobotClientSecret();
-        this.robotClientId = vkConfig.getRobotClientId();
-        this.robotUsername = vkConfig.getRobotUsername();
-        this.robotPassword = vkConfig.getRobotPassword();
         this.firstContactMessage = vkConfig.getFirstContactMessage();
     }
 
@@ -286,7 +276,12 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String sendMessageById(Long id, String msg) {
-        return sendMessageById(id, msg, robotAccessToken);
+        return sendMessageById(id, msg, robotToken);
+    }
+
+    @Override
+    public String sendMessageByIdWithManagerAccount(Long id, String msg) {
+        return sendMessageById(id, msg, managerToken);
     }
 
     @Override
@@ -598,32 +593,6 @@ public class VKServiceImpl implements VKService {
         Response response = service.execute(request);
     }
 
-    @PostConstruct
-    private void initAccessToken() {
-        logger.info("VKService: initialization of access token...");
-        String uri = "https://oauth.vk.com/token" +
-                "?grant_type=password" +
-                "&client_id=" + robotClientId +
-                "&client_secret=" + robotClientSecret +
-                "&username=" + robotUsername +
-                "&password=" + robotPassword;
-
-        HttpGet httpGet = new HttpGet(uri);
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpResponse response = httpClient.execute(httpGet);
-            String result = EntityUtils.toString(response.getEntity());
-            try {
-                JSONObject json = new JSONObject(result);
-                this.robotAccessToken = json.getString("access_token");
-            } catch (JSONException e) {
-                logger.error("Perhaps the VK username/password configs are incorrect. Can not get AccessToken");
-            }
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server", e);
-        }
-
-    }
 
     @Override
     public String getFirstContactMessage() {

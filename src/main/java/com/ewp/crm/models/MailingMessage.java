@@ -1,10 +1,11 @@
 package com.ewp.crm.models;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -28,31 +29,49 @@ public class MailingMessage {
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "mailing_client_data",
             joinColumns = {@JoinColumn(name = "mailing_client_id", foreignKey = @ForeignKey(name = "FK_MAILING_MESSAGES"))},
             inverseJoinColumns = {@JoinColumn(name = "client_data_messages_id", foreignKey = @ForeignKey(name = "FK_CLIENT_DATA_MESSAGES"))})
+    @JsonManagedReference
     private Set<ClientData> clientsData;
 
     @Column(name = "readed_message")
     private boolean readedMessage;
 
-    public boolean isReadedMessage() {
-        return readedMessage;
-    }
+    @Column(name = "vkType")
+    private String vkType;
 
-    public void setReadedMessage(boolean readedMessage) {
-        this.readedMessage = readedMessage;
-    }
+    @Column(name = "userID")
+    private long userId;
 
     public MailingMessage(){}
 
-    public MailingMessage(String type, String text, Set<ClientData> clientsData, LocalDateTime date) {
+    public MailingMessage(String type, String text, Set<ClientData> clientsData, LocalDateTime date, long userId) {
         this.type = type;
         this.text = text;
         this.clientsData = clientsData;
         this.date = date;
         this.readedMessage = false;
+        this.userId = userId;
+    }
+
+    public MailingMessage(String type, String text, Set<ClientData> clientsData, LocalDateTime date, String vkType, long userId) {
+        this.type = type;
+        this.text = text;
+        this.clientsData = clientsData;
+        this.date = date;
+        this.readedMessage = false;
+        this.vkType = vkType;
+        this.userId = userId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public Set<ClientData> getClientsData() {
@@ -94,4 +113,21 @@ public class MailingMessage {
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
+
+    public String getVkType() {
+        return vkType;
+    }
+
+    public void setVkType(String vkType) {
+        this.vkType = vkType;
+    }
+
+    public boolean isReadedMessage() {
+        return readedMessage;
+    }
+
+    public void setReadedMessage(boolean readedMessage) {
+        this.readedMessage = readedMessage;
+    }
+
 }
