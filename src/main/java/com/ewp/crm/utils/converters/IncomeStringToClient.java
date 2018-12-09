@@ -66,14 +66,13 @@ public class IncomeStringToClient {
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
         String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", " ").replaceFirst(" ", "");
+        String formattedName = name.replaceAll("~", " ");
         setClientName(client, formattedName);
         client.setPhoneNumber(clientData.get("Телефон").replace("~", ""));
         client.setCountry(clientData.get("Страна").replace("~", ""));
         client.setCity(clientData.get("Город").replace("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
-
         if (clientData.containsKey("Соцсеть")) {
             SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Соцсеть").replace("~", ""));
             if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
@@ -100,11 +99,11 @@ public class IncomeStringToClient {
         String formattedName = name.replaceAll("~", "");
         setClientName(client, formattedName);
         client.setEmail(clientData.get("Email").replace("~", ""));
-        client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
-
+        client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
         String question = clientData.get("Vopros");
         String formattedQuestion = question.replaceAll("~", " ");
         client.setClientDescriptionComment("Вопрос: " + formattedQuestion);
+
         checkSocialNetworks(client, clientData);
         logger.info("FormTwo parsing finished");
         return client;
@@ -114,7 +113,6 @@ public class IncomeStringToClient {
         logger.info("Parsing FormThree...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
-
                 .replaceAll(" ", "~")
                 .replaceAll("Name~3", "Name")
                 .replaceAll("Phone~6", "Phone")
@@ -123,44 +121,41 @@ public class IncomeStringToClient {
 
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
-
         String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", "");
+        String formattedName = name.replaceAll("~", " ");
         setClientName(client, formattedName);
-
         client.setEmail(clientData.get("Email").replace("~", ""));
-        client.setPhoneNumber(clientData.get("Phone").replace("~", " "));
-
+        client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
         String question = clientData.get("Вопрос");
         String formattedQuestion = question.replaceAll("~", " ");
         client.setClientDescriptionComment("Вопрос: " + formattedQuestion);
+
         checkSocialNetworks(client, clientData);
-        logger.info("FormTwo parsing finished");
+        logger.info("Form Three parsing finished");
         return client;
     }
 
     private Client parseClientFormFour(String form) {
         logger.info("Parsing FormFour...");
         Client client = new Client();
-        String replaceSpaceInString = form.replaceAll(" ", "");
-        String removeExtraCharacters = replaceSpaceInString.substring(replaceSpaceInString.indexOf("Имя"), replaceSpaceInString.length());
-        String[] createArrayFromString = removeExtraCharacters.split("<br/>");
+        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+                .replaceAll(" ", "~")
+                .replaceAll("Email~2", "Email")
+                .replaceAll("Phone~6", "Phone")
+                .replaceAll("City~6", "City");
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
-        setClientName(client, clientData.get("Имя"));
-        if (clientData.containsKey("Social2")) {
-            SocialProfile currentSocialProfile = getSocialNetwork(clientData.get("Social2"));
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + currentSocialProfile.getLink() +
-                        " недействительна");
-                logger.warn("Unknown social network");
-            }
-            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
-        }
-        client.setPhoneNumber(clientData.get("Phone6"));
-        client.setCountry(clientData.get("City6"));
-        client.setEmail(clientData.get("Email2"));
-        client.setClientDescriptionComment("Проходил Тест");
-        logger.info("FormFour parsing finished");
+
+        String name = clientData.get("Имя");
+        String formattedName = name.replaceAll("~", " ");
+        setClientName(client, formattedName);
+        client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
+        client.setCity(clientData.get("City").replace("~", ""));
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+
+        checkSocialNetworks(client, clientData);
+        logger.info("Form Four parsing finished");
         return client;
     }
 
@@ -197,9 +192,9 @@ public class IncomeStringToClient {
 
     private Map<String, String> createMapFromClientData(String[] res) {
         Map<String, String> clientData = new HashMap<>();
-        for (int i = 0; i < res.length; i++) {
-            String name = res[i].substring(0, res[i].indexOf(":"));
-            String value = res[i].substring(res[i].indexOf(":") + 1, res[i].length());
+        for (String re : res) {
+            String name = re.substring(0, re.indexOf(":"));
+            String value = re.substring(re.indexOf(":") + 1, re.length());
             clientData.put(name, value);
         }
         return clientData;
