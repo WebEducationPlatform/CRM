@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/slack")
 public class SlackController {
 
-    private String INVITE_TOKEN;
+    private String inviteToken;
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
 
     @Autowired
     public SlackController(Environment environment) {
         try {
-            this.INVITE_TOKEN = environment.getRequiredProperty("slack.inviteToken");
-            if (INVITE_TOKEN.isEmpty()) {
+            this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
+            if (inviteToken.isEmpty()) {
                 throw new NullPointerException();
             }
         } catch (NullPointerException npe) {
@@ -41,7 +41,7 @@ public class SlackController {
 
         String url = "https://slack.com/api/users.admin.invite?" +
                 "email=" + email +
-                "&token=" + INVITE_TOKEN;
+                "&token=" + inviteToken;
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             HttpEntity entity = response.getEntity();
