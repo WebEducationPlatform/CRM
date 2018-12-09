@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -53,14 +55,20 @@ public class TelegramRestController {
     }
 
     @GetMapping("/messages/chat/open")
-    public ResponseEntity<TdApi.Messages> getChatMessages(@RequestParam("clientId") Long clientId) {
+    public ResponseEntity<Map<String, Object>> getChatMessages(@RequestParam("clientId") Long clientId) {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        TdApi.Messages messages = new TdApi.Messages();
+        TdApi.Chat chat = new TdApi.Chat();
+        ResponseEntity result = ResponseEntity.badRequest().build();
         for (SocialProfile profile : profiles) {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
-                TdApi.Messages messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-                result = new ResponseEntity<>(messages, HttpStatus.OK);
+                messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+                chat = telegramService.getChat(Long.parseLong(chatId));
+                Map<String, Object> map = new HashMap<>();
+                map.put("messages", messages);
+                map.put("chat", chat);
+                result = new ResponseEntity<>(map, HttpStatus.OK);
                 break;
             }
         }
@@ -83,14 +91,20 @@ public class TelegramRestController {
     }
 
     @GetMapping("/messages/chat/unread")
-    public ResponseEntity<TdApi.Messages> getUnreadChatMessages(@RequestParam("clientId") Long clientId) {
+    public ResponseEntity<Map<String, Object>>  getUnreadChatMessages(@RequestParam("clientId") Long clientId) {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        ResponseEntity<TdApi.Messages> result = ResponseEntity.status(HttpStatus.OK).build();
+        TdApi.Messages messages = new TdApi.Messages();
+        TdApi.Chat chat = new TdApi.Chat();
+        ResponseEntity result = ResponseEntity.badRequest().build();
         for (SocialProfile profile : profiles) {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
-                TdApi.Messages messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
-                result = new ResponseEntity<>(messages, HttpStatus.OK);
+                messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
+                chat = telegramService.getChat(Long.parseLong(chatId));
+                Map<String, Object> map = new HashMap<>();
+                map.put("messages", messages);
+                map.put("chat", chat);
+                result = new ResponseEntity<>(map, HttpStatus.OK);
                 break;
             }
         }
@@ -98,12 +112,11 @@ public class TelegramRestController {
     }
 
     @PostMapping("/message/send")
-    public HttpStatus getChatMessages(@RequestParam("clientId") long clientId, @RequestParam("text") String text) {
-        HttpStatus result = HttpStatus.NOT_FOUND;
+    public ResponseEntity<TdApi.Message> getChatMessages(@RequestParam("clientId") long clientId, @RequestParam("text") String text) {
         Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(clientId, "telegram");
+        ResponseEntity result = ResponseEntity.notFound().build();
         if (profile.isPresent()) {
-            telegramService.sendChatMessage(Long.parseLong(profile.get().getLink()), text);
-            result = HttpStatus.OK;
+            result = new ResponseEntity(telegramService.sendChatMessage(Long.parseLong(profile.get().getLink()), text), HttpStatus.OK);
         }
         return result;
     }
@@ -121,11 +134,6 @@ public class TelegramRestController {
             result = new ResponseEntity(telegramService.getUserById(Integer.parseInt(profile.get().getLink())), HttpStatus.OK);
         }
         return result;
-    }
-
-    @GetMapping("/user/photos")
-    public ResponseEntity<TdApi.UserProfilePhotos> getProfilePhotosByUserId(@RequestParam("id") int userId) {
-        return new ResponseEntity<>(telegramService.getUserPhotos(userId), HttpStatus.OK);
     }
 
     @GetMapping("/file/photo")

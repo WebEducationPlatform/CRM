@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,6 +53,7 @@ public class TelegramServiceImpl implements TelegramService {
     private static final Client.ResultHandler defaultHandler = new TelegramServiceImpl.DefaultHandler();
 
     private static Environment env;
+    private final boolean useMessageDatabase;
     private static Logger logger = LoggerFactory.getLogger(TelegramServiceImpl.class);
 
     private static final ConcurrentMap<Integer, TdApi.File> downloadingFiles = new ConcurrentHashMap<Integer, TdApi.File>();
@@ -72,6 +70,7 @@ public class TelegramServiceImpl implements TelegramService {
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
                                SocialProfileRepository socialProfileRepository, SocialProfileTypeService socialProfileTypeService) {
         this.env = env;
+        this.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
         this.clientRepository = clientRepository;
         this.statusRepository = statusRepository;
         this.clientHistoryService = clientHistoryService;
@@ -153,9 +152,19 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public void sendChatMessage(long chatId, String text) {
+    public TdApi.Message sendChatMessage(long chatId, String text) {
+        SendMessageHandler handler = new SendMessageHandler();
         TdApi.InputMessageContent content = new TdApi.InputMessageText(new TdApi.FormattedText(text, null), false, true);
-        client.send(new TdApi.SendMessage(chatId, 0, false, false, null, content ), defaultHandler);
+        client.send(new TdApi.SendMessage(chatId, 0, false, false, null, content ), handler);
+        while (handler.getMessage() == null) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("Send message interrupted", e);
+                break;
+            }
+        }
+        return handler.getMessage();
     }
 
     @Override
@@ -201,21 +210,6 @@ public class TelegramServiceImpl implements TelegramService {
             }
         }
         return handler.getUser();
-    }
-
-    @Override
-    public TdApi.UserProfilePhotos getUserPhotos(int userId) {
-        GetProfilePhotoHandler handler = new GetProfilePhotoHandler();
-        client.send(new TdApi.GetUserProfilePhotos(userId, 0, 5), defaultHandler);
-        while (handler.isLoading()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("User loading interrupted", e);
-                break;
-            }
-        }
-        return handler.getPhotos();
     }
 
     @Override
@@ -296,7 +290,33 @@ public class TelegramServiceImpl implements TelegramService {
                     TdApi.File file = ((TdApi.UpdateFile) object).file;
                     if (downloadingFiles.containsKey(file.id)) {
                         downloadingFiles.replace(file.id, file);
+                        if (!useMessageDatabase && file.local.isDownloadingCompleted) {
+                            cleanFileCopies(file.local.path);
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clean downloaded file copies. Retains last downloaded copy.
+     * Api downloads copies of file with such names:
+     * 255414630_9012.jpg
+     * 255414630_9012_(0).jpg
+     * @param path of downloaded file.
+     */
+    private void cleanFileCopies(String path) {
+        String folderPath = path.substring(0, path.lastIndexOf(File.separator));
+        File folder = new File(folderPath);
+        File[] listOfFiles = folder.listFiles();
+        if (path.contains("_(")) {
+            String fileName = path.substring(path.lastIndexOf(File.separator) + 1, path.lastIndexOf("_("));
+            System.out.println(fileName);
+            for (File savedFile : listOfFiles) {
+                System.out.println(savedFile.getAbsolutePath());
+                if (!path.equals(savedFile.getAbsolutePath()) && savedFile.getAbsolutePath().contains(fileName)) {
+                    savedFile.delete();
                 }
             }
         }
@@ -551,6 +571,23 @@ public class TelegramServiceImpl implements TelegramService {
         @Override
         public void onResult(TdApi.Object object) {
             this.file = (TdApi.File) object;
+        }
+    }
+
+    /**
+     * Send message and return it.
+     */
+    private class SendMessageHandler implements Client.ResultHandler {
+
+        private TdApi.Message message;
+
+        public TdApi.Message getMessage() {
+            return message;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.message = (TdApi.Message) object;
         }
     }
 

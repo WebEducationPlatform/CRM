@@ -17,7 +17,7 @@ public interface TelegramService {
 
     TdApi.Messages getUnreadMessagesFromChat(long chatId, int limit);
 
-    void sendChatMessage(long chatId, String text);
+    TdApi.Message sendChatMessage(long chatId, String text);
 
     TdApi.Chat getChat(long chatId);
 
@@ -26,8 +26,6 @@ public interface TelegramService {
     TdApi.User getMe();
 
     TdApi.User getUserById(int userId);
-
-    TdApi.UserProfilePhotos getUserPhotos(int userId);
 
     TdApi.File getFileById(int fileId);
 
