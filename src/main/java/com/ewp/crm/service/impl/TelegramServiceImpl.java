@@ -250,6 +250,25 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
+    public int getClientIdByPhone(String phone) {
+        int myId = getMe().id;
+        GetChatMessageHandler handler = new GetChatMessageHandler();
+        TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, myId);
+        TdApi.InputMessageContact content = new TdApi.InputMessageContact(contact);
+        client.send(new TdApi.SendMessage(myId, 0, false, false, null, content), handler);
+        while (handler.getMessage() == null) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("File retrieve interrupted", e);
+                break;
+            }
+        }
+        TdApi.Contact newContact = ((TdApi.MessageContact) handler.getMessage().content).contact;
+        return newContact.userId;
+    }
+
+    @Override
     public void closeChat(long chatId) {
         client.send(new TdApi.CloseChat(chatId), defaultHandler);
     }
@@ -312,9 +331,7 @@ public class TelegramServiceImpl implements TelegramService {
         File[] listOfFiles = folder.listFiles();
         if (path.contains("_(")) {
             String fileName = path.substring(path.lastIndexOf(File.separator) + 1, path.lastIndexOf("_("));
-            System.out.println(fileName);
             for (File savedFile : listOfFiles) {
-                System.out.println(savedFile.getAbsolutePath());
                 if (!path.equals(savedFile.getAbsolutePath()) && savedFile.getAbsolutePath().contains(fileName)) {
                     savedFile.delete();
                 }
@@ -509,28 +526,6 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     /**
-     * Get profile photos by user ID.
-     */
-    private class GetProfilePhotoHandler implements Client.ResultHandler {
-        private TdApi.UserProfilePhotos photos;
-        private boolean loading = true;
-
-        public TdApi.UserProfilePhotos getPhotos() {
-            return photos;
-        }
-
-        public boolean isLoading() {
-            return loading;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.photos = (TdApi.UserProfilePhotos) object;
-            this.loading = false;
-        }
-    }
-
-    /**
      * Load Telegram messages by chat id.
      */
     private class GetChatMessagesHandler implements Client.ResultHandler {
@@ -554,6 +549,23 @@ public class TelegramServiceImpl implements TelegramService {
         public void onResult(TdApi.Object object) {
             this.messages = (TdApi.Messages) object;
             this.loading = false;
+        }
+    }
+
+    /**
+     * Load Telegram messages.
+     */
+    private class GetChatMessageHandler implements Client.ResultHandler {
+
+        private TdApi.Message message;
+
+        public TdApi.Message getMessage() {
+            return message;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.message = (TdApi.Message) object;
         }
     }
 

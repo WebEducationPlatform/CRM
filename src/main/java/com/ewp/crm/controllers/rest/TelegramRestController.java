@@ -1,21 +1,20 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.service.impl.TelegramServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import com.ewp.crm.service.interfaces.TelegramService;
 import org.drinkless.tdlib.TdApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -30,16 +29,19 @@ public class TelegramRestController {
     private final TelegramService telegramService;
     private final ClientService clientService;
     private final SocialProfileService socialProfileService;
+    private final SocialProfileTypeService socialProfileTypeService;
     private static final int MESSAGE_LIMIT = 40;
 
     private static Logger logger = LoggerFactory.getLogger(TelegramRestController.class);
 
     @Autowired
     public TelegramRestController(TelegramService telegramService, ClientService clientService,
-                                  SocialProfileService socialProfileService) {
+                                  SocialProfileService socialProfileService,
+                                  SocialProfileTypeService socialProfileTypeService) {
         this.telegramService = telegramService;
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @GetMapping("/phone-code")
@@ -117,6 +119,15 @@ public class TelegramRestController {
         ResponseEntity result = ResponseEntity.notFound().build();
         if (profile.isPresent()) {
             result = new ResponseEntity(telegramService.sendChatMessage(Long.parseLong(profile.get().getLink()), text), HttpStatus.OK);
+        } else {
+            Client client = clientService.getClientByID(clientId);
+            if (client.getEmail() != null) {
+                int telegramId = telegramService.getClientIdByPhone(client.getEmail());
+                client.getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), socialProfileTypeService.getByTypeName("telegram")));
+                clientService.update(client);
+                //TODO Start chat. Sends himself.
+                result = new ResponseEntity(telegramService.sendChatMessage((long) telegramId, text), HttpStatus.OK);
+            }
         }
         return result;
     }
@@ -134,6 +145,12 @@ public class TelegramRestController {
             result = new ResponseEntity(telegramService.getUserById(Integer.parseInt(profile.get().getLink())), HttpStatus.OK);
         }
         return result;
+    }
+
+    @GetMapping("/phone-id")
+    public ResponseEntity<Integer> getClientIdByPhone(@RequestParam("phone") String phone) {
+        telegramService.getClientIdByPhone(phone);
+        return new ResponseEntity<>(telegramService.getClientIdByPhone(phone), HttpStatus.OK);
     }
 
     @GetMapping("/file/photo")
