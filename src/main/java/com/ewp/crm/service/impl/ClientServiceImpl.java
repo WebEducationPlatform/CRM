@@ -146,8 +146,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 existClient.addHistory(clientHistory);
             }
 
-            String currectDescription = existClient.getClientDescriptionComment();
-            existClient.setClientDescriptionComment(REPEATED_CLIENT + ((currectDescription == null) ? "" : " " + currectDescription));
+//            String currectDescription = existClient.getClientDescriptionComment();
+            existClient.setClientDescriptionComment(REPEATED_CLIENT);
             existClient.setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient);
             existClient.setStatus(statusService.getRepeatedStatusForClient());
@@ -231,9 +231,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	private void checkSocialLinks(Client client) {
-		for (int i = 0; i < client.getSocialProfiles().size(); i++) {
-			String link = client.getSocialProfiles().get(i).getLink();
-			SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
+		for (SocialProfile socialProfile: client.getSocialProfiles()) {
+			String link = socialProfile.getLink();
+			SocialProfileType type = socialProfile.getSocialProfileType();
 			if (type.getName().equals("unknown")) {
 				if (!link.startsWith("https")) {
 					if (link.startsWith("http")) {
@@ -249,7 +249,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 				}
 				link = "https://" + type.getName() + ".com/" + link;
 			}
-			client.getSocialProfiles().get(i).setLink(link);
+			socialProfile.setLink(link);
 		}
 	}
 

@@ -1749,6 +1749,8 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
+                    $('#slack-invite-href').attr('action', '/slack/' + client.email);
+
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
@@ -1816,10 +1818,12 @@ $(function () {
                 $('.client-collapse').attr('id', 'collapse' + client.id);
                 $('.history-line').attr('id', 'client-' + client.id + 'history');
                 $('.upload-more-history').attr('data-clientid', client.id);
+                $('#repeated-client-info').hide();
 
                 if (client.repeated) {
-                    $('#repeated-status-btn').attr('onclick', 'dropRepeatedFlag(' + clientId + ', false)');
-                    $('#notifyAboutRepeatedClient').modal('show');
+
+                    $('#repeated-client-info').show();
+
                 }
             }
         });
@@ -1841,14 +1845,17 @@ function dropRepeatedFlag(clientId, repeated) {
 
         },
         error: function (e) {
-
+            console.log(e);
         }
     });
 
-    $('#notifyAboutRepeatedClient').modal('hide');
+    $('#repeated-client-info').hide();
+
 }
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
+        var clientId = $(this).data('clientId');
+        dropRepeatedFlag(clientId, false);
         $('.assign-skype-call-btn').removeAttr("disabled");
         $('div#assign-unassign-btns').empty();
         $('.skype-notification').empty();
