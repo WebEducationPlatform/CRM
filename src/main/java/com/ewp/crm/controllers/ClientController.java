@@ -35,6 +35,8 @@ public class ClientController {
     private final ProjectPropertiesService propertiesService;
     private final ListMailingService listMailingService;
     private final MailingMessageRepository messageService;
+    private final VkTokenService vkTokenService;
+
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -48,7 +50,7 @@ public class ClientController {
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
-                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MessageService messageService, MailingMessageRepository messageService1) {
+                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MessageService messageService, MailingMessageRepository messageService1, VkTokenService vkTokenService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -60,6 +62,7 @@ public class ClientController {
         this.listMailingService = listMailingService;
 
         this.messageService = messageService1;
+        this.vkTokenService = vkTokenService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -129,7 +132,7 @@ public class ClientController {
 
     @GetMapping(value = "/client/mailing")
     @PreAuthorize("hasAnyAuthority('OWNER')")
-    public String mailingPage(Model model) {
+    public String mailingPage(Model model, @AuthenticationPrincipal User userFromSession) {
         model.addAttribute("listMailing", listMailingService.getAll());
         model.addAttribute("chooseUser", userService.getAll());
         model.addAttribute("mailingMessage", messageService.findAll());

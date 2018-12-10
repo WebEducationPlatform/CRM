@@ -17,9 +17,8 @@ function sendMessages(sendnow) {
     let date = $('#messageSendingTime').val();
     let text = CKEDITOR.instances.editor.getData();
     let recipients = $('#addresses-area').val();
-    listMailing = $("#listMailingSelect").val();
     console.warn(recipients);
-    if (recipients === '' && listMailing === 'null') {alert("Введите получателей!"); return}
+    if (recipients === '') {alert("Введите получателей!"); return}
     let x;
     if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
@@ -41,7 +40,7 @@ function sendMessages(sendnow) {
         text: x,
         date: date,
         recipients: recipients,
-        vkType: vkPage = $("#vkPage").val(),
+        vkType: vkPage = $("#vkTokenSelect").val(),
         listMailing: listMailing
 
     };
@@ -65,7 +64,7 @@ function sendMessages(sendnow) {
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
-    $("#vkPage").hide()
+    $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
@@ -93,14 +92,26 @@ $(document).ready(function () {
         });
         $(this).addClass(BUTTON_INFO_CLASS);
     });
-    //showHistory()
+
+    $.ajax({
+        url: '/get/sender',
+        contentType: "application/json",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                $('<option value="' + data[i].accessToken + '">' + data[i].nameSender +'</option>').appendTo($('#vkTokenSelect'))
+            }
+        }
+    });
+
 });
 
 /**
  * Функция, настраивающая datarangepicker
  */
 $(document).ready(function () {
-    $("#vkPage").hide()
+    $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
@@ -142,7 +153,7 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
  * Заполнение блока адресов
  */
 $(document).ready(function () {
-    $("#vkPage").hide()
+    $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
@@ -171,7 +182,7 @@ $(document).ready(function () {
  */
 
 $(document).ready(function () {
-    $("#vkPage").hide();
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
@@ -206,7 +217,7 @@ function ckeditorAddAllToolbars() {
 
     });
     $("#imgSelectBtn").show()
-    $("#vkPage").hide()
+    $("#vkTokenSelect").hide()
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -216,9 +227,9 @@ function ckeditorRemoveAllToolbars() {
     });
     $("#imgSelectBtn").hide()
     if(messageType === "vk") {
-        $("#vkPage").show()
+        $("#vkTokenSelect").show()
     } else {
-        $("#vkPage").hide()
+        $("#vkTokenSelect").hide()
     }
 
 }
@@ -227,7 +238,7 @@ function ckeditorRemoveAllToolbars() {
  * Визуализация событий dragover, dragleave, dragend, drop поля адресов
  */
 $(document).ready(function () {
-    $("#vkPage").hide()
+    $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
@@ -293,13 +304,9 @@ function insertNewPicture(userID, templateID, input) {
 }
 
 function showHistory() {
-
-    function removeDuplicates( arr, prop ) {
-        let obj = {};
-        return Object.keys(arr.reduce((prev, next) => {
-            if(!obj[next[prop]]) obj[next[prop]] = next;
-            return obj;
-        }, obj)).map((i) => obj[i]);
+    var unique;
+    function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
     }
 
     $.ajax({
@@ -316,6 +323,8 @@ function showHistory() {
                 hour = date.getHours();
                 minutes = date.getMinutes();
                 seconds = date.getSeconds();
+
+
 
                 if (dt < 10) {
                     dt = '0' + dt;
@@ -334,7 +343,7 @@ function showHistory() {
 
                 for (var j = 0; j < data[i].clientsData.length; j++) {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + ':' + seconds + '0' +" </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes +" </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
                             <td>" + data[i].clientsData[j].info + "</td> \
@@ -343,12 +352,48 @@ function showHistory() {
             }
         }
     });
+
+    $.ajax({
+        url: '/mailing',
+        contentType: "application/json",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+
+            for(var i = 0; i < data.length; i++) {
+                time = new Date(data[i].date);
+                year = time.getFullYear();
+                month = time.getMonth()+1;
+                dt = time.getDate();
+
+                if (dt < 10) {
+                    dt = '0' + dt;
+                }
+
+                if (month < 10) {
+                    month = '0' + month;
+                }
+                var timeArr = new Array();
+                var srt = new String(dt + '.' + month + '.' + year);
+                timeArr.push(srt);
+                unique = timeArr.filter( onlyUnique );
+
+
+
+            }
+
+            for (var i = 0; i < unique.length; i++) {
+                $('<option value="' + unique[i] + '">' + unique[i] +'</option>').appendTo($('#timeSelect'))
+            }
+        }
+    })
 }
 
 function removeHistory() {
     $('#managerSelect').val('null');
     $('#historyBodyMailing').empty();
-
+    $('#timeSelect').empty();
+    $('<option value="nullTime">Выбрать дату</option>').appendTo($('#timeSelect'));
 };
 
 function addInput() {
@@ -433,7 +478,7 @@ function showManagerHistory() {
 
                 for (var j = 0; j < data[i].clientsData.length; j++) {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + ':' + seconds + '0' +" </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes +" </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
                             <td>" + data[i].clientsData[j].info + "</td> \
@@ -442,4 +487,31 @@ function showManagerHistory() {
             }
         }
     });
+}
+
+function showListMailing() {
+    if (messageType !== "email") {
+        x = CKEDITOR.instances.editor.document.getBody().getText();
+    } else {
+        x = "";
+    }
+    listGroupName = $('#listMailingSelect').val()
+    $.ajax({
+        url: '/get/listMailing',
+        type: 'POST',
+        data: { listGroupName: listGroupName
+        },
+        success: function (data) {
+
+                if(messageType == "email") {
+                   $("#addresses-area").val(data.recipientsEmail)
+                }  else if (messageType == 'sms') {
+                    $("#addresses-area").val(data.recipientsSms)
+                } else if (messageType == "vk") {
+                    $("#addresses-area").val(data.recipientsVk)
+                }
+        }
+
+    });
+
 }

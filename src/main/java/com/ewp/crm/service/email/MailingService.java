@@ -59,10 +59,10 @@ public class MailingService {
             result = sendingMailingsEmails(message);
         } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
-        } else if (message.getType().equals("vk") && message.getVkType().equals("robotPage")) {
-            sendingMailingVk(message);
         } else if (message.getType().equals("vk") && message.getVkType().equals("managerPage")) {
             sendingMailingVkWithManagerAccount(message);
+        } else {
+            sendingMailingVk(message);
         }
         return result;
     }
@@ -118,7 +118,7 @@ public class MailingService {
     private void sendingMailingVk(MailingMessage message) {
         for (ClientData idVk : message.getClientsData()) {
             try {
-                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
                 message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
@@ -132,7 +132,7 @@ public class MailingService {
     private void sendingMailingVkWithManagerAccount(MailingMessage message) {
         for (ClientData idVk : message.getClientsData()) {
             try {
-                vkService.sendMessageByIdWithManagerAccount(Long.parseLong(idVk.getInfo()), message.getText());
+                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
                 message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);

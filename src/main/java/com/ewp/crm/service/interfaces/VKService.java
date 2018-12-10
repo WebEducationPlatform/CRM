@@ -20,8 +20,6 @@ public interface VKService {
 
     String sendMessageById(Long id, String msg);
 
-    String sendMessageByIdWithManagerAccount(Long id, String msg);
-
     String sendMessageById(Long id, String msg, String token);
 
     Optional<List<Long>> getUsersIdFromCommunityMessages();

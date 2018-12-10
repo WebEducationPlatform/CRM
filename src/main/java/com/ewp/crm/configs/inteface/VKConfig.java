@@ -13,5 +13,4 @@ public interface VKConfig {
     String getScope();
     String getFirstContactMessage();
     String getManagerToken();
-    String getRobotToken();
 }

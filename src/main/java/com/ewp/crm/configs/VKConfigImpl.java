@@ -36,8 +36,6 @@ public class VKConfigImpl implements VKConfig {
 
     private String managerToken;
 
-    private String robotToken;
-
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -55,7 +53,6 @@ public class VKConfigImpl implements VKConfig {
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
             managerToken = env.getProperty("vk.manager.token");
-            robotToken = env.getProperty("vk.robot.token");
 
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -119,7 +116,4 @@ public class VKConfigImpl implements VKConfig {
         return managerToken;
     }
 
-    public String getRobotToken() {
-        return robotToken;
-    }
 }
