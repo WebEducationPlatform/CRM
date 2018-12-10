@@ -10,6 +10,7 @@ import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.StatusServiceImpl;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,6 +134,11 @@ public class ScheduleTasks {
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
 		newClient.addHistory(clientHistoryService.createHistory("vk"));
+		String email = newClient.getEmail();
+		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: "+email);
+			newClient.setEmail(null);
+		}
 		clientService.addClient(newClient);
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
@@ -192,6 +200,9 @@ public class ScheduleTasks {
 					for (String message : newMassages.get()) {
 						try {
 							Client newClient = vkService.parseClientFromMessage(message);
+							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
+							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
+							newClient.addHistory(clientHistory);
 							addClient(newClient);
 						} catch (ParseClientException e) {
 							logger.error(e.getMessage());

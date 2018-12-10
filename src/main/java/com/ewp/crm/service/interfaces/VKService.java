@@ -14,6 +14,8 @@ public interface VKService {
 
     void sendMessageToClient(Long clientId, String templateText, String body, User principal);
 
+    Optional<Long> getVKIdByUrl(String url);
+
     void simpleVKNotification(Long clientId, String templateText);
 
     Optional<List<VkMember>> getAllVKMembers(Long groupId, Long offset);

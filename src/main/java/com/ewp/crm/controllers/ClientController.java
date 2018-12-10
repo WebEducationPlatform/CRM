@@ -35,7 +35,7 @@ public class ClientController {
     private final ProjectPropertiesService propertiesService;
     private final ListMailingService listMailingService;
     private final MailingMessageRepository messageService;
-    private final VkTokenService vkTokenService;
+
 
 
 
@@ -50,7 +50,7 @@ public class ClientController {
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
-                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MessageService messageService, MailingMessageRepository messageService1, VkTokenService vkTokenService) {
+                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MessageService messageService, MailingMessageRepository messageService1) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -62,7 +62,6 @@ public class ClientController {
         this.listMailingService = listMailingService;
 
         this.messageService = messageService1;
-        this.vkTokenService = vkTokenService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")

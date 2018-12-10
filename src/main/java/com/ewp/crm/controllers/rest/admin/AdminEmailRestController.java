@@ -6,7 +6,6 @@ import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,13 +52,14 @@ public class AdminEmailRestController {
         //TODO Убрать хардкод
         String msgTemplateDefaultTextBody = "%bodyText%";
         if (templateText.contains(msgTemplateDefaultTextBody) ^ otherTemplateText.contains(msgTemplateDefaultTextBody)) {
-            throw new MessageTemplateException(msgTemplateDefaultTextBody + "должен присутствовать или остутствовать на обоих типах сообщения");
+            throw new MessageTemplateException(msgTemplateDefaultTextBody + "должен присутствовать или остутствовать всех типах сообщения!");
         }
 
         MessageTemplate messageTemplate = messageTemplateService.getByName(templateName);
-
-        if (templateText.length() == 0 || otherTemplateText.length() == 0|| (templateText.equals(msgTemplateDefaultTextBody) && otherTemplateText.equals(msgTemplateDefaultTextBody))) {
-            throw new MessageTemplateException("Шаблон не должен быть пустым на обоих типах сообщения");
+        String text =templateText.replaceAll("(\\s+)|(</?pre>)|(&nbsp;)|(</?p>)|(%bodyText%)","");
+        String otherText = otherTemplateText.replaceAll("(\\s+)|(%bodyText%)","");
+        if (text.length() == 0 || otherText.length() == 0) {
+            throw new MessageTemplateException("Шаблон не может быть пустым ни в одном из типов сообщения!");
         }
 
         if (messageTemplate == null) {
