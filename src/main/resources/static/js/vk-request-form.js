@@ -4,14 +4,13 @@ function deleteVkReqestById(id) {
         type: "POST",
         dataType: 'json',
         url: url,
-        success: function () {
+        complete: function () {
             location.reload();
         },
         error: function (error) {
             console.log(error);
         }
     });
-    location.reload();
 }
 
 function createVkRequestField() {
@@ -47,14 +46,13 @@ function createVkRequestField() {
         contentType: "application/json",
         type: 'POST',
         dataType: 'JSON',
-        success: function (returnObj) {
+        complete: function () {
             location.reload();
         },
         error: function (error) {
             console.log(error);
         }
     });
-    location.reload();
 }
 
 function createVkRequestFieldForLabel() {
