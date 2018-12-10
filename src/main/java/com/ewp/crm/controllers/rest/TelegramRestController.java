@@ -61,7 +61,7 @@ public class TelegramRestController {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
         TdApi.Messages messages = new TdApi.Messages();
         TdApi.Chat chat = new TdApi.Chat();
-        ResponseEntity result = ResponseEntity.badRequest().build();
+        ResponseEntity result = new ResponseEntity(new HashMap<String, Object>(), HttpStatus.OK);
         for (SocialProfile profile : profiles) {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
@@ -122,10 +122,9 @@ public class TelegramRestController {
         } else {
             Client client = clientService.getClientByID(clientId);
             if (client.getEmail() != null) {
-                int telegramId = telegramService.getClientIdByPhone(client.getEmail());
+                int telegramId = telegramService.getClientIdByPhone(client.getPhoneNumber());
                 client.getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), socialProfileTypeService.getByTypeName("telegram")));
                 clientService.update(client);
-                //TODO Start chat. Sends himself.
                 result = new ResponseEntity(telegramService.sendChatMessage((long) telegramId, text), HttpStatus.OK);
             }
         }
@@ -147,9 +146,17 @@ public class TelegramRestController {
         return result;
     }
 
-    @GetMapping("/phone-id")
+    @GetMapping("/id-by-phone")
     public ResponseEntity<Integer> getClientIdByPhone(@RequestParam("phone") String phone) {
-        telegramService.getClientIdByPhone(phone);
+        int telegramId = telegramService.getClientIdByPhone(phone);
+        Client client = clientService.getClientByPhoneNumber(phone);
+        Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(client.getId(), "telegram");
+        if (!profile.isPresent() && telegramId != 0) {
+            if (client.getEmail() != null) {
+                client.getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), socialProfileTypeService.getByTypeName("telegram")));
+                clientService.update(client);
+            }
+        }
         return new ResponseEntity<>(telegramService.getClientIdByPhone(phone), HttpStatus.OK);
     }
 

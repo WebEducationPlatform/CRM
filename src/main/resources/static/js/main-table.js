@@ -1729,6 +1729,7 @@ $('#conversations-modal').on('show.bs.modal', function () {
         url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
         success: function (response) {
+            if (response.chat === undefined && response.messages === undefined) {return;}
             let messages = response.messages.messages;
             let last_read = response.chat.lastReadOutboxMessageId;
             let data = messages.reverse();
@@ -1767,6 +1768,8 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
+                //TODO check if telegram ID is empty
+                set_telegram_id_by_phone(client.phoneNumber);
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
