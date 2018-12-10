@@ -253,9 +253,19 @@ public class TelegramServiceImpl implements TelegramService {
     public int getClientIdByPhone(String phone) {
         int myId = getMe().id;
         GetChatMessageHandler handler = new GetChatMessageHandler();
-        TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, myId);
-        TdApi.InputMessageContact content = new TdApi.InputMessageContact(contact);
-        client.send(new TdApi.SendMessage(myId, 0, false, false, null, content), handler);
+        TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, 0);
+//        TdApi.InputMessageContact content = new TdApi.InputMessageContact(contact);
+        client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), defaultHandler);
+//        89859053462
+//        ImportedContacts {
+//            userIds = Array[1] {
+//                681461282
+//            }
+//            importerCount = Array[1] {
+//                0
+//            }
+//        }
+//        client.send(new TdApi.SendMessage(myId, 0, false, false, null, content), handler);
         while (handler.getMessage() == null) {
             try {
                 Thread.sleep(10);
@@ -264,6 +274,7 @@ public class TelegramServiceImpl implements TelegramService {
                 break;
             }
         }
+        System.out.println(handler.getMessage());
         TdApi.Contact newContact = ((TdApi.MessageContact) handler.getMessage().content).contact;
         return newContact.userId;
     }
