@@ -15,12 +15,13 @@ public interface MailingMessageRepository extends CommonGenericRepository<Mailin
     @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId =:userId ")
     List<MailingMessage> getUserMail(@Param("userId") long userId);
 
-    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId =:userId AND mail.date =:time")
-    List<MailingMessage> getUserByMailAndDate(@Param("userId") long userId, @Param("time") LocalDateTime time);
+    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId =:userId AND EXTRACT (day from mail.date) =:time")
+    List<MailingMessage> getUserByMailAndDate(@Param("userId") long userId, @Param("time") int time);
 
-    @Query("SELECT mail FROM MailingMessage mail WHERE mail.date =:time")
-    List<MailingMessage> getUserByDate(@Param("time") LocalDateTime time);
+    @Query("SELECT mail FROM MailingMessage mail WHERE EXTRACT (day from mail.date) =:time")
+    List<MailingMessage> getUserByDate(@Param("time") int time);
 
     @Query("SELECT mail.date FROM MailingMessage mail")
     List<LocalDateTime> getTimeMailingMeassage();
+
 }

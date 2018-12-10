@@ -64,6 +64,8 @@
                 <button class="btn btn-success btn-sm" id="mailingNow" onclick="sendMessages(1)">Отправить сейчас</button>
             </div>
             <div class = "col-sm-3">
+                <div class="row">
+                    <div class="col-8">
                 <div class="form-group">
                 <select class="form-control" id = "listMailingSelect">
                     <option value="null">Выберите список рассылки</option>
@@ -71,7 +73,14 @@
                             th:value="${listMailing.listName}"
                             th:utext="${listMailing.listName}"/>
                 </select>
+                </div>
             </div>
+                <div class="col-4">
+                <button class="btn btn-success" onclick="showListMailing()">
+                    Загрузить список
+                </button>
+                </div>
+                </div>
             </div>
         </div>
         <br/>
@@ -101,19 +110,18 @@
     <div class="container-fluid" id="editor-block">
         <div class="row">
             <div class="col-xs-9 col-sm-12 col-md-12 col-lg-12 col-xl-8">
-                <!--Блок редактора CKEditor-->
-                <!--<label for="editor">Editor</label>-->
+
 
                 <div class="row">
                     <div class="col-sm-2">
                         <div class="form-group">
                             <!--<label for="exampleFormControlSelect1">Example select</label>-->
-                            <select class="form-control" id="vkPage">
-                                <option>Отправляется от :</option>
-                                <option th:value="'robotPage'">Страница вк</option>
-                                <option th:value="'managerPage'">Менеджера</option>
+
+                            <select class="form-control" id = "vkTokenSelect">
+                                <option  value="null"> Выбрать пользователя</option>
+                                <option  value="managerPage"> Страница Java Mentor</option>
                             </select>
-                        </div>
+                    </div>
                     </div>
                 </div>
                 <p><label id = "message" ></label></p>
@@ -147,6 +155,12 @@
 
                 <div class="form-group" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="row">
+                        <div class="col-sm-5" id="timeDiv">
+                            <select class="form-control" id = "timeSelect">
+                                <option value="nullTime">Выбрать дату</option>
+
+                            </select>
+                        </div>
                         <div class="col-sm-5">
                     <select class="form-control" id = "managerSelect">
                         <option value="null">Выбрать пользователя</option>

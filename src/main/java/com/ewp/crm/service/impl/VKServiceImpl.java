@@ -63,7 +63,7 @@ public class VKServiceImpl implements VKService {
     private OAuth20Service service;
     private String firstContactMessage;
     private String managerToken;
-    private String robotToken;
+
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
@@ -87,7 +87,6 @@ public class VKServiceImpl implements VKService {
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
         managerToken = vkConfig.getManagerToken();
-        robotToken = vkConfig.getRobotToken();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -276,13 +275,10 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String sendMessageById(Long id, String msg) {
-        return sendMessageById(id, msg, robotToken);
-    }
-
-    @Override
-    public String sendMessageByIdWithManagerAccount(Long id, String msg) {
         return sendMessageById(id, msg, managerToken);
     }
+
+
 
     @Override
     public String sendMessageById(Long id, String msg, String token) {

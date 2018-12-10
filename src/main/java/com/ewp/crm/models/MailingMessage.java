@@ -25,8 +25,7 @@ public class MailingMessage {
     @Lob
     private String text;
 
-    @NotNull
-    @Column(name = "date", nullable = false)
+    @Column(name = "date")
     private LocalDateTime date;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
