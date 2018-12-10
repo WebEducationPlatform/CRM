@@ -251,32 +251,12 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public int getClientIdByPhone(String phone) {
-        int myId = getMe().id;
-        GetChatMessageHandler handler = new GetChatMessageHandler();
+        ReturnObjectHandler handler = new ReturnObjectHandler();
         TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, 0);
-//        TdApi.InputMessageContact content = new TdApi.InputMessageContact(contact);
-        client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), defaultHandler);
-//        89859053462
-//        ImportedContacts {
-//            userIds = Array[1] {
-//                681461282
-//            }
-//            importerCount = Array[1] {
-//                0
-//            }
-//        }
-//        client.send(new TdApi.SendMessage(myId, 0, false, false, null, content), handler);
-        while (handler.getMessage() == null) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("File retrieve interrupted", e);
-                break;
-            }
-        }
-        System.out.println(handler.getMessage());
-        TdApi.Contact newContact = ((TdApi.MessageContact) handler.getMessage().content).contact;
-        return newContact.userId;
+        client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), handler);
+        handlerDelay(handler);
+        TdApi.ImportedContacts contacts = (TdApi.ImportedContacts) handler.getObject();
+        return contacts.userIds[0];
     }
 
     @Override
@@ -614,4 +594,40 @@ public class TelegramServiceImpl implements TelegramService {
         }
     }
 
+    /**
+     * Get telegram object.
+     */
+    private interface GetObject {
+        TdApi.Object getObject();
+    }
+
+    /**
+     * Get telegram object handler.
+     */
+    private class ReturnObjectHandler implements Client.ResultHandler, GetObject {
+
+        private TdApi.Object object;
+
+        @Override
+        public TdApi.Object getObject() {
+            return object;
+        }
+
+        @Override
+        public void onResult(TdApi.Object object) {
+            this.object = object;
+        }
+    }
+
+
+    private void handlerDelay(ReturnObjectHandler handler) {
+        while (handler.getObject() == null) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.warn("Object retrieval interrupted", e);
+                break;
+            }
+        }
+    }
 }

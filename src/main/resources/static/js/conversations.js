@@ -63,7 +63,6 @@ function send_telegram(clientId, text) {
         url: '/rest/telegram/message/send',
         data: {clientId: clientId, text: text},
         success: function (response) {
-            console.log(response);
             $("#conversations-text").val('');
             append_message(response.id, new Date(), text, true);
         }
@@ -127,10 +126,11 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
     }, 800);
 }
 
-function get_id_by_phone(phone) {
+function set_telegram_id_by_phone(phone) {
+    if (phone === undefined || phone === '' || phone === null) {return;}
     $.ajax({
         type: 'GET',
-        url: '/rest/telegram/phone-id',
+        url: '/rest/telegram/id-by-phone',
         data: {phone: phone},
         success: function (response) {
            return parseInt(response);
