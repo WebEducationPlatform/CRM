@@ -1743,9 +1743,11 @@ function get_tg_user(clientId) {
     });
 }
 
+let conversations = $("#conversations-body");
+
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
-     $.ajax({
+    $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/open',
         data: {clientId: clientId},
@@ -1764,8 +1766,9 @@ $('#conversations-modal').on('show.bs.modal', function () {
             }
             $("#send-selector").prop('value', 'telegram');
             setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
         }
-    })
+    });
 });
 
 $('#conversations-modal').on('hidden.bs.modal', function () {
@@ -1777,6 +1780,17 @@ $('#conversations-modal').on('hidden.bs.modal', function () {
         data: {clientId: clientId}
     })
 });
+
+function client_has_telegram(client) {
+    let has_telegram = false;
+    for (let i = 0; i < client.socialProfiles.length; i++) {
+        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+            has_telegram = true;
+            break;
+        }
+    }
+    return has_telegram;
+}
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
@@ -1790,8 +1804,9 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
-                //TODO check if telegram ID is empty
-                set_telegram_id_by_phone(client.phoneNumber);
+                if (!client_has_telegram(client) && client.phoneNumber !== '') {
+                    set_telegram_id_by_phone(client.phoneNumber);
+                }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {

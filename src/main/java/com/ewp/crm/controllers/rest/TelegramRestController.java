@@ -59,17 +59,19 @@ public class TelegramRestController {
     @GetMapping("/messages/chat/open")
     public ResponseEntity<Map<String, Object>> getChatMessages(@RequestParam("clientId") Long clientId) {
         List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        TdApi.Messages messages = new TdApi.Messages();
-        TdApi.Chat chat = new TdApi.Chat();
+        TdApi.Messages messages;
+        Optional<TdApi.Chat> chat;
         ResponseEntity result = new ResponseEntity(new HashMap<String, Object>(), HttpStatus.OK);
         for (SocialProfile profile : profiles) {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
                 messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-                chat = telegramService.getChat(Long.parseLong(chatId));
                 Map<String, Object> map = new HashMap<>();
                 map.put("messages", messages);
-                map.put("chat", chat);
+                chat = telegramService.getChat(Long.parseLong(chatId));
+                if (chat.isPresent()) {
+                    map.put("chat", chat.get());
+                }
                 result = new ResponseEntity<>(map, HttpStatus.OK);
                 break;
             }
@@ -102,7 +104,7 @@ public class TelegramRestController {
             if("telegram".equals(profile.getSocialProfileType().getName())) {
                 String chatId = profile.getLink();
                 messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
-                chat = telegramService.getChat(Long.parseLong(chatId));
+                chat = telegramService.getChat(Long.parseLong(chatId)).get();
                 Map<String, Object> map = new HashMap<>();
                 map.put("messages", messages);
                 map.put("chat", chat);

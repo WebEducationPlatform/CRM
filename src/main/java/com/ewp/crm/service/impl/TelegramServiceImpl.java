@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Condition;
@@ -43,6 +45,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     private static final int OPTIMIZATION_THRESHOLD = 2;
     private static final int RETRY_COUNT = 15;
+    private static final int GET_OBJECT_MAX_DELAY = 3;
 
     private static boolean tdlibInstalled = false;
 
@@ -97,8 +100,19 @@ public class TelegramServiceImpl implements TelegramService {
         code = smsCode;
     }
 
+    public TdApi.Chat createPrivateChat(int userId) {
+        GetObjectHandler handler = new GetObjectHandler();
+        client.send(new TdApi.CreatePrivateChat(userId, false), handler);
+        handlerDelay(handler);
+        return (TdApi.Chat) handler.getObject();
+    }
+
+    //TODO Refactor?
     @Override
     public TdApi.Messages getChatMessages(long chatId, int limit) {
+        if (!getChat(chatId).isPresent()) {
+            createPrivateChat((int) chatId);
+        }
         client.send(new TdApi.OpenChat(chatId), defaultHandler);
         GetChatMessagesHandler handler = new GetChatMessagesHandler();
         int iter = 0;
@@ -122,24 +136,25 @@ public class TelegramServiceImpl implements TelegramService {
         return handler.getMessages();
     }
 
+    //TODO Refactor?
     @Override
     public TdApi.Messages getUnreadMessagesFromChat(long chatId, int limit) {
-        TdApi.Chat chat = getChat(chatId);
-        if (chat.unreadCount == 0) {
-            return new TdApi.Messages(0, new TdApi.Message[]{});
-        }
-        GetChatMessagesHandler handler = new GetChatMessagesHandler();
-        client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.unreadCount, false), handler);
-        while (handler.getMessages().totalCount != chat.unreadCount) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("Unread messages loading interrupted", e);
-                break;
+        TdApi.Messages messages = new TdApi.Messages(0, new TdApi.Message[]{});
+        Optional<TdApi.Chat> chat = getChat(chatId);
+        if (chat.isPresent() && chat.get().unreadCount != 0) {
+            GetChatMessagesHandler handler = new GetChatMessagesHandler();
+            client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.get().unreadCount, false), handler);
+            while (handler.getMessages().totalCount != chat.get().unreadCount) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.warn("Unread messages loading interrupted", e);
+                    break;
+                }
             }
+            messages = handler.getMessages();
+            markMessagesAsRead(chatId, messages);
         }
-        TdApi.Messages messages = handler.getMessages();
-        markMessagesAsRead(chatId, messages);
         return messages;
     }
 
@@ -153,78 +168,46 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public TdApi.Message sendChatMessage(long chatId, String text) {
-        SendMessageHandler handler = new SendMessageHandler();
+        GetObjectHandler handler = new GetObjectHandler();
         TdApi.InputMessageContent content = new TdApi.InputMessageText(new TdApi.FormattedText(text, null), false, true);
         client.send(new TdApi.SendMessage(chatId, 0, false, false, null, content ), handler);
-        while (handler.getMessage() == null) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("Send message interrupted", e);
-                break;
-            }
-        }
-        return handler.getMessage();
+        handlerDelay(handler);
+        return (TdApi.Message) handler.getObject();
     }
 
     @Override
-    public TdApi.Chat getChat(long chatId) {
-        GetChatHandler getChatHandler = new GetChatHandler();
-        client.send(new TdApi.GetChat(chatId), getChatHandler);
-        while (getChatHandler.isLoading()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("Chat loading interrupted", e);
-                break;
-            }
+    public Optional<TdApi.Chat> getChat(long chatId) {
+        Optional<TdApi.Chat> result = Optional.empty();
+        GetObjectHandler handler = new GetObjectHandler();
+        client.send(new TdApi.GetChat(chatId), handler);
+        if (handlerDelay(handler)) {
+            result = Optional.of((TdApi.Chat) handler.getObject());
         }
-        return getChatHandler.getChat();
+        return result;
     }
 
     @Override
     public TdApi.User getMe() {
-        GetTelegramUserHandler handler = new GetTelegramUserHandler();
+        GetObjectHandler handler = new GetObjectHandler();
         client.send(new TdApi.GetMe(), handler);
-        while (handler.getUser() == null) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("Current user loading interrupted", e);
-                break;
-            }
-        }
-        return handler.getUser();
+        handlerDelay(handler);
+        return (TdApi.User) handler.getObject();
     }
 
     @Override
     public TdApi.User getUserById(int userId) {
-        GetTelegramUserHandler handler = new GetTelegramUserHandler();
+        GetObjectHandler handler = new GetObjectHandler();
         client.send(new TdApi.GetUser(userId), handler);
-        while (handler.getUser() == null) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("User loading interrupted", e);
-                break;
-            }
-        }
-        return handler.getUser();
+        handlerDelay(handler);
+        return (TdApi.User) handler.getObject();
     }
 
     @Override
     public TdApi.File getFileById(int fileId) {
-        GetFileHandler handler = new GetFileHandler();
+        GetObjectHandler handler = new GetObjectHandler();
         client.send(new TdApi.GetFile(fileId), handler);
-        while (handler.getFile() == null) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.warn("File retrieve interrupted", e);
-                break;
-            }
-        }
-        return handler.getFile();
+        handlerDelay(handler);
+        return (TdApi.File) handler.getObject();
     }
 
     @Override
@@ -251,7 +234,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public int getClientIdByPhone(String phone) {
-        ReturnObjectHandler handler = new ReturnObjectHandler();
+        GetObjectHandler handler = new GetObjectHandler();
         TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, 0);
         client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), handler);
         handlerDelay(handler);
@@ -450,9 +433,11 @@ public class TelegramServiceImpl implements TelegramService {
         }
     }
 
+    //TODO Refactor?
     private static class DefaultHandler implements Client.ResultHandler {
         @Override
         public void onResult(TdApi.Object object) {
+            logger.info("Object returned {}", object.toString());
             System.out.println(object.toString());
         }
     }
@@ -478,41 +463,6 @@ public class TelegramServiceImpl implements TelegramService {
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
-        }
-    }
-
-    /**
-     * Get telegram chat by id.
-     */
-    private class GetChatHandler implements Client.ResultHandler {
-        private TdApi.Chat chat;
-        private boolean loading = true;
-        public TdApi.Chat getChat() {
-            return this.chat;
-        }
-        public boolean isLoading() {
-            return loading;
-        }
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.chat = (TdApi.Chat) object;
-            this.loading = false;
-        }
-    }
-
-    /**
-     * Get telegram user.
-     */
-    private class GetTelegramUserHandler implements Client.ResultHandler {
-
-        private TdApi.User user;
-        public TdApi.User getUser() {
-            return user;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.user = (TdApi.User) object;
         }
     }
 
@@ -544,57 +494,6 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     /**
-     * Load Telegram messages.
-     */
-    private class GetChatMessageHandler implements Client.ResultHandler {
-
-        private TdApi.Message message;
-
-        public TdApi.Message getMessage() {
-            return message;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.message = (TdApi.Message) object;
-        }
-    }
-
-    /**
-     * Get remote file by id and type.
-     */
-    private class GetFileHandler implements Client.ResultHandler {
-
-        private TdApi.File file;
-
-        public TdApi.File getFile() {
-            return file;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.file = (TdApi.File) object;
-        }
-    }
-
-    /**
-     * Send message and return it.
-     */
-    private class SendMessageHandler implements Client.ResultHandler {
-
-        private TdApi.Message message;
-
-        public TdApi.Message getMessage() {
-            return message;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.message = (TdApi.Message) object;
-        }
-    }
-
-    /**
      * Get telegram object.
      */
     private interface GetObject {
@@ -604,7 +503,7 @@ public class TelegramServiceImpl implements TelegramService {
     /**
      * Get telegram object handler.
      */
-    private class ReturnObjectHandler implements Client.ResultHandler, GetObject {
+    private class GetObjectHandler implements Client.ResultHandler, GetObject {
 
         private TdApi.Object object;
 
@@ -620,7 +519,9 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
 
-    private void handlerDelay(ReturnObjectHandler handler) {
+    private boolean handlerDelay(GetObjectHandler handler) {
+        LocalTime delay = LocalTime.now().plusSeconds(GET_OBJECT_MAX_DELAY);
+        boolean result = true;
         while (handler.getObject() == null) {
             try {
                 Thread.sleep(10);
@@ -628,6 +529,14 @@ public class TelegramServiceImpl implements TelegramService {
                 logger.warn("Object retrieval interrupted", e);
                 break;
             }
+            if (LocalTime.now().isAfter(delay)) {
+                result = false;
+            }
         }
+        if (handler.getObject() instanceof TdApi.Error) {
+            result = false;
+            logger.error("Object retrieval error: {}", handler.getObject());
+        }
+        return result;
     }
 }

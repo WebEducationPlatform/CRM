@@ -14,6 +14,10 @@ $("#conversations-send-btn").click(function sendMessage() {
 
 });
 
+function scroll_down() {
+    conversations.scrollTop(conversations.prop("scrollHeight"));
+}
+
 function mark_as_read(last_read) {
     let messages = $(".sent");
     if (messages.length === 0) {return;}
@@ -41,7 +45,7 @@ function update_chat() {
             for (let i in data) {
                 let message_id = data[i].id;
                 let send_date = new Date(data[i].date * 1000);
-                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Error: Stickers and photos not supported!';
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Stickers/photo!';
                 let is_outgoing = data[i].isOutgoing;
                 append_message(message_id, send_date, text, is_outgoing, last_read);
             }
@@ -70,6 +74,10 @@ function send_telegram(clientId, text) {
 }
 
 function append_message(message_id, send_date, text, is_outgoing, last_read) {
+    if (telegram_user === undefined) {
+        let clientId = $("#main-modal-window").data('clientId');
+        get_tg_user(clientId);
+    }
     let chat = $("#chat-messages");
     let sendDate = send_date.toLocaleDateString() + ' ';
     if (send_date.getDate() === new Date().getDate()){
@@ -91,11 +99,11 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
         }
     } else if (telegram_user_photo == null) {
         alt = telegram_user.firstName[0] + telegram_user.lastName[0];
-        full_name = telegram_user.firstName + telegram_user.lastName;
+        full_name = telegram_user.firstName + " " + telegram_user.lastName;
         avatar = "<img class='tg-im-photo img-circle' src='/images/t_logo.png' alt='" + alt + "' style='height: 50px; width: 50px'/>";
     } else {
         alt = telegram_user.firstName[0] + telegram_user.lastName[0];
-        full_name = telegram_user.firstName + telegram_user.lastName;
+        full_name = telegram_user.firstName + " " + telegram_user.lastName;
         avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_user_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
     }
     let dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
@@ -105,10 +113,10 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
             "</div>"+
             "<div class='col-xs-11'>"+
                 "<div class='row-xs-12'>" +
-                    "<div class='col-sm-4'>" +
+                    "<div class='col-sm-4' style='font-weight: bold'>" +
                         full_name +
                     "</div>"+
-                    "<div class='col-sm-8'>" +
+                    "<div class='col-sm-8' style='color: grey'>" +
                         sendDate + " " + is_read +
                     "</div>"+
                 "</div>"+
@@ -121,9 +129,7 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
         "</div>");
     chat.append(dom);
 
-    chat.stop().animate({
-        scrollTop: 100000
-    }, 800);
+    scroll_down();
 }
 
 function set_telegram_id_by_phone(phone) {
