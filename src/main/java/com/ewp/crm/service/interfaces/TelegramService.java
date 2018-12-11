@@ -2,6 +2,7 @@ package com.ewp.crm.service.interfaces;
 
 import org.drinkless.tdlib.TdApi;
 import java.io.IOException;
+import java.util.Optional;
 
 public interface TelegramService {
 
@@ -19,7 +20,7 @@ public interface TelegramService {
 
     TdApi.Message sendChatMessage(long chatId, String text);
 
-    TdApi.Chat getChat(long chatId);
+    Optional<TdApi.Chat> getChat(long chatId);
 
     int getClientIdByPhone(String phone);
 
