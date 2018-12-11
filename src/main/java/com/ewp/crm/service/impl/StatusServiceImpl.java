@@ -48,6 +48,7 @@ public class StatusServiceImpl implements StatusService {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
 
+	//Для юзера из сессии смотрим для какого статуса какая нужна сортировка (и нужна ли)
     @Override
     public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
         List<Status> statuses = getAll();
@@ -62,6 +63,17 @@ public class StatusServiceImpl implements StatusService {
         }
         return statuses;
     }
+
+    private Status getStatusWithSortedClients(Status status, String sortingType) {
+		if ("oldFirst".equals(sortingType)) {
+			return status;
+		}
+		if ("newFirst".equals(sortingType)) {
+
+		}
+
+		return new Status();
+	}
 
     private List<Client> sortClients(List<Client> clients, String sortingType) {
         if ("oldFirst".equals(sortingType)) {

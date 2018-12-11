@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity(name = "SortedStatuses")
+@Entity
 @Table(name = "sorted_statuses")
 public class SortedStatuses implements Serializable {
 
