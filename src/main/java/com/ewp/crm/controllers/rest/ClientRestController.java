@@ -448,7 +448,6 @@ public class ClientRestController {
 		System.out.println(newOrder + " " + statusId + " " + userFromSession.getFirstName());
 		statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
 		List<Client> clientListWithNewOrder = new ArrayList<>();
-		//   clientService.getClientListWithNewOrder(statusId);
 		return ResponseEntity.ok(clientListWithNewOrder);
 	}
 }

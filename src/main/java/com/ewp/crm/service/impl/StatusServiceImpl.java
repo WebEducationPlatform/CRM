@@ -57,7 +57,6 @@ public class StatusServiceImpl implements StatusService {
             if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
                 SortedStatuses finalSorted = sorted;
                 String sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-                //System.out.println(status.getName() + " " + sortingType);
                 status.setClients(sortClients(status.getClients(), sortingType));
             }
         }
@@ -66,7 +65,6 @@ public class StatusServiceImpl implements StatusService {
 
     private List<Client> sortClients(List<Client> clients, String sortingType) {
         if ("oldFirst".equals(sortingType)) {
-			//clients.sort(Comparator.comparing(Client::getDateOfRegistration));
             return clients;
         }
         if ("newFirst".equals(sortingType)) {
