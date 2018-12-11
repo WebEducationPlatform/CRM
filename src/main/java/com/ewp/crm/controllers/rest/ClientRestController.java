@@ -442,12 +442,10 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/order")
-	public ResponseEntity<List<Client>> setNewClientsOrder(@RequestParam String newOrder,
-														   @RequestParam Long statusId,
-														   @AuthenticationPrincipal User userFromSession) {
-		System.out.println(newOrder + " " + statusId + " " + userFromSession.getFirstName());
+	public ResponseEntity setNewClientsOrder(@RequestParam String newOrder,
+											 @RequestParam Long statusId,
+											 @AuthenticationPrincipal User userFromSession) {
 		statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
-		List<Client> clientListWithNewOrder = new ArrayList<>();
-		return ResponseEntity.ok(clientListWithNewOrder);
+		return ResponseEntity.ok("Ok");
 	}
 }
