@@ -406,10 +406,9 @@ function showHistory() {
 }
 
 function removeHistory() {
-    $('#managerSelect').val('null');
+    $('#managerSelect').val('');
     $('#historyBodyMailing').empty();
     $('#timeSelect').empty();
-    $('<option value="nullTime">Выбрать дату</option>').appendTo($('#timeSelect'));
 };
 
 
