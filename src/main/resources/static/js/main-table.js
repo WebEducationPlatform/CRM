@@ -1046,8 +1046,9 @@ function hideClient(clientId) {
                     content: comment
                 },
                 success: function () {
-                    //location.reload();
-                    console.log("напоминание добавлено");
+                    let currentStatus = document.getElementById("postpone-status");
+                    currentStatus.style.color = "limegreen";
+                    currentStatus.textContent = "Клиент успешно скрыт";
                 },
             });
         },
