@@ -11,6 +11,7 @@ import com.ewp.crm.service.interfaces.StudentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -66,6 +67,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Override
+    public Student getStudentByClient(Client client) {
+        return studentRepository.getStudentByClient(client);
+    }
+
+    @Override
     public List<Student> getStudentsByStatusId(Long id) {
         return studentRepository.getStudentsByStatusId(id);
     }
@@ -73,6 +79,14 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     @Override
     public List<Student> getStudentsWithTodayNotificationsEnabled() {
         return studentRepositoryCustom.getStudentsWithTodayNotificationsEnabled();
+    }
+
+    @Value("3600")
+    private long STATUS_UPDATE_PERIOD_IN_SECONDS;
+
+    @Override
+    public List<Student> getStudentsWithOldStatus() {
+        return studentRepositoryCustom.getStudentsWithOldStatus(STATUS_UPDATE_PERIOD_IN_SECONDS);
     }
 
     @Override

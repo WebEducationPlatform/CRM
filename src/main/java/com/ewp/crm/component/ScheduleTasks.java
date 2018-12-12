@@ -1,10 +1,12 @@
 package com.ewp.crm.component;
 
+import com.ewp.crm.configs.inteface.EwpConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.StudentProgressInfo;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.impl.StatusServiceImpl;
@@ -14,6 +16,7 @@ import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -86,6 +89,12 @@ public class ScheduleTasks {
 
 	private final MailingService mailingService;
 
+	private final EwpInfoService ewpInfoService;
+
+	private final StudentStatusService studentStatusService;
+
+	private final EwpConfig ewpConfig;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
@@ -100,7 +109,9 @@ public class ScheduleTasks {
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService,
+						 EwpInfoService ewpInfoService, StudentStatusService studentStatusService,
+						 EwpConfig ewpConfig) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -126,6 +137,9 @@ public class ScheduleTasks {
 		this.mailingService = mailingService;
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
+		this.ewpInfoService = ewpInfoService;
+		this.studentStatusService = studentStatusService;
+		this.ewpConfig = ewpConfig;
 	}
 
 	private void addClient(Client newClient) {
@@ -376,6 +390,53 @@ public class ScheduleTasks {
 			}
 		} else {
 			logger.info("Payment notification properties not set!");
+		}
+	}
+
+	@Value("50")
+	private int REQUEST_PORTION;
+
+	@Scheduled(cron = "0 1 0 * * *")
+	private void updateStudentProgress() {
+		if (ewpConfig.isUseEwpApi()) {
+			List<Student> listStudent = studentService.getStudentsWithOldStatus();
+
+			for (int i = 0; i <= listStudent.size() % REQUEST_PORTION; i++) {
+				List<Student> portionListStudent = listStudent.subList(
+						REQUEST_PORTION * i, Math.min(REQUEST_PORTION * (i + 1),listStudent.size()));
+
+				List<StudentProgressInfo> listStudentProgressInfo = ewpInfoService.getStudentProgressInfo(portionListStudent);
+
+				for (StudentProgressInfo info : listStudentProgressInfo) {
+					String studentStatusNewName =
+							info.getCourse()
+									+ " - "
+									+ info.getModule()
+									+ " - "
+									+ info.getChapter();
+
+					StudentStatus studentStatusNew = null;
+
+					Optional<StudentStatus> studentStatusOptional = Optional.ofNullable(studentStatusService.getStudentStatusByName(studentStatusNewName));
+					studentStatusNew = studentStatusOptional.orElseGet(() -> studentStatusService.add(new StudentStatus(studentStatusNewName)));
+
+					Client client = clientService.getClientByEmail(info.getEmail());
+
+					Student student = null;
+					Optional<Client> optionalClient = Optional.ofNullable(clientService.getClientByEmail(info.getEmail()));
+					if (optionalClient.isPresent()) {
+						Optional<Student> studentOptional = Optional.ofNullable(studentService.getStudentByClient(optionalClient.get()));
+						if (studentOptional.isPresent()) {
+							student = studentOptional.get();
+						}
+					}
+					if (Optional.ofNullable(student).isPresent() && student.getStatus() != studentStatusNew) {
+						student.setStatus(studentStatusNew);
+						student.setStatusDate(LocalDateTime.now());
+						studentService.update(student);
+					}
+				}
+			}
 		}
 	}
 }

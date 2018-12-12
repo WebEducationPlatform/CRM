@@ -71,6 +71,12 @@ public class Student implements Diffable<Student> {
     @Column (name = "notes")
     private String notes;
 
+     /**
+     * Дата последнег обновления статуса обучения
+     */
+    @Column (name = "status_date")
+    private LocalDateTime StatusDate;
+
     /**
      * Напоминать ли студенту по электронке (поля ниже по смс, в vk) об оплате
      */
@@ -191,6 +197,14 @@ public class Student implements Diffable<Student> {
 
     public void setNotifyVK(boolean notifyVK) {
         this.notifyVK = notifyVK;
+    }
+
+    public LocalDateTime getStatusDate() {
+        return StatusDate;
+    }
+
+    public void setStatusDate(LocalDateTime statusDate) {
+        StatusDate = statusDate;
     }
 
     @Override
