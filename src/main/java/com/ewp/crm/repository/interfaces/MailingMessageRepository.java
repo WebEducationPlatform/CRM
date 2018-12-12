@@ -16,7 +16,7 @@ public interface MailingMessageRepository extends CommonGenericRepository<Mailin
     List<MailingMessage> getUserMail(@Param("userId") long userId);
 
     @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId = :userId AND EXTRACT (day FROM mail.date) BETWEEN :timeFrom AND :timeTo")
-    List<MailingMessage> getUserByMailAndDate(@Param("userId") long userId, @Param("timeFrom") int timeFrom, @Param("timeTo") int timeTo);
+    List<MailingMessage> getUserByIdAndDate(@Param("userId") long userId, @Param("timeFrom") int timeFrom, @Param("timeTo") int timeTo);
 
     @Query("SELECT mail FROM MailingMessage mail WHERE EXTRACT (day FROM mail.date) BETWEEN :timeFrom AND :timeTo")
     List<MailingMessage> getUserByDate(@Param("timeFrom") int timeFrom, @Param("timeTo") int timeTo);

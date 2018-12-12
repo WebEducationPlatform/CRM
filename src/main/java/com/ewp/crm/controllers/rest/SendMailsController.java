@@ -6,8 +6,8 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.interfaces.MailingMessageService;
 import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.service.interfaces.ListMailingService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -49,7 +49,7 @@ public class SendMailsController {
     private final String vkURL = "https://vk.com/";
     private String pattern;
     private String template;
-    private MailingMessageRepository mailingMessageRepository;
+    private final MailingMessageService mailingMessageSendService;
     private final MailingService mailingService;
     private final UserService userService;
 
@@ -59,11 +59,9 @@ public class SendMailsController {
     private VKService vkService;
 
     @Autowired
-    public SendMailsController(MailingMessageRepository mailingMessageRepository,
-                               MailingService mailingService,
-                               ListMailingService listMailingService,
+    public SendMailsController(MailingMessageService mailingMessageSendService, MailingService mailingService,
                                UserService userService) {
-        this.mailingMessageRepository = mailingMessageRepository;
+        this.mailingMessageSendService = mailingMessageSendService;
         this.mailingService = mailingService;
         this.userService = userService;
     }
@@ -181,10 +179,10 @@ public class SendMailsController {
     public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
 
         if (userFromSession.getRole().contains("OWNER")) {
-            return ResponseEntity.ok(mailingMessageRepository.findAll());
+            return ResponseEntity.ok(mailingMessageSendService.getAll());
 
         } else {
-            return ResponseEntity.ok(mailingMessageRepository.getUserMail(userFromSession.getId()));
+            return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
         }
     }
 
@@ -199,13 +197,13 @@ public class SendMailsController {
             LocalDateTime destinationDateFrom = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
             User user = userService.get(id);
             LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageRepository.getUserByMailAndDate(user.getId(), destinationDateFrom.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+            list = mailingMessageSendService.getUserByIdAndDate(user.getId(), destinationDateFrom.getDayOfMonth(), destinationDateTo.getDayOfMonth());
         } else if (id == null) {
             LocalDateTime destinationDate = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
             LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageRepository.getUserByDate(destinationDate.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+            list = mailingMessageSendService.getUserByDate(destinationDate.getDayOfMonth(), destinationDateTo.getDayOfMonth());
         } else {
-            list = mailingMessageRepository.findAll();
+            list = mailingMessageSendService.getAll();
         }
         return ResponseEntity.ok(list);
 
