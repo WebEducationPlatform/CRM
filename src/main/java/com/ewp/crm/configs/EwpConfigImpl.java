@@ -19,7 +19,7 @@ public class EwpConfigImpl implements EwpConfig {
     }
 
     @Override
-    public String getLinkForStatusStudent() {
+    public String getUriForStudentProgress() {
         return linkForStudentProgressInfo;
     }
 

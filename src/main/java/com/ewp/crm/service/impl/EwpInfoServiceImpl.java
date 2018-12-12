@@ -4,38 +4,28 @@ import com.ewp.crm.configs.inteface.EwpConfig;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StudentProgressInfo;
 import com.ewp.crm.service.interfaces.EwpInfoService;
-import com.ewp.crm.service.interfaces.StudentService;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.http.server.reactive.HttpHeadResponseDecorator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.json.JSONArray;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class EwpInfoServiceImpl implements EwpInfoService {
 
-    @Autowired
-    private StudentService studentService;
+    private final RestTemplate restTemplate;
+
+    private final EwpConfig ewpConfig;
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
-    private EwpConfig ewpConfig;
+    public EwpInfoServiceImpl(RestTemplate restTemplate, EwpConfig ewpConfig) {
+        this.restTemplate = restTemplate;
+        this.ewpConfig = ewpConfig;
+    }
 
 
     @Override
@@ -45,13 +35,14 @@ public class EwpInfoServiceImpl implements EwpInfoService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(ewpConfig.getLinkForStatusStudent())
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(ewpConfig.getUriForStudentProgress())
                 .queryParam("emails", emails);
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ParameterizedTypeReference<List<StudentProgressInfo>> studentProgressInfoListType
-                = new ParameterizedTypeReference<List<StudentProgressInfo>>() {};
+                = new ParameterizedTypeReference<List<StudentProgressInfo>>() {
+        };
 
         ResponseEntity<List<StudentProgressInfo>> response = restTemplate.exchange(
                 builder.toUriString(),
