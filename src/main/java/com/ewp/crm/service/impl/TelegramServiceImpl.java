@@ -4,10 +4,7 @@ import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.SocialProfileRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SocialProfileTypeService;
-import com.ewp.crm.service.interfaces.TelegramService;
+import com.ewp.crm.service.interfaces.*;
 import org.apache.commons.io.FileUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
@@ -43,17 +40,14 @@ public class TelegramServiceImpl implements TelegramService {
     private static final Lock authorizationLock = new ReentrantLock();
     private static final Condition gotAuthorization = authorizationLock.newCondition();
 
-    private static final int OPTIMIZATION_THRESHOLD = 2;
     private static final int RETRY_COUNT = 15;
-    private static final int GET_OBJECT_MAX_DELAY = 3;
+    private static final int GET_OBJECT_MAX_DELAY = 2;
 
     private static boolean tdlibInstalled = false;
 
     private static String phoneNumber = null;
     private static String code = null;
     private static String password = null;
-
-    private static final Client.ResultHandler defaultHandler = new TelegramServiceImpl.DefaultHandler();
 
     private static Environment env;
     private final boolean useMessageDatabase;
@@ -67,11 +61,13 @@ public class TelegramServiceImpl implements TelegramService {
     private final SendNotificationService sendNotificationService;
     private final SocialProfileRepository socialProfileRepository;
     private final SocialProfileTypeService socialProfileTypeService;
+    private final ProjectPropertiesService projectPropertiesService;
 
     @Autowired
     public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository,
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
-                               SocialProfileRepository socialProfileRepository, SocialProfileTypeService socialProfileTypeService) {
+                               SocialProfileRepository socialProfileRepository, SocialProfileTypeService socialProfileTypeService,
+                               ProjectPropertiesService projectPropertiesService) {
         this.env = env;
         this.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
         this.clientRepository = clientRepository;
@@ -80,6 +76,7 @@ public class TelegramServiceImpl implements TelegramService {
         this.sendNotificationService = sendNotificationService;
         this.socialProfileRepository = socialProfileRepository;
         this.socialProfileTypeService = socialProfileTypeService;
+        this.projectPropertiesService = projectPropertiesService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -107,52 +104,46 @@ public class TelegramServiceImpl implements TelegramService {
         return (TdApi.Chat) handler.getObject();
     }
 
-    //TODO Refactor?
     @Override
     public TdApi.Messages getChatMessages(long chatId, int limit) {
         if (!getChat(chatId).isPresent()) {
             createPrivateChat((int) chatId);
         }
-        client.send(new TdApi.OpenChat(chatId), defaultHandler);
-        GetChatMessagesHandler handler = new GetChatMessagesHandler();
-        int iter = 0;
-        while(handler.getMessages().totalCount <= OPTIMIZATION_THRESHOLD) {
+        openChat(chatId);
+        GetObjectHandler handler = new GetObjectHandler();
+        TdApi.Messages messages;
+        int counter = 0;
+        do {
             client.send(new TdApi.GetChatHistory(chatId, 0, 0, limit, false), handler);
-            while (handler.isLoading()) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.warn("Message loading interrupted", e);
-                    break;
-                }
-            }
-            handler.setLoading(true);
-            iter++;
-            if(iter > RETRY_COUNT) {
+            handlerDelay(handler);
+            messages = (TdApi.Messages) handler.getObject();
+            handler.setObject(null);
+            if(counter++ > RETRY_COUNT) {
                 break;
             }
-        }
-        markMessagesAsRead(chatId, handler.getMessages());
-        return handler.getMessages();
+        } while (messages.totalCount <= 1);
+        markMessagesAsRead(chatId, messages);
+        return messages;
     }
 
-    //TODO Refactor?
+    private void openChat(long chatId) {
+        GetObjectHandler handler = new GetObjectHandler();
+        client.send(new TdApi.OpenChat(chatId), handler);
+        handlerDelay(handler);
+    }
+
     @Override
     public TdApi.Messages getUnreadMessagesFromChat(long chatId, int limit) {
         TdApi.Messages messages = new TdApi.Messages(0, new TdApi.Message[]{});
         Optional<TdApi.Chat> chat = getChat(chatId);
         if (chat.isPresent() && chat.get().unreadCount != 0) {
-            GetChatMessagesHandler handler = new GetChatMessagesHandler();
-            client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.get().unreadCount, false), handler);
-            while (handler.getMessages().totalCount != chat.get().unreadCount) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.warn("Unread messages loading interrupted", e);
-                    break;
-                }
-            }
-            messages = handler.getMessages();
+            GetObjectHandler handler = new GetObjectHandler();
+            do {
+                client.send(new TdApi.GetChatHistory(chatId, 0, 0, chat.get().unreadCount, false), handler);
+                handlerDelay(handler);
+                messages = (TdApi.Messages) handler.getObject();
+                handler.setObject(null);
+            } while (messages.totalCount < chat.get().unreadCount);
             markMessagesAsRead(chatId, messages);
         }
         return messages;
@@ -163,7 +154,7 @@ public class TelegramServiceImpl implements TelegramService {
         for (int i = 0; i < messages.messages.length; i++) {
             messageIds[i] = messages.messages[i].id;
         }
-        client.send(new TdApi.ViewMessages(chatId, messageIds, false), defaultHandler);
+        client.send(new TdApi.ViewMessages(chatId, messageIds, false), new DefaultHandler());
     }
 
     @Override
@@ -214,7 +205,7 @@ public class TelegramServiceImpl implements TelegramService {
     public String downloadFile(TdApi.File file) throws IOException {
         byte[] fileContent = new byte[0];
         if (file.local.canBeDownloaded && !file.local.isDownloadingCompleted) {
-            client.send(new TdApi.DownloadFile(file.id, 1), defaultHandler);
+            client.send(new TdApi.DownloadFile(file.id, 1), new DefaultHandler());
             downloadingFiles.putIfAbsent(file.id, file);
             while (downloadingFiles.containsKey(file.id) && !downloadingFiles.get(file.id).local.isDownloadingCompleted) {
                 try {
@@ -244,12 +235,12 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public void closeChat(long chatId) {
-        client.send(new TdApi.CloseChat(chatId), defaultHandler);
+        client.send(new TdApi.CloseChat(chatId), new DefaultHandler());
     }
 
     @Override
     public void logout() {
-        client.send(new TdApi.LogOut(), defaultHandler);
+        client.send(new TdApi.LogOut(), new DefaultHandler());
         haveAuthorization = false;
     }
 
@@ -327,9 +318,9 @@ public class TelegramServiceImpl implements TelegramService {
                     client.send(new TdApi.AddProxy(env.getRequiredProperty("telegram.proxy.server"),
                             Integer.parseInt(env.getRequiredProperty("telegram.proxy.port")),true,
                             new TdApi.ProxyTypeSocks5(env.getRequiredProperty("telegram.proxy.username"),
-                                    env.getRequiredProperty("telegram.proxy.password"))), defaultHandler);
+                                    env.getRequiredProperty("telegram.proxy.password"))), new DefaultHandler());
                 } else {
-                    client.send(new TdApi.DisableProxy(), defaultHandler);
+                    client.send(new TdApi.DisableProxy(), new DefaultHandler());
                 }
                 TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
                 parameters.databaseDirectory = env.getRequiredProperty("telegram.databaseDirectory");
@@ -421,24 +412,31 @@ public class TelegramServiceImpl implements TelegramService {
         public void onResult(TdApi.Object object) {
             switch (object.getConstructor()) {
                 case TdApi.Error.CONSTRUCTOR:
-                    System.err.println("Receive an error:" + System.lineSeparator() + object);
+                    logger.error("Receive an error: {}", object);
                     onAuthorizationStateUpdated(null); // repeat last action
                     break;
                 case TdApi.Ok.CONSTRUCTOR:
                     // result is already received through UpdateAuthorizationState, nothing to do
                     break;
                 default:
-                    System.err.println("Receive wrong response from TDLib:" + System.lineSeparator() + object);
+                    logger.error("Receive wrong response from TDLib: {}", object);
             }
         }
     }
 
-    //TODO Refactor?
     private static class DefaultHandler implements Client.ResultHandler {
+
+        private StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+
         @Override
         public void onResult(TdApi.Object object) {
-            logger.info("Object returned {}", object.toString());
-            System.out.println(object.toString());
+            if (!(object instanceof TdApi.Ok)) {
+                if (object instanceof TdApi.Error) {
+                    logger.error("Telegram method returned error object:\r\n {};\r\n {}", object.toString(), trace);
+                } else {
+                    logger.info("Method {} returned object:\r\n {}", trace[3], object.toString());
+                }
+            }
         }
     }
 
@@ -456,40 +454,12 @@ public class TelegramServiceImpl implements TelegramService {
                 newClient.setPhoneNumber(user.phoneNumber);
                 SocialProfile profile  = new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram"));
                 newClient.setSocialProfiles(Collections.singletonList(profile));
-                //TODO Хардкод. Вынести в меню?
-                newClient.setStatus(statusRepository.findById(1L).get());
+                newClient.setStatus(statusRepository.findById(projectPropertiesService.getOrCreate().getNewClientStatus()).get());
                 newClient.addHistory(clientHistoryService.createHistory("Telegram"));
-                com.ewp.crm.models.Client x = clientRepository.saveAndFlush(newClient);
+                clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
-        }
-    }
-
-    /**
-     * Load Telegram messages by chat id.
-     */
-    private class GetChatMessagesHandler implements Client.ResultHandler {
-
-        private TdApi.Messages messages = new TdApi.Messages(0, new TdApi.Message[]{});
-        private boolean loading = true;
-
-        public TdApi.Messages getMessages() {
-            return messages;
-        }
-
-        public boolean isLoading() {
-            return loading;
-        }
-
-        public void setLoading(boolean loading) {
-            this.loading = loading;
-        }
-
-        @Override
-        public void onResult(TdApi.Object object) {
-            this.messages = (TdApi.Messages) object;
-            this.loading = false;
         }
     }
 
@@ -504,12 +474,20 @@ public class TelegramServiceImpl implements TelegramService {
      * Get telegram object handler.
      */
     private class GetObjectHandler implements Client.ResultHandler, GetObject {
-
+        private StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         private TdApi.Object object;
 
         @Override
         public TdApi.Object getObject() {
             return object;
+        }
+
+        public StackTraceElement[] getTrace() {
+            return trace;
+        }
+
+        public void setObject(TdApi.Object object) {
+            this.object = object;
         }
 
         @Override
@@ -535,7 +513,7 @@ public class TelegramServiceImpl implements TelegramService {
         }
         if (handler.getObject() instanceof TdApi.Error) {
             result = false;
-            logger.error("Object retrieval error: {}", handler.getObject());
+            logger.error("Object retrieval error:\r\n{}\r\nin method {}", handler.getObject(), handler.getTrace()[3]);
         }
         return result;
     }
