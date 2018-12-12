@@ -30,13 +30,11 @@ public class VKConfigImpl implements VKConfig {
 
     private String robotClientId;
 
-    private String robotUsername;
-
-    private String robotPassword;
-
     private String firstContactMessage;
 
     private String apiUrl;
+
+    private String managerToken;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
@@ -51,11 +49,10 @@ public class VKConfigImpl implements VKConfig {
             redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
             scope = env.getRequiredProperty("vk.app.scope");
             robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
-            robotUsername = env.getRequiredProperty("vk.robot.profile.username");
-            robotPassword = env.getRequiredProperty("vk.robot.profile.password");
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
+            managerToken = env.getProperty("vk.manager.token");
 
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -107,14 +104,6 @@ public class VKConfigImpl implements VKConfig {
         return robotClientId;
     }
 
-    public String getRobotUsername() {
-        return robotUsername;
-    }
-
-    public String getRobotPassword() {
-        return robotPassword;
-    }
-
     public String getFirstContactMessage() {
         return firstContactMessage;
     }
@@ -122,4 +111,9 @@ public class VKConfigImpl implements VKConfig {
     public String getVkAPIUrl() {
         return apiUrl;
     }
+
+    public String getManagerToken() {
+        return managerToken;
+    }
+
 }
