@@ -2,6 +2,7 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "list_mailing")
@@ -15,31 +16,23 @@ public class ListMailing implements Serializable {
     @Column(name = "list_name")
     private String listName;
 
-    @Column(name = "recipients_email")
-    private String recipientsEmail;
+    @ElementCollection
+    private List<String> recipientsEmail;
 
-    @Column(name = "recipients_sms")
-    private String recipientsSms;
+    @ElementCollection
+    private List<String> recipientsSms;
 
-    @Column(name = "recipients_vk")
-    private String recipientsVk;
+    @ElementCollection
+    private List<String> recipientsVk;
 
     public ListMailing() {
     }
 
-    public ListMailing(String listName, String recipientsEmail, String recipientsSms, String recipientsVk) {
+    public ListMailing(String listName, List<String> recipientsEmail, List<String> recipientsSms, List<String> recipientsVk) {
         this.listName = listName;
         this.recipientsEmail = recipientsEmail;
         this.recipientsSms = recipientsSms;
         this.recipientsVk = recipientsVk;
-    }
-
-    public String getListName() {
-        return listName;
-    }
-
-    public void setListName(String listName) {
-        this.listName = listName;
     }
 
     public long getId() {
@@ -50,27 +43,35 @@ public class ListMailing implements Serializable {
         this.id = id;
     }
 
-    public String getRecipientsEmail() {
+    public String getListName() {
+        return listName;
+    }
+
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
+
+    public List<String> getRecipientsEmail() {
         return recipientsEmail;
     }
 
-    public void setRecipientsEmail(String recipientsEmail) {
+    public void setRecipientsEmail(List<String> recipientsEmail) {
         this.recipientsEmail = recipientsEmail;
     }
 
-    public String getRecipientsSms() {
+    public List<String> getRecipientsSms() {
         return recipientsSms;
     }
 
-    public void setRecipientsSms(String recipientsSms) {
+    public void setRecipientsSms(List<String> recipientsSms) {
         this.recipientsSms = recipientsSms;
     }
 
-    public String getRecipientsVk() {
+    public List<String> getRecipientsVk() {
         return recipientsVk;
     }
 
-    public void setRecipientsVk(String recipientsVk) {
+    public void setRecipientsVk(List<String> recipientsVk) {
         this.recipientsVk = recipientsVk;
     }
 }

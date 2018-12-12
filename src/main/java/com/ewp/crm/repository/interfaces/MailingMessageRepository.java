@@ -12,14 +12,14 @@ public interface MailingMessageRepository extends CommonGenericRepository<Mailin
     List<MailingMessage> getAllByDateAfter(LocalDateTime date);
     List<MailingMessage> getAllByReadedMessageIsFalse();
 
-    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId =:userId ")
+    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId = :userId ")
     List<MailingMessage> getUserMail(@Param("userId") long userId);
 
-    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId =:userId AND EXTRACT (day from mail.date) =:time")
-    List<MailingMessage> getUserByMailAndDate(@Param("userId") long userId, @Param("time") int time);
+    @Query("SELECT mail FROM MailingMessage mail WHERE mail.userId = :userId AND EXTRACT (day FROM mail.date) BETWEEN :timeFrom AND :timeTo")
+    List<MailingMessage> getUserByMailAndDate(@Param("userId") long userId, @Param("timeFrom") int timeFrom, @Param("timeTo") int timeTo);
 
-    @Query("SELECT mail FROM MailingMessage mail WHERE EXTRACT (day from mail.date) =:time")
-    List<MailingMessage> getUserByDate(@Param("time") int time);
+    @Query("SELECT mail FROM MailingMessage mail WHERE EXTRACT (day FROM mail.date) BETWEEN :timeFrom AND :timeTo")
+    List<MailingMessage> getUserByDate(@Param("timeFrom") int timeFrom, @Param("timeTo") int timeTo);
 
     @Query("SELECT mail.date FROM MailingMessage mail")
     List<LocalDateTime> getTimeMailingMeassage();

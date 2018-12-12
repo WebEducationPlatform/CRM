@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implements ListMailingService {
 
+    private final ListMailingDAO listMailingDAO;
+
     @Autowired
-    private ListMailingDAO listMailingDAO;
+    public ListMailingServiceImp(ListMailingDAO listMailingDAO) {
+        this.listMailingDAO = listMailingDAO;
+    }
 
 
     public void addListMailing(ListMailing listMailing) {

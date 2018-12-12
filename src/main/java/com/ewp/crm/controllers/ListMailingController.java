@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 
 @Controller
 public class ListMailingController {
 
-    private ListMailingService listMailingService;
+    private final ListMailingService listMailingService;
 
     @Autowired
     public ListMailingController(ListMailingService listMailingService) {
@@ -23,9 +25,9 @@ public class ListMailingController {
     @RequestMapping(value = "/list-mailing", method = RequestMethod.POST)
     public String addListMailing(
                                 @RequestParam("listName") String listName,
-                                @RequestParam("recipientsEmail") String recipientsEmail,
-                                @RequestParam("recipientsSms") String recipientsSms,
-                                @RequestParam("recipientsVk") String recipientsVk) {
+                                @RequestParam("recipientsEmail") List<String> recipientsEmail,
+                                @RequestParam("recipientsSms") List<String> recipientsSms,
+                                @RequestParam("recipientsVk") List<String> recipientsVk) {
 
         ListMailing listMailing = new ListMailing(listName, recipientsEmail, recipientsSms, recipientsVk);
         listMailingService.addListMailing(listMailing);

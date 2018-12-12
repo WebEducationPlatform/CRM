@@ -100,11 +100,12 @@ $(document).ready(function () {
         dataType: 'json',
         success: function (data) {
             for (var i = 0; i < data.length; i++) {
-                $('<option value="' + data[i].accessToken + '">' + data[i].nameSender +'</option>').appendTo($('#vkTokenSelect'))
+                if (data[i].vkToken!=null) {
+                    $('<option value="' + data[i].vkToken + '">' + data[i].firstName + '</option>').appendTo($('#vkTokenSelect'))
+                }
             }
         }
     });
-
 });
 
 /**
@@ -135,7 +136,6 @@ $(document).ready(function () {
         },
         "linkedCalendars": false,
         "startDate": startDate,
-        "minDate": startDate //стартовая дата будет совпадать с минимальной
     }, function (start, end, label) {
         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
             end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -304,10 +304,61 @@ function insertNewPicture(userID, templateID, input) {
 }
 
 function showHistory() {
-    var unique;
-    function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-    }
+
+    let startFromDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
+    $('#historyFromTime').daterangepicker({
+        "singleDatePicker": true, //отключаем выбор диапазона дат (range)
+        "showWeekNumbers": false,
+        "timePicker": true,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 10,
+        "locale": {
+            "format": "DD.MM.YYYY",
+            "separator": " - ",
+            "applyLabel": "Apply",
+            "cancelLabel": "Cancel",
+            "fromLabel": "From",
+            "toLabel": "To",
+            "customRangeLabel": "Custom",
+            "weekLabel": "W",
+            "daysOfWeek": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+            "monthNames": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "firstDay": 0
+        },
+        "linkedCalendars": false,
+        "startDate": startFromDate,
+        //"minDate": startFromDate //стартовая дата будет совпадать с минимальной
+    }, function (start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
+            end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    });
+
+    let startToDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
+    $('#historyToTime').daterangepicker({
+        "singleDatePicker": true, //отключаем выбор диапазона дат (range)
+        "showWeekNumbers": false,
+        "timePicker": true,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 10,
+        "locale": {
+            "format": "DD.MM.YYYY",
+            "separator": " - ",
+            "applyLabel": "Apply",
+            "cancelLabel": "Cancel",
+            "fromLabel": "From",
+            "toLabel": "To",
+            "customRangeLabel": "Custom",
+            "weekLabel": "W",
+            "daysOfWeek": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+            "monthNames": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "firstDay": 0
+        },
+        "linkedCalendars": false,
+        "startDate": startToDate,
+    }, function (start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
+            end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    });
 
     $.ajax({
         url: '/mailing/history',
@@ -352,41 +403,6 @@ function showHistory() {
             }
         }
     });
-
-    $.ajax({
-        url: '/mailing',
-        contentType: "application/json",
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-
-            for(var i = 0; i < data.length; i++) {
-                time = new Date(data[i].date);
-                year = time.getFullYear();
-                month = time.getMonth()+1;
-                dt = time.getDate();
-
-                if (dt < 10) {
-                    dt = '0' + dt;
-                }
-
-                if (month < 10) {
-                    month = '0' + month;
-                }
-                var timeArr = new Array();
-                var srt = new String(dt + '.' + month + '.' + year);
-                timeArr.push(srt);
-                unique = timeArr.filter( onlyUnique );
-
-
-
-            }
-
-            for (var i = 0; i < unique.length; i++) {
-                $('<option value="' + unique[i] + '">' + unique[i] +'</option>').appendTo($('#timeSelect'))
-            }
-        }
-    })
 }
 
 function removeHistory() {
@@ -395,24 +411,6 @@ function removeHistory() {
     $('#timeSelect').empty();
     $('<option value="nullTime">Выбрать дату</option>').appendTo($('#timeSelect'));
 };
-
-function addInput() {
-    $('<label>Данные пользователя:</label>\n' +
-        '                        <div class="row">\n' +
-        '                            <div class="col-sm-6">\n' +
-        '                        <input class="form-control " type="text" name="addressee" placeholder="https://vk.com/id234" />\n' +
-        '                            </div>\n' +
-        '                            <div class="col-sm-6">\n' +
-        '                                <select class="form-control" name = "typeMailing" th:field="*{typeMailing}" >\n' +
-        '                                    <option th:value="\'email\'">email</option>\n' +
-        '                                    <option th:value="\'sms\'">sms</option>\n' +
-        '                                    <option th:value="\'vk\'">vk</option>\n' +
-        '                                </select>\n' +
-        '                            </div>\n' +
-        '                        </div>')
-        .appendTo($('#listMailingDiv'));
-
-}
 
 
 function addToListMailing() {
@@ -440,14 +438,16 @@ function addToListMailing() {
 
 function showManagerHistory() {
 
-    var mangerEmail = $("#managerSelect").val();
-    var managerTime = $("#timeSelect").val();
+    var mangerId = $("#managerSelect").val();
+    var managerFromTime = $("#historyFromTime").val();
+    var managerToTime = $("#historyToTime").val();
 
     $.ajax({
         url: '/mailing/manager/history',
         type: 'POST',
-        data: { managerEmail: mangerEmail,
-                managerTime: managerTime
+        data: { managerId: mangerId,
+                managerFromTime: managerFromTime,
+                managerToTime: managerToTime
         },
         success: function (data) {
             $('#historyBodyMailing').empty();
