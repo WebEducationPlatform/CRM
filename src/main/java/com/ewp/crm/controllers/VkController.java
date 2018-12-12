@@ -2,7 +2,6 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.User;
-import com.ewp.crm.models.VkToken;
 import com.ewp.crm.models.VkTrackedClub;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ public class VkController {
     private final VKService vkService;
     private final VkTrackedClubService vkTrackedClubService;
     private final ProjectPropertiesService projectPropertiesService;
-    private final VkTokenService vkTokenService;
 
 
     private ProjectProperties projectProperties;
@@ -28,12 +26,12 @@ public class VkController {
     @Autowired
     public VkController(VKService vkService,
                         UserService userService,
-                        VkTrackedClubService vkTrackedClubService, ProjectPropertiesService projectPropertiesService, VkTokenService vkTokenService) {
+                        VkTrackedClubService vkTrackedClubService,
+                        ProjectPropertiesService projectPropertiesService) {
         this.vkService = vkService;
         this.userService = userService;
         this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
-        this.vkTokenService = vkTokenService;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -60,7 +58,8 @@ public class VkController {
         }
         projectProperties.setTechnicalAccountToken(applicationToken);
         projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
-        vkTokenService.add(new VkToken(applicationToken, userFromSession.getFullName(), userFromSession.getId()));
+        userFromSession.setVkToken(applicationToken);
+        userService.update(userFromSession);
         return "redirect:/client";
     }
 

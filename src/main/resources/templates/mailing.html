@@ -155,21 +155,21 @@
 
                 <div class="form-group" sec:authorize="hasAnyAuthority('ADMIN')">
                     <div class="row">
-                        <div class="col-sm-5" id="timeDiv">
-                            <select class="form-control" id = "timeSelect">
-                                <option value="nullTime">Выбрать дату</option>
-
-                            </select>
+                        <div class="col-sm-3" id="timeFromDiv">
+                            <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="historyFromTime"/>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3" id="timeToDiv">
+                            <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="historyToTime"/>
+                        </div>
+                        <div class="col-sm-3">
                     <select class="form-control" id = "managerSelect">
-                        <option value="null">Выбрать пользователя</option>
+                        <option value="">Выбрать пользователя</option>
                         <option th:each="chooseUser : ${chooseUser}"
-                                th:value="${chooseUser.email}"
+                                th:value="${chooseUser.id}"
                                 th:utext="${chooseUser.firstName}"/>
                     </select>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                             <button class="btn btn-default" onclick="showManagerHistory()">
                                 Выбрать
                             </button>

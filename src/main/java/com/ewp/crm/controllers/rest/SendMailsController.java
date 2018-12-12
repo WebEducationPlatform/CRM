@@ -9,7 +9,6 @@ import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.ListMailingService;
 import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.VkTokenService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +51,7 @@ public class SendMailsController {
     private String template;
     private MailingMessageRepository mailingMessageRepository;
     private final MailingService mailingService;
-    private final ListMailingService listMailingService;
     private final UserService userService;
-    private final VkTokenService vkTokenService;
 
 
 
@@ -63,13 +60,12 @@ public class SendMailsController {
 
     @Autowired
     public SendMailsController(MailingMessageRepository mailingMessageRepository,
-                               MailingService mailingService, ListMailingService listMailingService, UserService userService, VkTokenService vkTokenService) {
+                               MailingService mailingService,
+                               ListMailingService listMailingService,
+                               UserService userService) {
         this.mailingMessageRepository = mailingMessageRepository;
         this.mailingService = mailingService;
-        this.listMailingService = listMailingService;
         this.userService = userService;
-
-        this.vkTokenService = vkTokenService;
     }
 
     @PostMapping(value = "/client/mailing/send")
@@ -135,8 +131,7 @@ public class SendMailsController {
         }
         if (type.equals("vk")) {
             message = new MailingMessage(type, template, clientsInfo, destinationDate, vkType, user.getId());
-        }
-        else {
+        } else {
             message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
         }
         if (sendnow) {
@@ -181,37 +176,33 @@ public class SendMailsController {
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @GetMapping(value = "/mailing/history", produces = "application/json")
     public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
-        List<MailingMessage> list;
-        String role = "OWNER";
-        for (Role i : userFromSession.getRole()) {
-            if(i.getRoleName().equalsIgnoreCase("ADMIN")) {
-                role = i.getRoleName();
+        for (Role role: userFromSession.getRole()) {
+            if (role.getRoleName().equalsIgnoreCase("OWNER")) {
+                return ResponseEntity.ok(mailingMessageRepository.findAll());
             }
         }
-        if(role.equals("ADMIN")) {
-            list = mailingMessageRepository.findAll();
-        } else {
-            list = mailingMessageRepository.getUserMail(userFromSession.getId());
-        }
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(mailingMessageRepository.getUserMail(userFromSession.getId()));
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @PostMapping("/mailing/manager/history")
-    public ResponseEntity<List<MailingMessage>> getHistoryMailForManager(@RequestParam("managerEmail") String email,
-                                                                         @RequestParam("managerTime") String time) {
+    public ResponseEntity<List<MailingMessage>> getHistoryMailForManager(@RequestParam("managerId") Long id,
+                                                                         @RequestParam("managerFromTime") String timeFrom,
+                                                                         @RequestParam("managerToTime") String timeTo) {
         List<MailingMessage> list;
-        User user = userService.getUserByEmail(email);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        if(!time.equalsIgnoreCase("nullTime") && !email.equalsIgnoreCase("null")) {
-            LocalDateTime destinationDate = LocalDate.parse(time, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageRepository.getUserByMailAndDate(user.getId(), destinationDate.getDayOfMonth());
-        } else if(!email.equalsIgnoreCase("null") && time.equalsIgnoreCase("nullTime")){
-            list = mailingMessageRepository.getUserMail(user.getId());
-        } else if(email.equalsIgnoreCase("null") && !email.equalsIgnoreCase("nullTime")) {
-            LocalDateTime destinationDate = LocalDate.parse(time, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageRepository.getUserByDate(destinationDate.getDayOfMonth());
+        if (id != null) {
+            LocalDateTime destinationDateFrom = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            User user = userService.get(id);
+            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
+            list = mailingMessageRepository.getUserByMailAndDate(user.getId(), destinationDateFrom.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+        } else if (id == null) {
+            LocalDateTime destinationDate = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
+            list = mailingMessageRepository.getUserByDate(destinationDate.getDayOfMonth(), destinationDateTo.getDayOfMonth());
         } else {
             list = mailingMessageRepository.findAll();
         }
@@ -219,27 +210,15 @@ public class SendMailsController {
 
     }
 
-    @GetMapping(value = "/mailing", produces = "application/json")
-    public ResponseEntity<List<MailingMessage>> getHistoryMail() {
-        List<MailingMessage> list = mailingMessageRepository.findAll();
-        return ResponseEntity.ok(list);
-    }
 
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @GetMapping(value = "/get/sender")
-    public ResponseEntity<List<VkToken>> getVkTokenSender(@AuthenticationPrincipal User userFromSession) {
-        List<VkToken> vkTokenList;
-        String role = "OWNER";
-        for (Role i : userFromSession.getRole()) {
-            if(i.getRoleName().equalsIgnoreCase("ADMIN")) {
-                role = i.getRoleName();
+    public ResponseEntity<List<User>> getVkTokenSender(@AuthenticationPrincipal User userFromSession) {
+        for (Role role: userFromSession.getRole()) {
+            if (role.getRoleName().equalsIgnoreCase("OWNER")) {
+                return ResponseEntity.ok(userService.getAll());
             }
         }
-        if(role.equals("ADMIN")) {
-            vkTokenList = vkTokenService.getAll();
-        } else {
-            vkTokenList = vkTokenService.getTokenByIdSender(userFromSession.getId());
-        }
-
-        return ResponseEntity.ok(vkTokenList);
+        return ResponseEntity.ok(userService.getUserByVkToken(userFromSession.getId()));
     }
 }
