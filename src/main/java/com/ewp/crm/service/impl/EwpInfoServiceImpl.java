@@ -40,7 +40,6 @@ public class EwpInfoServiceImpl implements EwpInfoService {
 
     @Override
     public List<StudentProgressInfo> getStudentProgressInfo(List<Student> listStudents) {
-//        List<String> emails = listStudents.stream().map(student -> student.getClient().getEmail()).collect(Collectors.toList());
         String[] emails = listStudents.stream().map(student -> student.getClient().getEmail()).toArray(String[]::new);
 
         HttpHeaders headers = new HttpHeaders();
