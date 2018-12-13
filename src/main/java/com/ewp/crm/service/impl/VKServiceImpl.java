@@ -439,7 +439,7 @@ public class VKServiceImpl implements VKService {
                 if (numberVkPosition > fields.length - 1) {
                     break;
                 }
-                if ("Контактные данные".equals(vkRequestForm.getTypeVkField())) {
+                if ("Поле сопоставленное с данными".equals(vkRequestForm.getTypeVkField())) {
                     switch (vkRequestForm.getNameVkField()) {
                         case "Имя":
                             newClient.setName(getValue(fields[numberVkPosition]));
