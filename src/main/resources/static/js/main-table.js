@@ -1046,8 +1046,9 @@ function hideClient(clientId) {
                     content: comment
                 },
                 success: function () {
-                    //location.reload();
-                    console.log("напоминание добавлено");
+                    let currentStatus = document.getElementById("postpone-status");
+                    currentStatus.style.color = "limegreen";
+                    currentStatus.textContent = "Клиент успешно скрыт";
                 },
             });
         },
@@ -1749,6 +1750,8 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
+                    $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
+
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name == 'vk') {
                             $('#vk-href').attr('href', client.socialProfiles[i].link);
@@ -1816,10 +1819,12 @@ $(function () {
                 $('.client-collapse').attr('id', 'collapse' + client.id);
                 $('.history-line').attr('id', 'client-' + client.id + 'history');
                 $('.upload-more-history').attr('data-clientid', client.id);
+                $('#repeated-client-info').hide();
 
                 if (client.repeated) {
-                    $('#repeated-status-btn').attr('onclick', 'dropRepeatedFlag(' + clientId + ', false)');
-                    $('#notifyAboutRepeatedClient').modal('show');
+
+                    $('#repeated-client-info').show();
+
                 }
             }
         });
@@ -1841,14 +1846,17 @@ function dropRepeatedFlag(clientId, repeated) {
 
         },
         error: function (e) {
-
+            console.log(e);
         }
     });
 
-    $('#notifyAboutRepeatedClient').modal('hide');
+    $('#repeated-client-info').hide();
+
 }
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
+        var clientId = $(this).data('clientId');
+        dropRepeatedFlag(clientId, false);
         $('.assign-skype-call-btn').removeAttr("disabled");
         $('div#assign-unassign-btns').empty();
         $('.skype-notification').empty();
@@ -2257,3 +2265,21 @@ $(function () {
         });
     });
 });*/
+
+function slackInvite(email) {
+    $.ajax({
+        type: "GET",
+        url: "/slack/" + email,
+        dataType: "json",
+
+        success: function (data) {
+            var ok = data.ok;
+            if (ok) {
+                alert('User is invited');
+            } else alert('already_invited');
+        },
+        error: function (e) {
+            alert('The user is not invited')
+        }
+    })
+}

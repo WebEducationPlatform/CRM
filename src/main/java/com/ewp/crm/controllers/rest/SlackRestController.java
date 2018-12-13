@@ -8,9 +8,16 @@ import com.ewp.crm.service.interfaces.StatusService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,11 +49,21 @@ public class SlackRestController {
     private final SlackService slackService;
     private final StatusService statusService;
     private final ProjectPropertiesService propertiesService;
+    private String inviteToken;
 
     @Autowired
-    public SlackRestController(SlackService slackService,
+    public SlackRestController(Environment environment,
+                               SlackService slackService,
                                StatusService statusService,
                                ProjectPropertiesService propertiesService) {
+        try {
+            this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
+            if (inviteToken.isEmpty()) {
+                throw new NullPointerException();
+            }
+        } catch (NullPointerException npe) {
+            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
+        }
         this.slackService = slackService;
         this.statusService = statusService;
         this.propertiesService = propertiesService;
@@ -104,5 +121,22 @@ public class SlackRestController {
         projectProperties.setDefaultStatusId(id);
         propertiesService.saveAndFlash(projectProperties);
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("{email}")
+    public ResponseEntity<String> slackInvite(@PathVariable String email) {
+
+        String url = "https://slack.com/api/users.admin.invite?" +
+                "email=" + email +
+                "&token=" + inviteToken;
+        String json = null;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            json = EntityUtils.toString(entity);
+        } catch (Throwable e) {
+            logger.warn("Can't invite Client Slack profile", e);
+        }
+        return new ResponseEntity<>(json, HttpStatus.OK);
     }
 }

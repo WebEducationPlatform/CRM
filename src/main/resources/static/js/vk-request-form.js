@@ -4,14 +4,13 @@ function deleteVkReqestById(id) {
         type: "POST",
         dataType: 'json',
         url: url,
-        success: function () {
+        complete: function () {
             location.reload();
         },
         error: function (error) {
             console.log(error);
         }
     });
-    location.reload();
 }
 
 function createVkRequestField() {
@@ -38,7 +37,7 @@ function createVkRequestField() {
     var mass = {
         numberVkField: rowCount,
         nameVkField: nameRequest,
-        typeVkField: "Обязательное"
+        typeVkField: "Поле сопоставленное с данными"
     };
     var emp = JSON.stringify(mass);
     $.ajax({
@@ -47,14 +46,13 @@ function createVkRequestField() {
         contentType: "application/json",
         type: 'POST',
         dataType: 'JSON',
-        success: function (returnObj) {
+        complete: function () {
             location.reload();
         },
         error: function (error) {
             console.log(error);
         }
     });
-    location.reload();
 }
 
 function createVkRequestFieldForLabel() {
@@ -74,7 +72,7 @@ function createVkRequestFieldForLabel() {
             return;
         }
     }
-    var typeRequestField = "В заметки";
+    var typeRequestField = "Дополнительная информация";
     var url = "/vk/request/create";
     var mass = {
         numberVkField: rowCount,
@@ -135,7 +133,7 @@ function getVkRequestById(id) {
                 } else if (nameVk === "Город") {
                     document.getElementById("app-name").value = '9';
                 }
-                if (obj.typeVkField === "Обязательное") {
+                if (obj.typeVkField === "Поле сопоставленное с данными") {
                     document.getElementById("app-type").value = '1';
                 } else {
                     document.getElementById("app-type").value = '2';
@@ -205,7 +203,7 @@ function updateVkRequestFieldForLabel() {
         alert("Нельзя создать пустое поле!");
         return;
     }
-    var typeRequestField = "В заметки";
+    var typeRequestField = "Дополнительная информация";
     var url = "/vk/request/update/" + id;
     var mass = {
         numberVkField: rowNumber,
