@@ -442,11 +442,11 @@ public class ClientRestController {
 		return ResponseEntity.status(HttpStatus.OK).body("done");
 	}
 
-	@PostMapping(value = "/order")
-	public ResponseEntity setNewClientsOrder(@RequestParam SortingType newOrder,
-											 @RequestParam Long statusId,
-											 @AuthenticationPrincipal User userFromSession) {
-		statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
-		return ResponseEntity.ok("Ok");
-	}
+    @PostMapping(value = "/order")
+    public ResponseEntity setNewClientsOrder(@RequestParam SortingType newOrder,
+                                             @RequestParam Long statusId,
+                                             @AuthenticationPrincipal User userFromSession) {
+        statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
+        return ResponseEntity.ok("Ok");
+    }
 }

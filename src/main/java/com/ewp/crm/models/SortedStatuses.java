@@ -24,10 +24,10 @@ public class SortedStatuses implements Serializable {
     private SortingType sortingType;
 
     public enum SortingType {
-        NEW_FIRST,
-        OLD_FIRST,
-        NEW_CHANGES_FIRST,
-        OLD_CHANGES_FIRST
+        NEW_FIRST,          //свежие клиенты выше в выдаче
+        OLD_FIRST,          //старые клиенты выше в выдаче
+        NEW_CHANGES_FIRST,  //клиенты со свежими изменениями в истории выше в выдаче
+        OLD_CHANGES_FIRST   //клиенты со старыми изменениями в истории выше в выдаче
     }
 
     public SortedStatuses() {
