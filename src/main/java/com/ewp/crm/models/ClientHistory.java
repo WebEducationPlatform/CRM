@@ -16,8 +16,11 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
+
+
 	@Column(name = "title", nullable = false)
-	private String title;
+	@Lob
+    private String title;
 
 	@Basic
 	@Lob
@@ -54,6 +57,12 @@ public class ClientHistory {
 
     public ClientHistory(Type type) {
         this();
+        this.type = type;
+    }
+
+    public ClientHistory(String title, ZonedDateTime date, Type type) {
+        this.title = title;
+        this.date = date;
         this.type = type;
     }
 

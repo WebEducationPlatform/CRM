@@ -1,12 +1,13 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.exceptions.email.MessageTemplateException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.MessageService;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,7 +24,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -32,7 +31,6 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -89,7 +87,6 @@ public class MailSendServiceImpl implements MailSendService {
     }
 
     public void sendEmailInAllCases(Client client) {
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper;
         try {
@@ -97,14 +94,15 @@ public class MailSendServiceImpl implements MailSendService {
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(principal.getAutoAnswer(), true);
+            mimeMessageHelper.setText("Добрый день, спасибо за вашу заявку, скоро мы с вами свяжемся! " +
+                    "Когда вам было бы удобно провести первый созвон с ментором?", true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
         javaMailSender.send(mimeMessage);
     }
 
-    public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
+    public void validatorTestResult(String parseContent, Client client) throws MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
 
@@ -210,7 +208,6 @@ public class MailSendServiceImpl implements MailSendService {
 
         javaMailSender.send(mimeMessage);
     }
-
 
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";

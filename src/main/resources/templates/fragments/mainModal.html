@@ -17,9 +17,9 @@
                     <div class="container-fluid">
                         <div class="row">
                             <table class="table table-condensed font-size">
-
                                 <tbody>
                                 <tr>
+                                    <div th:id="repeated-client-info" class="alert alert-warning text-center" role="alert"><h4><strong>Этот клиент оставил заявку повторно !</strong></h4></div>
                                     <td>Email:</td>
                                     <td id="client-email"></td>
                                     <td>
@@ -116,6 +116,9 @@
                                                 </a>
                                             </div>
                                         </div>
+                                        <div>
+                                            <button id="slack-invite-href" type="submit" class="btn btn-success">Пригласить в Slack</button>
+                                        </div>
                                     </td>
                                     <td>
                                         <div th:id="'sendSocialTemplateStatus'"></div>
@@ -147,7 +150,7 @@
                                     <textarea class="form-control postponeComment"
                                               placeholder="причина напоминания"></textarea>
                                 </div>
-
+                                <div class="form-group" id="postpone-status"></div>
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>
                             </div>
                         </div>
@@ -159,5 +162,6 @@
         </div>
     </div>
 </th:block>
+<script th:src="@{/js/user-info.js}"></script>
 </body>
 </html>
