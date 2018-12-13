@@ -255,4 +255,33 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
         return query.getResultList();
     }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, String order) {
+        if ("oldFirst".equals(order)) {
+            return status.getClients();
+        }
+        String query = String.format("SELECT client.*\n" +
+                "FROM client\n" +
+                "       JOIN status_clients ON client.client_id = status_clients.user_id\n" +
+                "       JOIN status ON status_clients.status_id = status.status_id\n" +
+                "WHERE status.status_name = \"%s\" ORDER BY date DESC", status.getName());
+        List<Client> orderedClients = entityManager.createNativeQuery(query, Client.class).getResultList();
+        return orderedClients;
+    }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, String order) {
+        String query = String.format("SELECT client.*\n" +
+                "FROM client\n" +
+                "       JOIN history_client ON client.client_id = history_client.client_id\n" +
+                "       JOIN status_clients ON client.client_id = status_clients.user_id\n" +
+                "       JOIN status ON status_clients.status_id = status.status_id\n" +
+                "WHERE status.status_name = \"%s\" GROUP BY history_client.client_id ORDER BY MAX(history_client.history_id)", status.getName());
+        if ("newChangesFirst".equals(order)) {
+            query = query + " DESC";
+        }
+        List<Client> orderedClients = entityManager.createNativeQuery(query, Client.class).getResultList();
+        return orderedClients;
+    }
 }

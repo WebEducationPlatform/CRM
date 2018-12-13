@@ -33,6 +33,4 @@ public interface ClientHistoryService {
 	List<ClientHistory> getClientById(long id);
 
 	List<ClientHistory> getAllClientById(long id, Pageable pageable);
-
-	ZonedDateTime getLastClientChangesDate(Client client);
 }

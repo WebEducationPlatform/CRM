@@ -53,4 +53,6 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getAllClientsByPage(Pageable pageable);
 
 	List<Client> getClientsBySearchPhrase(String search);
+
+	List<Client> getOrderedClientsInStatus(Status status, String order);
 }

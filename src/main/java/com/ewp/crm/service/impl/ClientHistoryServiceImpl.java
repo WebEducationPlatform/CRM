@@ -51,14 +51,6 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return clientHistoryRepository.getAllByClientId(id, pageable);
 	}
 
-    @Override
-    public ZonedDateTime getLastClientChangesDate(Client client) {
-        List<ClientHistory> clientHistory = getClientById(client.getId());
-        clientHistory.sort(Comparator.comparing(ClientHistory::getDate).reversed());
-        ZonedDateTime zonedDateTime = clientHistory.get(0).getDate();
-        return zonedDateTime;
-    }
-
 	@Override
 	public ClientHistory createHistory(String socialRequest) {
 		logger.info("creation of client history...");
@@ -258,5 +250,4 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
-
 }

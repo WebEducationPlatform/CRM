@@ -8,6 +8,8 @@ import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ import java.util.regex.Pattern;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
+
+	private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
+
 
 	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
@@ -266,5 +271,20 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	@Autowired
 	private void setStatusService(StatusService statusService) {
 		this.statusService = statusService;
+	}
+
+	@Override
+	public List<Client> getOrderedClientsInStatus(Status status, String order) {
+		List<Client> orderedClients;
+		if ("newFirst".equals(order) || "oldFirst".equals(order)) {
+			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+			return orderedClients;
+		}
+		if ("newChangesFirst".equals(order) || "oldChangesFirst".equals(order)) {
+			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+			return orderedClients;
+		}
+		logger.error("Error with sorting clients");
+		return new ArrayList<>();
 	}
 }

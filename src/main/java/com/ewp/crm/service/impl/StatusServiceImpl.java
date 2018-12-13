@@ -58,48 +58,10 @@ public class StatusServiceImpl implements StatusService {
             if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
                 SortedStatuses finalSorted = sorted;
                 String sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-                status.setClients(sortClients(status.getClients(), sortingType));
+                status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
             }
         }
         return statuses;
-    }
-
-    private Status getStatusWithSortedClients(Status status, String sortingType) {
-		if ("oldFirst".equals(sortingType)) {
-			return status;
-		}
-		if ("newFirst".equals(sortingType)) {
-
-		}
-
-		return new Status();
-	}
-
-    private List<Client> sortClients(List<Client> clients, String sortingType) {
-        if ("oldFirst".equals(sortingType)) {
-            return clients;
-        }
-        if ("newFirst".equals(sortingType)) {
-            clients.sort(Comparator.comparing(Client::getDateOfRegistration).reversed());
-            return clients;
-        }
-        if ("oldChangesFirst".equals(sortingType)) {
-            clients.sort((client1, client2) -> {
-                ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
-                ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
-                return lastChangesClient1.compareTo(lastChangesClient2);
-            });
-            return clients;
-        }
-        if ("newChangesFirst".equals(sortingType)) {
-            clients.sort((client1, client2) -> {
-                ZonedDateTime lastChangesClient1 = clientHistoryService.getLastClientChangesDate(client1);
-                ZonedDateTime lastChangesClient2 = clientHistoryService.getLastClientChangesDate(client2);
-                return lastChangesClient2.compareTo(lastChangesClient1);
-            });
-            return clients;
-        }
-        return clients;
     }
 
 	@Override
