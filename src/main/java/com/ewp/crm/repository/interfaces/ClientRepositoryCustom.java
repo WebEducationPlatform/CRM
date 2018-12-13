@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface ClientRepositoryCustom {
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getClientsInStatusOrderedByRegistration(Status status, String order);
+	List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order);
 
-	List<Client> getClientsInStatusOrderedByHistory(Status status, String order);
+	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order);
 }

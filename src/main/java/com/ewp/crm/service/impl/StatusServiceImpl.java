@@ -1,10 +1,10 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StatusService;
@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
+
 import java.util.*;
 
 @Service
@@ -22,7 +22,6 @@ public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
-	private final ClientHistoryService clientHistoryService;
 	private final SortedStatusesRepository sortedStatusesRepository;
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
@@ -30,11 +29,9 @@ public class StatusServiceImpl implements StatusService {
 	@Autowired
 	public StatusServiceImpl(StatusDAO statusDAO,
 							 ProjectPropertiesService propertiesService,
-							 ClientHistoryService clientHistoryService,
 							 SortedStatusesRepository sortedStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
-        this.clientHistoryService = clientHistoryService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
 	}
 
@@ -57,7 +54,7 @@ public class StatusServiceImpl implements StatusService {
             sorted = new SortedStatuses(status, userFromSession);
             if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
                 SortedStatuses finalSorted = sorted;
-                String sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+                SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
                 status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
             }
         }
@@ -191,7 +188,7 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public void setNewOrderForChosenStatusForCurrentUser(String newOrder, Long statusId, User currentUser) {
+	public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
 		SortedStatuses sortedStatus = new SortedStatuses(get(statusId), currentUser);
 		sortedStatus.setSortingType(newOrder);
 		sortedStatusesRepository.save(sortedStatus);

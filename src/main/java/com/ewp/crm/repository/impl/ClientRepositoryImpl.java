@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -257,8 +257,8 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByRegistration(Status status, String order) {
-        if ("oldFirst".equals(order)) {
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order) {
+        if (SortingType.OLD_FIRST.equals(order)) {
             return status.getClients();
         }
         String query = String.format("SELECT client.*\n" +
@@ -271,14 +271,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByHistory(Status status, String order) {
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
         String query = String.format("SELECT client.*\n" +
                 "FROM client\n" +
                 "       JOIN history_client ON client.client_id = history_client.client_id\n" +
                 "       JOIN status_clients ON client.client_id = status_clients.user_id\n" +
                 "       JOIN status ON status_clients.status_id = status.status_id\n" +
                 "WHERE status.status_name = \"%s\" GROUP BY history_client.client_id ORDER BY MAX(history_client.history_id)", status.getName());
-        if ("newChangesFirst".equals(order)) {
+        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
             query = query + " DESC";
         }
         List<Client> orderedClients = entityManager.createNativeQuery(query, Client.class).getResultList();
