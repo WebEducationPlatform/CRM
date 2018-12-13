@@ -25,7 +25,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
 	private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
 
-
 	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
 	private final ClientRepository clientRepository;
