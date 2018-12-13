@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -442,7 +443,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/order")
-	public ResponseEntity setNewClientsOrder(@RequestParam String newOrder,
+	public ResponseEntity setNewClientsOrder(@RequestParam SortingType newOrder,
 											 @RequestParam Long statusId,
 											 @AuthenticationPrincipal User userFromSession) {
 		statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);

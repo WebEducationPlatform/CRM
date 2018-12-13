@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
@@ -273,13 +274,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
 	@Override
-	public List<Client> getOrderedClientsInStatus(Status status, String order) {
+	public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
 		List<Client> orderedClients;
-		if ("newFirst".equals(order) || "oldFirst".equals(order)) {
+		if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
 			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
 			return orderedClients;
 		}
-		if ("newChangesFirst".equals(order) || "oldChangesFirst".equals(order)) {
+		if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
 			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
 			return orderedClients;
 		}

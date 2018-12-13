@@ -20,7 +20,15 @@ public class SortedStatuses implements Serializable {
     private User user;
 
     @Column(name = "sortingType")
-    private String sortingType;
+    @Enumerated(EnumType.STRING)
+    private SortingType sortingType;
+
+    public enum SortingType {
+        NEW_FIRST,
+        OLD_FIRST,
+        NEW_CHANGES_FIRST,
+        OLD_CHANGES_FIRST
+    }
 
     public SortedStatuses() {
     }
@@ -56,11 +64,11 @@ public class SortedStatuses implements Serializable {
         this.user = user;
     }
 
-    public String getSortingType() {
+    public SortingType getSortingType() {
         return sortingType;
     }
 
-    public void setSortingType(String sortingType) {
+    public void setSortingType(SortingType sortingType) {
         this.sortingType = sortingType;
     }
 
