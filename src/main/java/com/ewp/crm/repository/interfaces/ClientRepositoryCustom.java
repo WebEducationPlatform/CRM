@@ -35,4 +35,8 @@ public interface ClientRepositoryCustom {
 	Long countByDate(String date);
 
 	List<Client> getClientsBySearchPhrase(String search);
+
+	List<Client> getClientsInStatusOrderedByRegistration(Status status, String order);
+
+	List<Client> getClientsInStatusOrderedByHistory(Status status, String order);
 }
