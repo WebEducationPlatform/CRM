@@ -16,8 +16,6 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
-
-
 	@Column(name = "title", nullable = false)
 	@Lob
     private String title;
