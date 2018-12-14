@@ -45,7 +45,10 @@ public class JMConversationHelperImpl implements JMConversationHelper {
                         .filter(jmConversation -> jmConversation.getChatTypeOfConversation().equals(newChatType))
                         .findFirst().orElse(null);
 
-                chatMap.put(newChatType, conversation); //если null то просто нет чата.
+                if (conversation != null) {
+                    conversation.startNewChat(socialProfile.getLink());
+                    chatMap.put(newChatType, conversation); //если null то просто нет чата.
+                }
             } catch (NullPointerException e) {
                 //нет чата для соц сети...
             }
@@ -97,7 +100,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public List<ChatMessage> getMessages(int count) {
+    public List<ChatMessage> getMessages() {
         List<ChatMessage> list = new LinkedList<>();
 
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
