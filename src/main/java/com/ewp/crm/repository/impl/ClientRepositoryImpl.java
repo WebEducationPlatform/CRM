@@ -261,27 +261,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         if (SortingType.OLD_FIRST.equals(order)) {
             return status.getClients();
         }
-        String query = String.format("SELECT client.*\n" +
-                "FROM client\n" +
-                "       JOIN status_clients ON client.client_id = status_clients.user_id\n" +
-                "       JOIN status ON status_clients.status_id = status.status_id\n" +
-                "WHERE status.status_name = \"%s\" ORDER BY date DESC", status.getName());
-        List<Client> orderedClients = entityManager.createNativeQuery(query, Client.class).getResultList();
+        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration DESC";
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
         return orderedClients;
     }
 
     @Override
     public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
-        String query = String.format("SELECT client.*\n" +
-                "FROM client\n" +
-                "       JOIN history_client ON client.client_id = history_client.client_id\n" +
-                "       JOIN status_clients ON client.client_id = status_clients.user_id\n" +
-                "       JOIN status ON status_clients.status_id = status.status_id\n" +
-                "WHERE status.status_name = \"%s\" GROUP BY history_client.client_id ORDER BY MAX(history_client.history_id)", status.getName());
+        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)";
         if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
             query = query + " DESC";
         }
-        List<Client> orderedClients = entityManager.createNativeQuery(query, Client.class).getResultList();
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
         return orderedClients;
     }
 }
