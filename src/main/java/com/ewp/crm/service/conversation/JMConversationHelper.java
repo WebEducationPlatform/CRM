@@ -21,8 +21,8 @@ public interface JMConversationHelper {
     //Получаем не прочитынные сообщения из всех чатов
     List<ChatMessage> getNewMessages();
 
-    //получаем последнии count сообщений их всех чатов.
-    //на выходе лист с максимум count*N элементов, N - количество чатов.
-    List<ChatMessage> getMessages(int count);
+    //получаем последнии сообщения их всех чатов.
+    //на выходе лист с максимум count*N элементов, N - количество чатов, count - число получаемых сообщений
+    List<ChatMessage> getMessages();
 
 }
