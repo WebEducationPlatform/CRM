@@ -180,7 +180,6 @@ public class SendMailsController {
         if (userFromSession.getRole().contains("OWNER")) {
             return ResponseEntity.ok(mailingMessageSendService.getAll());
         }
-
         return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
     }
 
