@@ -7,7 +7,7 @@ const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
-const SEND_TO_VK = "Укажите список id профилей ВК получателей (каждый с новой строки):";
+const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):";
 
 var messageType = 'email';
 var vkPage;
@@ -106,6 +106,24 @@ $(document).ready(function () {
             }
         }
     });
+
+    $("#historyMailingTable").on('click', 'button[id="getRecipient"]', function(e) {
+        var id = $(this).closest('tr').children('td:first').text();
+        $.ajax({
+            type: "POST",
+            url: "/get/client-data",
+            data: {
+                mailId: id
+            },
+            success: function (data) {
+                for (var j = 0; j < data.length; j++) {
+                    $("#recipientBodyMailing").append("<tr> \
+                            <td>" + data[j].info + "</td> \
+                        </tr>");
+                }
+            }
+        });
+    })
 });
 
 /**
@@ -369,12 +387,11 @@ function showHistory() {
             for (var i = 0; i < data.length; i++) {
                 date = new Date(data[i].date);
                 year = date.getFullYear();
-                month = date.getMonth()+1;
+                month = date.getMonth() + 1;
                 dt = date.getDate();
                 hour = date.getHours();
                 minutes = date.getMinutes();
                 seconds = date.getSeconds();
-
 
 
                 if (dt < 10) {
@@ -384,23 +401,23 @@ function showHistory() {
                     month = '0' + month;
                 }
 
-                if(hour < 10) {
+                if (hour < 10) {
                     hour = '0' + hour
                 }
 
-                if(minutes < 10) {
+                if (minutes < 10) {
                     minutes = '0' + minutes
                 }
-
-                for (var j = 0; j < data[i].clientsData.length; j++) {
-                    $("#historyBodyMailing").append("<tr> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes +" </td> \
+                $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td>" + data[i].clientsData[j].info + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
                         </tr>");
-                }
+
             }
+
         }
     });
 }
@@ -409,7 +426,10 @@ function removeHistory() {
     $('#managerSelect').val('');
     $('#historyBodyMailing').empty();
     $('#timeSelect').empty();
+    $('#recipientBodyMailing').empty();
 };
+
+
 
 
 function addToListMailing() {
@@ -444,16 +464,17 @@ function showManagerHistory() {
     $.ajax({
         url: '/mailing/manager/history',
         type: 'POST',
-        data: { managerId: mangerId,
-                managerFromTime: managerFromTime,
-                managerToTime: managerToTime
+        data: {
+            managerId: mangerId,
+            managerFromTime: managerFromTime,
+            managerToTime: managerToTime
         },
         success: function (data) {
             $('#historyBodyMailing').empty();
             for (var i = 0; i < data.length; i++) {
                 date = new Date(data[i].date);
                 year = date.getFullYear();
-                month = date.getMonth()+1;
+                month = date.getMonth() + 1;
                 dt = date.getDate();
                 hour = date.getHours();
                 minutes = date.getMinutes();
@@ -467,27 +488,32 @@ function showManagerHistory() {
                     month = '0' + month;
                 }
 
-                if(hour < 10) {
+                if (hour < 10) {
                     hour = '0' + hour
                 }
 
-                if(minutes < 10) {
+                if (minutes < 10) {
                     minutes = '0' + minutes
                 }
 
-                for (var j = 0; j < data[i].clientsData.length; j++) {
-                    $("#historyBodyMailing").append("<tr> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes +" </td> \
+                $("#historyBodyMailing").append("<tr> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
+                            <td><button data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
+                        </tr>");
+
+
+                for (var j = 0; j < data[i].clientsData.length; j++) {
+                    $("#recepientBodyMailing").append("<tr> \
                             <td>" + data[i].clientsData[j].info + "</td> \
                         </tr>");
+
                 }
             }
         }
     });
 }
-
 function showListMailing() {
     if (messageType !== "email") {
         x = CKEDITOR.instances.editor.document.getBody().getText();
@@ -495,6 +521,36 @@ function showListMailing() {
         x = "";
     }
     listGroupName = $('#listMailingSelect').val()
+        $.ajax({
+            url: '/get/listMailing',
+            type: 'POST',
+            data: {
+                listGroupName: listGroupName
+            },
+            success: function (data) {
+
+                if (messageType == "email") {
+                    $("#addresses-area").val(data.recipientsEmail)
+                } else if (messageType == 'sms') {
+                    $("#addresses-area").val(data.recipientsSms)
+                } else if (messageType == "vk") {
+                    $("#addresses-area").val(data.recipientsVk)
+                }
+            }
+
+        });
+}
+
+
+function openEditShowListMailing() {
+
+    listGroupName = $('#listMailingSelect').val()
+
+    if(listGroupName != "null") {
+        $("#deleteListMaling").removeAttr("disabled");
+        $("#editButton").removeAttr("disabled");
+    }
+
     $.ajax({
         url: '/get/listMailing',
         type: 'POST',
@@ -502,15 +558,69 @@ function showListMailing() {
         },
         success: function (data) {
 
-                if(messageType == "email") {
-                   $("#addresses-area").val(data.recipientsEmail)
-                }  else if (messageType == 'sms') {
-                    $("#addresses-area").val(data.recipientsSms)
-                } else if (messageType == "vk") {
-                    $("#addresses-area").val(data.recipientsVk)
-                }
+                $("#editListName").val(data.listName)
+
+                $("#editListEmail").val(data.recipientsEmail)
+
+                $("#editListSms").val(data.recipientsSms)
+
+                $("#editListVk").val(data.recipientsVk)
+        }
+
+    });
+}
+
+
+function editListMailing() {
+
+    var listName = $("#listMailingSelect").val()
+
+    var editListName = $("#editListName").val()
+
+    var editListEmail = $("#editListEmail").val()
+
+    var editListSms = $("#editListSms").val()
+
+    var editListVk = $("#editListVk").val()
+
+    $.ajax({
+        url: '/edit/list-mailing',
+        type: 'POST',
+        data: { listName: listName,
+                editListName: editListName,
+                editRecipientsEmail: editListEmail,
+                editRecipientsSms: editListSms,
+                editRecipientsVk: editListVk
+        }, success: function () {
+            location.reload();
+        }
+
+    });
+}
+
+function deleteListMailing() {
+
+    var listName = $("#listMailingSelect").val();
+
+    $.ajax({
+        url: '/remove/list-mailing',
+        type: 'POST',
+        data: { listName: listName
+        }, success: function () {
+            location.reload();
         }
 
     });
 
 }
+
+function turnDisable() {
+    $("#deleteListMaling").attr("disabled", "disabled");
+    $("#editButton").attr("disabled", "disabled");
+}
+
+function removeRecipient() {
+    $('#recipientBodyMailing').empty();
+}
+
+
