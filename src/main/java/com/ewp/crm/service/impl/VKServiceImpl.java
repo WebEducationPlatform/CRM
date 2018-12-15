@@ -710,5 +710,48 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<Map<String, String>> getProfileInfoById(String vkId) {
+        Map<String,String> mapVkInfo = new HashMap<>();
+        String request = vkAPI + "users.get?"
+                + "user_ids=" + vkId
+                + "&fields=first_name,last_name,city,education"
+                + "&access_token=" + communityToken
+                + "&v=" + version;
+
+        HttpGet httpGetClient = new HttpGet(request);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build()).build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray responseArray = json.getJSONArray("response");
+            JSONObject vkUserJson = responseArray.getJSONObject(0);
+
+            mapVkInfo.put("first_name", vkUserJson.has("first_name") ? vkUserJson.getString("first_name") : "");
+            mapVkInfo.put("first_name", vkUserJson.has("last_name") ? vkUserJson.getString("last_name") : "");
+            if (vkUserJson.has("city")) {
+                JSONObject jsonCity = new JSONObject(vkUserJson.getString("city"));
+                mapVkInfo.put("city",jsonCity.has("title") ? jsonCity.getString("title") : "");
+            }
+            String city = vkUserJson.has("university_name") ? vkUserJson.getString("university_name") : "";
+
+            mapVkInfo.put("first_name",vkUserJson.getString("first_name"));
+            mapVkInfo.put("last_name",vkUserJson.getString("last_name"));
+            JSONObject jsonCity = new JSONObject(vkUserJson.getString("city"));
+            mapVkInfo.put("city",jsonCity.getString("title"));
+            mapVkInfo.put("university",vkUserJson.getString("university_name"));
+
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server", e);
+        } catch (JSONException e) {
+            logger.error("Can't take info from profile by user id {}", vkId);
+        }
+
+        return Optional.of(mapVkInfo);
+    }
+
 }
 

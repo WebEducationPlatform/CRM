@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface VKService {
@@ -49,4 +50,6 @@ public interface VKService {
     String getLongIDFromShortName(String vkGroupShortName);
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
+
+    Optional<Map<String, String>> getProfileInfoById(String vkId);
 }
