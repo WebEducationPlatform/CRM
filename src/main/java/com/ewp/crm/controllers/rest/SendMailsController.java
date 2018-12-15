@@ -177,13 +177,10 @@ public class SendMailsController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     @GetMapping(value = "/mailing/history", produces = "application/json")
     public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
-
         if (userFromSession.getRole().contains("OWNER")) {
             return ResponseEntity.ok(mailingMessageSendService.getAll());
-
-        } else {
-            return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
         }
+        return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
     }
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
@@ -214,8 +211,14 @@ public class SendMailsController {
     public ResponseEntity<List<User>> getVkTokenSender(@AuthenticationPrincipal User userFromSession) {
         if (userFromSession.getRole().contains("OWNER")) {
             return ResponseEntity.ok(userService.getAll());
-        } else {
-            return ResponseEntity.ok(userService.getUserByVkToken(userFromSession.getId()));
         }
+        return ResponseEntity.ok(userService.getUserByVkToken(userFromSession.getId()));
     }
+
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PostMapping(value = "/get/client-data")
+    public ResponseEntity<List<ClientData>> getVkTokenSender(@RequestParam("mailId") Long id) {
+        return ResponseEntity.ok(mailingMessageSendService.getClientDataById(id));
+    }
+
 }
