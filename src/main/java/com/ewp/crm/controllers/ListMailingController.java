@@ -42,14 +42,12 @@ public class ListMailingController {
             @RequestParam("editRecipientsEmail") List<String> editRecipientsEmail,
             @RequestParam("editRecipientsSms") List<String> editRecipientsSms,
             @RequestParam("editRecipientsVk") List<String> editRecipientsVk) {
-
         ListMailing listMailing = listMailingService.getByListName(listName);
         listMailing.setListName(editlistName);
         listMailing.setRecipientsEmail(editRecipientsEmail);
         listMailing.setRecipientsSms(editRecipientsSms);
         listMailing.setRecipientsVk(editRecipientsVk);
         listMailingService.update(listMailing);
-
         return "redirect:/client/mailing";
     }
 
