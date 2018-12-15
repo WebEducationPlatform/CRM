@@ -34,4 +34,30 @@ public class ListMailingController {
         return "redirect:/client/mailing";
 
     }
+
+    @RequestMapping(value = "/edit/list-mailing", method = RequestMethod.POST)
+    public String editListMailing(
+            @RequestParam("editListName") String editlistName,
+            @RequestParam("listName") String listName,
+            @RequestParam("editRecipientsEmail") List<String> editRecipientsEmail,
+            @RequestParam("editRecipientsSms") List<String> editRecipientsSms,
+            @RequestParam("editRecipientsVk") List<String> editRecipientsVk) {
+
+        ListMailing listMailing = listMailingService.getByListName(listName);
+        listMailing.setListName(editlistName);
+        listMailing.setRecipientsEmail(editRecipientsEmail);
+        listMailing.setRecipientsSms(editRecipientsSms);
+        listMailing.setRecipientsVk(editRecipientsVk);
+        listMailingService.update(listMailing);
+
+        return "redirect:/client/mailing";
+    }
+
+    @RequestMapping(value = "/remove/list-mailing", method = RequestMethod.POST)
+    public String removeListMailing(@RequestParam("listName") String listName) {
+        ListMailing listMailing = listMailingService.getByListName(listName);
+        listMailingService.delete(listMailing);
+        return "redirect:/client/mailing";
+    }
+
 }
