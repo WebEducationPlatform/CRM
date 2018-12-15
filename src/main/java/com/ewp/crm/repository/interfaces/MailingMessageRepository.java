@@ -25,7 +25,7 @@ public interface MailingMessageRepository extends CommonGenericRepository<Mailin
     @Query("SELECT mail.date FROM MailingMessage mail")
     List<LocalDateTime> getTimeMailingMeassage();
 
-    @Query("SELECT mail.clientsData FROM MailingMessage mail where mail.id = :mailId")
+    @Query("SELECT mail.clientsData FROM MailingMessage mail WHERE mail.id = :mailId")
     List<ClientData> getClientDataById(@Param("mailId") Long id);
 
 }
