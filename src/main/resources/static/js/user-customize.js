@@ -7,7 +7,7 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
             $("#payment-notification-template").empty().append(
                 $('<option>').val('').text('Не выбрано')
             );
-            $.each(response, function(i, item) {
+            $.each(response, function (i, item) {
                 $("#payment-notification-template").append(
                     $('<option>').val(item.id).text(item.name)
                 )
@@ -30,13 +30,15 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
 });
 
 //Set notification properties
-$("#update-payment-notification").click( function () {
+$("#update-payment-notification").click(function () {
     let data = {
         paymentMessageTemplate: $("#payment-notification-template").val(),
         paymentNotificationTime: $("#payment-notification-time").val(),
         paymentNotificationEnabled: $("#payment-notification-enable").prop('checked')
     };
-    if (!validate_input(data)) {return}
+    if (!validate_input(data)) {
+        return
+    }
     $.ajax({
         type: 'POST',
         url: '/rest/properties/email-notification',
@@ -60,6 +62,62 @@ function validate_input(data) {
     return true;
 }
 
+//Fill values on auto-answer modal shows up
+$('#auto-answer-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#auto-answer-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#auto-answer-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.autoAnswerTemplate == null) {
+                        $("#auto-answer-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#auto-answer-template option[value=" + response.autoAnswerTemplate.id + "]").prop('selected', true);
+                    }
+                    $("#auto-answer-enable").prop('checked', response.isAutoAnswerEnabled);
+                }
+            })
+        }
+    });
+});
+
+//Set notification properties
+$("#update-auto-answer").click(function () {
+    let data = {
+        autoAnswerTemplate: $("#auto-answer-template").val()
+    };
+    if (!validate(data)) {
+        return
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/auto-answer',
+        data: data,
+        success: function () {
+        }
+    })
+});
+
+//Validate input data
+function validate(data) {
+    console.log(data);
+    if ((data.autoAnswerTemplate == '')) {
+        alert("Внимание: Автоответ Отключен!");
+    }
+    return true;
+}
+
 //Fill values on new student configuration modal show up.
 $('#new-student-config-modal').on('show.bs.modal', function () {
     $.ajax({
@@ -76,7 +134,7 @@ $('#new-student-config-modal').on('show.bs.modal', function () {
                     $("#new-student-status").empty().append(
                         $('<option>').val('0').text('Не выбрано')
                     );
-                    $.each(statuses, function(i, item) {
+                    $.each(statuses, function (i, item) {
                         $("#new-student-status").append(
                             $('<option>').val(item.id).text(item.status)
                         )
@@ -93,10 +151,12 @@ $('#new-student-config-modal').on('show.bs.modal', function () {
 });
 
 //Update new student creation properties
-$("#update-new-student-settings").click( function () {
+$("#update-new-student-settings").click(function () {
     let price = $("#month-price").val();
     let status_id = $("#new-student-status").val();
-    if (!validate_new_student_parameters(price, status)) {return}
+    if (!validate_new_student_parameters(price, status)) {
+        return
+    }
     if (status_id === '0') {
         sessionStorage.setItem('student_default_status', "false");
     }

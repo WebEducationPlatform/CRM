@@ -1,13 +1,8 @@
 package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Message;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import org.slf4j.Logger;
@@ -54,6 +49,8 @@ public class MailSendServiceImpl implements MailSendService {
     private final MailConfig mailConfig;
     private String emailLogin;
     private final Environment env;
+    private final ProjectPropertiesService projectPropertiesService;
+
 
     @Autowired
     public MailSendServiceImpl(JavaMailSender javaMailSender,
@@ -62,7 +59,7 @@ public class MailSendServiceImpl implements MailSendService {
                                ClientService clientService,
                                ClientHistoryService clientHistoryService,
                                MessageService messageService,
-                               MailConfig mailConfig) {
+                               MailConfig mailConfig, ProjectPropertiesService projectPropertiesService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.clientService = clientService;
@@ -70,6 +67,7 @@ public class MailSendServiceImpl implements MailSendService {
         this.messageService = messageService;
         this.env = environment;
         this.mailConfig = mailConfig;
+        this.projectPropertiesService = projectPropertiesService;
         checkConfig(environment);
     }
 
@@ -89,13 +87,14 @@ public class MailSendServiceImpl implements MailSendService {
     public void sendEmailInAllCases(Client client) {
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper;
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        MessageTemplate template = properties.getAutoAnswerTemplate();
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText("Добрый день, спасибо за вашу заявку, скоро мы с вами свяжемся! " +
-                    "Когда вам было бы удобно провести первый созвон с ментором?", true);
+            mimeMessageHelper.setText(template.getOtherText(), true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
