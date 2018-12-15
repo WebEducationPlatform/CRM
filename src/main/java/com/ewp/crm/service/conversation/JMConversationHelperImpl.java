@@ -27,15 +27,16 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     @Override
     public void startNewChat(Client client) {
 
-        endChat();
+//        endChat(); Зачем?
 
         this.client = client;
         chatMap = new HashMap<>();
 
         List<SocialProfile> socialProfiles = client.getSocialProfiles();
 
-        //скидываем чаты
-        conversations.forEach(JMConversation::dropChat);
+        //скидываем чаты Зачем?
+//        conversations.forEach(JMConversation::dropChat(client));
+
 
         for (SocialProfile socialProfile : socialProfiles) {
             try {
@@ -56,7 +57,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public void endChat() {
+    public void endChat(Client client) {
         client = null;
         if (chatMap != null) {
             chatMap.clear();
@@ -64,14 +65,14 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public ChatMessage sendMessage(String text, ChatType chatType) {
-        JMConversation conversation = chatMap.get(chatType);
+    public ChatMessage sendMessage(ChatMessage message) {
+        JMConversation conversation = chatMap.get(message.getChatType());
 
         if (conversation == null) {
             return null;
         }
 
-        return conversation.sendMessage(text);
+        return conversation.sendMessage(message);
     }
 
     @Override

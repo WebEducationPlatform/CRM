@@ -10,10 +10,10 @@ public interface JMConversationHelper {
     void startNewChat(Client client);
 
     //желательно вызывать при окончании чата
-    void endChat();
+    void endChat(Client client);
 
     //отправляет сообщение в определенный чат и возвращает новое сообщение
-    ChatMessage sendMessage(String text, ChatType chatType);
+    ChatMessage sendMessage(ChatMessage message);
 
     //помечает данное сообщение как прочитанное в определенном чате
     ChatMessage markMessageAsRead(ChatMessage message, ChatType chatType);

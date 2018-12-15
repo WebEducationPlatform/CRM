@@ -11,10 +11,10 @@ public interface JMConversation {
     void startNewChat(String id);
 
     //желательно вызывать при окончании чата
-    void dropChat();
+    void dropChat(Chat chat);
 
     //отправляет сообщение и возвращает новое сообщение
-    ChatMessage sendMessage(String text);
+    ChatMessage sendMessage(ChatMessage message);
 
     //помечает данное сообщение как прочитанное
     ChatMessage markMessageAsRead(ChatMessage message);
