@@ -9,7 +9,15 @@ public class ChatMessage {
     private String text;
     private LocalDateTime time;
     private Boolean isRead;
-    private String linkToProfile; //url
+    private Boolean isOutgoing;
+    //Тут это не нужно, есть у Interlocutor
+//    private String linkToProfile; //url
+
+
+    public ChatMessage(ChatType chatType, String text) {
+        this.chatType = chatType;
+        this.text = text;
+    }
 
     public Long getId() {
         return id;
@@ -51,11 +59,19 @@ public class ChatMessage {
         isRead = read;
     }
 
-    public String getLinkToProfile() {
-        return linkToProfile;
+//    public String getLinkToProfile() {
+//        return linkToProfile;
+//    }
+//
+//    public void setLinkToProfile(String linkToProfile) {
+//        this.linkToProfile = linkToProfile;
+//    }
+
+    public Boolean getOutgoing() {
+        return isOutgoing;
     }
 
-    public void setLinkToProfile(String linkToProfile) {
-        this.linkToProfile = linkToProfile;
+    public void setOutgoing(Boolean outgoing) {
+        isOutgoing = outgoing;
     }
 }

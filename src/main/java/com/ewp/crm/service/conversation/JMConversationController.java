@@ -36,9 +36,8 @@ public class JMConversationController {
 
     @GetMapping(value = "/close", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public HttpEntity<?> closeChat() {
-
-        conversationHelper.endChat();
+    public HttpEntity<?> closeChat(@RequestParam("id") long clientId) {
+        conversationHelper.endChat(clientService.get(clientId));
 
         return ResponseEntity.EMPTY;
     }
@@ -47,9 +46,7 @@ public class JMConversationController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<ChatMessage> sendMessage(@RequestParam String text,
                                                    @RequestParam String chatType) {
-
-        ChatMessage chatMessage = conversationHelper.sendMessage(text, ChatType.valueOf(chatType));
-
+        ChatMessage chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
         return ResponseEntity.ok(chatMessage);
     }
 
