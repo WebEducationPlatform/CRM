@@ -133,6 +133,7 @@ function clientsSearch() {
 }
 
 $(document).ready(function () {
+    get_tg_me();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
@@ -373,22 +374,6 @@ function assignUser(id, user, principalId) {
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".user-icon").remove();
-
-            //If admin assigned himself
-            // if(principalId === user){
-            //     //If admin assigned himself second time
-            //     if(unassign_btn.length === 0){
-            //         target_btn.before(
-            //             "<button " +
-            //             "   id='unassign-client" + id +"' " +
-            //             "   onclick='unassign(" + id +")' " +
-            //             "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
-            //         );
-            //     }
-            //If admin not assign himself, he don`t have unassign button
-            // }else {
-            //     unassign_btn.remove();
-            // }
             assignBtn.remove();
 
             //Add Worker icon and info for search by worker
@@ -960,6 +945,9 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
+        if ($('#custom-eTemplate-body').val().length===0){
+            return currentStatus.text("Введите текст сообщения!");
+        }
         var formData = {
             clientId: clientId, templateId: templateId,
             body: $('#custom-eTemplate-body').val()
@@ -1691,18 +1679,118 @@ function deleteCallDate(id) {
     });
 };
 
+let telegram_me;
+let telegram_me_photo;
+
+function get_tg_me() {
+    if (typeof telegram_me_photo !== 'undefined') {return;}
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/me',
+        success: function (response) {
+            telegram_me = response;
+            $.ajax({
+                type: 'GET',
+                url: '/rest/telegram/file/photo',
+                data: {id: response.profilePhoto.small.id},
+                success: function (response) {
+                    telegram_me_photo = response;
+                }
+            });
+        }
+    });
+}
+
+let telegram_user;
+let telegram_user_photo;
+
+function get_tg_user(clientId) {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/user',
+        data: {id: clientId},
+        success: function (response) {
+            if (response.profilePhoto === null) {
+                telegram_user_photo = null;
+                return;
+            }
+            telegram_user = response;
+            $.ajax({
+                type: 'GET',
+                url: '/rest/telegram/file/photo',
+                data: {id: response.profilePhoto.small.id},
+                success: function (response) {
+                    telegram_user_photo = response;
+                }
+            });
+        }
+    });
+}
+
+let conversations = $("#conversations-body");
+
+$('#conversations-modal').on('show.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/open',
+        data: {clientId: clientId},
+        success: function (response) {
+            if (response.chat === undefined && response.messages === undefined) {return;}
+            let messages = response.messages.messages;
+            let last_read = response.chat.lastReadOutboxMessageId;
+            let data = messages.reverse();
+            $("#chat-messages").empty();
+            for (let i in data) {
+                let message_id = data[i].id;
+                let send_date = new Date(data[i].date * 1000);
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker/photo!';
+                let is_outgoing = data[i].isOutgoing;
+                append_message(message_id, send_date, text, is_outgoing, last_read);
+            }
+            $("#send-selector").prop('value', 'telegram');
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    });
+});
+
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    $("#chat-messages").empty();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/close',
+        data: {clientId: clientId}
+    })
+});
+
+function client_has_telegram(client) {
+    let has_telegram = false;
+    for (let i = 0; i < client.socialProfiles.length; i++) {
+        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+            has_telegram = true;
+            break;
+        }
+    }
+    return has_telegram;
+}
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
-
         $.ajax({
             async: false,
             type: 'GET',
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
+                if (!client_has_telegram(client) && client.phoneNumber !== '') {
+                    set_telegram_id_by_phone(client.phoneNumber);
+                }
+                $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
@@ -1767,6 +1855,9 @@ $(function () {
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
+                        }
+                        if (client.socialProfiles[i].socialProfileType.name == 'telegram') {
+                            get_tg_user(clientId);
                         }
                     }
 
@@ -1897,26 +1988,26 @@ $(function () {
             data: formData,
 
             success: function (result) {
-            if(result.length > 0) {
-                $.ajax({
-                    type: "POST",
-                    url: "rest/client/postpone/getComment",
-                    data: formData,
+                if(result.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "rest/client/postpone/getComment",
+                        data: formData,
 
-                    success: function (result) {
-                        let currentModal = $('#postponeCommentModal');
-                        currentModal.modal('show');
-                        let div = document.querySelector(".colorChoose");
-                        div.innerHTML = "";
-                        var node = document.createElement('div');
-                        node.innerHTML = '<p> ' + result;
-                        div.appendChild(node);
-                    },
-                    error: function (e) {
-                        console.log(e)
-                    }
-                });
-            }
+                        success: function (result) {
+                            let currentModal = $('#postponeCommentModal');
+                            currentModal.modal('show');
+                            let div = document.querySelector(".colorChoose");
+                            div.innerHTML = "";
+                            var node = document.createElement('div');
+                            node.innerHTML = '<p> ' + result;
+                            div.appendChild(node);
+                        },
+                        error: function (e) {
+                            console.log(e)
+                        }
+                    });
+                }
 
             },
             error: function (e) {

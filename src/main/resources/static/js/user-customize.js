@@ -48,7 +48,6 @@ $("#update-payment-notification").click( function () {
 
 //Validate input data
 function validate_input(data) {
-    console.log(data);
     if ((data.paymentNotificationEnabled == true) && (data.paymentMessageTemplate == '')) {
         alert("Выберите шаблон или отключите оповещение!");
         return false;
@@ -59,6 +58,45 @@ function validate_input(data) {
     }
     return true;
 }
+
+//Send sms to phone number
+$("#telegram-auth-send-phone").click( function () {
+    if(!$("#telegram-auth-phone")[0].checkValidity()){alert("Не верный формат телефона: +74951234567");return}
+    let phone = $("#telegram-auth-phone").val();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/phone-code',
+        data: {phone: phone},
+        success: function () {
+            $("#telegram-auth-send").prop("disabled", null);
+        }
+    })
+});
+
+//send SMS authorization code
+$("#telegram-auth-send").click( function () {
+    let code = $("#telegram-auth-code").val();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/sms-code',
+        data: {code: code},
+        success: function () {
+            location.reload();
+        }
+    })
+});
+
+//Logout from Telegram
+$("#telegram-logout-button").click( function () {
+    if(!confirm("На данный момент сервер авторизован в Telegram.\r\nВы уверены, что хотите выйти?")) {return}
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/logout',
+        success: function () {
+            location.reload();
+        }
+    })
+});
 
 //Fill values on new student configuration modal show up.
 $('#new-student-config-modal').on('show.bs.modal', function () {
