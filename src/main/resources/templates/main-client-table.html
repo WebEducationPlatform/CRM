@@ -27,6 +27,25 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                        <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
+                                class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
+                            <i class="glyphicon glyphicon-chevron-right"></i></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <p style="margin-left: 20px;">Сначала</p>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_FIRST">Новые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_FIRST">Старые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_CHANGES_FIRST">Со свежей историей</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_CHANGES_FIRST">Со старой историей</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
                                                        data-toggle="modal" th:value="${status.id}">Удалить статус</a>
                         </li>
@@ -40,7 +59,7 @@
                                                                                          th:value="${status.id}"
                                                                                          th:checked="${status.createStudent}"/></a>
                         </li>
-                        <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i
+                        <li class="glyphicon dropdown"><a class="link-cursor-pointer">Поменять позицию<i
                                 class="glyphicon glyphicon-chevron-right"></i></a>
                             <ul class="dropdown-menu sub-menu">
                                 <li class="link-cursor-pointer" th:each="st:${statuses}"
@@ -386,6 +405,6 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
-
+<script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 </body>
 </html>
