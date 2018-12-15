@@ -1,5 +1,6 @@
 package com.ewp.crm.repository.interfaces;
 
+import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,5 +24,8 @@ public interface MailingMessageRepository extends CommonGenericRepository<Mailin
 
     @Query("SELECT mail.date FROM MailingMessage mail")
     List<LocalDateTime> getTimeMailingMeassage();
+
+    @Query("SELECT mail.clientsData FROM MailingMessage mail where mail.id = :mailId")
+    List<ClientData> getClientDataById(@Param("mailId") Long id);
 
 }
