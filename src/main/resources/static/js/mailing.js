@@ -7,9 +7,11 @@ const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
-const SEND_TO_VK = "Укажите список id профилей ВК получателей (каждый с новой строки):";
+const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):";
 
 var messageType = 'email';
+var vkPage;
+var listMailing;
 
 function sendMessages(sendnow) {
     let date = $('#messageSendingTime').val();
@@ -37,7 +39,10 @@ function sendMessages(sendnow) {
         templateText: text,
         text: x,
         date: date,
-        recipients: recipients
+        recipients: recipients,
+        vkType: vkPage = $("#vkTokenSelect").val(),
+        listMailing: listMailing
+
     };
     $.ajax({
         type: "POST",
@@ -59,11 +64,12 @@ function sendMessages(sendnow) {
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    $("#vkTokenSelect").hide()
+    $("#falseHistory").hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
             return;
         }
-
         messageType = $(this).attr("id");
 
         if (messageType !== 'email') {
@@ -86,12 +92,46 @@ $(document).ready(function () {
         });
         $(this).addClass(BUTTON_INFO_CLASS);
     });
+
+    $.ajax({
+        url: '/get/sender',
+        contentType: "application/json",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].vkToken!=null) {
+                    $('<option value="' + data[i].vkToken + '">' + data[i].firstName + '</option>').appendTo($('#vkTokenSelect'))
+                }
+            }
+        }
+    });
+
+    $("#historyMailingTable").on('click', 'button[id="getRecipient"]', function(e) {
+        var id = $(this).closest('tr').children('td:first').text();
+        $.ajax({
+            type: "POST",
+            url: "/get/client-data",
+            data: {
+                mailId: id
+            },
+            success: function (data) {
+                for (var j = 0; j < data.length; j++) {
+                    $("#recipientBodyMailing").append("<tr> \
+                            <td>" + data[j].info + "</td> \
+                        </tr>");
+                }
+            }
+        });
+    })
 });
 
 /**
  * Функция, настраивающая datarangepicker
  */
 $(document).ready(function () {
+    $("#vkTokenSelect").hide()
+    $("#falseHistory").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
         "singleDatePicker": true, //отключаем выбор диапазона дат (range)
@@ -114,7 +154,6 @@ $(document).ready(function () {
         },
         "linkedCalendars": false,
         "startDate": startDate,
-        "minDate": startDate //стартовая дата будет совпадать с минимальной
     }, function (start, end, label) {
         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
             end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -132,6 +171,8 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
  * Заполнение блока адресов
  */
 $(document).ready(function () {
+    $("#vkTokenSelect").hide()
+    $("#falseHistory").hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -159,6 +200,8 @@ $(document).ready(function () {
  */
 
 $(document).ready(function () {
+    $("#vkTokenSelect").hide();
+    $("#falseHistory").hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
@@ -192,6 +235,7 @@ function ckeditorAddAllToolbars() {
 
     });
     $("#imgSelectBtn").show()
+    $("#vkTokenSelect").hide()
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -200,12 +244,20 @@ function ckeditorRemoveAllToolbars() {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
     $("#imgSelectBtn").hide()
+    if(messageType === "vk") {
+        $("#vkTokenSelect").show()
+    } else {
+        $("#vkTokenSelect").hide()
+    }
+
 }
 
 /**
  * Визуализация событий dragover, dragleave, dragend, drop поля адресов
  */
 $(document).ready(function () {
+    $("#vkTokenSelect").hide()
+    $("#falseHistory").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
             $(this).addClass(DROP_ZONE_IS_DRAGOVER_CLASS);
@@ -268,3 +320,307 @@ function insertNewPicture(userID, templateID, input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+function showHistory() {
+
+    let startFromDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
+    $('#historyFromTime').daterangepicker({
+        "singleDatePicker": true, //отключаем выбор диапазона дат (range)
+        "showWeekNumbers": false,
+        "timePicker": true,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 10,
+        "locale": {
+            "format": "DD.MM.YYYY",
+            "separator": " - ",
+            "applyLabel": "Apply",
+            "cancelLabel": "Cancel",
+            "fromLabel": "From",
+            "toLabel": "To",
+            "customRangeLabel": "Custom",
+            "weekLabel": "W",
+            "daysOfWeek": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+            "monthNames": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "firstDay": 0
+        },
+        "linkedCalendars": false,
+        "startDate": startFromDate,
+        //"minDate": startFromDate //стартовая дата будет совпадать с минимальной
+    }, function (start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
+            end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    });
+
+    let startToDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
+    $('#historyToTime').daterangepicker({
+        "singleDatePicker": true, //отключаем выбор диапазона дат (range)
+        "showWeekNumbers": false,
+        "timePicker": true,
+        "timePicker24Hour": true,
+        "timePickerIncrement": 10,
+        "locale": {
+            "format": "DD.MM.YYYY",
+            "separator": " - ",
+            "applyLabel": "Apply",
+            "cancelLabel": "Cancel",
+            "fromLabel": "From",
+            "toLabel": "To",
+            "customRangeLabel": "Custom",
+            "weekLabel": "W",
+            "daysOfWeek": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+            "monthNames": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "firstDay": 0
+        },
+        "linkedCalendars": false,
+        "startDate": startToDate,
+    }, function (start, end, label) {
+        console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
+            end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    });
+
+    $.ajax({
+        url: '/mailing/history',
+        contentType: "application/json",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                date = new Date(data[i].date);
+                year = date.getFullYear();
+                month = date.getMonth() + 1;
+                dt = date.getDate();
+                hour = date.getHours();
+                minutes = date.getMinutes();
+                seconds = date.getSeconds();
+
+
+                if (dt < 10) {
+                    dt = '0' + dt;
+                }
+                if (month < 10) {
+                    month = '0' + month;
+                }
+
+                if (hour < 10) {
+                    hour = '0' + hour
+                }
+
+                if (minutes < 10) {
+                    minutes = '0' + minutes
+                }
+                $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
+                        </tr>");
+
+            }
+
+        }
+    });
+}
+
+function removeHistory() {
+    $('#managerSelect').val('');
+    $('#historyBodyMailing').empty();
+    $('#timeSelect').empty();
+    $('#recipientBodyMailing').empty();
+};
+
+
+
+
+function addToListMailing() {
+    let recipientsEmail = $('#listEmail').val();
+    let recipientsSms = $('#listSms').val();
+    let recipientsVk = $('#listVk').val();
+    let listName = $('#listName').val();
+
+    let wrap = {
+        recipientsEmail : recipientsEmail,
+        recipientsSms : recipientsSms,
+        recipientsVk : recipientsVk,
+        listName : listName
+    }
+
+    $.ajax({
+        type: "POST",
+        url: '/list-mailing',
+        data: wrap,
+        success: function () {
+            location.reload();
+        }
+    });
+}
+
+function showManagerHistory() {
+
+    var mangerId = $("#managerSelect").val();
+    var managerFromTime = $("#historyFromTime").val();
+    var managerToTime = $("#historyToTime").val();
+
+    $.ajax({
+        url: '/mailing/manager/history',
+        type: 'POST',
+        data: {
+            managerId: mangerId,
+            managerFromTime: managerFromTime,
+            managerToTime: managerToTime
+        },
+        success: function (data) {
+            $('#historyBodyMailing').empty();
+            for (var i = 0; i < data.length; i++) {
+                date = new Date(data[i].date);
+                year = date.getFullYear();
+                month = date.getMonth() + 1;
+                dt = date.getDate();
+                hour = date.getHours();
+                minutes = date.getMinutes();
+                seconds = date.getSeconds();
+
+                if (dt < 10) {
+                    dt = '0' + dt;
+                }
+
+                if (month < 10) {
+                    month = '0' + month;
+                }
+
+                if (hour < 10) {
+                    hour = '0' + hour
+                }
+
+                if (minutes < 10) {
+                    minutes = '0' + minutes
+                }
+
+                $("#historyBodyMailing").append("<tr> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td><button data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
+                        </tr>");
+
+
+                for (var j = 0; j < data[i].clientsData.length; j++) {
+                    $("#recepientBodyMailing").append("<tr> \
+                            <td>" + data[i].clientsData[j].info + "</td> \
+                        </tr>");
+
+                }
+            }
+        }
+    });
+}
+function showListMailing() {
+    if (messageType !== "email") {
+        x = CKEDITOR.instances.editor.document.getBody().getText();
+    } else {
+        x = "";
+    }
+    listGroupName = $('#listMailingSelect').val()
+        $.ajax({
+            url: '/get/listMailing',
+            type: 'POST',
+            data: {
+                listGroupName: listGroupName
+            },
+            success: function (data) {
+
+                if (messageType == "email") {
+                    $("#addresses-area").val(data.recipientsEmail)
+                } else if (messageType == 'sms') {
+                    $("#addresses-area").val(data.recipientsSms)
+                } else if (messageType == "vk") {
+                    $("#addresses-area").val(data.recipientsVk)
+                }
+            }
+
+        });
+}
+
+
+function openEditShowListMailing() {
+
+    listGroupName = $('#listMailingSelect').val()
+
+    if(listGroupName != "null") {
+        $("#deleteListMaling").removeAttr("disabled");
+        $("#editButton").removeAttr("disabled");
+    }
+
+    $.ajax({
+        url: '/get/listMailing',
+        type: 'POST',
+        data: { listGroupName: listGroupName
+        },
+        success: function (data) {
+
+                $("#editListName").val(data.listName)
+
+                $("#editListEmail").val(data.recipientsEmail)
+
+                $("#editListSms").val(data.recipientsSms)
+
+                $("#editListVk").val(data.recipientsVk)
+        }
+
+    });
+}
+
+
+function editListMailing() {
+
+    var listName = $("#listMailingSelect").val()
+
+    var editListName = $("#editListName").val()
+
+    var editListEmail = $("#editListEmail").val()
+
+    var editListSms = $("#editListSms").val()
+
+    var editListVk = $("#editListVk").val()
+
+    $.ajax({
+        url: '/edit/list-mailing',
+        type: 'POST',
+        data: { listName: listName,
+                editListName: editListName,
+                editRecipientsEmail: editListEmail,
+                editRecipientsSms: editListSms,
+                editRecipientsVk: editListVk
+        }, success: function () {
+            location.reload();
+        }
+
+    });
+}
+
+function deleteListMailing() {
+
+    var listName = $("#listMailingSelect").val();
+
+    $.ajax({
+        url: '/remove/list-mailing',
+        type: 'POST',
+        data: { listName: listName
+        }, success: function () {
+            location.reload();
+        }
+
+    });
+
+}
+
+function turnDisable() {
+    $("#deleteListMaling").attr("disabled", "disabled");
+    $("#editButton").attr("disabled", "disabled");
+}
+
+function removeRecipient() {
+    $('#recipientBodyMailing').empty();
+}
+
+

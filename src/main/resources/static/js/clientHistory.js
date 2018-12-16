@@ -17,9 +17,9 @@ $(document).ready(function () {
         let params = {
             page: page
         };
-        let history_table =  $('#client-' + clientId + 'history').find("tbody");
+        let history_table = $('#client-' + clientId + 'history').find("tbody");
         $.get(url, params, function takeHistoryList(list) {
-            if(list.length < 10) {
+            if (list.length < 10) {
                 current.hide();
             }
             //draw client history
@@ -62,18 +62,17 @@ $(document).ready(function () {
 });
 
 
-
 function drawClientHistory(list, history_table) {
     for (let i = 0; i < list.length; i++) {
         let $tdLink = "";
         if (list[i].link != null) {
             $tdLink = "" +
                 "<td style='width: 10%'>" +
-                    "<button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" onclick = 'viewClientHistoryMessage(" + list[i].link + ")'>" +
-                    "</button>" +
-                    "<div id=\"modalClientHistoryMessageHolder\">" +
-                    "</div>"
-                "</td>"
+                "<button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" onclick = 'viewClientHistoryMessage(" + list[i].link + ")'>" +
+                "</button>" +
+                "<div id=\"modalClientHistoryMessageHolder\">" +
+                "</div>"
+            "</td>"
         }
         if (list[i].recordLink != null) {
             $tdLink = "<td style='width: 10%'>" +
@@ -89,11 +88,36 @@ function drawClientHistory(list, history_table) {
                 "</td>"
         }
         let d = new Date(list[i].date);
-        let date = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+        let date = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
             d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+        let title = list[i].title;
+        if (title.includes("Новая заявка")) {
+            // glyphicon glyphicon-question-sign
+            title =
+                'Новая заявка'
+                +'<button class="glyphicon glyphicon-question-sign" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">'
+                + '</button>'
+                + '<div class="collapse" id="collapseExample">'
+                + '<div class="well">'
+                + list[i].title
+                + '</div>'
+                + '</div>';
+        }
+        if (title.includes("Повторная заявка")) {
+            title =
+                'Повторная заявка'
+                +'<button class="glyphicon glyphicon-question-sign" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">'
+                + '</button>'
+                + '<div class="collapse" id="collapseExample">'
+                + '<div class="well">'
+                + list[i].title
+                + '</div>'
+                + '</div>';
+
+        }
         history_table.append(
             "<tr class='remove-history'>" +
-            "   <td>" + list[i].title + "</td>" +
+            "   <td>" + title + "</td>" +
             "   <td class=\"client-history-date\">" + date + "</td>" +
             $tdLink +
             "</tr>"
@@ -134,11 +158,11 @@ function loadClientHistory(element) {
     let params = {
         page: "0"
     };
-    let history_table =  $('#client-' + client_id + 'history').find("tbody");
+    let history_table = $('#client-' + client_id + 'history').find("tbody");
     let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
     $.get(url, params, function get(list) {
     }).done(function (list) {
-        if(list.length < 10) {
+        if (list.length < 10) {
             upload_more_btn.hide();
         } else {
             upload_more_btn.show();

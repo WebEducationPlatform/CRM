@@ -16,8 +16,6 @@ public class ClientHistory {
 	@Column(name = "history_id")
 	private Long id;
 
-
-
 	@Column(name = "title", nullable = false)
 	@Lob
     private String title;
@@ -136,7 +134,7 @@ public class ClientHistory {
         this.recordLink = recordLink;
     }
 
-	public enum Type {
+    public enum Type {
 		SOCIAL_REQUEST("Клиент был добавлен из"),
 		STATUS("переместил клиента в статус:"),
 		DESCRIPTION("добавил комментарий к клиенту:"),

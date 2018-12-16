@@ -2,10 +2,13 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
+import com.ewp.crm.service.interfaces.MailingMessageService;
 import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +17,20 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,17 +49,21 @@ public class SendMailsController {
     private final String vkURL = "https://vk.com/";
     private String pattern;
     private String template;
-    private MailingMessageRepository mailingMessageRepository;
+    private final MailingMessageService mailingMessageSendService;
     private final MailingService mailingService;
+    private final UserService userService;
+
+
 
     @Autowired
     private VKService vkService;
 
     @Autowired
-    public SendMailsController(MailingMessageRepository mailingMessageRepository,
-                               MailingService mailingService) {
-        this.mailingMessageRepository = mailingMessageRepository;
+    public SendMailsController(MailingMessageService mailingMessageSendService, MailingService mailingService,
+                               UserService userService) {
+        this.mailingMessageSendService = mailingMessageSendService;
         this.mailingService = mailingService;
+        this.userService = userService;
     }
 
     @PostMapping(value = "/client/mailing/send")
@@ -65,8 +72,11 @@ public class SendMailsController {
                                                   @RequestParam("recipients") String recipients,
                                                   @RequestParam("text") String text,
                                                   @RequestParam("date") String date,
-                                                  @RequestParam("sendnow") boolean sendnow) {
-
+                                                  @RequestParam("sendnow") boolean sendnow,
+                                                  @RequestParam("vkType") String vkType,
+                                                  @AuthenticationPrincipal User userFromSession) {
+        MailingMessage message;
+        User user = userService.getUserByEmail(userFromSession.getEmail());
         switch (type) {
             case "vk":
                 pattern = vkPattern;
@@ -117,7 +127,11 @@ public class SendMailsController {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-        MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate);
+        if (type.equals("vk")) {
+            message = new MailingMessage(type, template, clientsInfo, destinationDate, vkType, user.getId());
+        } else {
+            message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
+        }
         if (sendnow) {
             if (!mailingService.sendMessage(message)) {
                 return ResponseEntity.noContent().build();
@@ -159,4 +173,52 @@ public class SendMailsController {
 
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @GetMapping(value = "/mailing/history", produces = "application/json")
+    public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
+        if (userFromSession.getRole().contains("OWNER")) {
+            return ResponseEntity.ok(mailingMessageSendService.getAll());
+        }
+        return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
+    }
+
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PostMapping("/mailing/manager/history")
+    public ResponseEntity<List<MailingMessage>> getHistoryMailForManager(@RequestParam("managerId") Long id,
+                                                                         @RequestParam("managerFromTime") String timeFrom,
+                                                                         @RequestParam("managerToTime") String timeTo) {
+        List<MailingMessage> list;
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        if (id != null) {
+            LocalDateTime destinationDateFrom = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            User user = userService.get(id);
+            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
+            list = mailingMessageSendService.getUserByIdAndDate(user.getId(), destinationDateFrom.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+        } else if (id == null) {
+            LocalDateTime destinationDate = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
+            list = mailingMessageSendService.getUserByDate(destinationDate.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+        } else {
+            list = mailingMessageSendService.getAll();
+        }
+        return ResponseEntity.ok(list);
+
+    }
+
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @GetMapping(value = "/get/sender")
+    public ResponseEntity<List<User>> getVkTokenSender(@AuthenticationPrincipal User userFromSession) {
+        if (userFromSession.getRole().contains("OWNER")) {
+            return ResponseEntity.ok(userService.getAll());
+        }
+        return ResponseEntity.ok(userService.getUserByVkToken(userFromSession.getId()));
+    }
+
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PostMapping(value = "/get/client-data")
+    public ResponseEntity<List<ClientData>> getVkTokenSender(@RequestParam("mailId") Long id) {
+        return ResponseEntity.ok(mailingMessageSendService.getClientDataById(id));
+    }
+
 }
