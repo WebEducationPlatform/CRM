@@ -4,6 +4,10 @@ import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.SocialProfileRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.service.conversation.ChatMessage;
+import com.ewp.crm.service.conversation.ChatType;
+import com.ewp.crm.service.conversation.Interlocutor;
+import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
 import org.apache.commons.io.FileUtils;
 import org.drinkless.tdlib.Client;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,7 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @PropertySource(value = "file:./telegram.properties", encoding = "Cp1251")
-public class TelegramServiceImpl implements TelegramService {
+public class TelegramServiceImpl implements TelegramService, JMConversation {
 
     private static Client client = null;
     private static TdApi.AuthorizationState authorizationState = null;
@@ -253,6 +258,51 @@ public class TelegramServiceImpl implements TelegramService {
     public boolean isTdlibInstalled() {
         return tdlibInstalled;
     }
+
+    @Override
+    public ChatType getChatTypeOfConversation() {
+        return null;
+    }
+
+    @Override
+    public void endChat(String chatId) {
+        closeChat(Long.parseLong(chatId));
+    }
+
+    //JMConversation Implementation//
+
+
+    @Override
+    public ChatMessage sendMessage(ChatMessage message) {
+        return null;
+    }
+
+    @Override
+    public List<ChatMessage> getNewMessages() {
+        return null;
+    }
+
+    @Override
+    public List<ChatMessage> getMessages(int count) {
+        return null;
+    }
+
+    @Override
+    public List<ChatMessage> getReadMessages(String chatId) {
+        return null;
+    }
+
+    @Override
+    public Interlocutor getInterlocutor(String recipientId) {
+        return null;
+    }
+
+    @Override
+    public Interlocutor getMe(String recipientId) {
+        return null;
+    }
+
+    //JMConversation Implementation//
 
     private class UpdatesHandler implements Client.ResultHandler {
         @Override
