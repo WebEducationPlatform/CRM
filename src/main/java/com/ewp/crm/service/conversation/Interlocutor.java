@@ -8,6 +8,7 @@ public class Interlocutor {
     private String representation;
     private String profileUrl;
     private String avatarUrl;
+    private ChatType chatType;
 
     public Interlocutor(String id, String representation){
         this.id = id;
@@ -60,5 +61,13 @@ public class Interlocutor {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ChatType getChatType() {
+        return chatType;
+    }
+
+    public void setChatType(ChatType chatType) {
+        this.chatType = chatType;
     }
 }

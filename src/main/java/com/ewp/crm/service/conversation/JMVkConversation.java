@@ -51,7 +51,7 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public void dropChat(Chat chat) {
+    public void endChat(String chatId) {
         if (messages != null) {
             messages.clear();
         } else {
@@ -74,31 +74,32 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public void startNewChat(String id) {
-
-//        dropChat(); Зачем?
-
-        //Получаем данные собеседника
-        //interlocutor = new Interlocutor(id, "");
-    }
-
-    @Override
     public ChatMessage sendMessage(ChatMessage message) {
         return null;
     }
 
     @Override
-    public ChatMessage markMessageAsRead(ChatMessage message) {
+    public List<ChatMessage> getMessages(String chatId, int count) {
         return null;
     }
 
     @Override
-    public List<ChatMessage> getMessages(int count) {
+    public List<ChatMessage> getReadMessages(String chatId) {
         return null;
     }
 
     @Override
-    public List<ChatMessage> getNewMessages() {
+    public Interlocutor getInterlocutor(String recipientId) {
+        return null;
+    }
+
+    @Override
+    public Interlocutor getMe(String recipientId) {
+        return null;
+    }
+
+    @Override
+    public List<ChatMessage> getNewMessages(String chatId, int count) {
         return null;
     }
 }

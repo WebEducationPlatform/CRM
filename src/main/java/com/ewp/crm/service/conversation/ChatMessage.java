@@ -10,8 +10,6 @@ public class ChatMessage {
     private LocalDateTime time;
     private Boolean isRead;
     private Boolean isOutgoing;
-    //Тут это не нужно, есть у Interlocutor
-//    private String linkToProfile; //url
 
 
     public ChatMessage(ChatType chatType, String text) {
@@ -59,15 +57,7 @@ public class ChatMessage {
         isRead = read;
     }
 
-//    public String getLinkToProfile() {
-//        return linkToProfile;
-//    }
-//
-//    public void setLinkToProfile(String linkToProfile) {
-//        this.linkToProfile = linkToProfile;
-//    }
-
-    public Boolean getOutgoing() {
+    public Boolean isOutgoing() {
         return isOutgoing;
     }
 
