@@ -1,5 +1,7 @@
 package com.ewp.crm.models.dto;
 
+import java.util.Objects;
+
 public class StudentProgressInfo {
     private String email;
     private String course;
@@ -56,5 +58,21 @@ public class StudentProgressInfo {
                 ", module='" + module + '\'' +
                 ", chapter='" + chapter + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StudentProgressInfo that = (StudentProgressInfo) o;
+        return Objects.equals(email, that.email) &&
+                Objects.equals(course, that.course) &&
+                Objects.equals(module, that.module) &&
+                Objects.equals(chapter, that.chapter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email, course, module, chapter);
     }
 }

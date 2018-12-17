@@ -85,8 +85,8 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     private long STATUS_UPDATE_PERIOD_IN_SECONDS;
 
     @Override
-    public List<Student> getStudentsWithOldStatus() {
-        return studentRepositoryCustom.getStudentsWithOldStatus(STATUS_UPDATE_PERIOD_IN_SECONDS);
+    public List<String> getEmailsStudentsWithOldStatus() {
+        return studentRepositoryCustom.getEmailsStudentsWithOldStatus(STATUS_UPDATE_PERIOD_IN_SECONDS);
     }
 
     @Override

@@ -9,5 +9,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface EwpInfoService {
-    List<StudentProgressInfo> getStudentProgressInfo(List<Student> listStudents);
+    List<StudentProgressInfo> getStudentProgressInfo(List<String> listEmail);
 }

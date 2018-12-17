@@ -32,9 +32,10 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
-    public List<Student> getStudentsWithOldStatus(long timeLimitInSeconds) {
+    public List<String> getEmailsStudentsWithOldStatus(long timeLimitInSeconds) {
         LocalDateTime dateTimeLimit = LocalDateTime.now().minusSeconds(timeLimitInSeconds);
-        return entityManager.createQuery(("SELECT s FROM Student s WHERE s.StatusDate < :dateTimeLimit OR s.StatusDate IS NULL"))
+        return entityManager.createQuery("SELECT DISTINCT cl.email FROM Student st LEFT JOIN st.client cl " +
+                "WHERE ((st.statusDate < :dateTimeLimit) OR (st.statusDate IS NULL))")
                 .setParameter("dateTimeLimit", dateTimeLimit)
                 .getResultList();
     }

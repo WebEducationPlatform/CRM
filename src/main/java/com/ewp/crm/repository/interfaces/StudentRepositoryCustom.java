@@ -8,7 +8,7 @@ public interface StudentRepositoryCustom {
 
     List<Student> getStudentsWithTodayNotificationsEnabled();
 
-    List<Student> getStudentsWithOldStatus(long timeLimitInSeconds);
+    List<String> getEmailsStudentsWithOldStatus(long timeLimitInSeconds);
 
     void detach(Student student);
 }

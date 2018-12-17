@@ -75,7 +75,7 @@ public class Student implements Diffable<Student> {
      * Дата последнег обновления статуса обучения
      */
     @Column (name = "status_date")
-    private LocalDateTime StatusDate;
+    private LocalDateTime statusDate;
 
     /**
      * Напоминать ли студенту по электронке (поля ниже по смс, в vk) об оплате
@@ -200,11 +200,11 @@ public class Student implements Diffable<Student> {
     }
 
     public LocalDateTime getStatusDate() {
-        return StatusDate;
+        return statusDate;
     }
 
     public void setStatusDate(LocalDateTime statusDate) {
-        StatusDate = statusDate;
+        this.statusDate = statusDate;
     }
 
     @Override

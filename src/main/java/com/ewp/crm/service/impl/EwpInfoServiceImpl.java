@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,8 +30,8 @@ public class EwpInfoServiceImpl implements EwpInfoService {
 
 
     @Override
-    public List<StudentProgressInfo> getStudentProgressInfo(List<Student> listStudents) {
-        String[] emails = listStudents.stream().map(student -> student.getClient().getEmail()).toArray(String[]::new);
+    public List<StudentProgressInfo> getStudentProgressInfo(List<String> listEmail) {
+        String[] emails = listEmail.toArray(new String[listEmail.size()]);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);

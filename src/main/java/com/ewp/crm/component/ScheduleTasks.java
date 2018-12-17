@@ -399,42 +399,32 @@ public class ScheduleTasks {
 	@Scheduled(cron = "0 1 0 * * *")
 	private void updateStudentProgress() {
 		if (ewpConfig.isUseEwpApi()) {
-			List<Student> listStudent = studentService.getStudentsWithOldStatus();
+			List<String> listEmail = studentService.getEmailsStudentsWithOldStatus();
 
-			for (int i = 0; i <= listStudent.size() % REQUEST_PORTION; i++) {
-				List<Student> portionListStudent = listStudent.subList(
-						REQUEST_PORTION * i, Math.min(REQUEST_PORTION * (i + 1),listStudent.size()));
+			List<StudentProgressInfo> listStudentProgressInfo = ewpInfoService.getStudentProgressInfo(listEmail);
 
-				List<StudentProgressInfo> listStudentProgressInfo = ewpInfoService.getStudentProgressInfo(portionListStudent);
+			for (StudentProgressInfo info : listStudentProgressInfo) {
+				String studentStatusNewName = info.getCourse() + " - " + info.getModule() + " - " + info.getChapter();
 
-				for (StudentProgressInfo info : listStudentProgressInfo) {
-					String studentStatusNewName =
-							info.getCourse()
-									+ " - "
-									+ info.getModule()
-									+ " - "
-									+ info.getChapter();
+				StudentStatus studentStatusNew = null;
 
-					StudentStatus studentStatusNew = null;
+				Optional<StudentStatus> studentStatusOptional = Optional.ofNullable(studentStatusService.getStudentStatusByName(studentStatusNewName));
+				studentStatusNew = studentStatusOptional.orElseGet(() -> studentStatusService.add(new StudentStatus(studentStatusNewName)));
 
-					Optional<StudentStatus> studentStatusOptional = Optional.ofNullable(studentStatusService.getStudentStatusByName(studentStatusNewName));
-					studentStatusNew = studentStatusOptional.orElseGet(() -> studentStatusService.add(new StudentStatus(studentStatusNewName)));
+				Client client = clientService.getClientByEmail(info.getEmail());
 
-					Client client = clientService.getClientByEmail(info.getEmail());
-
-					Student student = null;
-					Optional<Client> optionalClient = Optional.ofNullable(clientService.getClientByEmail(info.getEmail()));
-					if (optionalClient.isPresent()) {
-						Optional<Student> studentOptional = Optional.ofNullable(studentService.getStudentByClient(optionalClient.get()));
-						if (studentOptional.isPresent()) {
-							student = studentOptional.get();
-						}
+				Student student = null;
+				Optional<Client> optionalClient = Optional.ofNullable(clientService.getClientByEmail(info.getEmail()));
+				if (optionalClient.isPresent()) {
+					Optional<Student> studentOptional = Optional.ofNullable(studentService.getStudentByClient(optionalClient.get()));
+					if (studentOptional.isPresent()) {
+						student = studentOptional.get();
 					}
-					if (Optional.ofNullable(student).isPresent() && student.getStatus() != studentStatusNew) {
-						student.setStatus(studentStatusNew);
-						student.setStatusDate(LocalDateTime.now());
-						studentService.update(student);
-					}
+				}
+				if (Optional.ofNullable(student).isPresent() && student.getStatus() != studentStatusNew) {
+					student.setStatus(studentStatusNew);
+					student.setStatusDate(LocalDateTime.now());
+					studentService.update(student);
 				}
 			}
 		}
