@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -258,9 +259,10 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         return tdlibInstalled;
     }
 
+    //JMConversation Implementation//
     @Override
     public ChatType getChatTypeOfConversation() {
-        return null;
+        return ChatType.telegram;
     }
 
     @Override
@@ -268,40 +270,65 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         closeChat(Long.parseLong(chatId));
     }
 
-    //JMConversation Implementation//
-
-
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
         TdApi.Message tgMessage = sendChatMessage(Long.parseLong(message.getChatId()), message.getText());
-        LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(tgMessage.date), TimeZone.getDefault().toZoneId());
-        ChatMessage result = new ChatMessage(tgMessage.id, String.valueOf(tgMessage.chatId), ChatType.telegram, tgMessage.content.toString(), time, false, true);
-        return result;
+        return tdlibMessageToChatMessage(tgMessage);
     }
 
     @Override
     public List<ChatMessage> getNewMessages(String chatId, int count) {
-        return null;
+        TdApi.Messages tgMessages = getUnreadMessagesFromChat(Long.parseLong(chatId), count);
+        return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
     public List<ChatMessage> getMessages(String chatId, int count) {
-        return null;
+        TdApi.Messages tgMessages = getChatMessages(Long.parseLong(chatId), count);
+        return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
     public List<ChatMessage> getReadMessages(String chatId) {
+        Optional<TdApi.Chat> chat = getChat(Long.parseLong(chatId));
+        //TODO
         return null;
     }
 
     @Override
     public Interlocutor getInterlocutor(String recipientId) {
-        return null;
+        TdApi.User user = getUserById(Integer.parseInt(recipientId));
+        return tdlibUserToInterlocutor(user);
     }
 
     @Override
     public Interlocutor getMe(String recipientId) {
-        return null;
+        TdApi.User user = getMe();
+        return tdlibUserToInterlocutor(user);
+    }
+
+    private ChatMessage tdlibMessageToChatMessage(TdApi.Message message) {
+        ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(message.date), TimeZone.getDefault().toZoneId());
+        return new ChatMessage(message.id, String.valueOf(message.chatId), ChatType.telegram, message.content.toString(), time, false, true);
+    }
+
+    private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages) {
+        List<ChatMessage> result = new ArrayList<>();
+        for (TdApi.Message message : messages.messages) {
+            result.add(tdlibMessageToChatMessage(message));
+        }
+        return result;
+    }
+
+    private Interlocutor tdlibUserToInterlocutor(TdApi.User user) {
+        TdApi.File file = getFileById(user.profilePhoto.small.id);
+        String base64 = null;
+        try {
+            base64 = downloadFile(file);
+        } catch (IOException e) {
+            logger.error("File download failed!", e);
+        }
+        return new Interlocutor(String.valueOf(user.id), user.firstName, user.lastName, user.username, null, base64, ChatType.telegram);
     }
 
     //JMConversation Implementation//

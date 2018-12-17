@@ -3,32 +3,19 @@ package com.ewp.crm.service.conversation;
 public class Interlocutor {
 
     private String id;
-    private String firstName;
-    private String lastName;
-    private String representation;
     private String profileUrl;
     private String avatarUrl;
     private ChatType chatType;
 
+    public Interlocutor(String id, String profileUrl, String avatarUrl, ChatType chatType) {
+        this.id = id;
+        this.profileUrl = profileUrl;
+        this.avatarUrl = avatarUrl;
+        this.chatType = chatType;
+    }
+
     public Interlocutor(String id, String representation){
         this.id = id;
-        this.representation = representation;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getProfileUrl() {
@@ -45,14 +32,6 @@ public class Interlocutor {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
-    }
-
-    public String getRepresentation() {
-        return representation;
-    }
-
-    public void setRepresentation(String representation) {
-        this.representation = representation;
     }
 
     public String getId() {
