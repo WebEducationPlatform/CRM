@@ -1,6 +1,7 @@
 package com.ewp.crm.service.conversation;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class ChatMessage {
 
@@ -8,11 +9,11 @@ public class ChatMessage {
     private String chatId;
     private ChatType chatType;
     private String text;
-    private LocalDateTime time;
+    private ZonedDateTime time;
     private Boolean isRead;
     private Boolean isOutgoing;
 
-    public ChatMessage(Long id, String chatId, ChatType chatType, String text, LocalDateTime time, Boolean isRead, Boolean isOutgoing) {
+    public ChatMessage(Long id, String chatId, ChatType chatType, String text, ZonedDateTime time, Boolean isRead, Boolean isOutgoing) {
         this.id = id;
         this.chatId = chatId;
         this.chatType = chatType;
@@ -51,11 +52,11 @@ public class ChatMessage {
         this.text = text;
     }
 
-    public LocalDateTime getTime() {
+    public ZonedDateTime getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(ZonedDateTime time) {
         this.time = time;
     }
 
