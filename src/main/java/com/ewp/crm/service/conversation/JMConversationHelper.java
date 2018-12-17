@@ -12,9 +12,6 @@ public interface JMConversationHelper {
     //отправляет сообщение в определенный чат и возвращает новое сообщение
     ChatMessage sendMessage(ChatMessage message);
 
-    //помечает данное сообщение как прочитанное в определенном чате
-    ChatMessage markMessageAsRead(ChatMessage message);
-
     //Получаем не прочитынные сообщения из всех чатов
     //Создаем чат и открывем тут же.
     List<ChatMessage> getNewMessages(Client client);
@@ -30,5 +27,5 @@ public interface JMConversationHelper {
     List<Interlocutor> getInterlocutors(Client client);
 
     //Получить список всех собеседников всех возможных типов текущего пользователя
-    List<Interlocutor> getUs(Client client);
+    List<Interlocutor> getUs();
 }
