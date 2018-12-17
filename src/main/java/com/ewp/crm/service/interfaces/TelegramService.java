@@ -26,7 +26,7 @@ public interface TelegramService {
 
     void closeChat(long chatId);
 
-    TdApi.User getMe();
+    TdApi.User getTgMe();
 
     TdApi.User getUserById(int userId);
 
