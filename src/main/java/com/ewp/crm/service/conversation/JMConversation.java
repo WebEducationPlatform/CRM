@@ -1,5 +1,7 @@
 package com.ewp.crm.service.conversation;
 
+import com.ewp.crm.models.Client;
+
 import java.util.List;
 
 public interface JMConversation {
@@ -9,7 +11,7 @@ public interface JMConversation {
     ChatType getChatTypeOfConversation();
 
     //желательно вызывать при окончании чата
-    void endChat(String chatId);
+    void endChat(Client client);
 
     //отправляет сообщение и возвращает новое сообщение
     ChatMessage sendMessage(ChatMessage message);
@@ -21,7 +23,7 @@ public interface JMConversation {
     List<ChatMessage> getMessages(String chatId, int count);
 
     //Получить список сообщений, прочитанных собеседником
-    List<ChatMessage> getReadMessages(String chatId);
+    String getReadMessages(Client client);
 
     //получить собеседника по ID сущности
     Interlocutor getInterlocutor(String recipientId);
