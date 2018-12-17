@@ -4,6 +4,7 @@ $(function () {
         $("#status-column").empty();
         $("#new-client-status").empty();
         $("#repeated-client-status").empty();
+        $("#status-student").empty();
         $.ajax({
             type: 'POST',
             url: '/slack/get/students/statuses',
@@ -65,6 +66,17 @@ $(function () {
                 });
             }
         });
+
+        $.ajax({
+            type: 'GET',
+            url: '/rest/student/status',
+            dataType: 'json',
+            success: function (response) {
+                $.each(response, function (index, element) {
+                    $("#status-student").append("<option id = status_student" + element.id + " value=" + element.id + ">" + element.status + "</option>");
+                });
+            }
+        });
     });
 });
 
@@ -88,5 +100,12 @@ $('#update-status').click(function () {
         type: 'POST',
         url: '/rest/properties/repeated-user-status',
         data: {statusId : repeated_client_status}
+    });
+
+    var status_student = $("#status-student").val();
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/status-student',
+        data: {id : status_student}
     });
 });

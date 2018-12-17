@@ -117,4 +117,12 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/status-student")
+    public HttpStatus setNewStudentStatus(@RequestParam("id") long statusId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setDefaultStudentStatus(studentStatusService.get(statusId));
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
 }
