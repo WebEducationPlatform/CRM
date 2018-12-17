@@ -6,23 +6,26 @@ import java.util.List;
 
 public interface JMConversationHelper {
 
-    //вызывается при старе нового чата, по клиенту стартуют те чаты на которые у клиента есть профили.
-    void startNewChat(Client client);
-
     //желательно вызывать при окончании чата
-    void endChat();
+    void endChat(Client client);
 
     //отправляет сообщение в определенный чат и возвращает новое сообщение
-    ChatMessage sendMessage(String text, ChatType chatType);
-
-    //помечает данное сообщение как прочитанное в определенном чате
-    ChatMessage markMessageAsRead(ChatMessage message, ChatType chatType);
+    ChatMessage sendMessage(ChatMessage message);
 
     //Получаем не прочитынные сообщения из всех чатов
-    List<ChatMessage> getNewMessages();
+    //Создаем чат и открывем тут же.
+    List<ChatMessage> getNewMessages(Client client);
 
     //получаем последнии сообщения их всех чатов.
     //на выходе лист с максимум count*N элементов, N - количество чатов, count - число получаемых сообщений
-    List<ChatMessage> getMessages();
+    List<ChatMessage> getMessages(Client client);
 
+    //Получить список сообщений, прочитанных собеседником
+    List<ChatMessage> getReadMessages(Client client);
+
+    //получить список всех собеседников всех возможных типов
+    List<Interlocutor> getInterlocutors(Client client);
+
+    //Получить список всех собеседников всех возможных типов текущего пользователя
+    List<Interlocutor> getUs(Client client);
 }

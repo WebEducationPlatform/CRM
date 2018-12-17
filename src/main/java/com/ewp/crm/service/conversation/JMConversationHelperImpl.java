@@ -10,9 +10,7 @@ import java.util.*;
 @Component
 public class JMConversationHelperImpl implements JMConversationHelper {
 
-    private final int messageLimitInConversation = 40;
-
-    private Client client;
+    private final int CHAT_MESSAGE_LIMIT = 40;
 
     private final List<JMConversation> conversations;
 
@@ -25,38 +23,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public void startNewChat(Client client) {
-
-        endChat();
-
-        this.client = client;
-        chatMap = new HashMap<>();
-
-        List<SocialProfile> socialProfiles = client.getSocialProfiles();
-
-        //скидываем чаты
-        conversations.forEach(JMConversation::dropChat);
-
-        for (SocialProfile socialProfile : socialProfiles) {
-            try {
-                ChatType newChatType = ChatType.valueOf(socialProfile.getSocialProfileType().getName());
-
-                JMConversation conversation = conversations.stream()
-                        .filter(jmConversation -> jmConversation.getChatTypeOfConversation().equals(newChatType))
-                        .findFirst().orElse(null);
-
-                if (conversation != null) {
-                    conversation.startNewChat(socialProfile.getLink());
-                    chatMap.put(newChatType, conversation); //если null то просто нет чата.
-                }
-            } catch (NullPointerException e) {
-                //нет чата для соц сети...
-            }
-        }
-    }
-
-    @Override
-    public void endChat() {
+    public void endChat(Client client) {
         client = null;
         if (chatMap != null) {
             chatMap.clear();
@@ -64,22 +31,22 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public ChatMessage sendMessage(String text, ChatType chatType) {
-        JMConversation conversation = chatMap.get(chatType);
+    public ChatMessage sendMessage(ChatMessage message) {
+        JMConversation conversation = chatMap.get(message.getChatType());
 
         if (conversation == null) {
             return null;
         }
 
-        return conversation.sendMessage(text);
+        return conversation.sendMessage(message);
     }
 
     @Override
-    public List<ChatMessage> getNewMessages() {
+    public List<ChatMessage> getNewMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
-
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
-            List<ChatMessage> conversationMsg = entity.getValue().getNewMessages();
+            String chatId = "";
+            List<ChatMessage> conversationMsg = entity.getValue().getNewMessages(chatId, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -89,22 +56,11 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public ChatMessage markMessageAsRead(ChatMessage message, ChatType chatType) {
-        JMConversation conversation = chatMap.get(chatType);
-
-        if (conversation == null) {
-            return null;
-        }
-
-        return conversation.markMessageAsRead(message);
-    }
-
-    @Override
-    public List<ChatMessage> getMessages() {
+    public List<ChatMessage> getMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
-
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
-            List<ChatMessage> conversationMsg = entity.getValue().getMessages(messageLimitInConversation);
+            String chatId = "";
+            List<ChatMessage> conversationMsg = entity.getValue().getMessages(chatId, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -112,4 +68,21 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
         return list;
     }
+
+    @Override
+    public List<ChatMessage> getReadMessages(Client client) {
+        return null;
+    }
+
+    @Override
+    public List<Interlocutor> getInterlocutors(Client client) {
+        return null;
+    }
+
+    @Override
+    public List<Interlocutor> getUs(Client client) {
+        return null;
+    }
+
+
 }
