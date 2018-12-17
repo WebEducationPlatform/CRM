@@ -1,6 +1,5 @@
 package com.ewp.crm.service.conversation;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class ChatMessage {

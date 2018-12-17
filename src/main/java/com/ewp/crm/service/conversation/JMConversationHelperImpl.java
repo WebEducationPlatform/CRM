@@ -42,6 +42,13 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
+    public ChatMessage markMessageAsRead(ChatMessage message) {
+
+        //TODO
+        return message;
+    }
+
+    @Override
     public List<ChatMessage> getNewMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {

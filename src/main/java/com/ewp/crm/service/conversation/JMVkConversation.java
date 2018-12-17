@@ -24,6 +24,8 @@ public class JMVkConversation implements JMConversation {
     private final String defaultVkPhoto = "https://vk.com/images/camera_50.png?ava=1";
 
     //main fields
+
+
 //    private String groupId;
 //    private String accessToken;
 //    private String version;
@@ -75,6 +77,11 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
+        return null;
+    }
+
+    @Override
+    public ChatMessage markMessageAsRead(ChatMessage message) {
         return null;
     }
 
