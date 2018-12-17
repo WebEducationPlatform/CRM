@@ -3,6 +3,7 @@ package com.ewp.crm.service.conversation;
 import com.ewp.crm.models.Client;
 
 import java.util.List;
+import java.util.Map;
 
 public interface JMConversationHelper {
 
@@ -21,11 +22,11 @@ public interface JMConversationHelper {
     List<ChatMessage> getMessages(Client client);
 
     //Получить список сообщений, прочитанных собеседником
-    List<ChatMessage> getReadMessages(Client client);
+    Map<ChatType, String> getReadMessages(Client client);
 
     //получить список всех собеседников всех возможных типов
     List<Interlocutor> getInterlocutors(Client client);
 
     //Получить список всех собеседников всех возможных типов текущего пользователя
-    List<Interlocutor> getUs(Client client);
+    List<Interlocutor> getUs();
 }
