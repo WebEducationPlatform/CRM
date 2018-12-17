@@ -84,7 +84,7 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getReadMessages(String chatId) {
+    public String getReadMessages(Client client) {
         return null;
     }
 
