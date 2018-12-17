@@ -135,7 +135,7 @@ public class TelegramRestController {
 
     @GetMapping("/me")
     public ResponseEntity<TdApi.User> getCurrentUser() {
-        return new ResponseEntity<>(telegramService.getMe(), HttpStatus.OK);
+        return new ResponseEntity<>(telegramService.getTgMe(), HttpStatus.OK);
     }
 
     @GetMapping("/user")
