@@ -1,11 +1,12 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class JMConversationHelperImpl implements JMConversationHelper {
@@ -14,39 +15,37 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     private final List<JMConversation> conversations;
 
-    private Map<ChatType, JMConversation> chatMap;
-
     @Autowired
     public JMConversationHelperImpl(List<JMConversation> conversations) {
-
         this.conversations = conversations;
     }
 
     @Override
     public void endChat(Client client) {
-        client = null;
-        if (chatMap != null) {
-            chatMap.clear();
+        for(JMConversation conversation: conversations){
+            conversation.endChat(client);
         }
     }
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
-        JMConversation conversation = chatMap.get(message.getChatType());
 
-        if (conversation == null) {
-            return null;
+        for(JMConversation conversation: conversations){
+            if (message.getChatType() == conversation.getChatTypeOfConversation()){
+               return conversation.sendMessage(message);
+            }
         }
 
-        return conversation.sendMessage(message);
+        return message;
     }
 
     @Override
     public List<ChatMessage> getNewMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
-        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+
+        for(JMConversation conversation: conversations){
             String chatId = "";
-            List<ChatMessage> conversationMsg = entity.getValue().getNewMessages(chatId, CHAT_MESSAGE_LIMIT);
+            List<ChatMessage> conversationMsg = conversation.getNewMessages(chatId, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -58,9 +57,9 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     @Override
     public List<ChatMessage> getMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
-        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+        for(JMConversation conversation: conversations){
             String chatId = "";
-            List<ChatMessage> conversationMsg = entity.getValue().getMessages(chatId, CHAT_MESSAGE_LIMIT);
+            List<ChatMessage> conversationMsg = conversation.getMessages(chatId, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -76,12 +75,25 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     @Override
     public List<Interlocutor> getInterlocutors(Client client) {
-        return null;
+
+        List<Interlocutor> list = new LinkedList<>();
+
+        for(JMConversation conversation: conversations){
+            list.add(conversation.getInterlocutor(client));
+        }
+
+        return list;
     }
 
     @Override
-    public List<Interlocutor> getUs(Client client) {
-        return null;
+    public List<Interlocutor> getUs() {
+        List<Interlocutor> list = new LinkedList<>();
+
+        for(JMConversation conversation: conversations){
+            list.add(conversation.getMe());
+        }
+
+        return list;
     }
 
 

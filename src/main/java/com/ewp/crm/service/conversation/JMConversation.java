@@ -26,8 +26,8 @@ public interface JMConversation {
     String getReadMessages(Client client);
 
     //получить собеседника по ID сущности
-    Interlocutor getInterlocutor(String recipientId);
+    Interlocutor getInterlocutor(Client client);
 
     //Получить текущего залогиненого пользователя по ID сущности
-    Interlocutor getMe(String recipientId);
+    Interlocutor getMe();
 }
