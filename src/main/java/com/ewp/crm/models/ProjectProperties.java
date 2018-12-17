@@ -47,6 +47,13 @@ public class ProjectProperties {
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
 
+    /**
+     * Auto-answer template for requests from java-mentor.com
+     */
+    @OneToOne
+    @JoinColumn(name = "auto_answer_template")
+    private MessageTemplate autoAnswerTemplate;
+
     @Column(name = "status_color")
     private String statusColor;
 
@@ -161,6 +168,14 @@ public class ProjectProperties {
 
     public void setDefaultStudentStatus(StudentStatus defaultStudentStatus) {
         this.defaultStudentStatus = defaultStudentStatus;
+    }
+
+    public MessageTemplate getAutoAnswerTemplate() {
+        return autoAnswerTemplate;
+    }
+
+    public void setAutoAnswerTemplate(MessageTemplate autoAnswerTemplate) {
+        this.autoAnswerTemplate = autoAnswerTemplate;
     }
 
     @Override
