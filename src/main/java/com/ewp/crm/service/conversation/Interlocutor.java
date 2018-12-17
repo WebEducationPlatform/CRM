@@ -7,14 +7,7 @@ public class Interlocutor {
     private String avatarUrl;
     private ChatType chatType;
 
-    public Interlocutor(String id, String profileUrl, String avatarUrl, ChatType chatType) {
-        this.id = id;
-        this.profileUrl = profileUrl;
-        this.avatarUrl = avatarUrl;
-        this.chatType = chatType;
-    }
-
-    public Interlocutor(String id, String representation){
+    public Interlocutor(String id){
         this.id = id;
     }
 
