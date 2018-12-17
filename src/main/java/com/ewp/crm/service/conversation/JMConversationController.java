@@ -49,8 +49,9 @@ public class JMConversationController {
         Client client = clientService.getClientByID(clientId);
         List<ChatMessage> newMessages = conversationHelper.getNewMessages(client);
         response.put("new", newMessages);
-        List<ChatMessage> readMessages = conversationHelper.getReadMessages(client);
-        response.put("read", readMessages);
+        //TODO return last read message id by chat type
+//        List<ChatMessage> readMessages = conversationHelper.getReadMessages(client);
+//        response.put("read", readMessages);
         return ResponseEntity.ok(response);
     }
 

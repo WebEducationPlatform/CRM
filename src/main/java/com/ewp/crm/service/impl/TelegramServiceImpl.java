@@ -22,11 +22,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Condition;
@@ -274,16 +273,19 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
+        TdApi.Message tgMessage = sendChatMessage(Long.parseLong(message.getChatId()), message.getText());
+        LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(tgMessage.date), TimeZone.getDefault().toZoneId());
+        ChatMessage result = new ChatMessage(tgMessage.id, String.valueOf(tgMessage.chatId), ChatType.telegram, tgMessage.content.toString(), time, false, true);
+        return result;
+    }
+
+    @Override
+    public List<ChatMessage> getNewMessages(String chatId, int count) {
         return null;
     }
 
     @Override
-    public List<ChatMessage> getNewMessages() {
-        return null;
-    }
-
-    @Override
-    public List<ChatMessage> getMessages(int count) {
+    public List<ChatMessage> getMessages(String chatId, int count) {
         return null;
     }
 
