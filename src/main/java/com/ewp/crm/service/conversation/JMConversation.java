@@ -16,9 +16,6 @@ public interface JMConversation {
     //отправляет сообщение и возвращает новое сообщение
     ChatMessage sendMessage(ChatMessage message);
 
-    //помечает данное сообщение как прочитанное
-    ChatMessage markMessageAsRead(ChatMessage message);
-
     //Получаем не прочитынные сообщения
     List<ChatMessage> getNewMessages(String chatId, int count);
 
