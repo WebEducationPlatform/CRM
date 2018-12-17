@@ -5,12 +5,22 @@ import java.time.LocalDateTime;
 public class ChatMessage {
 
     private Long id;
+    private String chatId;
     private ChatType chatType;
     private String text;
     private LocalDateTime time;
     private Boolean isRead;
     private Boolean isOutgoing;
 
+    public ChatMessage(Long id, String chatId, ChatType chatType, String text, LocalDateTime time, Boolean isRead, Boolean isOutgoing) {
+        this.id = id;
+        this.chatId = chatId;
+        this.chatType = chatType;
+        this.text = text;
+        this.time = time;
+        this.isRead = isRead;
+        this.isOutgoing = isOutgoing;
+    }
 
     public ChatMessage(ChatType chatType, String text) {
         this.chatType = chatType;
@@ -57,11 +67,19 @@ public class ChatMessage {
         isRead = read;
     }
 
-    public Boolean isOutgoing() {
-        return isOutgoing;
-    }
-
     public void setOutgoing(Boolean outgoing) {
         isOutgoing = outgoing;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
+    }
+
+    public Boolean getOutgoing() {
+        return isOutgoing;
     }
 }
