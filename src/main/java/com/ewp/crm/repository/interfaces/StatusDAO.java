@@ -10,17 +10,17 @@ import java.util.List;
 
 public interface StatusDAO extends JpaRepository<Status, Long> {
 
-	Status getStatusByName(String name);
+    Status getStatusByName(String name);
 
-	Status getStatusByClientsIn(List<Client> users);
+    Status getStatusByClientsIn(List<Client> users);
 
     List<Status> getStatusesByClientsOwnerUser(User ownerUser);
 
-	List<Status> getAllByOrderByIdAsc();
+    List<Status> getAllByOrderByIdAsc();
 
-	@Query("SELECT MAX(s.position) from Status s")
-	Long findMaxPosition();
+    @Query("SELECT MAX(s.position) from Status s")
+    Long findMaxPosition();
 
-	@Query("SELECT s FROM Status s WHERE s.createStudent = true")
-	List<Status> getAllStatusesForStudents();
+    @Query("SELECT s FROM Status s WHERE s.createStudent = true")
+    List<Status> getAllStatusesForStudents();
 }

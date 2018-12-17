@@ -8,12 +8,13 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangeipicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 
     <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
     <!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
     <!--crossorigin="anonymous"/>-->
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!--из локальной коппии, так как конфигурация редактора кастомная-->
@@ -25,7 +26,6 @@
     <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
     <script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>
     <link rel="stylesheet" type="text/css" href="/css/mailing.css"/>
-
 </head>
 <body>
 
@@ -71,14 +71,17 @@
                     <option value="null">Выберите список рассылки</option>
                     <option th:each="listMailing : ${listMailing}"
                             th:value="${listMailing.listName}"
-                            th:utext="${listMailing.listName}"/>
+                            th:utext="${listMailing.listName}"> </option>
                 </select>
                 </div>
             </div>
-                <div class="col-4">
-                <button class="btn btn-success" onclick="showListMailing()">
-                    Загрузить список
-                </button>
+                <div id ="loadList" class="col-4">
+                        <button class="btn btn-danger" onclick="showListMailing()">
+                             Загрузить список
+                        </button>
+                        <button class="btn btn-success" id="editListMailing" data-toggle="modal" data-target="#editListMailingModal" onclick="openEditShowListMailing()">
+                             Редактировать список
+                        </button>
                 </div>
                 </div>
             </div>
@@ -153,7 +156,7 @@
             </div>
             <div class="modal-body" id="historyModalBody">
 
-                <div class="form-group" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div class="form-group" sec:authorize="hasAnyAuthority('OWNER')">
                     <div class="row">
                         <div class="col-sm-3" id="timeFromDiv">
                             <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="historyFromTime"/>
@@ -180,6 +183,7 @@
                 <table class="table table-striped" id="historyMailingTable">
                     <thead>
                     <tr>
+                        <th scope="col"></th>
                         <th scope="col">Дата расслыки</th>
                         <th scope="col">Текст</th>
                         <th scope="col">Тип отправки</th>
@@ -224,7 +228,7 @@
                           style="font-size: 8pt"></textarea>
                     </div>
                     <div class="col">
-                        <label for="listVk" >Укажите список id профилей ВК получателей (каждый с новой строки):</label>
+                        <label for="listVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
                         <textarea class="form-control text-lowercase" id="listVk" rows="14"
                           style="font-size: 8pt"></textarea>
                     </div>
@@ -242,6 +246,93 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editListMailingModal" tabindex="-1" role="dialog" aria-labelledby="listMailingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="editListMailingModalHeader">
+                <h4 class="modal-title" id="editListMailingModalLabel">Редактирование списка рассылок</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="turnDisable()">
+                    x
+                </button>
+            </div>
+            <div class="modal-body" id="editListMailingModalBody">
+
+
+                <div class="form-group">
+                    <label for="editListName">Название списка: </label>
+                    <div class="row">
+                        <div class="col-sm-7">
+                            <input id="editListName" class="form-control" type="text" />
+                        </div>
+                        <div class = "col-sm-5">
+                            <button type="button" id="deleteListMaling" class="btn btn-danger" onclick="deleteListMailing()" disabled="disabled">
+                                Удалить рассылку
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label for="editListEmail" >Укажите список email получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="editListEmail" rows="14"
+                                      style="font-size: 8pt"></textarea>
+                        </div>
+                        <div class="col">
+                            <label for="editListSms" >Укажите список телефонов получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="editListSms" rows="14"
+                                      style="font-size: 8pt"></textarea>
+                        </div>
+                        <div class="col">
+                            <label for="editListVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="editListVk" rows="14"
+                                      style="font-size: 8pt"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button id= "editButton" class="btn btn-success" onclick="editListMailing()" disabled="disabled">
+                            Редактировать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="recipientModal" tabindex="-1" role="dialog" aria-labelledby="recipientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="recipientVkModalHeader">
+                <h4 class="modal-title" id="recipientModalLabel">История рассылок</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="removeRecipient()">
+                    x
+                </button>
+            </div>
+            <div class="modal-body" id="recipientModalBody">
+                <table class="table table-striped" id="recepientMailingTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">Получатели:</th>
+                    </tr>
+                    </thead>
+                    <tbody id="recipientBodyMailing">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <footer>
     <div class="container-fluid" id="footer">

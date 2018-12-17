@@ -5,7 +5,6 @@
               value="%cyan(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%-20thread]) %highlight(!%-5level!) %yellow('%logger{36}.%M'): %boldWhite%(%msg%n)"/>
     <property name="FILE_OUT_PATTERN"
               value="%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] !%-5level! '%logger{36}.%M': %msg%n"/>
-    <!--<property name="LOG_DIR" value="LOG"/>-->
     <property name="LOG_DIR_NEW" value="LOG_NEW"/>
     <timestamp key="byDay" datePattern="yyyy-MM-dd"/>
 
@@ -27,45 +26,6 @@
             <pattern>${FILE_OUT_PATTERN}</pattern>
         </encoder>
     </appender>
-
-    <!--<appender name="CONTROLLER" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-        <!--<file>${LOG_DIR}\controller\currentLog.log</file>-->
-        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
-            <!--<fileNamePattern>${LOG_DIR}\controller\log_%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
-            <!--<maxFileSize>50MB</maxFileSize>-->
-            <!--<maxHistory>15</maxHistory>-->
-            <!--<totalSizeCap>2GB</totalSizeCap>-->
-        <!--</rollingPolicy>-->
-        <!--<encoder>-->
-            <!--<pattern>${FILE_OUT_PATTERN}</pattern>-->
-        <!--</encoder>-->
-    <!--</appender>-->
-
-    <!--<appender name="AUTHENTICATION" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-        <!--<file>${LOG_DIR}\Auth\currentLog.log</file>-->
-        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
-            <!--<fileNamePattern>${LOG_DIR}\Auth\log_%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
-            <!--<maxFileSize>50MB</maxFileSize>-->
-            <!--<maxHistory>15</maxHistory>-->
-            <!--<totalSizeCap>2GB</totalSizeCap>-->
-        <!--</rollingPolicy>-->
-        <!--<encoder>-->
-            <!--<pattern>${FILE_OUT_PATTERN}</pattern>-->
-        <!--</encoder>-->
-    <!--</appender>-->
-
-    <!--<appender name="SERVICE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-        <!--<file>${LOG_DIR}\service\currentLog.log</file>-->
-        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
-            <!--<fileNamePattern>${LOG_DIR}\service\log_%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
-            <!--<maxFileSize>50MB</maxFileSize>-->
-            <!--<maxHistory>15</maxHistory>-->
-            <!--<totalSizeCap>2GB</totalSizeCap>-->
-        <!--</rollingPolicy>-->
-        <!--<encoder>-->
-            <!--<pattern>${FILE_OUT_PATTERN}</pattern>-->
-        <!--</encoder>-->
-    <!--</appender>-->
 
     <logger name="com.ewp.crm.controllers" level="ALL" additivity="false">
         <appender-ref ref="ALL_LOG"/>
