@@ -5,6 +5,9 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.Client.Sex;
+import com.ewp.crm.service.conversation.ChatMessage;
+import com.ewp.crm.service.conversation.ChatType;
+import com.ewp.crm.service.conversation.Interlocutor;
 import com.ewp.crm.service.interfaces.*;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -20,6 +23,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,7 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class VKServiceImpl implements VKService {
@@ -44,6 +51,12 @@ public class VKServiceImpl implements VKService {
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
     private final VkMemberService vkMemberService;
+
+    private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
+    private final String allDigitPattern = "\\d+";
+    private final String idString = "id";
+    private final String zeroString = "0";
+    private final String vkURL = "https://vk.com/";
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
@@ -147,6 +160,113 @@ public class VKServiceImpl implements VKService {
                     }
 
                 }
+            }
+            return Optional.of(resultList);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count) throws VKAccessTokenException {
+        logger.info("VKService: getting messages...");
+        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
+            throw new VKAccessTokenException("VK access token has not got");
+        }
+
+        String uriGetMassages = vkAPI + "messages.getHistory" +
+                "?user_id=" + userid +
+                "&group_id=" + clubId +
+                "&count=" + count +
+                "&rev=0" +
+                "&version=" + version +
+                "&access_token=" + technicalAccountToken;
+
+        try {
+            HttpGet httpGetMessages = new HttpGet(uriGetMassages);
+            HttpClient httpClient = HttpClients.custom()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            HttpResponse response = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray jsonMessages = json.getJSONArray("response");
+
+            List<ChatMessage> resultList = new LinkedList<>();
+
+            for (int i = 1; i < jsonMessages.length(); i++) {
+                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
+
+                String id = jsonMessage.getString("id");
+                String body = jsonMessage.getString("body");
+                Integer read_state = jsonMessage.getInt("read_state");
+                String date = jsonMessage.getString("date");
+                Integer out = jsonMessage.getInt("out");
+
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
+                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
+                                                                userid,
+                                                                ChatType.vk,body,
+                                                                zonedDateTime,
+                                                          read_state == 0,
+                                                       out == 0);
+                resultList.add(newChatMessage);
+            }
+            return Optional.of(resultList);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<ChatMessage>> getNewMassagesFromGroup(String userid) throws VKAccessTokenException {
+        logger.info("VKService: getting messages...");
+        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
+            throw new VKAccessTokenException("VK access token has not got");
+        }
+
+        String uriGetMassages = vkAPI + "messages.getConversations" +
+                "?filter=unread" +
+                "&group_id=" + clubId +
+                "&version=" + version +
+                "&access_token=" + technicalAccountToken;
+        try {
+            HttpGet httpGetMessages = new HttpGet(uriGetMassages);
+            HttpClient httpClient = HttpClients.custom()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
+            HttpResponse response = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray jsonMessages = json.getJSONArray("response");
+
+            List<ChatMessage> resultList = new LinkedList<>();
+
+            for (int i = 1; i < jsonMessages.length(); i++) {
+                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
+
+                String id = jsonMessage.getString("id");
+                String body = jsonMessage.getString("body");
+                Integer read_state = jsonMessage.getInt("read_state");
+                String date = jsonMessage.getString("date");
+                Integer out = jsonMessage.getInt("out");
+
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
+                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
+                        userid,
+                        ChatType.vk,body,
+                        zonedDateTime,
+                        read_state == 0,
+                        out == 0);
+                resultList.add(newChatMessage);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -385,10 +505,39 @@ public class VKServiceImpl implements VKService {
             return Optional.of(client);
         }
 
-        //потом ломимся в контакт
+        Map<String, String> param = getUserDataById(id, "", "");
+
+        String name = param.get("first_name");
+        String lastName = param.get("last_name");
+
+        try {
+            if (name != null && lastName != null) {
+                client = new Client(name, lastName);
+                socialProfile = new SocialProfile(vkLink);
+                List<SocialProfile> socialProfiles = new ArrayList<>();
+                socialProfiles.add(socialProfile);
+                client.setSocialProfiles(socialProfiles);
+                return Optional.of(client);
+            }
+        }
+        catch (NullPointerException e){
+            logger.error("Set social profile error", e);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Map<String, String> getUserDataById(Long id, String additionalFields, String splitter) {
+        logger.info("VKService: getting user data by VK id...");
+
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("id", Long.toString(id));
+
         String uriGetClient = vkAPI + "users.get?" +
                 "version=" + version +
                 "&user_id=" + id +
+                "fields" + additionalFields +
                 "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
@@ -402,22 +551,65 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONArray jsonUsers = json.getJSONArray("response");
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
-            String name = jsonUser.getString("first_name");
-            String lastName = jsonUser.getString("last_name");
 
-            client = new Client(name, lastName);
-            socialProfile = new SocialProfile(vkLink);
-            List<SocialProfile> socialProfiles = new ArrayList<>();
-            socialProfiles.add(socialProfile);
-            client.setSocialProfiles(socialProfiles);
-            return Optional.of(client);
+            //имя и фамилия присутствуют всегда
+            returnMap.put("name", jsonUser.getString("first_name"));
+            returnMap.put("lastName", jsonUser.getString("last_name"));
+
+            //можно получить дополнительные поля
+            String[] additional = additionalFields.split(splitter);
+
+            for (String param: additional){
+                returnMap.put(param, jsonUser.getString(param));
+            }
+
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
         } catch (IOException e) {
             logger.error("Failed to connect to VK server ", e);
         }
 
-        return Optional.empty();
+        return returnMap;
+    }
+
+    @Override
+    public Map<String, String> getGroupDataById(Long id, String additionalFields, String splitter) {
+        logger.info("VKService: getting group data by VK id...");
+
+        Map<String, String> returnMap = new HashMap<>();
+        returnMap.put("id", Long.toString(id));
+
+        String uriGetClient = vkAPI + "groups.getById?" +
+                "version=" + version +
+                "&groupID=" + id +
+                "fields" + additionalFields +
+                "&access_token=" + communityToken;
+
+        HttpGet httpGetClient = new HttpGet(uriGetClient);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+        try {
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray jsonUsers = json.getJSONArray("response");
+            JSONObject jsonUser = jsonUsers.getJSONObject(0);
+
+            String[] additional = additionalFields.split(splitter);
+
+            for (String param: additional){
+                returnMap.put(param, jsonUser.getString(param));
+            }
+
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+
+        return returnMap;
     }
 
     @Override
@@ -710,5 +902,29 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public String getIdFromLink(String link){
+
+        Pattern p = Pattern.compile(vkPattern, Pattern.CASE_INSENSITIVE);
+
+        Matcher vkMatcher = p.matcher(link);
+        if (vkMatcher.find() && !link.contains(" ") && !link.equals(Strings.EMPTY)) {
+
+            String vkIdentify = vkMatcher.group();
+            if (vkIdentify.startsWith(idString) && vkIdentify.replace(idString, Strings.EMPTY).matches(allDigitPattern)) {
+                vkIdentify = vkIdentify.replace(idString, Strings.EMPTY);
+            }
+
+            if (!vkIdentify.matches(allDigitPattern)) {
+                vkIdentify = Long.toString(getVKIdByUrl(vkURL + vkIdentify).orElse(0L));
+            }
+
+            if (!zeroString.equals(vkIdentify)) {
+                return vkIdentify;
+            }
+        }
+
+        return null;
+    }
 }
 
