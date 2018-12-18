@@ -11,7 +11,7 @@ public interface JMConversationHelper {
     void endChat(Client client);
 
     //отправляет сообщение в определенный чат и возвращает новое сообщение
-    ChatMessage sendMessage(ChatMessage message);
+    List<ChatMessage> sendMessage(ChatMessage message);
 
     //Получаем не прочитынные сообщения из всех чатов
     //Создаем чат и открывем тут же.

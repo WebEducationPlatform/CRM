@@ -2,7 +2,6 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.repository.interfaces.SocialProfileRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.conversation.ChatMessage;
 import com.ewp.crm.service.conversation.ChatType;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -64,24 +62,24 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     private final StatusDAO statusRepository;
     private final ClientHistoryService clientHistoryService;
     private final SendNotificationService sendNotificationService;
-    private final SocialProfileRepository socialProfileRepository;
     private final SocialProfileTypeService socialProfileTypeService;
     private final ProjectPropertiesService projectPropertiesService;
+    private final SocialProfileService socialProfileService;
 
     @Autowired
     public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository,
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
-                               SocialProfileRepository socialProfileRepository, SocialProfileTypeService socialProfileTypeService,
-                               ProjectPropertiesService projectPropertiesService) {
+                               SocialProfileTypeService socialProfileTypeService,
+                               ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService) {
         this.env = env;
         this.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
         this.clientRepository = clientRepository;
         this.statusRepository = statusRepository;
         this.clientHistoryService = clientHistoryService;
         this.sendNotificationService = sendNotificationService;
-        this.socialProfileRepository = socialProfileRepository;
         this.socialProfileTypeService = socialProfileTypeService;
         this.projectPropertiesService = projectPropertiesService;
+        this.socialProfileService = socialProfileService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -268,12 +266,8 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
 
     @Override
     public void endChat(com.ewp.crm.models.Client client) {
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
-                closeChat(Long.parseLong(socialProfile.getLink()));
-                break;
-            }
-        }
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        link.ifPresent(s -> closeChat(Long.parseLong(s)));
     }
 
     @Override
@@ -283,26 +277,32 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getNewMessages(String chatId, int count) {
-        TdApi.Messages tgMessages = getUnreadMessagesFromChat(Long.parseLong(chatId), count);
+    public List<ChatMessage> getNewMessages(com.ewp.crm.models.Client client, int count) {
+        TdApi.Messages tgMessages = new TdApi.Messages();
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+        }
         return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatId, int count) {
-        TdApi.Messages tgMessages = getChatMessages(Long.parseLong(chatId), count);
+    public List<ChatMessage> getMessages(com.ewp.crm.models.Client client, int count) {
+        TdApi.Messages tgMessages = new TdApi.Messages();
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+        }
         return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
     public String getReadMessages(com.ewp.crm.models.Client client) {
         String result = "";
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
-                Optional<TdApi.Chat> chat = getChat(Long.parseLong(socialProfile.getLink()));
-                result = String.valueOf(chat.get().lastReadInboxMessageId);
-                break;
-            }
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            result = String.valueOf(chat.get().lastReadInboxMessageId);
         }
         return result;
     }
@@ -310,11 +310,9 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public Interlocutor getInterlocutor(com.ewp.crm.models.Client client) {
         TdApi.User user = new TdApi.User();
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
-                user = getUserById(Integer.parseInt(socialProfile.getLink()));
-                break;
-            }
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            user = getUserById(Integer.parseInt(link.get()));
         }
         return tdlibUserToInterlocutor(user);
     }
