@@ -40,20 +40,7 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public void endChat(Client client) {
-        if (messages != null) {
-            messages.clear();
-        } else {
-            messages = new LinkedList<>();
-        }
 
-        if (unreadMessages != null) {
-            unreadMessages.clear();
-        } else {
-            unreadMessages = new LinkedList<>();
-        }
-
-        //удаляем собеседника
-        interlocutor = null;
     }
 
     @Override
