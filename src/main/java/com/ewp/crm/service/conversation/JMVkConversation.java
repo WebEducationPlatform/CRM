@@ -94,10 +94,11 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatId, int count) {
+    public List<ChatMessage> getMessages(Client client, int count) {
 
         try {
-            return vkService.getMassagesFromGroup(chatId, count).orElse(new LinkedList<>());
+            Interlocutor interlocutor = getInterlocutor(client);
+            return vkService.getMassagesFromGroup(interlocutor.getId(), count).orElse(new LinkedList<>());
         }
         catch (VKAccessTokenException e){
             return new LinkedList<>();
@@ -107,7 +108,8 @@ public class JMVkConversation implements JMConversation {
     @Override
     public String getReadMessages(Client client) {
 //        try {
-//            return vkService.getMassagesFromGroup(chatId, count).orElse(new LinkedList<>());
+//                Interlocutor interlocutor = getInterlocutor(client);
+//            return vkService.getMassagesFromGroup(interlocutor.getId(), count).orElse(new LinkedList<>());
 //        }
 //        catch (VKAccessTokenException e){
             return "0";
@@ -115,9 +117,10 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getNewMessages(String chatId, int count) {
+    public List<ChatMessage> getNewMessages(Client client, int count) {
         try {
-            return vkService.getNewMassagesFromGroup(chatId).orElse(new LinkedList<>());
+            Interlocutor interlocutor = getInterlocutor(client);
+            return vkService.getNewMassagesFromGroup(interlocutor.getId()).orElse(new LinkedList<>());
         }
         catch (VKAccessTokenException e){
             return new LinkedList<>();

@@ -4,10 +4,7 @@ import com.ewp.crm.models.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JMConversationHelperImpl implements JMConversationHelper {
@@ -45,8 +42,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
         List<ChatMessage> list = new LinkedList<>();
 
         for(JMConversation conversation: conversations){
-            String chatId = "";
-            List<ChatMessage> conversationMsg = conversation.getNewMessages(chatId, CHAT_MESSAGE_LIMIT);
+            List<ChatMessage> conversationMsg = conversation.getNewMessages(client, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -59,8 +55,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     public List<ChatMessage> getMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
         for(JMConversation conversation: conversations){
-            String chatId = "";
-            List<ChatMessage> conversationMsg = conversation.getMessages(chatId, CHAT_MESSAGE_LIMIT);
+            List<ChatMessage> conversationMsg = conversation.getMessages(client, CHAT_MESSAGE_LIMIT);
             list.addAll(0, conversationMsg);
         }
 
@@ -71,7 +66,15 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     @Override
     public Map<ChatType, String> getReadMessages(Client client) {
-        return null;
+
+        Map<ChatType, String> chatTypeStringMap = new HashMap<>();
+
+        for(JMConversation conversation: conversations){
+            String lastMsg = conversation.getReadMessages(client);
+            chatTypeStringMap.put(conversation.getChatTypeOfConversation(), lastMsg);
+        }
+
+        return chatTypeStringMap;
     }
 
     @Override
