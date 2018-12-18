@@ -23,8 +23,7 @@
         <br/>
         <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
             <button onclick="setAllNotifications(true)" type="button" class="btn btn-primary pull">
-                Включить оповещения
-            </button>
+                Включить оповещения</button>
         </div>
         <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
             <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
@@ -70,30 +69,25 @@
         </div>
         <br/>
         <br/>
-        <div id="auto-answer-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#auto-answer-modal"
-                    sec:authorize="hasAnyAuthority('OWNER')">
-                Настроить автоответ
-            </button>
+        <div>
+            <a class="btn btn-primary pull" href="/user/autoAnswer" sec:authorize="hasAnyAuthority('OWNER')">Настроить
+                автоответ</a>
         </div>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal"
-                    sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Статусы по-умолчанию
             </button>
         </div>
         <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
-                    sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Оповещение об оплате
             </button>
         </div>
         <br/>
         <div id="new-student-config-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#new-student-config-modal"
-                    sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#new-student-config-modal" sec:authorize="hasAnyAuthority('OWNER')">
                 Параметры создания студента
             </button>
         </div>
@@ -115,13 +109,11 @@
                         <label for="selected-color">Цвет фона оформления</label>
                         <div id="wrap-selected-color" class="input-group colorpicker-component">
                             <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
-                            <input id="selected-color" type="text" style="width: 100%"
-                                   th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677"
-                                   class="form-control"/>
+                            <input id="selected-color" type="text" style="width: 100%" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
                         </div>
                         <script>
                             $(function () {
-                                $('#wrap-selected-color').colorpicker({format: 'hex'});
+                                $('#wrap-selected-color').colorpicker({format:'hex'});
                             });
                         </script>
                     </div>
@@ -176,8 +168,7 @@
     </div>
 </div>
 <!--Модалка для настройки статусов-->
-<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true"
-     sec:authorize="hasAnyAuthority('OWNER')">
+<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -206,7 +197,6 @@
         </div>
     </div>
 </div>
-<div th:replace="fragments/auto-answer-modal::autoAnswerModal"></div>
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <div th:replace="fragments/new-student-config-modal::newStudentConfigModal"></div>
 <script type="text/javascript" th:src="@{/js/vk-auth.js}"></script>
@@ -216,7 +206,6 @@
 <script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
 <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>
 </html>
