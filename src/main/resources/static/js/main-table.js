@@ -1086,7 +1086,7 @@ $(function () {
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
