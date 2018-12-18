@@ -41,12 +41,8 @@ import java.util.regex.Pattern;
 public class SendMailsController {
 
     private final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
-    private final String allDigitPattern = "\\d+";
-    private final String idString = "id";
-    private final String zeroString = "0";
-    private final String vkURL = "https://vk.com/";
+
     private String pattern;
     private String template;
     private final MailingMessageService mailingMessageSendService;
@@ -79,7 +75,7 @@ public class SendMailsController {
         User user = userService.getUserByEmail(userFromSession.getEmail());
         switch (type) {
             case "vk":
-                pattern = vkPattern;
+                pattern = "";
                 template = text;
                 break;
             case "sms":
@@ -95,28 +91,18 @@ public class SendMailsController {
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 
-
         Set<ClientData> clientsInfo = new HashSet<>();
         if (type.equals("vk")) {
             String[] vkIds = recipients.split("\n");
             Set<String> vkIdSet = new HashSet<>();
             Arrays.asList(vkIds).forEach(x -> {
-                Matcher vkMatcher = p.matcher(x);
-                if (vkMatcher.find() && !x.contains(" ") && !x.equals(Strings.EMPTY)) {
 
-                    String vkIdentify = vkMatcher.group();
-                    if (vkIdentify.startsWith(idString) && vkIdentify.replace(idString, Strings.EMPTY).matches(allDigitPattern)) {
-                        vkIdentify = vkIdentify.replace(idString, Strings.EMPTY);
-                    }
+                String vkIdentify = vkService.getIdFromLink(x);
 
-                    if (!vkIdentify.matches(allDigitPattern)) {
-                        vkIdentify = Long.toString(vkService.getVKIdByUrl(vkURL + vkIdentify).orElse(0L));
-                    }
-
-                    if (!zeroString.equals(vkIdentify)) {
-                        vkIdSet.add(vkIdentify);
-                    }
+                if (vkIdentify != null) {
+                    vkIdSet.add(vkIdentify);
                 }
+
             });
 
             vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
