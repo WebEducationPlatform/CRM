@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class JMConversationHelperImpl implements JMConversationHelper {
@@ -69,7 +70,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public List<ChatMessage> getReadMessages(Client client) {
+    public Map<ChatType, String> getReadMessages(Client client) {
         return null;
     }
 

@@ -183,7 +183,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
-    public TdApi.User getMe() {
+    public TdApi.User getTgMe() {
         GetObjectHandler handler = new GetObjectHandler();
         client.send(new TdApi.GetMe(), handler);
         handlerDelay(handler);
@@ -260,14 +260,20 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     //JMConversation Implementation//
+
     @Override
     public ChatType getChatTypeOfConversation() {
         return ChatType.telegram;
     }
 
     @Override
-    public void endChat(String chatId) {
-        closeChat(Long.parseLong(chatId));
+    public void endChat(com.ewp.crm.models.Client client) {
+        for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
+                closeChat(Long.parseLong(socialProfile.getLink()));
+                break;
+            }
+        }
     }
 
     @Override
@@ -289,21 +295,33 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getReadMessages(String chatId) {
-        Optional<TdApi.Chat> chat = getChat(Long.parseLong(chatId));
-        //TODO
-        return null;
+    public String getReadMessages(com.ewp.crm.models.Client client) {
+        String result = "";
+        for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
+                Optional<TdApi.Chat> chat = getChat(Long.parseLong(socialProfile.getLink()));
+                result = String.valueOf(chat.get().lastReadInboxMessageId);
+                break;
+            }
+        }
+        return result;
     }
 
     @Override
-    public Interlocutor getInterlocutor(String recipientId) {
-        TdApi.User user = getUserById(Integer.parseInt(recipientId));
+    public Interlocutor getInterlocutor(com.ewp.crm.models.Client client) {
+        TdApi.User user = new TdApi.User();
+        for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
+                user = getUserById(Integer.parseInt(socialProfile.getLink()));
+                break;
+            }
+        }
         return tdlibUserToInterlocutor(user);
     }
 
     @Override
-    public Interlocutor getMe(String recipientId) {
-        TdApi.User user = getMe();
+    public Interlocutor getMe() {
+        TdApi.User user = getTgMe();
         return tdlibUserToInterlocutor(user);
     }
 
@@ -328,7 +346,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         } catch (IOException e) {
             logger.error("File download failed!", e);
         }
-        return new Interlocutor(String.valueOf(user.id), user.firstName, user.lastName, user.username, null, base64, ChatType.telegram);
+        return new Interlocutor(String.valueOf(user.id), null, base64, ChatType.telegram);
     }
 
     //JMConversation Implementation//

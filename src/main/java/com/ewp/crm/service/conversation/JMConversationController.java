@@ -42,13 +42,6 @@ public class JMConversationController {
         return ResponseEntity.ok(chatMessage);
     }
 
-    @GetMapping(value = "/mark", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<ChatMessage> markAsReadMessage(@RequestBody ChatMessage message) {
-        ChatMessage chatMessage = conversationHelper.markMessageAsRead(message);
-        return ResponseEntity.ok(chatMessage);
-    }
-
     @GetMapping(value = "/all-new", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<Map<String, List<ChatMessage>>> getNewMessages(@RequestParam("id") long clientId) {
@@ -79,8 +72,7 @@ public class JMConversationController {
 
     @GetMapping(value = "/us", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<Interlocutor>> getUs(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        return ResponseEntity.ok(conversationHelper.getUs(client));
+    public ResponseEntity<List<Interlocutor>> getUs() {
+        return ResponseEntity.ok(conversationHelper.getUs());
     }
 }
