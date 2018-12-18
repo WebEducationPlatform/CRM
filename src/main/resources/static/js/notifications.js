@@ -14,11 +14,13 @@ var clearNotifications = function clearClientSmsNotifications(id) {
     })
 };
 
-function markAsReadMenu(clientId) {
+function markAsReadMenu(clientId, showClientModal) {
 
     if ($('.notify').length) {
 
-        showModal(clientId);
+        if (showClientModal == 1) {
+            showModal(clientId);
+        }
 
         var url = "/user/notification/comment/clear/" + clientId;
         $.ajax({
