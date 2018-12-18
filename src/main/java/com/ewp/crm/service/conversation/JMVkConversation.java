@@ -2,6 +2,7 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.VKService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ public class JMVkConversation implements JMConversation {
     private final String defaultVkPhoto = "https://vk.com/images/camera_50.png?ava=1";
 
     //main fields
+
+
 //    private String groupId;
 //    private String accessToken;
 //    private String version;
@@ -45,13 +48,10 @@ public class JMVkConversation implements JMConversation {
     public JMVkConversation(VKConfigImpl vkConfig, VKService vkService) {
         this.vkConfig = vkConfig;
         this.vkService = vkService;
-
-        //вытаскиваем параметры группы
-        //group = new Interlocutor(groupId, "");
     }
 
     @Override
-    public void endChat(String chatId) {
+    public void endChat(Client client) {
         if (messages != null) {
             messages.clear();
         } else {
@@ -84,17 +84,17 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getReadMessages(String chatId) {
+    public String getReadMessages(Client client) {
         return null;
     }
 
     @Override
-    public Interlocutor getInterlocutor(String recipientId) {
+    public Interlocutor getInterlocutor(Client client) {
         return null;
     }
 
     @Override
-    public Interlocutor getMe(String recipientId) {
+    public Interlocutor getMe() {
         return null;
     }
 
@@ -102,4 +102,6 @@ public class JMVkConversation implements JMConversation {
     public List<ChatMessage> getNewMessages(String chatId, int count) {
         return null;
     }
+
+
 }

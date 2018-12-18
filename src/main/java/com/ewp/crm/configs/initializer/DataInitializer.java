@@ -3,6 +3,8 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.conversation.JMConversation;
+import com.ewp.crm.service.conversation.JMConversationHelper;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
@@ -61,6 +63,9 @@ public class DataInitializer {
 
     @Autowired
     private VkRequestFormService vkRequestFormService;
+
+    @Autowired
+    private JMConversationHelper jmConversationHelper;
 
     private void init() {
 
