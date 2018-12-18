@@ -36,9 +36,9 @@ public class JMConversationController {
 
     @PostMapping(value = "/send", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<ChatMessage> sendMessage(@RequestParam String text,
+    public ResponseEntity<List<ChatMessage>> sendMessage(@RequestParam String text,
                                                    @RequestParam String chatType) {
-        ChatMessage chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
+        List<ChatMessage> chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
         return ResponseEntity.ok(chatMessage);
     }
 
@@ -73,7 +73,6 @@ public class JMConversationController {
     @GetMapping(value = "/us", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<List<Interlocutor>> getUs(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        return ResponseEntity.ok(conversationHelper.getUs(client));
+        return ResponseEntity.ok(conversationHelper.getUs());
     }
 }

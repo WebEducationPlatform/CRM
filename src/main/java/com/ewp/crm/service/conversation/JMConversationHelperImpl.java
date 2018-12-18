@@ -1,7 +1,6 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,77 +11,78 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     private final int CHAT_MESSAGE_LIMIT = 40;
 
-    private final List<JMConversation> conversations;
-
-    private Map<ChatType, JMConversation> chatMap;
+    private Map<ChatType, JMConversation> chatMap = new HashMap<>();
 
     @Autowired
     public JMConversationHelperImpl(List<JMConversation> conversations) {
-
-        this.conversations = conversations;
+        for (JMConversation conversation : conversations) {
+            this.chatMap.put(conversation.getChatTypeOfConversation(), conversation);
+        }
     }
 
     @Override
     public void endChat(Client client) {
-        client = null;
-        if (chatMap != null) {
-            chatMap.clear();
+        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+            entity.getValue().endChat(client);
         }
     }
 
     @Override
-    public ChatMessage sendMessage(ChatMessage message) {
-        JMConversation conversation = chatMap.get(message.getChatType());
-
-        if (conversation == null) {
-            return null;
+    public List<ChatMessage> sendMessage(ChatMessage message) {
+        List<ChatMessage> result = new ArrayList<>();
+        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+            result.add(entity.getValue().sendMessage(message));
         }
-
-        return conversation.sendMessage(message);
+        return result;
     }
 
     @Override
     public List<ChatMessage> getNewMessages(Client client) {
-        List<ChatMessage> list = new LinkedList<>();
+        List<ChatMessage> result = new LinkedList<>();
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
-            String chatId = "";
-            List<ChatMessage> conversationMsg = entity.getValue().getNewMessages(chatId, CHAT_MESSAGE_LIMIT);
-            list.addAll(0, conversationMsg);
+            List<ChatMessage> conversationMsg = entity.getValue().getNewMessages(client, CHAT_MESSAGE_LIMIT);
+            result.addAll(conversationMsg);
         }
-
-        list.sort(Comparator.comparing(ChatMessage::getTime));
-
-        return list;
+        result.sort(Comparator.comparing(ChatMessage::getTime));
+        return result;
     }
 
     @Override
     public List<ChatMessage> getMessages(Client client) {
-        List<ChatMessage> list = new LinkedList<>();
+        List<ChatMessage> result = new LinkedList<>();
         for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
-            String chatId = "";
-            List<ChatMessage> conversationMsg = entity.getValue().getMessages(chatId, CHAT_MESSAGE_LIMIT);
-            list.addAll(0, conversationMsg);
+            List<ChatMessage> conversationMsg = entity.getValue().getMessages(client, CHAT_MESSAGE_LIMIT);
+            result.addAll(conversationMsg);
         }
-
-        list.sort(Comparator.comparing(ChatMessage::getTime));
-
-        return list;
+        result.sort(Comparator.comparing(ChatMessage::getTime));
+        return result;
     }
 
     @Override
-    public List<ChatMessage> getReadMessages(Client client) {
-        return null;
+    public Map<ChatType, String> getReadMessages(Client client) {
+        Map<ChatType, String> result = new HashMap<>();
+        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+            result.put(entity.getKey(), entity.getValue().getReadMessages(client));
+        }
+        return result;
     }
 
     @Override
     public List<Interlocutor> getInterlocutors(Client client) {
-        return null;
+        List<Interlocutor> result = new LinkedList<>();
+        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+            result.add(entity.getValue().getInterlocutor(client));
+        }
+        return result;
     }
 
     @Override
-    public List<Interlocutor> getUs(Client client) {
-        return null;
+    public List<Interlocutor> getUs() {
+        List<Interlocutor> result = new LinkedList<>();
+        for (Map.Entry<ChatType, JMConversation> entity : chatMap.entrySet()) {
+            result.add(entity.getValue().getMe());
+        }
+        return result;
     }
-
 
 }

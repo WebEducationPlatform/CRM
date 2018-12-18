@@ -17,10 +17,10 @@ public interface JMConversation {
     ChatMessage sendMessage(ChatMessage message);
 
     //Получаем не прочитынные сообщения
-    List<ChatMessage> getNewMessages(String chatId, int count);
+    List<ChatMessage> getNewMessages(Client client, int count);
 
     //получаем последнии count сообщений из чата
-    List<ChatMessage> getMessages(String chatId, int count);
+    List<ChatMessage> getMessages(Client client, int count);
 
     //Получить список сообщений, прочитанных собеседником
     String getReadMessages(Client client);
