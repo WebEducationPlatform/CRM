@@ -133,6 +133,7 @@ public class ScheduleTasks {
 		newClient.setStatus(newClientsStatus);
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
+		vkService.fillClientFromProfileVK(newClient);
 		newClient.addHistory(clientHistoryService.createHistory("vk"));
 		String email = newClient.getEmail();
 		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){

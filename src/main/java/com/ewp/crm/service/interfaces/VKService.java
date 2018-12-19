@@ -51,5 +51,7 @@ public interface VKService {
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
-    Optional<Map<String, String>> getProfileInfoById(String vkId);
+    Optional<Map<String, String>> getProfileInfoById(long vkId);
+
+    void fillClientFromProfileVK(Client client);
 }

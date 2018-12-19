@@ -16,6 +16,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,9 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "skype")
     private String skype = "";
+
+    @Column(name = "birthDate")
+    private LocalDate birthDate;
 
     @Column(name = "age")
     private byte age;
@@ -86,6 +90,9 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "postpone_comment")
     private String postponeComment;
+
+    @Column(name = "university")
+    private String university;
 
     @ManyToOne
     @JoinColumn(name = "status_id")
@@ -437,6 +444,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.postponeComment = postponeComment;
     }
 
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(String university) {
+        this.university = university;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -455,13 +478,15 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(socialProfiles, client.socialProfiles) &&
                 Objects.equals(jobs, client.jobs) &&
                 Objects.equals(skype, client.skype) &&
-                Objects.equals(postponeDate, client.postponeDate);
+                Objects.equals(postponeDate, client.postponeDate) &&
+                Objects.equals(birthDate, client.birthDate) &&
+                Objects.equals(university, client.university);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
-                state, jobs, socialProfiles, postponeDate);
+                state, jobs, socialProfiles, postponeDate, birthDate, university);
     }
 
     @Override

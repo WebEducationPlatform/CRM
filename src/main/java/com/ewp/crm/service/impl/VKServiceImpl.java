@@ -29,7 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class VKServiceImpl implements VKService {
@@ -710,15 +714,16 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<Map<String, String>> getProfileInfoById(String vkId) {
-        Map<String,String> mapVkInfo = new HashMap<>();
-        String request = vkAPI + "users.get?"
-                + "user_ids=" + vkId
-                + "&fields=first_name,last_name,city,education"
-                + "&access_token=" + communityToken
-                + "&v=" + version;
 
+    @Override
+    public Optional<Map<String, String>> getProfileInfoById(long vkId) {
+        Map<String,String> mapVkInfo = new HashMap<>();
+        String fileds = "first_name,last_name,sex,bdate,country,city,education,has_mobile,contacts";
+        String request = vkAPI + "users.get?" +
+                "user_ids=" + vkId +
+                "&fields=" + fileds +
+                "&access_token=" + communityToken +
+                "&v=" + version;
         HttpGet httpGetClient = new HttpGet(request);
         HttpClient httpClient = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -729,29 +734,90 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONArray responseArray = json.getJSONArray("response");
             JSONObject vkUserJson = responseArray.getJSONObject(0);
-
             mapVkInfo.put("first_name", vkUserJson.has("first_name") ? vkUserJson.getString("first_name") : "");
-            mapVkInfo.put("first_name", vkUserJson.has("last_name") ? vkUserJson.getString("last_name") : "");
+            mapVkInfo.put("last_name", vkUserJson.has("last_name") ? vkUserJson.getString("last_name") : "");
+            if (vkUserJson.has("country")) {
+                JSONObject jsonEdv = new JSONObject(vkUserJson.getString("country"));
+                mapVkInfo.put("country",jsonEdv.has("title") ? jsonEdv.getString("title") : "");
+            }
             if (vkUserJson.has("city")) {
-                JSONObject jsonCity = new JSONObject(vkUserJson.getString("city"));
-                mapVkInfo.put("city",jsonCity.has("title") ? jsonCity.getString("title") : "");
+                JSONObject jsonEdv = new JSONObject(vkUserJson.getString("city"));
+                mapVkInfo.put("city",jsonEdv.has("title") ? jsonEdv.getString("title") : "");
             }
             String city = vkUserJson.has("university_name") ? vkUserJson.getString("university_name") : "";
-
-            mapVkInfo.put("first_name",vkUserJson.getString("first_name"));
-            mapVkInfo.put("last_name",vkUserJson.getString("last_name"));
-            JSONObject jsonCity = new JSONObject(vkUserJson.getString("city"));
-            mapVkInfo.put("city",jsonCity.getString("title"));
-            mapVkInfo.put("university",vkUserJson.getString("university_name"));
-
+            mapVkInfo.put("sex", vkUserJson.has("sex") ? vkUserJson.getString("sex") : "");
+            mapVkInfo.put("birthdate", vkUserJson.has("bdate") ? vkUserJson.getString("bdate") : "");
+            mapVkInfo.put("university", vkUserJson.has("university_name") ? vkUserJson.getString("university_name") : "");
+            mapVkInfo.put("has_mobile", vkUserJson.has("has_mobile") ? vkUserJson.getString("has_mobile") : "");
+            mapVkInfo.put("phone", vkUserJson.has("mobile_phone") ? phoneNumberValidation(vkUserJson.getString("mobile_phone")) : "");
+            return Optional.of(mapVkInfo);
         } catch (IOException e) {
             logger.error("Failed to connect to VK server", e);
         } catch (JSONException e) {
-            logger.error("Can't take info from profile by user id {}", vkId);
+            logger.error("Can't take info from vk profile by vk id = {}", vkId);
         }
 
-        return Optional.of(mapVkInfo);
+        return Optional.empty();
     }
 
-}
+    private String phoneNumberValidation(String phoneNumber) {
+        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        if (matcher.matches()) {
+            if (phoneNumber.startsWith("8")) {
+                phoneNumber = phoneNumber.replaceFirst("8", "7");
+            }
+            phoneNumber = phoneNumber.replaceAll("[+()-]", "")
+                    .replaceAll("\\s", "");
+        } else {
+            phoneNumber = "";
+        }
+        return phoneNumber;
+    }
 
+    @Override
+    public void fillClientFromProfileVK(Client client) {
+        Optional<SocialProfile> optSocial = client.getSocialProfiles().stream().filter(profile -> "vk".equals(profile.getSocialProfileType().getName())).findFirst();
+        Optional<Map<String, String>> OptVkInfo = Optional.empty();
+        if (optSocial.isPresent()) {
+            long vkId = getVKIdByUrl(optSocial.get().getLink()).orElseGet(() -> 0L);
+            if (vkId > 0) {
+                OptVkInfo = getProfileInfoById(vkId);
+            }
+        }
+        if (OptVkInfo.isPresent()) {
+            Map<String, String> mapVkInfo = OptVkInfo.get();
+            if (!mapVkInfo.get("city").isEmpty() && client.getCity() == null || client.getCity().isEmpty()) {
+                client.setCity(mapVkInfo.get("city"));
+            }
+            if (!mapVkInfo.get("birthdate").isEmpty() && client.getBirthDate() == null) {
+                String birthDateString = mapVkInfo.get("birthdate");
+                Pattern pattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}.\\d{4}");
+                Matcher matcher = pattern.matcher(birthDateString);
+                if (matcher.find()) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy");
+                    client.setBirthDate(LocalDate.parse(mapVkInfo.get("birthdate"), formatter));
+                }
+            }
+            if (!mapVkInfo.get("sex").isEmpty() && client.getSex() == null) {
+                switch (Integer.parseInt(mapVkInfo.get("sex"))) {
+                    case 2:
+                        client.setSex(Sex.MALE);
+                        break;
+                    case 1:
+                        client.setSex(Sex.FEMALE);
+                        break;
+                }
+            }
+            if (!mapVkInfo.get("phone").isEmpty() &&  client.getPhoneNumber() == null || client.getPhoneNumber().isEmpty()) {
+                client.setPhoneNumber(mapVkInfo.get("phone"));
+            }
+            if (!mapVkInfo.get("country").isEmpty() &&  client.getCountry() == null || client.getCountry().isEmpty()) {
+                client.setCountry(mapVkInfo.get("country"));
+            }
+            if (!mapVkInfo.get("university").isEmpty() &&  client.getUniversity() == null || client.getUniversity().isEmpty()) {
+                client.setUniversity(mapVkInfo.get("university"));
+            }
+        }
+    }
+}
