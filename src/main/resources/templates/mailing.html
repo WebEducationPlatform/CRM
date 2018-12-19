@@ -70,7 +70,7 @@
                 <select class="form-control" id = "listMailingSelect">
                     <option value="null">Выберите список рассылки</option>
                     <option th:each="listMailing : ${listMailing}"
-                            th:value="${listMailing.listName}"
+                            th:value="${listMailing.id}"
                             th:utext="${listMailing.listName}"> </option>
                 </select>
                 </div>

@@ -22,8 +22,8 @@ public class ListMailingRestController {
     }
 
     @PostMapping("/get/listMailing")
-    public ResponseEntity<ListMailing> getListMailing(@RequestParam("listGroupName") String listName) {
-        return ResponseEntity.ok(listMailingService.getByListName(listName));
+    public ResponseEntity<ListMailing> getListMailing(@RequestParam("listGroupId") Long id) {
+        return ResponseEntity.ok(listMailingService.getListMailingById(id));
 
     }
 }
