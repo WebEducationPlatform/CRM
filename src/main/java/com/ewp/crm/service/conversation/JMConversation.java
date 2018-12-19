@@ -3,6 +3,7 @@ package com.ewp.crm.service.conversation;
 import com.ewp.crm.models.Client;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface JMConversation {
 
@@ -26,7 +27,7 @@ public interface JMConversation {
     String getReadMessages(Client client);
 
     //получить собеседника по ID сущности
-    Interlocutor getInterlocutor(Client client);
+    Optional<Interlocutor> getInterlocutor(Client client);
 
     //Получить текущего залогиненого пользователя по ID сущности
     Interlocutor getMe();

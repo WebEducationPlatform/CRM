@@ -308,13 +308,14 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
-    public Interlocutor getInterlocutor(com.ewp.crm.models.Client client) {
-        TdApi.User user = new TdApi.User();
+    public Optional<Interlocutor> getInterlocutor(com.ewp.crm.models.Client client) {
+        Optional<Interlocutor> result = Optional.empty();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
-            user = getUserById(Integer.parseInt(link.get()));
+            TdApi.User user = getUserById(Integer.parseInt(link.get()));
+            result = Optional.of(tdlibUserToInterlocutor(user));
         }
-        return tdlibUserToInterlocutor(user);
+        return result;
     }
 
     @Override

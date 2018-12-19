@@ -2374,3 +2374,14 @@ function slackInvite(email) {
         }
     })
 }
+
+function get_interlocutors(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/interlocutors",
+        data: {id: clientId},
+        success: function (response) {
+           console.log(response);
+        }
+    })
+}

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class JMVkConversation implements JMConversation {
@@ -49,7 +50,7 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public Interlocutor getInterlocutor(Client client) {
+    public Optional<Interlocutor> getInterlocutor(Client client) {
         List<SocialProfile> profiles = client.getSocialProfiles();
 
         String link = null;
@@ -60,7 +61,7 @@ public class JMVkConversation implements JMConversation {
         }
 
         if (link == null){
-            return null;
+            return Optional.empty();
         }
 
         String id = vkService.getIdFromLink(link);
@@ -69,11 +70,11 @@ public class JMVkConversation implements JMConversation {
 
             Map<String, String> param = vkService.getUserDataById(Long.parseLong(id), additionalUser, splitter);
             Interlocutor interlocutor = new Interlocutor(id, vkUrl+idString+id, param.get(fldPhoto), getChatTypeOfConversation());
-            return interlocutor;
+            return Optional.of(interlocutor);
 
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -97,7 +98,7 @@ public class JMVkConversation implements JMConversation {
     public List<ChatMessage> getMessages(Client client, int count) {
 
         try {
-            Interlocutor interlocutor = getInterlocutor(client);
+            Interlocutor interlocutor = getInterlocutor(client).get();
             return vkService.getMassagesFromGroup(interlocutor.getId(), count).orElse(new LinkedList<>());
         }
         catch (VKAccessTokenException e){
@@ -119,7 +120,7 @@ public class JMVkConversation implements JMConversation {
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
         try {
-            Interlocutor interlocutor = getInterlocutor(client);
+            Interlocutor interlocutor = getInterlocutor(client).get();
             return vkService.getNewMassagesFromGroup(interlocutor.getId()).orElse(new LinkedList<>());
         }
         catch (VKAccessTokenException e){
