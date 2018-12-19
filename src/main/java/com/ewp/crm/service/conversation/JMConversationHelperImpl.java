@@ -1,6 +1,7 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.service.interfaces.SocialProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +13,12 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     private final int CHAT_MESSAGE_LIMIT = 40;
 
     private final List<JMConversation> conversations;
+    private final SocialProfileService socialProfileService;
 
     @Autowired
-    public JMConversationHelperImpl(List<JMConversation> conversations) {
+    public JMConversationHelperImpl(List<JMConversation> conversations, SocialProfileService socialProfileService) {
         this.conversations = conversations;
+        this.socialProfileService = socialProfileService;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     public ChatMessage sendMessage(ChatMessage message) {
         for (JMConversation conversation: conversations) {
             if (message.getChatType() == conversation.getChatTypeOfConversation()) {
-               return conversation.sendMessage(message);
+                return conversation.sendMessage(message);
             }
         }
         return message;
@@ -71,7 +74,10 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     public List<Interlocutor> getInterlocutors(Client client) {
         List<Interlocutor> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {
-            list.add(conversation.getInterlocutor(client));
+            Optional<Interlocutor> interlocutor = conversation.getInterlocutor(client);
+            if (interlocutor.isPresent()) {
+                list.add(interlocutor.get());
+            }
         }
         return list;
     }
