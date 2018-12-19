@@ -524,7 +524,7 @@ function showListMailing() {
             url: '/get/listMailing',
             type: 'POST',
             data: {
-                listGroupName: listGroupName
+                listGroupId: listGroupName
             },
             success: function (data) {
 
@@ -566,17 +566,23 @@ function openEditShowListMailing() {
     $.ajax({
         url: '/get/listMailing',
         type: 'POST',
-        data: { listGroupName: listGroupName
+        data: { listGroupId: listGroupName
         },
         success: function (data) {
 
-                $("#editListName").val(data.listName)
+            $("#editListName").val(data.listName)
 
-                $("#editListEmail").val(data.recipientsEmail)
+            $("#editListEmail").each(function () {
+                $(this).val(data.recipientsEmail.join("\n"));
+            });
 
-                $("#editListSms").val(data.recipientsSms)
+            $("#editListSms").each(function () {
+                $(this).val(data.recipientsSms.join("\n"));
+            });
 
-                $("#editListVk").val(data.recipientsVk)
+            $("#editListVk").each(function () {
+                $(this).val(data.recipientsVk.join("\n"));
+            });
         }
 
     });
@@ -598,7 +604,7 @@ function editListMailing() {
     $.ajax({
         url: '/edit/list-mailing',
         type: 'POST',
-        data: { listName: listName,
+        data: { listId: listName,
                 editListName: editListName,
                 editRecipientsEmail: editListEmail,
                 editRecipientsSms: editListSms,
@@ -617,7 +623,7 @@ function deleteListMailing() {
     $.ajax({
         url: '/remove/list-mailing',
         type: 'POST',
-        data: { listName: listName
+        data: { listId: listName
         }, success: function () {
             location.reload();
         }
