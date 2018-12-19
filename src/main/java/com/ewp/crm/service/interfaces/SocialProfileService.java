@@ -11,4 +11,6 @@ public interface SocialProfileService {
 	SocialProfile getSocialProfileByLink(String link);
 
 	Optional<SocialProfile> getSocialProfileByClientIdAndTypeName(long clientId, String profileName);
+
+	Optional<String> getClientSocialProfileLinkByTypeName(Client client, String typeName);
 }
