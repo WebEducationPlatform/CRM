@@ -226,7 +226,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public Optional<List<ChatMessage>> getNewMassagesFromGroup(String userid) throws VKAccessTokenException {
+    public Optional<List<ChatMessage>> getNewMassagesFromGroup() throws VKAccessTokenException {
         logger.info("VKService: getting messages...");
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
             throw new VKAccessTokenException("VK access token has not got");
@@ -253,20 +253,20 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
 
-                String id = jsonMessage.getString("id");
-                String body = jsonMessage.getString("body");
-                Integer read_state = jsonMessage.getInt("read_state");
-                String date = jsonMessage.getString("date");
-                Integer out = jsonMessage.getInt("out");
-
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
-                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
-                        userid,
-                        ChatType.vk,body,
-                        zonedDateTime,
-                        read_state == 0,
-                        out == 0);
-                resultList.add(newChatMessage);
+//                String id = jsonMessage.getString("id");
+//                String body = jsonMessage.getString("body");
+//                Integer read_state = jsonMessage.getInt("read_state");
+//                String date = jsonMessage.getString("date");
+//                Integer out = jsonMessage.getInt("out");
+//
+//                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
+//                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
+//                        userid,
+//                        ChatType.vk,body,
+//                        zonedDateTime,
+//                        read_state == 0,
+//                        out == 0);
+//                resultList.add(newChatMessage);
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
