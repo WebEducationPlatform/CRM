@@ -36,13 +36,13 @@ public class MailingMessage {
     private Set<ClientData> clientsData;
 
     @Column(name = "readed_message")
-    private boolean readedMessage;
+    private Boolean readedMessage;
 
     @Column(name = "vkType")
     private String vkType;
 
     @Column(name = "userID")
-    private long userId;
+    private Long userId;
 
     public MailingMessage(){}
 

@@ -56,6 +56,7 @@ function sendMessages(sendnow) {
             }
         }
     });
+
 }
 
 /**
@@ -438,21 +439,25 @@ function addToListMailing() {
     let recipientsVk = $('#listVk').val();
     let listName = $('#listName').val();
 
-    let wrap = {
-        recipientsEmail : recipientsEmail,
-        recipientsSms : recipientsSms,
-        recipientsVk : recipientsVk,
-        listName : listName
-    }
-
-    $.ajax({
-        type: "POST",
-        url: '/list-mailing',
-        data: wrap,
-        success: function () {
-            location.reload();
+    if(listName != '') {
+        let wrap = {
+            recipientsEmail: recipientsEmail,
+            recipientsSms: recipientsSms,
+            recipientsVk: recipientsVk,
+            listName: listName
         }
-    });
+
+        $.ajax({
+            type: "POST",
+            url: '/list-mailing',
+            data: wrap,
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+       $('#errorListName').html('<p style="color: red">Введите название списка</p>')
+    }
 }
 
 function showManagerHistory() {
@@ -497,21 +502,15 @@ function showManagerHistory() {
                 }
 
                 $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
-                        </tr>");
-
-
-                for (var j = 0; j < data[i].clientsData.length; j++) {
-                    $("#recepientBodyMailing").append("<tr> \
-                            <td>" + data[i].clientsData[j].info + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
                         </tr>");
 
                 }
             }
-        }
     });
 }
 function showListMailing() {
@@ -529,14 +528,23 @@ function showListMailing() {
             },
             success: function (data) {
 
-                if (messageType == "email") {
-                    $("#addresses-area").val(data.recipientsEmail)
-                } else if (messageType == 'sms') {
-                    $("#addresses-area").val(data.recipientsSms)
-                } else if (messageType == "vk") {
-                    $("#addresses-area").val(data.recipientsVk)
+                    if (messageType == "email") {
+                        for(var i = 0; i < data.recipientsEmail.length; i++) {
+                            $("#addresses-area").val(data.recipientsEmail)
+                        }
+                    } else if (messageType == 'sms') {
+                        for(var i = 0; i < data.recipientsSms.length; i++) {
+                            $("#addresses-area").val(data.recipientsSms)
+                        }
+                    } else if (messageType == "vk") {
+                        for(var i = 0; i < data.recipientsVk.length; i++) {
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsVk.join("\n"));
+                            });
+                        }
+                    }
                 }
-            }
+
 
         });
 }
