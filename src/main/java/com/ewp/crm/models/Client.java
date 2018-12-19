@@ -1,5 +1,6 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.models.Whatsapp.WhatsappMessage;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -86,6 +87,12 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "postpone_comment")
     private String postponeComment;
+    @JsonIgnore
+    @OneToMany
+    @JoinTable(name = "client_whatsapp_messages",
+            joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "whatsapp_msg_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG"))})
+    private List<WhatsappMessage> whatsappMessages;
 
     @ManyToOne
     @JoinColumn(name = "status_id")

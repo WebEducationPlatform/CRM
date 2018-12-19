@@ -21,6 +21,14 @@ public class ChatMessage {
         this.isRead = isRead;
         this.isOutgoing = isOutgoing;
     }
+    public ChatMessage(String chatId, ChatType chatType, String text, ZonedDateTime time, Boolean isRead, Boolean isOutgoing) {
+        this.chatId = chatId;
+        this.chatType = chatType;
+        this.text = text;
+        this.time = time;
+        this.isRead = isRead;
+        this.isOutgoing = isOutgoing;
+    }
 
     public ChatMessage(ChatType chatType, String text) {
         this.chatType = chatType;
