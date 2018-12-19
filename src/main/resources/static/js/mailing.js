@@ -530,11 +530,15 @@ function showListMailing() {
 
                     if (messageType == "email") {
                         for(var i = 0; i < data.recipientsEmail.length; i++) {
-                            $("#addresses-area").val(data.recipientsEmail)
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsEmail.join("\n"));
+                            });
                         }
                     } else if (messageType == 'sms') {
                         for(var i = 0; i < data.recipientsSms.length; i++) {
-                            $("#addresses-area").val(data.recipientsSms)
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsSms.join("\n"));
+                            });
                         }
                     } else if (messageType == "vk") {
                         for(var i = 0; i < data.recipientsVk.length; i++) {
