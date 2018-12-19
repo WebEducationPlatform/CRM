@@ -83,7 +83,6 @@ public class VKServiceImpl implements VKService {
     @Value("${userKey}")
 	private String userKey;
 
-
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
                          YoutubeClientService youtubeClientService,
