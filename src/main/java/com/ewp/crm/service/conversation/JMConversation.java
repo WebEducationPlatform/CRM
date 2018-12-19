@@ -30,5 +30,5 @@ public interface JMConversation {
     Optional<Interlocutor> getInterlocutor(Client client);
 
     //Получить текущего залогиненого пользователя по ID сущности
-    Interlocutor getMe();
+    Optional<Interlocutor> getMe();
 }
