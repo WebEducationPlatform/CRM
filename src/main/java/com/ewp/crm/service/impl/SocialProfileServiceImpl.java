@@ -39,4 +39,16 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 		}
 		return result;
 	}
+
+	@Override
+	public Optional<String> getClientSocialProfileLinkByTypeName(Client client, String typeName) {
+		Optional<String> result = Optional.empty();
+		for (SocialProfile socialProfile : client.getSocialProfiles()) {
+			if (typeName.equals(socialProfile.getSocialProfileType().getName())) {
+				result = Optional.of(socialProfile.getLink());
+				break;
+			}
+		}
+		return result;
+	}
 }
