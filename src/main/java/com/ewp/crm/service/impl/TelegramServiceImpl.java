@@ -277,26 +277,32 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
-    public List<ChatMessage> getNewMessages(String chatId, int count) {
-        TdApi.Messages tgMessages = getUnreadMessagesFromChat(Long.parseLong(chatId), count);
+    public List<ChatMessage> getNewMessages(com.ewp.crm.models.Client client, int count) {
+        TdApi.Messages tgMessages = new TdApi.Messages();
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+        }
         return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatId, int count) {
-        TdApi.Messages tgMessages = getChatMessages(Long.parseLong(chatId), count);
+    public List<ChatMessage> getMessages(com.ewp.crm.models.Client client, int count) {
+        TdApi.Messages tgMessages = new TdApi.Messages();
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+        }
         return tdlibMessagesToChatMessages(tgMessages);
     }
 
     @Override
     public String getReadMessages(com.ewp.crm.models.Client client) {
         String result = "";
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
-                Optional<TdApi.Chat> chat = getChat(Long.parseLong(socialProfile.getLink()));
-                result = String.valueOf(chat.get().lastReadInboxMessageId);
-                break;
-            }
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            result = String.valueOf(chat.get().lastReadInboxMessageId);
         }
         return result;
     }
@@ -304,11 +310,9 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public Interlocutor getInterlocutor(com.ewp.crm.models.Client client) {
         TdApi.User user = new TdApi.User();
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("telegram".equals(socialProfile.getSocialProfileType().getName())) {
-                user = getUserById(Integer.parseInt(socialProfile.getLink()));
-                break;
-            }
+        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+        if (link.isPresent()) {
+            user = getUserById(Integer.parseInt(link.get()));
         }
         return tdlibUserToInterlocutor(user);
     }
