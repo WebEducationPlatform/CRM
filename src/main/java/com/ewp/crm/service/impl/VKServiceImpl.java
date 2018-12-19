@@ -16,6 +16,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.sun.jmx.snmp.Timestamp;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -77,6 +79,7 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
     private String managerToken;
 
+    private VKConfig vkConfig;
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
@@ -91,6 +94,7 @@ public class VKServiceImpl implements VKService {
                          ProjectPropertiesService projectPropertiesService,
                          VkRequestFormService vkRequestFormService,
                          VkMemberService vkMemberService) {
+        this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
         communityToken = vkConfig.getCommunityToken();
@@ -171,19 +175,16 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count) throws VKAccessTokenException {
+    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getOnlyNew) {
         logger.info("VKService: getting messages...");
-        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
-            throw new VKAccessTokenException("VK access token has not got");
-        }
 
         String uriGetMassages = vkAPI + "messages.getHistory" +
-                "?user_id=" + userid +
-                "&group_id=" + clubId +
-                "&count=" + count +
-                "&rev=0" +
-                "&version=" + version +
-                "&access_token=" + technicalAccountToken;
+                                        "?user_id=" + userid +
+                                        "&group_id=" + vkConfig.getClubId() +
+                                        "&count=" + count +
+                                        "&rev=0" +
+                                        "&version=" + version +
+                                        "&access_token=" + communityToken;
 
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
@@ -201,19 +202,24 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
 
-                String id = jsonMessage.getString("id");
-                String body = jsonMessage.getString("body");
+                String id          = jsonMessage.getString("mid");
+                String body        = jsonMessage.getString("body");
                 Integer read_state = jsonMessage.getInt("read_state");
-                String date = jsonMessage.getString("date");
-                Integer out = jsonMessage.getInt("out");
+                Long date        = jsonMessage.getLong("date");
+                Integer out        = jsonMessage.getInt("out");
 
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
-                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
-                                                                userid,
-                                                                ChatType.vk,body,
-                                                                zonedDateTime,
-                                                          read_state == 0,
-                                                       out == 0);
+                ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date), TimeZone.getDefault().toZoneId());
+
+                ChatMessage newChatMessage = new ChatMessage(id,
+                                                            userid,
+                                                            ChatType.vk,body,
+                                                            time,
+                                                      read_state == 1,
+                                                   out == 0);
+                if (getOnlyNew && read_state == 1) {
+                    continue;
+                }
+
                 resultList.add(newChatMessage);
             }
             return Optional.of(resultList);
@@ -225,57 +231,6 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<List<ChatMessage>> getNewMassagesFromGroup() throws VKAccessTokenException {
-        logger.info("VKService: getting messages...");
-        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
-            throw new VKAccessTokenException("VK access token has not got");
-        }
-
-        String uriGetMassages = vkAPI + "messages.getConversations" +
-                "?filter=unread" +
-                "&group_id=" + clubId +
-                "&version=" + version +
-                "&access_token=" + technicalAccountToken;
-        try {
-            HttpGet httpGetMessages = new HttpGet(uriGetMassages);
-            HttpClient httpClient = HttpClients.custom()
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
-            HttpResponse response = httpClient.execute(httpGetMessages);
-            String result = EntityUtils.toString(response.getEntity());
-            JSONObject json = new JSONObject(result);
-            JSONArray jsonMessages = json.getJSONArray("response");
-
-            List<ChatMessage> resultList = new LinkedList<>();
-
-            for (int i = 1; i < jsonMessages.length(); i++) {
-                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
-
-//                String id = jsonMessage.getString("id");
-//                String body = jsonMessage.getString("body");
-//                Integer read_state = jsonMessage.getInt("read_state");
-//                String date = jsonMessage.getString("date");
-//                Integer out = jsonMessage.getInt("out");
-//
-//                ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
-//                ChatMessage newChatMessage = new ChatMessage(Long.parseLong(id),
-//                        userid,
-//                        ChatType.vk,body,
-//                        zonedDateTime,
-//                        read_state == 0,
-//                        out == 0);
-//                resultList.add(newChatMessage);
-            }
-            return Optional.of(resultList);
-        } catch (JSONException e) {
-            logger.error("Can not read message from JSON ", e);
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server ", e);
-        }
-        return Optional.empty();
-    }
 
     @Override
     public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
