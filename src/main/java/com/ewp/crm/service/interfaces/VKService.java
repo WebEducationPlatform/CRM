@@ -14,9 +14,7 @@ public interface VKService {
 
     Optional<List<String>> getNewMassages() throws VKAccessTokenException;
 
-    Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count) throws VKAccessTokenException;
-
-    Optional<List<ChatMessage>> getNewMassagesFromGroup() throws VKAccessTokenException;
+    Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getOnlyNew);
 
     void sendMessageToClient(Long clientId, String templateText, String body, User principal);
 
