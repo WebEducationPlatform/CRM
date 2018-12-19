@@ -81,7 +81,7 @@ public class VKServiceImpl implements VKService {
     private String managerToken;
 
     @Value("${userKey}")
-	private String userKey;
+    private String userKey;
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
