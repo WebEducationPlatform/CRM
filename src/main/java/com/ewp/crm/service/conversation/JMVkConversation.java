@@ -22,7 +22,7 @@ public class JMVkConversation implements JMConversation {
     private final String splitter = ",";
     private final String fldPhoto = "photo_50";
     private final String additionalGroup = "name,photo_50";
-    private final String additionalUser = "photo_50,first_name_ins, last_name_ins";
+    private final String additionalUser = "photo_50,first_name_ins,last_name_ins";
     private final String defaultVkPhoto = "https://vk.com/images/camera_50.png?ava=1";
     private final String vkUrl = "https://vk.com/";
     private final String clubString = "club";
@@ -95,9 +95,8 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
-        vkService.sendMessageById(Long.parseLong(message.getChatId()), message.getText());
-        message.setOutgoing(true);
-        return message;
+        vkService.sendMessageById(Long.parseLong(message.getChatId()), message.getText(),vkConfig.getCommunityToken());
+        return getLastMessages(message.getChatId());
     }
 
     @Override
@@ -106,16 +105,27 @@ public class JMVkConversation implements JMConversation {
         return vkService.getMassagesFromGroup(interlocutor.getId(), count, false).orElse(new LinkedList<>());
     }
 
+    public ChatMessage getLastMessages(String userid) {
+
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, 1, false).orElse(new LinkedList<>());
+
+        if (chatMessages.isEmpty()) {
+            return null;
+        }
+
+        return chatMessages.get(0);
+    }
+
     @Override
     public String getReadMessages(Client client) {
         Interlocutor interlocutor = getInterlocutor(client).get();
-        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(interlocutor.getId(), 1, false).orElse(new LinkedList<>());
+        ChatMessage message = getLastMessages(interlocutor.getId());
 
-        if (chatMessages.isEmpty()) {
+        if (message == null) {
             return "";
         }
 
-        return chatMessages.get(0).getId();
+        return message.getId();
     }
 
     @Override
