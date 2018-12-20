@@ -75,9 +75,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
         List<Interlocutor> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {
             Optional<Interlocutor> interlocutor = conversation.getInterlocutor(client);
-            if (interlocutor.isPresent()) {
-                list.add(interlocutor.get());
-            }
+            interlocutor.ifPresent(list::add);
         }
         return list;
     }
