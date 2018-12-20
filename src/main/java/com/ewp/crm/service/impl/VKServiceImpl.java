@@ -205,10 +205,10 @@ public class VKServiceImpl implements VKService {
                 String id          = jsonMessage.getString("mid");
                 String body        = jsonMessage.getString("body");
                 Integer read_state = jsonMessage.getInt("read_state");
-                Long date        = jsonMessage.getLong("date");
+                Long date          = jsonMessage.getLong("date");
                 Integer out        = jsonMessage.getInt("out");
 
-                ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date), TimeZone.getDefault().toZoneId());
+                ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date*1000), TimeZone.getDefault().toZoneId());
 
                 ChatMessage newChatMessage = new ChatMessage(id,
                                                             userid,
@@ -489,10 +489,10 @@ public class VKServiceImpl implements VKService {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("id", Long.toString(id));
 
-        String uriGetClient = vkAPI + "users.get?" +
-                "version=" + version +
+        String uriGetClient = vkAPI + "users.get" +
+                "?version=" + version +
                 "&user_id=" + id +
-                "fields" + additionalFields +
+                "&fields=" + additionalFields +
                 "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
@@ -534,10 +534,10 @@ public class VKServiceImpl implements VKService {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("id", Long.toString(id));
 
-        String uriGetClient = vkAPI + "groups.getById?" +
-                "version=" + version +
+        String uriGetClient = vkAPI + "groups.getById" +
+                "?version=" + version +
                 "&groupID=" + id +
-                "fields" + additionalFields +
+                "&fields=" + additionalFields +
                 "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
