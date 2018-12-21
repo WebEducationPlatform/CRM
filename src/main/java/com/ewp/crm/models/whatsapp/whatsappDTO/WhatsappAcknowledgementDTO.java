@@ -1,7 +1,7 @@
-package com.ewp.crm.models.Whatsapp.WhatsappDTO;
+package com.ewp.crm.models.whatsapp.whatsappDTO;
 
 
-import com.ewp.crm.models.Whatsapp.WhatsappMessage;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 
 import java.util.List;
 

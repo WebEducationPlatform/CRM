@@ -1,4 +1,5 @@
-package com.ewp.crm.models.Whatsapp;
+package com.ewp.crm.models.whatsapp;
+
 
 import com.ewp.crm.models.Client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,45 +8,58 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+
 @Entity
 @Table(name = "whatsapp_message")
 public class WhatsappMessage {
-    @Id
-    @Column(name = "id")
+
+
+    @Column(name = "whatsapp_id",unique = true,nullable = true)
     private String id;
+
     @Column(name = "body")
     private String body;
+
     @Column(name = "fromMe")
     private boolean fromMe;
+
     @Column(name = "author")
     private String author;
+
     @Column(name = "time")
     private ZonedDateTime time;
+
     @Column(name = "chatId")
     private String chatId;
-    @Column(name = "messageNumber")
+    @Id
+    @Column(name = "whatsapp_message_number")
     //need to be made id in DB
     private long messageNumber;
+
     @Column(name = "type")
     private String type;
+
     @Column(name = "senderName")
     private String senderName;
+
     @Column(name = "caption")
     private String caption;
+
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_whatsapp_message",
-            joinColumns = {@JoinColumn(name = "whatsapp_message_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
+            joinColumns = {@JoinColumn(name = "whatsapp_message_number", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
+            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})
     private Client client;
-    @Column(name = "read")
-    private boolean read = false;
+
+    @Column(name = "seen")
+    private boolean seen = false;
 
     public WhatsappMessage() {
 
     }
 
-    public WhatsappMessage(String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber,  String senderName, Client client) {
+    public WhatsappMessage(String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
         this.body = body;
         this.fromMe = fromMe;
         this.time = time;
@@ -54,6 +68,19 @@ public class WhatsappMessage {
         this.senderName = senderName;
         this.client = client;
     }
+
+    public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+        this.id = id;
+        this.body = body;
+        this.fromMe = fromMe;
+        this.time = time;
+        this.chatId = chatId;
+        this.messageNumber = messageNumber;
+        this.senderName = senderName;
+        this.client = client;
+    }
+
+
 
     public String getId() {
         return id;
@@ -90,6 +117,7 @@ public class WhatsappMessage {
     public ZonedDateTime getTime() {
         return time;
     }
+
     //из API приходит время в формате unix timestamp сдесь оно конвертируеться в ZonedDataTime
     public void setTime(long time) {
         this.time = Instant.ofEpochSecond(time).atZone(TimeZone.getDefault().toZoneId());
@@ -143,13 +171,14 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public boolean isRead() {
-        return read;
+    public boolean isSeen() {
+        return seen;
     }
 
-    public void setRead(boolean read) {
-        read = read;
+    public void setSeen(boolean isSeen) {
+        this.seen = isSeen;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -160,6 +189,7 @@ public class WhatsappMessage {
 
         if (isFromMe() != that.isFromMe()) return false;
         if (getMessageNumber() != that.getMessageNumber()) return false;
+        if (isSeen() != that.isSeen()) return false;
         if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
         if (getBody() != null ? !getBody().equals(that.getBody()) : that.getBody() != null) return false;
         if (getAuthor() != null ? !getAuthor().equals(that.getAuthor()) : that.getAuthor() != null) return false;
@@ -185,13 +215,14 @@ public class WhatsappMessage {
         result = 31 * result + (getSenderName() != null ? getSenderName().hashCode() : 0);
         result = 31 * result + (getCaption() != null ? getCaption().hashCode() : 0);
         result = 31 * result + (getClient() != null ? getClient().hashCode() : 0);
+        result = 31 * result + (isSeen() ? 1 : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "WhatsappMessage{" +
-                "id='" + id + '\'' +
+                ", id='" + id + '\'' +
                 ", body='" + body + '\'' +
                 ", fromMe=" + fromMe +
                 ", author='" + author + '\'' +
@@ -202,6 +233,7 @@ public class WhatsappMessage {
                 ", senderName='" + senderName + '\'' +
                 ", caption='" + caption + '\'' +
                 ", client=" + client +
+                ", seen=" + seen +
                 '}';
     }
 }

@@ -1,8 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Whatsapp.WhatsappDTO.WhatsappAcknowledgement;
-import com.ewp.crm.models.Whatsapp.WhatsappDTO.WhatsappAcknowledgementDTO;
-import com.ewp.crm.models.Whatsapp.WhatsappMessage;
+import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
+import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
