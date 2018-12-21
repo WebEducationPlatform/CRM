@@ -99,11 +99,11 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public Optional<Interlocutor> getInterlocutor(Client client) {
-        throw new UnsupportedOperationException();
+        return Optional.empty();
     }
 
     @Override
     public Optional<Interlocutor> getMe() {
-        throw new UnsupportedOperationException();
+        return Optional.empty();
     }
 }
