@@ -11,7 +11,7 @@ import java.util.TimeZone;
 @Table(name = "whatsapp_message")
 public class WhatsappMessage {
     @Id
-    @Column(name = "id")
+    @Column(name = "whatsapp_message_id")
     private String id;
     @Column(name = "body")
     private String body;
@@ -34,7 +34,7 @@ public class WhatsappMessage {
     private String caption;
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
-    @JoinTable(name = "client",
+    @JoinTable(name = "client_whatsapp_messages",
             joinColumns = {@JoinColumn(name = "whatsapp_message_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private Client client;
