@@ -320,17 +320,13 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
 
     @Override
     public Optional<Interlocutor> getMe() {
-        Optional<Interlocutor> result = Optional.empty();
-        Optional<TdApi.User> user = Optional.of(getTgMe());
-        if (user.isPresent()) {
-            result = Optional.of(tdlibUserToInterlocutor(user.get()));
-        }
-        return result;
+        TdApi.User user = getTgMe();
+        return Optional.of(tdlibUserToInterlocutor(user));
     }
 
     private ChatMessage tdlibMessageToChatMessage(TdApi.Message message) {
         ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(message.date), TimeZone.getDefault().toZoneId());
-        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, message.content.toString(), time, false, true);
+        return new ChatMessage(Long.toString(message.id), String.valueOf(message.chatId), ChatType.telegram, message.content.toString(), time, false, true);
     }
 
     private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages) {
