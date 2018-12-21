@@ -40,4 +40,5 @@ public class MailingMessageServiceImpl extends CommonServiceImpl<MailingMessage>
     public List<ClientData> getClientDataById(Long id) {
         return mailingMessageRepository.getClientDataById(id);
     }
+
 }

@@ -7,7 +7,7 @@ const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
-const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):";
+const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (не более 20 человек в день, которые не в друзьях и каждый с новой строки):";
 
 var messageType = 'email';
 var vkPage;
@@ -66,6 +66,7 @@ function sendMessages(sendnow) {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
             return;
@@ -132,6 +133,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
         "singleDatePicker": true, //отключаем выбор диапазона дат (range)
@@ -173,6 +175,7 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -202,6 +205,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
@@ -258,6 +262,7 @@ function ckeditorRemoveAllToolbars() {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
             $(this).addClass(DROP_ZONE_IS_DRAGOVER_CLASS);
@@ -306,6 +311,24 @@ function setErrorMessage(message, color) {
     let label = $("#message");
     label.prop('innerHTML', message)
     label.css('color', color);
+
+
+    $.ajax({
+        type: "GET",
+        url: "/get/no/send",
+        success: function (data) {
+            for(var i = 0; i < data.length; i++) {
+                if (data[i].notSendId.length > 0) {
+                    $("#noSendButton").show()
+                    for (var j = 0; j < data[i].notSendId.length; j++) {
+                        $("#noSendBody").append("<tr> \
+                            <td>" + data[i].notSendId[j] + "</td> \
+                        </tr>");
+                    }
+                }
+            }
+        }
+    });
 }
 
 function insertNewPicture(userID, templateID, input) {
@@ -438,21 +461,25 @@ function addToListMailing() {
     let recipientsVk = $('#listVk').val();
     let listName = $('#listName').val();
 
-    let wrap = {
-        recipientsEmail : recipientsEmail,
-        recipientsSms : recipientsSms,
-        recipientsVk : recipientsVk,
-        listName : listName
-    }
-
-    $.ajax({
-        type: "POST",
-        url: '/list-mailing',
-        data: wrap,
-        success: function () {
-            location.reload();
+    if(listName != '') {
+        let wrap = {
+            recipientsEmail: recipientsEmail,
+            recipientsSms: recipientsSms,
+            recipientsVk: recipientsVk,
+            listName: listName
         }
-    });
+
+        $.ajax({
+            type: "POST",
+            url: '/list-mailing',
+            data: wrap,
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+       $('#errorListName').html('<p style="color: red">Введите название списка</p>')
+    }
 }
 
 function showManagerHistory() {
@@ -497,21 +524,15 @@ function showManagerHistory() {
                 }
 
                 $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
-                        </tr>");
-
-
-                for (var j = 0; j < data[i].clientsData.length; j++) {
-                    $("#recepientBodyMailing").append("<tr> \
-                            <td>" + data[i].clientsData[j].info + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
                         </tr>");
 
                 }
             }
-        }
     });
 }
 function showListMailing() {
@@ -525,18 +546,31 @@ function showListMailing() {
             url: '/get/listMailing',
             type: 'POST',
             data: {
-                listGroupName: listGroupName
+                listGroupId: listGroupName
             },
             success: function (data) {
 
-                if (messageType == "email") {
-                    $("#addresses-area").val(data.recipientsEmail)
-                } else if (messageType == 'sms') {
-                    $("#addresses-area").val(data.recipientsSms)
-                } else if (messageType == "vk") {
-                    $("#addresses-area").val(data.recipientsVk)
+                    if (messageType == "email") {
+                        for(var i = 0; i < data.recipientsEmail.length; i++) {
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsEmail.join("\n"));
+                            });
+                        }
+                    } else if (messageType == 'sms') {
+                        for(var i = 0; i < data.recipientsSms.length; i++) {
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsSms.join("\n"));
+                            });
+                        }
+                    } else if (messageType == "vk") {
+                        for(var i = 0; i < data.recipientsVk.length; i++) {
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsVk.join("\n"));
+                            });
+                        }
+                    }
                 }
-            }
+
 
         });
 }
@@ -554,17 +588,23 @@ function openEditShowListMailing() {
     $.ajax({
         url: '/get/listMailing',
         type: 'POST',
-        data: { listGroupName: listGroupName
+        data: { listGroupId: listGroupName
         },
         success: function (data) {
 
-                $("#editListName").val(data.listName)
+            $("#editListName").val(data.listName)
 
-                $("#editListEmail").val(data.recipientsEmail)
+            $("#editListEmail").each(function () {
+                $(this).val(data.recipientsEmail.join("\n"));
+            });
 
-                $("#editListSms").val(data.recipientsSms)
+            $("#editListSms").each(function () {
+                $(this).val(data.recipientsSms.join("\n"));
+            });
 
-                $("#editListVk").val(data.recipientsVk)
+            $("#editListVk").each(function () {
+                $(this).val(data.recipientsVk.join("\n"));
+            });
         }
 
     });
@@ -586,7 +626,7 @@ function editListMailing() {
     $.ajax({
         url: '/edit/list-mailing',
         type: 'POST',
-        data: { listName: listName,
+        data: { listId: listName,
                 editListName: editListName,
                 editRecipientsEmail: editListEmail,
                 editRecipientsSms: editListSms,
@@ -605,7 +645,7 @@ function deleteListMailing() {
     $.ajax({
         url: '/remove/list-mailing',
         type: 'POST',
-        data: { listName: listName
+        data: { listId: listName
         }, success: function () {
             location.reload();
         }

@@ -127,7 +127,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public String mailingPage(Model model) {
         model.addAttribute("listMailing", listMailingService.getAll());
         model.addAttribute("chooseUser", userService.getAll());
