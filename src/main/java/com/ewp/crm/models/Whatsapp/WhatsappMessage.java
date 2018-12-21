@@ -11,7 +11,6 @@ import java.util.TimeZone;
 @Table(name = "whatsapp_message")
 public class WhatsappMessage {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private String id;
     @Column(name = "body")
@@ -35,12 +34,12 @@ public class WhatsappMessage {
     private String caption;
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
-    @JoinTable(name = "client_comment",
-            joinColumns = {@JoinColumn(name = "whatsapp_msg_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG"))})
+    @JoinTable(name = "client",
+            joinColumns = {@JoinColumn(name = "whatsapp_message_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private Client client;
-    @Column(name = "isRead")
-    private boolean isRead = false;
+    @Column(name = "read")
+    private boolean read = false;
 
     public WhatsappMessage() {
 
@@ -145,11 +144,11 @@ public class WhatsappMessage {
     }
 
     public boolean isRead() {
-        return isRead;
+        return read;
     }
 
     public void setRead(boolean read) {
-        isRead = read;
+        read = read;
     }
 
 
