@@ -128,6 +128,7 @@
                     </div>
                 </div>
                 <p><label id = "message" ></label></p>
+                <button id = "noSendButton" data-toggle='modal' data-target='#noSendModal' class='btn btn-success'>Недоставлено</button>
                 <textarea id="editor" name="editor">
                     Заполните текст сообщения
                 </textarea>
@@ -335,7 +336,30 @@
     </div>
 </div>
 
+<div class="modal fade" id="noSendModal" tabindex="-1" role="dialog" aria-labelledby="noSendModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="noSendModalHeader">
+                <h4 class="modal-title" id="noSendModalLabel">История рассылок</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    x
+                </button>
+            </div>
+            <div class="modal-body" id="noSendModalBody">
+                <table class="table table-striped" id="noSendTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">Получатели:</th>
+                    </tr>
+                    </thead>
+                    <tbody id="noSendBody">
 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <footer>
     <div class="container-fluid" id="footer">
