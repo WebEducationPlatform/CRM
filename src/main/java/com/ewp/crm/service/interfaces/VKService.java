@@ -49,4 +49,5 @@ public interface VKService {
     String getLongIDFromShortName(String vkGroupShortName);
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
+
 }
