@@ -131,6 +131,12 @@ public class JMVkConversation implements JMConversation {
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
         Interlocutor interlocutor = getInterlocutor(client).get();
-        return vkService.getMassagesFromGroup(interlocutor.getId(), count, true).orElse(new LinkedList<>());
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(interlocutor.getId(), count, true).orElse(new LinkedList<>());
+
+        for(ChatMessage chatMessage: chatMessages){
+            vkService.markAsRead(interlocutor.getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+        }
+
+        return chatMessages;
     }
 }
