@@ -21,8 +21,12 @@ var vkIdMappingClientId = {};
 var vkPhotodef = "https://vk.com/images/camera_50.png?ava=1";
 
 $(function () {
+
     $('#customVKIMMessage').on('show.bs.modal', function () {
-         //$('#customVKIMMessage').css('width', '90%');
+
+        return; //пока ничего не делаем.
+
+        //$('#customVKIMMessage').css('width', '90%');
         // $('#customVKIMMessage').css('margin', '100px auto 100px auto');
         //init paramatres
         //id берем из данных установленных при формировании карточки в main-table.js
@@ -43,10 +47,12 @@ $(function () {
     });
 
     $('#customVKIMMessage').on('hide.bs.modal', function () {
+        return;
         clearInterval(intervalID);
     });
 
     $('#IM-VK-Text').focus(function () {
+        return;
         unreadMessages.sort();
 
         for(var i = 0; i < unreadMessages.length; i++){
