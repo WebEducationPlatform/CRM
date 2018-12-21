@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 
 public class ChatMessage {
 
-    private Long id;
+    private String id;
     private String chatId;
     private ChatType chatType;
     private String text;
@@ -12,8 +12,16 @@ public class ChatMessage {
     private Boolean isRead;
     private Boolean isOutgoing;
 
-    public ChatMessage(Long id, String chatId, ChatType chatType, String text, ZonedDateTime time, Boolean isRead, Boolean isOutgoing) {
+    public ChatMessage(String id, String chatId, ChatType chatType, String text, ZonedDateTime time, Boolean isRead, Boolean isOutgoing) {
         this.id = id;
+        this.chatId = chatId;
+        this.chatType = chatType;
+        this.text = text;
+        this.time = time;
+        this.isRead = isRead;
+        this.isOutgoing = isOutgoing;
+    }
+    public ChatMessage(String chatId, ChatType chatType, String text, ZonedDateTime time, Boolean isRead, Boolean isOutgoing) {
         this.chatId = chatId;
         this.chatType = chatType;
         this.text = text;
@@ -27,11 +35,11 @@ public class ChatMessage {
         this.text = text;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

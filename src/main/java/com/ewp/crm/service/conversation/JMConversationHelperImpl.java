@@ -43,7 +43,9 @@ public class JMConversationHelperImpl implements JMConversationHelper {
         List<ChatMessage> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {
             List<ChatMessage> conversationMsg = conversation.getNewMessages(client, CHAT_MESSAGE_LIMIT);
-            list.addAll(0, conversationMsg);
+            if (conversationMsg != null && !conversationMsg.isEmpty()) {
+                list.addAll(0, conversationMsg);
+            }
         }
         list.sort(Comparator.comparing(ChatMessage::getTime));
         return list;
@@ -54,7 +56,9 @@ public class JMConversationHelperImpl implements JMConversationHelper {
         List<ChatMessage> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {
             List<ChatMessage> conversationMsg = conversation.getMessages(client, CHAT_MESSAGE_LIMIT);
-            list.addAll(0, conversationMsg);
+            if (conversationMsg != null && !conversationMsg.isEmpty()) {
+                list.addAll(0, conversationMsg);
+            }
         }
         list.sort(Comparator.comparing(ChatMessage::getTime));
         return list;
@@ -84,7 +88,8 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     public List<Interlocutor> getUs() {
         List<Interlocutor> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {
-            list.add(conversation.getMe());
+            Optional<Interlocutor> interlocutor = conversation.getMe();
+            interlocutor.ifPresent(list::add);
         }
         return list;
     }
