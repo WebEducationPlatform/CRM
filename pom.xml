@@ -210,6 +210,11 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.vk.api</groupId>
+			<artifactId>sdk</artifactId>
+			<version>0.5.12</version>
+		</dependency>
 	</dependencies>
 
 	<build>
