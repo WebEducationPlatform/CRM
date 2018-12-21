@@ -118,6 +118,12 @@ public class VKServiceImpl implements VKService {
         this.firstContactMessage = vkConfig.getFirstContactMessage();
     }
 
+    public HttpClient getHttpClient(){
+        return HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+    }
     @Override
     public String receivingTokenUri() {
 
@@ -143,10 +149,7 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + technicalAccountToken;
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
-            HttpClient httpClient = HttpClients.custom()
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
+            HttpClient httpClient = getHttpClient();
             HttpResponse response = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
@@ -160,7 +163,7 @@ public class VKServiceImpl implements VKService {
                     resultList.add(messageBody);
 
                     if (messageBody.startsWith("Новая заявка")) {
-                        markAsRead(Long.parseLong(clubId), httpClient, technicalAccountToken);
+                        markAsRead(clubId, technicalAccountToken, null);
                     }
 
                 }
@@ -188,10 +191,7 @@ public class VKServiceImpl implements VKService {
 
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
-            HttpClient httpClient = HttpClients.custom()
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
+            HttpClient httpClient = getHttpClient();
             HttpResponse response = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
@@ -285,9 +285,7 @@ public class VKServiceImpl implements VKService {
                     "&access_token=" + communityToken;
             try {
                 HttpGet httpGetMessages = new HttpGet(urlGetMessages);
-                HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                        .build();
+                HttpClient httpClient = getHttpClient();
                 HttpResponse httpResponse = httpClient.execute(httpGetMessages);
                 String entity = EntityUtils.toString(httpResponse.getEntity());
                 JSONArray users = new JSONObject(entity).getJSONArray("response");
@@ -325,9 +323,7 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + communityToken;
         try {
             HttpGet httpGetMessages = new HttpGet(urlGetMessages);
-            HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom()
-                    .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
+            HttpClient httpClient = getHttpClient();
             HttpResponse httpResponse = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(httpResponse.getEntity());
             JSONObject json = new JSONObject(result);
@@ -370,10 +366,7 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + token;
 
         HttpGet request = new HttpGet(sendMsgRequest);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
+        HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(request);
             JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
@@ -409,10 +402,7 @@ public class VKServiceImpl implements VKService {
                 communityToken;
 
         HttpGet httpGetDialog = new HttpGet(uriGetDialog);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
+        HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(httpGetDialog);
             String result = EntityUtils.toString(response.getEntity());
@@ -433,14 +423,20 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
-    private void markAsRead(long userId, HttpClient httpClient, String token) {
+    @Override
+    public void markAsRead(String userId, String token, String startMessageId) {
+
+        String messageId = (startMessageId == null && startMessageId.isEmpty()) ? "" : ("&start_message_id=" + startMessageId);
+
         String uriMarkAsRead = vkAPI + "messages.markAsRead" +
                 "?peer_id=" + userId +
                 "&version=" + version +
+                messageId +
                 "&access_token=" + token;
 
         HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
         try {
+            HttpClient httpClient = getHttpClient();
             httpClient.execute(httpMarkMessages);
         } catch (IOException e) {
             logger.error("Failed to mark as read message from community", e);
@@ -496,10 +492,7 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
+        HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
@@ -541,10 +534,7 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + communityToken;
 
         HttpGet httpGetClient = new HttpGet(uriGetClient);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
+        HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
@@ -664,9 +654,7 @@ public class VKServiceImpl implements VKService {
                 + "&access_token=" + communityToken
                 + "&v=" + version;
         HttpGet httpGetClient = new HttpGet(request);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build()).build();
+        HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(httpGetClient);
             String result = EntityUtils.toString(response.getEntity());
@@ -779,10 +767,7 @@ public class VKServiceImpl implements VKService {
                     "&v=" + version +
                     "&access_token=" + technicalAccountToken;
             HttpGet httpGetGroup = new HttpGet(uriGetGroup);
-            HttpClient httpClient = HttpClients.custom()
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
+            HttpClient httpClient = getHttpClient();
             try {
                 HttpResponse response = httpClient.execute(httpGetGroup);
                 String result = EntityUtils.toString(response.getEntity());
@@ -817,10 +802,7 @@ public class VKServiceImpl implements VKService {
                     "&access_token=" + technicalAccountToken;
 
             HttpGet httpGetClient = new HttpGet(uriGetClient);
-            HttpClient httpClient = HttpClients.custom()
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            .setCookieSpec(CookieSpecs.STANDARD).build())
-                    .build();
+            HttpClient httpClient = getHttpClient();
             try {
                 HttpResponse response = httpClient.execute(httpGetClient);
                 String result = EntityUtils.toString(response.getEntity());

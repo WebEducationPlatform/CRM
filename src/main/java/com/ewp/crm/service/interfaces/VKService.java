@@ -59,4 +59,6 @@ public interface VKService {
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
     String getIdFromLink(String link);
+
+    void markAsRead(String userId, String token, String startMessageId);
 }
