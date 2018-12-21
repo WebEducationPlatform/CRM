@@ -151,6 +151,8 @@ public class WhatsappMessage {
         read = read;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
