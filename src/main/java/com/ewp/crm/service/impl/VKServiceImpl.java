@@ -505,10 +505,12 @@ public class VKServiceImpl implements VKService {
             returnMap.put("lastName", jsonUser.getString("last_name"));
 
             //можно получить дополнительные поля
-            String[] additional = additionalFields.split(splitter);
+            if (additionalFields != null && !additionalFields.isEmpty()) {
+                String[] additional = additionalFields.split(splitter);
 
-            for (String param: additional){
-                returnMap.put(param, jsonUser.getString(param));
+                for (String param : additional) {
+                    returnMap.put(param, jsonUser.getString(param));
+                }
             }
 
         } catch (JSONException e) {

@@ -1,4 +1,4 @@
-package com.ewp.crm.models.Whatsapp.WhatsappDTO;
+package com.ewp.crm.models.whatsapp.whatsappDTO;
 
 public class WhatsappCheckDeliveryMsg {
     private String sent;

@@ -1,9 +1,9 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Whatsapp.WhatsappDTO.WhatsappCheckDeliveryMsg;
-import com.ewp.crm.models.Whatsapp.WhatsappDTO.WhatsappMessageSendable;
-import com.ewp.crm.models.Whatsapp.WhatsappMessage;
+import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;
+import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappMessageSendable;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.WhatsappMessageRepository;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
-//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByRead(false);
+//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
         return Collections.emptyList();
 //                whatsappMsgToChatMsg(allByIsRead);
     }
@@ -91,7 +91,7 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public String getReadMessages(Client client) {
-//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByRead(false);
+//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
         return "";
 //                whatsappMsgToChatMsg(allByIsRead).toString();
         // Почему сдесь строка?????????????
