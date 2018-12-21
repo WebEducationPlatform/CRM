@@ -61,4 +61,6 @@ public interface VKService {
     String getVkPhotoLinkByClientProfileId(String vkProfileId);
 
     String getIdFromLink(String link);
+
+    void markAsRead(String userId, String token, String startMessageId);
 }
