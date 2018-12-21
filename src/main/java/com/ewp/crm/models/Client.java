@@ -88,10 +88,10 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "postpone_comment")
     private String postponeComment;
     @JsonIgnore
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "client_whatsapp_messages",
-            joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "whatsapp_msg_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MSG"))})
+            joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private List<WhatsappMessage> whatsappMessages;
 
     @ManyToOne
