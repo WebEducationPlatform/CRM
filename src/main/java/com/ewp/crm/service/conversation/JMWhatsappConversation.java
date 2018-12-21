@@ -18,10 +18,12 @@ import org.springframework.web.client.RestTemplate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Component
-@PropertySource("whatsapp-chat-api.properties")
+@PropertySource("file:./whatsapp-chat-api.properties")
 public class JMWhatsappConversation implements JMConversation {
 
     private final String sendUrl;
@@ -45,7 +47,7 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public void endChat(Client client) {
-        logger.info("чат с клиентом" + client.getName() + " " + client.getLastName() + "акончен");
+        logger.info("чат с клиентом" + client.getName() + " " + client.getLastName() + "окончен");
     }
 
     @Override
@@ -68,8 +70,9 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
-        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByIsRead(false);
-        return whatsappMsgToChatMsg(allByIsRead);
+//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByRead(false);
+        return Collections.emptyList();
+//                whatsappMsgToChatMsg(allByIsRead);
     }
 
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
@@ -88,20 +91,19 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public String getReadMessages(Client client) {
-        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByIsRead(false);
-        return whatsappMsgToChatMsg(allByIsRead).toString();
+//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByRead(false);
+        return "";
+//                whatsappMsgToChatMsg(allByIsRead).toString();
         // Почему сдесь строка?????????????
     }
 
     @Override
-    public Interlocutor getInterlocutor(Client client) {
-        //ЧТо это и зачем нужно?
+    public Optional<Interlocutor> getInterlocutor(Client client) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Interlocutor getMe() {
-        //ЧТо это и зачем нужно?
+    public Optional<Interlocutor> getMe() {
         throw new UnsupportedOperationException();
     }
 }
