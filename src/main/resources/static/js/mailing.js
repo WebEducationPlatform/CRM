@@ -7,7 +7,7 @@ const EDITOR = "editor";
 const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
-const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):";
+const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (не более 20 человек в день, которые не в друзьях и каждый с новой строки):";
 
 var messageType = 'email';
 var vkPage;
@@ -56,7 +56,6 @@ function sendMessages(sendnow) {
             }
         }
     });
-
 }
 
 /**
@@ -67,6 +66,7 @@ function sendMessages(sendnow) {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
             return;
@@ -133,6 +133,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
         "singleDatePicker": true, //отключаем выбор диапазона дат (range)
@@ -174,6 +175,7 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -203,6 +205,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
@@ -259,6 +262,7 @@ function ckeditorRemoveAllToolbars() {
 $(document).ready(function () {
     $("#vkTokenSelect").hide()
     $("#falseHistory").hide();
+    $("#noSendButton").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
             $(this).addClass(DROP_ZONE_IS_DRAGOVER_CLASS);
@@ -307,6 +311,24 @@ function setErrorMessage(message, color) {
     let label = $("#message");
     label.prop('innerHTML', message)
     label.css('color', color);
+
+
+    $.ajax({
+        type: "GET",
+        url: "/get/no/send",
+        success: function (data) {
+            for(var i = 0; i < data.length; i++) {
+                if (data[i].notSendId.length > 0) {
+                    $("#noSendButton").show()
+                    for (var j = 0; j < data[i].notSendId.length; j++) {
+                        $("#noSendBody").append("<tr> \
+                            <td>" + data[i].notSendId[j] + "</td> \
+                        </tr>");
+                    }
+                }
+            }
+        }
+    });
 }
 
 function insertNewPicture(userID, templateID, input) {

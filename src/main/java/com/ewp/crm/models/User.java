@@ -106,7 +106,6 @@ public class User implements UserDetails {
 	@Column(name = "googleToken")
 	private String googleToken;
 
-
 	/**
 	 * Уведомления, полученные пользователем
 	 */
@@ -147,6 +146,7 @@ public class User implements UserDetails {
 	@Column(name = "color_background")
 	private String colorBackground;
 
+
 	public User() {
 		this.isEnabled = false;
 		this.isVerified = false;
@@ -166,6 +166,10 @@ public class User implements UserDetails {
 		this.ipTelephony = ipTelephony;
 		this.isVerified = isVerified;
 		this.isEnabled = isVerified;
+	}
+
+	public void setVerified(boolean verified) {
+		isVerified = verified;
 	}
 
 	public String getVkToken() {

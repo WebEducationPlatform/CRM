@@ -1,15 +1,18 @@
 package com.ewp.crm.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "mailing_message")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class MailingMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +47,9 @@ public class MailingMessage {
     @Column(name = "userID")
     private Long userId;
 
+    @ElementCollection
+    private List<String> notSendId;
+
     public MailingMessage(){}
 
     public MailingMessage(String type, String text, Set<ClientData> clientsData, LocalDateTime date, long userId) {
@@ -63,6 +69,26 @@ public class MailingMessage {
         this.readedMessage = false;
         this.vkType = vkType;
         this.userId = userId;
+    }
+
+    public Boolean getReadedMessage() {
+        return readedMessage;
+    }
+
+    public void setReadedMessage(Boolean readedMessage) {
+        this.readedMessage = readedMessage;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public List<String> getNotSendId() {
+        return notSendId;
+    }
+
+    public void setNotSendId(List<String> notSendId) {
+        this.notSendId = notSendId;
     }
 
     public long getUserId() {
