@@ -123,7 +123,7 @@ public class MailingService {
             try {
                 Thread.sleep(1000);
                 String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
-                if(!value.equalsIgnoreCase("Message sent")) {
+                if (!value.equalsIgnoreCase("Message sent")) {
                     notSendList.add(value);
                 }
                 message.setReadedMessage(true);
@@ -138,10 +138,15 @@ public class MailingService {
     }
 
     private void sendingMailingVkWithManagerAccount(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
         for (ClientData idVk : message.getClientsData()) {
             try {
                 Thread.sleep(1000);
-                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+
+                if (!value.equalsIgnoreCase("Message sent")) {
+                    notSendList.add(value);
+                }
                 message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
@@ -149,6 +154,7 @@ public class MailingService {
                 e.printStackTrace();
             }
         }
+        message.setNotSendId(notSendList);
         mailingMessageRepository.save(message);
     }
 }
