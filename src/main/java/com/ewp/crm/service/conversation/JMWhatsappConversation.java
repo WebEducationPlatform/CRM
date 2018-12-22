@@ -1,11 +1,12 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappMessageSendable;
-import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.WhatsappMessageRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class JMWhatsappConversation implements JMConversation {
 
         WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(number, message.getText());
         WhatsappCheckDeliveryMsg whatsappCheckDeliveryMsg = new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
-        WhatsappMessage whatsappMessage = new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
+        WhatsappMessage whatsappMessage = new WhatsappMessage(RandomStringUtils.random(3)+System.currentTimeMillis(),message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
                 SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
         whatsappMessageRepository.save(whatsappMessage);
         return message;
@@ -70,15 +71,14 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
-//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
-        return Collections.emptyList();
-//                whatsappMsgToChatMsg(allByIsRead);
+        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
+               return whatsappMsgToChatMsg(allByIsRead);
     }
 
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
         List<ChatMessage> chatMessages = new ArrayList<>();
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), false));
+            chatMessages.add(new ChatMessage(wm.getId(),wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), false));
         }
         return chatMessages;
     }
