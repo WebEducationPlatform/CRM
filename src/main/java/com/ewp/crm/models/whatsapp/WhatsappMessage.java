@@ -14,9 +14,8 @@ import java.util.TimeZone;
 public class WhatsappMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "whatsapp_id")
-    private Long id;
+    private String id;
 
     @Column(name = "body")
     private String body;
@@ -70,11 +69,22 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public Long getId() {
+    public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+        this.id = id;
+        this.body = body;
+        this.fromMe = fromMe;
+        this.time = time;
+        this.chatId = chatId;
+        this.messageNumber = messageNumber;
+        this.senderName = senderName;
+        this.client = client;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
