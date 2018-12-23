@@ -14,8 +14,12 @@ import java.util.TimeZone;
 public class WhatsappMessage {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "whatsapp_id")
-    private String id;
+    private String whatsapp_id;
 
     @Column(name = "body")
     private String body;
@@ -48,7 +52,7 @@ public class WhatsappMessage {
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_whatsapp_message",
-            joinColumns = {@JoinColumn(name = "whatsapp_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
+            joinColumns = {@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})
     private Client client;
 
@@ -70,7 +74,7 @@ public class WhatsappMessage {
     }
 
     public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
-        this.id = id;
+        this.whatsapp_id = id;
         this.body = body;
         this.fromMe = fromMe;
         this.time = time;
@@ -81,11 +85,11 @@ public class WhatsappMessage {
     }
 
     public String getId() {
-        return id;
+        return whatsapp_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(String whatsapp_id) {
+        this.whatsapp_id = whatsapp_id;
     }
 
     public String getBody() {
@@ -218,7 +222,7 @@ public class WhatsappMessage {
     @Override
     public String toString() {
         return "WhatsappMessage{" +
-                "id='" + id + '\'' +
+                "id='" + whatsapp_id + '\'' +
                 ", body='" + body + '\'' +
                 ", fromMe=" + fromMe +
                 ", author='" + author + '\'' +
