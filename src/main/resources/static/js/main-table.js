@@ -1789,18 +1789,18 @@ function start_chats(clientId) {
             console.log(response);
             $("#chat-messages").empty();
             for (let i in response) {
-                let message_id = data[i].id;
-                let send_date = new Date(data[i].time * 1000);
-                let text = data[i].text;
-                let is_outgoing = data[i].outgoing;
-                let is_read = data[i].read;
-                let sn_type = data[i].chatType;
+                let message_id = response[i].id;
+                let send_date = new Date(response[i].time * 1000);
+                let text = response[i].text;
+                let is_outgoing = response[i].outgoing;
+                let is_read = response[i].read;
+                let sn_type = response[i].chatType;
                 append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
                 // append_message(message_id, send_date, text, is_outgoing, last_read);
             }
-            $("#send-selector").prop('value', 'telegram');
-            setTimeout(update_chat, 2000);
-            setTimeout(scroll_down, 1000);
+            $("#send-selector").prop('value', response[response.length - 1].chatType);
+            // setTimeout(update_chat, 2000);
+            // setTimeout(scroll_down, 1000);
         }
     })
 }
