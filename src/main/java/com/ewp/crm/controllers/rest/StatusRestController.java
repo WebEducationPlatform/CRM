@@ -122,4 +122,14 @@ public class StatusRestController {
 		statusService.update(status);
 		return HttpStatus.OK;
 	}
+
+	@PostMapping ("/client/changeByName")
+	@PreAuthorize ("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity changeStatusByName(@RequestParam("newStatus") String newStatus,
+										 @RequestParam("clientId") Long clientId,
+										 @AuthenticationPrincipal User currentUser){
+
+		Long statusId = statusService.getStatusByName(newStatus).getId();
+		return this.changeClientStatus(statusId,clientId,currentUser);
+	}
 }
