@@ -124,7 +124,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
             if(counter++ > RETRY_COUNT) {
                 break;
             }
-        } while (messages.totalCount <= 1);
+        } while (messages.totalCount <= 2);
         markMessagesAsRead(chatId, messages);
         return messages;
     }
@@ -329,8 +329,12 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     private ChatMessage tdlibMessageToChatMessage(TdApi.Message message) {
-        ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(message.date), TimeZone.getDefault().toZoneId());
-        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, message.content.toString(), time, false, true);
+        ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochSecond(message.date), TimeZone.getDefault().toZoneId());
+        String messageText = "Sticker/Photo";
+        if (message.content instanceof TdApi.MessageText) {
+            messageText = ((TdApi.MessageText) message.content).text.text;
+        }
+        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, false, true);
     }
 
     private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages) {
