@@ -39,6 +39,12 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
+    public Map<Client, Integer> getCountOfNewMessages() {
+        //получить список клиентов.
+        return new HashMap<>();
+    }
+
+    @Override
     public List<ChatMessage> getNewMessages(Client client) {
         List<ChatMessage> list = new LinkedList<>();
         for (JMConversation conversation: conversations) {

@@ -178,7 +178,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getOnlyNew) {
+    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied) {
         logger.info("VKService: getting messages...");
 
         String uriGetMassages = vkAPI + "messages.getHistory" +
@@ -216,11 +216,14 @@ public class VKServiceImpl implements VKService {
                                                             time,
                                                       read_state == 1,
                                                    out == 0);
-                if (getOnlyNew && read_state == 1) {
-                    continue;
+                //если запросили последнее прочитанное сообщение клиента
+                if (getLastReadied && read_state == 1 && out == 1) {
+                    resultList.add(newChatMessage);
+                    return Optional.of(resultList);
                 }
-
-                resultList.add(newChatMessage);
+                else if (!getLastReadied){
+                    resultList.add(newChatMessage);
+                }
             }
             return Optional.of(resultList);
         } catch (JSONException e) {
@@ -231,6 +234,59 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<Map<Client,Integer>> getNewMassagesFromGroup() {
+        logger.info("VKService: getting new messages from conversations...");
+
+        String uriGetMassages = vkAPI + "messages.getConversations" +
+                "?filter=unread" +
+                "&group_id=" + vkConfig.getClubId() +
+                "&version=" + version +
+                "&access_token=" + communityToken;
+        try {
+            HttpGet httpGetMessages = new HttpGet(uriGetMassages);
+            HttpClient httpClient = getHttpClient();
+            HttpResponse response = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject jsonMessages = json.getJSONObject("response");
+
+            Map<Client,Integer> resultList = new HashMap<>();
+
+//            for (int i = 1; i < jsonMessages.length(); i++) {
+//                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
+//
+//                String id          = jsonMessage.getString("mid");
+//                String body        = jsonMessage.getString("body");
+//                Integer read_state = jsonMessage.getInt("read_state");
+//                Long date          = jsonMessage.getLong("date");
+//                Integer out        = jsonMessage.getInt("out");
+//
+//                ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date*1000), TimeZone.getDefault().toZoneId());
+//
+//                ChatMessage newChatMessage = new ChatMessage(id,
+//                        userid,
+//                        ChatType.vk,body,
+//                        time,
+//                        read_state == 1,
+//                        out == 0);
+//                //если запросили последнее прочитанное сообщение клиента
+//                if (getLastReadied && read_state == 1 && out == 1) {
+//                    resultList.add(newChatMessage);
+//                    return Optional.of(resultList);
+//                }
+//                else if (!getLastReadied){
+//                    resultList.add(newChatMessage);
+//                }
+//            }
+            return Optional.of(resultList);
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
 
     @Override
     public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
