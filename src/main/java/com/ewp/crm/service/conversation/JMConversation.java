@@ -3,6 +3,7 @@ package com.ewp.crm.service.conversation;
 import com.ewp.crm.models.Client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface JMConversation {
@@ -16,6 +17,9 @@ public interface JMConversation {
 
     //отправляет сообщение и возвращает новое сообщение
     ChatMessage sendMessage(ChatMessage message);
+
+    //Получаем количество не прочитынных сообщения в разрезе client'ов
+    Map<Client, Integer> getCountOfNewMessages();
 
     //Получаем не прочитынные сообщения
     List<ChatMessage> getNewMessages(Client client, int count);

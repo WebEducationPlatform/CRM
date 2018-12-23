@@ -10,15 +10,13 @@ import com.ewp.crm.service.interfaces.VKService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class JMVkConversation implements JMConversation {
 
     //constant string
+    private final int MAX_MESSAGE_IN_QUEUE = 200;
     private final String splitter = ",";
     private final String fldPhoto = "photo_50";
     private final String additionalGroup = "name,photo_50";
@@ -101,13 +99,24 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getMessages(Client client, int count) {
-        Interlocutor interlocutor = getInterlocutor(client).get();
-        return vkService.getMassagesFromGroup(interlocutor.getId(), count, false).orElse(new LinkedList<>());
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
+
+        if (interlocutor.isPresent()){
+            return vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false).orElse(new LinkedList<>());
+        }
+        else{
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public Map<Client, Integer> getCountOfNewMessages() {
+        return vkService.getNewMassagesFromGroup().orElse(new HashMap<>());
     }
 
     public ChatMessage getLastMessages(String userid) {
 
-        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, 1, false).orElse(new LinkedList<>());
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true).orElse(new LinkedList<>());
 
         if (chatMessages.isEmpty()) {
             return null;
@@ -118,8 +127,13 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public String getReadMessages(Client client) {
-        Interlocutor interlocutor = getInterlocutor(client).get();
-        ChatMessage message = getLastMessages(interlocutor.getId());
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
+
+        ChatMessage message = null;
+
+        if (interlocutor.isPresent()){
+            message = getLastMessages(interlocutor.get().getId());
+        }
 
         if (message == null) {
             return "";
@@ -130,13 +144,25 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
-        Interlocutor interlocutor = getInterlocutor(client).get();
-        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(interlocutor.getId(), count, true).orElse(new LinkedList<>());
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
 
-        for(ChatMessage chatMessage: chatMessages){
-            vkService.markAsRead(interlocutor.getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+        List<ChatMessage> chatMessages = new LinkedList<>();
+
+        if (interlocutor.isPresent()) {
+
+            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, true);
+
+            if (vkChatMessages.isPresent()) {
+
+                chatMessages = vkChatMessages.get();
+
+                for (ChatMessage chatMessage : chatMessages) {
+                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+                }
+
+                return chatMessages;
+            }
         }
-
         return chatMessages;
     }
 }
