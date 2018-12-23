@@ -1,21 +1,21 @@
-package com.ewp.crm.models.Whatsapp.WhatsappDTO;
+package com.ewp.crm.models.whatsapp.whatsappDTO;
 
 
-import com.ewp.crm.models.Whatsapp.WhatsappMessage;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 
 import java.util.List;
 
 public class WhatsappAcknowledgementDTO {
     private List<WhatsappAcknowledgement> ack;
-    private List<WhatsappMessage> whatsappMessages;
+    private List<WhatsappMessage> messages;
     private int instanceId;
 
     public WhatsappAcknowledgementDTO() {
     }
 
-    public WhatsappAcknowledgementDTO(List<WhatsappAcknowledgement> ack, List<WhatsappMessage> whatsappMessages, int instanceId) {
+    public WhatsappAcknowledgementDTO(List<WhatsappAcknowledgement> ack, List<WhatsappMessage> messages, int instanceId) {
         this.ack = ack;
-        this.whatsappMessages = whatsappMessages;
+        this.messages = messages;
         this.instanceId = instanceId;
     }
 
@@ -27,12 +27,12 @@ public class WhatsappAcknowledgementDTO {
         this.ack = ack;
     }
 
-    public List<WhatsappMessage> getWhatsappMessages() {
-        return whatsappMessages;
+    public List<WhatsappMessage> getMessages() {
+        return messages;
     }
 
-    public void setWhatsappMessages(List<WhatsappMessage> whatsappMessages) {
-        this.whatsappMessages = whatsappMessages;
+    public void setMessages(List<WhatsappMessage> messages) {
+        this.messages = messages;
     }
 
     public int getInstanceId() {
@@ -52,13 +52,13 @@ public class WhatsappAcknowledgementDTO {
 
         if (getInstanceId() != whatsappAcknowledgementDTO.getInstanceId()) return false;
         if (getAck() != null ? !getAck().equals(whatsappAcknowledgementDTO.getAck()) : whatsappAcknowledgementDTO.getAck() != null) return false;
-        return getWhatsappMessages() != null ? getWhatsappMessages().equals(whatsappAcknowledgementDTO.getWhatsappMessages()) : whatsappAcknowledgementDTO.getWhatsappMessages() == null;
+        return getMessages() != null ? getMessages().equals(whatsappAcknowledgementDTO.getMessages()) : whatsappAcknowledgementDTO.getMessages() == null;
     }
 
     @Override
     public int hashCode() {
         int result = getAck() != null ? getAck().hashCode() : 0;
-        result = 31 * result + (getWhatsappMessages() != null ? getWhatsappMessages().hashCode() : 0);
+        result = 31 * result + (getMessages() != null ? getMessages().hashCode() : 0);
         result = 31 * result + getInstanceId();
         return result;
     }
@@ -67,7 +67,7 @@ public class WhatsappAcknowledgementDTO {
     public String toString() {
         return "WhatsappAcknowledgementDTO{" +
                 "ack=" + ack +
-                ", whatsappMessages=" + whatsappMessages +
+                ", messages=" + messages +
                 ", instanceId=" + instanceId +
                 '}';
     }

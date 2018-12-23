@@ -1,4 +1,5 @@
-package com.ewp.crm.models.Whatsapp;
+package com.ewp.crm.models.whatsapp;
+
 
 import com.ewp.crm.models.Client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,45 +8,69 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+
 @Entity
 @Table(name = "whatsapp_message")
 public class WhatsappMessage {
+
     @Id
-    @Column(name = "whatsapp_message_id")
+    @Column(name = "whatsapp_id")
     private String id;
+
     @Column(name = "body")
     private String body;
+
     @Column(name = "fromMe")
     private boolean fromMe;
+
     @Column(name = "author")
     private String author;
+
     @Column(name = "time")
     private ZonedDateTime time;
+
     @Column(name = "chatId")
     private String chatId;
+
     @Column(name = "messageNumber")
     //need to be made id in DB
     private long messageNumber;
+
     @Column(name = "type")
     private String type;
+
     @Column(name = "senderName")
     private String senderName;
+
     @Column(name = "caption")
     private String caption;
+
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
-    @JoinTable(name = "client_whatsapp_messages",
-            joinColumns = {@JoinColumn(name = "whatsapp_message_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
+    @JoinTable(name = "client_whatsapp_message",
+            joinColumns = {@JoinColumn(name = "whatsapp_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
+            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})
     private Client client;
-    @Column(name = "read")
-    private boolean read = false;
+
+    @Column(name = "isRead")
+    private boolean isRead = false;
 
     public WhatsappMessage() {
 
     }
 
-    public WhatsappMessage(String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber,  String senderName, Client client) {
+    public WhatsappMessage(String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+        this.body = body;
+        this.fromMe = fromMe;
+        this.time = time;
+        this.chatId = chatId;
+        this.messageNumber = messageNumber;
+        this.senderName = senderName;
+        this.client = client;
+    }
+
+    public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+        this.id = id;
         this.body = body;
         this.fromMe = fromMe;
         this.time = time;
@@ -90,6 +115,7 @@ public class WhatsappMessage {
     public ZonedDateTime getTime() {
         return time;
     }
+
     //из API приходит время в формате unix timestamp сдесь оно конвертируеться в ZonedDataTime
     public void setTime(long time) {
         this.time = Instant.ofEpochSecond(time).atZone(TimeZone.getDefault().toZoneId());
@@ -144,13 +170,12 @@ public class WhatsappMessage {
     }
 
     public boolean isRead() {
-        return read;
+        return isRead;
     }
 
-    public void setRead(boolean read) {
-        read = read;
+    public void setRead(boolean isRead) {
+        isRead = isRead;
     }
-
 
 
     @Override
