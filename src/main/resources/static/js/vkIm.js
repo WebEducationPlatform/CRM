@@ -155,19 +155,19 @@ function vk_getUnreadMessages_CallBack(vk_data) {
         var unreadCount  = arr[i].conversation.unread_count;
 
         var clientId = vkIdMappingClientId[unreadUserID];
-        if (clientId == undefined){
-            ///{ss}/{link}
-            $.when($.get("/rest/client/socialID",{socialProfileType:"vk", userID: unreadUserID, unread: unreadCount})).done(function (result){
-                clientId = result.clientID;
-                unreadCount = result.unreadCount;
-                unreadUserID = result.userID;
-
-                showVkNotification(clientId, unreadUserID, unreadCount);
-            });
-        }
-        else{
-            showVkNotification(clientId, unreadUserID, unreadCount);
-        }
+        // if (clientId == undefined){
+        //     ///{ss}/{link}
+        //     $.when($.get("/rest/client/socialID",{socialProfileType:"vk", userID: unreadUserID, unread: unreadCount})).done(function (result){
+        //         clientId = result.clientID;
+        //         unreadCount = result.unreadCount;
+        //         unreadUserID = result.userID;
+        //
+        //         showVkNotification(clientId, unreadUserID, unreadCount);
+        //     });
+        // }
+        // else{
+        //     showVkNotification(clientId, unreadUserID, unreadCount);
+        // }
     }
 }
 

@@ -73,6 +73,11 @@ function send_telegram(clientId, text) {
     })
 }
 
+function append_all_chats_message(message_id, send_date, text, is_outgoing, isRead, sn_type) {
+
+}
+
+
 function append_message(message_id, send_date, text, is_outgoing, last_read) {
     if (telegram_user === undefined) {
         let clientId = $("#main-modal-window").data('clientId');

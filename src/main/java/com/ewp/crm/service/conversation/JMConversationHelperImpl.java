@@ -57,7 +57,7 @@ public class JMConversationHelperImpl implements JMConversationHelper {
         for (JMConversation conversation: conversations) {
             List<ChatMessage> conversationMsg = conversation.getMessages(client, CHAT_MESSAGE_LIMIT);
             if (conversationMsg != null && !conversationMsg.isEmpty()) {
-                list.addAll(0, conversationMsg);
+                list.addAll(conversationMsg);
             }
         }
         list.sort(Comparator.comparing(ChatMessage::getTime));
