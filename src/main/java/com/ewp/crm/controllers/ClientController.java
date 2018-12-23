@@ -141,6 +141,7 @@ public class ClientController {
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
         modelAndView.addObject("client", clientService.get(id));
+        modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);

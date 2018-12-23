@@ -28,6 +28,32 @@
                                th:value="${client.lastName}"/>
                     </div>
                     <div class="form-group">
+                        <label for="edit-client-status">Статус</label>
+                        <select class="form-control" id="edit-client-status" disabled="disabled">
+                            <option th:each="status : ${statuses}" th:value="${status}" th:id="${status.id}"
+                            th:selected="${client.status.id==status.id}"
+                            th:text="${status.name}">
+                            </option>
+                        </select>
+
+                        <script th:inline="javascript">
+                        /*<![CDATA[*/
+                        document.getElementById("edit-client-status").onchange = function() {
+                        let clientId = [[${client.id}]];
+                        let newStatus = $(this).find("option:selected").val();
+                        let url = "/rest/status/client/changeByName";
+
+                        let data = {
+                        newStatus:newStatus,
+                        clientId:clientId
+                        };
+
+                        $.post({url: url, data:data});
+                        }
+                        /*]]>*/
+                        </script>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-client-phone-number">Номер телефона</label>
                         <input type="tel" class="form-control" disabled="disabled" id="edit-client-phone-number"
                                th:value="${client.phoneNumber}"/>
