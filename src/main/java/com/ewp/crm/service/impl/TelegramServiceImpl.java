@@ -277,6 +277,12 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
+    public Map<com.ewp.crm.models.Client, Integer> getCountOfNewMessages() {
+        //TODO
+        return null;
+    }
+
+    @Override
     public List<ChatMessage> getNewMessages(com.ewp.crm.models.Client client, int count) {
         TdApi.Messages tgMessages = new TdApi.Messages();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");

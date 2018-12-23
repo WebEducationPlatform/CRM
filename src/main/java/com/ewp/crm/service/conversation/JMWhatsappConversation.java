@@ -18,10 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @PropertySource("file:./whatsapp-chat-api.properties")
@@ -67,6 +64,11 @@ public class JMWhatsappConversation implements JMConversation {
                 SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
         whatsappMessageRepository.save(whatsappMessage);
         return message;
+    }
+
+    @Override
+    public Map<Client, Integer> getCountOfNewMessages() {
+        return null;
     }
 
     @Override
