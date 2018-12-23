@@ -15,7 +15,7 @@ public class WhatsappMessage {
 
     @Id
     @Column(name = "whatsapp_id")
-    private String id;
+    private Long id;
 
     @Column(name = "body")
     private String body;
@@ -69,7 +69,7 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+    public WhatsappMessage(Long id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
         this.id = id;
         this.body = body;
         this.fromMe = fromMe;
@@ -80,11 +80,11 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

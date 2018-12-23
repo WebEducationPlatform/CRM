@@ -132,7 +132,22 @@ function clientsSearch() {
     });
 }
 
+let logged_in_profiles;
+
+function get_us() {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/us",
+        success: function (response) {
+            console.log("US");
+            console.log(response);
+            logged_in_profiles = response;
+        }
+    })
+}
+
 $(document).ready(function () {
+    get_us();
     get_tg_me();
     $(".column").sortable({
         delay: 100,
@@ -1727,10 +1742,55 @@ function get_tg_user(clientId) {
     });
 }
 
+let interlocutor_profiles;
+
+function get_interlocutors(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/interlocutors",
+        data: {id: clientId},
+        success: function (response) {
+            console.log("Interlocutors");
+            console.log(response);
+            interlocutor_profiles = response;
+        }
+    })
+}
+
 let conversations = $("#conversations-body");
+
+function start_chats(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/all",
+        data: {id: clientId},
+        success: function (response) {
+            // if (response.chat === undefined && response.messages === undefined) {return;}
+            // let messages = response.messages.messages;
+            // let last_read = response.chat.lastReadOutboxMessageId;
+            // let data = messages.reverse();
+            console.log(response);
+            $("#chat-messages").empty();
+            for (let i in response) {
+                let message_id = data[i].id;
+                let send_date = new Date(data[i].time * 1000);
+                let text = data[i].text;
+                let is_outgoing = data[i].outgoing;
+                let is_read = data[i].read;
+                let sn_type = data[i].chatType;
+                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
+                // append_message(message_id, send_date, text, is_outgoing, last_read);
+            }
+            $("#send-selector").prop('value', 'telegram');
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    })
+}
 
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
+    start_chats(clientId);
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/open',
@@ -1859,6 +1919,7 @@ $(function () {
                         if (client.socialProfiles[i].socialProfileType.name == 'telegram') {
                             get_tg_user(clientId);
                         }
+                        get_interlocutors(clientId);
                     }
 
                     if (client.slackProfile != undefined) {
@@ -2333,30 +2394,6 @@ function deleteNewUser(deleteId) {
     });
 }
 
-/*
-$(function () {
-    $('#main-modal-window').on('show.bs.modal', function () {
-        let clientId = $(this).data('clientId');
-        let url = "/user/notification/postnope/getAll";
-        console.log("clientId", clientId);
-        let formData = {
-            clientId: clientId
-        };
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-
-            success: function (result) {
-                console.log("крутяк")
-            },
-            error: function (e) {
-                console.log(e)
-            }
-        });
-    });
-});*/
-
 function slackInvite(email) {
     $.ajax({
         type: "GET",
@@ -2371,46 +2408,6 @@ function slackInvite(email) {
         },
         error: function (e) {
             alert('The user is not invited')
-        }
-    })
-}
-
-let interlocutor_profiles;
-let logged_in_profiles;
-
-function get_interlocutors(clientId) {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/interlocutors",
-        data: {id: clientId},
-        success: function (response) {
-            console.log("Interlocutors");
-            console.log(response);
-            interlocutor_profiles = response;
-        }
-    })
-}
-
-function get_us() {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/us",
-        success: function (response) {
-            console.log("US");
-            console.log(response);
-            logged_in_profiles = response;
-        }
-    })
-}
-
-function start_chats(clientId) {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/all",
-        data: {id: clientId},
-        success: function (response) {
-            console.log("All");
-            console.log(response);
         }
     })
 }
