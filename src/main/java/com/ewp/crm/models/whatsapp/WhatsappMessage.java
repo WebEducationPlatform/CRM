@@ -14,8 +14,12 @@ import java.util.TimeZone;
 public class WhatsappMessage {
 
     @Id
-    @Column(name = "whatsapp_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "whatsapp_id")
+    private String whatsapp_id;
 
     @Column(name = "body")
     private String body;
@@ -48,7 +52,7 @@ public class WhatsappMessage {
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_whatsapp_message",
-            joinColumns = {@JoinColumn(name = "whatsapp_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
+            joinColumns = {@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})
     private Client client;
 
@@ -69,8 +73,8 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public WhatsappMessage(Long id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
-        this.id = id;
+    public WhatsappMessage(String id, String body, boolean fromMe, ZonedDateTime time, String chatId, long messageNumber, String senderName, Client client) {
+        this.whatsapp_id = id;
         this.body = body;
         this.fromMe = fromMe;
         this.time = time;
@@ -80,12 +84,12 @@ public class WhatsappMessage {
         this.client = client;
     }
 
-    public Long getId() {
-        return id;
+    public String getId() {
+        return whatsapp_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(String whatsapp_id) {
+        this.whatsapp_id = whatsapp_id;
     }
 
     public String getBody() {
@@ -218,7 +222,7 @@ public class WhatsappMessage {
     @Override
     public String toString() {
         return "WhatsappMessage{" +
-                "id='" + id + '\'' +
+                "id='" + whatsapp_id + '\'' +
                 ", body='" + body + '\'' +
                 ", fromMe=" + fromMe +
                 ", author='" + author + '\'' +
