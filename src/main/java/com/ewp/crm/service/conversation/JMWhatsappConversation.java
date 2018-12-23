@@ -63,7 +63,7 @@ public class JMWhatsappConversation implements JMConversation {
 
         WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(number, message.getText());
         WhatsappCheckDeliveryMsg whatsappCheckDeliveryMsg = new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
-        WhatsappMessage whatsappMessage = new WhatsappMessage(Long.parseLong(RandomStringUtils.random(3)+System.currentTimeMillis()),message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
+        WhatsappMessage whatsappMessage = new WhatsappMessage(RandomStringUtils.random(3)+System.currentTimeMillis(),message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
                 SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
         whatsappMessageRepository.save(whatsappMessage);
         return message;
