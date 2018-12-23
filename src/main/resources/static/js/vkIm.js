@@ -24,7 +24,7 @@ $(function () {
 
     $('#customVKIMMessage').on('show.bs.modal', function () {
 
-        return; //пока ничего не делаем.
+        //return; //пока ничего не делаем.
 
         //$('#customVKIMMessage').css('width', '90%');
         // $('#customVKIMMessage').css('margin', '100px auto 100px auto');
@@ -47,12 +47,10 @@ $(function () {
     });
 
     $('#customVKIMMessage').on('hide.bs.modal', function () {
-        return;
         clearInterval(intervalID);
     });
 
     $('#IM-VK-Text').focus(function () {
-        return;
         unreadMessages.sort();
 
         for(var i = 0; i < unreadMessages.length; i++){
