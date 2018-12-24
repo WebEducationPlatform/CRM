@@ -120,19 +120,6 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         logger.info("{}: color background set from {} to {}", user.getFullName(), precolor, color);
     }
 
-//    private void phoneNumberValidation(User user) {
-//        String phoneNumber = user.getPhoneNumber();
-//        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-//        Matcher matcher = pattern.matcher(phoneNumber);
-//        if (matcher.matches()) {
-//            if (phoneNumber.startsWith("8")) {
-//                phoneNumber = phoneNumber.replaceFirst("8", "7");
-//            }
-//            user.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-//                    .replaceAll("\\s", ""));
-//        }
-//    }
-
     @Override
     public List<User> getUserByVkToken(long id) {
         return userDAO.getUserByVkToken(id);
