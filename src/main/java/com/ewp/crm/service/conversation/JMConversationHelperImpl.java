@@ -40,8 +40,15 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     @Override
     public Map<Client, Integer> getCountOfNewMessages() {
-        //получить список клиентов.
-        return new HashMap<>();
+        Map<Client, Integer> clientMap = new HashMap<>();
+        for (JMConversation conversation: conversations) {
+            Map<Client, Integer> newMessageFromConversation = conversation.getCountOfNewMessages();
+            for(Map.Entry<Client, Integer> element: newMessageFromConversation.entrySet()){
+                Integer count = clientMap.getOrDefault(element.getKey(), 0);
+                clientMap.put(element.getKey(), element.getValue()+count);
+            }
+        }
+        return clientMap;
     }
 
     @Override
