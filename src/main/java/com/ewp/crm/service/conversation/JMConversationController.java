@@ -50,8 +50,8 @@ public class JMConversationController {
         List<ChatMessage> newMessages = conversationHelper.getNewMessages(client);
         response.put("new", newMessages);
         //TODO return last read message id by chat type
-//        List<ChatMessage> readMessages = conversationHelper.getReadMessages(client);
-//        response.put("read", readMessages);
+        //List<ChatMessage> readMessages = conversationHelper.getReadMessages(client);
+        //response.put("read", readMessages);
         return ResponseEntity.ok(response);
     }
 

@@ -3,6 +3,8 @@ package com.ewp.crm.service.conversation;
 import com.ewp.crm.models.Client;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public interface JMConversation {
 
@@ -16,6 +18,9 @@ public interface JMConversation {
     //отправляет сообщение и возвращает новое сообщение
     ChatMessage sendMessage(ChatMessage message);
 
+    //Получаем количество не прочитынных сообщения в разрезе client'ов
+    Map<Client, Integer> getCountOfNewMessages();
+
     //Получаем не прочитынные сообщения
     List<ChatMessage> getNewMessages(Client client, int count);
 
@@ -26,8 +31,8 @@ public interface JMConversation {
     String getReadMessages(Client client);
 
     //получить собеседника по ID сущности
-    Interlocutor getInterlocutor(Client client);
+    Optional<Interlocutor> getInterlocutor(Client client);
 
     //Получить текущего залогиненого пользователя по ID сущности
-    Interlocutor getMe();
+    Optional<Interlocutor> getMe();
 }

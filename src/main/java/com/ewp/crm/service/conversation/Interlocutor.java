@@ -14,10 +14,6 @@ public class Interlocutor {
         this.chatType = chatType;
     }
 
-    public Interlocutor(String id, String representation){
-        this.id = id;
-    }
-
     public String getProfileUrl() {
         return profileUrl;
     }

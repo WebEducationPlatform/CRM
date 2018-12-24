@@ -3,14 +3,20 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.service.conversation.ChatMessage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface VKService {
     String receivingTokenUri();
 
     Optional<List<String>> getNewMassages() throws VKAccessTokenException;
+
+    Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied);
+
+    Optional<Map<Client,Integer>> getNewMassagesFromGroup();
 
     void sendMessageToClient(Long clientId, String templateText, String body, User principal);
 
@@ -27,6 +33,10 @@ public interface VKService {
     Optional<List<Long>> getUsersIdFromCommunityMessages();
 
     Optional<Client> getClientFromVkId(Long id);
+
+    Map<String, String> getUserDataById(Long id, String additionalFields, String splitter);
+
+    Map<String, String> getGroupDataById(Long id, String additionalFields, String splitter);
 
     Client parseClientFromMessage(String message) throws ParseClientException;
 
@@ -49,4 +59,8 @@ public interface VKService {
     String getLongIDFromShortName(String vkGroupShortName);
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
+
+    String getIdFromLink(String link);
+
+    void markAsRead(String userId, String token, String startMessageId);
 }

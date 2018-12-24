@@ -2,70 +2,44 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
+import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class JMVkConversation implements JMConversation {
 
     //constant string
-    private final String fldUserName    = "first_name";
-    private final String fldLastName    = "last_name";
-    private final String fldUserNameIns = "first_name_ins";
-    private final String fldLastNameIns = "last_name_ins";
-    private final String fldName        = "name";
-
-    private final String fldPhotoSize   = "photo_50";
-    private final String addQueryFld    = "photo_50,first_name_ins, last_name_ins";
+    private final int MAX_MESSAGE_IN_QUEUE = 200;
+    private final String splitter = ",";
+    private final String fldPhoto = "photo_50";
+    private final String additionalGroup = "name,photo_50";
+    private final String additionalUser = "photo_50,first_name_ins,last_name_ins";
     private final String defaultVkPhoto = "https://vk.com/images/camera_50.png?ava=1";
-
-    //main fields
-
-
-//    private String groupId;
-//    private String accessToken;
-//    private String version;
-//    private String url;
-
-    private Interlocutor interlocutor;
-    private Interlocutor group;
-
-    private int rev = 0; //порядок сортировки сообщений {0,1}
-    private int maxMessageCount;
-
-    private List<ChatMessage> messages;
-    private List<ChatMessage> unreadMessages;
+    private final String vkUrl = "https://vk.com/";
+    private final String clubString = "club";
+    private final String idString = "id";
 
     private final VKConfig vkConfig;
     private final VKService vkService;
+    private final SocialProfileService socialProfileService;
 
     @Autowired
-    public JMVkConversation(VKConfigImpl vkConfig, VKService vkService) {
+    public JMVkConversation(VKConfigImpl vkConfig, VKService vkService, SocialProfileService socialProfileService) {
         this.vkConfig = vkConfig;
         this.vkService = vkService;
+        this.socialProfileService = socialProfileService;
     }
 
     @Override
     public void endChat(Client client) {
-        if (messages != null) {
-            messages.clear();
-        } else {
-            messages = new LinkedList<>();
-        }
 
-        if (unreadMessages != null) {
-            unreadMessages.clear();
-        } else {
-            unreadMessages = new LinkedList<>();
-        }
-
-        //удаляем собеседника
-        interlocutor = null;
     }
 
     @Override
@@ -74,34 +48,121 @@ public class JMVkConversation implements JMConversation {
     }
 
     @Override
-    public ChatMessage sendMessage(ChatMessage message) {
-        return null;
+    public Optional<Interlocutor> getInterlocutor(Client client) {
+        List<SocialProfile> profiles = client.getSocialProfiles();
+
+        String link = null;
+        for (SocialProfile sp : profiles) {
+            if ("vk".equals(sp.getSocialProfileType().getName())) {
+                link = sp.getLink();
+            }
+        }
+
+        if (link == null) {
+            return Optional.empty();
+        }
+
+        String id = vkService.getIdFromLink(link);
+
+        if (id != null) {
+
+            Map<String, String> param = vkService.getUserDataById(Long.parseLong(id), additionalUser, splitter);
+            Interlocutor interlocutor = new Interlocutor(id, vkUrl + idString + id, param.get(fldPhoto), getChatTypeOfConversation());
+            return Optional.of(interlocutor);
+
+        }
+
+        return Optional.empty();
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatId, int count) {
-        return null;
+    public Optional<Interlocutor> getMe() {
+
+        Interlocutor interlocutor;
+        try {
+            String id = vkConfig.getClubId();
+
+            Map<String, String> param = vkService.getGroupDataById(Long.parseLong(id), additionalGroup, splitter);
+            interlocutor = new Interlocutor(id, vkUrl + id, param.get(fldPhoto), getChatTypeOfConversation());
+
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+        return Optional.of(interlocutor);
+    }
+
+    @Override
+    public ChatMessage sendMessage(ChatMessage message) {
+        vkService.sendMessageById(Long.parseLong(message.getChatId()), message.getText(),vkConfig.getCommunityToken());
+        return getLastMessages(message.getChatId());
+    }
+
+    @Override
+    public List<ChatMessage> getMessages(Client client, int count) {
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
+
+        if (interlocutor.isPresent()){
+            return vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false).orElse(new LinkedList<>());
+        }
+        else{
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public Map<Client, Integer> getCountOfNewMessages() {
+        return vkService.getNewMassagesFromGroup().orElse(new HashMap<>());
+    }
+
+    public ChatMessage getLastMessages(String userid) {
+
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true).orElse(new LinkedList<>());
+
+        if (chatMessages.isEmpty()) {
+            return null;
+        }
+
+        return chatMessages.get(0);
     }
 
     @Override
     public String getReadMessages(Client client) {
-        return null;
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
+
+        ChatMessage message = null;
+
+        if (interlocutor.isPresent()){
+            message = getLastMessages(interlocutor.get().getId());
+        }
+
+        if (message == null) {
+            return "";
+        }
+
+        return message.getId();
     }
 
     @Override
-    public Interlocutor getInterlocutor(Client client) {
-        return null;
+    public List<ChatMessage> getNewMessages(Client client, int count) {
+        Optional<Interlocutor> interlocutor = getInterlocutor(client);
+
+        List<ChatMessage> chatMessages = new LinkedList<>();
+
+        if (interlocutor.isPresent()) {
+
+            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, true);
+
+            if (vkChatMessages.isPresent()) {
+
+                chatMessages = vkChatMessages.get();
+
+                for (ChatMessage chatMessage : chatMessages) {
+                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+                }
+
+                return chatMessages;
+            }
+        }
+        return chatMessages;
     }
-
-    @Override
-    public Interlocutor getMe() {
-        return null;
-    }
-
-    @Override
-    public List<ChatMessage> getNewMessages(String chatId, int count) {
-        return null;
-    }
-
-
 }
