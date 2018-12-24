@@ -5,12 +5,14 @@ public class Interlocutor {
     private String id;
     private String profileUrl;
     private String avatarUrl;
+    private String representation;
     private ChatType chatType;
 
-    public Interlocutor(String id, String profileUrl, String avatarUrl, ChatType chatType) {
+    public Interlocutor(String id, String profileUrl, String avatarUrl, String representation, ChatType chatType) {
         this.id = id;
         this.profileUrl = profileUrl;
         this.avatarUrl = avatarUrl;
+        this.representation = representation;
         this.chatType = chatType;
     }
 
@@ -28,6 +30,14 @@ public class Interlocutor {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public String getRepresentation() {
+        return representation;
+    }
+
+    public void setRepresentation(String representation) {
+        this.representation = representation;
     }
 
     public String getId() {

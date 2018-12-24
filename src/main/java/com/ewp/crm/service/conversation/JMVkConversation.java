@@ -17,14 +17,17 @@ public class JMVkConversation implements JMConversation {
 
     //constant string
     private final int MAX_MESSAGE_IN_QUEUE = 200;
-    private final String splitter = ",";
-    private final String fldPhoto = "photo_50";
-    private final String additionalGroup = "name,photo_50";
-    private final String additionalUser = "photo_50,first_name_ins,last_name_ins";
-    private final String defaultVkPhoto = "https://vk.com/images/camera_50.png?ava=1";
-    private final String vkUrl = "https://vk.com/";
-    private final String clubString = "club";
-    private final String idString = "id";
+    private final String splitter          = ",";
+    private final String fldPhoto          = "photo_50";
+    private final String fldFirstName      = "first_name";
+    private final String fldLastName       = "last_name";
+    private final String fldName           = "name";
+    private final String additionalGroup   = "name,photo_50";
+    private final String additionalUser    = "photo_50,first_name_ins,last_name_ins";
+    private final String defaultVkPhoto    = "https://vk.com/images/camera_50.png?ava=1";
+    private final String vkUrl             = "https://vk.com/";
+    private final String clubString        = "club";
+    private final String idString          = "id";
 
     private final VKConfig vkConfig;
     private final VKService vkService;
@@ -67,7 +70,10 @@ public class JMVkConversation implements JMConversation {
         if (id != null) {
 
             Map<String, String> param = vkService.getUserDataById(Long.parseLong(id), additionalUser, splitter);
-            Interlocutor interlocutor = new Interlocutor(id, vkUrl + idString + id, param.get(fldPhoto), getChatTypeOfConversation());
+            Interlocutor interlocutor = new Interlocutor(id, vkUrl + idString + id,
+                                                        param.get(fldPhoto),
+                                             param.get(fldFirstName) + " " + param.get(fldLastName),
+                                                        getChatTypeOfConversation());
             return Optional.of(interlocutor);
 
         }
@@ -83,7 +89,7 @@ public class JMVkConversation implements JMConversation {
             String id = vkConfig.getClubId();
 
             Map<String, String> param = vkService.getGroupDataById(Long.parseLong(id), additionalGroup, splitter);
-            interlocutor = new Interlocutor(id, vkUrl + id, param.get(fldPhoto), getChatTypeOfConversation());
+            interlocutor = new Interlocutor(id, vkUrl + id, param.get(fldPhoto), param.get(fldName), getChatTypeOfConversation());
 
         } catch (Exception e) {
             return Optional.empty();
