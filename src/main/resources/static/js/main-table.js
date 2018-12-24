@@ -131,7 +131,7 @@ function clientsSearch() {
         }
     });
 }
-
+//func responsible for the client's cards motion
 $(document).ready(function () {
     $(".column").sortable({
         delay: 100,
@@ -147,7 +147,7 @@ $(document).ready(function () {
             ui.item.removeClass("tilt");
             $("html").unbind('mousemove', ui.item.data("move_handler"));
             ui.item.removeData("move_handler");
-            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
+            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'));
         }
     });
 
@@ -2116,6 +2116,27 @@ $(document).on('click','#btn-mic-off',function(){
         };
         micMuted = !micMuted;
     };
+});
+
+$(".change-student-status").on('click', function () {
+    let clientId = $(this).attr("id");
+    let statusId = $(this).attr("value");
+    // let currentStatusId = $(this).attr("name");
+    let url = "/rest/status/client/change";
+
+    let formData = {
+        clientId: clientId,
+        statusId: statusId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function () {
+            let x = document.getElementById(clientId);
+            $('#status-column'+statusId).append(x);
+        }
+    });
 });
 
 $(".change-status-position").on('click', function () {

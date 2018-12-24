@@ -225,8 +225,8 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
-            '        <td class="colorTd">' + res[i].status.name + ' </td>' +
-            '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
+            '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
+            '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
         );

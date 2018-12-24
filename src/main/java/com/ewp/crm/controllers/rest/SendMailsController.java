@@ -221,4 +221,10 @@ public class SendMailsController {
         return ResponseEntity.ok(mailingMessageSendService.getClientDataById(id));
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @GetMapping(value = "/get/no/send")
+    public ResponseEntity<List<MailingMessage>> getNoSendId() {
+        return ResponseEntity.ok(mailingMessageSendService.getAll());
+    }
+
 }

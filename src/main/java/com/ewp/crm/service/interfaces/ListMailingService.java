@@ -11,4 +11,6 @@ public interface ListMailingService extends CommonService<ListMailing> {
     void update(ListMailing listMailing);
 
     void delete(ListMailing listMailing);
+
+    ListMailing getListMailingById(Long id);
 }

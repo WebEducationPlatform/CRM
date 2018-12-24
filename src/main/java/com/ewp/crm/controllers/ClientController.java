@@ -127,7 +127,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public String mailingPage(Model model) {
         model.addAttribute("listMailing", listMailingService.getAll());
         model.addAttribute("chooseUser", userService.getAll());
@@ -141,6 +141,7 @@ public class ClientController {
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
         modelAndView.addObject("client", clientService.get(id));
+        modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);

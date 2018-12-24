@@ -6,7 +6,6 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.VkProfileInfo;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface VKService {

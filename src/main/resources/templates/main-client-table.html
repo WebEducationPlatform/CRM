@@ -85,7 +85,9 @@
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
-                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}" >
+                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}"
+                 th:id="${client.id}">
+
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
@@ -99,6 +101,30 @@
                                 </li>
                                 <li class="divider"></li>
                             </th:block>
+
+                            <th:block>
+                                <li class="dropdown"><a class="link-cursor-pointer">Изменить статус<i
+                                        class="glyphicon glyphicon-chevron-right"></i></a>
+                                    <ul class="dropdown-menu sub-menu">
+                                        <li class="link-cursor-pointer" th:each="st:${statuses}"
+
+                                            th:if="${!st.invisible}"><a class="change-student-status"
+                                                                                                  th:id="${client.id}"
+                                                                                                  th:value="${st.id}"
+                                                                                                  th:name="${status.id}"
+                                                                                                  th:text="${st.name}"></a></li>
+
+
+                                            <!--th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-student-status"-->
+                                                                                                  <!--th:id="${client.id}"-->
+                                                                                                  <!--th:value="${st.id}"-->
+                                                                                                  <!--th:text="${st.name}"></a></li>-->
+                                    </ul>
+                                </li>
+
+                                <li class="divider"></li>
+                            </th:block>
+
                             <li class="dropdown-header">Скрыть в статус</li>
                             <li th:each="inv_status:${statuses}"
                                 th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
@@ -123,6 +149,7 @@
                         </ul>
                     </div>
                 </div>
+
                 <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header"  th:id="'ClientName'+${client.id}" th:text="${client.name} + ' ' + ${client.lastName}" >
@@ -130,7 +157,8 @@
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
-                    </div><div class="portlet-content">
+                    </div>
+                    <div class="portlet-content">
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"

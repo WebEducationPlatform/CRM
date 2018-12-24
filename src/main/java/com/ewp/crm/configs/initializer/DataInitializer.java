@@ -94,6 +94,7 @@ public class DataInitializer {
                         roleService.getRoleByName("OWNER")),
                 true,
                 true);
+        admin.setAutoAnswer("Admin: Предлагаем вам пройти обучение на нашем сайте");
         userService.add(admin);
 
         User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
@@ -117,25 +118,13 @@ public class DataInitializer {
                 roleService.getRoleByName("OWNER")), true, true);
         userService.add(user5);
 
-        String templateText5 = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
-                "<head></head>\n" +
-                "<body>\n" +
-                "<p>Добрый день,</p>\n" +
-                "<p>Спасибо за вашу заявку, скоро мы с вами свяжемся! </p>\n" +
-                "<p>Когда вам было бы удобно провести первый созвон с ментором?</p>\n" +
-                "<p>С наилучшими пожеланиями, команда JavaMentor.</p>\n" +
-                "<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
-                "</body>\n" +
-                "</html>";
-
         String templateText4 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
                 "<head></head>\n" +
                 "<body>\n" +
                 "<p>Добрый день, %fullName%</p>\n" +
                 "<p>Напоминаем, что сегодня %dateOfSkypeCall% с Вами состоится беседа по Skype.</p>\n" +
-                "<p>С наилучшими пожеланиями, команда JavaMentor.</p>\n" +
+                "<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
                 "<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
                 "</body>\n" +
                 "</html>";
@@ -147,7 +136,7 @@ public class DataInitializer {
                 "<p>Добрый день, %fullName%</p>\n" +
                 "<p>Мы не смогли до Вас дозвониться.</p>\n" +
                 "<p>Пожалуйста, свяжитесь с нами</p>\n" +
-                "<p>С наилучшими пожеланиями, команда JavaMentor.</p>\n" +
+                "<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
                 "<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
                 "</body>\n" +
                 "</html>";
@@ -157,7 +146,7 @@ public class DataInitializer {
                 "<body>\n" +
                 "<p>Добрый день, %fullName%</p>\n" +
                 "<p>Напоминаем, что вам необходимо оплатить обучение за следующий месяц.</p>\n" +
-                "<p>С наилучшими пожеланиями, команда JavaMentor.</p>\n" +
+                "<p>С наилучшими пожеланиями, команда JavaMentor</p>\n" +
                 "<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>\n" +
                 "</body>\n" +
                 "</html>";
@@ -169,22 +158,14 @@ public class DataInitializer {
                 "</body>\n" +
                 "</html>";
 
-        String newLine = System.getProperty("line.separator");
-        String otherText5 = "Добрый день!\n" + newLine +
-                "Спасибо за вашу заявку, скоро мы с вами свяжемся!" + newLine +
-                "Когда вам было бы удобно провести первый созвон с ментором?" + newLine +
-                "С наилучшими пожеланиями," + newLine +
-                "команда JavaMentor.";
-
-        String otherText4 = "Добрый день, %fullName%!\n Напоминаем, что сегодня %dateOfSkypeCall% с Вами состоится беседа по Skype.\n" +
-                "С наилучшими пожеланиями, команда JavaMentor.";
+        String otherText4 = "Добрый день, %fullName%!\n Напоминаем, что сегодня %dateOfSkypeCall% с Вами состоится беседа по Skype.\n"
+                + "С наилучшими пожеланиями, команда JavaMentor";
         String otherText3 = "Добрый день, %fullName%!\n Mы не смогли до Вас дозвониться.\n" +
-                "Пожалуйста, свяжитесь с нами.\n" + "С наилучшими пожеланиями, команда JavaMentor.";
+                "Пожалуйста, свяжитесь с нами.\n" + "С наилучшими пожеланиями, команда JavaMentor";
         String otherText2 = "Добрый день, %fullName%!\nНапоминаем, что вам необходимо оплатить обучение за следующий месяц.\n" +
-                "С наилучшими пожеланиями, команда JavaMentor.";
+                "С наилучшими пожеланиями, команда JavaMentor";
         String otherText1 = "%bodyText%";
 
-        MessageTemplate MessageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5);
         MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4);
         MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
         MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
@@ -193,7 +174,6 @@ public class DataInitializer {
         MessageTemplateService.add(MessageTemplate2);
         MessageTemplateService.add(MessageTemplate3);
         MessageTemplateService.add(MessageTemplate4);
-        MessageTemplateService.add(MessageTemplate5);
 
         Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
         Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
@@ -294,13 +274,13 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
 
-        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
+        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Обязательное");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Обязательное");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Обязательное");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "В заметки");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "В заметки");
+        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Обязательное");
+        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "В заметки");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
