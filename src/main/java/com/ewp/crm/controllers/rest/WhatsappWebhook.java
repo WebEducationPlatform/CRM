@@ -1,16 +1,15 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
-import com.ewp.crm.models.whatsapp.WhatsappMessage;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.WhatsappMessageRepository;
+import com.ewp.crm.service.interfaces.SendNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,38 +19,48 @@ import java.util.stream.Collectors;
 @RequestMapping("/whatsapp")
 public class WhatsappWebhook {
     private final WhatsappMessageRepository whatsappMessageRepository;
+    private final ClientRepository clientRepository;
+    private final SendNotificationService sendNotificationService;
 
     @Autowired
-    public WhatsappWebhook(WhatsappMessageRepository whatsappMessageRepository) {
+    public WhatsappWebhook(WhatsappMessageRepository whatsappMessageRepository, ClientRepository clientRepository, SendNotificationService sendNotificationService) {
         this.whatsappMessageRepository = whatsappMessageRepository;
+        this.clientRepository = clientRepository;
+        this.sendNotificationService = sendNotificationService;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public ResponseEntity<?> updateUser(@RequestBody WhatsappAcknowledgementDTO dto) {
+    public HttpStatus updateUser(@RequestBody WhatsappAcknowledgementDTO dto) {
         List<WhatsappMessage> whatsappMessages = dto.getMessages();
         List<WhatsappAcknowledgement> receipts = dto.getAck();
         if (whatsappMessages != null) {
-            List<WhatsappMessage> collect = whatsappMessages.stream()
-                    .filter(x -> x.getChatId().matches("\\d*@c.*")&&x.getBody().length()>0&&x.getType().equals("chat"))
-                    .peek(x->x.setChatId(x.getChatId().replaceAll("\\D","")))
+            List<WhatsappMessage> newWhatsappMessages = whatsappMessages.stream()
+                    .filter(x -> x.getChatId().matches("\\d*@c.*") && x.getBody().length() > 0 && x.getType().equals("chat"))
+                    .peek(y -> y.setChatId(y.getChatId().replaceAll("\\D", "")))
+                    .peek(z -> {
+                        Client client = clientRepository.getClientByPhoneNumber(z.getChatId());
+                        if (client == null) {
+                            client = new Client(z.getSenderName(), z.getChatId(),z.getTime());
+                            clientRepository.save(client);
+                            sendNotificationService.sendNotificationsAllUsers(client);
+                        }
+                        z.setClient(client);
+                    })
                     .collect(Collectors.toList());
-            //to do добавить логику создания нового пользователя
-            whatsappMessageRepository.saveAll(collect);
+            whatsappMessageRepository.saveAll(newWhatsappMessages);
         }
         if (receipts != null) {
 
-            System.out.println(receipts.size());
             for (WhatsappAcknowledgement whatsappAcknowledgement : receipts
             ) {
-                String id = whatsappAcknowledgement.getId();
-                WhatsappMessage whatsappMessage = whatsappMessageRepository.findById(id).orElse(null);
-                if (whatsappMessage!=null&&whatsappAcknowledgement.getStatus().getPriority()>2){
-                    whatsappMessage.setRead(true);
+                WhatsappMessage whatsappMessage = whatsappMessageRepository.findByMessageNumber(whatsappAcknowledgement.getQueueNumber()).orElse(null);
+                if (whatsappMessage != null && whatsappAcknowledgement.getStatus().getPriority() > 2) {
+                    whatsappMessage.setSeen(true);
                     whatsappMessageRepository.save(whatsappMessage);
                 }
             }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return HttpStatus.OK;
 
     }
 
