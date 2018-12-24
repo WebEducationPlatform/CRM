@@ -45,10 +45,9 @@
                                th:value="${client.skype}"/>
                     </div>
                     <div class="form-group">
-                        <label for="edit-client-age">Возраст</label>
-                        <input type="number" class="form-control" min="0" max="127" disabled="disabled"
-                               title="Диапазон от 0 до 127" onkeydown="disableInputE()" id="edit-client-age"
-                               th:value="${client.age}"/>
+                        <label for="edit-client-birthday">Дата рождения</label>
+                        <input type="date" class="form-control" disabled="disabled" id="edit-client-birthday"
+                               th:value="${client.birthDate}"/>
                         <div class="help-block with-error" style="color: red"></div>
                     </div>
                     <div class="form-group">

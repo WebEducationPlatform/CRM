@@ -14,28 +14,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/init")
 public class InitRestController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final VKService vkService;
+
+    private final ClientService clientService;
+
+    private final static Logger logger = LoggerFactory.getLogger(InitRestController.class);
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private VKService vkService;
-
-    @Autowired
-    private ClientService clientService;
-
-    private static Logger logger = LoggerFactory.getLogger(InitRestController.class);
+    public InitRestController(UserService userService, PasswordEncoder passwordEncoder, VKService vkService, ClientService clientService) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.vkService = vkService;
+        this.clientService = clientService;
+    }
 
     @GetMapping(value = "/updatepassword")
     public ResponseEntity updateVkTrackedClub() {

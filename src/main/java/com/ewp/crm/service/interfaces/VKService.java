@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.VkProfileInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public interface VKService {
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
-    Optional<Map<String, String>> getProfileInfoById(long vkId);
+    Optional<VkProfileInfo> getProfileInfoById(long vkId);
 
     void fillClientFromProfileVK(Client client);
 }
