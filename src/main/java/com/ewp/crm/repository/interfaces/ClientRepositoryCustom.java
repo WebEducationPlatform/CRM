@@ -42,4 +42,7 @@ public interface ClientRepositoryCustom {
 	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order);
 
 	boolean isTelegramClientPresent(Integer id);
+
+	List<Client> getClientBySocialProfileType(SocialProfileType type);
+
 }

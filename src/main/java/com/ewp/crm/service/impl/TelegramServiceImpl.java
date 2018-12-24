@@ -8,6 +8,7 @@ import com.ewp.crm.service.conversation.ChatType;
 import com.ewp.crm.service.conversation.Interlocutor;
 import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
+import com.github.javafaker.Bool;
 import org.apache.commons.io.FileUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
@@ -273,33 +274,44 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
         TdApi.Message tgMessage = sendChatMessage(Long.parseLong(message.getChatId()), message.getText());
-        return tdlibMessageToChatMessage(tgMessage);
+        TdApi.Chat chat = new TdApi.Chat();
+        chat.lastReadOutboxMessageId = Long.MAX_VALUE;
+        return tdlibMessageToChatMessage(tgMessage, chat);
     }
 
     @Override
     public Map<com.ewp.crm.models.Client, Integer> getCountOfNewMessages() {
-        //TODO
+        //TODO get all clients with SN type.
+        clientRepository
         return null;
     }
 
     @Override
     public List<ChatMessage> getNewMessages(com.ewp.crm.models.Client client, int count) {
-        TdApi.Messages tgMessages = new TdApi.Messages();
+        List<ChatMessage> result = new ArrayList<>();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
-            tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+            TdApi.Messages tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            if (chat.isPresent()) {
+                result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+            }
         }
-        return tdlibMessagesToChatMessages(tgMessages);
+        return result;
     }
 
     @Override
     public List<ChatMessage> getMessages(com.ewp.crm.models.Client client, int count) {
-        TdApi.Messages tgMessages = new TdApi.Messages();
+        List<ChatMessage> result = new ArrayList<>();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
-            tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+            TdApi.Messages tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            if (chat.isPresent()) {
+                result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+            }
         }
-        return tdlibMessagesToChatMessages(tgMessages);
+        return result;
     }
 
     @Override
@@ -334,19 +346,25 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         return result;
     }
 
-    private ChatMessage tdlibMessageToChatMessage(TdApi.Message message) {
+    private ChatMessage tdlibMessageToChatMessage(TdApi.Message message, TdApi.Chat chat) {
         ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochSecond(message.date), TimeZone.getDefault().toZoneId());
         String messageText = "Sticker/Photo";
         if (message.content instanceof TdApi.MessageText) {
             messageText = ((TdApi.MessageText) message.content).text.text;
         }
-        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, false, true);
+        boolean isRead;
+        if (message.isOutgoing) {
+            isRead = message.id >= chat.lastReadOutboxMessageId;
+        } else {
+            isRead = message.id >= chat.lastReadInboxMessageId;
+        }
+        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, isRead, message.isOutgoing);
     }
 
-    private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages) {
+    private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages, TdApi.Chat chat) {
         List<ChatMessage> result = new ArrayList<>();
         for (TdApi.Message message : messages.messages) {
-            result.add(tdlibMessageToChatMessage(message));
+            result.add(tdlibMessageToChatMessage(message, chat));
         }
         return result;
     }
