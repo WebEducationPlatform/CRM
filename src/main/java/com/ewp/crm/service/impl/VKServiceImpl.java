@@ -268,35 +268,23 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONObject jsonMessages = json.getJSONObject("response");
 
-            Map<Client,Integer> resultList = new HashMap<>();
+            Map<Client,Integer> resultMap = new HashMap<>();
+            Iterator<String> keys = jsonMessages.keys();
 
-//            for (int i = 1; i < jsonMessages.length(); i++) {
-//                JSONObject jsonMessage = jsonMessages.getJSONObject(i);
-//
-//                String id          = jsonMessage.getString("mid");
-//                String body        = jsonMessage.getString("body");
-//                Integer read_state = jsonMessage.getInt("read_state");
-//                Long date          = jsonMessage.getLong("date");
-//                Integer out        = jsonMessage.getInt("out");
-//
-//                ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(date*1000), TimeZone.getDefault().toZoneId());
-//
-//                ChatMessage newChatMessage = new ChatMessage(id,
-//                        userid,
-//                        ChatType.vk,body,
-//                        time,
-//                        read_state == 1,
-//                        out == 0);
-//                //если запросили последнее прочитанное сообщение клиента
-//                if (getLastReadied && read_state == 1 && out == 1) {
-//                    resultList.add(newChatMessage);
-//                    return Optional.of(resultList);
-//                }
-//                else if (!getLastReadied){
-//                    resultList.add(newChatMessage);
-//                }
-//            }
-            return Optional.of(resultList);
+            while(keys.hasNext()) {
+                String key = keys.next();
+                if (jsonMessages.get(key) instanceof JSONObject) {
+                    Integer count = ((Integer)((JSONObject)((JSONObject)(jsonMessages.get(key))).get("conversation")).get("unread_count"));
+                    String userId = Integer.toString((Integer)((JSONObject)((JSONObject)((JSONObject)(jsonMessages.get(key))).get("conversation")).get("peer")).get("id"));
+
+                    Optional<Client> client = getVkLinkById(userId);
+
+                    client.ifPresent(x -> resultMap.put(x, count));
+                }
+            }
+
+            return Optional.of(resultMap);
+
         } catch (JSONException e) {
             logger.error("Can not read message from JSON ", e);
         } catch (IOException e) {
@@ -710,6 +698,19 @@ public class VKServiceImpl implements VKService {
         return returnMap;
     }
 
+    @Override
+    public Optional<Client> getVkLinkById(String userID){
+
+        String link = "https://vk.com/id" + userID;
+        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+        Client client = clientService.getClientBySocialProfile(socialProfile);
+
+        if (client == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(client);
+    }
     @Override
     public Client parseClientFromMessage(String message) throws ParseClientException {
         logger.info("VKService: parsing client from VK message...");

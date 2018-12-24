@@ -22,6 +22,8 @@ public interface VKService {
 
     Optional<Long> getVKIdByUrl(String url);
 
+    Optional<Client> getVkLinkById(String userID);
+
     void simpleVKNotification(Long clientId, String templateText);
 
     Optional<List<VkMember>> getAllVKMembers(Long groupId, Long offset);
