@@ -178,7 +178,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied) {
+    public Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied, boolean getNew) {
         logger.info("VKService: getting messages...");
 
         String uriGetMassages = vkAPI + "messages.getHistory" +
@@ -221,7 +221,12 @@ public class VKServiceImpl implements VKService {
                     resultList.add(newChatMessage);
                     return Optional.of(resultList);
                 }
-                else if (!getLastReadied){
+                //если запросили только новые
+                if (getNew && read_state == 0 && out == 0) {
+                    resultList.add(newChatMessage);
+                    return Optional.of(resultList);
+                }
+                else if (!getLastReadied && !getNew){
                     resultList.add(newChatMessage);
                 }
             }

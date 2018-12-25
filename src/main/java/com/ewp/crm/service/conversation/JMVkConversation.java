@@ -108,11 +108,20 @@ public class JMVkConversation implements JMConversation {
         Optional<Interlocutor> interlocutor = getInterlocutor(client);
 
         if (interlocutor.isPresent()){
-            return vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false).orElse(new LinkedList<>());
+            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, false);
+            if (vkChatMessages.isPresent()) {
+
+                List<ChatMessage> chatMessages = vkChatMessages.get();
+
+                for (ChatMessage chatMessage : chatMessages) {
+                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+                    chatMessage.setRead(true);
+                }
+
+                return chatMessages;
+            }
         }
-        else{
-            return new LinkedList<>();
-        }
+        return new LinkedList<>();
     }
 
     @Override
@@ -122,7 +131,7 @@ public class JMVkConversation implements JMConversation {
 
     public ChatMessage getLastMessages(String userid) {
 
-        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true).orElse(new LinkedList<>());
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true, false).orElse(new LinkedList<>());
 
         if (chatMessages.isEmpty()) {
             return null;
@@ -156,7 +165,7 @@ public class JMVkConversation implements JMConversation {
 
         if (interlocutor.isPresent()) {
 
-            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, true);
+            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, true);
 
             if (vkChatMessages.isPresent()) {
 
