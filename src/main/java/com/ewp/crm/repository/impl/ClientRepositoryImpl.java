@@ -152,6 +152,15 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         return !result.isEmpty();
     }
 
+    @Override
+    public List<Client> getClientBySocialProfileType(SocialProfileType type) {
+        List<Client> result = entityManager.createQuery("SELECT c FROM Client c WHERE c.socialProfiles CONTAINS s.socialProfileType.name = 'telegram'", Client.class)
+                .setParameter("spType")
+                .getResultList();
+        //TODO
+        return result;
+    }
+
     private String createQuery(FilteringCondition filteringCondition) {
         return "select cl from Client cl where 1 = 1" + filterQuery(filteringCondition);
     }
