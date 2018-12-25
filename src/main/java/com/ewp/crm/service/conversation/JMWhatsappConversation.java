@@ -81,7 +81,7 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public Map<Client, Integer> getCountOfNewMessages() {
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -106,7 +106,9 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public String getReadMessages(Client client) {
-        return whatsappMessageService.findTopByClient_IdOrderByTimeDesc(client.getId()).getId();
+        return "";
+        //TODO Null pointer тут.
+//        return whatsappMessageService.findTopByClient_IdOrderByTimeDesc(client.getId()).getId();
     }
 
     @Override
