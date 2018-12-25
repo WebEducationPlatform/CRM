@@ -43,6 +43,6 @@ public interface ClientRepositoryCustom {
 
 	boolean isTelegramClientPresent(Integer id);
 
-	List<Client> getClientBySocialProfileType(SocialProfileType type);
+	Client getClientBySocialProfileLink(String link);
 
 }

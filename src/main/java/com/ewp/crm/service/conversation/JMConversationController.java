@@ -36,9 +36,9 @@ public class JMConversationController {
 
     @PostMapping(value = "/send", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<ChatMessage>> sendMessage(@RequestParam String text,
+    public ResponseEntity<ChatMessage> sendMessage(@RequestParam String text,
                                                    @RequestParam String chatType) {
-        List<ChatMessage> chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
+        ChatMessage chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
         return ResponseEntity.ok(chatMessage);
     }
 

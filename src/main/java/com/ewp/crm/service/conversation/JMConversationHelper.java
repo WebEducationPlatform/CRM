@@ -11,7 +11,7 @@ public interface JMConversationHelper {
     void endChat(Client client);
 
     //отправляет сообщение в определенный чат и возвращает новое сообщение
-    List<ChatMessage> sendMessage(ChatMessage message);
+    ChatMessage sendMessage(ChatMessage message);
 
     //Получаем количество не прочитанных сообщений во всех чатах
     Map<Long, Integer> getCountOfNewMessages();
