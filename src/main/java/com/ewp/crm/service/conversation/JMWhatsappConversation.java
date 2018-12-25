@@ -92,7 +92,7 @@ public class JMWhatsappConversation implements JMConversation {
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
         List<ChatMessage> chatMessages = new ArrayList<>();
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), false));
+            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), wm.isFromMe()));
         }
         return chatMessages;
     }
