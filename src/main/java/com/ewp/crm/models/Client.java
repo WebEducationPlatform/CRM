@@ -92,7 +92,7 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "client_whatsapp_message",
             joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
+            inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_number",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
 
     @ManyToOne
@@ -180,6 +180,13 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
+    }
+
+    public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
+        this();
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.dateOfRegistration = dateOfRegistration;
     }
 
     public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
