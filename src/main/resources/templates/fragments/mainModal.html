@@ -107,11 +107,7 @@
                                                    class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
                                                     <span class="fa fa-vk"></span>
                                                 </a>
-                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm"
-                                                        data-toggle="modal" data-target="#customVKIMMessage">
-                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count"
-                                                                                                    class="badge"></span></a>
-                                                </button>
+
                                             </div>
                                             <div>
                                                 <a id="fb-href" target="_blank"
@@ -128,8 +124,10 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-primary pull" data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
-                                            Чаты
+                                        <button id="chat-button" type="button" class="btn btn-primary btn-sm"
+                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
+                                            <a href="#" style="color: white;"> Чаты <span id="chat-im-count"
+                                                                                            class="badge"></span></a>
                                         </button>
                                     </td>
                                     <td>

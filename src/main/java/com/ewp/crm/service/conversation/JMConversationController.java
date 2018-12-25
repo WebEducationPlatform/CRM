@@ -75,4 +75,10 @@ public class JMConversationController {
     public ResponseEntity<List<Interlocutor>> getUs(@RequestParam("id") long clientId) {
         return ResponseEntity.ok(conversationHelper.getUs());
     }
+
+    @GetMapping(value = "/all-byClient", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<Map<Long, Integer>> getCountOfNewMessages() {
+        return ResponseEntity.ok(conversationHelper.getCountOfNewMessages());
+    }
 }

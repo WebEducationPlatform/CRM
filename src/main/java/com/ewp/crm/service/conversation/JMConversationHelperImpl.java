@@ -39,13 +39,13 @@ public class JMConversationHelperImpl implements JMConversationHelper {
     }
 
     @Override
-    public Map<Client, Integer> getCountOfNewMessages() {
-        Map<Client, Integer> clientMap = new HashMap<>();
+    public Map<Long, Integer> getCountOfNewMessages() {
+        Map<Long, Integer> clientMap = new HashMap<>();
         for (JMConversation conversation: conversations) {
             Map<Client, Integer> newMessageFromConversation = conversation.getCountOfNewMessages();
             for(Map.Entry<Client, Integer> element: newMessageFromConversation.entrySet()){
-                Integer count = clientMap.getOrDefault(element.getKey(), 0);
-                clientMap.put(element.getKey(), element.getValue()+count);
+                Integer count = clientMap.getOrDefault(element.getKey().getId(), 0);
+                clientMap.put(element.getKey().getId(), element.getValue()+count);
             }
         }
         return clientMap;

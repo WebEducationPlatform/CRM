@@ -139,6 +139,8 @@ function get_us() {
         type: "GET",
         url: "/rest/conversation/us",
         success: function (response) {
+            console.log("US");
+            console.log(response);
             logged_in_profiles = response;
         }
     })
@@ -1799,6 +1801,28 @@ function start_chats(clientId) {
 $('#conversations-modal').on('show.bs.modal', function () {
     let clientId = $("#main-modal-window").data('clientId');
     start_chats(clientId);
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/open',
+        data: {clientId: clientId},
+        success: function (response) {
+            if (response.chat === undefined && response.messages === undefined) {return;}
+            let messages = response.messages.messages;
+            let last_read = response.chat.lastReadOutboxMessageId;
+            let data = messages.reverse();
+            $("#chat-messages").empty();
+            for (let i in data) {
+                let message_id = data[i].id;
+                let send_date = new Date(data[i].date * 1000);
+                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Sticker/photo!';
+                let is_outgoing = data[i].isOutgoing;
+                append_message(message_id, send_date, text, is_outgoing, last_read);
+            }
+            $("#send-selector").prop('value', 'telegram');
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    });
 });
 
 $('#conversations-modal').on('hidden.bs.modal', function () {
@@ -1907,6 +1931,11 @@ $(function () {
 
                             $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
+
+
+                            $('#chat-button').attr("clientID", client.id);
+                            $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                            $('#chat-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
