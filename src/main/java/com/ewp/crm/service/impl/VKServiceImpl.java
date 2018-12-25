@@ -474,6 +474,7 @@ public class VKServiceImpl implements VKService {
 
         String uriMarkAsRead = vkAPI + "messages.markAsRead" +
                 "?peer_id=" + userId +
+                "&group_id=" + vkConfig.getClubId() +
                 "&version=" + version +
                 messageId +
                 "&access_token=" + token;

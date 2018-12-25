@@ -164,6 +164,7 @@ public class JMVkConversation implements JMConversation {
 
                 for (ChatMessage chatMessage : chatMessages) {
                     vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+                    chatMessage.setRead(true);
                 }
 
                 return chatMessages;
