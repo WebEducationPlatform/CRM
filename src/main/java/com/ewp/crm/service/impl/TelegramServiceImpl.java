@@ -345,7 +345,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
             Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
-            result = String.valueOf(chat.get().lastReadInboxMessageId);
+            result = String.valueOf(chat.get().lastReadOutboxMessageId);
         }
         return result;
     }
@@ -379,9 +379,9 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         }
         boolean isRead;
         if (message.isOutgoing) {
-            isRead = message.id >= chat.lastReadOutboxMessageId;
+            isRead = message.id <= chat.lastReadOutboxMessageId;
         } else {
-            isRead = message.id >= chat.lastReadInboxMessageId;
+            isRead = message.id <= chat.lastReadInboxMessageId;
         }
         return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, isRead, message.isOutgoing);
     }

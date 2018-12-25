@@ -67,6 +67,9 @@ public class JMConversationHelperImpl implements JMConversationHelper {
             }
         }
         list.sort(Comparator.comparing(ChatMessage::getTime));
+        if (list.size() > 40) {
+            list = list.subList(list.size() - 40, list.size() - 1);
+        }
         return list;
     }
 

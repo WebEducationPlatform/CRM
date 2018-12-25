@@ -1773,8 +1773,8 @@ function start_chats(clientId) {
                 append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
             }
             $("#send-selector").prop('value', response[response.length - 1].chatType);
-            // setTimeout(update_chat, 2000);
-            // setTimeout(scroll_down, 1000);
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
         }
     })
 }

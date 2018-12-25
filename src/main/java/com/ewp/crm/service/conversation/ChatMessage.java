@@ -35,6 +35,12 @@ public class ChatMessage {
         this.text = text;
     }
 
+    public ChatMessage(String text, ChatType chatType, String chatId) {
+        this.chatType = chatType;
+        this.text = text;
+        this.chatId = chatId;
+    }
+
     public String getId() {
         return id;
     }
