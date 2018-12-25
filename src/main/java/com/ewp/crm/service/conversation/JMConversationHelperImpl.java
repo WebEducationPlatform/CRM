@@ -1,6 +1,7 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.service.impl.TelegramServiceImpl;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,17 @@ public class JMConversationHelperImpl implements JMConversationHelper {
 
     @Autowired
     public JMConversationHelperImpl(List<JMConversation> conversations, SocialProfileService socialProfileService) {
-        this.conversations = conversations;
+        List<JMConversation> result = new ArrayList<>();
         this.socialProfileService = socialProfileService;
+        for (JMConversation conversation : conversations) {
+            if (conversation instanceof  TelegramServiceImpl) {
+                if (!((TelegramServiceImpl) conversation).isTdlibInstalled()) {
+                    continue;
+                }
+            }
+            result.add(conversation);
+        }
+        this.conversations = result;
     }
 
     @Override
