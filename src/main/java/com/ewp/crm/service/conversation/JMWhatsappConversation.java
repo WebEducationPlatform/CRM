@@ -1,14 +1,12 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.User;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
-import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappMessageSendable;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.WhatsappMessageService;
+import com.ewp.crm.repository.interfaces.WhatsappMessageRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +24,18 @@ import java.util.*;
 @PropertySource("file:./whatsapp-chat-api.properties")
 public class JMWhatsappConversation implements JMConversation {
 
-
+    private final String sendUrl;
     private static final Logger logger = LoggerFactory.getLogger(JMWhatsappConversation.class);
     private final ClientRepository clientRepository;
-    private final Environment environment;
-    private final WhatsappMessageService whatsappMessageService;
+    private final WhatsappMessageRepository whatsappMessageRepository;
+
     @Autowired
-    public JMWhatsappConversation(Environment environment, ClientRepository clientRepository, WhatsappMessageService whatsappMessageService) {
+    public JMWhatsappConversation(Environment environment, ClientRepository clientRepository, WhatsappMessageRepository whatsappMessageRepository) {
+        this.sendUrl = "https://" + environment.getProperty("server.api") +
+                ".chat-api.com/" + environment.getProperty("instance") +
+                "/sendMessage?" + environment.getProperty("token");
         this.clientRepository = clientRepository;
-        this.environment = environment;
-        this.whatsappMessageService = whatsappMessageService;
+        this.whatsappMessageRepository = whatsappMessageRepository;
     }
 
     @Override
@@ -50,31 +50,19 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
-        long phoneNumber;
+        long number;
         try {
-            phoneNumber = Long.parseLong(message.getChatId().replaceAll("\\D", ""));
+            number = Long.parseLong(message.getChatId().replaceAll("\\D", ""));
         } catch (NumberFormatException nfe) {
             logger.warn("При отправки сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
             return new ChatMessage(ChatType.whatsapp, "у этого клиента не верно указан номер телефона оправка сообщения не возможна");
         }
 
-        WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(phoneNumber, message.getText());
-        String sendUrl = "https://" + environment.getProperty("server.api") + ".chat-api.com/" + environment.getProperty("instance") + "/sendMessage?" +
-                environment.getProperty("token");
-
-
+        WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(number, message.getText());
         WhatsappCheckDeliveryMsg whatsappCheckDeliveryMsg = new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
-        WhatsappMessage whatsappMessage =
-                new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
-                        SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
-        whatsappMessageService.save(whatsappMessage);
-        String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
-                ".chat-api.com/" + environment.getProperty("instance") +
-                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (whatsappMessage.getMessageNumber() - 1);
-        WhatsappAcknowledgementDTO forObject = new RestTemplate().getForObject(lastMessagesUrl, WhatsappAcknowledgementDTO.class);
-        Optional<WhatsappMessage> any = forObject.getMessages().stream().filter(x -> x.getMessageNumber() == whatsappMessage.getMessageNumber()).findAny();
-        String id = any.map(WhatsappMessage::getId).orElse(null);
-        message.setId(id);
+        WhatsappMessage whatsappMessage = new WhatsappMessage(RandomStringUtils.random(3)+System.currentTimeMillis(),message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
+                SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
+        whatsappMessageRepository.save(whatsappMessage);
         return message;
     }
 
@@ -85,38 +73,39 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
-        List<WhatsappMessage> allByIsSeen = whatsappMessageService.findTop40BySeenFalseAndClient_IdOrderByTimeDesc(client.getId());
-        return whatsappMsgToChatMsg(allByIsSeen);
+        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
+               return whatsappMsgToChatMsg(allByIsRead);
     }
 
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
         List<ChatMessage> chatMessages = new ArrayList<>();
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), false));
+            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), wm.isFromMe()));
         }
         return chatMessages;
     }
 
     @Override
     public List<ChatMessage> getMessages(Client client, int count) {
-        List<WhatsappMessage> all = whatsappMessageService.findAllByClient_Id(client.getId());
+        List<WhatsappMessage> all = whatsappMessageRepository.findAll();
         return whatsappMsgToChatMsg(all);
     }
 
     @Override
     public String getReadMessages(Client client) {
-        return whatsappMessageService.findTopByClient_IdOrderByTimeDesc(client.getId()).getId();
+//        List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
+        return "";
+//                whatsappMsgToChatMsg(allByIsRead).toString();
+        // Почему сдесь строка?????????????
     }
 
     @Override
     public Optional<Interlocutor> getInterlocutor(Client client) {
-        return Optional.of(new Interlocutor(client.getPhoneNumber(), "", "", ChatType.whatsapp));
+        return Optional.empty();
     }
 
     @Override
     public Optional<Interlocutor> getMe() {
-        User u = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return Optional.of(new Interlocutor(u.getPhoneNumber(),"","",ChatType.whatsapp));
-
+        return Optional.empty();
     }
 }
