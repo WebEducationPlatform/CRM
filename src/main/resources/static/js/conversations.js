@@ -29,6 +29,8 @@ function mark_as_read() {
                 for (let value of telegram_sent) {
                     let id = parseInt(value.id.substring(17));
                     let last_read = parseInt(response.telegram);
+                    console.log(id);
+                    console.log(last_read);
                     if (id <= last_read) {
                         let img = $("#" + value.id);
                         img.prop('src', '/images/rad.png');
@@ -163,8 +165,8 @@ function append_all_chats_message(message_id, send_date, text, is_outgoing, isRe
     let full_name = "";
     let chat_img = get_sn_picture(sn_type);
     if (is_outgoing) {
-        alt = current_profile.id[0];
-        full_name = current_profile.id;
+        alt = current_profile.representation[0];
+        full_name = current_profile.representation;
         if (current_profile.chatType === "vk") {
             avatar = "<img class='out-photo img-circle' src='" + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
         } else {
@@ -176,8 +178,8 @@ function append_all_chats_message(message_id, send_date, text, is_outgoing, isRe
             is_read = "<img id='" + sn_type + "_is_read_" + message_id + "' class='" + sn_type + "_sent' src='/images/sent.png' style='height: 15px; width: 15px' />";
         }
     } else {
-        alt = interlocutor.id;
-        full_name = interlocutor.id;
+        alt = interlocutor.representation;
+        full_name = interlocutor.representation;
         if (interlocutor.chatType === "vk") {
             avatar = "<img class='out-photo img-circle' src='" + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
         } else {
