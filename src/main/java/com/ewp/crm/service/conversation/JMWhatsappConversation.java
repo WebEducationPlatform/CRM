@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+
 @Component
 @PropertySource("file:./whatsapp-chat-api.properties")
 public class JMWhatsappConversation implements JMConversation {
