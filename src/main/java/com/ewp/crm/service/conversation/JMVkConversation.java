@@ -23,7 +23,7 @@ public class JMVkConversation implements JMConversation {
     private final String fldLastName       = "last_name";
     private final String fldName           = "name";
     private final String additionalGroup   = "name,photo_50";
-    private final String additionalUser    = "photo_50,first_name_ins,last_name_ins";
+    private final String additionalUser    = "first_name,last_name,photo_50,first_name_ins,last_name_ins";
     private final String defaultVkPhoto    = "https://vk.com/images/camera_50.png?ava=1";
     private final String vkUrl             = "https://vk.com/";
     private final String clubString        = "club";
