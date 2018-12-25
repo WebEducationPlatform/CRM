@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,23 +37,25 @@ public class JMConversationController {
 
     @PostMapping(value = "/send", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<ChatMessage> sendMessage(@RequestParam String text,
-                                                   @RequestParam String chatType) {
-        ChatMessage chatMessage = conversationHelper.sendMessage(new ChatMessage(ChatType.valueOf(chatType), text));
+    public ResponseEntity<ChatMessage> sendMessage(@RequestParam("text") String text,
+                                                   @RequestParam("type") String chatType,
+                                                   @RequestParam("chatId") String chatId) {
+        ChatMessage chatMessage = conversationHelper.sendMessage(new ChatMessage(text, ChatType.valueOf(chatType), chatId));
         return ResponseEntity.ok(chatMessage);
     }
 
     @GetMapping(value = "/all-new", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<Map<String, List<ChatMessage>>> getNewMessages(@RequestParam("id") long clientId) {
-        Map<String, List<ChatMessage>> response = new HashMap<>();
+    public ResponseEntity<List<ChatMessage>> getNewMessages(@RequestParam("id") long clientId) {
         Client client = clientService.getClientByID(clientId);
-        List<ChatMessage> newMessages = conversationHelper.getNewMessages(client);
-        response.put("new", newMessages);
-        //TODO return last read message id by chat type
-        //List<ChatMessage> readMessages = conversationHelper.getReadMessages(client);
-        //response.put("read", readMessages);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(conversationHelper.getNewMessages(client));
+    }
+
+    @GetMapping(value = "/last-read", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<Map<ChatType, String>> getLastReadMessageIds(@RequestParam("id") long clientId) {
+        Client client = clientService.getClientByID(clientId);
+        return new ResponseEntity<>(conversationHelper.getReadMessages(client), HttpStatus.OK);
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
