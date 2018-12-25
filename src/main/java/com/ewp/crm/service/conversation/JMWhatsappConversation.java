@@ -7,7 +7,6 @@ import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappMessageSendable;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.WhatsappMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @PropertySource("file:./whatsapp-chat-api.properties")
@@ -31,6 +33,7 @@ public class JMWhatsappConversation implements JMConversation {
     private final ClientRepository clientRepository;
     private final Environment environment;
     private final WhatsappMessageService whatsappMessageService;
+
     @Autowired
     public JMWhatsappConversation(Environment environment, ClientRepository clientRepository, WhatsappMessageService whatsappMessageService) {
         this.clientRepository = clientRepository;
@@ -92,7 +95,7 @@ public class JMWhatsappConversation implements JMConversation {
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
         List<ChatMessage> chatMessages = new ArrayList<>();
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), wm.isFromMe()));
+            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), wm.isFromMe()));
         }
         return chatMessages;
     }
@@ -110,13 +113,13 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public Optional<Interlocutor> getInterlocutor(Client client) {
-        return Optional.of(new Interlocutor(client.getPhoneNumber(), "", "", ChatType.whatsapp));
+        return Optional.of(new Interlocutor(client.getPhoneNumber(), "", "", "", ChatType.whatsapp));
     }
 
     @Override
     public Optional<Interlocutor> getMe() {
         User u = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return Optional.of(new Interlocutor(u.getPhoneNumber(),"","",ChatType.whatsapp));
+        return Optional.of(new Interlocutor(u.getPhoneNumber(), "", "", "", ChatType.whatsapp));
 
     }
 }
