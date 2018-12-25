@@ -397,6 +397,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     private Interlocutor tdlibUserToInterlocutor(TdApi.User user) {
         TdApi.File file;
         String base64 = null;
+        String representation = user.firstName + " " + user.lastName;
         if (user.profilePhoto != null) {
             file = getFileById(user.profilePhoto.small.id);
             try {
@@ -405,7 +406,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 logger.error("File download failed!", e);
             }
         }
-        return new Interlocutor(String.valueOf(user.id), null, base64, ChatType.telegram);
+        return new Interlocutor(String.valueOf(user.id), null, base64, representation, ChatType.telegram);
     }
 
     //JMConversation Implementation//
