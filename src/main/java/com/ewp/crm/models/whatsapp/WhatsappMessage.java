@@ -32,7 +32,7 @@ public class WhatsappMessage {
     @Column(name = "chatId")
     private String chatId;
     @Id
-    @Column(name = "messageNumber")
+    @Column(name = "whatsapp_message_number")
     //need to be made id in DB
     private long messageNumber;
 
@@ -48,7 +48,7 @@ public class WhatsappMessage {
     @JsonIgnore
     @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_whatsapp_message",
-            joinColumns = {@JoinColumn(name = "long_Id_for_database", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
+            joinColumns = {@JoinColumn(name = "whatsapp_message_number", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})
     private Client client;
 
