@@ -2,12 +2,16 @@ package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
+import com.ewp.crm.service.impl.TelegramServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
@@ -18,6 +22,8 @@ import java.util.List;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
+
+    private static Logger logger = LoggerFactory.getLogger(ClientRepositoryImpl.class);
 
     private final EntityManager entityManager;
 
@@ -153,11 +159,15 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientBySocialProfileType(SocialProfileType type) {
-        List<Client> result = entityManager.createQuery("SELECT c FROM Client c WHERE c.socialProfiles CONTAINS s.socialProfileType.name = 'telegram'", Client.class)
-                .setParameter("spType")
-                .getResultList();
-        //TODO
+    public Client getClientBySocialProfileLink(String link) {
+        Client result = null;
+        try {
+        result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
+                .setParameter("link", link)
+                .getSingleResult();
+        } catch (NoResultException e) {
+            logger.info("Client with link {} not found", link, e);
+        }
         return result;
     }
 
