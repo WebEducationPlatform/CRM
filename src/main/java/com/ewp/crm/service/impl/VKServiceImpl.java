@@ -271,9 +271,14 @@ public class VKServiceImpl implements VKService {
             HttpResponse response = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
-            JSONObject jsonMessages = json.getJSONObject("response");
 
             Map<Client,Integer> resultMap = new HashMap<>();
+
+            if (json.optJSONObject("response") == null){
+                return Optional.of(resultMap);
+            }
+
+            JSONObject jsonMessages = json.getJSONObject("response");
             Iterator<String> keys = jsonMessages.keys();
 
             while(keys.hasNext()) {
