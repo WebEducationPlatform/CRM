@@ -1906,11 +1906,9 @@ $(function () {
                             $('#vk-href').show();
 
 
-                            var vkref = client.socialProfiles[i].link;
-                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
-                            $('#vk-im-button').attr("clientID", client.id);
-                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
-                            $('#vk-im-button').show();
+                            $('#chat-button').attr("clientID", client.id);
+                            $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                            $('#chat-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
