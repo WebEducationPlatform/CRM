@@ -8,7 +8,11 @@ import com.ewp.crm.service.conversation.ChatType;
 import com.ewp.crm.service.conversation.Interlocutor;
 import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.utils.tdlib.Example;
+import com.github.javafaker.Bool;
+import com.google.common.primitives.Longs;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -170,6 +174,21 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     }
 
     @Override
+    public TdApi.Chats getChats() {
+        GetObjectHandler handler = new GetObjectHandler();
+        client.send(new TdApi.GetChats(Long.MAX_VALUE, 0, Integer.MAX_VALUE), handler);
+        handlerDelay(handler);
+        TdApi.Chats chats = (TdApi.Chats) handler.getObject();
+        List<Long> privateChats = new ArrayList<>();
+        for (int i = 0; i < chats.chatIds.length; i++) {
+            if (chats.chatIds[i] > 0) {
+                privateChats.add(chats.chatIds[i]);
+            }
+        }
+        return new TdApi.Chats(Longs.toArray(privateChats));
+    }
+
+    @Override
     public Optional<TdApi.Chat> getChat(long chatId) {
         Optional<TdApi.Chat> result = Optional.empty();
         GetObjectHandler handler = new GetObjectHandler();
@@ -273,27 +292,51 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
         TdApi.Message tgMessage = sendChatMessage(Long.parseLong(message.getChatId()), message.getText());
-        return tdlibMessageToChatMessage(tgMessage);
+        TdApi.Chat chat = new TdApi.Chat();
+        chat.lastReadOutboxMessageId = Long.MAX_VALUE;
+        return tdlibMessageToChatMessage(tgMessage, chat);
+    }
+
+    @Override
+    public Map<com.ewp.crm.models.Client, Integer> getCountOfNewMessages() {
+        Map<com.ewp.crm.models.Client, Integer> result = new HashMap<>();
+        TdApi.Chats chats = getChats();
+        for (long chatId : chats.chatIds) {
+            Optional<TdApi.Chat> chat = getChat(chatId);
+            com.ewp.crm.models.Client client = clientRepository.getClientBySocialProfileLink(String.valueOf(chatId));
+            if (chat.isPresent() && client != null && chat.get().unreadCount > 0) {
+                result.put(client, chat.get().unreadCount);
+            }
+        }
+        return result;
     }
 
     @Override
     public List<ChatMessage> getNewMessages(com.ewp.crm.models.Client client, int count) {
-        TdApi.Messages tgMessages = new TdApi.Messages();
+        List<ChatMessage> result = new ArrayList<>();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
-            tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+            TdApi.Messages tgMessages = getUnreadMessagesFromChat(Long.parseLong(link.get()), count);
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            if (chat.isPresent()) {
+                result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+            }
         }
-        return tdlibMessagesToChatMessages(tgMessages);
+        return result;
     }
 
     @Override
     public List<ChatMessage> getMessages(com.ewp.crm.models.Client client, int count) {
-        TdApi.Messages tgMessages = new TdApi.Messages();
+        List<ChatMessage> result = new ArrayList<>();
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
-            tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+            TdApi.Messages tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+            if (chat.isPresent()) {
+                result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+            }
         }
-        return tdlibMessagesToChatMessages(tgMessages);
+        return result;
     }
 
     @Override
@@ -302,7 +345,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
         if (link.isPresent()) {
             Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
-            result = String.valueOf(chat.get().lastReadInboxMessageId);
+            result = String.valueOf(chat.get().lastReadOutboxMessageId);
         }
         return result;
     }
@@ -328,32 +371,42 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         return result;
     }
 
-    private ChatMessage tdlibMessageToChatMessage(TdApi.Message message) {
+    private ChatMessage tdlibMessageToChatMessage(TdApi.Message message, TdApi.Chat chat) {
         ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochSecond(message.date), TimeZone.getDefault().toZoneId());
         String messageText = "Sticker/Photo";
         if (message.content instanceof TdApi.MessageText) {
             messageText = ((TdApi.MessageText) message.content).text.text;
         }
-        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, false, true);
+        boolean isRead;
+        if (message.isOutgoing) {
+            isRead = message.id <= chat.lastReadOutboxMessageId;
+        } else {
+            isRead = message.id <= chat.lastReadInboxMessageId;
+        }
+        return new ChatMessage(String.valueOf(message.id), String.valueOf(message.chatId), ChatType.telegram, messageText, time, isRead, message.isOutgoing);
     }
 
-    private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages) {
+    private List<ChatMessage> tdlibMessagesToChatMessages(TdApi.Messages messages, TdApi.Chat chat) {
         List<ChatMessage> result = new ArrayList<>();
         for (TdApi.Message message : messages.messages) {
-            result.add(tdlibMessageToChatMessage(message));
+            result.add(tdlibMessageToChatMessage(message, chat));
         }
         return result;
     }
 
     private Interlocutor tdlibUserToInterlocutor(TdApi.User user) {
-        TdApi.File file = getFileById(user.profilePhoto.small.id);
+        TdApi.File file;
         String base64 = null;
-        try {
-            base64 = downloadFile(file);
-        } catch (IOException e) {
-            logger.error("File download failed!", e);
+        String representation = user.firstName + " " + user.lastName;
+        if (user.profilePhoto != null) {
+            file = getFileById(user.profilePhoto.small.id);
+            try {
+                base64 = downloadFile(file);
+            } catch (IOException e) {
+                logger.error("File download failed!", e);
+            }
         }
-        return new Interlocutor(String.valueOf(user.id), null, base64, ChatType.telegram);
+        return new Interlocutor(String.valueOf(user.id), null, base64, representation, ChatType.telegram);
     }
 
     //JMConversation Implementation//
@@ -621,4 +674,5 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         }
         return result;
     }
+
 }

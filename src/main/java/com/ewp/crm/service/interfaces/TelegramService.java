@@ -22,6 +22,8 @@ public interface TelegramService {
 
     Optional<TdApi.Chat> getChat(long chatId);
 
+    TdApi.Chats getChats();
+
     int getClientIdByPhone(String phone);
 
     void closeChat(long chatId);

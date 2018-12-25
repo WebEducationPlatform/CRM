@@ -1,55 +1,84 @@
 $("#conversations-send-btn").click(function sendMessage() {
     let text = $("#conversations-text").val();
-    let clientId = $("#main-modal-window").data('clientId');
     let sn = $("#send-selector").prop('value');
-    switch(sn) {
-        case 'vk':
-            break;
-        case 'telegram':
-            send_telegram(clientId, text);
-            break;
-        case 'whatsapp':
-            break;
-    }
-
+    send_message(text, sn, get_sn_by_type(sn).id);
 });
+
+function get_sn_by_type(type) {
+    for (i = 0; i < interlocutor_profiles.length; i++) {
+        if (interlocutor_profiles[i].chatType === type) {
+            return interlocutor_profiles[i];
+        }
+    }
+    return null;
+}
 
 function scroll_down() {
     conversations.scrollTop(conversations.prop("scrollHeight"));
 }
 
-function mark_as_read(last_read) {
-    let messages = $(".sent");
-    if (messages.length === 0) {return;}
-    for (let value of messages) {
-        let id = parseInt(value.id.substring(8));
-        if (id <= last_read) {
-            let img = $("#" + value.id);
-            img.prop('src', '/images/rad.png');
-            img.prop('class', 'rad');
+function mark_as_read() {
+    let clientId = $("#main-modal-window").data('clientId');
+    $.ajax({
+        type: 'GET',
+        url: '/rest/conversation/last-read',
+        data: {id: clientId},
+        success: function (response) {
+            let telegram_sent = $(".telegram_sent");
+            if (response.telegram != "" && telegram_sent.length != 0) {
+                for (let value of telegram_sent) {
+                    let id = parseInt(value.id.substring(17));
+                    let last_read = parseInt(response.telegram);
+                    console.log(id);
+                    console.log(last_read);
+                    if (id <= last_read) {
+                        let img = $("#" + value.id);
+                        img.prop('src', '/images/rad.png');
+                        img.prop('class', 'telegram_rad');
+                    }
+                }
+            }
+            let vk_sent = $(".vk_sent");
+            if (response.vk != "" && vk_sent.length != 0) {
+                for (let value of vk_sent) {
+                    let id = parseInt(value.id.substring(11));
+                    let last_read = parseInt(response.vk);
+                    console.log(id);
+                    console.log(last_read);
+                    if (id <= last_read) {
+                        let img = $("#" + value.id);
+                        img.prop('src', '/images/rad.png');
+                        img.prop('class', 'vk_rad');
+                    }
+                }
+            }
+
+            let whatsapp_sent = $(".whatsapp_sent");
+            //TODO markup.
         }
-    }
+    })
 }
+
+
 
 function update_chat() {
     let clientId = $("#main-modal-window").data('clientId');
     $.ajax({
         type: 'GET',
-        url: '/rest/telegram/messages/chat/unread',
-        data: {clientId: clientId},
+        url: '/rest/conversation/all-new',
+        data: {id: clientId},
         success: function (response) {
-            let messages = response.messages.messages;
-            let last_read = response.chat.lastReadOutboxMessageId;
             if (response.totalCount === 0) {return true}
-            let data = messages.reverse();
-            for (let i in data) {
-                let message_id = data[i].id;
-                let send_date = new Date(data[i].date * 1000);
-                let text = data[i].content.hasOwnProperty('text') ? data[i].content.text.text : 'Stickers/photo!';
-                let is_outgoing = data[i].isOutgoing;
-                append_message(message_id, send_date, text, is_outgoing, last_read);
+            for (let i in response) {
+                let message_id = response[i].id;
+                let send_date = new Date(response[i].time);
+                let text = response[i].text;
+                let is_outgoing = response[i].outgoing;
+                let is_read = response[i].read;
+                let sn_type = response[i].chatType;
+                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
             }
-            mark_as_read(last_read);
+            mark_as_read();
             $("#send-selector").prop('value', 'telegram');
         },
         complete: function(){
@@ -61,31 +90,72 @@ function update_chat() {
     })
 };
 
-function send_telegram(clientId, text) {
+function send_message(text, chat_type, chat_id) {
     $.ajax({
         type: 'POST',
-        url: '/rest/telegram/message/send',
-        data: {clientId: clientId, text: text},
+        url: '/rest/conversation/send',
+        data: {text: text, type: chat_type, chatId: chat_id},
         success: function (response) {
             $("#conversations-text").val('');
-            append_message(response.id, new Date(), text, true);
+            append_all_chats_message(response.id, new Date(), text, true, false, chat_type);
         }
     })
 }
 
-function append_all_chats_message(message_id, send_date, text, is_outgoing, isRead, sn_type) {
-
+function select_interlocutor(profiles) {
+    if (interlocutor_profiles === undefined) {
+        let clientId = $("#main-modal-window").data('clientId');
+        get_interlocutors(clientId);
+        profiles = interlocutor_profiles;
+    }
+    if (logged_in_profiles === undefined) {
+        get_us();
+        profiles = logged_in_profiles;
+    }
+    let result = new Map();
+    let i;
+    for (i = 0; i < profiles.length; i++) {
+        switch (profiles[i].chatType) {
+            case "vk":
+                result.set(1, profiles[i]);
+                break;
+            case "whatsapp":
+                result.set(2, profiles[i]);
+                break;
+            case "telegram":
+                result.set(3, profiles[i]);
+                break;
+        }
+    }
+    let mapAsc = new Map([...result.entries()].sort());
+    return mapAsc.values().next().value;
 }
 
-
-function append_message(message_id, send_date, text, is_outgoing, last_read) {
-    if (telegram_user === undefined) {
-        let clientId = $("#main-modal-window").data('clientId');
-        get_tg_user(clientId);
+function get_sn_picture(sn_type) {
+    let icon = "/images/";
+    switch (sn_type) {
+        case "vk":
+            icon += "vk.png";
+            break;
+        case "whatsapp":
+            icon += "whatsapp.png";
+            break;
+        case "telegram":
+            icon += "telegram.png";
+            break;
     }
+    return "<img class='sn-icon img-circle' src='" + icon + "' alt='?' style='height: 15px; width: 15px'/>";
+}
+
+function append_all_chats_message(message_id, send_date, text, is_outgoing, isRead, sn_type) {
+    let interlocutor = select_interlocutor(interlocutor_profiles);
+    let current_profile = select_interlocutor(logged_in_profiles);
     let chat = $("#chat-messages");
     let sendDate = send_date.toLocaleDateString() + ' ';
-    if (send_date.getDate() === new Date().getDate()){
+    let now = new Date();
+    let messageDay = new Date(send_date.getFullYear(), send_date.getMonth(), send_date.getDate());
+    let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (messageDay >= today){
         sendDate = "";
     }
     sendDate += send_date.toLocaleTimeString().replace(/(.*)\D\d+/, '$1');
@@ -93,44 +163,49 @@ function append_message(message_id, send_date, text, is_outgoing, last_read) {
     let alt = "";
     let is_read = "";
     let full_name = "";
+    let chat_img = get_sn_picture(sn_type);
     if (is_outgoing) {
-        alt = telegram_me.firstName[0] + telegram_me.lastName[0];
-        full_name = telegram_me.firstName + " " + telegram_me.lastName;
-        avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_me_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
-        if (message_id <= last_read) {
-            is_read = "<img id='is_read_" + message_id + "' class='rad' src='/images/rad.png' style='height: 15px; width: 15px' />";
+        alt = current_profile.representation[0];
+        full_name = current_profile.representation;
+        if (current_profile.chatType === "vk") {
+            avatar = "<img class='out-photo img-circle' src='" + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
         } else {
-            is_read = "<img id='is_read_" + message_id + "' class='sent' src='/images/sent.png' style='height: 15px; width: 15px' />";
+            avatar = "<img class='out-photo img-circle' src='data:image/jpeg;base64," + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
         }
-    } else if (telegram_user_photo == null) {
-        alt = telegram_user.firstName[0] + telegram_user.lastName[0];
-        full_name = telegram_user.firstName + " " + telegram_user.lastName;
-        avatar = "<img class='tg-im-photo img-circle' src='/images/t_logo.png' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        if (isRead) {
+            is_read = "<img id='" + sn_type + "_is_read_" + message_id + "' class='" + sn_type + "_rad' src='/images/rad.png' style='height: 15px; width: 15px' />";
+        } else {
+            is_read = "<img id='" + sn_type + "_is_read_" + message_id + "' class='" + sn_type + "_sent' src='/images/sent.png' style='height: 15px; width: 15px' />";
+        }
     } else {
-        alt = telegram_user.firstName[0] + telegram_user.lastName[0];
-        full_name = telegram_user.firstName + " " + telegram_user.lastName;
-        avatar = "<img class='tg-im-photo img-circle' src='data:image/jpeg;base64," + telegram_user_photo + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        alt = interlocutor.representation;
+        full_name = interlocutor.representation;
+        if (interlocutor.chatType === "vk") {
+            avatar = "<img class='out-photo img-circle' src='" + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        } else {
+            avatar = "<img class='out-photo img-circle' src='data:image/jpeg;base64," + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+        }
     }
-    let dom = $("<div class='container message-chat "+ ' ' +"' id='telegram_message_id_" + message_id + "' style='padding-top: 10px;'>"+
+    let dom = $("<div class='container message-chat "+ ' ' +"' id='" + sn_type + "_message_id_" + message_id + "' style='padding-top: 10px;'>"+
         "<div class='row'> "+
-            "<div class='col-xs-1'>"+
-                avatar +
-            "</div>"+
-            "<div class='col-xs-11'>"+
-                "<div class='row-xs-12'>" +
-                    "<div class='col-sm-4' style='font-weight: bold'>" +
-                        full_name +
-                    "</div>"+
-                    "<div class='col-sm-8' style='color: grey'>" +
-                        sendDate + " " + is_read +
-                    "</div>"+
-                "</div>"+
-                "<div class='row-xs-auto'>"+
-                    "<div class='col-sm-11' id='message_id"+ message_id +"' style='width: 500px;white-space: pre-line;'>" +
-                        text +
-                    "</div>"+
-                "</div>"+
-            "</div>"+
+        "<div class='col-xs-1'>"+
+        avatar +
+        "</div>"+
+        "<div class='col-xs-11'>"+
+        "<div class='row-xs-12'>" +
+        "<div class='col-sm-4' style='font-weight: bold'>" +
+        full_name +
+        "</div>"+
+        "<div class='col-sm-8' style='color: grey'>" +
+        sendDate + " " + chat_img + " " + is_read +
+        "</div>"+
+        "</div>"+
+        "<div class='row-xs-auto'>"+
+        "<div class='col-sm-11' id='message_id"+ message_id +"' style='width: 500px;white-space: pre-line;'>" +
+        text +
+        "</div>"+
+        "</div>"+
+        "</div>"+
         "</div>");
     chat.append(dom);
 
@@ -144,7 +219,7 @@ function set_telegram_id_by_phone(phone) {
         url: '/rest/telegram/id-by-phone',
         data: {phone: phone},
         success: function (response) {
-           return parseInt(response);
+            return parseInt(response);
         }
     })
 }

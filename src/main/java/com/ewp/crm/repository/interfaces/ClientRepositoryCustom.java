@@ -37,4 +37,7 @@ public interface ClientRepositoryCustom {
 	List<Client> getClientsBySearchPhrase(String search);
 
 	boolean isTelegramClientPresent(Integer id);
+
+	Client getClientBySocialProfileLink(String link);
+
 }

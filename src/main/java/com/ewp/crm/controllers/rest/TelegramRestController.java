@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.service.impl.TelegramServiceImpl;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.SocialProfileTypeService;
@@ -30,6 +31,7 @@ public class TelegramRestController {
     private final ClientService clientService;
     private final SocialProfileService socialProfileService;
     private final SocialProfileTypeService socialProfileTypeService;
+    private final TelegramServiceImpl telegramServiceImpl;
     private static final int MESSAGE_LIMIT = 40;
 
     private static Logger logger = LoggerFactory.getLogger(TelegramRestController.class);
@@ -37,11 +39,12 @@ public class TelegramRestController {
     @Autowired
     public TelegramRestController(TelegramService telegramService, ClientService clientService,
                                   SocialProfileService socialProfileService,
-                                  SocialProfileTypeService socialProfileTypeService) {
+                                  SocialProfileTypeService socialProfileTypeService, TelegramServiceImpl telegramServiceImpl) {
         this.telegramService = telegramService;
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
         this.socialProfileTypeService = socialProfileTypeService;
+        this.telegramServiceImpl = telegramServiceImpl;
     }
 
     @GetMapping("/phone-code")
@@ -180,5 +183,10 @@ public class TelegramRestController {
     public HttpStatus logoutFromTelegram() {
         telegramService.logout();
         return HttpStatus.OK;
+    }
+
+    @GetMapping("/unread")
+    public ResponseEntity<Map<Client, Integer>> getAllCliensUnreadCount() {
+        return new ResponseEntity<>(telegramServiceImpl.getCountOfNewMessages(), HttpStatus.OK);
     }
 }
