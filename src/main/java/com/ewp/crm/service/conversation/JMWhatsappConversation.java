@@ -18,10 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @PropertySource("file:./whatsapp-chat-api.properties")
@@ -70,6 +67,11 @@ public class JMWhatsappConversation implements JMConversation {
     }
 
     @Override
+    public Map<Client, Integer> getCountOfNewMessages() {
+        return null;
+    }
+
+    @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
         List<WhatsappMessage> allByIsRead = whatsappMessageRepository.findAllByisRead(false);
                return whatsappMsgToChatMsg(allByIsRead);
@@ -78,7 +80,7 @@ public class JMWhatsappConversation implements JMConversation {
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
         List<ChatMessage> chatMessages = new ArrayList<>();
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getId().toString(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), false));
+            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isRead(), wm.isFromMe()));
         }
         return chatMessages;
     }
