@@ -14,7 +14,7 @@ public interface JMConversationHelper {
     ChatMessage sendMessage(ChatMessage message);
 
     //Получаем количество не прочитанных сообщений во всех чатах
-    Map<Client, Integer> getCountOfNewMessages();
+    Map<Long, Integer> getCountOfNewMessages();
 
     //Получаем не прочитынные сообщения из всех чатов
     //Создаем чат и открывем тут же.

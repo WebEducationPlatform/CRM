@@ -133,7 +133,12 @@ public class ClientRestController {
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
         Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("clientID", Long.toString(client.getId()));
+        if (client == null) {
+            returnMap.put("clientID", "0");
+        }
+        else{
+            returnMap.put("clientID", Long.toString(client.getId()));
+        }
         returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
         returnMap.put("userID", userID);
         return ResponseEntity.ok(returnMap);
