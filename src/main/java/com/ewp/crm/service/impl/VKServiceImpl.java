@@ -215,16 +215,15 @@ public class VKServiceImpl implements VKService {
                                                             ChatType.vk,body,
                                                             time,
                                                       read_state == 1,
-                                                   out == 0);
+                                                   out == 1);
                 //если запросили последнее прочитанное сообщение клиента
-                if (getLastReadied && read_state == 1 && out == 1) {
+                if (getLastReadied && read_state == 1 && out == 0) {
                     resultList.add(newChatMessage);
                     return Optional.of(resultList);
                 }
                 //если запросили только новые
                 if (getNew && read_state == 0 && out == 0) {
                     resultList.add(newChatMessage);
-                    return Optional.of(resultList);
                 }
                 else if (!getLastReadied && !getNew){
                     resultList.add(newChatMessage);

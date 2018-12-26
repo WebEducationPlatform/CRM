@@ -131,7 +131,7 @@ public class JMVkConversation implements JMConversation {
 
     public ChatMessage getLastMessages(String userid) {
 
-        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true, false).orElse(new LinkedList<>());
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, 1, false, false).orElse(new LinkedList<>());
 
         if (chatMessages.isEmpty()) {
             return null;
