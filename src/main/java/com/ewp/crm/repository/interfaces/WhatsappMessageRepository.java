@@ -13,5 +13,8 @@ public interface WhatsappMessageRepository extends CommonGenericRepository<Whats
     long countAllBySeenFalseAndClient_Id(long clientId);
 
     List<WhatsappMessage> findAllByClient_Id(long clientId);
+
     WhatsappMessage findTopByClient_IdOrderByTimeDesc(long clientId);
+
+    List<WhatsappMessage> findAllBySeenFalse();
 }
