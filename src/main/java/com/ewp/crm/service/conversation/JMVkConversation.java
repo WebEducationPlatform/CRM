@@ -106,22 +106,7 @@ public class JMVkConversation implements JMConversation {
     @Override
     public List<ChatMessage> getMessages(Client client, int count) {
         Optional<Interlocutor> interlocutor = getInterlocutor(client);
-
-        if (interlocutor.isPresent()){
-            Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, false);
-            if (vkChatMessages.isPresent()) {
-
-                List<ChatMessage> chatMessages = vkChatMessages.get();
-
-                for (ChatMessage chatMessage : chatMessages) {
-                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
-                    chatMessage.setRead(true);
-                }
-
-                return chatMessages;
-            }
-        }
-        return new LinkedList<>();
+        return vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, false).orElse(new LinkedList<>());
     }
 
     @Override
