@@ -53,7 +53,9 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
+
         long phoneNumber;
+
         try {
             phoneNumber = Long.parseLong(message.getChatId().replaceAll("\\D", ""));
         } catch (NumberFormatException nfe) {
@@ -62,28 +64,56 @@ public class JMWhatsappConversation implements JMConversation {
         }
 
         WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(phoneNumber, message.getText());
+
         String sendUrl = "https://" + environment.getProperty("server.api") + ".chat-api.com/" + environment.getProperty("instance") + "/sendMessage?" +
                 environment.getProperty("token");
 
 
         WhatsappCheckDeliveryMsg whatsappCheckDeliveryMsg = new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
+
         WhatsappMessage whatsappMessage =
                 new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
                         SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
+
         whatsappMessageService.save(whatsappMessage);
+
         String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
                 ".chat-api.com/" + environment.getProperty("instance") +
                 "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (whatsappMessage.getMessageNumber() - 1);
+
         WhatsappAcknowledgementDTO forObject = new RestTemplate().getForObject(lastMessagesUrl, WhatsappAcknowledgementDTO.class);
+
         Optional<WhatsappMessage> any = forObject.getMessages().stream().filter(x -> x.getMessageNumber() == whatsappMessage.getMessageNumber()).findAny();
         String id = any.map(WhatsappMessage::getId).orElse(null);
         message.setId(id);
+
         return message;
     }
 
     @Override
     public Map<Client, Integer> getCountOfNewMessages() {
-        return new HashMap<>();
+
+        Map<Client, Integer> clientNotSeenMsgCount = new HashMap<>();
+        List<WhatsappMessage> whatsappMessages = whatsappMessageService.findAllBySeenFalse();
+
+        for (WhatsappMessage message : whatsappMessages) {
+
+            Client client = message.getClient();
+            List<WhatsappMessage> whatsappMessagesForClient = client.getWhatsappMessages();
+
+            int counter = 0;
+
+            for (WhatsappMessage wm : whatsappMessagesForClient) {
+                if (!wm.isSeen()) {
+                    counter++;
+                }
+            }
+
+            clientNotSeenMsgCount.put(client, counter);
+
+        }
+
+        return clientNotSeenMsgCount;
     }
 
     @Override
@@ -93,10 +123,13 @@ public class JMWhatsappConversation implements JMConversation {
     }
 
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
+
         List<ChatMessage> chatMessages = new ArrayList<>();
+
         for (WhatsappMessage wm : allByIsRead) {
             chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), wm.isFromMe()));
         }
+
         return chatMessages;
     }
 
