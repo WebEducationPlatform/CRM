@@ -29,8 +29,6 @@ function mark_as_read() {
                 for (let value of telegram_sent) {
                     let id = parseInt(value.id.substring(17));
                     let last_read = parseInt(response.telegram);
-                    console.log(id);
-                    console.log(last_read);
                     if (id <= last_read) {
                         let img = $("#" + value.id);
                         img.prop('src', '/images/rad.png');
@@ -43,7 +41,7 @@ function mark_as_read() {
                 for (let value of vk_sent) {
                     let id = parseInt(value.id.substring(11));
                     let last_read = parseInt(response.vk);
-                    console.log(id);
+                    console.log(value.id);
                     console.log(last_read);
                     if (id <= last_read) {
                         let img = $("#" + value.id);
@@ -68,6 +66,7 @@ function update_chat() {
         url: '/rest/conversation/all-new',
         data: {id: clientId},
         success: function (response) {
+            // console.log(response);
             if (response.totalCount === 0) {return true}
             for (let i in response) {
                 let message_id = response[i].id;
@@ -116,13 +115,19 @@ function select_interlocutor(profiles) {
     for (i = 0; i < profiles.length; i++) {
         switch (profiles[i].chatType) {
             case "vk":
-                result.set(1, profiles[i]);
+                if (profiles[i].profileUrl !== "" && profiles[i].avatarUrl !== "") {
+                    result.set(1, profiles[i]);
+                }
                 break;
             case "whatsapp":
-                result.set(2, profiles[i]);
+                if (profiles[i].profileUrl !== "" && profiles[i].avatarUrl !== "") {
+                    result.set(2, profiles[i]);
+                }
                 break;
             case "telegram":
-                result.set(3, profiles[i]);
+                if (profiles[i].profileUrl !== "" && profiles[i].avatarUrl !== "") {
+                    result.set(3, profiles[i]);
+                }
                 break;
         }
     }
@@ -165,11 +170,12 @@ function append_all_chats_message(message_id, send_date, text, is_outgoing, isRe
     let chat_img = get_sn_picture(sn_type);
     if (is_outgoing) {
         alt = current_profile.representation[0];
-        full_name = current_profile.representation;
         if (current_profile.chatType === "vk") {
-            avatar = "<img class='out-photo img-circle' src='" + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+            avatar = "<a href='" + current_profile.profileUrl + "'><img class='out-photo img-circle' src='" + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/></a>";
+            full_name = "<a href='" + current_profile.profileUrl + "'>" + current_profile.representation + "</a>";
         } else {
             avatar = "<img class='out-photo img-circle' src='data:image/jpeg;base64," + current_profile.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+            full_name = current_profile.representation;
         }
         if (isRead) {
             is_read = "<img id='" + sn_type + "_is_read_" + message_id + "' class='" + sn_type + "_rad' src='/images/rad.png' style='height: 15px; width: 15px' />";
@@ -178,11 +184,12 @@ function append_all_chats_message(message_id, send_date, text, is_outgoing, isRe
         }
     } else {
         alt = interlocutor.representation;
-        full_name = interlocutor.representation;
         if (interlocutor.chatType === "vk") {
-            avatar = "<img class='out-photo img-circle' src='" + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+            avatar = "<a href='" + interlocutor.profileUrl + "'><img class='out-photo img-circle' src='" + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/></a>";
+            full_name = "<a href='" + interlocutor.profileUrl + "'>" + interlocutor.representation + "</a>";
         } else {
             avatar = "<img class='out-photo img-circle' src='data:image/jpeg;base64," + interlocutor.avatarUrl + "' alt='" + alt + "' style='height: 50px; width: 50px'/>";
+            full_name = interlocutor.representation;
         }
     }
     let dom = $("<div class='container message-chat "+ ' ' +"' id='" + sn_type + "_message_id_" + message_id + "' style='padding-top: 10px;'>"+
