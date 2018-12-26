@@ -217,7 +217,7 @@ public class VKServiceImpl implements VKService {
                                                       read_state == 1,
                                                    out == 1);
                 //если запросили последнее прочитанное сообщение клиента
-                if (getLastReadied && read_state == 1 && out == 0) {
+                if (getLastReadied && read_state == 1 && out == 1) {
                     resultList.add(newChatMessage);
                     return Optional.of(resultList);
                 }
