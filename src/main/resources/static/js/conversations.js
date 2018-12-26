@@ -79,7 +79,6 @@ function update_chat() {
                 append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
             }
             mark_as_read();
-            $("#send-selector").prop('value', 'telegram');
         },
         complete: function(){
             let display = $('#conversations-modal').css('display');
@@ -208,6 +207,8 @@ function append_all_chats_message(message_id, send_date, text, is_outgoing, isRe
         "</div>"+
         "</div>");
     chat.append(dom);
+
+    $("#send-selector").prop('value', sn_type);
 
     scroll_down();
 }
