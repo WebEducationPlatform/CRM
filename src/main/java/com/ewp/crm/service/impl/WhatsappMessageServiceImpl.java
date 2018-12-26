@@ -46,4 +46,14 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     public WhatsappMessage findTopByClient_IdOrderByTimeDesc(long clientId) {
         return whatsappMessageRepository.findTopByClient_IdOrderByTimeDesc(clientId);
     }
+
+    @Override
+    public List<WhatsappMessage> findAllBySeenFalse() {
+        return whatsappMessageRepository.findAllBySeenFalse();
+    }
+
+    @Override
+    public List<WhatsappMessage> saveAll(List<WhatsappMessage> newWhatsappMessages) {
+        return whatsappMessageRepository.saveAll(newWhatsappMessages);
+    }
 }
