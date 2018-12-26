@@ -18,4 +18,8 @@ public interface WhatsappMessageService {
     WhatsappMessage save(WhatsappMessage whatsappMessage);
 
     WhatsappMessage findTopByClient_IdOrderByTimeDesc(long clientId);
+
+    List<WhatsappMessage> findAllBySeenFalse();
+
+    List<WhatsappMessage> saveAll(List<WhatsappMessage> newWhatsappMessages);
 }
