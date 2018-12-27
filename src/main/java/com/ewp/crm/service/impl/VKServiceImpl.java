@@ -6,7 +6,6 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.Client.Sex;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.service.interfaces.VKService;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Component
 public class VKServiceImpl implements VKService {
@@ -745,5 +745,44 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public String getVkPhotoLinkByClientProfileId(String vkProfileId) {
+        logger.info("Getting vk profile photo link for " + vkProfileId);
+//        pic shown by default if user doesnt have vk profile
+        String clientVkPhotoLink = "images/deactivated_50.png";
+
+        String clientId = (Pattern.matches("^https://vk.com/id\\d{1,10}$", vkProfileId)) ?
+                vkProfileId.replaceAll("https://vk.com/id", "") :
+                vkProfileId.replaceAll("https://vk.com/", "");
+
+        String request = vkAPI + "users.get?"
+                + "user_ids=" + clientId
+                + "&fields=photo_50"
+                + "&access_token=" + communityToken
+                + "&v=" + version;
+
+        HttpGet httpGetClient = new HttpGet(request);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+
+        try{
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray array = json.getJSONArray("response");
+            JSONObject user = array.getJSONObject(0);
+            clientVkPhotoLink = user.getString("photo_50");
+        }catch (JSONException jex){
+            logger.error("Failed to parse response into JSON for "
+                    + clientId + "- for reason " + jex);
+        }
+        catch (IOException ex){
+            logger.error("Failed to connect to VK server while getting profile pic for "
+                    + clientId + "- for reason " + ex);
+        }
+        return clientVkPhotoLink;
+    }
 }
 
