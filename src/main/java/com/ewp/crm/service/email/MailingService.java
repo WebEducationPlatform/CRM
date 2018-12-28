@@ -130,7 +130,7 @@ public class MailingService {
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("a lot of requests", e);
             }
         }
         message.setNotSendId(notSendList);
@@ -143,9 +143,9 @@ public class MailingService {
             try {
                 Thread.sleep(1000);
                 String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
-
                 if (!value.equalsIgnoreCase("Message sent")) {
                     notSendList.add(value);
+                    message.setNotSendId(notSendList);
                 }
                 message.setReadedMessage(true);
             } catch (ClassCastException e) {
@@ -154,7 +154,6 @@ public class MailingService {
                 e.printStackTrace();
             }
         }
-        message.setNotSendId(notSendList);
         mailingMessageRepository.save(message);
     }
 }

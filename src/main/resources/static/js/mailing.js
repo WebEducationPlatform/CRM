@@ -44,6 +44,11 @@ function sendMessages(sendnow) {
         listMailing: listMailing
 
     };
+
+    let label = $("#message");
+    label.prop('innerHTML', "Идет отправка соощения")
+    label.css('color', 'blue');
+
     $.ajax({
         type: "POST",
         url: URL_POST_DATA,
@@ -53,6 +58,11 @@ function sendMessages(sendnow) {
                 setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
             } else {
                 setErrorMessage(mesfeedback, 'green')
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 500) {
+                setErrorMessage("Что-то пошло не так, необходимо повторить отправку сообщений", "red");
             }
         }
     });
@@ -121,6 +131,24 @@ $(document).ready(function () {
                     $("#recipientBodyMailing").append("<tr> \
                             <td>" + data[j].info + "</td> \
                         </tr>");
+                }
+            }
+        });
+    })
+
+    $("#historyMailingTable").on('click', 'button[id="getNoSend"]', function(e) {
+        var id = $(this).closest('tr').children('td:first').text();
+        $.ajax({
+            type: "POST",
+            url: "/get/message/id",
+            data: {
+                messageId: id
+            },
+            success: function (data) {
+                for(var i = 0; i < data.notSendId.length; i++) {
+                    $("#noSend-area").each(function() {
+                        $(this).val(data.notSendId.join("\n"));
+                    });
                 }
             }
         });
@@ -317,17 +345,14 @@ function setErrorMessage(message, color) {
         type: "GET",
         url: "/get/no/send",
         success: function (data) {
-            for(var i = 0; i < data.length; i++) {
-                if (data[i].notSendId.length > 0) {
+            var i = data.length - 1;
+                if (data[i].notSendId.length > 0 && messageType == "vk") {
                     $("#noSendButton").show()
-                    for (var j = 0; j < data[i].notSendId.length; j++) {
-                        $("#noSendBody").append("<tr> \
-                            <td>" + data[i].notSendId[j] + "</td> \
-                        </tr>");
-                    }
+                        $("#noSend-area").each(function() {
+                            $(this).val(data[i].notSendId.join("\n"));
+                        });
                 }
             }
-        }
     });
 }
 
@@ -431,13 +456,25 @@ function showHistory() {
                 if (minutes < 10) {
                     minutes = '0' + minutes
                 }
-                $("#historyBodyMailing").append("<tr> \
+                if (data[i].type === "vk" && data[i].notSendId.length > 0) {
+                    $("#historyBodyMailing").append("<tr> \
                             <td>" + data[i].id + " </td> \
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <br/> \
+                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
                         </tr>");
+                } else {
+                    $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                        </tr>");
+                }
 
             }
 
@@ -523,17 +560,30 @@ function showManagerHistory() {
                     minutes = '0' + minutes
                 }
 
-                $("#historyBodyMailing").append("<tr> \
+                if (data[i].type === "vk" && data[i].notSendId.length > 0) {
+                    $("#historyBodyMailing").append("<tr> \
                             <td>" + data[i].id + " </td> \
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать получателей</button></td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <br/> \
+                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
                         </tr>");
+                } else {
+                    $("#historyBodyMailing").append("<tr> \
+                            <td>" + data[i].id + " </td> \
+                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td>" + data[i].text + "</td> \
+                            <td>" + data[i].type + "</td> \
+                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                        </tr>");
+                }
 
                 }
             }
     });
+
 }
 function showListMailing() {
     if (messageType !== "email") {
@@ -661,6 +711,11 @@ function turnDisable() {
 
 function removeRecipient() {
     $('#recipientBodyMailing').empty();
+}
+
+function hideNoSend() {
+    $("#noSendButton").hide();
+    $("#noSend-area").val("");
 }
 
 
