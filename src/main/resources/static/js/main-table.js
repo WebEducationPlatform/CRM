@@ -1755,6 +1755,7 @@ $(function () {
 
                     $('#slack-invite-href').attr('action', '/slack/' + client.email);
 
+                    document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name === 'vk') {
                             //ajax call for profile photo

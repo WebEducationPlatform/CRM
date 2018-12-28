@@ -748,8 +748,8 @@ public class VKServiceImpl implements VKService {
     @Override
     public String getVkPhotoLinkByClientProfileId(String vkProfileId) {
         logger.info("Getting vk profile photo link for " + vkProfileId);
-//        pic shown by default if user doesnt have vk profile
-        String clientVkPhotoLink = "images/deactivated_50.png";
+
+        String clientVkPhotoLink = "";
 
         String clientId = (Pattern.matches("^https://vk.com/id\\d{1,10}$", vkProfileId)) ?
                 vkProfileId.replaceAll("https://vk.com/id", "") :
