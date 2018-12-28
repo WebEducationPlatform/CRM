@@ -409,14 +409,14 @@ public class VKServiceImpl implements VKService {
                     }
                 }
                 return determineResponse(newJsonEntity);
-                }
-                return determineResponse(jsonEntity);
+            }
+            return determineResponse(jsonEntity);
         } catch (JSONException e) {
             logger.error("JSON couldn't parse response ", e);
         } catch (IOException e) {
             logger.error("Failed connect to vk api ", e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Failed thread pause", e);
         }
         return "Failed to send message";
     }
@@ -811,7 +811,7 @@ public class VKServiceImpl implements VKService {
     }
 
     private static String getByteArrayFromImageURL(String url) {
-
+        String result;
         try {
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
@@ -823,17 +823,18 @@ public class VKServiceImpl implements VKService {
                 baos.write(buffer, 0, read);
             }
             baos.flush();
-            return Base64.encode(baos.toByteArray());
+            result = Base64.encode(baos.toByteArray());
         } catch (Exception e) {
-            System.out.println("error");
+            logger.error("Failed to get array from image url " + url, e);
+            result = "";
         }
-        return null;
+        return result;
     }
 
     @Override
     public Optional<VkProfileInfo> getProfileInfoById(long vkId) {
         VkProfileInfo vkProfileInfo = new VkProfileInfo();
-        vkProfileInfo.setId(vkId);
+        vkProfileInfo.setVkId(vkId);
         String fileds = "first_name,last_name,sex,bdate,country,city,education,has_mobile,contacts";
         String request = vkAPI + "users.get?" +
                 "user_ids=" + vkId +
@@ -869,11 +870,10 @@ public class VKServiceImpl implements VKService {
                 }
             }
             if (vkUserJson.has("sex")) {
-                switch (vkUserJson.getString("sex")) {
-                    case "2":
-                        vkProfileInfo.setSex(Sex.MALE);
-                    case "1":
-                        vkProfileInfo.setSex(Sex.FEMALE);
+                if ("2".equals(vkUserJson.getString("sex"))) {
+                    vkProfileInfo.setSex(Sex.MALE);
+                } else if ("1".equals(vkUserJson.getString("sex"))) {
+                    vkProfileInfo.setSex(Sex.FEMALE);
                 }
             }
             if (vkUserJson.has("bdate")) {

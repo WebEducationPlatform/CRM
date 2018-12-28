@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class VkProfileInfo {
-    private long id;
+    private Long vkId;
     private String firstName;
     private String lastName;
     private String country;
@@ -20,8 +20,8 @@ public class VkProfileInfo {
     public VkProfileInfo() {
     }
 
-    public VkProfileInfo(long id, String firstName, String lastName, String country, String city, LocalDate birthdate, Client.Sex sex, String phone, String university) {
-        this.id = id;
+    public VkProfileInfo(Long vkId, String firstName, String lastName, String country, String city, LocalDate birthdate, Client.Sex sex, String phone, String university) {
+        this.vkId = vkId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.country = country;
@@ -32,8 +32,8 @@ public class VkProfileInfo {
         this.university = university;
     }
 
-    public long getId() {
-        return id;
+    public Long getVkId() {
+        return vkId;
     }
 
     public String getFirstName() {
@@ -68,8 +68,8 @@ public class VkProfileInfo {
         return university;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setVkId(Long vkId) {
+        this.vkId = vkId;
     }
 
     public void setFirstName(String firstName) {
@@ -109,7 +109,7 @@ public class VkProfileInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VkProfileInfo that = (VkProfileInfo) o;
-        return id == that.id &&
+        return vkId == that.vkId &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(lastName, that.lastName) &&
                 Objects.equals(country, that.country) &&
@@ -123,13 +123,13 @@ public class VkProfileInfo {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, firstName, lastName, country, city, birthdate, sex, phone, university);
+        return Objects.hash(vkId, firstName, lastName, country, city, birthdate, sex, phone, university);
     }
 
     @Override
     public String toString() {
         return "VkProfileInfo{" +
-                "id=" + id +
+                "id=" + vkId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", country='" + country + '\'' +
