@@ -202,9 +202,13 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public TdApi.User getTgMe() {
         GetObjectHandler handler = new GetObjectHandler();
-        client.send(new TdApi.GetMe(), handler);
-        handlerDelay(handler);
-        return (TdApi.User) handler.getObject();
+        TdApi.User result = new TdApi.User();
+        if (tdlibInstalled) {
+            client.send(new TdApi.GetMe(), handler);
+            handlerDelay(handler);
+            result = (TdApi.User) handler.getObject();
+        }
+        return result;
     }
 
     @Override
@@ -248,11 +252,15 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public int getClientIdByPhone(String phone) {
         GetObjectHandler handler = new GetObjectHandler();
-        TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, 0);
-        client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), handler);
-        handlerDelay(handler);
-        TdApi.ImportedContacts contacts = (TdApi.ImportedContacts) handler.getObject();
-        return contacts.userIds[0];
+        int result = 0;
+        if (tdlibInstalled) {
+            TdApi.Contact contact = new TdApi.Contact(phone, null, null, null, 0);
+            client.send(new TdApi.ImportContacts(new TdApi.Contact[]{contact}), handler);
+            handlerDelay(handler);
+            TdApi.ImportedContacts contacts = (TdApi.ImportedContacts) handler.getObject();
+            result = contacts.userIds[0];
+        }
+        return result;
     }
 
     @Override

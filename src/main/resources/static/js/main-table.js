@@ -146,7 +146,6 @@ function get_us() {
 
 $(document).ready(function () {
     get_us();
-    get_tg_me();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
@@ -1692,54 +1691,6 @@ function deleteCallDate(id) {
     });
 };
 
-let telegram_me;
-let telegram_me_photo;
-
-function get_tg_me() {
-    if (typeof telegram_me_photo !== 'undefined') {return;}
-    $.ajax({
-        type: 'GET',
-        url: '/rest/telegram/me',
-        success: function (response) {
-            telegram_me = response;
-            $.ajax({
-                type: 'GET',
-                url: '/rest/telegram/file/photo',
-                data: {id: response.profilePhoto.small.id},
-                success: function (response) {
-                    telegram_me_photo = response;
-                }
-            });
-        }
-    });
-}
-
-let telegram_user;
-let telegram_user_photo;
-
-function get_tg_user(clientId) {
-    $.ajax({
-        type: 'GET',
-        url: '/rest/telegram/user',
-        data: {id: clientId},
-        success: function (response) {
-            if (response.profilePhoto === null) {
-                telegram_user_photo = null;
-                return;
-            }
-            telegram_user = response;
-            $.ajax({
-                type: 'GET',
-                url: '/rest/telegram/file/photo',
-                data: {id: response.profilePhoto.small.id},
-                success: function (response) {
-                    telegram_user_photo = response;
-                }
-            });
-        }
-    });
-}
-
 let interlocutor_profiles;
 
 function get_interlocutors(clientId) {
@@ -1761,7 +1712,6 @@ function start_chats(clientId) {
         url: "/rest/conversation/all",
         data: {id: clientId},
         success: function (response) {
-            console.log(response);
             $("#chat-messages").empty();
             for (let i in response) {
                 let message_id = response[i].id;
@@ -1906,9 +1856,6 @@ $(function () {
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
-                        }
-                        if (client.socialProfiles[i].socialProfileType.name == 'telegram') {
-                            get_tg_user(clientId);
                         }
                         get_interlocutors(clientId);
                     }
