@@ -75,7 +75,6 @@ public class JMWhatsappConversation implements JMConversation {
                 new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
                         SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
 
-        whatsappMessageService.save(whatsappMessage);
 
         String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
                 ".chat-api.com/" + environment.getProperty("instance") +
@@ -85,7 +84,11 @@ public class JMWhatsappConversation implements JMConversation {
 
         Optional<WhatsappMessage> any = forObject.getMessages().stream().filter(x -> x.getMessageNumber() == whatsappMessage.getMessageNumber()).findAny();
         String id = any.map(WhatsappMessage::getId).orElse(null);
+
+        whatsappMessage.setId(id);
         message.setId(id);
+
+        whatsappMessageService.save(whatsappMessage);
 
         return message;
     }
@@ -112,38 +115,45 @@ public class JMWhatsappConversation implements JMConversation {
             clientNotSeenMsgCount.put(client, counter);
 
         }
-
         return clientNotSeenMsgCount;
     }
 
     @Override
     public List<ChatMessage> getNewMessages(Client client, int count) {
         List<WhatsappMessage> allByIsSeen = whatsappMessageService.findTop40BySeenFalseAndClient_IdOrderByTimeDesc(client.getId());
+        setSeenMsgToMe(allByIsSeen);
         return whatsappMsgToChatMsg(allByIsSeen);
     }
 
     private List<ChatMessage> whatsappMsgToChatMsg(List<WhatsappMessage> allByIsRead) {
 
         List<ChatMessage> chatMessages = new ArrayList<>();
-
         for (WhatsappMessage wm : allByIsRead) {
-            chatMessages.add(new ChatMessage(wm.getId(), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), wm.isFromMe()));
+            chatMessages.add(new ChatMessage(String.valueOf(wm.getMessageNumber()), wm.getChatId(), ChatType.whatsapp, wm.getBody(), wm.getTime(), wm.isSeen(), wm.isFromMe()));
         }
-
         return chatMessages;
     }
 
     @Override
     public List<ChatMessage> getMessages(Client client, int count) {
         List<WhatsappMessage> all = whatsappMessageService.findAllByClient_Id(client.getId());
+        setSeenMsgToMe(all);
         return whatsappMsgToChatMsg(all);
+    }
+
+    private void setSeenMsgToMe(List<WhatsappMessage> all) {
+        for (WhatsappMessage whatsappMessage : all) {
+            if (!whatsappMessage.isFromMe()) {
+                whatsappMessage.setSeen(true);
+            }
+        }
+        whatsappMessageService.saveAll(all);
     }
 
     @Override
     public String getReadMessages(Client client) {
-        return "";
-        //TODO Null pointer тут.
-//        return whatsappMessageService.findTopByClient_IdOrderByTimeDesc(client.getId()).getId();
+        Optional<WhatsappMessage> lastSeenFromMeWhatsappMessage = whatsappMessageService.findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(client.getId());
+        return lastSeenFromMeWhatsappMessage.map(whatsappMessage -> String.valueOf(whatsappMessage.getMessageNumber())).orElse("");
     }
 
     @Override

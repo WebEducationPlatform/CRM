@@ -86,10 +86,12 @@ public class DataInitializer {
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
 		SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType whatsApp = new SocialProfileType("whatsapp");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
 		socialProfileTypeService.add(TELEGRAM);
+		socialProfileTypeService.add(whatsApp);
 
         User admin = new User(
                 "Stanislav",

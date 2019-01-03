@@ -16,6 +16,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+//import com.sun.jmx.snmp.Timestamp;
 import com.sun.jmx.snmp.Timestamp;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -241,6 +242,7 @@ public class VKServiceImpl implements VKService {
                 //если запросили только новые
                 if (getNew && read_state == 0 && out == 0) {
                     resultList.add(newChatMessage);
+                    return Optional.of(resultList);
                 }
                 else if (!getLastReadied && !getNew){
                     resultList.add(newChatMessage);
