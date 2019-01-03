@@ -602,6 +602,7 @@ button[name|="emailTmplList"] {
 	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
+	object-fit: cover;
 }
 
 .glyphicon {
@@ -655,6 +656,7 @@ div.search-place{
 button.option{
     margin:0;
     display:none;
+
 }
 
 
