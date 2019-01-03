@@ -26,6 +26,8 @@ public class JMConversationHelperImpl implements JMConversationHelper {
                     continue;
                 }
             }
+            if (conversation instanceof JMVkConversation)
+                continue;
             result.add(conversation);
         }
         this.conversations = result;

@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface WhatsappMessageService {
@@ -17,7 +18,8 @@ public interface WhatsappMessageService {
 
     WhatsappMessage save(WhatsappMessage whatsappMessage);
 
-    WhatsappMessage findTopByClient_IdOrderByTimeDesc(long clientId);
+    Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId);
+
 
     List<WhatsappMessage> findAllBySeenFalse();
 
