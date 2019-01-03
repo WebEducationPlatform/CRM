@@ -105,22 +105,18 @@ public class JMVkConversation implements JMConversation {
 
     @Override
     public List<ChatMessage> getMessages(Client client, int count) {
+
         Optional<Interlocutor> interlocutor = getInterlocutor(client);
 
         if (interlocutor.isPresent()){
+
             Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, false);
             if (vkChatMessages.isPresent()) {
-
-                List<ChatMessage> chatMessages = vkChatMessages.get();
-
-                for (ChatMessage chatMessage : chatMessages) {
-                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
-                    chatMessage.setRead(true);
-                }
-
-                return chatMessages;
+                return vkChatMessages.get();
             }
+
         }
+
         return new LinkedList<>();
     }
 
@@ -129,7 +125,7 @@ public class JMVkConversation implements JMConversation {
         return vkService.getNewMassagesFromGroup().orElse(new HashMap<>());
     }
 
-    public ChatMessage getLastMessages(String userid) {
+    public ChatMessage getLastReadMessages(String userid) {
 
         List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, MAX_MESSAGE_IN_QUEUE, true, false).orElse(new LinkedList<>());
 
@@ -140,6 +136,16 @@ public class JMVkConversation implements JMConversation {
         return chatMessages.get(0);
     }
 
+    public ChatMessage getLastMessages(String userid) {
+
+        List<ChatMessage> chatMessages = vkService.getMassagesFromGroup(userid, 1, false, false).orElse(new LinkedList<>());
+
+        if (chatMessages.isEmpty()) {
+            return null;
+        }
+
+        return chatMessages.get(0);
+    }
     @Override
     public String getReadMessages(Client client) {
         Optional<Interlocutor> interlocutor = getInterlocutor(client);
@@ -147,7 +153,7 @@ public class JMVkConversation implements JMConversation {
         ChatMessage message = null;
 
         if (interlocutor.isPresent()){
-            message = getLastMessages(interlocutor.get().getId());
+            message = getLastReadMessages(interlocutor.get().getId());
         }
 
         if (message == null) {
