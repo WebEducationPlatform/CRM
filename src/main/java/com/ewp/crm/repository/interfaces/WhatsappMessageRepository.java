@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface WhatsappMessageRepository extends CommonGenericRepository<WhatsappMessage> {
 
+    WhatsappMessage findById(String id);
+
     WhatsappMessage findByMessageNumber(long messageNumber);
 
     List<WhatsappMessage> findTop40BySeenFalseAndClient_IdOrderByTimeDesc(long clientId);
@@ -19,5 +21,7 @@ public interface WhatsappMessageRepository extends CommonGenericRepository<Whats
 
     Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId);
 
-    List<WhatsappMessage> findAllBySeenFalse();
+    List<WhatsappMessage> findAllBySeenFalseAndFromMeFalse();
+
+    WhatsappMessage findTopByFromMeTrueOrderByMessageNumberDesc();
 }

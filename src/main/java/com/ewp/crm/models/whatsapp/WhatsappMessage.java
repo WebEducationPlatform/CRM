@@ -176,7 +176,7 @@ public class WhatsappMessage {
     }
 
     public void setSeen(boolean isSeen) {
-        isSeen = isSeen;
+        this.seen = isSeen;
     }
 
 
