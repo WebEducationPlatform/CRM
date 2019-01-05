@@ -1,7 +1,7 @@
 package com.ewp.crm.models.whatsapp.whatsappDTO;
 
 public class WhatsappMessageSendable {
-    private long phone;
+    private String phone;
     private String body;
 
 
@@ -9,16 +9,16 @@ public class WhatsappMessageSendable {
     public WhatsappMessageSendable() {
     }
 
-    public WhatsappMessageSendable(long phone, String body) {
+    public WhatsappMessageSendable(String phone, String body) {
         this.phone = phone;
         this.body = body;
     }
 
-    public long getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(long phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
@@ -37,13 +37,13 @@ public class WhatsappMessageSendable {
 
         WhatsappMessageSendable that = (WhatsappMessageSendable) o;
 
-        if (getPhone() != that.getPhone()) return false;
+        if (getPhone() != null ? !getPhone().equals(that.getPhone()) : that.getPhone() != null) return false;
         return getBody() != null ? getBody().equals(that.getBody()) : that.getBody() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (getPhone() ^ (getPhone() >>> 32));
+        int result = getPhone() != null ? getPhone().hashCode() : 0;
         result = 31 * result + (getBody() != null ? getBody().hashCode() : 0);
         return result;
     }

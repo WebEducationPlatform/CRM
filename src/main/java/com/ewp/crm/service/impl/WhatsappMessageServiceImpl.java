@@ -19,6 +19,11 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
+    public WhatsappMessage findById(String id) {
+        return whatsappMessageRepository.findById(id);
+    }
+
+    @Override
     public List<WhatsappMessage> findTop40BySeenFalseAndClient_IdOrderByTimeDesc(long clientId) {
         return whatsappMessageRepository.findTop40BySeenFalseAndClient_IdOrderByTimeDesc(clientId);
     }
@@ -44,17 +49,22 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId){
+    public Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId) {
         return whatsappMessageRepository.findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(clientId);
     }
 
     @Override
-    public List<WhatsappMessage> findAllBySeenFalse() {
-        return whatsappMessageRepository.findAllBySeenFalse();
+    public List<WhatsappMessage> findAllBySeenFalseAndFromMeFalse() {
+        return whatsappMessageRepository.findAllBySeenFalseAndFromMeFalse();
     }
 
     @Override
     public List<WhatsappMessage> saveAll(List<WhatsappMessage> newWhatsappMessages) {
         return whatsappMessageRepository.saveAll(newWhatsappMessages);
+    }
+
+    @Override
+    public WhatsappMessage findTopByFromMeTrueOrderByMessageNumberDesc() {
+        return whatsappMessageRepository.findTopByFromMeTrueOrderByMessageNumberDesc();
     }
 }
