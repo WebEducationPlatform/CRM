@@ -268,7 +268,7 @@ public class ScheduleTasks {
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
 		messages.forEach(x -> {
 			if (x.getDate().compareTo(currentTime) < 0) {
-				mailingService.sendMessage(x);
+			    mailingService.sendMessage(x);
 			}
 		});
 	}
