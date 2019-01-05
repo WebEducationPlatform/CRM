@@ -37,7 +37,7 @@ function createVkRequestField() {
     var mass = {
         numberVkField: rowCount,
         nameVkField: nameRequest,
-        typeVkField: "Контактные данные"
+        typeVkField: "Поле сопоставленное с данными"
     };
     var emp = JSON.stringify(mass);
     $.ajax({
@@ -133,7 +133,7 @@ function getVkRequestById(id) {
                 } else if (nameVk === "Город") {
                     document.getElementById("app-name").value = '9';
                 }
-                if (obj.typeVkField === "Контактные данные") {
+                if (obj.typeVkField === "Поле сопоставленное с данными") {
                     document.getElementById("app-type").value = '1';
                 } else {
                     document.getElementById("app-type").value = '2';

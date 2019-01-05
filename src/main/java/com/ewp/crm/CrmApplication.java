@@ -5,9 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @SpringBootApplication
 public class CrmApplication {
 
@@ -20,3 +17,5 @@ public class CrmApplication {
 		return new DataInitializer();
 	}
 }
+
+

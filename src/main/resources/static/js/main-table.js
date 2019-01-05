@@ -198,7 +198,69 @@ $(document).ready(function () {
         let modal = $(this);
         modal.find("tbody").empty();
     })
+
+    checkForNewEmails();
+
 });
+
+function checkForNewEmails() {
+    let url = '/mail/checkForNewEmails';
+
+        $.ajax({
+        type: "GET",
+        url: url,
+
+        success: function (userList) {
+            if (userList === null) return;
+
+            for (let i = 0; i <userList.length ; i++) {
+                let portlet = document.getElementById("ClientName" + userList[i]);
+                let mailNotification = document.createElement('span');
+                mailNotification.setAttribute("id", userList[i]);
+                mailNotification.setAttribute("style", "margin-left: 5%");
+                // mailNotification.setAttribute("style", "margin-left: 36%");
+                mailNotification.innerHTML = '<a class="glyphicon glyphicon-envelope"; onclick="getEmails('+ userList[i] +')"></a>';
+                portlet.appendChild(mailNotification);
+            }
+        },
+            //todo delete after tests
+        error: function () {
+            alert("bad")
+        }
+    });
+}
+
+//retrieving data from emails
+function getEmails(id) {
+    let url = '/mail/getNewEmails';
+    let data = {id : id};
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: data,
+
+        success: function (mails) {
+            test(mails);
+            // alert(mails[0].content);
+        },
+        error: function () {
+            alert("ee");
+        }
+    });
+}
+
+function test(mails) {
+
+    $('#mailModal').on('show.bs.modal', function (event) {
+        // var button = $(event.relatedTarget) // Button that triggered the modal
+        let recipient = mails[0].sentFrom; // Extract info from data-* attributes
+        let modal = $(this);
+        modal.find('.modal-title').text('New message to ' + recipient)
+        modal.find('.modal-body input').val(recipient)
+    })
+    $('#mailModal').modal('show');
+}
 
 function displayOption(clientId) {
     $("#option_" + clientId).show();
@@ -713,7 +775,6 @@ $(function () {
             url: url,
             data: formData,
 
-
             success: function (result) {
                 $(".modal").modal('hide');
                 currentStatus.css('color', 'limegreen');
@@ -1086,7 +1147,7 @@ $(function () {
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
@@ -1094,10 +1155,12 @@ $(function () {
 
 $(function () {
     $('.portlet-header').on('click', function (e) {
-        var clientId = $(this).parents('.common-modal').data('cardId');
-        var currentModal = $('#main-modal-window');
-        currentModal.data('clientId', clientId);
-        currentModal.modal('show');
+        if (e.target.className.startsWith("portlet-header") === true){
+            var clientId = $(this).parents('.common-modal').data('cardId');
+            var currentModal = $('#main-modal-window');
+            currentModal.data('clientId', clientId);
+            currentModal.modal('show');
+        }
     });
 });
 
@@ -1753,7 +1816,7 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
-                    $('#slack-invite-href').attr('action', '/slack/' + client.email);
+                    $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
                     document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
@@ -2302,3 +2365,21 @@ $(function () {
         });
     });
 });*/
+
+function slackInvite(email) {
+    $.ajax({
+        type: "GET",
+        url: "/slack/" + email,
+        dataType: "json",
+
+        success: function (data) {
+            var ok = data.ok;
+            if (ok) {
+                alert('User is invited');
+            } else alert('already_invited');
+        },
+        error: function (e) {
+            alert('The user is not invited')
+        }
+    })
+}

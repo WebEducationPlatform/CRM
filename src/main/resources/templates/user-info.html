@@ -18,7 +18,7 @@
                 <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" id="editUser">Редактировать</button>
-                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + ${#authentication.getPrincipal().getId()} + '\')'">Сохранить</button>
+                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + '\')'">Сохранить</button>
 						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
 					</div>
                     <p><span id = "message"></span></p>

@@ -8,7 +8,7 @@
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -27,6 +27,25 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                        <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
+                                class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
+                            <i class="glyphicon glyphicon-chevron-right"></i></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <p style="margin-left: 20px;">Сначала</p>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_FIRST">Новые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_FIRST">Старые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_CHANGES_FIRST">Со свежей историей</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_CHANGES_FIRST">Со старой историей</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
                                                        data-toggle="modal" th:value="${status.id}">Удалить статус</a>
                         </li>
@@ -40,7 +59,7 @@
                                                                                          th:value="${status.id}"
                                                                                          th:checked="${status.createStudent}"/></a>
                         </li>
-                        <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i
+                        <li class="glyphicon dropdown"><a class="link-cursor-pointer">Поменять позицию<i
                                 class="glyphicon glyphicon-chevron-right"></i></a>
                             <ul class="dropdown-menu sub-menu">
                                 <li class="link-cursor-pointer" th:each="st:${statuses}"
@@ -64,6 +83,7 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
+
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
                  th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}"
@@ -90,16 +110,10 @@
                                         <li class="link-cursor-pointer" th:each="st:${statuses}"
 
                                             th:if="${!st.invisible}"><a class="change-student-status"
-                                                                                                  th:id="${client.id}"
-                                                                                                  th:value="${st.id}"
-                                                                                                  th:name="${status.id}"
-                                                                                                  th:text="${st.name}"></a></li>
-
-
-                                            <!--th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-student-status"-->
-                                                                                                  <!--th:id="${client.id}"-->
-                                                                                                  <!--th:value="${st.id}"-->
-                                                                                                  <!--th:text="${st.name}"></a></li>-->
+                                                                        th:id="${client.id}"
+                                                                        th:value="${st.id}"
+                                                                        th:name="${status.id}"
+                                                                        th:text="${st.name}"></a></li>
                                     </ul>
                                 </li>
 
@@ -131,10 +145,13 @@
                     </div>
                 </div>
 
-                <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
+                <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
-                    <div class="portlet-header"  th:id="'ClientName'+${client.id}" th:text="${client.name} + ' ' + ${client.lastName}" >
+
+                    <div class="portlet-header" th:id="'ClientName'+${client.id}"
+                         th:text="${client.name} + ' ' + ${client.lastName}">
                     </div>
+
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
@@ -157,38 +174,47 @@
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                                </th:block>
                             </th:block>
-                        </th:block>
 
-                        <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                            <th:block th:if="${notification_new_user.client == client}">
+                            <th:block th:each="notification_new_email:${notifications_type_new_email}">
+                                <th:block th:if="${notification_new_email.client == client}">
+                                   <span id="mail_notification-new"
+                                         class="notification glyphicon glyphicon-bell pull-right"
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                                </th:block>
+                            </th:block>
+
+                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                                <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                                </th:block>
                             </th:block>
-                        </th:block>
 
-                        <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                            <th:block th:if="${notification_assign_skype.client == client}">
+                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                                <th:block th:if="${notification_assign_skype.client == client}">
                                    <span id="notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                                </th:block>
                             </th:block>
-                        </th:block>
 
-                        <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                            <th:block th:if="${notification_postpone.client == client}">
+                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                                <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +')'"></span>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                                </th:block>
                             </th:block>
-                        </th:block>
+                        </div>
                     </div>
-                </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                        <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
+                        <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button"
+                                class="f-18 icon-email-card " data-toggle="dropdown">
                         </button>
                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                             <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
@@ -312,11 +338,13 @@
                                         </a>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-remove"
-                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
+                                                th:attrappend="data-target='#reAvailableUserModal' + ${usr.id}"
+                                                sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}" sec:authorize="hasAnyAuthority('OWNER')">
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}"
+                                                sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
                                 </tr>
@@ -397,7 +425,7 @@
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
 <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
-
+<div th:replace="fragments/mailModal::mail-modal"></div>
 
 <script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
@@ -414,6 +442,6 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
-
+<script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 </body>
 </html>
