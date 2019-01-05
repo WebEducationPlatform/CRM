@@ -129,4 +129,9 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                     .replaceAll("\\s", ""));
         }
     }
+
+    @Override
+    public List<User> getUserByVkToken(long id) {
+        return userDAO.getUserByVkToken(id);
+    }
 }

@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -254,5 +254,29 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
             query.setParameter("search" + i, "%" + searchWords[i] + "%");
         }
         return query.getResultList();
+    }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order) {
+        if (SortingType.OLD_FIRST.equals(order)) {
+            return status.getClients();
+        }
+        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration DESC";
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
+        return orderedClients;
+    }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)";
+        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
+            query = query + " DESC";
+        }
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
+        return orderedClients;
     }
 }
