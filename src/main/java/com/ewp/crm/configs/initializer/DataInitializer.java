@@ -183,10 +183,14 @@ public class DataInitializer {
         Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
-
-        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
+// todo revert
+//        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
+        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "ivan.lavrentyev@list.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
         Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
-        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+
+//       todo revert
+//        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+        Client client3 = new Client("Александра", "Соловьева", "78300029530", "lavr61@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
         Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
         client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
         client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
@@ -196,7 +200,9 @@ public class DataInitializer {
         client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
+//todo revert
+//        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
+        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/ivan_lavrentev", socialProfileTypeService.getByTypeName("vk")),
                 new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook"))));
         client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")),
                 new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook"))));
@@ -227,10 +233,15 @@ public class DataInitializer {
         clientService.addClient(client2);
         clientService.addClient(client3);
         clientService.addClient(client4);
-        status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
+//        todo revert
+//        status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
+        status0.addClient(clientService.getClientByEmail("ivan.lavrentyev@list.ru"));
         status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
         status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
-        status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
+
+        status3.addClient(clientService.getClientByEmail("lavr61@mail.ru"));
+//        status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
+
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(status2);
