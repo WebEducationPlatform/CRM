@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class WhatsappMessageServiceImpl implements WhatsappMessageService {
@@ -43,8 +44,8 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public WhatsappMessage findTopByClient_IdOrderByTimeDesc(long clientId) {
-        return whatsappMessageRepository.findTopByClient_IdOrderByTimeDesc(clientId);
+    public Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId){
+        return whatsappMessageRepository.findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(clientId);
     }
 
     @Override
