@@ -1086,7 +1086,7 @@ $(function () {
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
@@ -1753,7 +1753,7 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
-                    $('#slack-invite-href').attr('action', '/slack/' + client.email);
+                    $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
                     document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
@@ -2302,3 +2302,21 @@ $(function () {
         });
     });
 });*/
+
+function slackInvite(email) {
+    $.ajax({
+        type: "GET",
+        url: "/slack/" + email,
+        dataType: "json",
+
+        success: function (data) {
+            var ok = data.ok;
+            if (ok) {
+                alert('User is invited');
+            } else alert('already_invited');
+        },
+        error: function (e) {
+            alert('The user is not invited')
+        }
+    })
+}
