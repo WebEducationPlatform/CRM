@@ -74,7 +74,7 @@
                  th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
                  th:attrprepend="data-card-id=${client.id}"  >
-                 <!--th:onmouseout="'hideOption('+${client.id}+')'" -->
+                <!--th:onmouseout="'hideOption('+${client.id}+')'" -->
 
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
@@ -122,52 +122,52 @@
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
                     </div><div class="portlet-content">
-                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
-                            <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
-                            <p th:if="${client.ownerUser != null}" class="user-icon"
-                               th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                    <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
+                        <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
+                        <p th:if="${client.ownerUser != null}" class="user-icon"
+                           th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
-                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
-                               th:id="'own-' + ${client.id}">
-                            </p>
-                            <p th:if="${client.ownerUser != null}" style="display:none"
-                               th:text="${client.ownerUser.fullName}"></p>
-                            <span th:id="'VK-notification'+${client.id}"
-                                  class="vk-notification glyphicon glyphicon-send pull-right"
-                                  style="color: darkblue;display: none;"></span>
-                            <th:block th:each="notification_comment:${notifications_type_comment}">
-                                <th:block th:if="${notification_comment.client == client}">
+                           th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                           th:id="'own-' + ${client.id}">
+                        </p>
+                        <p th:if="${client.ownerUser != null}" style="display:none"
+                           th:text="${client.ownerUser.fullName}"></p>
+                        <span th:id="'VK-notification'+${client.id}"
+                              class="vk-notification glyphicon glyphicon-send pull-right"
+                              style="color: darkblue;display: none;"></span>
+                        <th:block th:each="notification_comment:${notifications_type_comment}">
+                            <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                                <th:block th:if="${notification_new_user.client == client}">
+                        <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                            <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
+                        <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                            <th:block th:if="${notification_assign_skype.client == client}">
                                    <span id="notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                                <th:block th:if="${notification_postpone.client == client}">
+                        <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                            <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
                                          style="color: red"></span>
-                                </th:block>
                             </th:block>
-                        </div>
+                        </th:block>
                     </div>
+                </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"
