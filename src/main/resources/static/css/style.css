@@ -116,9 +116,15 @@ body {
 }
 
 .portlet {
+	min-width: 120px;
+	max-width: 240px;
+	max-height:50px;
 	margin: 0 1em 1em 0;
-	padding: 0.3em;
+	padding: 0.01em;
 	cursor: pointer;
+/*	margin: 0 1em 1em 0;
+	padding: 0.3em;
+	cursor: pointer;*/
 }
 
 .portlet-body:active {
@@ -239,15 +245,15 @@ ul.nav a:hover {
 }
 
 .user-icon {
-	border: 2px solid #cccccc;
-	border-radius: 40px;
-	padding: 10px;
+	/*border: 2px solid #cccccc;*/
+	/*border-radius: 40px;*/
+	/*padding: 10px;*/
 	float: right;
 	background: #f1f1f1;
 	text-align: center;
 	color: #9c9c9c;
-	min-width: 17%;
-	margin-top: 6px;
+	/*min-width: 17%;*/
+	/*margin-top: 6px;*/
 }
 
 .check {
@@ -595,10 +601,11 @@ button[name="editStatusBtn"] {
 }
 
 button[name|="emailTmplList"] {
-	border: 2px solid #cccccc;
-	border-radius: 40px;
-	padding: 12px;
-	background: #f1f1f1;
+	/*border: 2px solid #cccccc;*/
+	/*border-radius: 40px;*/
+	/*padding: 12px;*/
+	border: none;
+	/*background: #f1f1f1;*/
 	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
