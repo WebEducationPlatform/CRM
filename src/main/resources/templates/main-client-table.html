@@ -82,7 +82,8 @@
 
                         <div class="btn-group" th:id="'notiff' +${client.id}">
                             <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                            <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button" style="margin-left: -2px"
+                            <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button"
+                                    style="margin-left: -2px"
                                     class="f-18 icon-email-card " data-toggle="dropdown">
                             </button>
 
@@ -119,19 +120,15 @@
                             <!--/ SMS ERROR INFO BTN -->
 
                         </div>
-                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}" style="margin-left: -8px;display: inline-block;height: 12px;">
-                            <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
-                            <p th:if="${client.ownerUser != null}" class="user-icon" style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
-                               th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
-                                  + #strings.substring(client.ownerUser.lastName, 0,1)}"
-                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
-                               th:id="'own-' + ${client.id}">
-                            </p>
+                        <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
+                             style="margin-left: -8px;display: inline-block;height: 12px;">
+
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
                             <span th:id="'VK-notification'+${client.id}"
                                   class="vk-notification glyphicon glyphicon-send pull-right"
                                   style="color: darkblue;display: none;"></span>
+
                             <th:block th:each="notification_comment:${notifications_type_comment}">
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
@@ -163,12 +160,22 @@
                                          style="color: red"></span>
                                 </th:block>
                             </th:block>
+
+                            <p th:if="${client.ownerUser != null}" class="user-icon"
+                               style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
+                               th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                                  + #strings.substring(client.ownerUser.lastName, 0,1)}"
+                               th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                               th:id="'own-' + ${client.id}">
+                            </p>
+
+
                         </div>
 
                     </div>
 
                     <div class="portlet-title__group-right">
-                        <div class="dropdown" >
+                        <div class="dropdown">
                             <button type="button" th:id="'option_' +${client.id}"
                                     class="glyphicon glyphicon-pencil option"
                                     data-toggle="dropdown"
@@ -210,101 +217,22 @@
                     </div>
 
                 </div>
+                <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                 <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
                      th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
                     <div class="portlet-header" th:text="${client.name} + ' ' + ${client.lastName}">
+
                     </div>
+
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
                     </div>
                     <div class="portlet-content">
-                        <!--<div class="clickModal text-board" th:id="'info-client' + ${client.id}">-->
-                        <!--<div class="client-description" th:text="${client.clientDescriptionComment}"></div>-->
-                        <!--<p th:if="${client.ownerUser != null}" class="user-icon"-->
-                        <!--th:text="${#strings.substring(client.ownerUser.firstName, 0,1)-->
-                        <!--+ #strings.substring(client.ownerUser.lastName, 0,1)}"-->
-                        <!--th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"-->
-                        <!--th:id="'own-' + ${client.id}">-->
-                        <!--</p>-->
-                        <!--<p th:if="${client.ownerUser != null}" style="display:none"-->
-                        <!--th:text="${client.ownerUser.fullName}"></p>-->
-                        <!--<span th:id="'VK-notification'+${client.id}"-->
-                        <!--class="vk-notification glyphicon glyphicon-send pull-right"-->
-                        <!--style="color: darkblue;display: none;"></span>-->
-                        <!--<th:block th:each="notification_comment:${notifications_type_comment}">-->
-                        <!--<th:block th:if="${notification_comment.client == client}">-->
-                        <!--<span id="notification"-->
-                        <!--class="notification glyphicon glyphicon-bell pull-right"-->
-                        <!--style="color: red"></span>-->
-                        <!--</th:block>-->
-                        <!--</th:block>-->
 
-                        <!--<th:block th:each="notification_new_user:${notifications_type_new_user}">-->
-                        <!--<th:block th:if="${notification_new_user.client == client}">-->
-                        <!--<span id="2у notification-new"-->
-                        <!--class="notification glyphicon glyphicon-bell pull-right"-->
-                        <!--style="color: red"></span>-->
-                        <!--</th:block>-->
-                        <!--</th:block>-->
-
-                        <!--<th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">-->
-                        <!--<th:block th:if="${notification_assign_skype.client == client}">-->
-                        <!--<span id="notification-new"-->
-                        <!--class="notification glyphicon glyphicon-bell pull-right"-->
-                        <!--style="color: red"></span>-->
-                        <!--</th:block>-->
-                        <!--</th:block>-->
-
-                        <!--<th:block th:each="notification_postpone:${notifications_type_postpone}">-->
-                        <!--<th:block th:if="${notification_postpone.client == client}">-->
-                        <!--<span th:id="'notification-postpone'+${client.id}"-->
-                        <!--class="glyphicon glyphicon-time"-->
-                        <!--style="color: red"></span>-->
-                        <!--</th:block>-->
-                        <!--</th:block>-->
-                        <!--</div>-->
                     </div>
-                    <!-- <div class="btn-group" th:id="'notiff' +${client.id}">
-                         &lt;!&ndash; EMAIL SEND/EDIT TEMPLATE BTN &ndash;&gt;
-                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"
-                                 class="f-18 icon-email-card " style="margin-left:70%" data-toggle="dropdown">
-                         </button>
 
-
-                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                             <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                                 <a class="glyphicon glyphicon-ok portlet-send-btn"
-                                    th:if="${!template.hasBody()}"
-                                    th:id="'eTemplateBtn' + ${template.id}"
-                                    data-toggle="modal"
-                                    th:attrappend="data-target='#sendTemplateModal'"
-                                    th:text="' ' + ${template.name}"
-                                    th:attrprepend="data-template-id=${template.id}"></a>
-                                 <a class="glyphicon glyphicon-plus portlet-custom-btn"
-                                    th:if="${template.hasBody()}"
-                                    th:id="'eTemplateBtn' + ${template.id}"
-                                    data-toggle="modal" th:attrappend="
-                                data-target='#customMessageTemplate'"
-                                    th:text="' ' + ${template.name}"
-                                    th:attrprepend="data-template-id=${template.id}"></a>
-                             </li>
-                         </ul>
-                         &lt;!&ndash;/ EMAIL SEND/EDIT TEMPLATE BTN &ndash;&gt;
-
-                         &lt;!&ndash; SMS ERROR INFO BTN &ndash;&gt;
-                         <th:block th:each="notification_sms:${notifications_type_sms}">
-                             <th:block th:if="${notification_sms.client == client}">
-                                 <button type="button"
-                                         style="color:red"
-                                         class="glyphicon glyphicon-exclamation-sign sms-error-btn"
-                                         th:attrappend="data-id=${client.id}"></button>
-                             </th:block>
-                         </th:block>
-                         &lt;!&ndash;/ SMS ERROR INFO BTN &ndash;&gt;
-
-                     </div>-->
                 </div>
             </div>
         </div>
