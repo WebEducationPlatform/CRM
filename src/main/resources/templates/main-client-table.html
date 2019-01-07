@@ -81,6 +81,7 @@
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
                                 data-toggle="dropdown"
                                 style="display:inline-block"></button>
+
                         <ul class="dropdown-menu">
                             <th:block>
                                 <li class="dropdown-header">Назначить работника</li>
@@ -173,6 +174,8 @@
                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"
                                 class="f-18 icon-email-card " style="margin-left:70%" data-toggle="dropdown">
                         </button>
+
+
                         <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                             <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
                                 <a class="glyphicon glyphicon-ok portlet-send-btn"
