@@ -127,6 +127,18 @@ body {
 	cursor: pointer;*/
 }
 
+.portlet-title-groups{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.portlet-title-groups button{
+	background-color: transparent;
+}
+
+
+
 .portlet-body:active {
 	cursor: grabbing;
 	cursor: -moz-grabbing;
@@ -179,6 +191,7 @@ ul.nav a:hover {
 #column-header {
 	border-bottom: 5px solid #ff00001a;
 	margin-right: 5%;
+	position: relative;
 }
 
 .create-new-status-column {
@@ -245,15 +258,12 @@ ul.nav a:hover {
 }
 
 .user-icon {
-	/*border: 2px solid #cccccc;*/
-	/*border-radius: 40px;*/
-	/*padding: 10px;*/
-	float: right;
-	background: #f1f1f1;
-	text-align: center;
-	color: #9c9c9c;
-	/*min-width: 17%;*/
-	/*margin-top: 6px;*/
+	background: transparent;
+	height: 15px;
+	font-size: 12px;
+	font-weight: bold;
+	width: 30px;
+
 }
 
 .check {
@@ -318,7 +328,8 @@ ul.nav a:hover {
 }
 
 #column-header .btn-group{
-	float: right;
+	position: absolute;
+	right: 0px;
 	margin-right: 15px;
 	margin-top: 5px;
 }
