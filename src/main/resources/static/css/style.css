@@ -122,9 +122,6 @@ body {
 	margin: 0 1em 1em 0;
 	padding: 0.01em;
 	cursor: pointer;
-/*	margin: 0 1em 1em 0;
-	padding: 0.3em;
-	cursor: pointer;*/
 }
 
 .portlet-title-groups{
@@ -263,7 +260,6 @@ ul.nav a:hover {
 	font-size: 12px;
 	font-weight: bold;
 	width: 30px;
-
 }
 
 .check {
@@ -612,11 +608,7 @@ button[name="editStatusBtn"] {
 }
 
 button[name|="emailTmplList"] {
-	/*border: 2px solid #cccccc;*/
-	/*border-radius: 40px;*/
-	/*padding: 12px;*/
 	border: none;
-	/*background: #f1f1f1;*/
 	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
@@ -676,7 +668,6 @@ button.option{
     display:none;
 
 }
-
 
 span[id^="postponeStatus"] {
 	color: red;
