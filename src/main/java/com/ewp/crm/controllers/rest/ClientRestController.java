@@ -452,4 +452,24 @@ public class ClientRestController {
         statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
         return ResponseEntity.ok("Ok");
     }
+
+	@PostMapping(value = "/massInputSend")
+	public void massClientInputSave(@RequestParam (name = "emailList") String emailList,
+									@RequestParam (name = "fioList") String fioList) {
+		List<String> resultEmailList = Arrays.asList(emailList.split("\n"));
+		List<String> resultFioList = Arrays.asList(fioList.split("\n"));
+
+		for (int i = 0; i < resultEmailList.size(); i++) {
+			if (Objects.nonNull(clientService.getClientByEmail(resultEmailList.get(i).trim()))) {
+				continue;
+			}
+			Client client = new Client();
+			String[] tmp = resultFioList.get(i).split(" ");
+			client.setName(tmp[0].trim());
+			client.setLastName(tmp[1].trim());
+			client.setEmail(resultEmailList.get(i).trim());
+			client.setStatus(statusService.get(1L));
+			clientService.addClient(client);
+		}
+	}
 }
