@@ -413,3 +413,27 @@ $(document).ready(function () {
         }
     })
 });
+
+function massClientInputSend() {
+    let fioList = $('#listFio').val();
+    let emailList = $('#listEmail').val();
+    let url = "../rest/client/massInputSend";
+
+    if(fioList&&emailList) {
+        let wrap = {
+            fioList: fioList,
+            emailList: emailList,
+        }
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: wrap,
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+        console.log("Ошибка при сохранении пользователей");
+    }
+}
