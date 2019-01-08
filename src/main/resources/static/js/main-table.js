@@ -1707,11 +1707,14 @@ $(function () {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
                     }
                     var adminName = user.firstName + ' ' + user.lastName;
+
                     $('#main-modal-window').data('userId', user.id);
 
-                    currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
+                    currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
@@ -1752,13 +1755,26 @@ $(function () {
 
                     $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
+                    document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialProfiles[i].link);
+                        if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                            //ajax call for profile photo
+                            let vkref = client.socialProfiles[i].link;
+                            let url = '/rest/vkontakte/getProfilePhotoById';
+
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                data: {vkref: vkref},
+                                dataType:'json',
+                                complete: function(data) {
+                                    document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                                }
+                            });
+
+                            $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
 
-
-                            var vkref = client.socialProfiles[i].link;
                             $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
                             $('#vk-im-button').attr("clientID", client.id);
                             $('#vk-im-count').text($('#VK-notification'+clientId).text());
