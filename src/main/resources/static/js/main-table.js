@@ -334,7 +334,7 @@ function assign(id) {
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -364,7 +364,7 @@ function assignUser(id, user, principalId) {
                 target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
 
             //If admin assigned himself
             // if(principalId === user){
@@ -385,7 +385,7 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -413,7 +413,7 @@ function unassign(id) {
         success: function (owner) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
             if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
@@ -451,7 +451,7 @@ $(document).ready(function () {
         }
         jo.hide();
         jo.filter(function (i, v) {
-            var d = $(this)[0].getElementsByClassName("user-icon");
+            var d = $(this)[0].getElementsByClassName("user-icon_card");
             if (d.length === 0) {
                 return false;
             }
@@ -466,7 +466,7 @@ $(document).ready(function () {
 
 function fillFilterList() {
     $("#client_filter").empty();
-    var names = $("#status-columns").find($(".user-icon"));
+    var names = $("#status-columns").find($(".user-icon_card"));
     if (names.length === 0) {
         $("#client_filter_group").hide();
     } else {
