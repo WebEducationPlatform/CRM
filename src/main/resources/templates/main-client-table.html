@@ -80,48 +80,9 @@
 
                     <div class="portlet-title__group-left">
 
-                        <div class="btn-group" th:id="'notiff' +${client.id}">
-                            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                            <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button"
-                                    style="margin-left: -2px"
-                                    class="f-18 icon-email-card " data-toggle="dropdown">
-                            </button>
 
-
-                            <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
-                                <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
-                                    <a class="glyphicon glyphicon-ok portlet-send-btn"
-                                       th:if="${!template.hasBody()}"
-                                       th:id="'eTemplateBtn' + ${template.id}"
-                                       data-toggle="modal"
-                                       th:attrappend="data-target='#sendTemplateModal'"
-                                       th:text="' ' + ${template.name}"
-                                       th:attrprepend="data-template-id=${template.id}"></a>
-                                    <a class="glyphicon glyphicon-plus portlet-custom-btn"
-                                       th:if="${template.hasBody()}"
-                                       th:id="'eTemplateBtn' + ${template.id}"
-                                       data-toggle="modal" th:attrappend="
-                               data-target='#customMessageTemplate'"
-                                       th:text="' ' + ${template.name}"
-                                       th:attrprepend="data-template-id=${template.id}"></a>
-                                </li>
-                            </ul>
-                            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
-
-                            <!-- SMS ERROR INFO BTN -->
-                            <th:block th:each="notification_sms:${notifications_type_sms}">
-                                <th:block th:if="${notification_sms.client == client}">
-                                    <button type="button"
-                                            style="color:red"
-                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
-                                            th:attrappend="data-id=${client.id}"></button>
-                                </th:block>
-                            </th:block>
-                            <!--/ SMS ERROR INFO BTN -->
-
-                        </div>
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
-                             style="margin-left: -8px;display: inline-block;height: 12px;">
+                             style="margin-left: 2px;display: inline-block;height: 12px;">
 
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
@@ -161,7 +122,7 @@
                                 </th:block>
                             </th:block>
 
-                            <span th:if="${client.ownerUser != null}" class="user-icon"
+                            <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                   th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)}"
@@ -175,7 +136,50 @@
                     </div>
 
                     <div class="portlet-title__group-right">
-                        <div class="dropdown">
+
+                        <span class="btn-group" th:id="'notiff' +${client.id}">
+                            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                            <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button"
+                                    style="margin-right: -8px"
+                                    class="f-18 icon-email-card " data-toggle="dropdown">
+                            </button>
+
+
+                            <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                                <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                                    <a class="glyphicon glyphicon-ok portlet-send-btn"
+                                       th:if="${!template.hasBody()}"
+                                       th:id="'eTemplateBtn' + ${template.id}"
+                                       data-toggle="modal"
+                                       th:attrappend="data-target='#sendTemplateModal'"
+                                       th:text="' ' + ${template.name}"
+                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                    <a class="glyphicon glyphicon-plus portlet-custom-btn"
+                                       th:if="${template.hasBody()}"
+                                       th:id="'eTemplateBtn' + ${template.id}"
+                                       data-toggle="modal" th:attrappend="
+                               data-target='#customMessageTemplate'"
+                                       th:text="' ' + ${template.name}"
+                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                </li>
+                            </ul>
+                            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+
+                            <!-- SMS ERROR INFO BTN -->
+                            <th:block th:each="notification_sms:${notifications_type_sms}">
+                                <th:block th:if="${notification_sms.client == client}">
+                                    <button type="button"
+                                            style="color:red"
+                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                            th:attrappend="data-id=${client.id}"></button>
+                                </th:block>
+                            </th:block>
+                            <!--/ SMS ERROR INFO BTN -->
+
+                        </span>
+
+
+                        <span class="dropdown">
                             <button type="button" th:id="'option_' +${client.id}"
                                     class="glyphicon glyphicon-pencil option"
                                     data-toggle="dropdown"
@@ -213,7 +217,7 @@
                                     </li>
                                 </th:block>
                             </ul>
-                        </div>
+                        </span>
                     </div>
 
                 </div>
