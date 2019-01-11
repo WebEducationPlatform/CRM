@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Создание новой кампании</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script type="text/javascript" th:src="@{/js/vk-campaigns.js}"></script>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+<body>
+<div style="margin: 4%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+    <div>
+        <div>
+            <h1 th:text="|Создание компании с названием: ${name}|">Создание кампании с названием: Новая кампания</h1>
+        </div>
+        <div>
+            1. Нажать на кнопку:
+        </div>
+        <div>
+            <button th:onclick="'javascript:doLogin({appid: ' + ${appid} + '})'">Получить токен</button>
+        </div>
+        &nbsp;
+        <div>
+            2. Скопировать <b>всю строчку URL</b> в поле ниже и закрыть окно авторизации.
+        </div>
+        <form class="form" enctype="multipart/form-data" method="post" action="/vk-campaign-new">
+            <input type="hidden" name="appid" th:value="${appid}" />
+            <input type="hidden" name="text" th:value="${text}" />
+            <input type="hidden" name="name" th:value="${name}" />
+            <div class="form-group">
+                <input id="name" type="text" class="form-control"
+                       name="token"/>
+            </div>
+            <div>
+                3. Выбрать файл со списком VK ID-шников на добавление.
+            </div>
+            <div class="form-group">
+                <input id="file" type="file" class="btn-block"
+                       name="file" size="45"/>
+            </div>
+            <div class="modal-footer">
+                <input class="btn-primary btn-sm" type="submit"
+                       role="button"
+                       value="Создать"/>
+                &nbsp;
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+</body>
+</html>
