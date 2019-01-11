@@ -227,4 +227,10 @@ public class SendMailsController {
         return ResponseEntity.ok(mailingMessageSendService.getAll());
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PostMapping(value = "/get/message/id")
+    public ResponseEntity<MailingMessage> getMailingMessageById(@RequestParam("messageId") Long id) {
+        return ResponseEntity.ok(mailingMessageSendService.get(id));
+    }
+
 }

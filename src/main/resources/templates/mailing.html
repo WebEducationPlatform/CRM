@@ -180,7 +180,6 @@
                         </div>
                     </div>
                 </div>
-
                 <table class="table table-striped" id="historyMailingTable">
                     <thead>
                     <tr>
@@ -189,6 +188,7 @@
                         <th scope="col">Текст</th>
                         <th scope="col">Тип отправки</th>
                         <th scope="col">Получатель</th>
+                        <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody id="historyBodyMailing">
@@ -341,21 +341,13 @@
         <div class="modal-content">
             <div class="modal-header" id="noSendModalHeader">
                 <h4 class="modal-title" id="noSendModalLabel">История рассылок</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideNoSend()">
                     x
                 </button>
             </div>
             <div class="modal-body" id="noSendModalBody">
-                <table class="table table-striped" id="noSendTable">
-                    <thead>
-                    <tr>
-                        <th scope="col">Получатели:</th>
-                    </tr>
-                    </thead>
-                    <tbody id="noSendBody">
-
-                    </tbody>
-                </table>
+                <textarea class="form-control text-lowercase" id="noSend-area" rows="12"
+                          style="font-size: 10pt"></textarea>
             </div>
         </div>
     </div>
