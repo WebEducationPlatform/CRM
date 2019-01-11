@@ -1076,7 +1076,7 @@ $(document).ready(function () {
 
 $(function () {
     $('.portlet-body').on('click', function (e) {
-        if (e.target.className.startsWith("portlet-body") === true) {
+        if (e.target.className.startsWith("portlet-body") === true ) {
             var clientId = $(this).parents('.common-modal').data('cardId');
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
@@ -1093,6 +1093,7 @@ $(function () {
         var currentModal = $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
+        markAsReadMenu($(e.target).attr('client-id'));
     });
 });
 
