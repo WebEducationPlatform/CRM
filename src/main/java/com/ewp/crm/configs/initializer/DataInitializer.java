@@ -3,9 +3,14 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.models.vkcampaigns.VkAddFriendsCampaign;
+import com.ewp.crm.models.vkcampaigns.VkAttemptResponse;
+import com.ewp.crm.models.vkcampaigns.VkUser;
+import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -61,6 +66,12 @@ public class DataInitializer {
 
     @Autowired
     private VkRequestFormService vkRequestFormService;
+
+    @Autowired
+    private VkCampaignService vkCampaignService;
+
+    @Autowired
+    private VkAttemptResponseRepository vkAttemptResponseRepository;
 
     private void init() {
 
@@ -292,5 +303,29 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
         vkRequestFormService.addVkRequestForm(vkRequestForm6);
         vkRequestFormService.addVkRequestForm(vkRequestForm7);
+
+        // Данные для кампании продвижения -----------------------------------------------------------
+
+        VkUser user = new VkUser(522154877L, new HashMap<>());
+
+        Set<VkUser> usersSet1 = Sets.newHashSet(
+                user,
+                new VkUser(521427348L, new HashMap<>()),
+                new VkUser(518026535L, new HashMap<>()),
+                new VkUser(517268211L, new HashMap<>()),
+                new VkUser(517089492L, new HashMap<>()));
+
+        VkAddFriendsCampaign newCampaign1 = new VkAddFriendsCampaign("New campaign",
+                6804295L,
+                509947643L,
+                "4d91545b27cff5bc897c18b396003e661421bdf6a5137f73ab61c7a43b3a7bc5fecff03468bd701eae739",
+                "TEST, please ignore, sorry! ТЕСТ, пожалуйста пригнорируйте, извините!",
+                usersSet1);
+        vkCampaignService.add(newCampaign1);
+
+        VkAttemptResponse vkAttemptResponse1 = new VkAttemptResponse(user, 1L, ZonedDateTime.now(), 2);
+        vkAttemptResponseRepository.saveAndFlush(vkAttemptResponse1);
+        VkAttemptResponse vkAttemptResponse2 = new VkAttemptResponse(user, 1L, ZonedDateTime.now(), 1);
+        vkAttemptResponseRepository.saveAndFlush(vkAttemptResponse2);
     }
 }
