@@ -52,10 +52,10 @@ public class JMWhatsappConversation implements JMConversation {
     @Override
     public ChatMessage sendMessage(ChatMessage message) {
 
-        long phoneNumber;
+        String phoneNumber;
 
         try {
-            phoneNumber = Long.parseLong(message.getChatId().replaceAll("\\D", ""));
+            phoneNumber = message.getChatId().replaceAll("\\D", "");
         } catch (NumberFormatException nfe) {
             logger.warn("При отправки сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
             return new ChatMessage(ChatType.whatsapp, "у этого клиента не верно указан номер телефона оправка сообщения не возможна");
@@ -67,24 +67,34 @@ public class JMWhatsappConversation implements JMConversation {
                 environment.getProperty("token");
 
 
-        WhatsappCheckDeliveryMsg whatsappCheckDeliveryMsg = new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
-
-        WhatsappMessage whatsappMessage =
-                new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), whatsappCheckDeliveryMsg.getQueueNumber(),
-                        SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
-
+        new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
+        WhatsappMessage lastMessage = whatsappMessageService.findTopByFromMeTrueOrderByMessageNumberDesc();
 
         String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
                 ".chat-api.com/" + environment.getProperty("instance") +
-                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (whatsappMessage.getMessageNumber() - 1);
+                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (lastMessage.getMessageNumber() - 2);
+        boolean messgesUpdated =false;
+        Long lastMessageNumber;
+        String id;
+        while (true){
 
-        WhatsappAcknowledgementDTO forObject = new RestTemplate().getForObject(lastMessagesUrl, WhatsappAcknowledgementDTO.class);
+            WhatsappAcknowledgementDTO lastMessagesFromApi = new RestTemplate().getForObject(lastMessagesUrl, WhatsappAcknowledgementDTO.class);
+            Optional<WhatsappMessage> any = lastMessagesFromApi.getMessages().stream().filter(x -> x.getChatId().contains(phoneNumber) && x.getBody().equals(message.getText())).findAny();
+            id = any.map(WhatsappMessage::getId).orElse(null);
+            lastMessageNumber = any.map(WhatsappMessage::getMessageNumber).orElse(null);
+            if (any.isPresent()){
+                break;
+            }
+        }
 
-        Optional<WhatsappMessage> any = forObject.getMessages().stream().filter(x -> x.getMessageNumber() == whatsappMessage.getMessageNumber()).findAny();
-        String id = any.map(WhatsappMessage::getId).orElse(null);
+
+        WhatsappMessage whatsappMessage =
+                new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), lastMessageNumber,
+                        SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
+
 
         whatsappMessage.setId(id);
-        message.setId(id);
+        message.setId(String.valueOf(lastMessageNumber));
 
         whatsappMessageService.save(whatsappMessage);
 
@@ -95,7 +105,7 @@ public class JMWhatsappConversation implements JMConversation {
     public Map<Client, Integer> getCountOfNewMessages() {
 
         Map<Client, Integer> clientNotSeenMsgCount = new HashMap<>();
-        List<WhatsappMessage> whatsappMessages = whatsappMessageService.findAllBySeenFalse();
+        List<WhatsappMessage> whatsappMessages = whatsappMessageService.findAllBySeenFalseAndFromMeFalse();
 
         for (WhatsappMessage message : whatsappMessages) {
 

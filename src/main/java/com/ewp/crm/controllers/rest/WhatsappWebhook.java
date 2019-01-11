@@ -78,7 +78,7 @@ public class WhatsappWebhook {
         if (receipts != null) {
 
             for (WhatsappAcknowledgement whatsappAcknowledgement : receipts) {
-                WhatsappMessage whatsappMessage = whatsappMessageService.findByMessageNumber(whatsappAcknowledgement.getQueueNumber());
+                WhatsappMessage whatsappMessage = whatsappMessageService.findById(whatsappAcknowledgement.getId());
                 if (whatsappMessage != null && whatsappAcknowledgement.getStatus().getPriority() > 2) {
                     whatsappMessage.setSeen(true);
                     whatsappMessageService.save(whatsappMessage);
