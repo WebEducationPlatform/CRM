@@ -5,7 +5,10 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.VkMemberService;
+import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,4 +131,11 @@ public class VkRestController {
 
 		return param;
 	}
+
+	@GetMapping(value = "/getProfilePhotoById", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getProfilePhotoLinkById(@RequestParam String vkref){
+		String profilePhotoLink = vkService.getVkPhotoLinkByClientProfileId(vkref);
+		return ResponseEntity.ok(profilePhotoLink);
+	}
+
 }

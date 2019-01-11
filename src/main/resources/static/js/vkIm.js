@@ -131,6 +131,16 @@ function vk_getUnreadMessages_CallBack(vk_data) {
         $(elem).text('');
         $(elem).hide();
     });
+    $('.vk-notifications.glyphicon.glyphicon-send.pull-right').each(function(i, elem){
+        $(elem).hide();
+    });
+
+    $('.vk-items').each(function(i, elem){
+        $(elem).remove();
+    });
+    var dom = $('#VKNavbarDropdown');
+    dom.hide();
+
     $('#vk-im-count').text('');
 
     var arr = vk_data.response.items;
@@ -158,10 +168,28 @@ function vk_getUnreadMessages_CallBack(vk_data) {
 function showVkNotification(clientId, unreadUserID, unreadCount){
     if (clientId != "" && unreadCount != ""){
         vkIdMappingClientId[unreadUserID] = clientId;
+
+        //show notification
         var dom = $('#VK-notification'+clientId);
         dom.text(unreadCount);
         dom.show();
 
+        //add notification in menu
+        var clientName = $('#ClientName'+clientId).text();
+
+        var msgDiv = $('#VKNewMessageMenu');
+
+        var notify = $('#VKNotifyItem'+clientId);
+
+        var dom = $('#VKNavbarDropdown');
+        dom.show();
+
+        if (notify.length == 0){
+            var dom = $("<p><div class='dropdown-item vk-items' role='button' data-clientId='"+clientId+"' id='VKNotifyItem"+clientId+"' onclick='showModal("+clientId+")'>"+clientName+"</div></p>");
+            msgDiv.prepend(dom);
+        }
+
+        //snow notification in modal form
         if ($('#main-modal-window').is(':visible')){
             if ($('#vk-im-button').attr("clientid") == clientId){
                 $('#vk-im-count').text(unreadCount);
@@ -258,4 +286,9 @@ function addAsUnread(msgid){
     if (!exist){
         unreadMessages.push(msgid);
     }
+}
+
+function showModal(ClientId){
+    $('#main-modal-window').data("clientId", ClientId);
+    $('#main-modal-window').modal('show');
 }

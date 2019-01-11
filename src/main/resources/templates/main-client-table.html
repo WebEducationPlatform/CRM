@@ -13,12 +13,6 @@
 </head>
 <body>
 
-<style>
-    .modal-vk {
-        width: 70%;
-    }
-</style>
-
 <div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
@@ -33,11 +27,30 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                        <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
+                                class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
+                            <i class="glyphicon glyphicon-chevron-right"></i></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <p style="margin-left: 20px;">Сначала</p>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_FIRST">Новые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_FIRST">Старые</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="NEW_CHANGES_FIRST">Со свежей историей</a>
+                                </li>
+                                <li class="link-cursor-pointer">
+                                    <a class="change-client-order" id="OLD_CHANGES_FIRST">Со старой историей</a>
+                                </li>
+                            </ul>
+                        </li>
                         <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
                                                        data-toggle="modal" th:value="${status.id}">Удалить статус</a>
                         </li>
                         <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
-                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить название</a>
+                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
                         </li>
                         <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
                                th:value="${status.id}">Скрыть</a></li>
@@ -46,7 +59,7 @@
                                                                                          th:value="${status.id}"
                                                                                          th:checked="${status.createStudent}"/></a>
                         </li>
-                        <li class="dropdown"><a class="link-cursor-pointer">Поменять позицию<i
+                        <li class="glyphicon dropdown"><a class="link-cursor-pointer">Поменять позицию<i
                                 class="glyphicon glyphicon-chevron-right"></i></a>
                             <ul class="dropdown-menu sub-menu">
                                 <li class="link-cursor-pointer" th:each="st:${statuses}"
@@ -72,7 +85,9 @@
             <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}" th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
-                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}" >
+                 th:onmouseout="'hideOption('+${client.id}+')'" th:attrprepend="data-card-id=${client.id}"
+                 th:id="${client.id}">
+
                 <div class="portlet-title">
                     <div class="dropdown" style="margin-left:90%;">
                         <button type="button" th:id="'option_' +${client.id}" class="glyphicon glyphicon-pencil option"
@@ -86,6 +101,30 @@
                                 </li>
                                 <li class="divider"></li>
                             </th:block>
+
+                            <th:block>
+                                <li class="dropdown"><a class="link-cursor-pointer">Изменить статус<i
+                                        class="glyphicon glyphicon-chevron-right"></i></a>
+                                    <ul class="dropdown-menu sub-menu">
+                                        <li class="link-cursor-pointer" th:each="st:${statuses}"
+
+                                            th:if="${!st.invisible}"><a class="change-student-status"
+                                                                                                  th:id="${client.id}"
+                                                                                                  th:value="${st.id}"
+                                                                                                  th:name="${status.id}"
+                                                                                                  th:text="${st.name}"></a></li>
+
+
+                                            <!--th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-student-status"-->
+                                                                                                  <!--th:id="${client.id}"-->
+                                                                                                  <!--th:value="${st.id}"-->
+                                                                                                  <!--th:text="${st.name}"></a></li>-->
+                                    </ul>
+                                </li>
+
+                                <li class="divider"></li>
+                            </th:block>
+
                             <li class="dropdown-header">Скрыть в статус</li>
                             <li th:each="inv_status:${statuses}"
                                 th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
@@ -110,14 +149,21 @@
                         </ul>
                     </div>
                 </div>
+
                 <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
+
                     <div class="portlet-header" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'" th:text="${client.name} + ' ' + ${client.lastName}" >
+
+                    <div class="portlet-header"  th:id="'ClientName'+${client.id}" th:text="${client.name} + ' ' + ${client.lastName}" >
+
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
                     </div>
+                    <div class="portlet-content">
+
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
@@ -135,34 +181,37 @@
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                                <th:block th:if="${notification_new_user.client == client}">
+                        <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                            <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
+                        <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                            <th:block th:if="${notification_assign_skype.client == client}">
                                    <span id="notification-new"
                                          class="notification glyphicon glyphicon-bell pull-right"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
                             </th:block>
+                        </th:block>
 
-                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                                <th:block th:if="${notification_postpone.client == client}">
+                        <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                            <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
                                          class="glyphicon glyphicon-time"
-                                         style="color: red"></span>
-                                </th:block>
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
                             </th:block>
                         </div>
+
+                        </th:block>
+                    </div>
+                </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
@@ -206,6 +255,7 @@
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
+                    <div id="sendSocialTemplateStatus"></div>
                     <input type="text" class="form-control" required="required" id="new-status-name"
                            placeholder="Новый статус..."/>
                 </div>
@@ -352,6 +402,15 @@
     <a href="/user/customize">Настройки</a>
 </div>
 
+<!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
+<div id="msg_pop2" sec:authorize="hasAnyAuthority('OWNER')">
+    <span class="msg_close" onclick="document.getElementById('msg_pop2').style.display='none'; return false;">X</span>
+    <h4>Напоминание</h4>
+    Необходимо установить статус по умолчанию для новых студентов
+    <p></p>
+    <a href="/user/customize">Настройки</a>
+</div>
+
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -381,6 +440,6 @@
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
-
+<script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 </body>
 </html>

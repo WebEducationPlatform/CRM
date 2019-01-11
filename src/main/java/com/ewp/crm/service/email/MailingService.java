@@ -2,7 +2,9 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
+import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,15 +36,18 @@ public class MailingService {
     private final VKService vkService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
+    private final UserService userService;
+
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
+        this.userService = userService;
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -55,7 +61,9 @@ public class MailingService {
             result = sendingMailingsEmails(message);
         } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
-        } else if (message.getType().equals("vk")) {
+        } else if (message.getType().equals("vk") && message.getVkType().equals("managerPage")) {
+            sendingMailingVkWithManagerAccount(message);
+        } else {
             sendingMailingVk(message);
         }
         return result;
@@ -110,14 +118,44 @@ public class MailingService {
     }
 
     private void sendingMailingVk(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
         for (ClientData idVk : message.getClientsData()) {
             try {
-                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                Thread.sleep(1000);
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
+                if (!value.equalsIgnoreCase("Message sent")) {
+                    notSendList.add(value);
+                }
+                message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
+            } catch (InterruptedException e) {
+                logger.error("a lot of requests", e);
             }
         }
-        message.setReadedMessage(true);
+        message.setNotSendId(notSendList);
+        mailingMessageRepository.save(message);
+    }
+
+    private void sendingMailingVkWithManagerAccount(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
+        for (ClientData idVk : message.getClientsData()) {
+            try {
+                Thread.sleep(1000);
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                if (!value.equalsIgnoreCase("Message sent")) {
+                    notSendList.add(value);
+                    message.setNotSendId(notSendList);
+                }
+                message.setReadedMessage(true);
+            } catch (ClassCastException e) {
+                logger.info("bad vk id, " + idVk + ", ", e);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         mailingMessageRepository.save(message);
     }
 }
+
+

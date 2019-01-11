@@ -1,12 +1,13 @@
 package com.ewp.crm.models;
 
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Группа в vk, в которой будут отслеживаться вновь вступившие в нее (потенциальные студенты)
+ */
 @Entity
-@Table(name = "vk_tracked_club")
+@Table(name = "vk_tracked_club") // отслеживаемая группа в ВК?? СТАЛЬНОЙ КОПИБАР
 public class VkTrackedClub implements Serializable{
 
     @Id
@@ -20,11 +21,15 @@ public class VkTrackedClub implements Serializable{
     @Column(name = "group_id", unique = true)
     private Long groupId;
 
+    /**
+     * Token своего приложения в vk
+     */
     @Column(name = "token")
     private String token;
 
-//    private String clientSecret;
-
+    /**
+     * clientId своего приложения в vk
+     */
     @Column(name = "client_id")
     private Long clientId;
 
