@@ -1094,6 +1094,7 @@ $(function () {
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
         markAsReadMenu($(e.target).attr('client-id'));
+
     });
 });
 
