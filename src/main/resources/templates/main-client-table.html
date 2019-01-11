@@ -112,12 +112,12 @@
                 </div>
                 <div class="portlet-body" th:name = "'client-'+${client.id} + '-modal'" th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
-                    <div class="portlet-header"   th:text="${client.name} + ' ' + ${client.lastName}" >
+                    <div class="portlet-header" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'" th:text="${client.name} + ' ' + ${client.lastName}" >
                     </div>
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
-                    </div><div class="portlet-content">
+                    </div>
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}">
                             <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
                             <p th:if="${client.ownerUser != null}" class="user-icon"
@@ -163,7 +163,6 @@
                                 </th:block>
                             </th:block>
                         </div>
-                    </div>
                     <div class="btn-group" th:id="'notiff' +${client.id}">
                         <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
                         <button name="emailTmplList"  th:id="'emailTmplList' +${client.id}" type="button"   class="f-18 icon-email-card " data-toggle="dropdown">
