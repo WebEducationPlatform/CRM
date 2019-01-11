@@ -137,7 +137,7 @@ $(document).ready(function () {
         delay: 100,
         items: '> .portlet',
         connectWith: ".column",
-        handle: ".portlet-body",
+        handle: ".portlet-header",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
