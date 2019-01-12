@@ -137,7 +137,7 @@ $(document).ready(function () {
         delay: 100,
         items: '> .portlet',
         connectWith: ".column",
-        handle: ".portlet-header",
+        handle: ".portlet-title, .portlet-header",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
@@ -150,6 +150,7 @@ $(document).ready(function () {
             senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
         }
     });
+
 
     $(document).ready(function () {
         $("#new-status-name").keypress(function (e) {
