@@ -1,11 +1,7 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.configs.inteface.MailConfig;
-import com.ewp.crm.exceptions.email.MessageTemplateException;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Message;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -16,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,7 +19,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -32,7 +26,6 @@ import org.thymeleaf.context.Context;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -56,6 +49,8 @@ public class MailSendServiceImpl implements MailSendService {
     private final MailConfig mailConfig;
     private String emailLogin;
     private final Environment env;
+    private final ProjectPropertiesService projectPropertiesService;
+
 
     @Autowired
     public MailSendServiceImpl(JavaMailSender javaMailSender,
@@ -64,7 +59,7 @@ public class MailSendServiceImpl implements MailSendService {
                                ClientService clientService,
                                ClientHistoryService clientHistoryService,
                                MessageService messageService,
-                               MailConfig mailConfig) {
+                               MailConfig mailConfig, ProjectPropertiesService projectPropertiesService) {
         this.javaMailSender = javaMailSender;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.clientService = clientService;
@@ -72,6 +67,7 @@ public class MailSendServiceImpl implements MailSendService {
         this.messageService = messageService;
         this.env = environment;
         this.mailConfig = mailConfig;
+        this.projectPropertiesService = projectPropertiesService;
         checkConfig(environment);
     }
 
@@ -89,22 +85,23 @@ public class MailSendServiceImpl implements MailSendService {
     }
 
     public void sendEmailInAllCases(Client client) {
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper;
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        MessageTemplate template = properties.getAutoAnswerTemplate();
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(principal.getAutoAnswer(), true);
+            mimeMessageHelper.setText(template.getOtherText(), true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
         javaMailSender.send(mimeMessage);
     }
 
-    public void validatorTestResult(String parseContent, Client client) throws MessagingException, MessagingException {
+    public void validatorTestResult(String parseContent, Client client) throws MessagingException {
         Pattern pattern2 = Pattern.compile("\\d[:]\\s\\d\\s");
         Matcher m = pattern2.matcher(parseContent);
 
@@ -210,7 +207,6 @@ public class MailSendServiceImpl implements MailSendService {
 
         javaMailSender.send(mimeMessage);
     }
-
 
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";

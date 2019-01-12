@@ -2,6 +2,8 @@ package com.ewp.crm.models;
 
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -20,6 +22,7 @@ public class ClientData {
             inverseJoinColumns = {@JoinColumn(name = "mailing_client_id", foreignKey = @ForeignKey(name = "FK_MAILING_MESSAGES"))},
             joinColumns = {@JoinColumn(name = "client_data_messages_id", foreignKey = @ForeignKey(name = "FK_CLIENT_DATA_MESSAGES"))}
     )
+    @JsonBackReference
     private MailingMessage ownerMail;
 
     public ClientData() {}

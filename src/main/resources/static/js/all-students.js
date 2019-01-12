@@ -130,11 +130,15 @@ function validate_prices() {
     let price = parseInt($("#month-price").val());
     let payment = parseInt($("#payment").val());
     let pay_later = parseInt($("#later-payment").val());
-    if (price != payment + pay_later) {
-        alert("Сумма платежа и последующей оплаты не равна цене!\r\n"
-            + payment + " + " + pay_later + " ≠ " + price);
+    if (isNaN(price) || isNaN(payment) || isNaN(pay_later)) {
+        alert('Введите цену!');
         return false;
     }
+    // if (price != payment + pay_later) {
+    //     alert("Сумма платежа и последующей оплаты не равна цене!\r\n"
+    //         + payment + " + " + pay_later + " ≠ " + price);
+    //     return false;
+    // }
     return true;
 }
 

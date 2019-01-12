@@ -1,5 +1,5 @@
 function switchTemplate() {
-    var selected = $('#socNetworkChoose').val();
+    let selected = $('#socNetworkChoose').val();
     if (selected === 'email') {
         $('#field').show();
         $('#show-area').hide();
@@ -34,11 +34,11 @@ window.onbeforeunload = function () {
     }
 };
 
-function saveTemplate(templateId) {
+function saveTemplate(templateName) {
     let url = '/admin/editMessageTemplate';
     let text = $('#textTemplateArea').val();
     let wrap = {
-        templateId: templateId,
+        templateName: templateName,
         templateText: CKEDITOR.instances['body'].getData(),
         otherTemplateText: text
     };
@@ -66,7 +66,7 @@ function saveTemplate(templateId) {
 
 var file;
 
-function sendImg(templateID, input) {
+function sendImg(templateName, input) {
 
     file = $("#imgBtn")[0].files[0];
 
@@ -77,7 +77,7 @@ function sendImg(templateID, input) {
 
     var dataValue = new FormData();
     dataValue.append("0", file);
-    let url = '/admin/savePicture?templateID='+templateID;
+    let url = '/admin/savePicture?templateName='+templateName;
     $.ajax({
         url: url,
         type: 'POST',
@@ -88,7 +88,7 @@ function sendImg(templateID, input) {
         processData: false,
         contentType: false,
         success: function (userId) {
-            insertNewPicture(userId,templateID, input);
+            insertNewPicture(userId,templateName, input);
         },
         error: function (data) {
             if (typeof data.responseJSON === 'undefined') {
@@ -109,12 +109,12 @@ function setErrorMessage(message) {
     }
 }
 
-function insertNewPicture(userID,templateID, input) {
+function insertNewPicture(userID,templateName, input) {
     if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.onload = function (e) {
             filename = file.name.replace(/\.[^.]+$/, "");
-            let path = "images/templateID_" + templateID + '/' + filename +".png";
+            let path = "images/templateID_" + templateName + '/' + filename +".png";
             let text = CKEDITOR.dom.element.createFromHtml("<img data-th-src=\"|cid:" + path + "|\" src='" + e.target.result + "'/>");
             CKEDITOR.instances.body.insertElement(text);
         };
@@ -125,9 +125,22 @@ function insertNewPicture(userID,templateID, input) {
 $(document).ready(function () {
     editor = CKEDITOR.replace('body', {
         allowedContent: true,
-        height: '600px'
+        height: '600px',
+        filebrowserImageUploadUrl: '/image/upload'
+
     });
 
+    CKEDITOR.config.extraPlugins = 'uploadimage';
+    CKEDITOR.config.imageUploadUrl = '/image/upload';
+    CKEDITOR.on('dialogDefinition', function (e) {
+        var dialogName = e.data.name;
+        var dialogDefinition = e.data.definition;
+        if (dialogName === 'image') {
+            // dialogDefinition.removeContents('info');
+            dialogDefinition.removeContents('Link');
+            dialogDefinition.removeContents('advanced');
+        }
+    });
     editor.addCommand("infoCommend", {
         exec: function (edt) {
             $("#infoModal").modal('show');

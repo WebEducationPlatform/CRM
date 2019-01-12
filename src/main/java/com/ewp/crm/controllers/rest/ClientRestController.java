@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import java.util.*;
 @RequestMapping("/rest/client")
 public class ClientRestController {
 
-	private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
+    private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
 	private final ClientService clientService;
 	private final SocialProfileTypeService socialProfileTypeService;
@@ -37,28 +38,29 @@ public class ClientRestController {
 	private final MessageService messageService;
 	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
+	private final StatusService statusService;
 
-
-	@Value("${project.pagination.page-size.clients}")
-	private int pageSize;
+    @Value("${project.pagination.page-size.clients}")
+    private int pageSize;
 
 	@Autowired
-	public ClientRestController(ClientService clientService,
-								SocialProfileTypeService socialProfileTypeService,
-								UserService userService,
-                SocialProfileService socialProfileService,
-								ClientHistoryService clientHistoryService,
-                MessageService messageService,
-								ProjectPropertiesService propertiesService) {
-		this.clientService = clientService;
-		this.socialProfileTypeService = socialProfileTypeService;
-		this.userService = userService;
-		this.clientHistoryService = clientHistoryService;
-		this.messageService = messageService;
-		this.propertiesService = propertiesService;
-		this.socialProfileService = socialProfileService;
-
-	}
+    public ClientRestController(ClientService clientService,
+                                SocialProfileTypeService socialProfileTypeService,
+                                UserService userService,
+                                SocialProfileService socialProfileService,
+                                ClientHistoryService clientHistoryService,
+                                MessageService messageService,
+                                ProjectPropertiesService propertiesService,
+                                StatusService statusService) {
+        this.clientService = clientService;
+        this.socialProfileTypeService = socialProfileTypeService;
+        this.userService = userService;
+        this.clientHistoryService = clientHistoryService;
+        this.messageService = messageService;
+        this.propertiesService = propertiesService;
+        this.socialProfileService = socialProfileService;
+        this.statusService = statusService;
+    }
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -66,16 +68,16 @@ public class ClientRestController {
 		return ResponseEntity.ok(clientService.getAll());
 	}
 
-	//запрос для вывода клиентов постранично - порядок из базы
-	@GetMapping(value = "/pagination/get")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity getClients(@RequestParam int page) {
-		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
-		if (clients == null || clients.isEmpty()) {
-			logger.info("No more clients");
-		}
-		return ResponseEntity.ok(clients);
-	}
+    //запрос для вывода клиентов постранично - порядок из базы
+    @GetMapping(value = "/pagination/get")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity getClients(@RequestParam int page) {
+        List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
+        if (clients == null || clients.isEmpty()) {
+            logger.info("No more clients");
+        }
+        return ResponseEntity.ok(clients);
+    }
 
 	//запрос для вывода клиентов постранично - новые выше (16.10.18 установлен по дефолту для all-clients-table)
  	@GetMapping(value = "/pagination/new/first")
@@ -91,8 +93,8 @@ public class ClientRestController {
 	@GetMapping(value = "/getClientsData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<InputStreamResource> getClientsData() {
-
-		String path = "DownloadData\\";
+        //TODO test cross-platform separator
+		String path = "DownloadData" + File.separator;
 		File file = new File(path + "data.txt");
 
 		InputStreamResource resource = null;
@@ -228,10 +230,8 @@ public class ClientRestController {
 			e.printStackTrace();
 		}
 
-		try {
-			FileWriter fileWriter = new FileWriter(file);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
+		try(FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
 				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
@@ -257,8 +257,6 @@ public class ClientRestController {
 					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
-
-			bufferedWriter.close();
 		} catch (IOException e) {
 			logger.error("File not created! ", e);
 		}
@@ -288,9 +286,8 @@ public class ClientRestController {
 			e.printStackTrace();
 		}
 
-		try {
-			FileWriter fileWriter = new FileWriter(file);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+		try(FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
@@ -316,8 +313,6 @@ public class ClientRestController {
 					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
-
-			bufferedWriter.close();
 		} catch (IOException e) {
 			logger.error("File not created! ", e);
 		}
@@ -429,5 +424,32 @@ public class ClientRestController {
     public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
         String postponeComment = clientService.get(clientId).getPostponeComment();
         return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
+    }
+
+    @PostMapping(value = "/setRepeated")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> setRepeated(@RequestParam(name = "clientId") Long clientId,
+                                              @RequestParam(name = "isRepeated") Boolean isRepeated,
+                                              @AuthenticationPrincipal User userFromSession) {
+        Client client = clientService.get(clientId);
+        if (client == null) {
+            logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+        }
+        if (client.isRepeated()) {
+            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
+        }
+        client.setRepeated(isRepeated);
+
+        clientService.updateClient(client);
+        return ResponseEntity.status(HttpStatus.OK).body("done");
+    }
+
+    @PostMapping(value = "/order")
+    public ResponseEntity setNewClientsOrder(@RequestParam SortingType newOrder,
+                                             @RequestParam Long statusId,
+                                             @AuthenticationPrincipal User userFromSession) {
+        statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
+        return ResponseEntity.ok("Ok");
     }
 }
