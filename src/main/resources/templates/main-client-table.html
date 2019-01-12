@@ -222,10 +222,13 @@
 
                 </div>
                 <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
+
                 <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'" th:text="${client.name} + ' ' + ${client.lastName}"
                     th:attr="client-id=${client.id} "
                     th:onclick="'changeUrl('+ ${client.id} +')'">
+
                 </div>
+
                 <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
                      th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl('+ ${client.id} +')'">
@@ -234,11 +237,11 @@
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
                     ${client.country}" hidden="hidden">
                     </div>
-                    <!--<div class="portlet-content">
 
-                    </div>-->
+
 
                 </div>
+                <!--<div class="portlet-content"></div>-->
             </div>
         </div>
         <div class="create-new-status-column">
