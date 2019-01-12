@@ -70,20 +70,20 @@ public class IPTelephonyRestController {
 
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
 		Path fileLocation = Paths.get("CallRecords\\" + file);
 		return Files.readAllBytes(fileLocation);
 	}
 
 	@GetMapping(value = "/voximplantCredentials")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public String getVoximplantCredentials() {
 		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
 	}
 
 	@PostMapping(value = "/voximplant")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public void voximplantCall(@RequestParam String from,
 							   @RequestParam String to,
 							   @AuthenticationPrincipal User userFromSession) {
@@ -104,7 +104,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/sendData")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getCallRecordsCredentials(@RequestParam String to,
 													@AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.getClientByPhoneNumber(to);
@@ -126,7 +126,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/calcKey")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());

@@ -131,7 +131,7 @@ function clientsSearch() {
         }
     });
 }
-
+//func responsible for the client's cards motion
 $(document).ready(function () {
     $(".column").sortable({
         delay: 100,
@@ -147,7 +147,7 @@ $(document).ready(function () {
             ui.item.removeClass("tilt");
             $("html").unbind('mousemove', ui.item.data("move_handler"));
             ui.item.removeData("move_handler");
-            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
+            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'));
         }
     });
 
@@ -240,31 +240,39 @@ function createNewUser() {
 function createNewStatus() {
     let url = '/rest/status/add';
     let statusName = $('#new-status-name').val() || $('#default-status-name').val();
+    let currentStatus = document.getElementById("sendSocialTemplateStatus");
+
     if (typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
 
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            window.location.reload();
-        },
-        error: function (e) {
-            alert(e.responseText);
-            console.log(e.responseText);
-        }
-    });
+    if(statusName.length < 25) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (result) {
+                window.location.reload();
+            },
+            error: function (e) {
+                alert(e.responseText);
+                console.log(e.responseText);
+            }
+        });
+    }
+    else {
+        currentStatus.style.color = "red";
+        currentStatus.textContent = "Название уменьши ка, будь человеком";
+    }
 }
 
 //Change status button
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
-    let trial_offset = $("#trial_offset_" + id).val();
-    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    let trial_offset = parseInt($("#trial_offset_" + id).val());
+    let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
@@ -858,29 +866,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        current.attr("disabled", "true");
+                        console.log(e)
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    current.attr("disabled", "true");
-                    console.log(e)
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -921,15 +931,6 @@ $(function () {
     });
 
 });
-// Кнопка  вк
-// $(function () {
-//     $(function (client) {
-//
-//  var clientId = client.age;
-//
-//     $('#vk-href').attr('href', clientId);
-//     });
-// });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -983,29 +984,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
-                        $('#custom-eTemplate-body').val("");
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            $('#custom-eTemplate-body').val("");
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        console.log(e);
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    console.log(e);
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -1030,30 +1033,32 @@ function hideClient(clientId) {
         isPostponeFlag: flag,
         postponeComment: comment,
     };
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-            success: function () {
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: commentUrl,
-                    data: {
-                        clientId: clientId,
-                        content: comment
-                    },
-                    success: function () {
-                        location.reload();
-                    },
-                });
-            },
-            error: function (e) {
-                currentStatus = $("#postponeStatus" + clientId)[0];
-                currentStatus.textContent = "Произошла ошибка";
-                console.log(e.responseText)
-            }
-        });
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: commentUrl,
+                data: {
+                    clientId: clientId,
+                    content: comment
+                },
+                success: function () {
+                    let currentStatus = document.getElementById("postpone-status");
+                    currentStatus.style.color = "limegreen";
+                    currentStatus.textContent = "Клиент успешно скрыт";
+                },
+            });
+        },
+        error: function (e) {
+            currentStatus = $("#postponeStatus" + clientId)[0];
+            currentStatus.textContent = "Произошла ошибка";
+            console.log(e.responseText)
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -1082,7 +1087,7 @@ $(function () {
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
@@ -1694,6 +1699,7 @@ $(function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
+
         $.ajax({
             async: false,
             type: 'GET',
@@ -1704,11 +1710,14 @@ $(function () {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
                     }
                     var adminName = user.firstName + ' ' + user.lastName;
+
                     $('#main-modal-window').data('userId', user.id);
 
-                    currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
+                    currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
@@ -1747,13 +1756,28 @@ $(function () {
                     $('#fb-href').hide();
                     $('#slack-href').hide();
 
+                    $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
+
+                    document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialProfiles[i].link);
+                        if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                            //ajax call for profile photo
+                            let vkref = client.socialProfiles[i].link;
+                            let url = '/rest/vkontakte/getProfilePhotoById';
+
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                data: {vkref: vkref},
+                                dataType:'json',
+                                complete: function(data) {
+                                    document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                                }
+                            });
+
+                            $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
 
-
-                            var vkref = client.socialProfiles[i].link;
                             $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
                             $('#vk-im-button').attr("clientID", client.id);
                             $('#vk-im-count').text($('#VK-notification'+clientId).text());
@@ -1814,13 +1838,44 @@ $(function () {
                 $('.client-collapse').attr('id', 'collapse' + client.id);
                 $('.history-line').attr('id', 'client-' + client.id + 'history');
                 $('.upload-more-history').attr('data-clientid', client.id);
+                $('#repeated-client-info').hide();
+
+                if (client.repeated) {
+
+                    $('#repeated-client-info').show();
+
+                }
             }
         });
-    });
+    })
 });
 
+function dropRepeatedFlag(clientId, repeated) {
+    var url = '/rest/client/setRepeated';
+    var formData = {
+        clientId: clientId,
+        isRepeated: repeated
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+
+        },
+        error: function (e) {
+            console.log(e);
+        }
+    });
+
+    $('#repeated-client-info').hide();
+
+}
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
+        var clientId = $(this).data('clientId');
+        dropRepeatedFlag(clientId, false);
         $('.assign-skype-call-btn').removeAttr("disabled");
         $('div#assign-unassign-btns').empty();
         $('.skype-notification').empty();
@@ -2082,6 +2137,27 @@ $(document).on('click','#btn-mic-off',function(){
     };
 });
 
+$(".change-student-status").on('click', function () {
+    let clientId = $(this).attr("id");
+    let statusId = $(this).attr("value");
+    // let currentStatusId = $(this).attr("name");
+    let url = "/rest/status/client/change";
+
+    let formData = {
+        clientId: clientId,
+        statusId: statusId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function () {
+            let x = document.getElementById(clientId);
+            $('#status-column'+statusId).append(x);
+        }
+    });
+});
+
 $(".change-status-position").on('click', function () {
     let destinationId = $(this).attr("value");
     let sourceId = $(this).parents(".column").attr("value");
@@ -2229,3 +2305,21 @@ $(function () {
         });
     });
 });*/
+
+function slackInvite(email) {
+    $.ajax({
+        type: "GET",
+        url: "/slack/" + email,
+        dataType: "json",
+
+        success: function (data) {
+            var ok = data.ok;
+            if (ok) {
+                alert('User is invited');
+            } else alert('already_invited');
+        },
+        error: function (e) {
+            alert('The user is not invited')
+        }
+    })
+}

@@ -1,12 +1,12 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Ссылка на профиль соцсети клиента (студента)
+ */
 @Entity
 @Table(name = "social_network")
 public class SocialProfile implements Serializable {
@@ -19,6 +19,10 @@ public class SocialProfile implements Serializable {
 	@Column(name = "link")
 	private String link;
 
+
+    /**
+     * Тип соцсети
+     */
 	@ManyToOne
 	@JoinTable(name = "social_network_social_network_type",
 			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},

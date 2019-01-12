@@ -14,6 +14,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Пользователь CRM, менеджер, ментор и тд
+ */
 @Entity
 @Table(name = "user")
 public class User implements UserDetails {
@@ -43,7 +46,7 @@ public class User implements UserDetails {
 	@Column(name = "vk")
 	private String vk;
 
-	@Column(name = "sex", nullable = false)
+	@Column(name = "sex", nullable = false) // gender (пол или мужской/женский род) правильнее. sex - это ибатсо
 	private String sex;
 
 	@Column(name = "city", nullable = false)
@@ -52,34 +55,60 @@ public class User implements UserDetails {
 	@Column(name = "country", nullable = false)
 	private String country;
 
+	/**
+	 * Ссылка на фото
+	 */
 	@Column(name = "photo")
 	private String photo;
 
+	/**
+	 * Тип фотографии???
+	 */
 	@Column(name = "photoType")
 	private String photoType;
 
+	/**
+	 * Доступна ли пользователю ip-телефония
+	 */
 	@Column(name = "ip_telephony")
-	private boolean ipTelephony;
+	private boolean ipTelephony; // некорректное названия поля типа boolean и вообще
 
-	@Column(name = "is_enabled")
+	/**
+	 * ????????
+	 */
+	@Column(name = "is_enabled") // включен, разрешен??? user-info.js, всегда false
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")
-	private boolean newClienNotifyIsEnabled = true;
+	private boolean newClienNotifyIsEnabled = true; //ошибка в названии поля
 
-	@Column(name = "is_verified")
+	/**
+	 * ????????
+	 */
+	@Column(name = "is_verified") // проверен на что??? user-info.js, всегда false
 	private boolean isVerified;
 
-	@Column(name = "autoAnswer")
+	/**
+	 * ????????
+	 */
+	@Column(name = "autoAnswer") // автоответ. в какой ситуации? РОМАН ГАПОНОВ
 	private String autoAnswer;
 
+	/**
+	 * Настройки авторизации пользователя в vk
+	 */
 	@Column(name = "vkToken")
 	private String vkToken;
 
+	/**
+	 * Настройки авторизации пользователя в google
+	 */
 	@Column(name = "googleToken")
 	private String googleToken;
 
-
+	/**
+	 * Уведомления, полученные пользователем
+	 */
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_notification",
@@ -87,14 +116,23 @@ public class User implements UserDetails {
 			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
 	private List<Notification> notifications;
 
+	/**
+	 * Присылать ли уведомления на электронную почту
+	 */
 	@JsonIgnore
 	@Column(name = "enable_mail_notifications")
 	private boolean enableMailNotifications = true;
 
+	/**
+	 * Закреплен за клиентами (студентами)
+	 */
 	@JsonIgnore
 	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
 
+	/**
+	 * Права (роль)
+	 */
 	@NotNull
 	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
 	@JoinTable(name = "permissions",
@@ -102,8 +140,12 @@ public class User implements UserDetails {
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
 	private List<Role> role = new ArrayList<>();
 
+	/**
+	 * Индивидуальная настройка интрефейса
+	 */
 	@Column(name = "color_background")
 	private String colorBackground;
+
 
 	public User() {
 		this.isEnabled = false;
@@ -124,6 +166,10 @@ public class User implements UserDetails {
 		this.ipTelephony = ipTelephony;
 		this.isVerified = isVerified;
 		this.isEnabled = isVerified;
+	}
+
+	public void setVerified(boolean verified) {
+		isVerified = verified;
 	}
 
 	public String getVkToken() {

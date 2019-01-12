@@ -1,9 +1,7 @@
 package com.ewp.crm.models;
 
-
-
-
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 //TODO Дополнить при необходимости полями для системных настроек
@@ -21,7 +19,11 @@ public class ProjectProperties {
 
     //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
     @Column(name = "default_status")
-    private Long defaultStatusId;
+    private Long defaultStatusId = -1L;
+
+    //ID статуса по умолчанию для повторно обративщихся клиентов
+    @Column(name = "repeated_default_status")
+    private Long repeatedDefaultStatusId = 1L;
 
     @Column(name = "new_client_status")
     private Long newClientStatus = 1L;
@@ -45,8 +47,28 @@ public class ProjectProperties {
     @Column(name = "payment_notification_enabled")
     private boolean paymentNotificationEnabled = false;
 
+    /**
+     * Auto-answer template for requests from java-mentor.com
+     */
+    @OneToOne
+    @JoinColumn(name = "auto_answer_template")
+    private MessageTemplate autoAnswerTemplate;
+
     @Column(name = "status_color")
     private String statusColor;
+
+    /**
+     * Цена месяца обучения по-умолчанию.
+     */
+    @Column(name = "default_price_per_month")
+    private BigDecimal defaultPricePerMonth = new BigDecimal(12000.00);
+
+    /**
+     * Cтатус по-умолчанию для нового студента.
+     */
+    @OneToOne
+    @JoinColumn(name = "default_student_status")
+    private StudentStatus defaultStudentStatus;
 
     public ProjectProperties() {
     }
@@ -74,6 +96,14 @@ public class ProjectProperties {
 
     public void setTechnicalAccountToken(String technicalAccountToken) {
         this.technicalAccountToken = technicalAccountToken;
+    }
+
+    public Long getRepeatedDefaultStatusId() {
+        return repeatedDefaultStatusId;
+    }
+
+    public void setRepeatedDefaultStatusId(Long repeatedDefaultStatusId) {
+        this.repeatedDefaultStatusId = repeatedDefaultStatusId;
     }
 
     public Long getDefaultStatusId() {
@@ -122,6 +152,30 @@ public class ProjectProperties {
 
     public void setNewClientStatus(Long newClientStatus) {
         this.newClientStatus = newClientStatus;
+    }
+
+    public BigDecimal getDefaultPricePerMonth() {
+        return defaultPricePerMonth;
+    }
+
+    public void setDefaultPricePerMonth(BigDecimal defaultPricePerMonth) {
+        this.defaultPricePerMonth = defaultPricePerMonth;
+    }
+
+    public StudentStatus getDefaultStudentStatus() {
+        return defaultStudentStatus;
+    }
+
+    public void setDefaultStudentStatus(StudentStatus defaultStudentStatus) {
+        this.defaultStudentStatus = defaultStudentStatus;
+    }
+
+    public MessageTemplate getAutoAnswerTemplate() {
+        return autoAnswerTemplate;
+    }
+
+    public void setAutoAnswerTemplate(MessageTemplate autoAnswerTemplate) {
+        this.autoAnswerTemplate = autoAnswerTemplate;
     }
 
     @Override

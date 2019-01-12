@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -53,4 +54,6 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getAllClientsByPage(Pageable pageable);
 
 	List<Client> getClientsBySearchPhrase(String search);
+
+	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
 }
