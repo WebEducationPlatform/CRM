@@ -53,6 +53,19 @@ function mark_as_read() {
 
             let whatsapp_sent = $(".whatsapp_sent");
             //TODO markup.
+            if (response.whatsapp != "" && whatsapp_sent.length != 0) {
+                for (let value of whatsapp_sent) {
+                    let id = parseInt(value.id.substring(17));
+                    let last_read = parseInt(response.whatsapp);
+                    console.log(value.id);
+                    console.log(last_read);
+                    if (id <= last_read) {
+                        let img = $("#" + value.id);
+                        img.prop('src', '/images/rad.png');
+                        img.prop('class', 'whatsapp_rad');
+                    }
+                }
+            }
         }
     })
 }

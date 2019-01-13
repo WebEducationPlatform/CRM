@@ -25,7 +25,7 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
 
     @Override
     public List<WhatsappMessage> findTop40BySeenFalseAndClient_IdOrderByTimeDesc(long clientId) {
-        return whatsappMessageRepository.findTop40BySeenFalseAndClient_IdOrderByTimeDesc(clientId);
+        return whatsappMessageRepository.findTop40BySeenFalseAndFromMeFalseAndClient_IdOrderByTimeDesc(clientId);
     }
 
     @Override
