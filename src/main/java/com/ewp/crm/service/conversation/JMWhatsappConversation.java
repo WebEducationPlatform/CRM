@@ -72,7 +72,7 @@ public class JMWhatsappConversation implements JMConversation {
 
         String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
                 ".chat-api.com/" + environment.getProperty("instance") +
-                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (lastMessage.getMessageNumber() - 2);
+                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (lastMessage==null?0+"&last":lastMessage.getMessageNumber() - 2);
         boolean messgesUpdated =false;
         Long lastMessageNumber;
         String id;
@@ -166,13 +166,13 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public Optional<Interlocutor> getInterlocutor(Client client) {
-        return Optional.of(new Interlocutor(client.getPhoneNumber(), "", "", "", ChatType.whatsapp));
+        return Optional.of(new Interlocutor(client.getPhoneNumber(), client.getPhoneNumber(), "/images/whatsapp.png", client.getName(), ChatType.whatsapp));
     }
 
     @Override
     public Optional<Interlocutor> getMe() {
         User u = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return Optional.of(new Interlocutor(u.getPhoneNumber(), "", "", "", ChatType.whatsapp));
+        return Optional.of(new Interlocutor(u.getPhoneNumber(), u.getFullName(), "/images/whatsapp.png", u.getFirstName(), ChatType.whatsapp));
 
     }
 }
