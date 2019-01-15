@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rest/vk-campaigns")
@@ -61,4 +63,23 @@ public class VkFriendsCampaignRestController {
         logger.info("Campaign with id {} deleted", id);
         return result;
     }
+
+    @PatchMapping("/{id}/start")
+    @ResponseBody
+    public Map<String, String > startCampaign(@PathVariable Long id) {
+        vkCampaignService.setActive(id, true);
+
+        logger.info("Campaign with id {} been started", id);
+        return Collections.singletonMap("response", "started");
+    }
+
+    @PatchMapping("/{id}/stop")
+    @ResponseBody
+    public Map<String, String > stopCampaign(@PathVariable Long id) {
+        vkCampaignService.setActive(id, false);
+
+        logger.info("Campaign with id {} been stopped", id);
+        return Collections.singletonMap("response", "stopped");
+    }
+
 }

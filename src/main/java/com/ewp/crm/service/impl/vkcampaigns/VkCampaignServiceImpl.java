@@ -83,17 +83,17 @@ public class VkCampaignServiceImpl implements VkCampaignService {
     @Override
     @Transactional
     public void nextAttemptCycle() {
-        List<VkAddFriendsCampaign> listOfCampaigns = this.getAll();
+        List<VkAddFriendsCampaign> listOfActiveCampaigns = this.getAllActiveCampaigns();
 
-        for (VkAddFriendsCampaign campaign : listOfCampaigns) {
+        for (VkAddFriendsCampaign campaign : listOfActiveCampaigns) {
             Long campaignId = campaign.getCampaignId();
 
-            VkUser vkUserWithoutAttempt = vkUserRepository.getOneWithoutAttempt(campaignId);
-            List<VkUser> vkUserListWithResponseValue =
-                    vkUserRepository.getAllByCampaignIdWithResponseValue(campaignId, 1);
-
-            /*Hibernate.initialize(campaign.getVkUsersToAdd());
-            Set<VkUser> vkUserSet = campaign.getVkUsersToAdd();*/
+            VkUser vkUserWithoutAttempt;
+            if(campaign.getAllowDuplicates()) {
+                vkUserWithoutAttempt = vkUserRepository.getOneWithoutAttempt(campaignId);
+            } else {
+                vkUserWithoutAttempt = vkUserRepository.getOneWithoutAttemptNoDuplicates(campaignId);
+            }
 
             UserActor actor = new UserActor(Math.toIntExact(campaign.getVkUserId()),
                     campaign.getVkUserToken());
@@ -167,5 +167,20 @@ public class VkCampaignServiceImpl implements VkCampaignService {
             statsMap.put(campaignId, vkUserRepository.countSentRequestsByCampaignId(campaignId));
         }
         return statsMap;
+    }
+
+    @Override
+    public List<VkAddFriendsCampaign> getAllActiveCampaigns() {
+        return vkCampaignRepository.findAllByActiveTrue();
+    }
+
+    @Override
+    @Transactional
+    public void setActive(Long id, boolean isActive) {
+        VkAddFriendsCampaign vkAddFriendsCampaign = this.get(id);
+        if (vkAddFriendsCampaign != null) {
+            vkAddFriendsCampaign.setActive(isActive);
+            this.update(vkAddFriendsCampaign);
+        }
     }
 }

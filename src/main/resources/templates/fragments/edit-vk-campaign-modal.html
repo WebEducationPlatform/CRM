@@ -13,26 +13,40 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 id="modal-header" class="modal-title">Редактирование кампании</h4>
                 </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <label for="campaign-name">Название кампании</label>
-                            <input id="campaign-name" class="form-control" type="text"/>
-                        </div>
-                        <div class="row">
-                            <label for="campaign-app-id">Введите VK ID приложения (цифровой)</label>
-                            <input id="campaign-app-id" class="form-control" type="text"/>
-                        </div>
-                        <div class="row">
-                            <label for="campaign-add-text">Введите текст для запроса</label>
-                            <input id="campaign-add-text" class="form-control" type="text"/>
+                <form class="form" enctype="multipart/form-data" method="post" action="/vk-campaign-edit">
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <input id="edit-campaign-id" name="id" class="form-control" type="hidden"/>
+                            <div class="row">
+                                <label for="edit-campaign-name">Название кампании</label>
+                                <input id="edit-campaign-name" name="name" class="form-control" type="text"/>
+                            </div>
+                            <div class="row">
+                                <label for="edit-campaign-add-text">Введите текст для запроса</label>
+                                <input id="edit-campaign-add-text" name="text" class="form-control" type="text"/>
+                            </div>
+                            <div class="row">
+                                <label for="edit-campaign-file">Файл с дополнительными VK ID</label>
+                                <input id="edit-campaign-file" type="file" class="btn-block"
+                                       name="file" size="45"/>
+                            </div>
+                            <div class="form-check">
+                                <label>
+                                    <input class="form-check-input"
+                                           id="edit-duplicates"
+                                           type="checkbox"
+                                           name="duplicates"
+                                           />
+                                    Допускать повторы от того же пользователя
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="create_campaign" type="button" class="btn btn-default" data-dismiss="modal">Создать
-                    </button>
-                </div>
+                    <div class="modal-footer">
+                        <button id="edit_campaign_submit" type="submit" class="btn btn-default">Сохранить
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
