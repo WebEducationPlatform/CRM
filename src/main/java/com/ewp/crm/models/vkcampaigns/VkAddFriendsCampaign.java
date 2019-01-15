@@ -1,11 +1,15 @@
 package com.ewp.crm.models.vkcampaigns;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "vk_add_friends_campaign")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkAddFriendsCampaign {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,18 +19,28 @@ public class VkAddFriendsCampaign {
     @Column(name = "campaign_name", unique = true)
     private String campaignName;
 
+    @JsonIgnore
     @Column(name = "app_id")
     private Long appId;
 
+    @JsonIgnore
     @Column(name = "vk_user_id")
     private Long vkUserId;
 
+    @JsonIgnore
     @Column(name = "vk_user_token")
     private String vkUserToken;
 
     @Column(name = "request_text")
     private String requestText;
 
+    @Column(name = "active")
+    private Boolean active;
+
+    @Column(name = "duplicates")
+    private Boolean allowDuplicates;
+
+    @JsonIgnore
     @JoinTable(name = "vk_add_friends_campaign_vk_user",
             joinColumns = {@JoinColumn(name = "campaign_id")},
             inverseJoinColumns = {@JoinColumn(name = "vk_id")})
@@ -38,12 +52,14 @@ public class VkAddFriendsCampaign {
     }
 
     public VkAddFriendsCampaign(String campaignName, Long appId, Long vkUserId, String vkUserToken,
-                                String requestText, Set<VkUser> vkUsersToAdd) {
+                                String requestText, Boolean active, Boolean allowDuplicates, Set<VkUser> vkUsersToAdd) {
         this.campaignName = campaignName;
         this.appId = appId;
         this.vkUserId = vkUserId;
         this.vkUserToken = vkUserToken;
         this.requestText = requestText;
+        this.active = active;
+        this.allowDuplicates = allowDuplicates;
         this.vkUsersToAdd = vkUsersToAdd;
     }
 
@@ -93,6 +109,22 @@ public class VkAddFriendsCampaign {
 
     public void setRequestText(String requestText) {
         this.requestText = requestText;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getAllowDuplicates() {
+        return allowDuplicates;
+    }
+
+    public void setAllowDuplicates(Boolean allowDuplicates) {
+        this.allowDuplicates = allowDuplicates;
     }
 
     public Set<VkUser> getVkUsersToAdd() {

@@ -32,10 +32,10 @@
                     <th class="col-md-1 fit">Имя кампании</th>
                     <th class="col-md-1 fit">User ID</th>
                     <th class="col-md-1 fit">App ID</th>
-                    <th class="col-md-10">Текст в запросе</th>
+                    <th class="col-md-9">Текст в запросе</th>
                     <th class="col-md-1 fit">Всего</th>
                     <th class="col-md-1 fit">Отправлено</th>
-                    <th class="col-md-1 fit">Действия</th>
+                    <th class="col-md-2">Действия</th>
                 </tr>
                 </thead>
                 <tbody id="table-body">
@@ -46,7 +46,14 @@
                     <td th:text="${campaign.requestText}"></td>
                     <td th:text="${campaign.vkUsersToAdd.size()}"></td>
                     <td th:text="${stats.get(campaign.campaignId)}"></td>
-                    <td class="fit">
+                    <td>
+                        <button th:if="${!campaign.active}"
+                                class="button_start_campaign btn btn-info glyphicon glyphicon-play"
+                                th:value="${campaign.campaignId}" title="Запустить кампанию"></button>
+                        <button th:unless="${!campaign.active}"
+                                class="button_stop_campaign btn btn-info glyphicon glyphicon-pause"
+                                th:value="${campaign.campaignId}" title="Приостановить кампанию"></button>
+
                         <button class="button_edit_campaign btn btn-info glyphicon glyphicon-pencil"
                                 th:value="${campaign.campaignId}" title="Изменить кампанию"></button>
                         <button class="button_delete_campaign btn btn-danger glyphicon glyphicon-remove"

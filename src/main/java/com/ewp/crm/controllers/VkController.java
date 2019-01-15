@@ -103,7 +103,8 @@ public class VkController {
     public ModelAndView createNewVkCampaignPage(@AuthenticationPrincipal User userFromSession,
                                                 @RequestParam("name") String name,
                                                 @RequestParam("appid") String appid,
-                                                @RequestParam("text") String text) {
+                                                @RequestParam("text") String text,
+                                                @RequestParam("duplicates") Boolean duplicates) {
 
         ModelAndView modelAndView = new ModelAndView("vk-campaign-create");
 
@@ -111,6 +112,7 @@ public class VkController {
         modelAndView.addObject("name", name);
         modelAndView.addObject("appid", appid);
         modelAndView.addObject("text", text);
+        modelAndView.addObject("duplicates", duplicates);
 
         return modelAndView;
     }
@@ -146,6 +148,7 @@ public class VkController {
                                            @RequestParam("appid") Long appId,
                                            @RequestParam("name") String campaignName,
                                            @RequestParam("text") String addText,
+                                           @RequestParam("duplicates") Boolean duplicates,
                                            @RequestParam("file") MultipartFile file,
                                     @AuthenticationPrincipal User userFromSession) {
         String token = urlString.replaceAll(".+(access_token=)", "")
@@ -155,8 +158,30 @@ public class VkController {
 
         Set<VkUser> usersSet = processUploadedFile(file);
         VkAddFriendsCampaign newCampaign = new VkAddFriendsCampaign(campaignName, appId, userId, token, addText,
+                false, duplicates,
                 usersSet);
         vkCampaignService.add(newCampaign);
+
+        return "redirect:/vk/campaigns/all";
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PostMapping(value = "/vk-campaign-edit")
+    public String vkCampaignEdit(@RequestParam("id") Long id,
+                                      @RequestParam("name") String campaignName,
+                                      @RequestParam("text") String addText,
+                                      @RequestParam(value = "duplicates", defaultValue = "false") Boolean duplicates,
+                                      @RequestParam("file") MultipartFile file,
+                                      @AuthenticationPrincipal User userFromSession) {
+
+        Set<VkUser> usersSet = processUploadedFile(file);
+
+        VkAddFriendsCampaign campaign = vkCampaignService.get(id);
+        campaign.setCampaignName(campaignName);
+        campaign.setRequestText(addText);
+        campaign.setAllowDuplicates(duplicates);
+        campaign.getVkUsersToAdd().addAll(usersSet);
+        vkCampaignService.update(campaign);
 
         return "redirect:/vk/campaigns/all";
     }

@@ -17,8 +17,25 @@ public class VkUserRepositoryImpl implements VkUserRepositoryCustom {
 
     @Override
     public VkUser getOneWithoutAttempt(Long campaignId) {
-        VkUser vkUser = (VkUser) em.createQuery("SELECT u FROM VkAddFriendsCampaign c JOIN c.vkUsersToAdd u " +
+        VkUser vkUser = (VkUser) em.createQuery(
+                "SELECT u FROM VkAddFriendsCampaign c JOIN c.vkUsersToAdd u " +
                 "WHERE c.campaignId = :campaignId and :campaignId not in indices(u.vkCampaignAttemptResponseMap)")
+                .setParameter("campaignId", campaignId)
+                .getResultList()
+                .stream().findFirst().orElse(null);
+
+        return vkUser;
+    }
+
+    @Override
+    public VkUser getOneWithoutAttemptNoDuplicates(Long campaignId) {
+        VkUser vkUser = (VkUser) em.createQuery(
+                "SELECT u FROM VkAddFriendsCampaign c JOIN c.vkUsersToAdd u " +
+                "WHERE (c.campaignId = :campaignId and u.vkId not in (" +
+                                       "SELECT at.vkUser.vkId FROM VkAttemptResponse at" +
+                                      " WHERE (at.campaignId in " +
+                                           "(SELECT cmp.campaignId FROM VkAddFriendsCampaign cmp " +
+                                            "WHERE cmp.vkUserId = c.vkUserId))))")
                 .setParameter("campaignId", campaignId)
                 .getResultList()
                 .stream().findFirst().orElse(null);

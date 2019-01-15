@@ -13,4 +13,6 @@ public interface VkUserRepositoryCustom {
     Long countSentRequestsByCampaignId(Long campaignId);
 
     void deleteAllWithoutCampaigns();
+
+    VkUser getOneWithoutAttemptNoDuplicates(Long campaignId);
 }

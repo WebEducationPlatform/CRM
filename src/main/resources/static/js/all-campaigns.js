@@ -7,12 +7,12 @@ $("#button_create_campaign").click(function () {
 $("#create_campaign").click(function () {
     $(this).prop("disabled", true);
 
-    let name = $("#campaign-name").val();
-    let appid = $("#campaign-app-id").val();
-    let text = $("#campaign-add-text").val();
+    let name = $("#campaign-name").val(),
+        appid = $("#campaign-app-id").val(),
+        text = $("#campaign-add-text").val(),
+        duplicates = $('#duplicates').is(':checked');
 
     $.ajax({
-        async: true,
         type: 'GET',
         url: '/rest/vk-campaigns/isnameexists',
         dataType: "JSON",
@@ -22,7 +22,8 @@ $("#create_campaign").click(function () {
                 window.location = "/vk/campaigns/create/"
                     + "?name=" + name
                     + "&appid=" + appid
-                    + "&text=" + text;
+                    + "&text=" + text
+                    + "&duplicates=" + duplicates;
             } else {
                 $("#create_campaign").prop("disabled", false);
                 alert("Кампания с названием " + name + " уже существует!");
@@ -31,10 +32,29 @@ $("#create_campaign").click(function () {
     });
 });
 
-//Edit campaign page redirect button
+//Edit campaign modal button
+var $modaledit = $('#vk-campaign-edit-modal').modal({show: false});
+
 $(".button_edit_campaign").click( function () {
     let id = this.value;
-    window.location = "/vk/campaigns/edit/" + id;
+
+    $.ajax({
+        type: 'GET',
+        url: '/rest/vk-campaigns/' + id,
+        dataType: "JSON",
+        success: function (response) {
+            if (response != null) {
+                $('#edit-campaign-id').val(response.campaignId);
+                $('#edit-campaign-name').val(response.campaignName);
+                $('#edit-campaign-add-text').val(response.requestText);
+                $('#edit-duplicates').prop('checked', response.allowDuplicates);
+                $modaledit.modal('show');
+            }
+        },
+        error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText);
+        }
+    });
 });
 
 //Delete campaign button
@@ -53,6 +73,41 @@ $(".button_delete_campaign").click( function () {
         }
     });
 });
+
+//Start campaign button
+$(".button_start_campaign").click( function () {
+    if(!confirm("Вы уверены, что хотите запустить кампанию?")) {return}
+    let id = this.value;
+    $.ajax({
+        type: 'PATCH',
+        url: '/rest/vk-campaigns/' + id + '/start',
+        success: function (response) {
+            if (response.response !== "started") {
+                alert("Ошибка запуска!");
+            } else {
+                location.reload();
+            }
+        }
+    });
+});
+
+//Stop campaign button
+$(".button_stop_campaign").click( function () {
+    if(!confirm("Вы уверены, что хотите приостановить кампанию?")) {return}
+    let id = this.value;
+    $.ajax({
+        type: 'PATCH',
+        url: '/rest/vk-campaigns/' + id + '/stop',
+        success: function (response) {
+            if (response.response !== "stopped") {
+                alert("Ошибка остановки!");
+            } else {
+                location.reload();
+            }
+        }
+    });
+});
+
 
 //Search on page
 $("#searchInput").keyup(function () {
