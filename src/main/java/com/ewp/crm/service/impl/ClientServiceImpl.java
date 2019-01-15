@@ -290,4 +290,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 		logger.error("Error with sorting clients");
 		return new ArrayList<>();
 	}
+
+    @Override
+    public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
+        return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
+    }
 }

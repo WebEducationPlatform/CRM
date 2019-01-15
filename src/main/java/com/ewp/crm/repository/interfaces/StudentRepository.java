@@ -7,4 +7,5 @@ import java.util.List;
 public interface StudentRepository extends CommonGenericRepository<Student> {
 
     List<Student> getStudentsByStatusId(Long id);
+    Student getStudentByClientId(Long clientId);
 }
