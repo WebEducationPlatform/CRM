@@ -79,4 +79,16 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     public void detach(Student student) {
         studentRepositoryCustom.detach(student);
     }
+
+    @Override
+    public Student getStudentByClientId(Long clientId) {
+        return studentRepository.getStudentByClientId(clientId);
+    }
+
+    @Override
+    public void save(Student student) {
+        studentRepository.save(student);
+    }
+
+
 }
