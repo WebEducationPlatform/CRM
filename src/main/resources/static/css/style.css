@@ -116,10 +116,25 @@ body {
 }
 
 .portlet {
+	min-width: 120px;
+	max-width: 240px;
+	max-height:50px;
 	margin: 0 1em 1em 0;
-	padding: 0.3em;
+	padding: 0.01em;
 	cursor: pointer;
 }
+
+.portlet-title-groups{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.portlet-title-groups button{
+	background-color: transparent;
+}
+
+
 
 .portlet-body:active {
 	cursor: grabbing;
@@ -173,6 +188,7 @@ ul.nav a:hover {
 #column-header {
 	border-bottom: 5px solid #ff00001a;
 	margin-right: 5%;
+	position: relative;
 }
 
 .create-new-status-column {
@@ -236,6 +252,15 @@ ul.nav a:hover {
 
 .modal-footer {
 	border-top: 1px solid #cdcfd0;
+}
+
+.user-icon_card {
+	background: transparent;
+	height: 15px;
+	font-size: 12px;
+	font-weight: bold;
+	width: 30px;
+	display: inline-block;
 }
 
 .user-icon {
@@ -312,7 +337,8 @@ ul.nav a:hover {
 }
 
 #column-header .btn-group{
-	float: right;
+	position: absolute;
+	right: 0px;
 	margin-right: 15px;
 	margin-top: 5px;
 }
@@ -595,13 +621,11 @@ button[name="editStatusBtn"] {
 }
 
 button[name|="emailTmplList"] {
-	border: 2px solid #cccccc;
-	border-radius: 40px;
-	padding: 12px;
-	background: #f1f1f1;
+	border: none;
 	color: #000000;
 	margin-right: 0;
 	margin-left: 4px;
+	object-fit: cover;
 }
 
 .glyphicon {
@@ -655,8 +679,8 @@ div.search-place{
 button.option{
     margin:0;
     display:none;
-}
 
+}
 
 span[id^="postponeStatus"] {
 	color: red;

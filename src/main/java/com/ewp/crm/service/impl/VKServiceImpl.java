@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Component
 @PropertySource(value = "file:./anti-captcha.properties")
@@ -804,7 +805,46 @@ public class VKServiceImpl implements VKService {
         }
         return Optional.empty();
     }
+  
+    @Override
+    public String getVkPhotoLinkByClientProfileId(String vkProfileId) {
+        logger.info("Getting vk profile photo link for " + vkProfileId);
 
+        String clientVkPhotoLink = "";
+
+        String clientId = (Pattern.matches("^https://vk.com/id\\d{1,10}$", vkProfileId)) ?
+                vkProfileId.replaceAll("https://vk.com/id", "") :
+                vkProfileId.replaceAll("https://vk.com/", "");
+
+        String request = vkAPI + "users.get?"
+                + "user_ids=" + clientId
+                + "&fields=photo_50"
+                + "&access_token=" + communityToken
+                + "&v=" + version;
+
+        HttpGet httpGetClient = new HttpGet(request);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+
+        try{
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray array = json.getJSONArray("response");
+            JSONObject user = array.getJSONObject(0);
+            clientVkPhotoLink = user.getString("photo_50");
+        }catch (JSONException jex){
+            logger.error("Failed to parse response into JSON for "
+                    + clientId + "- for reason " + jex);
+        }
+        catch (IOException ex){
+            logger.error("Failed to connect to VK server while getting profile pic for "
+                    + clientId + "- for reason " + ex);
+        }
+        return clientVkPhotoLink;
+    }
 
     private static String getByteArrayFromImageURL(String url) {
 
@@ -842,6 +882,5 @@ public class VKServiceImpl implements VKService {
         JsonObject convertedObjectResult = new Gson().fromJson(responseResult.body().string(), JsonObject.class);
         return convertedObjectResult.getAsJsonObject("solution").get("text").getAsString();
     }
-
 }
 

@@ -50,4 +50,6 @@ public interface VKService {
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
+    String getVkPhotoLinkByClientProfileId(String vkProfileId);
+
 }
