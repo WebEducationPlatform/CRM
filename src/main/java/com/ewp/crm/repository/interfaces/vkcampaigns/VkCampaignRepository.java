@@ -13,4 +13,5 @@ public interface VkCampaignRepository extends CommonGenericRepository<VkAddFrien
 
     List<VkAddFriendsCampaign> findAllByActiveTrue();
 
+    Integer countDistinctByProblemIsTrue();
 }

@@ -56,6 +56,19 @@ public class VkFriendsCampaignRestController {
         return result;
     }
 
+    @GetMapping("/havingproblems")
+    @ResponseBody
+    public Boolean isCampaignsHaveProblems() {
+        Boolean result = false;
+
+        if(vkCampaignService.countProblems() > 0) {
+            result = true;
+        }
+
+        return result;
+    }
+
+
     @DeleteMapping("/{id}")
     public HttpStatus deleteCampaign(@PathVariable Long id) {
         HttpStatus result = HttpStatus.OK;
@@ -66,7 +79,7 @@ public class VkFriendsCampaignRestController {
 
     @PatchMapping("/{id}/start")
     @ResponseBody
-    public Map<String, String > startCampaign(@PathVariable Long id) {
+    public Map<String, String> startCampaign(@PathVariable Long id) {
         vkCampaignService.setActive(id, true);
 
         logger.info("Campaign with id {} been started", id);
@@ -75,7 +88,7 @@ public class VkFriendsCampaignRestController {
 
     @PatchMapping("/{id}/stop")
     @ResponseBody
-    public Map<String, String > stopCampaign(@PathVariable Long id) {
+    public Map<String, String> stopCampaign(@PathVariable Long id) {
         vkCampaignService.setActive(id, false);
 
         logger.info("Campaign with id {} been stopped", id);

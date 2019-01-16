@@ -158,7 +158,7 @@ public class VkController {
 
         Set<VkUser> usersSet = processUploadedFile(file);
         VkAddFriendsCampaign newCampaign = new VkAddFriendsCampaign(campaignName, appId, userId, token, addText,
-                false, duplicates,
+                false, false, duplicates,
                 usersSet);
         vkCampaignService.add(newCampaign);
 

@@ -1,28 +1,26 @@
 // Предполагаем что статус не установлен, при открытии страницы.
 $(function () {
     if (sessionStorage.getItem('campaigns_status') == undefined) {
-        sessionStorage.setItem('campaigns_status', 'false');
+        sessionStorage.setItem('campaigns_status', 'unknown');
     }
 });
-// Запрос к базе о состоянии статуса происходит 1 раз при каждом новом открытии страницы (новой сессии),
-// 2 раза при своевременной установке статуса админом после первого запуска и напоминания,
-// n-раз до установки статуса, попап будет так же всплывать n-раз
+
 $(function getStatus() {
-    if ((sessionStorage.getItem('campaigns_status') === 'false')) {
-        var url = '/rest/properties';
+    if ((sessionStorage.getItem('campaigns_status') === 'unknown')) {
+        let url = '/rest/vk-campaigns/havingproblems';
         $.ajax({
             type: 'GET',
             url: url,
             success: function (response) {
-                if (true) {
-                    var delay_popup = 2000;
-                    var msg_campaigns = document.getElementById('msg_campaigns');
+                let msg_campaigns = document.getElementById('msg_campaigns');
+                if (response) {
+                    let delay_popup = 2000;
                     setTimeout(function () {
                         msg_campaigns.style.display = 'block';
                         msg_campaigns.className += 'fadeIn';
                     }, delay_popup);
                 } else {
-                    sessionStorage.setItem('student_status', 'true');
+                    sessionStorage.setItem('campaigns_status', 'ok');
                     msg_campaigns.style.display = 'none';
                 }
             }

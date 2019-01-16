@@ -183,4 +183,9 @@ public class VkCampaignServiceImpl implements VkCampaignService {
             this.update(vkAddFriendsCampaign);
         }
     }
+
+    @Override
+    public Integer countProblems() {
+        return vkCampaignRepository.countDistinctByProblemIsTrue();
+    }
 }

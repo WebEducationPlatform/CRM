@@ -54,7 +54,7 @@ public class VkUserRepositoryImpl implements VkUserRepositoryCustom {
 
     @Override
     public Long countSentRequestsByCampaignId(Long campaignId) {
-        return (Long) em.createQuery("SELECT COUNT(DISTINCT u) FROM VkUser u JOIN u.vkCampaignAttemptResponseMap m" +
+         return (Long) em.createQuery("SELECT COUNT(DISTINCT u) FROM VkUser u JOIN u.vkCampaignAttemptResponseMap m" +
                 " WHERE (KEY(m) = :campaignId and m.responseCode in (1, 2, 4))")
                 .setParameter("campaignId", campaignId)
                 .getSingleResult();

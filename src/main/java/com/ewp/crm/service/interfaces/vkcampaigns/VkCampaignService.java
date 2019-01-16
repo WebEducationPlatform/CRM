@@ -17,4 +17,6 @@ public interface VkCampaignService extends CommonService<VkAddFriendsCampaign> {
     List<VkAddFriendsCampaign> getAllActiveCampaigns();
 
     void setActive(Long id, boolean b);
+
+    Integer countProblems();
 }
