@@ -26,6 +26,9 @@
                 <button type="button" id="open-filter" class="btn btn-info" data-toggle="collapse"
                         data-target="#filter">Фильтр
                 </button>
+                <button class="btn btn-danger" data-toggle="modal" data-target="#massInputModal">
+                    Массовый ввод
+                </button>
             </div>
             <div class="col-md-4"><input class="form-control clearable" id="searchInput"
                                          placeholder="Поиск клиентов..."/>
@@ -176,6 +179,67 @@
                 <a th:if="${status.name != 'deleted'}" class="link-cursor-pointer return-to-visible-status"
                    th:text="${status.name}" th:value="${status.id}" onclick=""></a>
             </li>
+        </div>
+
+        <div class="modal fade" id="massInputModal" tabindex="-1" role="dialog"
+             aria-labelledby="massInputLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="massInputLabel">Массовый ввод</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            x
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="listFio">Список клиентов в формате ФИО (каждый с новой строки):</label>
+                                    <textarea class="form-control text-lowercase" id="listFio" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+                                <div class="col">
+                                    <label for="listEmail">Список email клиентов (соблюдать соответствие с ФИО
+                                        клиента):</label>
+                                    <textarea class="form-control text-lowercase" id="listEmail" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+                                <div class="col">
+                                    <label for="trialDate">Конец пробных:</label>
+                                    <textarea class="form-control text-lowercase" id="trialDate" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+                                <div class="col">
+                                    <label for="nextPayment">Следующая оплата:</label>
+                                    <textarea class="form-control text-lowercase" id="nextPayment" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+                                <div class="col">
+                                    <label for="price">Цена:</label>
+                                    <textarea class="form-control text-lowercase" id="price" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+                                <div class="col">
+                                    <label for="paymentSum">Сумма платежа:</label>
+                                    <textarea class="form-control text-lowercase" id="paymentSum" rows="14"
+                                              style="font-size: 8pt"></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <button class="btn btn-success" onclick="massClientInputSend()">
+                                    Сохранить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
