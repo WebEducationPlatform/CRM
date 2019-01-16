@@ -37,6 +37,9 @@ public class VkAddFriendsCampaign {
     @Column(name = "active")
     private Boolean active;
 
+    @Column(name = "problem")
+    private Boolean problem;
+
     @Column(name = "duplicates")
     private Boolean allowDuplicates;
 
@@ -51,14 +54,15 @@ public class VkAddFriendsCampaign {
     public VkAddFriendsCampaign() {
     }
 
-    public VkAddFriendsCampaign(String campaignName, Long appId, Long vkUserId, String vkUserToken,
-                                String requestText, Boolean active, Boolean allowDuplicates, Set<VkUser> vkUsersToAdd) {
+    public VkAddFriendsCampaign(String campaignName, Long appId, Long vkUserId, String vkUserToken, String requestText,
+                                Boolean active, Boolean problem, Boolean allowDuplicates, Set<VkUser> vkUsersToAdd) {
         this.campaignName = campaignName;
         this.appId = appId;
         this.vkUserId = vkUserId;
         this.vkUserToken = vkUserToken;
         this.requestText = requestText;
         this.active = active;
+        this.problem = problem;
         this.allowDuplicates = allowDuplicates;
         this.vkUsersToAdd = vkUsersToAdd;
     }
@@ -117,6 +121,14 @@ public class VkAddFriendsCampaign {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Boolean problem) {
+        this.problem = problem;
     }
 
     public Boolean getAllowDuplicates() {

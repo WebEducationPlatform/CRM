@@ -339,7 +339,7 @@ public class DataInitializer {
                 6804295L,
                 509947643L,
                 "4d91545b27cff5bc897c18b396003e661421bdf6a5137f73ab61c7a43b3a7bc5fecff03468bd701eae739",
-                "TEST, please ignore, sorry! ТЕСТ, пожалуйста пригнорируйте, извините!", true, false,
+                "TEST, please ignore, sorry! ТЕСТ, пожалуйста пригнорируйте, извините!", true, true, false,
                 usersSet1);
         vkCampaignService.add(newCampaign1);
 
