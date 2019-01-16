@@ -56,4 +56,6 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getClientsBySearchPhrase(String search);
 
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
+
+	Client findByNameAndLastNameIgnoreCase(String name, String lastName);
 }
