@@ -39,7 +39,7 @@
                 </tr>
                 </thead>
                 <tbody id="table-body">
-                <tr th:each="campaign : ${campaignsList}" th:classappend="${campaign.problem}? 'table-danger'">
+                <tr th:each="campaign : ${campaignsList}" th:classappend="${campaign.problem}? 'bg-danger'">
                     <td th:text="${campaign.campaignName}"></td>
                     <td th:text="${campaign.vkUserId}"></td>
                     <td th:text="${campaign.appId}"></td>

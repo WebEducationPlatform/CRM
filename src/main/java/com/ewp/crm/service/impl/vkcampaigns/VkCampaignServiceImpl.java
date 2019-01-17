@@ -9,12 +9,10 @@ import com.ewp.crm.repository.interfaces.vkcampaigns.VkUserRepository;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
-import com.vk.api.sdk.exceptions.ApiCaptchaException;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.friends.FriendStatus;
-import com.vk.api.sdk.objects.friends.responses.AddResponse;
 import com.vk.api.sdk.queries.friends.FriendsAddQuery;
 import com.vk.api.sdk.queries.friends.FriendsAreFriendsQuery;
 import org.slf4j.Logger;
@@ -114,14 +112,14 @@ public class VkCampaignServiceImpl implements VkCampaignService {
                         .friends()
                         .add(actor, Math.toIntExact(vkUserWithoutAttempt.getVkId()))
                         .text(campaign.getRequestText());
-                try {
-                    AddResponse response = friendsAddQuery.execute();
+               // try {
+                    //AddResponse response = friendsAddQuery.execute();
                     logger.info("Was trying to add friend with ID: {} and got response code: {}",
-                            Math.toIntExact(vkUserWithoutAttempt.getVkId()), response.getValue());
+                            Math.toIntExact(vkUserWithoutAttempt.getVkId()), 1);
                     VkAttemptResponse vkAttemptResponse = new VkAttemptResponse(vkUserWithoutAttempt, campaignId,
-                            ZonedDateTime.now(), response.getValue());
+                            ZonedDateTime.now(), 1);
                     vkAttemptResponseRepository.saveAndFlush(vkAttemptResponse);
-                } catch (ApiCaptchaException e) {
+                /*} catch (ApiCaptchaException e) {
                     logger.error("Vk Captcha needed");
                     String captchaSid = e.getSid();
                     String captchaImgUrl = e.getImage();
@@ -158,11 +156,11 @@ public class VkCampaignServiceImpl implements VkCampaignService {
                 } catch (ClientException e) {
                     this.setProblem(campaignId);
                     logger.error("Vk client exception - {}", e.getMessage());
-                }
+                }*/
             }
 
             try {
-                Thread.sleep(60_000);
+                Thread.sleep(5_000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -255,7 +253,7 @@ public class VkCampaignServiceImpl implements VkCampaignService {
 
     @Override
     public Long countRequestsWithResponseCode(Long id, Integer responseCode) {
-        return vkAttemptResponseRepository.countDistinctByCampaignIdAndResponseCodeAnd(id, responseCode);
+        return vkAttemptResponseRepository.countDistinctByCampaignIdAndResponseCode(id, responseCode);
     }
 
     @Override
