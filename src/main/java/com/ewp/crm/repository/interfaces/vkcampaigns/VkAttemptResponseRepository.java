@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VkAttemptResponseRepository extends CommonGenericRepository<VkAttemptResponse> {
     void deleteByCampaignId(Long campaignId);
+
+    Long countDistinctByCampaignIdAndResponseCodeAnd(Long vkCampaignService, Integer responseCode);
 }

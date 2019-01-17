@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,13 @@ import java.util.Map;
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class VkFriendsCampaignRestController {
 
+    private static final int RESPONSE_CODE_SENT = 1;
+    private static final int RESPONSE_CODE_APPROVED = 2;
+    private static final int RESPONSE_CODE_REATTEMPT = 4;
+    private static final int RESPONSE_CODE_SELF_REQUEST = 174;
+    private static final int RESPONSE_CODE_YOU_BLACKLISTED = 175;
+    private static final int RESPONSE_CODE_IN_YOUR_BLACKLIST = 176;
+    private static final int RESPONSE_CODE_USER_NOT_FOUND = 177;
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final VkCampaignService vkCampaignService;
@@ -68,7 +76,6 @@ public class VkFriendsCampaignRestController {
         return result;
     }
 
-
     @DeleteMapping("/{id}")
     public HttpStatus deleteCampaign(@PathVariable Long id) {
         HttpStatus result = HttpStatus.OK;
@@ -95,4 +102,24 @@ public class VkFriendsCampaignRestController {
         return Collections.singletonMap("response", "stopped");
     }
 
+    @GetMapping("/{id}/stats")
+    @ResponseBody
+    public Map<String, Long> campaignStats(@PathVariable Long id) {
+        Map<String, Long> result = new HashMap<>();
+
+        result.put("allIds", vkCampaignService.countVkIdsInList(id));
+        result.put("friendsAdded", vkCampaignService.countAddedFriends(id));
+        result.put("requestSent", vkCampaignService.countRequestsWithResponseCode(id, RESPONSE_CODE_SENT));
+        result.put("requestApproved", vkCampaignService.countRequestsWithResponseCode(id, RESPONSE_CODE_APPROVED));
+        result.put("requestReattempt", vkCampaignService.countRequestsWithResponseCode(id, RESPONSE_CODE_REATTEMPT));
+        result.put("selfRequest", vkCampaignService.countRequestsWithResponseCode(id, RESPONSE_CODE_SELF_REQUEST));
+        result.put("youBlacklisted", vkCampaignService.countRequestsWithResponseCode(id,
+                RESPONSE_CODE_YOU_BLACKLISTED));
+        result.put("inYourBlacklist", vkCampaignService.countRequestsWithResponseCode(id,
+                RESPONSE_CODE_IN_YOUR_BLACKLIST));
+        result.put("notFound", vkCampaignService.countRequestsWithResponseCode(id,
+                RESPONSE_CODE_USER_NOT_FOUND));
+
+        return result;
+    }
 }

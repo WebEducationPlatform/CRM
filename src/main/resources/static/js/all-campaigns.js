@@ -57,6 +57,39 @@ $(".button_edit_campaign").click( function () {
     });
 });
 
+//Statistics campaign modal button
+var $modalstats = $('#vk-campaign-stats-modal').modal({show: false});
+
+$(".button_stats_campaign").click( function () {
+    let id = this.value;
+
+    $.ajax({
+        type: 'GET',
+        url: '/rest/vk-campaigns/' + id + '/stats',
+        dataType: "JSON",
+        success: function (response) {
+            if (response != null) {
+                $('#stats_all_ids').val(response.allIds);
+                $('#stats_sent_all').val(response.requestSent);
+                $('#stats_already_friends').val(response.friendsAdded);
+                $('#stats_response_sent').val(response.requestSent);
+                $('#stats_response_approved').val(response.requestApproved);
+                $('#stats_response_reattempt').val(response.requestReattempt);
+                $('#stats_error_selfrequest').val(response.selfRequest);
+                $('#stats_error_you_blacklisted').val(response.youBlacklisted);
+                $('#stats_error_in_your_blacklist').val(response.inYourBlacklist);
+                $('#stats_error_not_found').val(response.notFound);
+
+
+                $modalstats.modal('show');
+            }
+        },
+        error: function (request, status, error) {
+            console.log("ajax call went wrong:" + request.responseText);
+        }
+    });
+});
+
 //Delete campaign button
 $(".button_delete_campaign").click( function () {
     if(!confirm("Вы уверены, что хотите удалить кампанию?")) {return}
