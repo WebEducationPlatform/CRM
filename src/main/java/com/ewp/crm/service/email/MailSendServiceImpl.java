@@ -275,9 +275,10 @@ public class MailSendServiceImpl implements MailSendService {
         javaMailSender.send(message);
     }
 
-    public void sendNotificationMessageYourself(String notificationMessage) {
+    @Override
+    public void sendReportToJavaMentorEmail(String report) {
         User user = new User();
-        user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
-        sendNotificationMessage(user, notificationMessage);
+        user.setEmail("info@java-mentor.com");
+        sendNotificationMessage(user, report);
     }
 }
