@@ -413,3 +413,37 @@ $(document).ready(function () {
         }
     })
 });
+
+function massClientInputSend() {
+    let fioList = $('#listFio').val();
+    let emailList = $('#listEmail').val();
+    let trialDateList = $('#trialDate').val();
+    let nextPaymentList = $('#nextPayment').val();
+    let priceList = $('#price').val();
+    let paymentSumList = $('#paymentSum').val();
+    let studentStatus = $('#studentStatus').val();
+    let url = "../rest/client/massInputSend";
+
+    if(fioList&&emailList) {
+        let wrap = {
+            fioList: fioList,
+            emailList: emailList,
+            trialDateList: trialDateList,
+            nextPaymentList: nextPaymentList,
+            priceList: priceList,
+            paymentSumList: paymentSumList,
+            studentStatus: studentStatus
+        }
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: wrap,
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+        console.log("Ошибка при сохранении пользователей");
+    }
+}

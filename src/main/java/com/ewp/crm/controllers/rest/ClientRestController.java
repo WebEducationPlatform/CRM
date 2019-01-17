@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,19 +41,21 @@ public class ClientRestController {
 	private final ProjectPropertiesService propertiesService;
 	private final SocialProfileService socialProfileService;
 	private final StatusService statusService;
+	private final StudentService studentService;
+	private final StudentStatusService studentStatusService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
 	@Autowired
     public ClientRestController(ClientService clientService,
-                                SocialProfileTypeService socialProfileTypeService,
-                                UserService userService,
-                                SocialProfileService socialProfileService,
-                                ClientHistoryService clientHistoryService,
-                                MessageService messageService,
-                                ProjectPropertiesService propertiesService,
-                                StatusService statusService) {
+								SocialProfileTypeService socialProfileTypeService,
+								UserService userService,
+								SocialProfileService socialProfileService,
+								ClientHistoryService clientHistoryService,
+								MessageService messageService,
+								ProjectPropertiesService propertiesService,
+								StatusService statusService, StudentService studentService, StudentStatusService studentStatusService) {
         this.clientService = clientService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
@@ -60,7 +64,9 @@ public class ClientRestController {
         this.propertiesService = propertiesService;
         this.socialProfileService = socialProfileService;
         this.statusService = statusService;
-    }
+		this.studentService = studentService;
+		this.studentStatusService = studentStatusService;
+	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -452,4 +458,65 @@ public class ClientRestController {
         statusService.setNewOrderForChosenStatusForCurrentUser(newOrder, statusId, userFromSession);
         return ResponseEntity.ok("Ok");
     }
+
+	@PostMapping(value = "/massInputSend")
+	public void massClientInputSave(@RequestParam(name = "emailList") String emailList,
+									@RequestParam(name = "fioList") String fioList,
+									@RequestParam(name = "trialDateList") String trialDateList,
+									@RequestParam(name = "nextPaymentList") String nextPaymentList,
+									@RequestParam(name = "priceList") String priceList,
+									@RequestParam(name = "paymentSumList") String paymentSumList,
+									@RequestParam(name = "studentStatus") String studentStatusId) {
+
+		List<String> resultEmailList = Arrays.asList(emailList.split("\n"));
+		List<String> resultFioList = Arrays.asList(fioList.split("\n"));
+		List<String> resultTrialDateList = Arrays.asList(trialDateList.split("\n"));
+		List<String> resultNextPaymentList = Arrays.asList(nextPaymentList.split("\n"));
+		List<String> resultPriceList = Arrays.asList(priceList.split("\n"));
+		List<String> resultPaymentSumList = Arrays.asList(paymentSumList.split("\n"));
+        StudentStatus studentStatus = studentStatusService.get(Long.valueOf(studentStatusId));
+
+		for (int i = 0; i < resultEmailList.size(); i++) {
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+			LocalDate endTrialDate = LocalDate.parse(resultTrialDateList.get(i), dateTimeFormatter);
+			LocalDate nextPaymentDate = LocalDate.parse(resultNextPaymentList.get(i), dateTimeFormatter);
+			BigDecimal price = new BigDecimal(resultPriceList.get(i));
+			BigDecimal paymentAmount = new BigDecimal(resultPaymentSumList.get(i));
+            String[] nameAndLastNameArr = resultFioList.get(i).split(" ");
+            Client client = Objects.nonNull(clientService.getClientByEmail(resultEmailList.get(i).trim()))?
+                    clientService.getClientByEmail(resultEmailList.get(i).trim()):
+                    clientService.findByNameAndLastNameIgnoreCase(nameAndLastNameArr[0].trim(),
+                            nameAndLastNameArr[1].trim());
+			if (Objects.nonNull(client)) {
+				Student student = studentService.getStudentByClientId(client.getId());
+				if (Objects.nonNull(student)) {
+					studentService.update(setStudentParams(student, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
+				} else {
+                    Student newStudent = new Student();
+					newStudent.setClient(client);
+					studentService.save(setStudentParams(newStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
+				}
+			} else {
+				Client newClient = new Client();
+                newClient.setName(nameAndLastNameArr[0].trim());
+                newClient.setLastName(nameAndLastNameArr[1].trim());
+                newClient.setEmail(resultEmailList.get(i).trim());
+                newClient.setStatus(statusService.get(1L));
+				clientService.addClient(newClient);
+				Student createStudent = new Student();
+				createStudent.setClient(newClient);
+				studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
+			}
+		}
+	}
+
+	public Student setStudentParams(Student student, LocalDate endTrialDate, LocalDate nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, StudentStatus studentStatus) {
+	    student.setTrialEndDate(endTrialDate.atStartOfDay());
+		student.setNextPaymentDate(nextPaymentDate.atStartOfDay());
+		student.setPrice(price);
+		student.setPaymentAmount(paymentAmount);
+		student.setStatus(studentStatus);
+		return student;
+	}
+
 }
