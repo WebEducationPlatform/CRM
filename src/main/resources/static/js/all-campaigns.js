@@ -69,16 +69,16 @@ $(".button_stats_campaign").click( function () {
         dataType: "JSON",
         success: function (response) {
             if (response != null) {
-                $('#stats_all_ids').val(response.allIds);
-                $('#stats_sent_all').val(response.requestSent);
-                $('#stats_already_friends').val(response.friendsAdded);
-                $('#stats_response_sent').val(response.requestSent);
-                $('#stats_response_approved').val(response.requestApproved);
-                $('#stats_response_reattempt').val(response.requestReattempt);
-                $('#stats_error_selfrequest').val(response.selfRequest);
-                $('#stats_error_you_blacklisted').val(response.youBlacklisted);
-                $('#stats_error_in_your_blacklist').val(response.inYourBlacklist);
-                $('#stats_error_not_found').val(response.notFound);
+                $('#stats_all_ids').text(response.allIds);
+                $('#stats_sent_all').text(response.requestSent);
+                $('#stats_already_friends').text(response.friendsAdded);
+                $('#stats_response_sent').text(response.requestSent);
+                $('#stats_response_approved').text(response.requestApproved);
+                $('#stats_response_reattempt').text(response.requestReattempt);
+                $('#stats_error_selfrequest').text(response.selfRequest);
+                $('#stats_error_you_blacklisted').text(response.youBlacklisted);
+                $('#stats_error_in_your_blacklist').text(response.inYourBlacklist);
+                $('#stats_error_not_found').text(response.notFound);
 
 
                 $modalstats.modal('show');
