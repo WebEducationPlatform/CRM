@@ -226,6 +226,15 @@
                                     <textarea class="form-control text-lowercase" id="paymentSum" rows="14"
                                               style="font-size: 8pt"></textarea>
                                 </div>
+                                <div class="col">
+                                    <label class="control-label" for="studentStatus">Статус студента: </label>
+                                    <select class="form-control" id="studentStatus" size="1">
+                                        <option></option>
+                                        <option th:each="status : ${studentStatuses}" th:value="${status.id}"
+                                                th:text="${status.status}"></option>
+                                    </select>
+
+                                </div>
 
                             </div>
                         </div>
