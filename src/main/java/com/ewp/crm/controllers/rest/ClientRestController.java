@@ -465,7 +465,8 @@ public class ClientRestController {
 									@RequestParam(name = "trialDateList") String trialDateList,
 									@RequestParam(name = "nextPaymentList") String nextPaymentList,
 									@RequestParam(name = "priceList") String priceList,
-									@RequestParam(name = "paymentSumList") String paymentSumList) {
+									@RequestParam(name = "paymentSumList") String paymentSumList,
+									@RequestParam(name = "studentStatus") String studentStatusId) {
 
 		List<String> resultEmailList = Arrays.asList(emailList.split("\n"));
 		List<String> resultFioList = Arrays.asList(fioList.split("\n"));
@@ -473,6 +474,7 @@ public class ClientRestController {
 		List<String> resultNextPaymentList = Arrays.asList(nextPaymentList.split("\n"));
 		List<String> resultPriceList = Arrays.asList(priceList.split("\n"));
 		List<String> resultPaymentSumList = Arrays.asList(paymentSumList.split("\n"));
+        StudentStatus studentStatus = studentStatusService.get(Long.valueOf(studentStatusId));
 
 		for (int i = 0; i < resultEmailList.size(); i++) {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -488,11 +490,11 @@ public class ClientRestController {
 			if (Objects.nonNull(client)) {
 				Student student = studentService.getStudentByClientId(client.getId());
 				if (Objects.nonNull(student)) {
-					studentService.update(setStudentParams(student, endTrialDate, nextPaymentDate, price, paymentAmount));
+					studentService.update(setStudentParams(student, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 				} else {
                     Student newStudent = new Student();
 					newStudent.setClient(client);
-					studentService.save(setStudentParams(newStudent, endTrialDate, nextPaymentDate, price, paymentAmount));
+					studentService.save(setStudentParams(newStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 				}
 			} else {
 				Client newClient = new Client();
@@ -503,14 +505,12 @@ public class ClientRestController {
 				clientService.addClient(newClient);
 				Student createStudent = new Student();
 				createStudent.setClient(newClient);
-				studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount));
+				studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 			}
 		}
 	}
 
-	public Student setStudentParams(Student student, LocalDate endTrialDate, LocalDate nextPaymentDate, BigDecimal price, BigDecimal paymentAmount) {
-        StudentStatus studentStatus = new StudentStatus("Добавлен из массового ввода");
-        studentStatusService.save(studentStatus);
+	public Student setStudentParams(Student student, LocalDate endTrialDate, LocalDate nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, StudentStatus studentStatus) {
 	    student.setTrialEndDate(endTrialDate.atStartOfDay());
 		student.setNextPaymentDate(nextPaymentDate.atStartOfDay());
 		student.setPrice(price);
