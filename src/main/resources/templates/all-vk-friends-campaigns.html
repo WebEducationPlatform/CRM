@@ -32,14 +32,14 @@
                     <th class="col-md-1 fit">Имя кампании</th>
                     <th class="col-md-1 fit">User ID</th>
                     <th class="col-md-1 fit">App ID</th>
-                    <th class="col-md-9">Текст в запросе</th>
+                    <th class="col-md-8">Текст в запросе</th>
                     <th class="col-md-1 fit">Всего</th>
                     <th class="col-md-1 fit">Отправлено</th>
-                    <th class="col-md-2">Действия</th>
+                    <th class="col-md-3">Действия</th>
                 </tr>
                 </thead>
                 <tbody id="table-body">
-                <tr th:each="campaign : ${campaignsList}">
+                <tr th:each="campaign : ${campaignsList}" th:classappend="${campaign.problem}? 'table-danger'">
                     <td th:text="${campaign.campaignName}"></td>
                     <td th:text="${campaign.vkUserId}"></td>
                     <td th:text="${campaign.appId}"></td>
@@ -53,7 +53,8 @@
                         <button th:unless="${!campaign.active}"
                                 class="button_stop_campaign btn btn-info glyphicon glyphicon-pause"
                                 th:value="${campaign.campaignId}" title="Приостановить кампанию"></button>
-
+                        <button class="button_stats_campaign btn btn-info glyphicon glyphicon-stats"
+                                th:value="${campaign.campaignId}" title="Статистика кампании"></button>
                         <button class="button_edit_campaign btn btn-info glyphicon glyphicon-pencil"
                                 th:value="${campaign.campaignId}" title="Изменить кампанию"></button>
                         <button class="button_delete_campaign btn btn-danger glyphicon glyphicon-remove"
@@ -68,6 +69,7 @@
     </div>
     <div th:replace="fragments/add-vk-campaign-modal::vkCampaignCreateModal"></div>
     <div th:replace="fragments/edit-vk-campaign-modal::vkCampaignEditModal"></div>
+    <div th:replace="fragments/stats-vk-campaign-modal::vkCampaignStatsModal"></div>
     <script type="text/javascript" th:src="@{/js/all-campaigns.js}"></script>
 </div>
 </body>

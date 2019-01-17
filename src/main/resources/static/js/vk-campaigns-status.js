@@ -5,7 +5,9 @@ $(function () {
     }
 });
 
-$(function getStatus() {
+$(getStatus());
+
+function getStatus() {
     if ((sessionStorage.getItem('campaigns_status') === 'unknown')) {
         let url = '/rest/vk-campaigns/havingproblems';
         $.ajax({
@@ -20,10 +22,10 @@ $(function getStatus() {
                         msg_campaigns.className += 'fadeIn';
                     }, delay_popup);
                 } else {
-                    sessionStorage.setItem('campaigns_status', 'ok');
+                    sessionStorage.setItem('campaigns_status', 'unknown');
                     msg_campaigns.style.display = 'none';
                 }
             }
         });
     }
-});
+}
