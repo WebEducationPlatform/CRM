@@ -11,4 +11,6 @@ public interface StudentService extends CommonService<Student> {
     List<Student> getStudentsByStatusId(Long id);
     List<Student> getStudentsWithTodayNotificationsEnabled();
     void detach(Student student);
+    Student getStudentByClientId(Long clientId);
+    void save(Student student);
 }

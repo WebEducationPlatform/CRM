@@ -28,4 +28,6 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	Page<Client> findAll(Pageable pageable);
 
 	Page<Client> getAllByOwnerUser(Pageable pageable, User clientOwner);
+
+	Client getClientByNameAndLastNameIgnoreCase(String name, String lastName);
 }
