@@ -422,10 +422,7 @@ function massClientInputSend() {
     let priceList = $('#price').val();
     let paymentSumList = $('#paymentSum').val();
     let studentStatus = $('#studentStatus').val();
-    let sex =  $('#studentStatus').find('option:selected').val();
     let url = "../rest/client/massInputSend";
-
-    console.log("sex", sex);
 
     if(fioList&&emailList) {
         let wrap = {
