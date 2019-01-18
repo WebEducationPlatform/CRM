@@ -421,6 +421,7 @@ function massClientInputSend() {
     let nextPaymentList = $('#nextPayment').val();
     let priceList = $('#price').val();
     let paymentSumList = $('#paymentSum').val();
+    let studentStatus = $('#studentStatus').val();
     let url = "../rest/client/massInputSend";
 
     if(fioList&&emailList) {
@@ -431,6 +432,7 @@ function massClientInputSend() {
             nextPaymentList: nextPaymentList,
             priceList: priceList,
             paymentSumList: paymentSumList,
+            studentStatus: studentStatus
         }
 
         $.ajax({
