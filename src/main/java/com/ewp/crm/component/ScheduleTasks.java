@@ -382,12 +382,12 @@ public class ScheduleTasks {
 	}
 
 	/**
-	 * Sends friend requests from all VK friends companies
+	 * Sends friend requests from all VK friends campaigns
 	 * once per 36 minutes == 40 per day (VK day limit) 2_160_000
 	 */
-	@Scheduled(fixedRate = 10_000)
+	@Scheduled(fixedRate = 2_160_000)
 	private void addOneFriendForEachCampaign() {
-		logger.info("Scheduled task to add next VK friend for all companies been fired");
+		logger.info("Scheduled task to add next VK friend for all campaigns been fired");
 		vkCampaignService.nextAttemptCycle();
 	}
 }
