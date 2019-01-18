@@ -38,19 +38,19 @@
 }
 
 #msg_campaigns {
-    background-color: rgba(79, 26, 30, 0.7);
+    background-color: rgba(206, 26, 26, 0.69);
     display: none;
     position: fixed;
     z-index: 99999;
     bottom: 30px;
-    left:630px;
+    left:570px;
     width: 250px;
     padding: 10px;
     color:#fff;
     font-size:13px;
     line-height:13px;
     -webkit-box-shadow: 0px 0px 10px #999;
-    -moz-box-shadow: 0px 0px 10px #999;
+    -moz-box-shadow: 0px 0px 10px #866c6c;
     box-shadow: 0px 0px 10px #ec0002;
     -webkit-border-radius: 15px;
     -moz-border-radius: 15px;
@@ -64,6 +64,12 @@
 }
 
 #msg_pop2 h4{
+    margin:0;
+    text-align:center;
+    font-size:15px;
+}
+
+#msg_campaigns h4{
     margin:0;
     text-align:center;
     font-size:15px;
