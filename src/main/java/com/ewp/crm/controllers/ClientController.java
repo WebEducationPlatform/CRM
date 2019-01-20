@@ -35,6 +35,7 @@ public class ClientController {
     private final ProjectPropertiesService propertiesService;
     private final ListMailingService listMailingService;
     private final MailingMessageRepository messageService;
+    private final StudentStatusService studentStatus;
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -48,7 +49,10 @@ public class ClientController {
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
-                            ProjectPropertiesService propertiesService, ListMailingService listMailingService, MailingMessageRepository messageService) {
+                            ProjectPropertiesService propertiesService,
+                            ListMailingService listMailingService,
+                            MailingMessageRepository messageService,
+                            StudentStatusService studentStatus) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -59,6 +63,7 @@ public class ClientController {
         this.propertiesService = propertiesService;
         this.listMailingService = listMailingService;
         this.messageService = messageService;
+        this.studentStatus = studentStatus;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -123,11 +128,12 @@ public class ClientController {
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
+        modelAndView.addObject("studentStatuses", studentStatus.getAll());
         return modelAndView;
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public String mailingPage(Model model) {
         model.addAttribute("listMailing", listMailingService.getAll());
         model.addAttribute("chooseUser", userService.getAll());
@@ -141,6 +147,7 @@ public class ClientController {
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
         modelAndView.addObject("client", clientService.get(id));
+        modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);

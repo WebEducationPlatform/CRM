@@ -82,14 +82,6 @@ public class UserController {
 		return modelAndView;
 	}
 
-	@PostMapping(value = "/user/enableNotifications")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ModelAndView enableNotifications(@RequestParam boolean notifications,
-											@AuthenticationPrincipal User userFromSession) {
-		userFromSession.setEnableMailNotifications(notifications);
-		userService.update(userFromSession);
-		return new ModelAndView("redirect:/user/customize");
-	}
 	@PostMapping(value = "/user/autoAnswer")
 	@PreAuthorize("hasAnyAuthority('OWNER')")
 	public ModelAndView changeAutoAnswer(@RequestParam String text,

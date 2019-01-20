@@ -3,11 +3,14 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,9 +24,11 @@ import java.util.regex.Pattern;
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
-    private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
+    private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
 
-    private final ClientRepository clientRepository;
+	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
+
+	private final ClientRepository clientRepository;
 
     private StatusService statusService;
 
@@ -271,5 +276,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Autowired
     private void setStatusService(StatusService statusService) {
         this.statusService = statusService;
+    }
+
+	@Override
+	public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
+		List<Client> orderedClients;
+		if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
+			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+			return orderedClients;
+		}
+		if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
+			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+			return orderedClients;
+		}
+		logger.error("Error with sorting clients");
+		return new ArrayList<>();
+	}
+
+    @Override
+    public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
+        return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
     }
 }

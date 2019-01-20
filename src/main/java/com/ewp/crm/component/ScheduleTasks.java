@@ -268,7 +268,7 @@ public class ScheduleTasks {
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
 		messages.forEach(x -> {
 			if (x.getDate().compareTo(currentTime) < 0) {
-				mailingService.sendMessage(x);
+			    mailingService.sendMessage(x);
 			}
 		});
 	}
@@ -283,6 +283,12 @@ public class ScheduleTasks {
 		}
 	}
 
+
+
+	@Scheduled(cron = "0 0 10 01 * ?")
+	private void buildAndSendReport() {
+		mailSendService.sendReportToJavaMentorEmail(reportService.buildReportOfLastMonth());
+	}
 
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
@@ -305,11 +311,6 @@ public class ScheduleTasks {
 				smsInfoService.update(sms);
 			}
 		}
-	}
-
-	@Scheduled(cron = "0 0 10 01 * ?")
-	private void buildAndSendReport() {
-		mailSendService.sendNotificationMessageYourself(reportService.buildReportOfLastMonth());
 	}
 
 	private String determineStatusOfResponse(String status) {

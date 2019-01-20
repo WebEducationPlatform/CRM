@@ -225,8 +225,8 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
-            '        <td class="colorTd">' + res[i].status.name + ' </td>' +
-            '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
+            '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
+            '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
         );
@@ -413,3 +413,37 @@ $(document).ready(function () {
         }
     })
 });
+
+function massClientInputSend() {
+    let fioList = $('#listFio').val();
+    let emailList = $('#listEmail').val();
+    let trialDateList = $('#trialDate').val();
+    let nextPaymentList = $('#nextPayment').val();
+    let priceList = $('#price').val();
+    let paymentSumList = $('#paymentSum').val();
+    let studentStatus = $('#studentStatus').val();
+    let url = "../rest/client/massInputSend";
+
+    if(fioList&&emailList) {
+        let wrap = {
+            fioList: fioList,
+            emailList: emailList,
+            trialDateList: trialDateList,
+            nextPaymentList: nextPaymentList,
+            priceList: priceList,
+            paymentSumList: paymentSumList,
+            studentStatus: studentStatus
+        }
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: wrap,
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+        console.log("Ошибка при сохранении пользователей");
+    }
+}

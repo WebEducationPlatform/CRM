@@ -16,7 +16,13 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
-//import com.sun.jmx.snmp.Timestamp;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -31,16 +37,24 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Pattern;
 
 @Component
+@PropertySource(value = "file:./anti-captcha.properties")
 public class VKServiceImpl implements VKService {
     private static Logger logger = LoggerFactory.getLogger(VKService.class);
     private final YoutubeClientService youtubeClientService;
@@ -80,6 +94,9 @@ public class VKServiceImpl implements VKService {
     private String managerToken;
 
     private VKConfig vkConfig;
+
+    @Value("${userKey}")
+    private String userKey;
 
     @Autowired
     public VKServiceImpl(VKConfig vkConfig,
@@ -404,10 +421,11 @@ public class VKServiceImpl implements VKService {
     }
 
 
-
     @Override
     public String sendMessageById(Long id, String msg, String token) {
+
         logger.info("VKService: sending message to client with id {}...", id);
+
         String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
                 .replaceAll("\"|\'", "%22");
         String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
@@ -423,11 +441,89 @@ public class VKServiceImpl implements VKService {
         try {
             HttpResponse response = httpClient.execute(request);
             JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
-            return determineResponse(jsonEntity);
+            // посотреть что тут происходит
+            JsonObject convertedJsonEntity = new Gson().fromJson(jsonEntity.toString(), JsonObject.class);
+
+            if (jsonEntity.toString().contains("Permission to perform this action is denied") | jsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
+                JSONArray jsonArray = jsonEntity.getJSONObject("error").getJSONArray("request_params");
+                for(int i = 0; i < jsonArray.length(); i++) {
+                    if(jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
+                        return jsonArray.getJSONObject(i).getString("value");
+                    }
+                }
+            }
+
+            if (jsonEntity.toString().contains("Captcha needed")) {
+                logger.info("Сaptcha solution...");
+
+                OkHttpClient client = new OkHttpClient();
+                String captchaURL = convertedJsonEntity.getAsJsonObject("error").get("captcha_img").getAsString();
+                String captchaSid = convertedJsonEntity.getAsJsonObject("error").get("captcha_sid").getAsString();
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+                JSONObject bodyForReport = new JSONObject("{\n" +
+                            "    \"clientKey\":\"" + userKey + "\",\n" +
+                            "    \"task\":\n" +
+                            "        {\n" +
+                            "            \"type\":\"ImageToTextTask\",\n" +
+                            "            \"body\":\"" + getByteArrayFromImageURL(captchaURL) + "\",\n" +
+                            "            \"phrase\":false,\n" +
+                            "            \"case\":false,\n" +
+                            "            \"numeric\":false,\n" +
+                            "            \"math\":0,\n" +
+                            "            \"minLength\":0,\n" +
+                            "            \"maxLength\":0\n" +
+                            "        }\n" +
+                            "}");
+
+                RequestBody bodyReport = RequestBody.create(JSON, bodyForReport.toString());
+                Request requestReport = new Request.Builder()
+                        .url("https://api.anti-captcha.com/createTask").
+                                post(bodyReport).build();
+                com.squareup.okhttp.Response responseReport = client.newCall(requestReport).execute();
+                JsonObject convertedObject = new Gson().fromJson(responseReport.body().string(), JsonObject.class);
+                String taskId = convertedObject.get("taskId").getAsString();
+
+                Thread.sleep(15000);
+
+                String text;
+
+                try {
+                   text = getResultCaptcha(taskId);
+                } catch (NullPointerException e) {
+                    logger.error("Again get captcha result");
+                    Thread.sleep(40000);
+                    text = getResultCaptcha(taskId);
+                }
+
+                String sendMsgWithCaptcha = vkAPI + "messages.send" +
+                            "?user_id=" + id +
+                            "&v=" + version +
+                            "&message=" + uriMsg +
+                            "&access_token=" + token +
+                            "&captcha_sid=" + captchaSid +
+                            "&captcha_key=" + text;
+
+                HttpGet newRequest = new HttpGet(sendMsgWithCaptcha);
+                HttpResponse newResponse = httpClient.execute(newRequest);
+                JSONObject newJsonEntity = new JSONObject(EntityUtils.toString(newResponse.getEntity()));
+                if (newJsonEntity.toString().contains("Permission to perform this action is denied") | newJsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
+                    JSONArray newJsonArray = newJsonEntity.getJSONObject("error").getJSONArray("request_params");
+                    for(int i = 0; i < newJsonArray.length(); i++) {
+                        if(newJsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
+                            return newJsonArray.getJSONObject(i).getString("value");
+                        }
+                    }
+                }
+                return determineResponse(newJsonEntity);
+                }
+                return determineResponse(jsonEntity);
         } catch (JSONException e) {
             logger.error("JSON couldn't parse response ", e);
         } catch (IOException e) {
             logger.error("Failed connect to vk api ", e);
+        } catch (InterruptedException e) {
+            logger.error("Failed to get captcha ", e);
         }
         return "Failed to send message";
     }
@@ -908,6 +1004,82 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    @Override
+    public String getVkPhotoLinkByClientProfileId(String vkProfileId) {
+        logger.info("Getting vk profile photo link for " + vkProfileId);
+
+        String clientVkPhotoLink = "";
+
+        String clientId = (Pattern.matches("^https://vk.com/id\\d{1,10}$", vkProfileId)) ?
+                vkProfileId.replaceAll("https://vk.com/id", "") :
+                vkProfileId.replaceAll("https://vk.com/", "");
+
+        String request = vkAPI + "users.get?"
+                + "user_ids=" + clientId
+                + "&fields=photo_50"
+                + "&access_token=" + communityToken
+                + "&v=" + version;
+
+        HttpGet httpGetClient = new HttpGet(request);
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
+
+        try{
+            HttpResponse response = httpClient.execute(httpGetClient);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONArray array = json.getJSONArray("response");
+            JSONObject user = array.getJSONObject(0);
+            clientVkPhotoLink = user.getString("photo_50");
+        }catch (JSONException jex){
+            logger.error("Failed to parse response into JSON for "
+                    + clientId + "- for reason " + jex);
+        }
+        catch (IOException ex){
+            logger.error("Failed to connect to VK server while getting profile pic for "
+                    + clientId + "- for reason " + ex);
+        }
+        return clientVkPhotoLink;
+    }
+
+    private static String getByteArrayFromImageURL(String url) {
+
+        try {
+            URL imageUrl = new URL(url);
+            URLConnection ucon = imageUrl.openConnection();
+            InputStream is = ucon.getInputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int read = 0;
+            while ((read = is.read(buffer, 0, buffer.length)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            baos.flush();
+            return Base64.encode(baos.toByteArray());
+        } catch (Exception e) {
+            System.out.println("error");
+        }
+        return null;
+    }
+
+    private String getResultCaptcha(String taskId) throws JSONException, IOException {
+        OkHttpClient client = new OkHttpClient();
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        JSONObject bodyForResult = new JSONObject("{\n" +
+                "    \"clientKey\":\"" + userKey + "\",\n" +
+                "    \"taskId\": " + taskId + " \n" +
+                "}");
+
+        RequestBody bodyResult = RequestBody.create(JSON, bodyForResult.toString());
+        Request requestResult = new Request.Builder()
+                .url("https://api.anti-captcha.com/getTaskResult").
+                        post(bodyResult).build();
+        com.squareup.okhttp.Response responseResult = client.newCall(requestResult).execute();
+        JsonObject convertedObjectResult = new Gson().fromJson(responseResult.body().string(), JsonObject.class);
+        return convertedObjectResult.getAsJsonObject("solution").get("text").getAsString();
+    }
     @Override
     public String getIdFromLink(String link){
 

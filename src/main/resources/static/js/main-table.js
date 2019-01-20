@@ -131,26 +131,13 @@ function clientsSearch() {
         }
     });
 }
-
-let logged_in_profiles;
-
-function get_us() {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/us",
-        success: function (response) {
-            logged_in_profiles = response;
-        }
-    })
-}
-
+//func responsible for the client's cards motion
 $(document).ready(function () {
-    get_us();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
         connectWith: ".column",
-        handle: ".portlet-body",
+        handle: ".portlet-title, .portlet-header",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
@@ -160,9 +147,10 @@ $(document).ready(function () {
             ui.item.removeClass("tilt");
             $("html").unbind('mousemove', ui.item.data("move_handler"));
             ui.item.removeData("move_handler");
-            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
+            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'));
         }
     });
+
 
     $(document).ready(function () {
         $("#new-status-name").keypress(function (e) {
@@ -355,7 +343,7 @@ function assign(id) {
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -385,12 +373,28 @@ function assignUser(id, user, principalId) {
                 target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
+
+            //If admin assigned himself
+            // if(principalId === user){
+            //     //If admin assigned himself second time
+            //     if(unassign_btn.length === 0){
+            //         target_btn.before(
+            //             "<button " +
+            //             "   id='unassign-client" + id +"' " +
+            //             "   onclick='unassign(" + id +")' " +
+            //             "   class='btn btn-sm btn-warning'>Отказаться от карточки</button>"
+            //         );
+            //     }
+            //If admin not assign himself, he don`t have unassign button
+            // }else {
+            //     unassign_btn.remove();
+            // }
             assignBtn.remove();
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -418,7 +422,7 @@ function unassign(id) {
         success: function (owner) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
             if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
@@ -456,7 +460,7 @@ $(document).ready(function () {
         }
         jo.hide();
         jo.filter(function (i, v) {
-            var d = $(this)[0].getElementsByClassName("user-icon");
+            var d = $(this)[0].getElementsByClassName("user-icon_card");
             if (d.length === 0) {
                 return false;
             }
@@ -471,7 +475,7 @@ $(document).ready(function () {
 
 function fillFilterList() {
     $("#client_filter").empty();
-    var names = $("#status-columns").find($(".user-icon"));
+    var names = $("#status-columns").find($(".user-icon_card"));
     if (names.length === 0) {
         $("#client_filter_group").hide();
     } else {
@@ -957,9 +961,6 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
-        if ($('#custom-eTemplate-body').val().length===0){
-            return currentStatus.text("Введите текст сообщения!");
-        }
         var formData = {
             clientId: clientId, templateId: templateId,
             body: $('#custom-eTemplate-body').val()
@@ -1081,12 +1082,12 @@ $(document).ready(function () {
 
 $(function () {
     $('.portlet-body').on('click', function (e) {
-        if (e.target.className.startsWith("portlet-body") === true) {
+        if (e.target.className.startsWith("portlet-body") === true ) {
             var clientId = $(this).parents('.common-modal').data('cardId');
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
@@ -1098,6 +1099,8 @@ $(function () {
         var currentModal = $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
+        markAsReadMenu($(e.target).attr('client-id'));
+
     });
 });
 
@@ -1691,118 +1694,30 @@ function deleteCallDate(id) {
     });
 };
 
-let interlocutor_profiles;
-
-function get_interlocutors(clientId) {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/interlocutors",
-        data: {id: clientId},
-        success: function (response) {
-            interlocutor_profiles = response;
-        }
-    })
-}
-
-let conversations = $("#conversations-body");
-
-function start_chats(clientId) {
-    $.ajax({
-        type: "GET",
-        url: "/rest/conversation/all",
-        data: {id: clientId},
-        success: function (response) {
-            $("#chat-messages").empty();
-            for (let i in response) {
-                let message_id = response[i].id;
-                let send_date = new Date(response[i].time);
-                let text = response[i].text;
-                let is_outgoing = response[i].outgoing;
-                let is_read = response[i].read;
-                let sn_type = response[i].chatType;
-                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
-            }
-            $("#send-selector").prop('value', response[response.length - 1].chatType);
-            setTimeout(update_chat, 2000);
-            setTimeout(scroll_down, 1000);
-        }
-    })
-}
-
-function set_send_selector(clientId) {
-    let selector = $("#send-selector");
-    selector.empty();
-    $.ajax({
-        type: "GET",
-        url: "/rest/client/" + clientId,
-        success: function (client) {
-            for (let i = 0; i < client.socialProfiles.length; i++) {
-                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
-                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
-                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
-                }
-            }
-        }
-    })
-
-}
-
-$('#conversations-modal').on('show.bs.modal', function () {
-    let clientId = $("#main-modal-window").data('clientId');
-    set_send_selector(clientId);
-    start_chats(clientId);
-});
-
-$('#conversations-modal').on('hidden.bs.modal', function () {
-    let clientId = $("#main-modal-window").data('clientId');
-    $("#chat-messages").empty();
-    $.ajax({
-        type: 'GET',
-        url: '/rest/telegram/messages/chat/close',
-        data: {clientId: clientId}
-    })
-});
-
-function client_has_telegram(client) {
-    let has_telegram = false;
-    for (let i = 0; i < client.socialProfiles.length; i++) {
-        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
-            has_telegram = true;
-            break;
-        }
-    }
-    return has_telegram;
-}
-
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
+
         $.ajax({
             async: false,
             type: 'GET',
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
-                if (!client_has_telegram(client) && client.phoneNumber !== '') {
-                    set_telegram_id_by_phone(client.phoneNumber);
-                }
-                $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
                     }
                     var adminName = user.firstName + ' ' + user.lastName;
+
                     $('#main-modal-window').data('userId', user.id);
 
-                    currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
+                    currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
                     if (client.canCall && user.ipTelephony) {
@@ -1843,21 +1758,35 @@ $(function () {
 
                     $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
+                    document.getElementById("profilePhoto").removeAttribute("src");
                     for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialProfiles[i].link);
+                        if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                            //ajax call for profile photo
+                            let vkref = client.socialProfiles[i].link;
+                            let url = '/rest/vkontakte/getProfilePhotoById';
+
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                data: {vkref: vkref},
+                                dataType:'json',
+                                complete: function(data) {
+                                    document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                                }
+                            });
+
+                            $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
 
-
-                            $('#chat-button').attr("clientID", client.id);
-                            $('#chat-im-count').text($('#chat-notification'+clientId).text());
-                            $('#chat-button').show();
+                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
+                            $('#vk-im-button').attr("clientID", client.id);
+                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
+                            $('#vk-im-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
-                        get_interlocutors(clientId);
                     }
 
                     if (client.slackProfile != undefined) {
@@ -2157,7 +2086,7 @@ function onAuthResult(eAuth) {
                 key: eAuth.key
             }, token => {
                 sdk.loginWithOneTimeKey(voxLogin, token);
-            }, 'text');
+        }, 'text');
         } else {
             console.log("Athentication is unsuccessful with code " + eAuth.code);
         }
@@ -2172,12 +2101,12 @@ function startCall() {
     });
     currentCall.on(VoxImplant.CallEvents.Failed, (e) => {
         console.log(`Call failed with the ${e.code} error`);
-        callToolControl('default');
-    });
+    callToolControl('default');
+});
     currentCall.on(VoxImplant.CallEvents.Disconnected, () => {
         console.log('The call has ended');
-        callToolControl('default');
-    } );
+    callToolControl('default');
+} );
 }
 
 //call hangup voximplant
@@ -2206,6 +2135,27 @@ $(document).on('click','#btn-mic-off',function(){
         };
         micMuted = !micMuted;
     };
+});
+
+$(".change-student-status").on('click', function () {
+    let clientId = $(this).attr("id");
+    let statusId = $(this).attr("value");
+    // let currentStatusId = $(this).attr("name");
+    let url = "/rest/status/client/change";
+
+    let formData = {
+        clientId: clientId,
+        statusId: statusId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function () {
+            let x = document.getElementById(clientId);
+            $('#status-column'+statusId).append(x);
+        }
+    });
 });
 
 $(".change-status-position").on('click', function () {
@@ -2331,6 +2281,30 @@ function deleteNewUser(deleteId) {
         }
     });
 }
+
+/*
+$(function () {
+    $('#main-modal-window').on('show.bs.modal', function () {
+        let clientId = $(this).data('clientId');
+        let url = "/user/notification/postnope/getAll";
+        console.log("clientId", clientId);
+        let formData = {
+            clientId: clientId
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+
+            success: function (result) {
+                console.log("крутяк")
+            },
+            error: function (e) {
+                console.log(e)
+            }
+        });
+    });
+});*/
 
 function slackInvite(email) {
     $.ajax({

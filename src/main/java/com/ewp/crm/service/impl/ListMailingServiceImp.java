@@ -25,4 +25,16 @@ public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implem
     public ListMailing getByListName(String listName) {
         return listMailingDAO.getByListName(listName);
     }
+
+    public ListMailing getListMailingById(Long id) {
+        return listMailingDAO.getOne(id);
+    }
+
+    public void update(ListMailing listMailing) {
+        listMailingDAO.save(listMailing);
+    }
+
+    public void delete(ListMailing listMailing) {
+        listMailingDAO.delete(listMailing);
+    }
 }
