@@ -100,7 +100,7 @@ public class MailSendServiceImpl implements MailSendService {
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(template.getOtherText(), true);
+            mimeMessageHelper.setText(template.getTemplateText(), true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
