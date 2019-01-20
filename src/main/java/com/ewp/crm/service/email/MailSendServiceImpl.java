@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 
 @Service
 @EnableAsync
-@Configuration
 @PropertySources(value = {
         @PropertySource("classpath:application.properties"),
         @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251"),
