@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -34,12 +35,14 @@ import java.util.regex.Pattern;
 
 @Service
 @EnableAsync
+@Configuration
 @PropertySources(value = {
         @PropertySource("classpath:application.properties"),
-        @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251")
-
+        @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251"),
+        @PropertySource(value = "file:./monthly-report.properties", encoding = "Cp1251")
 })
-@PropertySource(value = "file:./monthly-report.properties", encoding = "Cp1251")
+
+//@PropertySource(value = "file:./monthly-report.properties", encoding = "Cp1251")
 
 public class MailSendServiceImpl implements MailSendService {
 
