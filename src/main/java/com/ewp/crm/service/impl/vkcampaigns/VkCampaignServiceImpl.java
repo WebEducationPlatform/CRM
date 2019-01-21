@@ -128,7 +128,7 @@ public class VkCampaignServiceImpl implements VkCampaignService {
                     logger.error("Vk Captcha needed");
                     String captchaSid = e.getSid();
                     String captchaImgUrl = e.getImage();
-                    String captchaKey = captchaService.captchaImgResolver(captchaImgUrl);
+                    String captchaKey = captchaService.captchaImgResolver(captchaImgUrl).orElse("");
                     try {
                         AddResponse response = friendsAddQuery
                                 .captchaSid(captchaSid)
@@ -240,9 +240,9 @@ public class VkCampaignServiceImpl implements VkCampaignService {
             try {
                 friendStatusList = friendsAreFriendsQuery.execute();
             } catch (ApiException e) {
-                logger.error("Vk API exception");
+                logger.error("Vk API exception", e);
             } catch (ClientException e) {
-                logger.error("Vk client exception");
+                logger.error("Vk client exception", e);
             }
             return friendStatusList
                     .stream()

@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "vk_add_friend_attempt_response")
 public class VkAttemptResponse {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attempt_id")

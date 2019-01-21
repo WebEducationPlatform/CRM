@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Optional;
 
 @Service
 @PropertySource(value = "file:./anti-captcha.properties")
@@ -32,7 +33,7 @@ public class CaptchaServiceImpl implements CaptchaService {
     private static String userKey;
 
     @Override
-    public String captchaImgResolver(String captchaURL) {
+    public Optional<String> captchaImgResolver(String captchaURL) {
 
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -54,8 +55,8 @@ public class CaptchaServiceImpl implements CaptchaService {
                     "        }\n" +
                     "}");
         } catch (JSONException e) {
-            logger.error("JSONException creating bodyForReport");
-            return null;
+            logger.error("JSONException creating bodyForReport", e);
+            return Optional.empty();
         }
 
         RequestBody bodyReport = RequestBody.create(JSON, bodyForReport.toString());
@@ -70,23 +71,23 @@ public class CaptchaServiceImpl implements CaptchaService {
                     .newCall(requestReport)
                     .execute();
         } catch (IOException e) {
-            logger.error("IOException during captcha responseReport request");
-            return null;
+            logger.error("IOException during captcha responseReport request", e);
+            return Optional.empty();
         }
 
         JsonObject convertedObject;
         try {
             convertedObject = new Gson().fromJson(responseReport.body().string(), JsonObject.class);
         } catch (IOException e) {
-            logger.error("IOException during captcha json response parsing");
-            return null;
+            logger.error("IOException during captcha json response parsing", e);
+            return Optional.empty();
         }
         String taskId = convertedObject.get("taskId").getAsString();
 
         try {
             Thread.sleep(15_000);
         } catch (InterruptedException e) {
-            logger.error("InterruptedException");
+            logger.error("InterruptedException", e);
         }
 
         String solution = null;
@@ -97,19 +98,18 @@ public class CaptchaServiceImpl implements CaptchaService {
             try {
                 Thread.sleep(40_000);
             } catch (InterruptedException e1) {
-                logger.error("InterruptedException");
+                logger.error("InterruptedException", e1);
             }
             try {
                 solution = getResultCaptcha(taskId);
             } catch (JSONException | IOException e1) {
-                logger.error("Unable to get captcha solution after 2 attempts, surrender...");
+                logger.error("Unable to get captcha solution after 2 attempts, surrender...", e1);
             }
         }
-        return solution;
+        return Optional.ofNullable(solution);
     }
 
     private static String getByteArrayFromImageURL(String url) {
-
         try {
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
@@ -123,9 +123,9 @@ public class CaptchaServiceImpl implements CaptchaService {
             baos.flush();
             return Base64.encode(baos.toByteArray());
         } catch (Exception e) {
-            logger.error("Error converting captcha image to bytes");
+            logger.error("Error converting captcha image to bytes", e);
         }
-        return null;
+        return "";
     }
 
     private static String getResultCaptcha(String taskId) throws JSONException, IOException {

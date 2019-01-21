@@ -21,9 +21,9 @@ public class VkUserRepositoryImpl implements VkUserRepositoryCustom {
                 "SELECT u FROM VkAddFriendsCampaign c JOIN c.vkUsersToAdd u " +
                 "WHERE c.campaignId = :campaignId and :campaignId not in indices(u.vkCampaignAttemptResponseMap)")
                 .setParameter("campaignId", campaignId)
+                .setMaxResults(1)
                 .getResultList()
                 .stream().findFirst().orElse(null);
-
         return vkUser;
     }
 
@@ -37,9 +37,9 @@ public class VkUserRepositoryImpl implements VkUserRepositoryCustom {
                                            "(SELECT cmp.campaignId FROM VkAddFriendsCampaign cmp " +
                                             "WHERE cmp.vkUserId = c.vkUserId))))")
                 .setParameter("campaignId", campaignId)
+                .setMaxResults(1)
                 .getResultList()
                 .stream().findFirst().orElse(null);
-
         return vkUser;
     }
 

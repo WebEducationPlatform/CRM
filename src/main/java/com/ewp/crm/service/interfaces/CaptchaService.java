@@ -1,7 +1,9 @@
 package com.ewp.crm.service.interfaces;
 
+import java.util.Optional;
+
 public interface CaptchaService {
 
-    String captchaImgResolver(String captchaImgUrl);
+    Optional<String> captchaImgResolver(String captchaImgUrl);
 
 }
