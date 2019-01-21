@@ -73,6 +73,12 @@
                 Параметры создания студента
             </button>
         </div>
+        <br/>
+        <div id="telegram-auth-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#telegram-auth-modal">
+                Авторизация в Telegram
+            </button>
+        </div>
     </div>
 
 </div>
@@ -186,6 +192,8 @@
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <div th:replace="fragments/new-student-config-modal::newStudentConfigModal"></div>
 <script type="text/javascript" th:src="@{/js/vk-auth.js}"></script>
+<div th:replace="fragments/telegram-auth-modal::telegramAuthModal"></div>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
