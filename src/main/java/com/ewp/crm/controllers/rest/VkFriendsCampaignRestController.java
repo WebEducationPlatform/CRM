@@ -54,26 +54,17 @@ public class VkFriendsCampaignRestController {
     @GetMapping("/isnameexists")
     @ResponseBody
     public Boolean isCampaignNameExists(@RequestParam("name") String name) {
-        Boolean result = false;
-
         if (vkCampaignService.getByName(name) != null) {
             logger.info("Campaign with the name {} already exists", name);
-            result = true;
+            return true;
         }
-
-        return result;
+        return false;
     }
 
     @GetMapping("/havingproblems")
     @ResponseBody
     public Boolean isCampaignsHaveProblems() {
-        Boolean result = false;
-
-        if(vkCampaignService.countProblems() > 0) {
-            result = true;
-        }
-
-        return result;
+        return vkCampaignService.countProblems() > 0;
     }
 
     @DeleteMapping("/{id}")

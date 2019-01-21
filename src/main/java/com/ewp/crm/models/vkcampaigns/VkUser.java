@@ -11,6 +11,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "vk_user")
 public class VkUser {
+
     @Id
     @Column(name = "vk_id")
     private Long vkId;

@@ -11,6 +11,7 @@ import java.util.Set;
 @Table(name = "vk_add_friends_campaign")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkAddFriendsCampaign {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "campaign_id")
