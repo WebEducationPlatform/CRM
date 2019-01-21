@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -19,6 +20,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -35,8 +37,12 @@ import java.util.regex.Pattern;
 @EnableAsync
 @PropertySources(value = {
         @PropertySource("classpath:application.properties"),
-        @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251")
+        @PropertySource(value = "file:./javamentortest.properties", encoding = "Cp1251"),
+        @PropertySource(value = "file:./monthly-report.properties", encoding = "Cp1251")
 })
+
+//@PropertySource(value = "file:./monthly-report.properties", encoding = "Cp1251")
+
 public class MailSendServiceImpl implements MailSendService {
 
     private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
@@ -94,7 +100,7 @@ public class MailSendServiceImpl implements MailSendService {
             mimeMessageHelper.setFrom("Java-Mentor.ru");
             mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(template.getOtherText(), true);
+            mimeMessageHelper.setText(template.getTemplateText(), true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -275,9 +281,11 @@ public class MailSendServiceImpl implements MailSendService {
         javaMailSender.send(message);
     }
 
-    public void sendNotificationMessageYourself(String notificationMessage) {
+    @Override
+    public void sendReportToJavaMentorEmail(String report) {
         User user = new User();
-        user.setEmail(mailConfig.getLogin().replaceAll("%40", "@"));
-        sendNotificationMessage(user, notificationMessage);
+        String javaMentorEmail = env.getRequiredProperty("report.mail");
+        user.setEmail(javaMentorEmail);
+        sendNotificationMessage(user, report);
     }
 }

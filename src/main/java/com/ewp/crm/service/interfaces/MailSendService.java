@@ -12,15 +12,15 @@ public interface MailSendService {
 
     /**
      * Send email notification to client without logging and additional body parameters.
-     * @param clientId recipient client.
+     *
+     * @param clientId     recipient client.
      * @param templateText email template text.
      */
     void sendSimpleNotification(Long clientId, String templateText);
 
     void sendNotificationMessage(User userToNotify, String notificationMessage);
 
-    void sendNotificationMessageYourself(String notificationMessage);
+    void sendReportToJavaMentorEmail(String report);
 
     void sendEmailInAllCases(Client client);
-
 }

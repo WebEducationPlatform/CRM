@@ -286,6 +286,12 @@ public class ScheduleTasks {
 	}
 
 
+
+	@Scheduled(cron = "0 0 10 01 * ?")
+	private void buildAndSendReport() {
+		mailSendService.sendReportToJavaMentorEmail(reportService.buildReportOfLastMonth());
+	}
+
 	@Scheduled(fixedRate = 600_000)
 	private void checkSMSMessages() {
 		logger.info("start checking sms statuses");
@@ -307,11 +313,6 @@ public class ScheduleTasks {
 				smsInfoService.update(sms);
 			}
 		}
-	}
-
-	@Scheduled(cron = "0 0 10 01 * ?")
-	private void buildAndSendReport() {
-		mailSendService.sendNotificationMessageYourself(reportService.buildReportOfLastMonth());
 	}
 
 	private String determineStatusOfResponse(String status) {
