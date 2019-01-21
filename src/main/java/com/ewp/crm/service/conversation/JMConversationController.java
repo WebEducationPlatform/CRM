@@ -75,7 +75,7 @@ public class JMConversationController {
 
     @GetMapping(value = "/us", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<Interlocutor>> getUs(@RequestParam("id") long clientId) {
+    public ResponseEntity<List<Interlocutor>> getUs() {
         return ResponseEntity.ok(conversationHelper.getUs());
     }
 
