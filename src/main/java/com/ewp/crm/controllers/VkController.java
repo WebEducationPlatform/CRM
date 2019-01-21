@@ -105,15 +105,12 @@ public class VkController {
                                                 @RequestParam("appid") String appid,
                                                 @RequestParam("text") String text,
                                                 @RequestParam("duplicates") Boolean duplicates) {
-
         ModelAndView modelAndView = new ModelAndView("vk-campaign-create");
-
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("name", name);
         modelAndView.addObject("appid", appid);
         modelAndView.addObject("text", text);
         modelAndView.addObject("duplicates", duplicates);
-
         return modelAndView;
     }
 
@@ -121,12 +118,9 @@ public class VkController {
     @GetMapping(value = "/vk/campaigns/edit/{id}")
     public ModelAndView editVkCampaignPage(@AuthenticationPrincipal User userFromSession,
                                            @PathVariable Long id) {
-
         ModelAndView modelAndView = new ModelAndView("vk-campaign-edit");
-
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("campaignId", id);
-
         return modelAndView;
     }
 
@@ -138,7 +132,6 @@ public class VkController {
                 + "&scope=" + "wall,offline,friends"
                 + "&response_type=" + "token"
                 + "&v" + "5.92";
-
         return "redirect:" + uri;
     }
 
@@ -155,13 +148,11 @@ public class VkController {
                 .replaceAll("&.+", "");
         Long userId = Long.parseLong(urlString.replaceAll(".+(user_id=)", "")
                 .replaceAll("&.+", ""));
-
         Set<VkUser> usersSet = processUploadedFile(file);
         VkAddFriendsCampaign newCampaign = new VkAddFriendsCampaign(campaignName, appId, userId, token, addText,
                 false, false, duplicates,
                 usersSet);
         vkCampaignService.add(newCampaign);
-
         return "redirect:/vk/campaigns/all";
     }
 
@@ -173,25 +164,20 @@ public class VkController {
                                       @RequestParam(value = "duplicates", defaultValue = "false") Boolean duplicates,
                                       @RequestParam("file") MultipartFile file,
                                       @AuthenticationPrincipal User userFromSession) {
-
         Set<VkUser> usersSet = processUploadedFile(file);
-
         VkAddFriendsCampaign campaign = vkCampaignService.get(id);
         campaign.setCampaignName(campaignName);
         campaign.setRequestText(addText);
         campaign.setAllowDuplicates(duplicates);
         campaign.getVkUsersToAdd().addAll(usersSet);
         vkCampaignService.update(campaign);
-
         return "redirect:/vk/campaigns/all";
     }
 
     private Set<VkUser> processUploadedFile(MultipartFile file) {
-
         try (InputStream inputStream = file.getInputStream()) {
             Stream<String> stream =
                     new BufferedReader(new InputStreamReader(inputStream)).lines();
-
             return stream
                     .flatMap(line -> Stream.of(line.split("[\\p{Blank}]+")))
                     .filter(c -> c.matches("[0-9]*"))
