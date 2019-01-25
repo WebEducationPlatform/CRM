@@ -3,8 +3,9 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +14,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DataInitializer {
 
@@ -61,6 +65,12 @@ public class DataInitializer {
 
     @Autowired
     private VkRequestFormService vkRequestFormService;
+
+    @Autowired
+    private VkCampaignService vkCampaignService;
+
+    @Autowired
+    private VkAttemptResponseRepository vkAttemptResponseRepository;
 
     private void init() {
 
