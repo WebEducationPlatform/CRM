@@ -7,9 +7,8 @@ import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
-import com.ewp.crm.service.impl.StatusServiceImpl;
-import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +84,8 @@ public class ScheduleTasks {
 
 	private final MailingService mailingService;
 
+	private final VkCampaignService vkCampaignService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
@@ -100,7 +100,8 @@ public class ScheduleTasks {
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService,
+						 VkCampaignService vkCampaignService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -126,6 +127,7 @@ public class ScheduleTasks {
 		this.mailingService = mailingService;
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
+		this.vkCampaignService = vkCampaignService;
 	}
 
 	private void addClient(Client newClient) {
@@ -378,5 +380,15 @@ public class ScheduleTasks {
 		} else {
 			logger.info("Payment notification properties not set!");
 		}
+	}
+
+	/**
+	 * Sends friend requests from all VK friends campaigns
+	 * once per 36 minutes == 40 per day (VK day limit) 2_160_000
+	 */
+	@Scheduled(fixedRate = 2_160_000)
+	private void addOneFriendForEachCampaign() {
+		logger.info("Scheduled task to add next VK friend for all campaigns been fired");
+		vkCampaignService.nextAttemptCycle();
 	}
 }
