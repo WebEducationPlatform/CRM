@@ -52,6 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
                 .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
                 .and()
+                .httpBasic()
+                .and()
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/processing-url")

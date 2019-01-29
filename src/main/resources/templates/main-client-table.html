@@ -434,6 +434,15 @@
     <a href="/user/customize">Настройки</a>
 </div>
 
+<!-- Модалка для оповещения о статусе VK кампаний -->
+<div id="msg_campaigns" sec:authorize="hasAnyAuthority('OWNER')">
+    <span class="msg_close" onclick="document.getElementById('msg_campaigns').style.display='none'; return false;">X</span>
+    <h4>Внимание!</h4>
+    С кампаниями творится что то неладное!
+    <p></p>
+    <a href="/vk/campaigns/all">Продвижение</a>
+</div>
+
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -462,6 +471,7 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 </body>
