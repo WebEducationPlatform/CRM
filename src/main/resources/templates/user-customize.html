@@ -14,37 +14,6 @@
     <div class="col-md-6 col-md-offset-2" id="notification-buttons">
 
         <div><h3>Настройки</h3></div>
-        <br/>
-        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-            <button onclick="setAllNotifications(false)" type="button" class="btn btn-primary pull">
-                Выключить оповещения
-            </button>
-        </div>
-        <br/>
-        <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
-            <button onclick="setAllNotifications(true)" type="button" class="btn btn-primary pull">
-                Включить оповещения</button>
-        </div>
-        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-            <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
-                    Не оповещать о новых клиентах
-                </button>
-            </div>
-            <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
-                    Оповещать о новых клиентах
-                </button>
-            </div>
-        </div>
-        <br/>
-        <div id="change-profile-button">
-            <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
-                <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pull">Изменить профиль
-                </button>
-            </a>
-        </div>
-        <br/>
         <button type="button" class="btn btn-primary pull" data-toggle="modal"
                 data-target="#InterfaceSettings">
             Настройка оформления

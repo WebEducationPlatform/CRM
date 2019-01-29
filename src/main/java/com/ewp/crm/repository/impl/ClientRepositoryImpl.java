@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import com.ewp.crm.service.impl.TelegramServiceImpl;
 import org.slf4j.Logger;
@@ -162,9 +163,9 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     public Client getClientBySocialProfileLink(String link) {
         Client result = null;
         try {
-        result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
-                .setParameter("link", link)
-                .getSingleResult();
+            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
+                    .setParameter("link", link)
+                    .getSingleResult();
         } catch (NoResultException e) {
             logger.info("Client with link {} not found", link, e);
         }
@@ -281,5 +282,29 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
             query.setParameter("search" + i, "%" + searchWords[i] + "%");
         }
         return query.getResultList();
+    }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order) {
+        if (SortingType.OLD_FIRST.equals(order)) {
+            return status.getClients();
+        }
+        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration DESC";
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
+        return orderedClients;
+    }
+
+    @Override
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)";
+        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
+            query = query + " DESC";
+        }
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .getResultList();
+        return orderedClients;
     }
 }

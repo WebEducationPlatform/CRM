@@ -51,6 +51,19 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
+    
+    @PostMapping("/auto-answer")
+    public HttpStatus setAutoResponseSettings(@RequestParam(name = "autoAnswerTemplate") Long templateId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId == null) {
+            current.setAutoAnswerTemplate(null);
+        } else {
+            current.setAutoAnswerTemplate(messageTemplateService.get(templateId));
+        }
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
 
     @PostMapping("/new-user-status")
     public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
