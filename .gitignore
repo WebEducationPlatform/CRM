@@ -14,7 +14,7 @@ target/
 *.iws
 *.iml
 *.ipr
-*.log
+telegram.properties
 
 ### NetBeans ###
 nbproject/private/
@@ -27,3 +27,4 @@ nbdist/
 /Images/
 /DownloadData
 /CallRecords/
+

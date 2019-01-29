@@ -131,8 +131,22 @@ function clientsSearch() {
         }
     });
 }
+
+let logged_in_profiles;
+
+function get_us() {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/us",
+        success: function (response) {
+            logged_in_profiles = response;
+        }
+    })
+}
+
 //func responsible for the client's cards motion
 $(document).ready(function () {
+    get_us();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
@@ -1694,6 +1708,94 @@ function deleteCallDate(id) {
     });
 };
 
+let interlocutor_profiles;
+
+function get_interlocutors(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/interlocutors",
+        data: {id: clientId},
+        success: function (response) {
+            interlocutor_profiles = response;
+        }
+    })
+}
+
+let conversations = $("#conversations-body");
+
+function start_chats(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/all",
+        data: {id: clientId},
+        success: function (response) {
+            $("#chat-messages").empty();
+            for (let i in response) {
+                let message_id = response[i].id;
+                let send_date = new Date(response[i].time);
+                let text = response[i].text;
+                let is_outgoing = response[i].outgoing;
+                let is_read = response[i].read;
+                let sn_type = response[i].chatType;
+                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
+            }
+            $("#send-selector").prop('value', response[response.length - 1].chatType);
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    })
+}
+
+function set_send_selector(clientId) {
+    let selector = $("#send-selector");
+    selector.empty();
+    $.ajax({
+        type: "GET",
+        url: "/rest/client/" + clientId,
+        success: function (client) {
+            for (let i = 0; i < client.socialProfiles.length; i++) {
+                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                }
+                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                }
+                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
+                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                }
+            }
+        }
+    })
+
+}
+
+$('#conversations-modal').on('show.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    set_send_selector(clientId);
+    start_chats(clientId);
+});
+
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    $("#chat-messages").empty();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/close',
+        data: {clientId: clientId}
+    })
+});
+
+function client_has_telegram(client) {
+    let has_telegram = false;
+    for (let i = 0; i < client.socialProfiles.length; i++) {
+        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+            has_telegram = true;
+            break;
+        }
+    }
+    return has_telegram;
+}
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
@@ -1706,6 +1808,10 @@ $(function () {
             url: 'rest/client/' + clientId,
             data: formData,
             success: function (client) {
+                if (!client_has_telegram(client) && client.phoneNumber !== '') {
+                    set_telegram_id_by_phone(client.phoneNumber);
+                }
+                $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
                 $.get('rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
@@ -1778,15 +1884,16 @@ $(function () {
                             $('#vk-href').attr('href', vkref);
                             $('#vk-href').show();
 
-                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
-                            $('#vk-im-button').attr("clientID", client.id);
-                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
-                            $('#vk-im-button').show();
+
+                            $('#chat-button').attr("clientID", client.id);
+                            $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                            $('#chat-button').show();
                         }
                         if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
+                        get_interlocutors(clientId);
                     }
 
                     if (client.slackProfile != undefined) {

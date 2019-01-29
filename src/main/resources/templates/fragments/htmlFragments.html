@@ -47,8 +47,8 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="nav-item dropdown">
-                        <a class="vk-notifications" id="VKNavbarDropdown" href="#" role="button" data-toggle="dropdown" style="color: red;display: none;">Новые сообщения</a>
-                        <div class="dropdown-menu" aria-labelledby="VKNavbarDropdown" id="VKNewMessageMenu">
+                        <a class="chat-notifications" id="chatNavbarDropdown" href="#" role="button" data-toggle="dropdown" style="color: red;display: none;">Новые сообщения</a>
+                        <div class="dropdown-menu" aria-labelledby="chatNavbarDropdown" id="chatNewMessageMenu">
                             <!--<a class="dropdown-item vk-items">Action</a>-->
                         </div>
                     </li>
@@ -75,7 +75,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                                th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
@@ -94,7 +94,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                                th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
                                             </a>
                                         </li>
@@ -104,7 +104,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                                th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
@@ -114,7 +114,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
                                                th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
