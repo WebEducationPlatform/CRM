@@ -1,8 +1,9 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
@@ -10,28 +11,47 @@ import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StatusServiceImpl implements StatusService {
 	private final StatusDAO statusDAO;
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
+	private final SortedStatusesRepository sortedStatusesRepository;
+
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService) {
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService, SortedStatusesRepository sortedStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
+		this.sortedStatusesRepository = sortedStatusesRepository;
 	}
 
 	@Autowired
 	private void setStatusService(ClientService clientService) {
 		this.clientService = clientService;
+	}
+
+	//Для юзера из сессии смотрим для какого статуса какая нужна сортировка (и нужна ли)
+	@Override
+	public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
+		List<Status> statuses = getAll();
+		SortedStatuses sorted;
+		for (Status status : statuses) {
+			sorted = new SortedStatuses(status, userFromSession);
+			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
+				SortedStatuses finalSorted = sorted;
+				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+				status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
+			}
+		}
+		return statuses;
 	}
 
 	@Override
@@ -163,5 +183,12 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getAllStatusesForStudents() {
 		return statusDAO.getAllStatusesForStudents();
+	}
+
+	@Override
+	public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
+		SortedStatuses sortedStatus = new SortedStatuses(get(statusId), currentUser);
+		sortedStatus.setSortingType(newOrder);
+		sortedStatusesRepository.save(sortedStatus);
 	}
 }

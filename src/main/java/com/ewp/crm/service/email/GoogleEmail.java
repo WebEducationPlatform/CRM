@@ -2,11 +2,9 @@ package com.ewp.crm.service.email;
 
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
-import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.models.MessageTemplate;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -51,12 +49,13 @@ public class GoogleEmail {
     private final IncomeStringToClient incomeStringToClient;
     private final ClientHistoryService clientHistoryService;
     private final MailSendService prepareAndSend;
+    private final ProjectPropertiesService projectPropertiesService;
 
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService) {
+    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -72,6 +71,7 @@ public class GoogleEmail {
         debug = mailConfig.getDebug();
         imapServer = mailConfig.getImapServer();
         this.clientHistoryService = clientHistoryService;
+        this.projectPropertiesService = projectPropertiesService;
     }
 
     private Properties javaMailProperties() {
@@ -109,6 +109,8 @@ public class GoogleEmail {
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
+            ProjectProperties properties = projectPropertiesService.getOrCreate();
+            MessageTemplate template = properties.getAutoAnswerTemplate();
             MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
             try {
                 logger.info("start parsing income email", parser.getHtmlContent());
@@ -123,7 +125,11 @@ public class GoogleEmail {
                     }
                     client.setStatus(statusService.getFirstStatusForClient());
                     clientService.addClient(client);
-                    prepareAndSend.sendEmailInAllCases(client);
+                    if (template != null) {
+                        prepareAndSend.sendEmailInAllCases(client);
+                    } else {
+                        logger.info("E-mail auto-answer has been set to OFF");
+                    }
                 }
             } catch (Exception e) {
                 logger.error("MimeMessageParser can't parse income data ", e);
