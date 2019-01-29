@@ -145,14 +145,16 @@
                                          style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
                                 </th:block>
 
+                            </th:block>
                                 <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                       style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                       th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
-                                  + #strings.substring(client.ownerUser.lastName, 0,1)}"
+                                  + #strings.substring(client.ownerUser.lastName, 0,1)
+                                  }"
                                       th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
                                       th:id="'own-' + ${client.id}">
                                 </span>
-                            </th:block>
+
                         </div>
                     </div>
 
@@ -243,7 +245,7 @@
                     </div>
 
                 </div>
-                <div class="client-description" th:text="${client.clientDescriptionComment}"></div>
+                <!--<div class="client-description" th:text="${client.clientDescriptionComment}"></div>-->
 
                 <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
                      th:text="${client.name} + ' ' + ${client.lastName}"
