@@ -146,13 +146,13 @@
                                 </th:block>
 
                             </th:block>
-                                <span th:if="${client.ownerUser != null}" class="user-icon_card"
-                                      style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
-                                      th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                            <span th:if="${client.ownerUser != null}" class="user-icon_card"
+                                  style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
+                                  th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
                                   + #strings.substring(client.ownerUser.lastName, 0,1)
                                   }"
-                                      th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
-                                      th:id="'own-' + ${client.id}">
+                                  th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                                  th:id="'own-' + ${client.id}">
                                 </span>
 
                         </div>
@@ -436,7 +436,8 @@
 
 <!-- Модалка для оповещения о статусе VK кампаний -->
 <div id="msg_campaigns" sec:authorize="hasAnyAuthority('OWNER')">
-    <span class="msg_close" onclick="document.getElementById('msg_campaigns').style.display='none'; return false;">X</span>
+    <span class="msg_close"
+          onclick="document.getElementById('msg_campaigns').style.display='none'; return false;">X</span>
     <h4>Внимание!</h4>
     С кампаниями творится что то неладное!
     <p></p>
