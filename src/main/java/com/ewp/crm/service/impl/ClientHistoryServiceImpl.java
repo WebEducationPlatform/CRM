@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -249,4 +251,5 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
+
 }

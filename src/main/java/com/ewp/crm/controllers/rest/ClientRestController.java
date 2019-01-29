@@ -33,13 +33,13 @@ public class ClientRestController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
-	private final ClientService clientService;
-	private final SocialProfileTypeService socialProfileTypeService;
-	private final UserService userService;
-	private final ClientHistoryService clientHistoryService;
-	private final MessageService messageService;
-	private final ProjectPropertiesService propertiesService;
-	private final SocialProfileService socialProfileService;
+    private final ClientService clientService;
+    private final SocialProfileTypeService socialProfileTypeService;
+    private final UserService userService;
+    private final ClientHistoryService clientHistoryService;
+    private final MessageService messageService;
+    private final ProjectPropertiesService propertiesService;
+    private final SocialProfileService socialProfileService;
 	private final StatusService statusService;
 	private final StudentService studentService;
 	private final StudentStatusService studentStatusService;
@@ -49,13 +49,15 @@ public class ClientRestController {
 
 	@Autowired
     public ClientRestController(ClientService clientService,
-								SocialProfileTypeService socialProfileTypeService,
-								UserService userService,
-								SocialProfileService socialProfileService,
-								ClientHistoryService clientHistoryService,
-								MessageService messageService,
-								ProjectPropertiesService propertiesService,
-								StatusService statusService, StudentService studentService, StudentStatusService studentStatusService) {
+                                SocialProfileTypeService socialProfileTypeService,
+                                UserService userService,
+                                SocialProfileService socialProfileService,
+                                ClientHistoryService clientHistoryService,
+                                MessageService messageService,
+                                ProjectPropertiesService propertiesService,
+								StatusService statusService,
+                                StudentService studentService,
+                                StudentStatusService studentStatusService) {
         this.clientService = clientService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
@@ -142,7 +144,12 @@ public class ClientRestController {
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
         Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("clientID", Long.toString(client.getId()));
+        if (client == null) {
+            returnMap.put("clientID", "0");
+        }
+        else{
+            returnMap.put("clientID", Long.toString(client.getId()));
+        }
         returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
         returnMap.put("userID", userID);
         return ResponseEntity.ok(returnMap);

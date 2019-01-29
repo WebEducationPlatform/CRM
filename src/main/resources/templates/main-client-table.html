@@ -101,8 +101,8 @@
 
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
-                            <span th:id="'VK-notification'+${client.id}"
-                                  class="vk-notification glyphicon glyphicon-send"
+                            <span th:id="'chat-notification'+${client.id}"
+                                  class="chat-notification glyphicon glyphicon-send pull-right"
                                   style="color: darkblue;display: none;"></span>
 
                             <th:block th:each="notification_comment:${notifications_type_comment}">
@@ -452,6 +452,7 @@
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
 <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<div th:replace="fragments/conversations::conversationsModal"></div>
 <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
 
 
@@ -461,6 +462,7 @@
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
