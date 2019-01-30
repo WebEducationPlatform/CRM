@@ -362,7 +362,9 @@ public class VKServiceImpl implements VKService {
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server", e);
             } catch (JSONException e) {
-                logger.error("Can not read message from JSON", e);
+//                logger.error("Can not read message from JSON", e);
+
+                // todo  исправить, ошибку при открытии карточки
             }
         }
         return result;
