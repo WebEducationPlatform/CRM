@@ -573,7 +573,7 @@ public class VKServiceImpl implements VKService {
     @Override
     public void markAsRead(String userId, String token, String startMessageId) {
 
-        String messageId = (startMessageId == null && startMessageId.isEmpty()) ? "" : ("&start_message_id=" + startMessageId);
+        String messageId = (startMessageId == null || startMessageId.isEmpty()) ? "" : ("&start_message_id=" + startMessageId);
 
         String uriMarkAsRead = vkAPI + "messages.markAsRead" +
                 "?peer_id=" + userId +

@@ -82,7 +82,7 @@
                                     </th:block>
                                     <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).SMS}">
-                                        th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
+                                        <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="notification-header-btn sms-error-btn"
                                                th:attrappend="data-id=${notification.client.id}"
                                                th:text="${'Ошибка при отправке сообщения ' + notification.client.name + ' ' + notification.client.lastName}">
