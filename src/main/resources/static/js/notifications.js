@@ -21,7 +21,6 @@ function markAsReadMenu(clientId, showClientModal) {
         if (showClientModal == 1) {
             showModal(clientId);
         }
-
         var url = "/user/notification/comment/clear/" + clientId;
         $.ajax({
             type: "POST",

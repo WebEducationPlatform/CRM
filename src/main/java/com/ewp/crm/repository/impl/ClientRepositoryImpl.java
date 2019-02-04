@@ -3,21 +3,28 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
+import com.ewp.crm.service.impl.TelegramServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
+
+    private static Logger logger = LoggerFactory.getLogger(ClientRepositoryImpl.class);
 
     private final EntityManager entityManager;
 
@@ -142,6 +149,27 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         query.setParameter("status", status);
         query.setParameter("ownerUser", ownUser);
         return query.getResultList();
+    }
+
+    @Override
+    public boolean isTelegramClientPresent(Integer id) {
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.link = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+                .setParameter("telegramId", id.toString())
+                .getResultList();
+        return !result.isEmpty();
+    }
+
+    @Override
+    public Client getClientBySocialProfileLink(String link) {
+        Client result = null;
+        try {
+            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
+                    .setParameter("link", link)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            logger.info("Client with link {} not found", link, e);
+        }
+        return result;
     }
 
     private String createQuery(FilteringCondition filteringCondition) {

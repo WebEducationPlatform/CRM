@@ -51,6 +51,7 @@ public class GoogleEmail {
     private final MailSendService prepareAndSend;
     private final ProjectPropertiesService projectPropertiesService;
 
+
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired

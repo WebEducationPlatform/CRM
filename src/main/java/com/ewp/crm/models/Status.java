@@ -70,6 +70,7 @@ public class Status implements Serializable {
 	@OneToMany(mappedBy = "sortedStatusesId.statusId")
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
+
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;
 		this.isInvisible = isInvisible;

@@ -4,6 +4,9 @@ import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
+import com.ewp.crm.service.conversation.JMConversation;
+import com.ewp.crm.service.conversation.JMConversationHelper;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
@@ -14,10 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DataInitializer {
 
@@ -72,6 +72,9 @@ public class DataInitializer {
     @Autowired
     private VkAttemptResponseRepository vkAttemptResponseRepository;
 
+    @Autowired
+    private JMConversationHelper jmConversationHelper;
+
     private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -90,9 +93,13 @@ public class DataInitializer {
         SocialProfileType VK = new SocialProfileType("vk");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
+		SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType whatsApp = new SocialProfileType("whatsapp");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
+		socialProfileTypeService.add(TELEGRAM);
+		socialProfileTypeService.add(whatsApp);
 
         User admin = new User(
                 "Stanislav",
@@ -307,13 +314,13 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
 
-        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Обязательное");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Обязательное");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Обязательное");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "В заметки");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "В заметки");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Обязательное");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "В заметки");
+        VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
+        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
