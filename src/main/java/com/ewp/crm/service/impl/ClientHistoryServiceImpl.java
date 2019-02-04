@@ -249,4 +249,5 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setLink(message.getId().toString());
 		return clientHistory;
 	}
+
 }

@@ -40,4 +40,6 @@ public interface StatusService {
     List<Status> getAllStatusesForStudents();
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
+
+
 }

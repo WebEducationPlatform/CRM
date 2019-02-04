@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-
 import java.util.*;
 
 @Service
@@ -24,12 +23,11 @@ public class StatusServiceImpl implements StatusService {
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
 
+
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO,
-							 ProjectPropertiesService propertiesService,
-							 SortedStatusesRepository sortedStatusesRepository) {
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService, SortedStatusesRepository sortedStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
@@ -40,26 +38,26 @@ public class StatusServiceImpl implements StatusService {
 		this.clientService = clientService;
 	}
 
+	//Для юзера из сессии смотрим для какого статуса какая нужна сортировка (и нужна ли)
+	@Override
+	public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
+		List<Status> statuses = getAll();
+		SortedStatuses sorted;
+		for (Status status : statuses) {
+			sorted = new SortedStatuses(status, userFromSession);
+			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
+				SortedStatuses finalSorted = sorted;
+				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+				status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
+			}
+		}
+		return statuses;
+	}
+
 	@Override
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
-
-	//Для юзера из сессии смотрим для какого статуса какая нужна сортировка (и нужна ли)
-    @Override
-    public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
-        List<Status> statuses = getAll();
-        SortedStatuses sorted;
-        for (Status status : statuses) {
-            sorted = new SortedStatuses(status, userFromSession);
-            if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
-                SortedStatuses finalSorted = sorted;
-                SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-                status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
-            }
-        }
-        return statuses;
-    }
 
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {

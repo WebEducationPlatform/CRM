@@ -1,5 +1,6 @@
 package com.ewp.crm.models;
 
+import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -87,6 +88,13 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "postpone_comment")
     private String postponeComment;
 
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "client_whatsapp_message",
+            joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_number",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
+    private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "status_id")
     @JoinTable(name = "status_clients",
@@ -172,6 +180,13 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
+    }
+
+    public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
+        this();
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.dateOfRegistration = dateOfRegistration;
     }
 
     public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
@@ -355,6 +370,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public List<WhatsappMessage> getWhatsappMessages() {
+        return whatsappMessages;
+    }
+
+    public void setWhatsappMessages(List<WhatsappMessage> whatsappMessages) {
+        this.whatsappMessages = whatsappMessages;
     }
 
     public List<Comment> getComments() {

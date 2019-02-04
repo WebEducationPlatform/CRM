@@ -37,9 +37,9 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/email-notification")
-    public HttpStatus setPaymentNotificationSettings(@RequestParam(name = "paymentMessageTemplate") Long templateId,
-                                                     @RequestParam(name = "paymentNotificationTime") String time,
-                                                     @RequestParam(name = "paymentNotificationEnabled") Boolean enabled) {
+    public HttpStatus setPaymentNotificationSettings(@RequestParam( name = "paymentMessageTemplate") Long templateId,
+                                                     @RequestParam( name = "paymentNotificationTime") String time,
+                                                     @RequestParam( name = "paymentNotificationEnabled") Boolean enabled) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setPaymentMessageTemplate(null);
@@ -51,7 +51,7 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
-
+    
     @PostMapping("/auto-answer")
     public HttpStatus setAutoResponseSettings(@RequestParam(name = "autoAnswerTemplate") Long templateId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
@@ -63,6 +63,7 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
+
 
     @PostMapping("/new-user-status")
     public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
@@ -101,7 +102,7 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/saveColorByStatus")
-    public HttpStatus saveColorByStatus(@RequestParam(name = "colors") String colors) {
+    public HttpStatus saveColorByStatus(@RequestParam( name = "colors") String colors) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setStatusColor(colors);
         projectPropertiesService.update(current);
