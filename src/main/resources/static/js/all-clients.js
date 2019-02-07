@@ -104,11 +104,15 @@ $('#filtration').click(function () {
                     '        <td>' + sex + ' </td>' +
                     '        <td>' + city + ' </td>' +
                     '        <td>' + country + ' </td>' +
-                    '        <td>' + res[i].status.name + ' </td>' +
+                    '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
                     '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
                     '        <td>' + returnBtn + ' </td>' +
                     '    </tr>'
-                )
+                );
+                $('#clients-table tr:last').after(function () {
+                    var tds = $(this).find('td.colorTd');
+                    $(this).css("background-color", statuscol[tds.html().trim()]);
+                })
             }
         },
         error: function (error) {
