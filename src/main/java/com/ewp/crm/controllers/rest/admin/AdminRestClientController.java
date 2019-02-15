@@ -17,75 +17,77 @@ import java.time.ZonedDateTime;
 @RequestMapping("/admin/rest/client")
 public class AdminRestClientController {
 
-	private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
+    private static Logger logger = LoggerFactory.getLogger(AdminRestClientController.class);
 
-	private final ClientService clientService;
-	private final SocialProfileTypeService socialProfileTypeService;
-	private final ClientHistoryService clientHistoryService;
-	private final StatusService statusService;
-	private final StudentService studentService;
-	private final AssignSkypeCallService assignSkypeCallService;
+    private final ClientService clientService;
+    private final SocialProfileTypeService socialProfileTypeService;
+    private final ClientHistoryService clientHistoryService;
+    private final StatusService statusService;
+    private final StudentService studentService;
+    private final AssignSkypeCallService assignSkypeCallService;
 
-	@Autowired
-	public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
-									 ClientService clientService,
-									 SocialProfileTypeService socialProfileTypeService,
-									 ClientHistoryService clientHistoryService,
-									 StatusService statusService, StudentService studentService) {
-		this.assignSkypeCallService = assignSkypeCallService;
-		this.clientService = clientService;
-		this.socialProfileTypeService = socialProfileTypeService;
-		this.clientHistoryService = clientHistoryService;
-		this.statusService = statusService;
-		this.studentService = studentService;
-	}
+    @Autowired
+    public AdminRestClientController(AssignSkypeCallService assignSkypeCallService,
+                                     ClientService clientService,
+                                     SocialProfileTypeService socialProfileTypeService,
+                                     ClientHistoryService clientHistoryService,
+                                     StatusService statusService, StudentService studentService) {
+        this.assignSkypeCallService = assignSkypeCallService;
+        this.clientService = clientService;
+        this.socialProfileTypeService = socialProfileTypeService;
+        this.clientHistoryService = clientHistoryService;
+        this.statusService = statusService;
+        this.studentService = studentService;
+    }
 
-	@PostMapping(value = "/add")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	public ResponseEntity addClient(@RequestBody Client client,
-									@AuthenticationPrincipal User userFromSession) {
-		if (!"deleted".equals(client.getStatus().getName())) {
-			for (SocialProfile socialProfile : client.getSocialProfiles()) {
-				socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-						socialProfile.getSocialProfileType().getName()).getId());
-			}
-			Status status = statusService.get(client.getStatus().getName());
-			client.setStatus(status);
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
-			clientService.addClient(client);
-			studentService.addStudentForClient(client);
-			logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
-		}
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
+    @PostMapping(value = "/add")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity addClient(@RequestBody Client client,
+                                    @AuthenticationPrincipal User userFromSession) {
+        if (!"deleted".equals(client.getStatus().getName())) {
+            for (SocialProfile socialProfile : client.getSocialProfiles()) {
+                socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+                        socialProfile.getSocialProfileType().getName()).getId());
+            }
+            Status status = statusService.get(client.getStatus().getName());
+            client.setStatus(status);
+            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+            clientService.addClient(client);
+            studentService.addStudentForClient(client);
+            logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
+        }
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 
-	@PostMapping(value = "/update")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-	public ResponseEntity updateClient(@RequestBody Client currentClient,
-									   @AuthenticationPrincipal User userFromSession) {
-		for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
-			socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-					socialProfile.getSocialProfileType().getName()).getId());
-		}
-		Client clientFromDB = clientService.get(currentClient.getId());
-		currentClient.setHistory(clientFromDB.getHistory());
-		currentClient.setComments(clientFromDB.getComments());
-		currentClient.setOwnerUser(clientFromDB.getOwnerUser());
-		currentClient.setStatus(clientFromDB.getStatus());
-		currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
-		currentClient.setSmsInfo(clientFromDB.getSmsInfo());
-		currentClient.setNotifications(clientFromDB.getNotifications());
-		currentClient.setCanCall(clientFromDB.isCanCall());
-		currentClient.setCallRecords(clientFromDB.getCallRecords());
-		currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
-		currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
-		if (currentClient.equals(clientFromDB)) {
-			return ResponseEntity.noContent().build();
-		}
-		currentClient.addHistory(clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
-		clientService.updateClient(currentClient);
-		logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail());
-		return ResponseEntity.ok(HttpStatus.OK);
-	}
+    @PostMapping(value = "/update")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity updateClient(@RequestBody Client currentClient,
+                                       @AuthenticationPrincipal User userFromSession) {
+        for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
+            socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
+                    socialProfile.getSocialProfileType().getName()).getId());
+        }
+
+        Client clientFromDB = clientService.get(currentClient.getId());
+        currentClient.setWhatsappMessages(clientFromDB.getWhatsappMessages());
+        currentClient.setHistory(clientFromDB.getHistory());
+        currentClient.setComments(clientFromDB.getComments());
+        currentClient.setOwnerUser(clientFromDB.getOwnerUser());
+        currentClient.setStatus(clientFromDB.getStatus());
+        currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
+        currentClient.setSmsInfo(clientFromDB.getSmsInfo());
+        currentClient.setNotifications(clientFromDB.getNotifications());
+        currentClient.setCanCall(clientFromDB.isCanCall());
+        currentClient.setCallRecords(clientFromDB.getCallRecords());
+        currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
+        currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
+        if (currentClient.equals(clientFromDB)) {
+            return ResponseEntity.noContent().build();
+        }
+        currentClient.addHistory(clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
+        clientService.updateClient(currentClient);
+        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail());
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 
 }
