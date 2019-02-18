@@ -1885,11 +1885,14 @@ $(function () {
                             $('#vk-href').show();
 
 
-                            $('#chat-button').attr("clientID", client.id);
-                            $('#chat-im-count').text($('#chat-notification'+clientId).text());
-                            $('#chat-button').show();
                         }
-                        if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
+
+                        $('#chat-button').attr("clientID", client.id);
+                        $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                        $('#chat-button').show();
+
+
+                        if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
                             $('#fb-href').attr('href', client.socialProfiles[i].link);
                             $('#fb-href').show();
                         }
