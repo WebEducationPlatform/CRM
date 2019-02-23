@@ -13,10 +13,7 @@ import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 public class DataInitializer {
@@ -221,10 +218,10 @@ public class DataInitializer {
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
-        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
-        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
-        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
-        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
+        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
+        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
+        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", LocalDate.parse("1975-03-10"), Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", LocalDate.parse("1995-05-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
         client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
         client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
         client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));
@@ -292,7 +289,7 @@ public class DataInitializer {
         Faker faker = new Faker();
         List<Client> list = new LinkedList<>();
         for (int i = 0; i < 20; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
+            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("trialLearnStatus"));
             client.addHistory(clientHistoryService.createHistory("инициализация crm"));
             list.add(client);
         }
@@ -300,7 +297,7 @@ public class DataInitializer {
         list.clear();
 
         for (int i = 0; i < 50; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("endLearningStatus"));
+            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("endLearningStatus"));
             client.addHistory(clientHistoryService.createHistory("инициализация crm"));
             list.add(client);
         }
