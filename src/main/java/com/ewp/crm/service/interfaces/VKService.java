@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.VkProfileInfo;
 import com.ewp.crm.service.conversation.ChatMessage;
 
 import java.util.List;
@@ -67,5 +68,9 @@ public interface VKService {
     void markAsRead(String userId, String token, String startMessageId);
 
     String getVkPhotoLinkByClientProfileId(String vkProfileId);
+
+    Optional<VkProfileInfo> getProfileInfoById(long vkId);
+
+    void fillClientFromProfileVK(Client client);
 
 }

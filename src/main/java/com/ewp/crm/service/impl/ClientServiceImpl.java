@@ -9,6 +9,7 @@ import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final SocialProfileService socialProfileService;
 
+    private final PhoneValidator phoneValidator;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, PhoneValidator phoneValidator) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.phoneValidator = phoneValidator;
     }
 
     @Override
@@ -123,8 +127,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         Client existClient = null;
 
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
+            client.setCanCall(true);
             existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 
         }
@@ -211,31 +216,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
+            client.setCanCall(true);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-            if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
-        }
-        checkSocialLinks(client);
-        clientRepository.saveAndFlush(client);
-    }
-
-    private void phoneNumberValidation(Client client) {
-        String phoneNumber = client.getPhoneNumber();
-        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-        Matcher matcher = pattern.matcher(phoneNumber);
-        if (matcher.matches()) {
-            client.setCanCall(true);
-            if (phoneNumber.startsWith("8")) {
-                phoneNumber = phoneNumber.replaceFirst("8", "7");
-            }
-            client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-                    .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
         }
+        checkSocialLinks(client);
+        clientRepository.saveAndFlush(client);
     }
 
     private void checkSocialLinks(Client client) {
