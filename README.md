@@ -16,7 +16,7 @@
 ##  Доска  
 После успешного логина в систему, появится основная страница — Доска.
 
-![alt text](https://2.downloader.disk.yandex.ru/preview/c5c3c7e56bc119046c904f179dee5128c62cc09fcd910fb41da5e460b494acb1/5c72f4e5/nKoa20PsMM1JcuftXDYV7qWk5XAi_2icMPTOSlgP1UAAiMNiDMLniRWhTbm6Q4QSiCvIHteyrkOwkpzr3SBIug%3D%3D?uid=0&filename=03.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&tknv=v2&size=1903x968)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d42/19IGnZrplZ0.jpg)
 Скриншот 3
 
 Доска содержит следующие элементы, отмеченные указателями на Скриншоте 3(номера указателей совпадают с порядком перечисления элементов) :
@@ -28,7 +28,7 @@
 
 Так же на карточке находится значок письма, при открытии которого открывается форма для быстрой отправки сообщения одним из шаблонов на выбор(скриншот 3, указатель 9):
 
-![alt text](https://4.downloader.disk.yandex.ru/disk/a2845d10312a5ac9a7b9acf44859c342b450284eec04c27b93162168d3a9f06d/5c72f5cd/3NPT1hM_e5gGUwcwEQUZZCJ6-W2lPn_2EaffDV_4cLDDwWY3S08EH7d2Hxj3KaIp71QHeZ8tfYBXU130czfvyQ%3D%3D?uid=15179671&filename=04.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=8017&hid=b4457baf5a3d94f7090b6b467f728c72&media_type=image&tknv=v2&etag=44b6549a965d37eb235b4867586ac8ce)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d49/ukn5YbQOGEI.jpg)
 
 Скриншот 4
 
@@ -40,7 +40,7 @@
 
 После открытия карточки, перед вами появится информация о клиенте:
 
-![alt text](https://3.downloader.disk.yandex.ru/disk/d9296b21a95c3fe0f5887a73d09631a774fedcc98ee4c455a189ea65289b21de/5c74243f/3NPT1hM_e5gGUwcwEQUZZJa_OS0PI-3XrKZbVIbxCK8K_B1C5VwBmnbkWRXBukpXf_qoFB0uaW41seuBfO70JQ%3D%3D?uid=15179671&filename=06.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=118420&hid=00650a3fae28cff19b65b71757f37e82&media_type=image&tknv=v2&etag=4184530e0c98227c1da583a341cbce6c)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d53/dSR8iXYsfa0.jpg)
 Скриншот 6
 
 Основные функции внутри карточки (отмечены на скриншоте 6 указателями, номера которых соответствуют перечеслению функций):
@@ -220,7 +220,7 @@
 Описание: Круглая кнопка в правом верхнем углу, доступна из любой области в CRM.
 При нажатии на кнопку появляется выбор — Перейти в настройки, настроить профиль или выйти.
 
-![alt text](https://2.downloader.disk.yandex.ru/disk/dae419f6a5c61fe988797b423a20e934e53c1f4d497feea8d226a0996cc9ce5b/5c731e8a/3NPT1hM_e5gGUwcwEQUZZPiNH_qmGvZj6A7JRJKVx4u_f4f5seSfc1-1LM1xlWDqKQJlN4bcLU7JWpOcHtemOQ%3D%3D?uid=15179671&filename=28.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=50126&hid=098a21e2053559726480b3b7e5a45fa8&media_type=image&tknv=v2&etag=ebd9f752d114983a368e1bdf2023b40f)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d71/jO8yJqIs7xY.jpg)
 
 Скриншот 24
 
@@ -271,7 +271,7 @@
 6. Настроить автоответ
 Описание: Предлагает настроить автоответ (сообщение, которое будет отправлено потенциальному клиенту), для этого нужно выбрать заранее подготовленный шаблон из списка. Чтобы отключить автоответ, нужно выбрать пункт "Не выбрано" и нажать "Применить".
 
-![alt text](https://3.downloader.disk.yandex.ru/disk/d0b2acfc3b311c128849cccad85fddb9a742f5dd92b936801e3649ba6c321575/5c731fe5/3NPT1hM_e5gGUwcwEQUZZNdn_IruTwftiNpczanWgI3L5FzzJsoqlmRh_YlHz1Kos5rgr9z_YQfmtYZ-lY5HCw%3D%3D?uid=15179671&filename=33.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=11599&hid=eca0b1e998bf133ba808f1bd835b9c48&media_type=image&tknv=v2&etag=1bece7bfd22cb5672c567adde5577958)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d79/m8CmC0noFmY.jpg)
 
 Скриншот 29
 
@@ -309,7 +309,7 @@
 
 ### Все клиенты
 
-![alt text](https://2.downloader.disk.yandex.ru/disk/e4b995142da21aec7871037edc3ee15a47f852cca9d43251de7dfed2499e2775/5c73bada/3NPT1hM_e5gGUwcwEQUZZF8pgtBWaVmw6iyEZQVfJqCgjWocdKLjoCfDX5vlNeZ9soewvIbV3jyGPpD708J6VQ%3D%3D?uid=15179671&filename=37.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=114226&hid=30875da408a3ec4f2d006428cb535fec&media_type=image&tknv=v2&etag=df84289c3f6fb1df04be9faf3c1722fc)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d83/fhq3tAEOIsg.jpg)
 
 Скриншот 33
 
@@ -336,7 +336,7 @@
 
 Функция "Массовый ввод" позволяет создавать несколько клиентов одним запросом, для этого данные клиентов вводятся в поля формы построчно. См. скриншот 36 ниже.
 
-![alt text](https://3.downloader.disk.yandex.ru/disk/f6849b9d5e9f5ee03a862586727361883e7ba3ff5c2a743bbca3b72f261aa71c/5c73bc36/3NPT1hM_e5gGUwcwEQUZZEb_FZR9n7JiRcQ2duuHGcGIL2SFir3eKinPgJ5OqXCwA04Z8Qk5OPwdhW-wBOAl2g%3D%3D?uid=15179671&filename=37a.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=114519&hid=fac11c470cab31438f35cb8117a593cd&media_type=image&tknv=v2&etag=ab2f658c34f54cebd965143949a3d204)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d8d/v_5XAkdV-wQ.jpg)
 Скриншот 36
 
 ### Все студенты
@@ -383,7 +383,7 @@
 
 ### Рассылка
 
-![alt text](https://3.downloader.disk.yandex.ru/disk/c7cf6d2c88dd4fc786fd94c9e0f2abf85ce31737e978128ef0c21708c4dc559c/5c73bfd0/3NPT1hM_e5gGUwcwEQUZZD_WIOoELO75ogQswmAd_5S9LXavtZONaRCG0oxWi7Jw9Ovrsjff_tKSK-qpuwgw4Q%3D%3D?uid=15179671&filename=16.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=60985&hid=f54d414232b4be8dd01dac9f38ce185e&media_type=image&tknv=v2&etag=c5a18f0f82184f25d338a126714c16d1)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d5d/cOfPS7BC-G4.jpg)
 Скриншот 43
 
 Назначение: Рассылка предназначена для отправки сообщений клиенту тремя способами:
@@ -397,7 +397,7 @@
 
 Рассылка ВК: В нижнее поле вводятся id получателей по одному на строку, не более 20 в день. Также необходимо выбрать пользователя, от имени которого будет осуществляться рассылка.
 
-![alt text](https://2.downloader.disk.yandex.ru/disk/7ce07ac75fa3fff1fa1f1015f4be51058cec3ba9a3a26a5796fa1dcfe6e61869/5c73c041/3NPT1hM_e5gGUwcwEQUZZCtshJrU_eV4yS_NPpDwbzLvnF-FYgmWRSuyMM5PZkI452rEfEj015GGCk2rfUguHQ%3D%3D?uid=15179671&filename=17.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&fsize=61390&hid=bbdde480438042a051d025196d93886f&media_type=image&tknv=v2&etag=9153967806e75f4f4dcf67bc6e72c195)
+![alt text](https://pp.userapi.com/c850724/v850724854/c9d67/HMPfxET8N10.jpg)
 Скриншот 44
 
 ### Шаблоны
