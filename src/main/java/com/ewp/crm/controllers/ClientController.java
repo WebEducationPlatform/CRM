@@ -99,7 +99,7 @@ public class ClientController {
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getAll();
+            statuses = statusService.getStatusesWithSortedClients(userFromSession);
             modelAndView = new ModelAndView("main-client-table");
         } else {
             statuses = statusService.getStatusesWithClientsForUser(userFromSession);

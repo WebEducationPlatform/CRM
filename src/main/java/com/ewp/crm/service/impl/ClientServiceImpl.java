@@ -194,7 +194,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
+    public List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser, SortingType order) {
+        List<Client> orderedClients;
+        if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
+            orderedClients = clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByRegistration(status, ownUser, order);
+            return orderedClients;
+        }
+        if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
+            orderedClients = clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByHistory(status, ownUser, order);
+            return orderedClients;
+        }
+        logger.error("Error with sorting clients");
         return clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
     }
 
