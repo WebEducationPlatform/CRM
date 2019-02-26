@@ -1063,7 +1063,11 @@ function hideClient(clientId) {
                 success: function () {
                     let currentStatus = document.getElementById("postpone-status");
                     currentStatus.style.color = "limegreen";
-                    currentStatus.textContent = "Клиент успешно скрыт";
+                    if (flag) {
+                        currentStatus.textContent = "Клиент успешно скрыт";
+                    } else {
+                        currentStatus.textContent = "Напоминание добавлено";
+                    }
                 },
             });
         },
