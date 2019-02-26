@@ -651,8 +651,8 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonUser = jsonUsers.getJSONObject(0);
 
             //имя и фамилия присутствуют всегда
-            returnMap.put("name", jsonUser.getString("first_name"));
-            returnMap.put("lastName", jsonUser.getString("last_name"));
+            returnMap.put("first_name", jsonUser.getString("first_name"));
+            returnMap.put("last_name", jsonUser.getString("last_name"));
 
             //можно получить дополнительные поля
             if (additionalFields != null && !additionalFields.isEmpty()) {
