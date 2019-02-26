@@ -27,6 +27,10 @@ public interface ClientRepositoryCustom {
 
 	List<Client> getByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
 
+	List<Client> getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByRegistration(Status status, User ownUser, SortingType order);
+
+	List<Client> getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByHistory(Status status, User ownUser, SortingType order);
+
 	List<ClientHistory> getClientByTimeInterval(int days);
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
