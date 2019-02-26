@@ -152,6 +152,32 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public List<Client> getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByRegistration(Status status, User ownUser, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ORDER BY c.dateOfRegistration";
+        if (SortingType.NEW_FIRST.equals(order)) {
+            query = query + " DESC";
+        }
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .setParameter("ownerUser", ownUser)
+                .getResultList();
+        return orderedClients;
+    }
+
+    @Override
+    public List<Client> getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByHistory(Status status, User ownUser, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
+        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
+            query = query + " DESC";
+        }
+        List<Client> orderedClients = entityManager.createQuery(query)
+                .setParameter("status_id", status.getId())
+                .setParameter("ownerUser", ownUser)
+                .getResultList();
+        return orderedClients;
+    }
+
+    @Override
     public boolean isTelegramClientPresent(Integer id) {
         List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.link = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
                 .setParameter("telegramId", id.toString())

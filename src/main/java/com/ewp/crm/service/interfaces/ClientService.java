@@ -49,7 +49,7 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
-	List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
+	List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser, SortingType order);
 
 	List<Client> getAllClientsByPage(Pageable pageable);
 

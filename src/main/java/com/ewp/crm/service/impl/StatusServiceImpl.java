@@ -62,8 +62,14 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
 		List<Status> statuses = getAll();
+		SortedStatuses sorted;
 		for (Status status : statuses) {
-			status.setClients(clientService.getClientsByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser));
+			sorted = new SortedStatuses(status, ownerUser);
+			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
+				SortedStatuses finalSorted = sorted;
+				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+				status.setClients(clientService.getClientsByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser, sortingType));
+			}
 		}
 		return statuses;
 	}
