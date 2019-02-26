@@ -110,8 +110,13 @@ $('#filtration').click(function () {
                     '    </tr>'
                 );
                 $('#clients-table tr:last').after(function () {
-                    var tds = $(this).find('td.colorTd');
-                    $(this).css("background-color", statuscol[tds.html().trim()]);
+                    try {
+                        var tds = $(this).find('td.colorTd');
+                        $(this).css("background-color", statuscol[tds.html().trim()]);
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
                 })
             }
         },
