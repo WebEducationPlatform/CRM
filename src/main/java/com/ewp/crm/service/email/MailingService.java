@@ -1,5 +1,6 @@
 package com.ewp.crm.service.email;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
@@ -37,17 +38,21 @@ public class MailingService {
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
     private final UserService userService;
+    private final VKConfig vkConfig;
+
 
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService, VKConfig vkConfig) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.userService = userService;
+        this.vkConfig = vkConfig;
+
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -119,10 +124,11 @@ public class MailingService {
 
     private void sendingMailingVk(MailingMessage message) {
         List<String> notSendList = new ArrayList<>();
+        String tokenComunity = vkConfig.getCommunityToken();
         for (ClientData idVk : message.getClientsData()) {
             try {
                 Thread.sleep(1000);
-                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), tokenComunity);
                 if (!value.equalsIgnoreCase("Message sent")) {
                     notSendList.add(value);
                 }
