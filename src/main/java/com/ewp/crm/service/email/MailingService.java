@@ -1,6 +1,6 @@
 package com.ewp.crm.service.email;
 
-import com.ewp.crm.configs.inteface.VKConfig;
+
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
@@ -38,20 +38,19 @@ public class MailingService {
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
     private final UserService userService;
-    private final VKConfig vkConfig;
+
 
 
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService, VKConfig vkConfig) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.userService = userService;
-        this.vkConfig = vkConfig;
 
     }
 
