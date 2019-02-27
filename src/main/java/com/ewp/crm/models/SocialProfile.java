@@ -16,9 +16,8 @@ public class SocialProfile implements Serializable {
 	@Column(name = "id")
 	private long id;
 
-	@Column(name = "link")
-	private String link;
-
+	@Column(name = "social_id")
+	private String socialId;
 
     /**
      * Тип соцсети
@@ -32,13 +31,13 @@ public class SocialProfile implements Serializable {
 	public SocialProfile() {
 	}
 
-	public SocialProfile(String link, SocialProfileType socialProfileType) {
-		this.link = link;
+	public SocialProfile(String socialId, SocialProfileType socialProfileType) {
+        this.socialId = socialId;
 		this.socialProfileType = socialProfileType;
 	}
 
-	public SocialProfile(String link) {
-		this.link = link;
+	public SocialProfile(String socialId) {
+		this.socialId = socialId;
 	}
 
 	@Override
@@ -47,18 +46,18 @@ public class SocialProfile implements Serializable {
 		if (!(o instanceof SocialProfile)) return false;
 		SocialProfile that = (SocialProfile) o;
 		return id == that.id &&
-				Objects.equals(link, that.link) &&
+				Objects.equals(socialId, that.socialId) &&
 				Objects.equals(socialProfileType, that.socialProfileType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, link, socialProfileType);
+		return Objects.hash(id, socialId, socialProfileType);
 	}
 
 	@Override
 	public String toString() {
-		return this.link;
+		return String.valueOf(this.socialId);
 	}
 
 	public long getId() {
@@ -69,15 +68,15 @@ public class SocialProfile implements Serializable {
 		this.id = id;
 	}
 
-	public String getLink() {
-		return link;
-	}
+    public String getSocialId() {
+        return socialId;
+    }
 
-	public void setLink(String link) {
-		this.link = link;
-	}
+    public void setSocialId(String socialId) {
+        this.socialId = socialId;
+    }
 
-	public SocialProfileType getSocialProfileType() {
+    public SocialProfileType getSocialProfileType() {
 		return socialProfileType;
 	}
 
