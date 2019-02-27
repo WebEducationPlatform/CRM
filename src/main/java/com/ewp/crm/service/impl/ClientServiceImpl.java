@@ -5,10 +5,7 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +33,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final SocialProfileService socialProfileService;
 
+    private final RoleService roleService;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.roleService = roleService;
     }
 
     @Override
@@ -194,21 +194,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser, SortingType order) {
-        List<Client> orderedClients;
-        if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-            orderedClients = clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByRegistration(status, ownUser, order);
-            return orderedClients;
-        }
-        if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-            orderedClients = clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNullOrderedByHistory(status, ownUser, order);
-            return orderedClients;
-        }
-        logger.error("Error with sorting clients");
-        return clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
-    }
-
-    @Override
     public List<Client> getAllClientsByPage(Pageable pageable) {
         return clientRepository.findAll(pageable).getContent();
     }
@@ -289,14 +274,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
 	@Override
-	public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
-		List<Client> orderedClients;
+	public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+        List<Client> orderedClients;
+        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
 		if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
 			return orderedClients;
 		}
 		if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
 			return orderedClients;
 		}
 		logger.error("Error with sorting clients");

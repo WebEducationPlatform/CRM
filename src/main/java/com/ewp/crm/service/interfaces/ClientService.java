@@ -49,13 +49,11 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
-	List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser, SortingType order);
-
 	List<Client> getAllClientsByPage(Pageable pageable);
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
+	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
 
 	Client findByNameAndLastNameIgnoreCase(String name, String lastName);
 }
