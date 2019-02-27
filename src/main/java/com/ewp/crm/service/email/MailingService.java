@@ -124,11 +124,10 @@ public class MailingService {
 
     private void sendingMailingVk(MailingMessage message) {
         List<String> notSendList = new ArrayList<>();
-        String tokenComunity = vkConfig.getCommunityToken();
         for (ClientData idVk : message.getClientsData()) {
             try {
                 Thread.sleep(1000);
-                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), tokenComunity);
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
                 if (!value.equalsIgnoreCase("Message sent")) {
                     notSendList.add(value);
                 }
