@@ -23,8 +23,8 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 	}
 
 	@Override
-	public SocialProfile getSocialProfileByLink(String link) {
-		return socialProfileRepository.getByLink(link);
+	public SocialProfile getSocialProfileBySocialIdAndSocialType(String id, String socialType) {
+		return socialProfileRepository.getBySocialIdAndSocialProfileType_Name(id, socialType);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 		Optional<String> result = Optional.empty();
 		for (SocialProfile socialProfile : client.getSocialProfiles()) {
 			if (typeName.equals(socialProfile.getSocialProfileType().getName())) {
-				result = Optional.of(socialProfile.getLink());
+				result = Optional.of(socialProfile.getSocialId());
 				break;
 			}
 		}

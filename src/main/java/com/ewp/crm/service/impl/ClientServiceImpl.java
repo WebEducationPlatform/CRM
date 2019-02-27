@@ -5,13 +5,11 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +34,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final SocialProfileService socialProfileService;
 
+    private final VKService vkService;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, @Lazy VKService vkService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.vkService = vkService;
     }
 
     @Override
@@ -119,7 +120,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getLastName() == null) {
             client.setLastName("");
         }
-        checkSocialLinks(client);
 
         Client existClient = null;
 
@@ -135,8 +135,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                }
+            }
             if (existClient == null) {
-                socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+                socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
                     existClient = getClientBySocialProfile(socialProfile);
                 }
@@ -228,7 +234,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
-        checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
 
@@ -245,31 +250,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                     .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
-        }
-    }
-
-    private void checkSocialLinks(Client client) {
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            String link = socialProfile.getLink();
-            SocialProfileType type = socialProfile.getSocialProfileType();
-            if (type.getName().equals("unknown")) {
-                if (!link.startsWith("https")) {
-                    if (link.startsWith("http")) {
-                        link = link.replaceFirst("http", "https");
-                    } else {
-                        link = "https://" + link;
-                    }
-                }
-            } else {
-                int indexOfLastSlash = link.lastIndexOf("/");
-                if (indexOfLastSlash != -1) {
-                    link = link.substring(indexOfLastSlash + 1);
-                }
-                if ("vk".equals(type.getName()) || "facebook".equals(type.getName())) {
-                    link = "https://" + type.getName() + ".com/" + link;
-                }
-            }
-            socialProfile.setLink(link);
         }
     }
 
