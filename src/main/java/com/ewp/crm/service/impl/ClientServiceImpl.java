@@ -9,6 +9,7 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +33,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private SendNotificationService sendNotificationService;
 
     private final SocialProfileService socialProfileService;
-
+  
     private final RoleService roleService;
 
+    private final VKService vkService;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.vkService = vkService;
         this.roleService = roleService;
     }
 
@@ -119,7 +123,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getLastName() == null) {
             client.setLastName("");
         }
-        checkSocialLinks(client);
 
         Client existClient = null;
 
@@ -135,8 +138,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                }
+            }
             if (existClient == null) {
-                socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+                socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
                     existClient = getClientBySocialProfile(socialProfile);
                 }
@@ -213,7 +222,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
-        checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
 
@@ -230,31 +238,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                     .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
-        }
-    }
-
-    private void checkSocialLinks(Client client) {
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            String link = socialProfile.getLink();
-            SocialProfileType type = socialProfile.getSocialProfileType();
-            if (type.getName().equals("unknown")) {
-                if (!link.startsWith("https")) {
-                    if (link.startsWith("http")) {
-                        link = link.replaceFirst("http", "https");
-                    } else {
-                        link = "https://" + link;
-                    }
-                }
-            } else {
-                int indexOfLastSlash = link.lastIndexOf("/");
-                if (indexOfLastSlash != -1) {
-                    link = link.substring(indexOfLastSlash + 1);
-                }
-                if ("vk".equals(type.getName()) || "facebook".equals(type.getName())) {
-                    link = "https://" + type.getName() + ".com/" + link;
-                }
-            }
-            socialProfile.setLink(link);
         }
     }
 
@@ -292,5 +275,20 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
+    }
+
+    // TODO Удалить после первого использования
+    @Override
+    public void refactorDataBase() {
+        getAll().forEach(c -> c.getSocialProfiles().forEach(p -> {
+                    if (p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
+                        Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
+                        if (id.isPresent()) {
+                            p.setSocialId(String.valueOf(id.get()));
+                            updateClient(c);
+                        }
+                    }
+                }
+        ));
     }
 }

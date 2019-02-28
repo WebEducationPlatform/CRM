@@ -142,21 +142,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public boolean isTelegramClientPresent(Integer id) {
-        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.link = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
                 .setParameter("telegramId", id.toString())
                 .getResultList();
         return !result.isEmpty();
     }
 
     @Override
-    public Client getClientBySocialProfileLink(String link) {
+    public Client getClientBySocialProfile(String id, String socialProfileType) {
         Client result = null;
         try {
-            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
-                    .setParameter("link", link)
+            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN c.socialProfiles s WHERE s.socialId = :sid AND s.socialProfileType.name = :type", Client.class)
+                    .setParameter("sid", id)
+                    .setParameter("type", socialProfileType)
                     .getSingleResult();
         } catch (NoResultException e) {
-            logger.info("Client with link {} not found", link, e);
+            logger.info("Client with social id {} not found", id, e);
         }
         return result;
     }
@@ -213,7 +214,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private String queryForGetSNLinksFromFilteredClients(FilteringCondition filteringCondition) {
 
-        StringBuilder query = new StringBuilder("SELECT social_network.link\n" +
+        StringBuilder query = new StringBuilder("SELECT social_network.social_id\n" +
                 "FROM client_social_network\n" +
                 "  INNER JOIN social_network ON client_social_network.social_network_id = social_network.id\n" +
                 "  INNER JOIN client ON client_social_network.client_id = client.client_id\n" +

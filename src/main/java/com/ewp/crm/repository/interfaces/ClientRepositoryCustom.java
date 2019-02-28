@@ -40,7 +40,7 @@ public interface ClientRepositoryCustom {
 
 	boolean isTelegramClientPresent(Integer id);
 
-	Client getClientBySocialProfileLink(String link);
+	Client getClientBySocialProfile(String id, String socialProfileType);
 
 	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user);
 
