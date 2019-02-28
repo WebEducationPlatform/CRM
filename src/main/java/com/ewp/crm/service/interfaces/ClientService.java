@@ -58,4 +58,7 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
 
 	Client findByNameAndLastNameIgnoreCase(String name, String lastName);
+
+	// TODO Удалить после первого использования
+	void refactorDataBase();
 }

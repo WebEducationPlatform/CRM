@@ -287,4 +287,19 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
     }
+
+    // TODO Удалить после первого использования
+    @Override
+    public void refactorDataBase() {
+        getAll().forEach(c -> c.getSocialProfiles().forEach(p -> {
+                    if (p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
+                        Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
+                        if (id.isPresent()) {
+                            p.setSocialId(String.valueOf(id.get()));
+                            updateClient(c);
+                        }
+                    }
+                }
+        ));
+    }
 }
