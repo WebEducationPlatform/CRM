@@ -6,19 +6,24 @@ $("#button_create_template").click(function () {
 //Create new template
 $("#create_template").click(function () {
     let name = $("#template-name").val();
-    $.ajax({
-        type: 'POST',
-        url: '/rest/message-template',
-        dataType: "JSON",
-        data: {name: name},
-        success: function () {
-            window.location = "/template/create/" + name;
-        },
-        error: function () {
-            alert("Шаблон с таким именем " + name + " уже существует!");
+    let pattern = /^(?!\s*$).+/;
+    if (pattern.test(name)) {
+        $.ajax({
+            type: 'POST',
+            url: '/rest/message-template',
+            dataType: "JSON",
+            data: {name: name},
+            success: function () {
+                window.location = "/template/create/" + name;
+            },
+            error: function () {
+                alert("Шаблон с таким именем " + name + " уже существует!");
 
-        }
-    });
+            }
+        });
+    } else {
+        $("#template-create-modal-err").html("Имя шаблона не может быть пустым!");
+    }
 });
 
 //Edit template page redirect
@@ -43,4 +48,9 @@ $(".button_delete_template").click( function () {
             }
         }
     });
+});
+
+//Clearing text inside #template-create-modal-err after closing modal
+$('#template-create-modal').on('hidden.bs.modal', function () {
+    $("#template-create-modal-err").empty();
 });
