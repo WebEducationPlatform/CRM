@@ -311,7 +311,7 @@ public class ClientRestController {
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {
-					if (email != null && !email.equals("")) {
+					if (!email.isEmpty()) {
 						bufferedWriter.write(email + System.lineSeparator());
 					}
 				}
@@ -319,7 +319,7 @@ public class ClientRestController {
 			if (filteringCondition.getSelected().equals("phoneNumber")) {
 				List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
 				for (String phoneNumber : phoneNumbers) {
-					if (phoneNumber != null && !phoneNumber.equals("")) {
+					if (!phoneNumber.isEmpty()) {
 						bufferedWriter.write(phoneNumber + System.lineSeparator());
 					}
 				}
