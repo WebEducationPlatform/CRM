@@ -1,5 +1,6 @@
 package com.ewp.crm.service.email;
 
+
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
@@ -39,6 +40,8 @@ public class MailingService {
     private final UserService userService;
 
 
+
+
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
                           MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
@@ -48,6 +51,7 @@ public class MailingService {
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.userService = userService;
+
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
