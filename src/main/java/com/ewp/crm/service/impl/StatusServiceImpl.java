@@ -1,8 +1,10 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -14,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -48,7 +52,7 @@ public class StatusServiceImpl implements StatusService {
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
 				SortedStatuses finalSorted = sorted;
 				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-				status.setClients(clientService.getOrderedClientsInStatus(status, sortingType));
+				status.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
 			}
 		}
 		return statuses;
@@ -57,21 +61,6 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
-	}
-
-	@Override
-	public List<Status> getStatusesWithClientsForUser(User ownerUser) {
-		List<Status> statuses = getAll();
-		SortedStatuses sorted;
-		for (Status status : statuses) {
-			sorted = new SortedStatuses(status, ownerUser);
-			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
-				SortedStatuses finalSorted = sorted;
-				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-				status.setClients(clientService.getClientsByStatusAndOwnerUserOrOwnerUserIsNull(status, ownerUser, sortingType));
-			}
-		}
-		return statuses;
 	}
 
 	@Override
