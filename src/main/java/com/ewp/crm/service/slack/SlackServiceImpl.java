@@ -6,9 +6,13 @@ import com.ewp.crm.models.SlackProfile;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.impl.StudentServiceImpl;
 import com.ewp.crm.service.interfaces.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Iterator;
 
 @Service
 @PropertySources(value = {
@@ -89,6 +94,36 @@ public class SlackServiceImpl implements SlackService {
             logger.warn("Can't receive Client Slack profile", e);
         }
         return new SlackProfile();
+    }
+
+    @Override
+    public String getEmailListFromJson(String json) {
+        try {
+            StringBuilder result = new StringBuilder();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonParser parser = new JsonFactory().createParser(json);
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                if ("members".equals(parser.getCurrentName())) {
+                    parser.nextToken();
+                    ArrayNode node = objectMapper.readTree(parser);
+                    Iterator<JsonNode> iterator = node.elements();
+                    iterator.forEachRemaining(o -> {
+                        JsonNode nextEmail = o.get("profile").get("email");
+                        if (nextEmail != null) {
+                            result.append(nextEmail.asText());
+                            if (iterator.hasNext()) {
+                                result.append("\n");
+                            }
+                        }
+                    });
+                }
+            }
+            return result.toString();
+        }
+        catch (IOException e) {
+            logger.warn("Can't parse emails from slack", e);
+        }
+        return "Error";
     }
 
     @Override
