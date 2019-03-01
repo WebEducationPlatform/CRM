@@ -511,6 +511,7 @@ public class ClientRestController {
 		student.setNextPaymentDate(nextPaymentDate.atStartOfDay());
 		student.setPrice(price);
 		student.setPaymentAmount(paymentAmount);
+		student.setPayLater(new BigDecimal(0));
 		student.setStatus(studentStatus);
 		return student;
 	}
