@@ -26,8 +26,8 @@ function sort_table(n, type) {
                 x_val = x.innerText.toLowerCase();
                 y_val = y.innerText.toLowerCase();
             } else if(type == "date") {
-                temp_x = x.innerHTML.toLowerCase().split(".");
-                temp_y = y.innerHTML.toLowerCase().split(".");
+                temp_x = x.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
+                temp_y = y.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
                 x_val = new Date(temp_x[2], temp_x[1] - 1, temp_x[0]);
                 y_val = new Date(temp_y[2], temp_y[1] - 1, temp_y[0]);
             } else {
@@ -59,37 +59,128 @@ function sort_table(n, type) {
     }
 }
 
-$('.button_edit').click(function () {
-    let currentModal = $('#student-edit-modal');
-    currentModal.data('student_id', this.value);
-    currentModal.modal('show');
+var clickedStatus = [];
+var clickedEndDate = [];
+var clickedPaymentDate = [];
+
+//enable student editing when clicking on his fields in table
+$('td').click(function () {
+    var i;
+    var field = this.id.substring(0, this.id.lastIndexOf("_"));
+    var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
+    $('#editBtn' + id).removeAttr('disabled');
+    switch (field) {
+        case 'trialEndDate':
+            for(i=0; i<clickedEndDate.length; i++) {
+                if (clickedEndDate[i] == id) {
+                    clickedEndDate[i] = '';
+                    return;
+                }
+            }
+            clickedEndDate.push(id);
+            $('#trial-end-date_' + id).removeClass('hidden');
+            $('#trialEndDateValue_' + id).hide();
+            break;
+        case 'nextPaymentDate':
+            for(i=0; i<clickedPaymentDate.length; i++) {
+                if (clickedPaymentDate[i] == id) {
+                    clickedPaymentDate[i] = '';
+                    return;
+                }
+            }
+            clickedPaymentDate.push(id);
+            $('#next-payment-date_' + id).removeClass('hidden');
+            $('#nextPaymentDateValue_' + id).hide();
+            break;
+        case 'status':
+            for(i=0; i<clickedStatus.length; i++) {
+                if (clickedStatus[i] == id) {
+                    clickedStatus[i] = '';
+                    return;
+                }
+            }
+            clickedStatus.push(id);
+            if ($('#student-status_' + id + ' option').length == 0) {
+                $.ajax({
+                    type: 'GET',
+                    url: "/rest/student/status",
+                    success: function (statuses) {
+                        for (var i in statuses) {
+                            var selected = statuses[i].status == $('#statusValue_' + id).text() ? "selected" : "";
+                            $('#student-status_' + id).append("<option value='" + statuses[i].id + "' " + selected + ">" + statuses[i].status + "</option>");
+                        }
+                    }
+                });
+            }
+            $('#student-status_' + id).removeClass('hidden');
+            $('#statusValue_' + id).hide();
+            break;
+        default:
+            $('#' + this.id).attr('contenteditable', 'true');
+    }
 });
 
-//Get student and send update
-$('#update-student').click(function () {
-    if (!validate_prices()) {return}
-    let student_id = $("#student-id").val();
-    let url = "/rest/student/" + student_id + "/client";
+//change dates in table fields
+$("input[type='date']").on('change', function() {
+    var field = this.id.substring(0, this.id.lastIndexOf("_"));
+    var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
+    switch (field) {
+        case 'trial-end-date':
+            var arr = $(this).val().split('-');
+            var date = arr[2] + '.' + arr[1] + '.' + arr[0];
+            $('#'+this.id).addClass('hidden');
+            $('#trialEndDateValue_' + id).text(date);
+            $('#trialEndDateValue_' + id).show();
+            break;
+        case 'next-payment-date':
+            var arr = $(this).val().split('-');
+            var date = arr[2] + '.' + arr[1] + '.' + arr[0];
+            $('#'+this.id).addClass('hidden');
+            $('#nextPaymentDateValue_' + id).text(date);
+            $('#nextPaymentDateValue_' + id).show();
+            break;
+    }
+});
+
+//change status in table field from select input
+$('select').on('change', function () {
+    var optionSelected = $("option:selected", this).text();
+    var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
+    $('#statusValue_' + id).text(optionSelected);
+    $('#statusValue_' + id).show();
+    $('#student-status_' + id).addClass('hidden');
+    clickedStatus.push(id);
+});
+
+//update student
+$('.button_edit').click(function () {
+    var id = this.value;
+    if (!validate_prices(id)) {return}
+    let url = "/rest/student/" + id + "/client";
     $.ajax({
         type: 'GET',
         url: url,
         success: function (client) {
-            let email_selector = '#' + student_id + '_notify_email';
-            let sms_selector = '#' + student_id + '_notify_sms';
-            let vk_selector = '#' + student_id + '_notify_vk';
+            let trialDateArr = $("#trialEndDateValue_"+id).text().split('.');
+            let nextPaymentDateArr = $("#nextPaymentDateValue_"+id).text().split('.');
+            let trialDate = trialDateArr[2] + '-' + trialDateArr[1] + '-' + trialDateArr[0];
+            let nextPayDate = nextPaymentDateArr[2] + '-' + nextPaymentDateArr[1] + '-' + nextPaymentDateArr[0];
+            let email_selector = '#' + id + '_notify_email';
+            let sms_selector = '#' + id + '_notify_sms';
+            let vk_selector = '#' + id + '_notify_vk';
             let email_notify = $(email_selector).prop('checked');
             let sms_notify = $(sms_selector).prop('checked');
             let vk_notify = $(vk_selector).prop('checked');
             let data = {
-                id : $("#student-id").val(),
-                client : {id : client.id},
-                trialEndDate : $("#trial-end-date").val() + "T00:00:00",
-                nextPaymentDate : $("#next-payment-date").val() + "T00:00:00",
-                price : $("#month-price").val(),
-                paymentAmount : $("#payment").val(),
-                payLater : $("#later-payment").val(),
-                status : {id : $("#student-status").val(),status : $("#student-status option:selected").text()},
-                notes : $("#notes").val(),
+                id : id,
+                client : {id : client.id, name : $("#name_"+id).text(), lastName : $("#lastName_"+id).text(), email : $("#email_"+id).text()},
+                trialEndDate : trialDate + "T00:00:00",
+                nextPaymentDate : nextPayDate + "T00:00:00",
+                price : $("#price_"+id).text(),
+                paymentAmount : $("#paymentAmount_"+id).text(),
+                payLater : $("#payLater_"+id).text(),
+                status : {status : $("#statusValue_"+id).text()},
+                notes : $("#notes_"+id).text(),
                 notifyEmail: email_notify,
                 notifySMS: sms_notify,
                 notifyVK: vk_notify
@@ -103,11 +194,17 @@ $('#update-student').click(function () {
                 dataType: "JSON",
                 data: JSON.stringify(data),
                 success: function () {
-                    location.reload();
+                    $('#editBtn' + id).attr('disabled', 'disabled');
                 }
             })
         }
     });
+});
+
+//go to student info page
+$('.button_info').click(function () {
+    var url = '/client/clientInfo/' + this.value;
+    window.location = url;
 });
 
 //delete student by id
@@ -126,10 +223,10 @@ $('.button_delete').click(function () {
 });
 
 //Check prices consistency
-function validate_prices() {
-    let price = parseInt($("#month-price").val());
-    let payment = parseInt($("#payment").val());
-    let pay_later = parseInt($("#later-payment").val());
+function validate_prices(id) {
+    let price = parseInt($("#price_"+id).text());
+    let payment = parseInt($("#paymentAmount_"+id).text());
+    let pay_later = parseInt($("#payLater_"+id).text());
     if (isNaN(price) || isNaN(payment) || isNaN(pay_later)) {
         alert('Введите цену!');
         return false;
