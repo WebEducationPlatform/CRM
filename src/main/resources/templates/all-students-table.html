@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-xs-1" th:each="status : ${statuses}">
                     <label class="control-label" th:for="${status.name}" th:text="${status.name}"></label>
-                    <input th:id="${status.name}" class="checkbox" type="checkbox" checked="checked"/>
+                    <input th:id="${status.name}" class="checkbox" type="checkbox" th:checked="${status.name} != deleted"/>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
             </tr>
             </thead>
             <tbody id="table-body">
-            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" >
+            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="${student.client.status.name != 'deleted'} ? '' : 'display:none'">
                 <td style="display:none;" th:text="${student.client.status.name}"></td>
                 <td th:text="${student.id}"></td>
                 <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
