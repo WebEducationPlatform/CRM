@@ -15,6 +15,10 @@ public class StudentStatusServiceImpl extends CommonServiceImpl<StudentStatus> i
         this.studentStatusRepository = studentStatusRepository;
     }
 
+    @Override
+    public StudentStatus getByName(String status) {
+        return studentStatusRepository.getStudentStatusByStatus(status);
+    }
 
     @Override
     public void save(StudentStatus studentStatus) {
