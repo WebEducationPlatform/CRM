@@ -19,7 +19,7 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" id="editUser">Редактировать</button>
                         <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + '\')'">Сохранить</button>
-						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
 					</div>
                     <p><span id = "message"></span></p>
                     <input type="checkbox" checked="checked" class="form-control"  style="display:none"    id="edit-user-isVerified"/>
