@@ -5,11 +5,6 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.utils.validators.PhoneValidator;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,16 +38,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final VKService vkService;
 
-    private final PhoneValidator phoneValidator;
-
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, 
-                             RoleService roleService, @Lazy VKService vkService, PhoneValidator phoneValidator) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.vkService = vkService;
         this.roleService = roleService;
-        this.phoneValidator = phoneValidator;
     }
 
     @Override
@@ -135,9 +126,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         Client existClient = null;
 
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            client.setCanCall(true);
+            phoneNumberValidation(client);
             existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 
         }
@@ -225,11 +215,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            client.setCanCall(true);
+            phoneNumberValidation(client);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
+            if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
         }
@@ -250,8 +239,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
-        checkSocialLinks(client);
-        clientRepository.saveAndFlush(client);
     }
 
     @Override
