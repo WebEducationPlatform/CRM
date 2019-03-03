@@ -148,8 +148,10 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 messages = (TdApi.Messages) handler.getObject();
                 handler.setObject(null);
             } while (messages.totalCount < chat.get().unreadCount);
-            client.send(new TdApi.GetUser(messages.messages[0].senderUserId), new NewUserHandler());
-            markMessagesAsRead(chatId, messages);
+            if (!clientRepository.isTelegramClientPresent(messages.messages[0].senderUserId)) {
+                client.send(new TdApi.GetUser(messages.messages[0].senderUserId), new NewUserHandler());
+                markMessagesAsRead(chatId, messages);
+            }
         }
         return messages;
     }
