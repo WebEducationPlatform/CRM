@@ -14,9 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -184,14 +182,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getAgeFrom() != null) {
-            LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
-            String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and cl.birthDate <= '").append(dateTo).append("'");
+            query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
+
         }
         if (filteringCondition.getAgeTo() != null) {
-            LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
-            String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and cl.birthDate >= '").append(dateFrom).append("'");
+            query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
         }
 
         if (!filteringCondition.getCity().isEmpty()) {
@@ -232,14 +227,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getAgeFrom() != null) {
-            LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
-            String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and client.birth_date <= '").append(dateTo).append("'");
+            query.append(" and client.age >= ").append(filteringCondition.getAgeFrom());
+
         }
         if (filteringCondition.getAgeTo() != null) {
-            LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
-            String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            query.append(" and client.birth_date >= '").append(dateFrom).append("'");
+            query.append(" and client.age <= ").append(filteringCondition.getAgeTo());
         }
 
         if (!filteringCondition.getCity().isEmpty()) {
