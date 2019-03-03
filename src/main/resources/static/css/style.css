@@ -285,17 +285,18 @@ ul.nav a:hover {
 	right: -350px;
 	margin: -40px 0 0 0;
 	overflow: hidden;
-	height: 100%
+	height: 90%
 }
 
 #panel-content {
 	background: #EEE;
 	border: 1px solid #CCC;
 	width: 350px;
-	height: 100%;
+	height: 95%;
 	float: right;
 	padding: 3px 5px;
 	margin-top: 8%;
+	overflow-y: auto;
 }
 
 #panel-sticker {
