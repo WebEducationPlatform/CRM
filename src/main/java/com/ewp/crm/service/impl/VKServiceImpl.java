@@ -335,10 +335,11 @@ public class VKServiceImpl implements VKService {
      */
     @Override
     public Optional<Long> getVKIdByUrl(String url) {
+        url = url.trim();
         Optional<Long> result = Optional.empty();
-        if (url.matches("(.*)://vk.com/id(\\d*)")) {
+        if (url.matches("(.*)vk.com/id(\\d*)")) {
             result = Optional.of(Long.parseLong(url.replaceAll(".+id", "")));
-        } else if (url.matches("(.*)://vk.com/(.*)")) {
+        } else if (url.matches("(.*)vk.com/(.*)")) {
             String screenName = url.substring(url.lastIndexOf("/") + 1);
             String urlGetMessages = vkAPI + "users.get" +
                     "?user_ids=" + screenName +

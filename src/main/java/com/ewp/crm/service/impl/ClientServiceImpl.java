@@ -134,13 +134,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         }
 
+        checkSocialIds(client);
+
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
-                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
-                if (id.isPresent()) {
-                    socialProfile.setSocialId(String.valueOf(id.get()));
-                }
-            }
             if (existClient == null) {
                 socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
@@ -172,6 +168,22 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         clientRepository.saveAndFlush(client);
         sendNotificationService.sendNotificationsAllUsers(client);
+    }
+
+    private void checkSocialIds(Client client) {
+        List<SocialProfile> profiles = new ArrayList<>();
+        for (SocialProfile socialProfile :client.getSocialProfiles()) {
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                    profiles.add(socialProfile);
+                }
+            } else {
+                profiles.add(socialProfile);
+            }
+        }
+        client.setSocialProfiles(profiles);
     }
 
     @Override
@@ -227,6 +239,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
+
+        checkSocialIds(client);
+
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             phoneNumberValidation(client);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
