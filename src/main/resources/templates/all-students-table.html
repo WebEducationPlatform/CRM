@@ -23,7 +23,6 @@
             </div>
             <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск студента..."/></div>
         </div>
-
         <div id="filter" class="collapse filter">
             <div class="row">
                 <div class="col-xs-1" th:each="status : ${statuses}">
@@ -33,36 +32,63 @@
             </div>
         </div>
         <br />
+
+        <div class="row justify-content-md-start">
+            <div class="col-md-2 well">
+                <div class="row justify-content-md-start">
+                    <div class="col-md-6">
+                        <strong>Всего студентов</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <strong th:text="${students.size()}">0</strong>
+                    </div>
+                </div>
+                <div class="row justify-content-md-start">
+                    <div class="col-md-6">
+                        <strong>Сумма оплаты</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <strong th:text="${price}">000</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10"></div>
+        </div>
+
         <table class="table table-hover table-fixed" id="students-table">
             <thead id="thead-table-students">
             <tr class="head-table">
-                <th class="fit" onclick="sort_table(1)">#</th>
-                <th onclick="sort_table(2, 'href')">Имя</th>
-                <th onclick="sort_table(3)">Фамилия</th>
-                <th onclick="sort_table(4)">Email</th>
-                <th class="fit" onclick="sort_table(5, 'date')">Конец пробных</th>
-                <th class="fit" onclick="sort_table(6, 'date')">Следующая оплата</th>
-                <th class="fit" onclick="sort_table(7)">Цена</th>
-                <th class="fit" onclick="sort_table(8)">Сумма платежа</th>
-                <th class="fit" onclick="sort_table(9)">Оплата после</th>
+                <th onclick="sort_table(1, 'href')">Имя</th>
+                <th onclick="sort_table(2)">Фамилия</th>
+                <th onclick="sort_table(3)">Email</th>
+                <th class="fit" onclick="sort_table(4, 'date')">Конец пробных</th>
+                <th class="fit" onclick="sort_table(5, 'date')">Следующая оплата</th>
+                <th class="fit" onclick="sort_table(6)">Цена</th>
+                <th class="fit" onclick="sort_table(7)">Сумма платежа</th>
+                <th class="fit" onclick="sort_table(8)">Оплата после</th>
                 <th width="240px">Напоминание</th>
-                <th onclick="sort_table(11)">Статус учёбы</th>
-                <th onclick="sort_table(12)">Заметки</th>
-                <th class="fit"></th>
+                <th class="fit" onclick="sort_table(10)">Статус учёбы</th>
+                <th onclick="sort_table(11)">Заметки</th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="table-body">
             <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="${student.client.status.name != 'deleted'} ? '' : 'display:none'">
                 <td style="display:none;" th:text="${student.client.status.name}"></td>
-                <td th:text="${student.id}"></td>
-                <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
-                <td th:text="${student.client.lastName}"></td>
-                <td th:text="${student.client.email}"></td>
-                <td th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${student.price}"></td>
-                <td th:text="${student.paymentAmount}"></td>
-                <td th:text="${student.payLater}"></td>
+                <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
+                <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
+                <td th:id="${'email_' + student.id}" th:text="${student.client.email}"></td>
+                <td th:id="${'trialEndDate_' + student.id}">
+                    <span th:id="${'trialEndDateValue_' + student.id}" th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></span>
+                    <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden" type="date"/>
+                </td>
+                <td th:id="${'nextPaymentDate_' + student.id}">
+                    <span th:id="${'nextPaymentDateValue_' + student.id}" th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></span>
+                    <input th:id="${'next-payment-date_' + student.id}" class="form-control hidden" type="date"/>
+                </td>
+                <td th:id="${'price_' + student.id}" th:text="${student.price}"></td>
+                <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
+                <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}"></td>
                 <td>
                     <table width="240px">
                         <tr>
@@ -93,10 +119,14 @@
                         </tr>
                     </table>
                 </td>
-                <td th:text="${student.status.status}"></td>
-                <td th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
+                <td th:id="${'status_' + student.id}">
+                    <span th:id="${'statusValue_' + student.id}" th:text="${student.status.status}"></span>
+                    <select th:id="${'student-status_' + student.id}" class="form-control hidden"></select>
+                </td>
+                <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
-                    <button class="button_edit btn btn-info glyphicon glyphicon-pencil" th:value="${student.id}" title="Изменить студента"></button>
+                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign" th:value="${student.client.id}" title="Информация"></button>
+                    <button class="button_edit btn btn-success glyphicon glyphicon-pencil" disabled="disabled" th:id="${'editBtn' + student.id}" th:value="${student.id}" title="Изменить студента" />
                     <button class="button_delete btn btn-danger glyphicon glyphicon-remove" th:value="${student.id}" title="Удалить студента"></button>
                 </td>
             </tr>
@@ -106,7 +136,6 @@
         </table>
     </div>
 </div>
-<div th:replace="fragments/student-edit-modal::studentEditModal"></div>
 <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
 </body>
 </html>
