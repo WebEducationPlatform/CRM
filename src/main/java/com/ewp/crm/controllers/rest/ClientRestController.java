@@ -294,25 +294,23 @@ public class ClientRestController {
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
-					bufferedWriter.write(socialNetworkLink + "\r\n");
+					bufferedWriter.write(socialNetworkLink + System.lineSeparator());
 				}
 			}
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {
-					if (email == null) {
-						email = "";
+					if (!email.isEmpty()) {
+						bufferedWriter.write(email + System.lineSeparator());
 					}
-					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (filteringCondition.getSelected().equals("phoneNumber")) {
 				List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
 				for (String phoneNumber : phoneNumbers) {
-					if (phoneNumber == null) {
-						phoneNumber = "";
+					if (!phoneNumber.isEmpty()) {
+						bufferedWriter.write(phoneNumber + System.lineSeparator());
 					}
-					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
 		} catch (IOException e) {
