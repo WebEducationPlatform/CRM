@@ -3,7 +3,6 @@ package com.ewp.crm.repository.impl;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
-import com.ewp.crm.service.impl.TelegramServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -36,7 +33,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
-    private final String queryPattern = " (c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
+    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -146,30 +143,23 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
-        TypedQuery<Client> query = entityManager.createQuery("SELECT c from Client c where c.status = :status and (c.ownerUser in (:ownerUser) or c.ownerUser is NULL)", Client.class);
-        query.setParameter("status", status);
-        query.setParameter("ownerUser", ownUser);
-        return query.getResultList();
-    }
-
-    @Override
     public boolean isTelegramClientPresent(Integer id) {
-        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.link = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
                 .setParameter("telegramId", id.toString())
                 .getResultList();
         return !result.isEmpty();
     }
 
     @Override
-    public Client getClientBySocialProfileLink(String link) {
+    public Client getClientBySocialProfile(String id, String socialProfileType) {
         Client result = null;
         try {
-            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN  c.socialProfiles s WHERE s.link = :link", Client.class)
-                    .setParameter("link", link)
+            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN c.socialProfiles s WHERE s.socialId = :sid AND s.socialProfileType.name = :type", Client.class)
+                    .setParameter("sid", id)
+                    .setParameter("type", socialProfileType)
                     .getSingleResult();
         } catch (NoResultException e) {
-            logger.info("Client with link {} not found", link, e);
+            logger.info("Client with social id {} not found", id, e);
         }
         return result;
     }
@@ -229,7 +219,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     private String queryForGetSNLinksFromFilteredClients(FilteringCondition filteringCondition) {
 
-        StringBuilder query = new StringBuilder("SELECT social_network.link\n" +
+        StringBuilder query = new StringBuilder("SELECT social_network.social_id\n" +
                 "FROM client_social_network\n" +
                 "  INNER JOIN social_network ON client_social_network.social_network_id = social_network.id\n" +
                 "  INNER JOIN client ON client_social_network.client_id = client.client_id\n" +
@@ -277,7 +267,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
-        StringBuilder searchString = new StringBuilder("SELECT c FROM Client c WHERE");
+        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles s WHERE");
         String[] searchWords = search.split(" ");
         for (int i = 0; i < searchWords.length; i++) {
             searchString.append(queryPattern.replace("search", "search" + i));
@@ -293,26 +283,38 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order) {
-        if (SortingType.OLD_FIRST.equals(order)) {
-            return status.getClients();
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user) {
+        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration" :
+                "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ORDER BY c.dateOfRegistration";
+        if (SortingType.NEW_FIRST.equals(order)) {
+            query += " DESC";
         }
-        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration DESC";
-        List<Client> orderedClients = entityManager.createQuery(query)
-                .setParameter("status_id", status.getId())
-                .getResultList();
+        List<Client> orderedClients = isAdmin ?
+                entityManager.createQuery(query)
+                        .setParameter("status_id", status.getId())
+                        .getResultList() :
+                entityManager.createQuery(query)
+                        .setParameter("status_id", status.getId())
+                        .setParameter("ownerUser", user)
+                        .getResultList();
         return orderedClients;
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
-        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)";
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user) {
+        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)" :
+                "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
         if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
-            query = query + " DESC";
+            query += " DESC";
         }
-        List<Client> orderedClients = entityManager.createQuery(query)
-                .setParameter("status_id", status.getId())
-                .getResultList();
+        List<Client> orderedClients = isAdmin ?
+                entityManager.createQuery(query)
+                        .setParameter("status_id", status.getId())
+                        .getResultList() :
+                entityManager.createQuery(query)
+                        .setParameter("status_id", status.getId())
+                        .setParameter("ownerUser", user)
+                        .getResultList();
         return orderedClients;
     }
 }

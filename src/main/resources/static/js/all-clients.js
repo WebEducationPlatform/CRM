@@ -60,7 +60,7 @@ $('#filtration').click(function () {
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
                 for (var j = 0; j < res[i].socialProfiles.length; j++) {
-                    socLink += res[i].socialProfiles[j].link + '<br>';
+                    socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
                 }
 
                 //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
@@ -110,8 +110,13 @@ $('#filtration').click(function () {
                     '    </tr>'
                 );
                 $('#clients-table tr:last').after(function () {
-                    var tds = $(this).find('td.colorTd');
-                    $(this).css("background-color", statuscol[tds.html().trim()]);
+                    try {
+                        var tds = $(this).find('td.colorTd');
+                        $(this).css("background-color", statuscol[tds.html().trim()]);
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
                 })
             }
         },
@@ -185,7 +190,7 @@ function drawClients(table, res) {
     for (let i = 0; i < res.length; i++) {
         let socLink = '';
         for (let j = 0; j < res[i].socialProfiles.length; j++) {
-            socLink += res[i].socialProfiles[j].link + '<br>';
+            socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
         }
 
         //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов

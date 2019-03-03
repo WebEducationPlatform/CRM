@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -98,11 +99,10 @@ public class ClientController {
         ModelAndView modelAndView;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
+        statuses = statusService.getStatusesWithSortedClients(userFromSession);
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getAll();
             modelAndView = new ModelAndView("main-client-table");
         } else {
-            statuses = statusService.getStatusesWithClientsForUser(userFromSession);
             modelAndView = new ModelAndView("main-client-table-user");
         }
         List<User> userList = userService.getAll();

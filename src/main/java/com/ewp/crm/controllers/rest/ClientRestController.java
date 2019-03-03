@@ -129,18 +129,7 @@ public class ClientRestController {
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
 																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
-        String link;
-        switch (socialProfileType) {
-            case "vk":
-                link = "https://vk.com/id" + userID;
-                break;
-            case "facebook":
-                link = "https://vk.com/id" + userID;
-                break;
-            default:
-                link = "";
-        }
-        SocialProfile socialProfile = socialProfileService.getSocialProfileByLink(link);
+        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, socialProfileType);
         Client client = clientService.getClientBySocialProfile(socialProfile);
 
         Map<String, String> returnMap = new HashMap<>();
@@ -249,7 +238,7 @@ public class ClientRestController {
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
 				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
 				for (SocialProfile socialProfile : socialProfiles) {
-					bufferedWriter.write(socialProfile.getLink() + "\r\n");
+					bufferedWriter.write(socialProfile.getSocialId() + "\r\n");
 				}
 			}
 			if (selected.equals("email")) {
@@ -305,25 +294,23 @@ public class ClientRestController {
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
-					bufferedWriter.write(socialNetworkLink + "\r\n");
+					bufferedWriter.write(socialNetworkLink + System.lineSeparator());
 				}
 			}
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {
-					if (email == null) {
-						email = "";
+					if (!email.isEmpty()) {
+						bufferedWriter.write(email + System.lineSeparator());
 					}
-					bufferedWriter.write(email + "\r\n");
 				}
 			}
 			if (filteringCondition.getSelected().equals("phoneNumber")) {
 				List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
 				for (String phoneNumber : phoneNumbers) {
-					if (phoneNumber == null) {
-						phoneNumber = "";
+					if (!phoneNumber.isEmpty()) {
+						bufferedWriter.write(phoneNumber + System.lineSeparator());
 					}
-					bufferedWriter.write(phoneNumber + "\r\n");
 				}
 			}
 		} catch (IOException e) {
@@ -522,6 +509,7 @@ public class ClientRestController {
 		student.setNextPaymentDate(nextPaymentDate.atStartOfDay());
 		student.setPrice(price);
 		student.setPaymentAmount(paymentAmount);
+		student.setPayLater(new BigDecimal(0));
 		student.setStatus(studentStatus);
 		return student;
 	}

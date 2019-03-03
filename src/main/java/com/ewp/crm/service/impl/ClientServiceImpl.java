@@ -10,9 +10,11 @@ import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -36,13 +38,20 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private SendNotificationService sendNotificationService;
 
     private final SocialProfileService socialProfileService;
+  
+    private final RoleService roleService;
+
+    private final VKService vkService;
 
     private final PhoneValidator phoneValidator;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, PhoneValidator phoneValidator) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, 
+                             RoleService roleService, @Lazy VKService vkService, PhoneValidator phoneValidator) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.vkService = vkService;
+        this.roleService = roleService;
         this.phoneValidator = phoneValidator;
     }
 
@@ -123,7 +132,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getLastName() == null) {
             client.setLastName("");
         }
-        checkSocialLinks(client);
 
         Client existClient = null;
 
@@ -140,8 +148,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                }
+            }
             if (existClient == null) {
-                socialProfile = socialProfileService.getSocialProfileByLink(socialProfile.getLink());
+                socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
                     existClient = getClientBySocialProfile(socialProfile);
                 }
@@ -199,11 +213,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getClientsByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser) {
-        return clientRepository.getByStatusAndOwnerUserOrOwnerUserIsNull(status, ownUser);
-    }
-
-    @Override
     public List<Client> getAllClientsByPage(Pageable pageable) {
         return clientRepository.findAll(pageable).getContent();
     }
@@ -223,36 +232,26 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
+        }
+        clientRepository.saveAndFlush(client);
+    }
+
+    private void phoneNumberValidation(Client client) {
+        String phoneNumber = client.getPhoneNumber();
+        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        if (matcher.matches()) {
+            client.setCanCall(true);
+            if (phoneNumber.startsWith("8")) {
+                phoneNumber = phoneNumber.replaceFirst("8", "7");
+            }
+            client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
+                    .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
         }
         checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
-    }
-
-    private void checkSocialLinks(Client client) {
-        for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            String link = socialProfile.getLink();
-            SocialProfileType type = socialProfile.getSocialProfileType();
-            if (type.getName().equals("unknown")) {
-                if (!link.startsWith("https")) {
-                    if (link.startsWith("http")) {
-                        link = link.replaceFirst("http", "https");
-                    } else {
-                        link = "https://" + link;
-                    }
-                }
-            } else {
-                int indexOfLastSlash = link.lastIndexOf("/");
-                if (indexOfLastSlash != -1) {
-                    link = link.substring(indexOfLastSlash + 1);
-                }
-                if ("vk".equals(type.getName()) || "facebook".equals(type.getName())) {
-                    link = "https://" + type.getName() + ".com/" + link;
-                }
-            }
-            socialProfile.setLink(link);
-        }
     }
 
     @Override
@@ -271,14 +270,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
 	@Override
-	public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
-		List<Client> orderedClients;
+	public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+        List<Client> orderedClients;
+        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
 		if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
 			return orderedClients;
 		}
 		if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
 			return orderedClients;
 		}
 		logger.error("Error with sorting clients");
@@ -288,5 +288,20 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
+    }
+
+    // TODO Удалить после первого использования
+    @Override
+    public void refactorDataBase() {
+        getAll().forEach(c -> c.getSocialProfiles().forEach(p -> {
+                    if (p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
+                        Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
+                        if (id.isPresent()) {
+                            p.setSocialId(String.valueOf(id.get()));
+                            updateClient(c);
+                        }
+                    }
+                }
+        ));
     }
 }
