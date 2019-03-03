@@ -59,7 +59,7 @@ public class AdminEmailRestController {
         String text =templateText.replaceAll("(\\s+)|(</?pre>)|(&nbsp;)|(</?p>)|(%bodyText%)","");
         String otherText = otherTemplateText.replaceAll("(\\s+)|(%bodyText%)","");
         if (text.length() == 0 || otherText.length() == 0) {
-            throw new MessageTemplateException("Шаблон не может быть пустым ни в одном из типов сообщения!");
+            throw new MessageTemplateException("Заполните шаблоны для всех типов сообщения: email/vk,sms,facebook");
         }
 
         if (messageTemplate == null) {

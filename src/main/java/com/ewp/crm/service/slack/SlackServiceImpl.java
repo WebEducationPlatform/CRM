@@ -9,6 +9,9 @@ import com.ewp.crm.service.interfaces.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +92,32 @@ public class SlackServiceImpl implements SlackService {
             logger.warn("Can't receive Client Slack profile", e);
         }
         return new SlackProfile();
+    }
+
+    @Override
+    public String getEmailListFromJson(String json) {
+        try {
+            StringBuilder result = new StringBuilder();
+            JSONObject jsonObj = new JSONObject(json);
+            JSONArray jsonData = jsonObj.getJSONArray("members");
+            for (int i = 0; i < jsonData.length(); i++) {
+                JSONObject userProfile = jsonData.getJSONObject(i).optJSONObject("profile");
+                if (userProfile == null) {
+                    continue;
+                }
+                String mail = userProfile.optString("email");
+                if (mail != null && !mail.isEmpty()) {
+                    result.append(mail);
+                    if (i != jsonData.length() - 1) {
+                        result.append("\n");
+                    }
+                }
+            }
+            return result.toString();
+        } catch (JSONException e) {
+            logger.warn("Can't parse emails from slack", e);
+        }
+        return "Error";
     }
 
     @Override

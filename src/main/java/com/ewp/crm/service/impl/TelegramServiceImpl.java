@@ -311,7 +311,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         TdApi.Chats chats = getChats();
         for (long chatId : chats.chatIds) {
             Optional<TdApi.Chat> chat = getChat(chatId);
-            com.ewp.crm.models.Client client = clientRepository.getClientBySocialProfileLink(String.valueOf(chatId));
+            com.ewp.crm.models.Client client = clientRepository.getClientBySocialProfile(String.valueOf(chatId), "telegram");
             if (chat.isPresent() && client != null && chat.get().unreadCount > 0) {
                 result.put(client, chat.get().unreadCount);
             }

@@ -106,7 +106,7 @@
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialProfiles}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td th:value="${socials.link}" th:text="${socials.link}"></td>
+                                <td th:value="${socials.socialId}" th:text="${socials.socialId}"></td>
                                 <td th:value="${socials.socialProfileType.id}"
                                     th:text="${socials.socialProfileType.name}"></td>
                                 <td>
@@ -155,7 +155,7 @@
                             id="saveChanges"
                             th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                     </button>
-                    <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                    <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
                     <p><span id="message"></span></p>
                 </div>
             </div>

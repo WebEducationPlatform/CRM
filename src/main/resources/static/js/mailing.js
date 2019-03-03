@@ -74,7 +74,7 @@ function sendMessages(sendnow) {
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     $("#message-type-button-group > button").click(function () {
@@ -102,6 +102,30 @@ $(document).ready(function () {
             }
         });
         $(this).addClass(BUTTON_INFO_CLASS);
+    });
+
+    (function( $ ){
+        $.fn.fillWithEmails = function() {
+            var field = this;
+            $.ajax({
+                url: '/slack/get/emails',
+                contentType: "text/plain;charset=UTF-8",
+                type: 'GET',
+                dataType: 'text',
+                async: true,
+                success: function (data) {
+                    field.val(data);
+                }
+            });
+        };
+    })( jQuery );
+
+    $("#slackImportButton").click(function () {
+        $("#listEmail").fillWithEmails();
+    });
+
+    $("#slackUpdateImportButton").click(function () {
+        $("#editListEmail").fillWithEmails();
     });
 
     $.ajax({

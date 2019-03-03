@@ -140,7 +140,7 @@
                 <td th:text="${client.email}"></td>
                 <td>
                     <th:block th:each="soc : ${client.socialProfiles}">
-                        <th:block th:text="${soc.link}"></th:block>
+                        <th:block th:text="${soc.socialId + ' (' + soc.socialProfileType.name + ')'}"></th:block>
                         <br/>
                     </th:block>
                 </td>

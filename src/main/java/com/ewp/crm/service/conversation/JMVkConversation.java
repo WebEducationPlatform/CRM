@@ -54,28 +54,20 @@ public class JMVkConversation implements JMConversation {
     public Optional<Interlocutor> getInterlocutor(Client client) {
         List<SocialProfile> profiles = client.getSocialProfiles();
 
-        String link = null;
+        String id = null;
         for (SocialProfile sp : profiles) {
             if ("vk".equals(sp.getSocialProfileType().getName())) {
-                link = sp.getLink();
+                id = sp.getSocialId();
             }
         }
 
-        if (link == null) {
-            return Optional.empty();
-        }
-
-        String id = vkService.getIdFromLink(link);
-
         if (id != null) {
-
             Map<String, String> param = vkService.getUserDataById(Long.parseLong(id), additionalUser, splitter);
             Interlocutor interlocutor = new Interlocutor(id, vkUrl + idString + id,
                                                         param.get(fldPhoto),
                                              param.get(fldFirstName) + " " + param.get(fldLastName),
                                                         getChatTypeOfConversation());
             return Optional.of(interlocutor);
-
         }
 
         return Optional.empty();

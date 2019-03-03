@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -121,6 +122,23 @@ public class SlackRestController {
         projectProperties.setDefaultStatusId(id);
         propertiesService.saveAndFlash(projectProperties);
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("/get/emails")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getAllEmailsFromSlack() {
+        String url = "https://slack.com/api/users.list?token=" + inviteToken;
+        String result = "Error";
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            result = slackService.getEmailListFromJson(EntityUtils.toString(entity));
+        } catch (Throwable e) {
+            logger.warn("Can't parse emails from Slack", e);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        return new ResponseEntity<>(result, headers, HttpStatus.OK);
     }
 
     @GetMapping("{email}")
