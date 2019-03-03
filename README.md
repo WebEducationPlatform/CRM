@@ -480,6 +480,59 @@
 
 На этой же странице находится поле "ID приложения", именно этот ID необходимо вставить в поле "VK ID приложения".
 
+## 8. Настройка Telegram
+
+Мессенджинг через Telegram имеет функционал, аналогичный ВКонтакте - создание новых клиентов на основе поступающих сообщений, общение из карточки клиента.
+
+### Установка TDLib
+
+Для подключения функционала Telegram необходимо скомпилировать и установить библотеку TDLib. На примере ОС Windows 10:
+1. Установить Microsoft Visual Studio 2015 или более новую
+2. Выбрать для установки компоненты (обязательно):
+* Windows 8.1 SDK
+* Инструменты Visual C++ для CMake
+* Пакет SDK для Windows 10
+* Английский языковой пакет
+3. Скачать и установить gperf (https://sourceforge.net/projects/gnuwin32/files/gperf/3.0.1/), добавить путь к gperf.exe к системной переменной PATH.
+4. Установить vcpkg (https://github.com/Microsoft/vcpkg#quick-start):
+* git clone https://github.com/Microsoft/vcpkg.git
+* cd vcpkg
+* .\bootstrap-vcpkg.bat
+* .\vcpkg integrate install
+* .\vcpkg install sdl2 curl
+* .\vcpkg.exe install openssl:x64-windows openssl:x86-windows zlib:x64-windows zlib:x86-windows
+5. Скачайте и установить CMake (https://cmake.org/download/), обязательно отметьте пункт "Add CMake to the system PATH" при установке, либо вручную добавьте путь к CMake к системной переменной PATH.
+6. Соберить TDLib:
+* git clone https://github.com/tdlib/td.git
+* cd <ПУТЬ_К_TDLib>
+* mkdir jnibuild
+* cd jnibuild
+* cmake -DCMAKE_BUILD_TYPE=Release -DTD_ENABLE_JNI=ON -DCMAKE_INSTALL_PREFIX:PATH=../example/java/td .. –A x64 -DCMAKE_TOOLCHAIN_FILE=<ПУТЬ_К_РЕПОЗИТОРИЮ_VCPKG>/scripts/buildsystems/vcpkg.cmake
+* cmake --build . --target install --config Release
+* cd <ПУТЬ_К_TDLib>/example/java
+* mkdir build
+* cd build
+* cmake -DCMAKE_BUILD_TYPE=Release -DTd_DIR=<ПУТЬ_К_TDLib>/example/java/td/lib/cmake/Td -DCMAKE_INSTALL_PREFIX:PATH=.. ..
+* cmake --build . --target install --config Release
+7. TDLib собран! Теперь необходимо путь <ПУТЬ_К_TDLib>/example/java/build/Release добавить к системной переменной PATH.
+8. Проверить TDLib:
+* cd <ПУТЬ_К_TDLib>/example/java/bin
+* java -Djava.library.path=. org/drinkless/tdlib/example/Example
+9. Если TDLib "ругается" на отсутствующие библиотеки, перейдите в <ПУТЬ_К_TDLib>/example/java/build/Release и скопируйте файлы "LIBEAY32.dll", "SSLEAY32.dll", "zlib1.dll" в папку C:\Windows.
+10. При необходимости, к параметрам запуска проекта добавьте настройки VM Options: "-Djava.library.path=<ПУТЬ_К_TDLib>\example\java\build\Release".
+
+### Настройка Telegram
+1. Зарегистрируйте аккаунт Telegram
+2. Зайдите на https://my.telegram.org и авторизуйтесь
+3. Перейдите по ссылке "API development tools" и заполните поля, выберите любое название приложения, тип приложения Desktop, краткое описание.
+4. После успешного создания приложения, на следующие странице вы увидите данные приложения, нам необходимы "App api_id" и "App api_hash". Установите значения этих полей в конфигурационный файл telegram.properties в поля "telegram.apiId" и "telegram.apiHash".
+5. Запустите CRM
+6. После запуска CRM, зайдите под учетной записью администратора в настройки (Скриншот 24) и выберите пункт "Авторизация Telegram". Откроется диалоговое окно (Скриншот 54).
+7. Введите номер телефона, к которому привязан ваш аккаунт телеграм, в международном формате (+70000000000) и нажмите иконку телефона справа.
+8. Вам придет код (либо в Telegram, либо в SMS) для привязки приложения, введите этот код в поле и нажмите "Отправить".
+9. Готово!
+![alt text](https://pp.userapi.com/c844617/v844617291/1b83ef/KJjPnjBYadk.jpg)
+Скриншот 54
 # Конец
 
 
