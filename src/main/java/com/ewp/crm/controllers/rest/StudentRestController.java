@@ -7,6 +7,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.StudentService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -37,11 +36,14 @@ public class StudentRestController {
 
     private final ClientHistoryService clientHistoryService;
 
+    private final StudentStatusService studentStatusService;
+
     @Autowired
-    public StudentRestController(StudentService studentService, ClientService clientService, ClientHistoryService clientHistoryService) {
+    public StudentRestController(StudentService studentService, ClientService clientService, ClientHistoryService clientHistoryService, StudentStatusService studentStatusService) {
         this.studentService = studentService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
+        this.studentStatusService = studentStatusService;
     }
 
     @GetMapping ("/{id}")
@@ -59,9 +61,22 @@ public class StudentRestController {
 
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
+        if (student.getStatus().getId() == null) {
+            student.setStatus(studentStatusService.getByName(student.getStatus().getStatus()));
+        }
         Student previous = studentService.get(student.getId());
+        Client updatedClient = student.getClient();
         Client client = previous.getClient();
         client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT));
+        if (updatedClient.getName() != null && !updatedClient.getName().isEmpty()) {
+            client.setName(updatedClient.getName());
+        }
+        if (updatedClient.getLastName() != null && !updatedClient.getLastName().isEmpty()) {
+            client.setLastName(updatedClient.getLastName());
+        }
+        if (updatedClient.getEmail() != null && !updatedClient.getEmail().isEmpty()) {
+            client.setEmail(updatedClient.getEmail());
+        }
         studentService.update(student);
         clientService.updateClient(client);
         return HttpStatus.OK;

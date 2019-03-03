@@ -173,12 +173,10 @@ public class VKServiceImpl implements VKService {
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
                 if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
-
                     String messageBody = jsonMessage.getString("body");
                     resultList.add(messageBody);
-
                     if (messageBody.startsWith("Новая заявка")) {
-                        markAsRead(clubId, technicalAccountToken, null);
+                        markAsRead(clubId, technicalAccountToken, jsonMessage.optString("mid"));
                     }
 
                 }
@@ -567,13 +565,10 @@ public class VKServiceImpl implements VKService {
     @Override
     public void markAsRead(String userId, String token, String startMessageId) {
 
-        String messageId = (startMessageId == null || startMessageId.isEmpty()) ? "" : ("&start_message_id=" + startMessageId);
-
         String uriMarkAsRead = vkAPI + "messages.markAsRead" +
                 "?peer_id=" + userId +
-                "&group_id=" + vkConfig.getClubId() +
                 "&version=" + version +
-                messageId +
+                "&start_message_id=" + (startMessageId != null && !startMessageId.isEmpty() ? startMessageId : "0") +
                 "&access_token=" + token;
 
         HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
