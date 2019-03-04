@@ -36,6 +36,8 @@ public interface VKService {
 
     Optional<Client> getClientFromVkId(Long id);
 
+    Optional<Map<String,String>> getCommunityMessageFromHistory() throws VKAccessTokenException;
+
     Map<String, String> getUserDataById(Long id, String additionalFields, String splitter);
 
     Map<String, String> getGroupDataById(Long id, String additionalFields, String splitter);

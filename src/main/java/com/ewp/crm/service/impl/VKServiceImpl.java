@@ -71,11 +71,14 @@ public class VKServiceImpl implements VKService {
     private final String idString = "id";
     private final String zeroString = "0";
     private final String vkURL = "https://vk.com/";
+    private String lastMessageIdFromVk = "";
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
     //Айди группы
     private String clubId;
+    //Aйди администратора
+    private String adminId;
     //Версия API ВК
     private String version;
     //Токен доступа от имени сообщества
@@ -118,6 +121,7 @@ public class VKServiceImpl implements VKService {
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
         managerToken = vkConfig.getManagerToken();
+        adminId = vkConfig.getAdminId();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -564,6 +568,47 @@ public class VKServiceImpl implements VKService {
         return Optional.empty();
     }
 
+    public Optional<Map<String,String>> getCommunityMessageFromHistory() throws VKAccessTokenException {
+        if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
+            throw new VKAccessTokenException("VK access token has not got");
+        }
+        logger.info("VKService: getting new request from community messages...");
+        clubId = vkConfig.getClubId();//без минуса
+        String uriGetHistory = vkAPI + "messages.getHistory" +
+                "?v=" + version +
+                "&count=1" +
+                "&user_id=" + adminId +
+                "&group_id=" + clubId +
+                "&access_token=" +
+                communityToken;
+
+        HttpGet httpGetHistory = new HttpGet(uriGetHistory);
+        HttpClient httpClient = getHttpClient();
+        try {
+            HttpResponse response = httpClient.execute(httpGetHistory);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject responseObject = json.getJSONObject("response");
+            JSONArray message = responseObject.getJSONArray("items");
+            JSONObject jsonMessage = message.getJSONObject(0);
+            Map<String,String> res = new HashMap<>();
+            String messageBody = jsonMessage.getString("body");
+            String msgId = jsonMessage.getString("id");
+            if(messageBody.startsWith("Новая заявка") & !lastMessageIdFromVk.equals(msgId)) {
+                res.put("msg_id",msgId);
+                res.put("user_id",jsonMessage.getString("user_id"));
+                res.put("msg_text",messageBody);
+                lastMessageIdFromVk = msgId;
+                return Optional.of(res);
+            }
+        } catch (JSONException e) {
+            logger.error("Can not read message from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
+
     @Override
     public void markAsRead(String userId, String token, String startMessageId) {
 
@@ -787,7 +832,7 @@ public class VKServiceImpl implements VKService {
             newClient.setClientDescriptionComment(description.toString());
             SocialProfileType socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
-            String socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
+            String socialId = "https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")).replaceAll("\n","");
             SocialProfile socialProfile = new SocialProfile(socialId, socialProfileType);
             newClient.setSocialProfiles(Collections.singletonList(socialProfile));
         } catch (Exception e) {
