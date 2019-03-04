@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -193,7 +194,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	/*@Scheduled(fixedRate = 6_000) Метод для личных сообщений*/
 	private void handleRequestsFromVk() {
 		if (vkService.hasTechnicalAccountToken()) {
 			try {
@@ -253,6 +254,27 @@ public class ScheduleTasks {
 			}
 		}
 	}
+
+	@Scheduled(fixedRate = 60_000)
+    private void reqFromVkM() {
+        if (vkService.hasTechnicalAccountToken()) {
+            try {
+                Optional<Map<String, String>> newMessages = vkService.getCommunityMessageFromHistory();
+                if (newMessages.isPresent()) {
+                    Map<String, String> message = newMessages.get();
+                    try {
+                        Client newClient = vkService.parseClientFromMessage(message.get("msg_text"));
+                        addClient(newClient);
+                    } catch (ParseClientException e) {
+                        logger.error(e.getMessage());
+                    }
+
+                }
+            } catch (VKAccessTokenException ex) {
+                logger.error(ex.getMessage());
+            }
+        }
+    }
 
 	@Scheduled(fixedRate = 6_000)
 	private void checkClientActivationDate() {
