@@ -411,7 +411,7 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String sendMessageById(Long id, String msg) {
-        return sendMessageById(id, msg, managerToken);
+        return sendMessageById(id, msg, communityToken);
     }
 
 
