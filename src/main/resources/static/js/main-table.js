@@ -1872,7 +1872,7 @@ $(function () {
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name === 'vk') {
                             //ajax call for profile photo
-                            let vkref = client.socialProfiles[i].link;
+                            let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
                             let url = '/rest/vkontakte/getProfilePhotoById';
 
                             $.ajax({
@@ -1897,7 +1897,7 @@ $(function () {
 
 
                         if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].link);
+                            $('#fb-href').attr('href', client.socialProfiles[i].socialId);
                             $('#fb-href').show();
                         }
                         get_interlocutors(clientId);
