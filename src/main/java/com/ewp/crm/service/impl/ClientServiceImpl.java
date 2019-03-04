@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -174,19 +175,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private void checkSocialIds(Client client) {
-        List<SocialProfile> profiles = new ArrayList<>();
-        for (SocialProfile socialProfile :client.getSocialProfiles()) {
+        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
+            SocialProfile socialProfile = iterator.next();
             if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
                 if (id.isPresent()) {
                     socialProfile.setSocialId(String.valueOf(id.get()));
-                    profiles.add(socialProfile);
+                } else {
+                    client.setComment("Не удалось получить социальную сеть клиента: " + socialProfile.getSocialId() + "\n" + client.getComment());
+                    client.deleteSocialProfile(socialProfile);
                 }
-            } else {
-                profiles.add(socialProfile);
             }
         }
-        client.setSocialProfiles(profiles);
     }
 
     @Override

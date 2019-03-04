@@ -420,6 +420,14 @@ public class Client implements Serializable, Diffable<Client> {
         this.socialProfiles = socialProfiles;
     }
 
+    public void addSocialProfile(SocialProfile socialProfile) {
+        this.socialProfiles.add(socialProfile);
+    }
+
+    public void deleteSocialProfile(SocialProfile socialProfile) {
+        this.socialProfiles.remove(socialProfile);
+    }
+
     public Student getStudent() {
         return student;
     }
