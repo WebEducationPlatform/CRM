@@ -140,8 +140,11 @@
                 <td th:text="${client.email}"></td>
                 <td>
                     <th:block th:each="soc : ${client.socialProfiles}">
-                        <th:block th:text="${soc.socialId + ' (' + soc.socialProfileType.name + ')'}"></th:block>
-                        <br/>
+                        <span th:if="${soc.socialProfileType.name == 'vk' or soc.socialProfileType.name == 'facebook'}" th:remove="tag">
+                            <th:block th:if="${soc.socialProfileType.link == null}" th:text="${soc.socialId}"></th:block>
+                            <th:block th:if="${soc.socialProfileType.link != null}" th:text="${soc.socialProfileType.link + soc.socialId}"></th:block>
+                            <br/>
+                        </span>
                     </th:block>
                 </td>
                 <td th:text="${client.age}"></td>

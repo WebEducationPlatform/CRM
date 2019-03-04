@@ -60,7 +60,13 @@ $('#filtration').click(function () {
             for (var i = 0; i < res.length; i++) {
                 var socLink = '';
                 for (var j = 0; j < res[i].socialProfiles.length; j++) {
-                    socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
+                    if (res[i].socialProfiles[j].socialProfileType.name == 'vk' || res[i].socialProfiles[j].socialProfileType.name == 'facebook') {
+                        if (res[i].socialProfiles[j].socialProfileType.link == null) {
+                            socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
+                        } else {
+                            socLink += res[i].socialProfiles[j].socialProfileType.link + res[i].socialProfiles[j].socialId + '<br>';
+                        }
+                    }
                 }
 
                 //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
@@ -190,7 +196,13 @@ function drawClients(table, res) {
     for (let i = 0; i < res.length; i++) {
         let socLink = '';
         for (let j = 0; j < res[i].socialProfiles.length; j++) {
-            socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
+            if (res[i].socialProfiles[j].socialProfileType.name == 'vk' || res[i].socialProfiles[j].socialProfileType.name == 'facebook') {
+                if (res[i].socialProfiles[j].socialProfileType.link == null) {
+                    socLink += res[i].socialProfiles[j].socialId + '<br>';
+                } else {
+                    socLink += res[i].socialProfiles[j].socialProfileType.link + res[i].socialProfiles[j].socialId + '<br>';
+                }
+            }
         }
 
         //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
