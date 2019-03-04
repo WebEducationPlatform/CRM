@@ -56,75 +56,9 @@ $('#filtration').click(function () {
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
+            var body = $("#table-body");
             clearClientsTable();
-            for (var i = 0; i < res.length; i++) {
-                var socLink = '';
-                for (var j = 0; j < res[i].socialProfiles.length; j++) {
-                    if (res[i].socialProfiles[j].socialProfileType.name == 'vk' || res[i].socialProfiles[j].socialProfileType.name == 'facebook') {
-                        if (res[i].socialProfiles[j].socialProfileType.link == null) {
-                            socLink += res[i].socialProfiles[j].socialId + ' (' + res[i].socialProfiles[j].socialProfileType.name + ')<br>';
-                        } else {
-                            socLink += res[i].socialProfiles[j].socialProfileType.link + res[i].socialProfiles[j].socialId + '<br>';
-                        }
-                    }
-                }
-
-                //Вывод даты регистрации всех клиентов по московскому времени в таблице всех клиентов
-                var d = new Date(new Date(res[i].dateOfRegistration).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}));
-                var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
-                    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
-
-                let email = res[i].email === null ? '' : res[i].email,
-                    phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
-                    city = res[i].city === null ? '' : res[i].city,
-                    country = res[i].country === null ? '' : res[i].country,
-                    sex = res[i].sex === null ? '' : res[i].sex;
-
-                let returnBtn = '';
-                if (isAdmin) {
-                    if (res[i].status.invisible) {
-                        returnBtn =
-                            '<div class="dropdown statuses-by-dropdown">' +
-                            ' <button type="button" class="btn btn-default" data-toggle="dropdown" data-client="' + res[i].id + '">Вернуть</button>' +
-                            '<ul class="dropdown-menu statuses-content"></ul>' +
-                            '</div>'
-                    }
-
-                    if (res[i].hideCard) {
-                        returnBtn =
-                            '<div class="button-return-from-postpone">' +
-                            '<button type="button" id="return-from-postpone" class="btn btn-default from-postpone" data-client="' + res[i].id + '"> Вернуть </button>' +
-                            '</div>'
-                    }
-                }
-
-                $("#table-body").append(
-                    '    <tr>' +
-                    '        <td>' + res[i].id + '</td>' +
-                    '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id + '">' + res[i].name + '</a></td>' +
-                    '        <td>' + res[i].lastName + '</td>' +
-                    '        <td>' + phoneNumber + '</td>' +
-                    '        <td>' + email + '</td>' +
-                    '        <td>' + socLink + '</td>' +
-                    '        <td>' + res[i].age + ' </td>' +
-                    '        <td>' + sex + ' </td>' +
-                    '        <td>' + city + ' </td>' +
-                    '        <td>' + country + ' </td>' +
-                    '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
-                    '        <td>' + dateOfRegistration + ' МСК' + ' </td>' +
-                    '        <td>' + returnBtn + ' </td>' +
-                    '    </tr>'
-                );
-                $('#clients-table tr:last').after(function () {
-                    try {
-                        var tds = $(this).find('td.colorTd');
-                        $(this).css("background-color", statuscol[tds.html().trim()]);
-                    }
-                    catch (err) {
-                        console.log(err);
-                    }
-                })
-            }
+            drawClients(body, res);
         },
         error: function (error) {
             console.log(error);
