@@ -20,6 +20,9 @@ public class SocialProfileType implements Serializable {
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "link")
+	private String link;
+
 	/**
 	 * Соцсеть клиента (студента)
 	 */
@@ -49,8 +52,21 @@ public class SocialProfileType implements Serializable {
 	public SocialProfileType() {
 	}
 
+	public SocialProfileType(String name, String link) {
+		this.name = name;
+		this.link = link;
+	}
+
 	public SocialProfileType(String name) {
 		this.name = name;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -137,13 +138,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         }
 
+        checkSocialIds(client);
+
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
-                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
-                if (id.isPresent()) {
-                    socialProfile.setSocialId(String.valueOf(id.get()));
-                }
-            }
             if (existClient == null) {
                 socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
@@ -175,6 +172,21 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         clientRepository.saveAndFlush(client);
         sendNotificationService.sendNotificationsAllUsers(client);
+    }
+
+    private void checkSocialIds(Client client) {
+        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
+            SocialProfile socialProfile = iterator.next();
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                } else {
+                    client.setComment("Не удалось получить социальную сеть клиента: " + socialProfile.getSocialId() + "\n" + client.getComment());
+                    client.deleteSocialProfile(socialProfile);
+                }
+            }
+        }
     }
 
     @Override
@@ -215,6 +227,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
+
+        checkSocialIds(client);
+
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             phoneNumberValidation(client);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
