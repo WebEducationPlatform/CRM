@@ -28,6 +28,10 @@ public class ProjectProperties {
     @Column(name = "new_client_status")
     private Long newClientStatus = 1L;
 
+    // ID статуса по-умолчанию для клиентов студентов-отказников
+    @Column(name = "client_reject_student_status")
+    private Long clientRejectStudentStatus = -1L;
+
     /**
      * Message template for scheduled payment notification.
      */
@@ -64,11 +68,24 @@ public class ProjectProperties {
     private BigDecimal defaultPricePerMonth = new BigDecimal(12000.00);
 
     /**
+     * Оплата по-умолчанию
+     */
+    @Column(name = "default_payment")
+    private BigDecimal defaultPayment = new BigDecimal(12000.00);
+
+    /**
      * Cтатус по-умолчанию для нового студента.
      */
     @OneToOne
     @JoinColumn(name = "default_student_status")
     private StudentStatus defaultStudentStatus;
+
+    /**
+     * Cтатус по-умолчанию для отказавшегося студента.
+     */
+    @OneToOne
+    @JoinColumn(name = "default_reject_student_status")
+    private StudentStatus defaultRejectStudentStatus;
 
     public ProjectProperties() {
     }
@@ -104,6 +121,14 @@ public class ProjectProperties {
 
     public void setRepeatedDefaultStatusId(Long repeatedDefaultStatusId) {
         this.repeatedDefaultStatusId = repeatedDefaultStatusId;
+    }
+
+    public Long getClientRejectStudentStatus() {
+        return clientRejectStudentStatus;
+    }
+
+    public void setClientRejectStudentStatus(Long clientRejectStudentStatus) {
+        this.clientRejectStudentStatus = clientRejectStudentStatus;
     }
 
     public Long getDefaultStatusId() {
@@ -162,12 +187,28 @@ public class ProjectProperties {
         this.defaultPricePerMonth = defaultPricePerMonth;
     }
 
+    public BigDecimal getDefaultPayment() {
+        return defaultPayment;
+    }
+
+    public void setDefaultPayment(BigDecimal defaultPayment) {
+        this.defaultPayment = defaultPayment;
+    }
+
     public StudentStatus getDefaultStudentStatus() {
         return defaultStudentStatus;
     }
 
     public void setDefaultStudentStatus(StudentStatus defaultStudentStatus) {
         this.defaultStudentStatus = defaultStudentStatus;
+    }
+
+    public StudentStatus getDefaultRejectStudentStatus() {
+        return defaultRejectStudentStatus;
+    }
+
+    public void setDefaultRejectStudentStatus(StudentStatus defaultRejectStudentStatus) {
+        this.defaultRejectStudentStatus = defaultRejectStudentStatus;
     }
 
     public MessageTemplate getAutoAnswerTemplate() {
