@@ -266,12 +266,11 @@ public class ScheduleTasks {
                         Client newClient = vkService.parseClientFromMessage(message.get("msg_text"));
                         addClient(newClient);
                     } catch (ParseClientException e) {
-                        logger.error(e.getMessage());
+                        logger.error("Problem with parsing client from message",e);
                     }
-
                 }
             } catch (VKAccessTokenException ex) {
-                logger.error(ex.getMessage());
+                logger.error("Vk access token has not got",ex);
             }
         }
     }
