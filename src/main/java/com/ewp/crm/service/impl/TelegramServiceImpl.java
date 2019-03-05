@@ -8,8 +8,11 @@ import com.ewp.crm.service.conversation.ChatType;
 import com.ewp.crm.service.conversation.Interlocutor;
 import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.utils.tdlib.Example;
+import com.github.javafaker.Bool;
 import com.google.common.primitives.Longs;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -148,10 +151,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 messages = (TdApi.Messages) handler.getObject();
                 handler.setObject(null);
             } while (messages.totalCount < chat.get().unreadCount);
-            if (!clientRepository.isTelegramClientPresent(messages.messages[0].senderUserId)) {
-                client.send(new TdApi.GetUser(messages.messages[0].senderUserId), new NewUserHandler());
-                markMessagesAsRead(chatId, messages);
-            }
+            markMessagesAsRead(chatId, messages);
         }
         return messages;
     }
@@ -161,7 +161,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         for (int i = 0; i < messages.messages.length; i++) {
             messageIds[i] = messages.messages[i].id;
         }
-        client.send(new TdApi.ViewMessages(chatId, messageIds, true), new DefaultHandler());
+        client.send(new TdApi.ViewMessages(chatId, messageIds, false), new DefaultHandler());
     }
 
     @Override
@@ -206,9 +206,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         if (tdlibInstalled) {
             client.send(new TdApi.GetMe(), handler);
             handlerDelay(handler);
-            if (handler.getObject() instanceof TdApi.User) {
-                result = (TdApi.User) handler.getObject();
-            }
+            result = (TdApi.User) handler.getObject();
         }
         return result;
     }
@@ -427,6 +425,14 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
             switch (object.getConstructor()) {
                 case TdApi.UpdateAuthorizationState.CONSTRUCTOR: {
                     onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
+                    break;
+                }
+                case TdApi.UpdateNewChat.CONSTRUCTOR: {
+                    TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
+                    if (chat.type instanceof TdApi.ChatTypePrivate) {
+                        TdApi.ChatTypePrivate chatTypePrivate = (TdApi.ChatTypePrivate) chat.type;
+                        client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
+                    }
                     break;
                 }
                 case TdApi.UpdateFile.CONSTRUCTOR: {
