@@ -5,11 +5,9 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.Client.Sex;
-import com.ewp.crm.models.dto.VkProfileInfo;
 import com.ewp.crm.service.conversation.ChatMessage;
 import com.ewp.crm.service.conversation.ChatType;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.validators.PhoneValidator;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -48,9 +46,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,7 +65,6 @@ public class VKServiceImpl implements VKService {
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
     private final VkMemberService vkMemberService;
-    private final PhoneValidator phoneValidator;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
@@ -112,8 +107,7 @@ public class VKServiceImpl implements VKService {
                          MessageTemplateService messageTemplateService,
                          ProjectPropertiesService projectPropertiesService,
                          VkRequestFormService vkRequestFormService,
-                         VkMemberService vkMemberService,
-                         PhoneValidator phoneValidator) {
+                         VkMemberService vkMemberService) {
         this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
@@ -136,7 +130,6 @@ public class VKServiceImpl implements VKService {
         this.vkMemberService = vkMemberService;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.firstContactMessage = vkConfig.getFirstContactMessage();
-        this.phoneValidator = phoneValidator;
     }
 
     public HttpClient getHttpClient() {
@@ -751,6 +744,16 @@ public class VKServiceImpl implements VKService {
                         case "Skype":
                             newClient.setSkype(getValue(fields[numberVkPosition]));
                             break;
+                        case "Возраст":
+                            String ageStringValue = getValue(fields[numberVkPosition]).replaceAll("\\D", "");
+                            byte age = 0;
+                            try {
+                                age = Byte.parseByte(ageStringValue);
+                            } catch (NumberFormatException e) {
+                                logger.info("В заявке формы вк был введено не допустимое значение возраста", e);
+                            }
+                            newClient.setAge(age);
+                            break;
                         case "Город":
                             newClient.setCity(getValue(fields[numberVkPosition]));
                             break;
@@ -1054,7 +1057,7 @@ public class VKServiceImpl implements VKService {
     }
 
     private static String getByteArrayFromImageURL(String url) {
-        String result;
+
         try {
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
@@ -1066,12 +1069,11 @@ public class VKServiceImpl implements VKService {
                 baos.write(buffer, 0, read);
             }
             baos.flush();
-            result = Base64.encode(baos.toByteArray());
+            return Base64.encode(baos.toByteArray());
         } catch (Exception e) {
-            logger.error("Failed to get array from image url " + url, e);
-            result = "";
+            System.out.println("error");
         }
-        return result;
+        return null;
     }
 
     private String getResultCaptcha(String taskId) throws JSONException, IOException {
@@ -1089,117 +1091,6 @@ public class VKServiceImpl implements VKService {
         com.squareup.okhttp.Response responseResult = client.newCall(requestResult).execute();
         JsonObject convertedObjectResult = new Gson().fromJson(responseResult.body().string(), JsonObject.class);
         return convertedObjectResult.getAsJsonObject("solution").get("text").getAsString();
-    }
-
-    @Override
-    public Optional<VkProfileInfo> getProfileInfoById(long vkId) {
-        VkProfileInfo vkProfileInfo = new VkProfileInfo();
-        vkProfileInfo.setVkId(vkId);
-        String fileds = "first_name,last_name,sex,bdate,country,city,education,has_mobile,contacts";
-        String request = vkAPI + "users.get?" +
-                "user_ids=" + vkId +
-                "&fields=" + fileds +
-                "&access_token=" + communityToken +
-                "&v=" + version;
-        HttpGet httpGetClient = new HttpGet(request);
-        HttpClient httpClient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build()).build();
-        try {
-            HttpResponse response = httpClient.execute(httpGetClient);
-            String result = EntityUtils.toString(response.getEntity());
-            JSONObject json = new JSONObject(result);
-            JSONArray responseArray = json.getJSONArray("response");
-            JSONObject vkUserJson = responseArray.getJSONObject(0);
-            if (vkUserJson.has("first_name")) {
-                vkProfileInfo.setFirstName(vkUserJson.getString("first_name"));
-            }
-            if (vkUserJson.has("last_name")) {
-                vkProfileInfo.setLastName(vkUserJson.getString("last_name"));
-            }
-            if (vkUserJson.has("country")) {
-                JSONObject jsonEdv = new JSONObject(vkUserJson.getString("country"));
-                if (jsonEdv.has("title")) {
-                    vkProfileInfo.setCountry(jsonEdv.getString("title"));
-                }
-            }
-            if (vkUserJson.has("city")) {
-                JSONObject jsonEdv = new JSONObject(vkUserJson.getString("city"));
-                if (jsonEdv.has("title")) {
-                    vkProfileInfo.setCity(jsonEdv.getString("title"));
-                }
-            }
-            if (vkUserJson.has("sex")) {
-                if ("2".equals(vkUserJson.getString("sex"))) {
-                    vkProfileInfo.setSex(Sex.MALE);
-                } else if ("1".equals(vkUserJson.getString("sex"))) {
-                    vkProfileInfo.setSex(Sex.FEMALE);
-                }
-            }
-            if (vkUserJson.has("bdate")) {
-                String birthDate = vkUserJson.getString("bdate");
-                Pattern pattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}.\\d{4}");
-                Matcher matcher = pattern.matcher(birthDate);
-                if (matcher.find()) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy");
-                    vkProfileInfo.setBirthdate(LocalDate.parse(birthDate, formatter));
-                }
-            }
-            if (vkUserJson.has("university_name")) {
-                vkProfileInfo.setUniversity(vkUserJson.getString("university_name"));
-            }
-            if (vkUserJson.has("mobile_phone")) {
-                vkProfileInfo.setPhone(phoneValidator.phoneRestore(vkUserJson.getString("mobile_phone")));
-            }
-            return Optional.of(vkProfileInfo);
-        } catch (IOException e) {
-            logger.error("Failed to connect to VK server", e);
-        } catch (JSONException e) {
-            logger.error("Can't take info from vk profile by vk id = {}", vkId, e);
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public void fillClientFromProfileVK(Client client) {
-        Optional<VkProfileInfo> vkProfileInfo = Optional.empty();
-
-        Optional<SocialProfile> socialProfile = Optional.empty();
-        for (SocialProfile socialProfileElement : client.getSocialProfiles()) {
-            if ("vk".equals(socialProfileElement.getSocialProfileType().getName())) {
-                socialProfile = Optional.of(socialProfileElement);
-                break;
-            }
-        }
-        if (socialProfile.isPresent()) {
-            long vkId = getVKIdByUrl(socialProfile.get().getSocialId()).orElseGet(() -> 0L);
-            if (vkId > 0) {
-                vkProfileInfo = getProfileInfoById(vkId);
-            }
-        }
-        if (vkProfileInfo.isPresent()) {
-            VkProfileInfo vkInfo = vkProfileInfo.get();
-
-            if (client.getCity() == null || client.getCity().isEmpty()) {
-                client.setCity(vkInfo.getCity());
-            }
-            if (client.getBirthDate() == null) {
-                client.setBirthDate(vkInfo.getBirthdate());
-            }
-            if (client.getSex() == null) {
-                client.setSex(vkInfo.getSex());
-            }
-            if (client.getPhoneNumber() == null || client.getPhoneNumber().isEmpty()) {
-                client.setPhoneNumber(vkInfo.getPhone());
-            }
-            if (client.getCountry() == null || client.getCountry().isEmpty()) {
-                client.setCountry(vkInfo.getCountry());
-            }
-            if (client.getUniversity() == null || client.getUniversity().isEmpty()) {
-                client.setUniversity(vkInfo.getUniversity());
-            }
-        }
     }
 }
 
