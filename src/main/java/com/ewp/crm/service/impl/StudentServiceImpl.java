@@ -54,7 +54,7 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
                     LocalDateTime.now().plusDays(trialOffset),
                     LocalDateTime.now().plusDays(nextPaymentOffset),
                     projectPropertiesService.getOrCreate().getDefaultPricePerMonth(),
-                    new BigDecimal(0.00),
+                    projectPropertiesService.getOrCreate().getDefaultPayment(),
                     new BigDecimal(0.00),
                     status,
                     "");

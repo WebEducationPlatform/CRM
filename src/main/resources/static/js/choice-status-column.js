@@ -1,92 +1,62 @@
 //Список статусов возможных для клиентов-студентов
 $(function () {
     $('#choice-status-column-modal').on('show.bs.modal', function () {
+        var properties;
         $("#status-column").empty();
         $("#new-client-status").empty();
         $("#repeated-client-status").empty();
+        $("#reject-student-status-column").empty();
+
         $.ajax({
-            type: 'POST',
-            url: '/slack/get/students/statuses',
+            type: 'GET',
+            url: '/rest/properties',
+            dataType: 'json',
+            success: function (response) {
+                properties = response;
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '/rest/status',
             dataType: 'json',
             success: function (json) {
                 $.each(json, function (index, element) {
-                    $('#status-column')
-                        .append($('<option value=' + element.id + '>')
-                            .append(element.name)
-                            .append('</option>'));
-                });
-                $.ajax({
-                    type: 'GET',
-                    url: '/rest/properties',
-                    dataType: 'json',
-                    success: function (response) {
-                        $('#status-column').val(response.defaultStatusId);
-                    }
-                });
-            }
-        });
-
-        $.ajax({
-            type: 'GET',
-            url: '/rest/status',
-            dataType: 'json',
-            success: function (response) {
-                $.each(response, function (index, element) {
+                    $("#reject-student-status-column").append($('<option value=' + element.id + '>').append(element.name).append('</option>'));
                     $("#new-client-status").append("<option id = default_status_" + element.id + " value=" + element.id + ">" + element.name + "</option>");
-                });
-
-                $.ajax({
-                    type: 'GET',
-                    url: '/rest/properties',
-                    dataType: 'json',
-                    success: function (response) {
-                        $("#new-client-status").val(response.newClientStatus);
-                    }
-                });
-            }
-        });
-
-        $.ajax({
-            type: 'GET',
-            url: '/rest/status',
-            dataType: 'json',
-            success: function (response) {
-                $.each(response, function (index, element) {
                     $("#repeated-client-status").append("<option id = repeated_default_status_" + element.id + " value=" + element.id + ">" + element.name + "</option>");
-                });
-
-                $.ajax({
-                    type: 'GET',
-                    url: '/rest/properties',
-                    dataType: 'json',
-                    success: function (response) {
-                        $("#repeated-client-status").val(response.repeatedDefaultStatusId);
+                    if (element.createStudent == true) {
+                        $('#status-column').append($('<option value=' + element.id + '>').append(element.name).append('</option>'));
                     }
                 });
+                if (properties !== null) {
+                    $("#reject-student-status-column").val(properties.clientRejectStudentStatus);
+                    $("#new-client-status").val(properties.newClientStatus);
+                    $("#repeated-client-status").val(properties.repeatedDefaultStatusId);
+                    $('#status-column').val(properties.defaultStatusId);
+                }
             }
         });
+
     });
 });
 
 //Выбираем и сохраняем дефолтный статус
 $('#update-status').click(function () {
-    var selectedId = $("select#status-column").val();
-    $.ajax({
-        type: 'GET',
-        url: '/slack/set/default/' + selectedId
-    });
-
+    var status_id = $("select#status-column").val();
+    var reject_status_id = $("select#reject-student-status-column").val();
     var new_client_status = $("#new-client-status").val();
-    $.ajax({
-        type: 'POST',
-        url: '/rest/properties/new-user-status',
-        data: {statusId : new_client_status}
-    });
-
     var repeated_client_status = $("#repeated-client-status").val();
+
     $.ajax({
         type: 'POST',
-        url: '/rest/properties/repeated-user-status',
-        data: {statusId : repeated_client_status}
-    });
+        url: '/rest/properties/client-default-properties',
+        data: {
+            repeatedStatus: repeated_client_status,
+            newClientStatus: new_client_status,
+            id: status_id,
+            rejectId: reject_status_id
+        }
+    })
+
 });
