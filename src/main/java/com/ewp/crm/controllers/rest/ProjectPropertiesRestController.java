@@ -93,12 +93,11 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/new-student-properties")
-    public HttpStatus setNewStudentProperties(@RequestParam BigDecimal price, @RequestParam BigDecimal payment, @RequestParam("id") long statusId, @RequestParam("reject_id") long rejectStatusId) {
+    public HttpStatus setNewStudentProperties(@RequestParam BigDecimal price, @RequestParam BigDecimal payment, @RequestParam("id") long statusId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setDefaultPricePerMonth(price);
         current.setDefaultPayment(payment);
         current.setDefaultStudentStatus(studentStatusService.get(statusId));
-        current.setDefaultRejectStudentStatus(studentStatusService.get(rejectStatusId));
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
