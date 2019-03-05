@@ -36,7 +36,7 @@ public class VKConfigImpl implements VKConfig {
 
     private String managerToken;
 
-    private String adminId;
+    private String adminVkUrl;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
@@ -55,7 +55,7 @@ public class VKConfigImpl implements VKConfig {
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
             managerToken = env.getProperty("vk.manager.token");
-            adminId = env.getProperty("vk.admin.id");
+            adminVkUrl = env.getProperty("vk.admin.url");
 
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -119,7 +119,7 @@ public class VKConfigImpl implements VKConfig {
         return managerToken;
     }
 
-    public String getAdminId() {
-        return adminId;
+    public String getAdminVkUrl() {
+        return adminVkUrl;
     }
 }

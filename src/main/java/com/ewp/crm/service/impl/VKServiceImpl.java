@@ -77,8 +77,7 @@ public class VKServiceImpl implements VKService {
     //Токен аккаунта, отправляющего сообщения
     //Айди группы
     private String clubId;
-    //Aйди администратора
-    private String adminId;
+    private String adminVkUrl;
     //Версия API ВК
     private String version;
     //Токен доступа от имени сообщества
@@ -121,7 +120,7 @@ public class VKServiceImpl implements VKService {
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
         managerToken = vkConfig.getManagerToken();
-        adminId = vkConfig.getAdminId();
+        adminVkUrl = vkConfig.getAdminVkUrl();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -577,7 +576,7 @@ public class VKServiceImpl implements VKService {
         String uriGetHistory = vkAPI + "messages.getHistory" +
                 "?v=" + version +
                 "&count=1" +
-                "&user_id=" + adminId +
+                "&user_id=" + getVKIdByUrl(adminVkUrl).get() +
                 "&group_id=" + clubId +
                 "&access_token=" +
                 communityToken;
