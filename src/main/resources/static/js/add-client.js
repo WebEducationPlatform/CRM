@@ -90,7 +90,15 @@ function addClient() {
 		success: function () {
 			current.textContent = "Сохранено";
 			current.style.color = "limegreen";
-			location.reload();
+			if (spotLocation() === "add") {
+				setTimeout(function() {
+					window.location.href = "/client/allClients";
+				}, 500);
+			} else {
+				setTimeout(function() {
+					window.location.href = "/client";
+				}, 500);
+			}
 		},
 		error: function (e) {
 			console.log(e.responseText);
@@ -212,3 +220,8 @@ $(function () {
 		}
 	});
 });
+
+function spotLocation() {
+	let array = window.location.href.split("/");
+	return array[array.length - 1];
+}
