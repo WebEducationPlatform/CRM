@@ -11,12 +11,14 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +52,11 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "skype")
     private String skype = "";
 
-    @Column(name = "age")
-    private byte age;
+    @Column(name = "birthDate")
+    private LocalDate birthDate;
+
+    @Formula("(if(birth_date is null,0,YEAR(CURDATE()) - YEAR(birth_date)))")
+    private int age;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sex")
@@ -65,6 +70,9 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "comment")
     private String comment;
+
+    @Column(name = "university")
+    private String university;
 
     @Column(name = "postponeDate")
     private ZonedDateTime postponeDate;
@@ -189,34 +197,34 @@ public class Client implements Serializable, Diffable<Client> {
         this.dateOfRegistration = dateOfRegistration;
     }
 
-    public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, Status status) {
+    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, Status status) {
         this();
         this.name = name;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.age = age;
+        this.birthDate = birthDate;
         this.sex = sex;
         this.status = status;
     }
 
-    public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex) {
+    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex) {
         this();
         this.name = name;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.age = age;
+        this.birthDate = birthDate;
         this.sex = sex;
     }
 
-    public Client(String name, String lastName, String phoneNumber, String email, byte age, Sex sex, String city, String country, State state, ZonedDateTime dateOfRegistration) {
+    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, String city, String country, State state, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.age = age;
+        this.birthDate = birthDate;
         this.sex = sex;
         this.city = city;
         this.country = country;
@@ -316,12 +324,28 @@ public class Client implements Serializable, Diffable<Client> {
         return getPostponeDate() == null;
     }
 
-    public byte getAge() {
+    public int getAge() {
         return age;
     }
 
     public void setAge(byte age) {
         this.age = age;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(String university) {
+        this.university = university;
     }
 
     public Sex getSex() {
@@ -473,8 +497,7 @@ public class Client implements Serializable, Diffable<Client> {
         if (this == o) return true;
         if (!(o instanceof Client)) return false;
         Client client = (Client) o;
-        return age == client.age &&
-                Objects.equals(id, client.id) &&
+        return Objects.equals(id, client.id) &&
                 Objects.equals(name, client.name) &&
                 Objects.equals(lastName, client.lastName) &&
                 Objects.equals(phoneNumber, client.phoneNumber) &&
@@ -486,13 +509,15 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(socialProfiles, client.socialProfiles) &&
                 Objects.equals(jobs, client.jobs) &&
                 Objects.equals(skype, client.skype) &&
-                Objects.equals(postponeDate, client.postponeDate);
+                Objects.equals(postponeDate, client.postponeDate)&&
+                Objects.equals(birthDate, client.birthDate) &&
+                Objects.equals(university, client.university);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastName, phoneNumber, email, skype, age, sex, city, country,
-                state, jobs, socialProfiles, postponeDate);
+        return Objects.hash(id, name, lastName, phoneNumber, email, skype, sex, city, country,
+                state, jobs, socialProfiles, postponeDate, birthDate, university);
     }
 
     @Override
@@ -544,7 +569,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .append("Номер телефона", this.phoneNumber, client.phoneNumber)
                 .append("E-mail", this.email, client.email)
                 .append("Skype", this.skype, client.skype)
-                .append("Возраст", this.age, client.age)
+                .append("Дата рождения", this.birthDate, client.birthDate)
                 .append("Пол", this.sex, client.sex)
                 .append("Страна", this.country, client.country)
                 .append("Город", this.city, client.city)
