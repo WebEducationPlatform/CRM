@@ -246,8 +246,8 @@ public class DataInitializer {
         spList3.add(  new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook")));
         client3.setSocialProfiles(spList3);
         List<SocialProfile> spList4 = new ArrayList<>();
-        spList4.add(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")));
-        spList4.add(  new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook")));
+        spList4.add(new SocialProfile("https://vk.com/id-4", socialProfileTypeService.getByTypeName("vk")));
+        spList4.add(  new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook")));
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
@@ -287,7 +287,6 @@ public class DataInitializer {
         StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
         StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
-        StudentStatus rejectStatus = studentStatusService.add(new StudentStatus("Отказник"));
 
         Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
         Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
