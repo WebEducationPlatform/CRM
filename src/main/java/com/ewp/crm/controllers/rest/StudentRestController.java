@@ -1,13 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.models.*;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +32,20 @@ public class StudentRestController {
 
     private final StudentStatusService studentStatusService;
 
+    private final ProjectPropertiesService projectPropertiesService;
+
+    private final StatusService statusService;
+
     @Autowired
-    public StudentRestController(StudentService studentService, ClientService clientService, ClientHistoryService clientHistoryService, StudentStatusService studentStatusService) {
+    public StudentRestController(StudentService studentService, ClientService clientService,
+                                 ClientHistoryService clientHistoryService, StudentStatusService studentStatusService,
+                                 ProjectPropertiesService projectPropertiesService, StatusService statusService) {
         this.studentService = studentService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.studentStatusService = studentStatusService;
+        this.projectPropertiesService = projectPropertiesService;
+        this.statusService = statusService;
     }
 
     @GetMapping ("/{id}")
@@ -88,6 +90,29 @@ public class StudentRestController {
         client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT));
         clientService.updateClient(client);
         studentService.delete(id);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/reject/{id}")
+    public HttpStatus rejectStudent(@PathVariable("id") Long id, @RequestParam String message, @AuthenticationPrincipal User userFromSession) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        Student student = studentService.get(id);
+        Client client = student.getClient();
+        client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT, message));
+        Status status = statusService.get(properties.getClientRejectStudentStatus());
+        if (status != null) {
+            client.setStatus(status);
+        } else {
+            logger.info("Default client status for rejected students not set!");
+        }
+        StudentStatus studentStatus = properties.getDefaultRejectStudentStatus();
+        if (studentStatus != null) {
+            student.setStatus(studentStatus);
+        } else {
+            logger.info("Default student status for rejected students not set!");
+        }
+        studentService.update(student);
+        clientService.updateClient(client);
         return HttpStatus.OK;
     }
 
