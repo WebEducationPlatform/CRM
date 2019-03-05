@@ -80,13 +80,6 @@ public class ProjectProperties {
     @JoinColumn(name = "default_student_status")
     private StudentStatus defaultStudentStatus;
 
-    /**
-     * Cтатус по-умолчанию для отказавшегося студента.
-     */
-    @OneToOne
-    @JoinColumn(name = "default_reject_student_status")
-    private StudentStatus defaultRejectStudentStatus;
-
     public ProjectProperties() {
     }
 
@@ -201,14 +194,6 @@ public class ProjectProperties {
 
     public void setDefaultStudentStatus(StudentStatus defaultStudentStatus) {
         this.defaultStudentStatus = defaultStudentStatus;
-    }
-
-    public StudentStatus getDefaultRejectStudentStatus() {
-        return defaultRejectStudentStatus;
-    }
-
-    public void setDefaultRejectStudentStatus(StudentStatus defaultRejectStudentStatus) {
-        this.defaultRejectStudentStatus = defaultRejectStudentStatus;
     }
 
     public MessageTemplate getAutoAnswerTemplate() {

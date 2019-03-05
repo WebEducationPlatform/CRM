@@ -90,9 +90,4 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
         studentRepository.save(student);
     }
 
-    @Override
-    public List<Student> getAllActive() {
-        return studentRepositoryCustom.getAllActive();
-    }
-
 }

@@ -208,7 +208,6 @@ $("#update-new-student-settings").click(function () {
     let price = $("#month-price").val();
     let payment = $("#month-payment").val();
     let status_id = $("#new-student-status").val();
-    let reject_status_id = $("#reject-student-status").val();
     if (!validate_new_student_parameters(price, status)) {
         return
     }
@@ -218,7 +217,7 @@ $("#update-new-student-settings").click(function () {
     $.ajax({
         type: 'POST',
         url: '/rest/properties/new-student-properties',
-        data: {price: price, payment: payment, id: status_id, reject_id: reject_status_id}
+        data: {price: price, payment: payment, id: status_id}
     })
 });
 
