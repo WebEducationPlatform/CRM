@@ -136,6 +136,7 @@ public class ScheduleTasks {
 		newClient.setState(Client.State.NEW);
 		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
 		newClient.addHistory(clientHistoryService.createHistory("vk"));
+		vkService.fillClientFromProfileVK(newClient);
 		String email = newClient.getEmail();
 		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
 			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: "+email);
