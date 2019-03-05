@@ -484,7 +484,7 @@
 
 Мессенджинг через Telegram имеет функционал, аналогичный ВКонтакте - создание новых клиентов на основе поступающих сообщений, общение из карточки клиента.
 
-### Установка TDLib
+### Установка TDLib в Windows
 
 Для подключения функционала Telegram необходимо скомпилировать и установить библотеку TDLib. На примере ОС Windows 10:
 1. Установить Microsoft Visual Studio 2015 или более новую
@@ -520,6 +520,44 @@
 * java -Djava.library.path=. org/drinkless/tdlib/example/Example
 9. Если TDLib "ругается" на отсутствующие библиотеки, перейдите в <ПУТЬ_К_TDLib>/example/java/build/Release и скопируйте файлы "LIBEAY32.dll", "SSLEAY32.dll", "zlib1.dll" в папку C:\Windows.
 10. При необходимости, к параметрам запуска проекта добавьте настройки VM Options: "-Djava.library.path=<ПУТЬ_К_TDLib>\example\java\build\Release".
+
+### Установка TDLib в Debian 9
+
+1. Необходимо установить/обновить дополнительные зависимости (при их отсутствии):
+* sudo apt-get update
+* sudo apt-get upgrade
+* sudo cp /etc/apt/sources.list /etc/apt/sources.list.BACKUP
+* sudo add-apt-repository "deb http://security.debian.org/ wheezy/updates main"
+* sudo add-apt-repository "deb-src http://security.debian.org/ wheezy/updates main"
+* sudo add-apt-repository "deb http://ftp.us.debian.org/debian wheezy main non-free"
+* sudo add-apt-repository "deb-src http://ftp.us.debian.org/debian wheezy main non-free"
+* sudo add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"
+* sudo apt-get update
+* sudo apt-get install build-essential gcc-4.9 g++-4.9 openssl libssl-dev ccache gperf zlib1g zlib1g-dev cmake libreadline-dev git default-jre default-jdk software-properties-common oracle-java8-installer oracle-java8-set-default clang
+* sudo cp /etc/apt/sources.list.BACKUP /etc/apt/sources.list
+* sudo apt-get update
+
+2. Выбрать место установки TDLib и клонировать репозиторий TDLib в эту директорию, здесь для примера указан путь "/usr/lib":
+* cd /usr/lib
+* git clone https://github.com/tdlib/td.git
+* cd td
+
+3. Собрать JNI:
+* mkdir jnibuild
+* cd jnibuild
+* CXX=clang++ CC=clang cmake -DCMAKE_BUILD_TYPE=Release -DTD_ENABLE_JNI=ON -DCMAKE_INSTALL_PREFIX:PATH=../example/java/td ..
+* CXX=clang++ CC=clang cmake --build . --target install
+
+4. Собрать TDLib:
+* cd /usr/lib/td/example/java
+* mkdir build
+* cd build
+* CXX=clang++ CC=clang cmake -DCMAKE_BUILD_TYPE=Release -DTd_DIR=/usr/lib/td/example/java/td/lib/cmake/Td -DCMAKE_INSTALL_PREFIX:PATH=.. ..
+* CXX=clang++ CC=clang cmake --build . --target install
+
+5. Проект запускать со ссылкой на директорию с готовой библиотекой:
+* java –Djava.library.path=/usr/lib/td/example/java/bin –jar CRM.jar
+
 
 ### Настройка Telegram
 1. Зарегистрируйте аккаунт Telegram
