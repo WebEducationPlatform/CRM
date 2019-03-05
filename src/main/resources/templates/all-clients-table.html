@@ -154,8 +154,7 @@
                 <td class="colorTd" th:text="${client.status.name}"></td>
 
                 <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
-                <!--<td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>-->
-                <td th:text="${client.dateOfRegistration}"></td>
+                <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
                 <td class="no-fix">
                     <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
                          sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
