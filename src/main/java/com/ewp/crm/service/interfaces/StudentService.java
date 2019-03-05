@@ -13,4 +13,5 @@ public interface StudentService extends CommonService<Student> {
     void detach(Student student);
     Student getStudentByClientId(Long clientId);
     void save(Student student);
+    List<Student> getAllActive();
 }

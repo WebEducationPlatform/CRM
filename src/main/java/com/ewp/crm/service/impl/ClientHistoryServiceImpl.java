@@ -148,7 +148,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		logger.info("creation of client info history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
-		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + info);
+		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + ". Доп.информация: " + info);
 		return clientHistory;
 	}
 

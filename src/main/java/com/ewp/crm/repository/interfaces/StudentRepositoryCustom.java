@@ -7,5 +7,7 @@ public interface StudentRepositoryCustom {
 
     List<Student> getStudentsWithTodayNotificationsEnabled();
 
+    List<Student> getAllActive();
+
     void detach(Student student);
 }

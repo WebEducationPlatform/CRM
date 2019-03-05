@@ -32,6 +32,13 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     @Override
+    public List<Student> getAllActive() {
+        return entityManager
+                .createQuery("SELECT s FROM Student s WHERE s.status NOT IN (SELECT p.defaultRejectStudentStatus FROM ProjectProperties p)")
+                .getResultList();
+    }
+
+    @Override
     public void detach(Student student) {
         entityManager.detach(student);
     }

@@ -209,17 +209,28 @@ $('.button_info').click(function () {
 
 //delete student by id
 $('.button_delete').click(function () {
-    if(!confirm("Вы уверены, что хотите удалить запись?")) {return}
-    let student_id = this.value;
-    let url = "/rest/student/delete/" + student_id;
+    let currentModal = $('#student-reject-modal');
+    currentModal.data('reject-student-id', this.value);
+    $('#reject-reason').val('');
+    currentModal.modal('show');
+});
+
+$('#reject_student').on('click', function () {
+    var id = $('#student-reject-modal').data('reject-student-id');
+    var message = $('#reject-reason').val();
+
     $.ajax({
         type: 'POST',
-        url: url,
+        url: '/rest/student/reject/' + id,
+        encoding: "UTF-8",
+        data: {
+            "message" : message
+        },
         success: function () {
-            let row = "#row_" + student_id;
-            $(row).remove();
+            $('#student-reject-modal').modal('hide');
+            $('#row_' + id).hide();
         }
-    })
+    });
 });
 
 //Check prices consistency
