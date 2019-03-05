@@ -90,16 +90,16 @@ public class DataInitializer {
         roleService.add(roleOwner);
         roleService.add(roleMentor);
 
-        SocialProfileType VK = new SocialProfileType("vk");
+        SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
-		SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType TELEGRAM = new SocialProfileType("telegram");
         SocialProfileType whatsApp = new SocialProfileType("whatsapp");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
-		socialProfileTypeService.add(TELEGRAM);
-		socialProfileTypeService.add(whatsApp);
+        socialProfileTypeService.add(TELEGRAM);
+        socialProfileTypeService.add(whatsApp);
 
         User admin = new User(
                 "Stanislav",
@@ -233,14 +233,22 @@ public class DataInitializer {
         client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook"))));
-        client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook"))));
-        client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook"))));
-        client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-4", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook"))));
+        List<SocialProfile> spList1 = new ArrayList<>();
+        spList1.add(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")));
+        spList1.add(  new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook")));
+        client1.setSocialProfiles(spList1);
+        List<SocialProfile> spList2 = new ArrayList<>();
+        spList2.add(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")));
+        spList2.add(  new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook")));
+        client2.setSocialProfiles(spList2);
+        List<SocialProfile> spList3 = new ArrayList<>();
+        spList3.add(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")));
+        spList3.add(  new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook")));
+        client3.setSocialProfiles(spList3);
+        List<SocialProfile> spList4 = new ArrayList<>();
+        spList4.add(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")));
+        spList4.add(  new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook")));
+        client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
         vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
@@ -279,6 +287,7 @@ public class DataInitializer {
         StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
         StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
+        StudentStatus rejectStatus = studentStatusService.add(new StudentStatus("Отказник"));
 
         Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
         Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
@@ -314,20 +323,17 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
 
+
         VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Фамилия", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Номер телефона", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Ваш skype для первого созвона с ментором (необязательно)", "Дополнительная информация");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Когда удобно начать первый пробный день?", "Дополнительная информация");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
         vkRequestFormService.addVkRequestForm(vkRequestForm3);
         vkRequestFormService.addVkRequestForm(vkRequestForm4);
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
-        vkRequestFormService.addVkRequestForm(vkRequestForm6);
-        vkRequestFormService.addVkRequestForm(vkRequestForm7);
     }
 }
