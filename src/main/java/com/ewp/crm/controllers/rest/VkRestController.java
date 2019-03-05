@@ -9,6 +9,7 @@ import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.VkMemberService;
 import com.ewp.crm.service.interfaces.VkTrackedClubService;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import com.vk.api.sdk.client.TransportClient;
+import com.vk.api.sdk.client.VkApiClient;
+import com.vk.api.sdk.client.actors.UserActor;
+import com.vk.api.sdk.exceptions.ApiException;
+import com.vk.api.sdk.exceptions.ClientException;
+import com.vk.api.sdk.httpclient.HttpTransportClient;
+import com.vk.api.sdk.objects.UserAuthResponse;
+import com.vk.api.sdk.queries.ads.AdsGetBudgetQuery;
+import com.vk.api.sdk.queries.ads.AdsGetStatisticsIdsType;
+import com.vk.api.sdk.queries.ads.AdsGetStatisticsPeriod;
+import com.vk.api.sdk.queries.ads.AdsGetStatisticsQuery;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.core.env.Environment;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,18 +53,33 @@ public class VkRestController {
 	private final VkMemberService vkMemberService;
 	private final MessageTemplateService messageTemplateService;
 	private final VKConfig vkConfig;
+	private final RestTemplate restTemplate;
+	private String clientId;
+	private String clientSecret;
+	private String accountId;
+	private String serverPort;
+
 
 	@Autowired
 	public VkRestController(VKService vkService,
 							VkTrackedClubService vkTrackedClubService,
 							VkMemberService vkMemberService,
 							MessageTemplateService messageTemplateService,
-							VKConfig vkConfig) {
+							VKConfig vkConfig,
+	                        Environment environment,
+	                        RestTemplate restTemplate) {
 		this.vkService = vkService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
 		this.messageTemplateService = messageTemplateService;
 		this.vkConfig = vkConfig;
+		this.clientId = environment.getRequiredProperty("vk.robot.app.clientId");
+		this.clientSecret = environment.getRequiredProperty("vk.robot.app.clientSecret");
+		this.accountId = environment.getRequiredProperty("vk.accountId");
+		this.serverPort = environment.getRequiredProperty("server.port");
+		this.restTemplate = restTemplate;
+
+
 	}
 
     @PostMapping
@@ -136,6 +169,94 @@ public class VkRestController {
 	public ResponseEntity<String> getProfilePhotoLinkById(@RequestParam String vkref){
 		String profilePhotoLink = vkService.getVkPhotoLinkByClientProfileId(vkref);
 		return ResponseEntity.ok(profilePhotoLink);
+	}
+
+	@GetMapping("/advertisement")
+	public String getAdvertisementVk() {
+		String url = "https://oauth.vk.com/authorize?" +
+				"client_id=" + clientId + "&" +
+				"display=page&" +
+				"redirect_uri=" + "http://localhost:" + serverPort + "/rest/vkontakte/advertisement/token&" +
+				"scope=ads, offline, groups" +
+				"response_type=code&v=5.92";
+
+String url1 =  "https://oauth.vk.com/authorize" +
+				"?client_id=" + clientId +
+				"&display=" + "popup" +
+				"&redirect_uri=" + "https://oauth.vk.com/blank.html" +
+				"&scope=" + "ads, offline, groups" +
+				"&response_type=token" +
+				"&v" + "5.78";
+
+
+		return "redirect:" + url1;
+	}
+
+	@GetMapping("/advertisement/token")
+	public String getToken(@RequestParam String code) throws ClientException, ApiException, JSONException {
+
+		String uriGetMassages = "https://api.vk.com/method/" + "messages.getHistory" +
+				"?user_id=" + clubId +
+				"&rev=0" +
+				"&version=" + version +
+				"&access_token=" + technicalAccountToken;
+
+		TransportClient transportClient = HttpTransportClient.getInstance();
+		VkApiClient vk = new VkApiClient(transportClient);
+		UserAuthResponse authResponse = vk.oauth()
+				.userAuthorizationCodeFlow(Integer.valueOf(clientId), clientSecret, "http://localhost:" + serverPort + "/rest/vkontakte/advertisement/token", code)
+				.execute();
+
+		UserActor actor = new UserActor(authResponse.getUserId(), authResponse.getAccessToken());
+		AdsGetBudgetQuery advertisement = vk.ads().getBudget(actor, Integer.parseInt(accountId));
+		String jstring = advertisement.executeAsString();
+		JSONObject balance = new JSONObject(advertisement.executeAsString());
+		Date date = new Date();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat simpleDate = new SimpleDateFormat("dd.MM.yyyy");
+		String dateToFrom = simpleDateFormat.format(date);
+		AdsGetStatisticsQuery advertisement3 = vk.ads().getStatistics(actor,
+				Integer.parseInt(accountId),
+				AdsGetStatisticsIdsType.OFFICE,
+				accountId,
+				AdsGetStatisticsPeriod.DAY,
+				dateToFrom,
+				dateToFrom);
+		String jstring1 = new JSONObject(advertisement3.executeAsString()).toString();
+		// JSONObject stats = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats").getJSONObject(0);
+		JSONArray stats1 = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats");
+		JSONObject stats = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats").getJSONObject(0);
+
+      /*
+{
+"response": [{
+"id": 1605137078,
+"type": "office",
+"stats": []
+}]
+}
+       */
+
+		Long clicks;
+		String monye;
+
+		if (stats.has("clicks")) {
+			clicks = stats.getLong("clicks");
+		} else {
+			clicks = Long.valueOf(0);
+		}
+		if (stats.has("spent")) {
+			monye = stats.getString("spent");
+		} else {
+			monye = String.valueOf(0);
+		}
+		String s = "Статистика по вк-рекламному кабинету:\n" +
+				"Дата: " + simpleDate.format(date) + "\n" +
+				"Количество кликов: " + clicks + "\n" +
+				"Денег потрачено: " + monye + "\n" +
+				"Баланс: " + balance.getString("response");
+		System.out.println(s);
+		return "redirect:/client";
 	}
 
 }
