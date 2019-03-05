@@ -226,9 +226,13 @@ $('#reject_student').on('click', function () {
         data: {
             "message" : message
         },
-        success: function () {
+        success: function (response) {
             $('#student-reject-modal').modal('hide');
-            $('#row_' + id).hide();
+            if (response != 'CONFLICT') {
+                $('#row_' + id).hide();
+            } else {
+                alert('Probably default statuses is not set')
+            }
         }
     });
 });
