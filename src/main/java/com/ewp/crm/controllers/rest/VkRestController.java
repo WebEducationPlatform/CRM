@@ -192,19 +192,19 @@ String url1 =  "https://oauth.vk.com/authorize" +
 		return "redirect:" + url1;
 	}
 
-	@GetMapping("/advertisement/token")
+	@GetMapping("/ads")
 	public String getToken(@RequestParam String code) throws ClientException, ApiException, JSONException {
 
-		String uriGetMassages = "https://api.vk.com/method/" + "messages.getHistory" +
+	/*	String uriGetMassages = "https://api.vk.com/method/" + "messages.getHistory" +
 				"?user_id=" + clubId +
 				"&rev=0" +
 				"&version=" + version +
-				"&access_token=" + technicalAccountToken;
+				"&access_token=" + technicalAccountToken; */
 
 		TransportClient transportClient = HttpTransportClient.getInstance();
 		VkApiClient vk = new VkApiClient(transportClient);
 		UserAuthResponse authResponse = vk.oauth()
-				.userAuthorizationCodeFlow(Integer.valueOf(clientId), clientSecret, "http://localhost:" + serverPort + "/rest/vkontakte/advertisement/token", code)
+				.userAuthorizationCodeFlow(Integer.valueOf(clientId), clientSecret, "http://localhost:" + serverPort + "/rest/vkontakte/ads", code)
 				.execute();
 
 		UserActor actor = new UserActor(authResponse.getUserId(), authResponse.getAccessToken());
@@ -235,6 +235,8 @@ String url1 =  "https://oauth.vk.com/authorize" +
 "stats": []
 }]
 }
+
+{"response":[{"stats":[],"id":1605137078,"type":"office"}]}
        */
 
 		Long clicks;
@@ -257,6 +259,30 @@ String url1 =  "https://oauth.vk.com/authorize" +
 				"Баланс: " + balance.getString("response");
 		System.out.println(s);
 		return "redirect:/client";
+	}
+
+	public static void main(String[] args) throws JSONException {
+    //      String jstr =  "{\"response\":[{\"stats\":[],\"id\":1605137078,\"type\":\"office\"}]}";
+		  String jstr1 = "{\"response\":[{\"id\": 1605137078,\"type\": \"office\",\"stats\": []}]}";
+		String jstr2 = "{\"response\":[{\"id\": 1605137078,\"type\": \"office\",\"stats\": [{\"clicks\":\"55\", \"spent\":\"120\"}]}]}";
+        JSONArray responce = new JSONObject(jstr2).getJSONArray("response");
+        StringBuilder statStr = new StringBuilder("Статистика по вк-рекламному кабинету:\n");
+		for (int i = 0; i < responce.length() ; i++) {
+			JSONObject item = responce.getJSONObject(i);
+			if(item.has("stats")) {
+				JSONArray stats = item.getJSONArray("stats");
+				for (int j = 0; j < stats.length() ; j++) {
+					JSONObject aim = stats.getJSONObject(j);
+					if(aim.has("clicks")) {
+						statStr.append("Количество кликов: " + aim.getLong("clicks") + "\n");
+					}
+					if (aim.has("spent")) {
+						statStr.append("Денег потрачено: " + aim.getString("spent") + "\n");
+					}
+				}
+			}
+		}
+		System.out.println(statStr);
 	}
 
 }

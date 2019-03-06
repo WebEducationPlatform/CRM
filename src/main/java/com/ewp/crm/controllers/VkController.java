@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkTrackedClub;
@@ -13,6 +14,7 @@ import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,9 @@ public class VkController {
     private final VkTrackedClubService vkTrackedClubService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkCampaignService vkCampaignService;
+    private final VKConfig vkConfig;
+    private final String clientId;
+    private final String serverPort;
 
     private ProjectProperties projectProperties;
 
@@ -51,12 +56,17 @@ public class VkController {
                         UserService userService,
                         VkTrackedClubService vkTrackedClubService,
                         ProjectPropertiesService projectPropertiesService,
-                        VkCampaignService vkCampaignService) {
+                        VkCampaignService vkCampaignService,
+                        VKConfig vkConfig,
+                        Environment environment) {
         this.vkService = vkService;
         this.userService = userService;
         this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkCampaignService = vkCampaignService;
+        this.vkConfig = vkConfig;
+        this.clientId = environment.getRequiredProperty("vk.robot.app.clientId");
+        this.serverPort = environment.getRequiredProperty("server.port");
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -172,6 +182,17 @@ public class VkController {
         campaign.getVkUsersToAdd().addAll(usersSet);
         vkCampaignService.update(campaign);
         return "redirect:/vk/campaigns/all";
+    }
+
+    @GetMapping(value = "/vk-ads")
+    public String vkBudjet() {
+        String url = "https://oauth.vk.com/authorize?" +
+                "client_id=" + clientId + "&" +
+                "display=page&" +
+                "redirect_uri=" + "http://localhost:" + serverPort + "/rest/vkontakte/ads&" +
+                "scope=ads, offline, groups" +
+                "response_type=code&v=5.92";
+        return "redirect:" + url;
     }
 
     private Set<VkUser> processUploadedFile(MultipartFile file) {
