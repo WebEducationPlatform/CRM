@@ -65,6 +65,9 @@ var clickedPaymentDate = [];
 
 //enable student editing when clicking on his fields in table
 $('td').click(function () {
+    if (!this.id) {
+        return;
+    }
     var i;
     var field = this.id.substring(0, this.id.lastIndexOf("_"));
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
@@ -203,8 +206,11 @@ $('.button_edit').click(function () {
 
 //go to student info page
 $('.button_info').click(function () {
-    var url = '/client/clientInfo/' + this.value;
-    window.location = url;
+    var clientId = this.value;
+    changeUrl('/student/all', clientId);
+    var currentModal = $('#main-modal-window');
+    currentModal.data('clientId', clientId);
+    currentModal.modal('show');
 });
 
 //delete student by id
