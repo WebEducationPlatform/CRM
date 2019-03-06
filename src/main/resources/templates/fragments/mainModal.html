@@ -16,8 +16,21 @@
                             border-radius: 50%; margin-right: 5px"/>
                     </div>
                     <div>
-                        <h4 style="float: left; width: auto; height: 30px; line-height: 30px"
-                            class="modal-title-profile"></h4>
+                        <h4 style="float: left; width: auto; height: 30px; line-height: 30px; margin-right: 10px;"
+                            class="modal-title-profile">
+                        </h4>
+                    </div>
+                    <div>
+                        <div style="margin-top: 15px" class="btn-group">
+                            <button th:id="'client-set-status-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Status <span class="caret"></span>
+                            </button>
+                            <ul th:id="client-status-list" class="dropdown-menu">
+                                <li><a href="#">Status 1</a></li>
+                                <li><a href="#">Status 2</a></li>
+                                <li><a href="#">Status 3</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-body">

@@ -1801,11 +1801,50 @@ function client_has_telegram(client) {
     return has_telegram;
 }
 
+function changeStatus(clientId, statusId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/status/client/change',
+        data: {
+            "statusId" : statusId,
+            "clientId" : clientId
+        },
+        success: reloadClientStatus(clientId)
+    });
+}
+
+function reloadClientStatus(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            $('#client-set-status-button').text(client.status.name);
+        }
+    });
+}
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
         let formData = {clientId: clientId};
+
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/rest/status',
+            success: function (status) {
+                $('#client-status-list').empty();
+                $.each(status, function (i, s) {
+                    $('#client-status-list').append(
+                        '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
+                    );
+                });
+            }
+        });
 
         $.ajax({
             async: false,
@@ -1828,6 +1867,7 @@ $(function () {
                     $('#main-modal-window').data('userId', user.id);
 
                     currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+                    currentModal.find('#client-set-status-button').text(client.status.name);
 
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
