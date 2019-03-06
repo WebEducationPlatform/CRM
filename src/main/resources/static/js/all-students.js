@@ -129,6 +129,16 @@ $('.trial-date-btn').on('click', function () {
     updateStudent(id);
 });
 
+$('#additional-data-clickable-zone').on('click', function () {
+    $('#additional-data').addClass('hidden');
+    $('#show-additional-info-button').removeClass('hidden');
+});
+
+$('#show-additional-info-button').on('click', function () {
+    $('#additional-data').removeClass('hidden');
+    $('#show-additional-info-button').addClass('hidden');
+});
+
 $('.payment-date-btn').on('click', function () {
     if (!this.id) {
         return;
