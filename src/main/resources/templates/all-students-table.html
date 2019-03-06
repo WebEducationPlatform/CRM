@@ -62,8 +62,8 @@
                 <th onclick="sort_table(1)">Имя</th>
                 <th onclick="sort_table(2)">Фамилия</th>
                 <th onclick="sort_table(3)">Email</th>
-                <th class="fit" onclick="sort_table(4, 'date')">Конец пробных</th>
-                <th class="fit" onclick="sort_table(5, 'date')">Следующая оплата</th>
+                <th onclick="sort_table(4, 'date')">Конец пробных</th>
+                <th onclick="sort_table(5, 'date')">Следующая оплата</th>
                 <th class="fit" onclick="sort_table(6)">Цена</th>
                 <th class="fit" onclick="sort_table(7)">Сумма платежа</th>
                 <th class="fit" onclick="sort_table(8)">Оплата после</th>
@@ -81,11 +81,17 @@
                 <td th:id="${'email_' + student.id}" th:text="${student.client.email}"></td>
                 <td th:id="${'trialEndDate_' + student.id}">
                     <span th:id="${'trialEndDateValue_' + student.id}" th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></span>
-                    <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden" type="date"/>
+                    <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+2W</button>
+                    <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+1M</button>
+                    <button th:id="${'calendar_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">...</button>
                 </td>
                 <td th:id="${'nextPaymentDate_' + student.id}">
                     <span th:id="${'nextPaymentDateValue_' + student.id}" th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></span>
-                    <input th:id="${'next-payment-date_' + student.id}" class="form-control hidden" type="date"/>
+                    <input th:id="${'next-payment-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+2W</button>
+                    <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+1M</button>
+                    <button th:id="${'calendar_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">...</button>
                 </td>
                 <td th:id="${'price_' + student.id}" th:text="${student.price}"></td>
                 <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
@@ -127,7 +133,6 @@
                 <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
                     <button class="button_info btn btn-info glyphicon glyphicon-info-sign" th:value="${student.client.id}" title="Информация"></button>
-                    <button class="button_edit btn btn-success glyphicon glyphicon-pencil" disabled="disabled" th:id="${'editBtn' + student.id}" th:value="${student.id}" title="Изменить студента" />
                     <button class="button_delete btn btn-danger glyphicon glyphicon-remove" th:value="${student.id}" title="Удалить студента"></button>
                 </td>
             </tr>
