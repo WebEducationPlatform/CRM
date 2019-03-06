@@ -149,6 +149,69 @@ $('.payment-date-btn').on('click', function () {
     updateStudent(id);
 });
 
+$('.button_color').on('click', function () {
+    var currentModal = $('#studentColorModal');
+    currentModal.data('clientId', this.value);
+    currentModal.modal('show');
+});
+
+$('#studentColorModal').on('show.bs.modal', function() {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/student/' + $(this).data('clientId'),
+        success: function (student) {
+            $('#reset-color').data('clientId', student.id);
+            $('#update-color').data('clientId', student.id);
+            $('#selected-color').val(student.color);
+            $(this).data('color', student.color);
+            $('#wrap-selected-color').colorpicker('setValue', '#ffffff');
+            if (student.color != null) {
+                $("#wrap-selected-color").colorpicker('setValue', student.color);
+                $("#selected-color").val(student.color);
+            }
+        }
+    });
+});
+
+$('#reset-all-colors-btn').on('click', function () {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/student/color/reset/all',
+        success: function () {
+            $('tr').each(function () {
+                $(this).css({'background-color' : ''});
+            });
+        }
+    });
+});
+
+$('#reset-color').on('click', function () {
+    let id = $(this).data('clientId');
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/student/color/reset/' + id,
+        success: function () {
+            $('#row_' + id).css({'background-color' : ''});
+        }
+    });
+});
+
+$('#update-color').on('click', function () {
+    let id = $(this).data('clientId');
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/student/color/set/' + id,
+        data: {'color' : $('#selected-color').val()},
+        success: function () {
+            $('#row_' + id).css({'background-color' : $('#selected-color').val()});
+        }
+    });
+});
+
 //enable student editing when clicking on his fields in table
 $('td').click(function () {
     if (!this.id) {

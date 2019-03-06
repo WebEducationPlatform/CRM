@@ -110,6 +110,28 @@ public class StudentRestController {
         return HttpStatus.CONFLICT;
     }
 
+    @PostMapping("/color/set/{id}")
+    public HttpStatus setColor(@PathVariable("id") Long id, @RequestParam String color) {
+        Student student = studentService.get(id);
+        student.setColor(color);
+        studentService.update(student);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/color/reset/{id}")
+    public HttpStatus resetColor(@PathVariable("id") Long id) {
+        Student student = studentService.get(id);
+        student.setColor(null);
+        studentService.update(student);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/color/reset/all")
+    public HttpStatus resetColors() {
+        studentService.resetColors();
+        return HttpStatus.OK;
+    }
+
     @GetMapping ("/{id}/client")
     public ResponseEntity<Client> getClientByStudentId(@PathVariable("id") Long id) {
         ResponseEntity result;

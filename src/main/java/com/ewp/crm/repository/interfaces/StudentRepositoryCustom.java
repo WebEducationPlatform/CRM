@@ -8,4 +8,6 @@ public interface StudentRepositoryCustom {
     List<Student> getStudentsWithTodayNotificationsEnabled();
 
     void detach(Student student);
+
+    void resetColors();
 }
