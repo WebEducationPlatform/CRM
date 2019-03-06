@@ -34,7 +34,18 @@
         </div>
         <br />
 
-        <div class="row justify-content-md-start">
+        <div sec:authorize="hasAnyAuthority('OWNER')" class="row">
+            <div class="col-md-12">
+                <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <br/>
+                </div>
+            </div>
+        </div>
+
+        <div sec:authorize="hasAnyAuthority('OWNER')" id="additional-data" class="row justify-content-md-start hidden">
             <div class="col-md-2 well">
                 <div class="row justify-content-md-start">
                     <div class="col-md-6">
@@ -50,6 +61,11 @@
                     </div>
                     <div class="col-md-6">
                         <strong th:text="${price}">000</strong>
+                    </div>
+                </div>
+                <div class="row justify-content-md-start">
+                    <div id="additional-data-clickable-zone" class="col-md-12">
+                        <u><small>Скрыть</small></u>
                     </div>
                 </div>
             </div>
