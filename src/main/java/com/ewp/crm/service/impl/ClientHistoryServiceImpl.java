@@ -240,8 +240,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return clientHistory;
 		}
 		DiffResult diffs = prev.diff(current);
+		DiffResult diffsClients = prev.getClient().diff(current.getClient());
 		StringBuilder content = new StringBuilder();
 		diffs.getDiffs().stream().map(
+				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
+				.forEach(str -> content.append(str).append("\n"));
+		diffsClients.getDiffs().stream().filter(d -> d.getRight() != null && !d.getRight().toString().isEmpty())
+				.map(
 				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
 				.forEach(str -> content.append(str).append("\n"));
 		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
