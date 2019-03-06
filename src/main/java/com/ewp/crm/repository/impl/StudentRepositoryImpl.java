@@ -4,6 +4,8 @@ import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,5 +36,11 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     @Override
     public void detach(Student student) {
         entityManager.detach(student);
+    }
+
+    @Override
+    @Transactional
+    public void resetColors() {
+        entityManager.createQuery("UPDATE Student s SET s.color = null WHERE s.color IS NOT null").executeUpdate();
     }
 }
