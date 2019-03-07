@@ -152,6 +152,7 @@
                 <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
                     <button class="button_color btn btn-success glyphicon glyphicon-tint btn-xs" th:value="${student.id}" title="Окраска"></button>
+                    <button class="button_color_reset btn btn-warning glyphicon glyphicon-repeat btn-xs" th:value="${student.id}" title="Сброс окраски"></button>
                     <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:value="${student.client.id}" title="Информация"></button>
                     <button class="button_delete btn btn-danger glyphicon glyphicon-remove btn-xs" th:value="${student.id}" title="Удалить студента"></button>
                 </td>
@@ -162,7 +163,6 @@
         </table>
     </div>
 </div>
-<div th:replace="fragments/htmlFragments::studentColorFragment"></div>
 <div th:replace="fragments/student-reject-modal::studentRejectModal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>

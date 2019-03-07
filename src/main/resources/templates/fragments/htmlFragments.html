@@ -158,42 +158,6 @@
     </div>
 </th:block>
 
-<!--Модалка для настройки оформления системы-->
-<th:block th:fragment="studentColorFragment">
-<div class="modal fade" id="studentColorModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 id="modal-header-color" class="modal-title"></h4>
-            </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        <label for="selected-color">Установка цвета для студента</label>
-                        <div id="wrap-selected-color" class="input-group colorpicker-component">
-                            <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
-                            <input id="selected-color" type="text" style="width: 100%"
-                                   value="#38a677"
-                                   class="form-control"/>
-                        </div>
-                        <script>
-                            $(function () {
-                                $('#wrap-selected-color').colorpicker({format: 'hex'});
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="update-color" class="btn btn-primary" data-dismiss="modal">Применить</button>
-                <button id="reset-color" class="btn btn-danger" data-dismiss="modal">Сбросить цвет</button>
-            </div>
-        </div>
-    </div>
-</div>
-</th:block>
-
 <th:block th:fragment="header">
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
