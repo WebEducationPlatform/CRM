@@ -268,7 +268,7 @@ public class ClientRestController {
 	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-
+		String separator = "\r\n";
 		String path = "DownloadData";
 		File dir = new File(path);
 		if (!dir.exists()) {
@@ -294,14 +294,14 @@ public class ClientRestController {
 			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
-					bufferedWriter.write(socialNetworkLink + System.lineSeparator());
+					bufferedWriter.write(socialNetworkLink + separator);
 				}
 			}
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {
 					if (!email.isEmpty()) {
-						bufferedWriter.write(email + System.lineSeparator());
+						bufferedWriter.write(email + separator);
 					}
 				}
 			}
@@ -309,7 +309,7 @@ public class ClientRestController {
 				List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
 				for (String phoneNumber : phoneNumbers) {
 					if (!phoneNumber.isEmpty()) {
-						bufferedWriter.write(phoneNumber + System.lineSeparator());
+						bufferedWriter.write(phoneNumber + separator);
 					}
 				}
 			}
