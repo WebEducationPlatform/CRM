@@ -169,26 +169,23 @@ $('.payment-date-btn').on('click', function () {
 });
 
 $('.button_color').on('click', function () {
-    var currentModal = $('#studentColorModal');
-    currentModal.data('clientId', this.value);
-    currentModal.modal('show');
+    $(this).colorpicker({format: 'hex'});
 });
 
-$('#studentColorModal').on('show.bs.modal', function() {
+$('.button_color').colorpicker().on('changeColor', function (e) {
+    let id = $(this)[0].value;
+    let color = e.color.toHex();
+    $('#row_' + id).css({'background-color' : color});
+}).on('hidePicker', function (e) {
+    let id = $(this)[0].value;
+    let color = e.color.toHex();
     $.ajax({
         async: false,
-        type: 'GET',
-        url: '/rest/student/' + $(this).data('clientId'),
-        success: function (student) {
-            $('#reset-color').data('clientId', student.id);
-            $('#update-color').data('clientId', student.id);
-            $('#selected-color').val(student.color);
-            $(this).data('color', student.color);
-            $('#wrap-selected-color').colorpicker('setValue', '#ffffff');
-            if (student.color != null) {
-                $("#wrap-selected-color").colorpicker('setValue', student.color);
-                $("#selected-color").val(student.color);
-            }
+        type: 'POST',
+        url: '/rest/student/color/set/' + id,
+        data: {'color' : color},
+        success: function () {
+            $('#row_' + id).css({'background-color' : color});
         }
     });
 });
@@ -206,27 +203,14 @@ $('#reset-all-colors-btn').on('click', function () {
     });
 });
 
-$('#reset-color').on('click', function () {
-    let id = $(this).data('clientId');
+$('.button_color_reset').on('click', function () {
+    let id = $(this).val();
     $.ajax({
         async: false,
         type: 'POST',
         url: '/rest/student/color/reset/' + id,
         success: function () {
             $('#row_' + id).css({'background-color' : ''});
-        }
-    });
-});
-
-$('#update-color').on('click', function () {
-    let id = $(this).data('clientId');
-    $.ajax({
-        async: false,
-        type: 'POST',
-        url: '/rest/student/color/set/' + id,
-        data: {'color' : $('#selected-color').val()},
-        success: function () {
-            $('#row_' + id).css({'background-color' : $('#selected-color').val()});
         }
     });
 });
