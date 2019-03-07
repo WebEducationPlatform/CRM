@@ -37,9 +37,7 @@ public class StudentController {
     @GetMapping(value = "/all")
     public ModelAndView showAllStudents() {
         ModelAndView modelAndView = new ModelAndView("all-students-table");
-        List<Student> students = studentService.getAll();
-        modelAndView.addObject("price", students.stream().map(Student::getPrice).mapToDouble(BigDecimal::doubleValue).sum());
-        modelAndView.addObject("students", students);
+        modelAndView.addObject("students", studentService.getAll());
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         return modelAndView;
