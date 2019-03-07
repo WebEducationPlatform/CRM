@@ -8,7 +8,26 @@ $('.checkbox').click(function() {
             rows[i].style.display = this.checked ? '' : 'none';
         }
     }
+    calc_info_values();
 });
+
+function calc_info_values() {
+    try {
+        table = document.getElementById("students-table");
+        var sum = 0.0;
+        var count = 0;
+        $.each(table.rows, function (k, v) {
+            if (v.style.display !== 'none' && v.getElementsByClassName('price-for-student')[0] != null) {
+                sum += parseFloat(v.getElementsByClassName('price-for-student')[0].innerHTML);
+                count++;
+            }
+        });
+        $('#students-price-info').text(sum.toFixed(2));
+        $('#students-count').text(count);
+    } catch (e) {
+        console.log('Probably you are not OWNER, so this function is not for you :)');
+    }
+}
 
 function sort_table(n, type) {
     var table, rows, switching, i, x, y, x_val, y_val, temp_x, temp_y, shouldSwitch, dir, switchcount = 0;
@@ -135,6 +154,7 @@ $('#additional-data-clickable-zone').on('click', function () {
 });
 
 $('#show-additional-info-button').on('click', function () {
+    calc_info_values();
     $('#additional-data').removeClass('hidden');
     $('#show-additional-info-button').addClass('hidden');
 });

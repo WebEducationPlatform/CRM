@@ -53,7 +53,7 @@
                         <strong>Всего студентов</strong>
                     </div>
                     <div class="col-md-6">
-                        <strong th:text="${students.size()}">0</strong>
+                        <strong id="students-count">0</strong>
                     </div>
                 </div>
                 <div class="row justify-content-md-start">
@@ -61,7 +61,7 @@
                         <strong>Сумма оплаты</strong>
                     </div>
                     <div class="col-md-6">
-                        <strong th:text="${price}">000</strong>
+                        <strong id="students-price-info">0.00</strong>
                     </div>
                 </div>
                 <div class="row justify-content-md-start">
@@ -110,7 +110,7 @@
                     <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+1M</button>
                     <button th:id="${'calendar_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">...</button>
                 </td>
-                <td th:id="${'price_' + student.id}" th:text="${student.price}"></td>
+                <td class="price-for-student" th:id="${'price_' + student.id}" th:text="${student.price}"></td>
                 <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
                 <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}"></td>
                 <td>
