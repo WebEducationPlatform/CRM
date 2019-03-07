@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
@@ -53,7 +52,6 @@ public class VkRestController {
 	private final VkMemberService vkMemberService;
 	private final MessageTemplateService messageTemplateService;
 	private final VKConfig vkConfig;
-	private final RestTemplate restTemplate;
 	private String clientId;
 	private String clientSecret;
 	private String accountId;
@@ -66,8 +64,7 @@ public class VkRestController {
 							VkMemberService vkMemberService,
 							MessageTemplateService messageTemplateService,
 							VKConfig vkConfig,
-	                        Environment environment,
-	                        RestTemplate restTemplate) {
+	                        Environment environment) {
 		this.vkService = vkService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
@@ -77,9 +74,6 @@ public class VkRestController {
 		this.clientSecret = environment.getRequiredProperty("vk.robot.app.clientSecret");
 		this.accountId = environment.getRequiredProperty("vk.accountId");
 		this.serverPort = environment.getRequiredProperty("server.port");
-		this.restTemplate = restTemplate;
-
-
 	}
 
     @PostMapping
@@ -171,46 +165,24 @@ public class VkRestController {
 		return ResponseEntity.ok(profilePhotoLink);
 	}
 
-	@GetMapping("/advertisement")
-	public String getAdvertisementVk() {
-		String url = "https://oauth.vk.com/authorize?" +
-				"client_id=" + clientId + "&" +
-				"display=page&" +
-				"redirect_uri=" + "http://localhost:" + serverPort + "/rest/vkontakte/advertisement/token&" +
-				"scope=ads, offline, groups" +
-				"response_type=code&v=5.92";
 
-String url1 =  "https://oauth.vk.com/authorize" +
-				"?client_id=" + clientId +
-				"&display=" + "popup" +
-				"&redirect_uri=" + "https://oauth.vk.com/blank.html" +
-				"&scope=" + "ads, offline, groups" +
-				"&response_type=token" +
-				"&v" + "5.78";
-
-
-		return "redirect:" + url1;
-	}
 
 	@GetMapping("/ads")
 	public String getToken(@RequestParam String code) throws ClientException, ApiException, JSONException {
-
-	/*	String uriGetMassages = "https://api.vk.com/method/" + "messages.getHistory" +
-				"?user_id=" + clubId +
-				"&rev=0" +
-				"&version=" + version +
-				"&access_token=" + technicalAccountToken; */
-
 		TransportClient transportClient = HttpTransportClient.getInstance();
 		VkApiClient vk = new VkApiClient(transportClient);
 		UserAuthResponse authResponse = vk.oauth()
 				.userAuthorizationCodeFlow(Integer.valueOf(clientId), clientSecret, "http://localhost:" + serverPort + "/rest/vkontakte/ads", code)
 				.execute();
+        Long clicks = 0L;
+        String spent = "";
+        String budget = "";
 
 		UserActor actor = new UserActor(authResponse.getUserId(), authResponse.getAccessToken());
 		AdsGetBudgetQuery advertisement = vk.ads().getBudget(actor, Integer.parseInt(accountId));
-		String jstring = advertisement.executeAsString();
 		JSONObject balance = new JSONObject(advertisement.executeAsString());
+		budget = balance.getString("response");
+
 		Date date = new Date();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat simpleDate = new SimpleDateFormat("dd.MM.yyyy");
@@ -222,67 +194,30 @@ String url1 =  "https://oauth.vk.com/authorize" +
 				AdsGetStatisticsPeriod.DAY,
 				dateToFrom,
 				dateToFrom);
-		String jstring1 = new JSONObject(advertisement3.executeAsString()).toString();
-		// JSONObject stats = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats").getJSONObject(0);
-		JSONArray stats1 = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats");
-		JSONObject stats = new JSONObject(advertisement3.executeAsString()).getJSONArray("response").getJSONObject(0).getJSONArray("stats").getJSONObject(0);
-
-      /*
-{
-"response": [{
-"id": 1605137078,
-"type": "office",
-"stats": []
-}]
-}
-
-{"response":[{"stats":[],"id":1605137078,"type":"office"}]}
-       */
-
-		Long clicks;
-		String monye;
-
-		if (stats.has("clicks")) {
-			clicks = stats.getLong("clicks");
-		} else {
-			clicks = Long.valueOf(0);
-		}
-		if (stats.has("spent")) {
-			monye = stats.getString("spent");
-		} else {
-			monye = String.valueOf(0);
-		}
-		String s = "Статистика по вк-рекламному кабинету:\n" +
-				"Дата: " + simpleDate.format(date) + "\n" +
-				"Количество кликов: " + clicks + "\n" +
-				"Денег потрачено: " + monye + "\n" +
-				"Баланс: " + balance.getString("response");
-		System.out.println(s);
-		return "redirect:/client";
-	}
-
-	public static void main(String[] args) throws JSONException {
-    //      String jstr =  "{\"response\":[{\"stats\":[],\"id\":1605137078,\"type\":\"office\"}]}";
-		  String jstr1 = "{\"response\":[{\"id\": 1605137078,\"type\": \"office\",\"stats\": []}]}";
-		String jstr2 = "{\"response\":[{\"id\": 1605137078,\"type\": \"office\",\"stats\": [{\"clicks\":\"55\", \"spent\":\"120\"}]}]}";
-        JSONArray responce = new JSONObject(jstr2).getJSONArray("response");
-        StringBuilder statStr = new StringBuilder("Статистика по вк-рекламному кабинету:\n");
-		for (int i = 0; i < responce.length() ; i++) {
-			JSONObject item = responce.getJSONObject(i);
-			if(item.has("stats")) {
-				JSONArray stats = item.getJSONArray("stats");
-				for (int j = 0; j < stats.length() ; j++) {
-					JSONObject aim = stats.getJSONObject(j);
-					if(aim.has("clicks")) {
-						statStr.append("Количество кликов: " + aim.getLong("clicks") + "\n");
-					}
-					if (aim.has("spent")) {
-						statStr.append("Денег потрачено: " + aim.getString("spent") + "\n");
-					}
-				}
-			}
-		}
-		System.out.println(statStr);
+		String jString = new JSONObject(advertisement3.executeAsString()).toString();
+        JSONArray responce = new JSONObject(jString).getJSONArray("response");
+        StringBuilder statStr = new StringBuilder("Статистика по вк-рекламному кабинету:").append(System.lineSeparator());
+        statStr.append("Дата: ").append(simpleDate.format(date)).append(System.lineSeparator());
+        for (int i = 0; i < responce.length() ; i++) {
+            JSONObject item = responce.getJSONObject(i);
+            if(item.has("stats")) {
+                JSONArray stats = item.getJSONArray("stats");
+                for (int j = 0; j < stats.length() ; j++) {
+                    JSONObject aim = stats.getJSONObject(j);
+                    if(aim.has("clicks")) {
+                        clicks = aim.getLong("clicks");
+                        statStr.append("Количество кликов: ").append(clicks).append(System.lineSeparator());
+                    }
+                    if (aim.has("spent")) {
+                        spent = aim.getString("spent");
+                        statStr.append("Денег потрачено: ").append(spent).append(System.lineSeparator());
+                    }
+                }
+            }
+        }
+        statStr.append("Баланс: ").append(budget);
+        System.out.println(statStr);
+		return statStr.toString();
 	}
 
 }
