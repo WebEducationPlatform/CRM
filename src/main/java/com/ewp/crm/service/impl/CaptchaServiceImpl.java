@@ -8,13 +8,14 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -109,6 +110,7 @@ public class CaptchaServiceImpl implements CaptchaService {
         return Optional.ofNullable(solution);
     }
 
+    @SuppressWarnings("deprecation")
     private static String getByteArrayFromImageURL(String url) {
         try {
             URL imageUrl = new URL(url);
@@ -121,7 +123,7 @@ public class CaptchaServiceImpl implements CaptchaService {
                 baos.write(buffer, 0, read);
             }
             baos.flush();
-            return Base64.encode(baos.toByteArray());
+            return new String(Base64.encode(baos.toByteArray()));
         } catch (Exception e) {
             logger.error("Error converting captcha image to bytes", e);
         }
