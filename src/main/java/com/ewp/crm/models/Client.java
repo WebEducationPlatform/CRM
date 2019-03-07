@@ -554,6 +554,14 @@ public class Client implements Serializable, Diffable<Client> {
                 .build();
     }
 
+    public DiffResult diffOnStudentEdit(Client client) {
+        return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
+                .append("Имя", this.name, client.name)
+                .append("Фамилия", this.lastName, client.lastName)
+                .append("E-mail", this.email, client.email)
+                .build();
+    }
+
     public enum Sex {
         MALE, FEMALE
     }
