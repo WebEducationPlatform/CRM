@@ -129,10 +129,12 @@
                                 </label>
                             </td>
                             <td width="25%">
-                                <label th:for="${student.id+'_notify_vk'}" th:hidden="${!#strings.contains(student.client.socialProfiles,'vk.com')}">
+                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'vk'}" th:remove="tag">
+                                <label th:for="${student.id+'_notify_vk'}">
                                     VK:
-                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/>
+                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}"/>
                                 </label>
+                                </span>
                             </td>
                             <td width="25%">
                                 <label th:for="${student.id+'_notify_all'}">
