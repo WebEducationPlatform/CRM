@@ -103,7 +103,6 @@ public class StudentRestController {
         if (status != null) {
             client.setStatus(status);
             clientService.updateClient(client);
-            studentService.delete(id);
             return HttpStatus.OK;
         }
         logger.info("Default statuses for rejected students not set!");
