@@ -102,11 +102,14 @@ public class StudentRestController {
         Student student = studentService.get(id);
         Client client = student.getClient();
         client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT, message));
-        Status status = statusService.get(properties.getClientRejectStudentStatus());
-        if (status != null) {
-            client.setStatus(status);
-            clientService.updateClient(client);
-            return HttpStatus.OK;
+        Long statusId = properties.getClientRejectStudentStatus();
+        if (statusId != null) {
+            Status status = statusService.get(statusId);
+            if (status != null) {
+                client.setStatus(status);
+                clientService.updateClient(client);
+                return HttpStatus.OK;
+            }
         }
         logger.info("Default statuses for rejected students not set!");
         return HttpStatus.CONFLICT;
