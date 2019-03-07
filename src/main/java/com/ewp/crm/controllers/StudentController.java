@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.StudentService;
@@ -12,9 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/student")

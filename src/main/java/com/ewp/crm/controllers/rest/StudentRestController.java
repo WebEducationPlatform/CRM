@@ -69,7 +69,10 @@ public class StudentRestController {
         Student previous = studentService.get(student.getId());
         Client updatedClient = student.getClient();
         Client client = previous.getClient();
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT));
+        ClientHistory history = clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT);
+        if (history.getLink() != null && !history.getLink().isEmpty()) {
+            client.addHistory(history);
+        }
         if (updatedClient.getName() != null && !updatedClient.getName().isEmpty()) {
             client.setName(updatedClient.getName());
         }
