@@ -1,13 +1,11 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.SlackProfile;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -24,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -48,8 +45,6 @@ public class SlackRestController {
     private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
 
     private final SlackService slackService;
-    private final StatusService statusService;
-    private final ProjectPropertiesService propertiesService;
     private String inviteToken;
 
     @Autowired
@@ -66,8 +61,6 @@ public class SlackRestController {
             logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
         }
         this.slackService = slackService;
-        this.statusService = statusService;
-        this.propertiesService = propertiesService;
     }
 
     @PostMapping
@@ -94,34 +87,6 @@ public class SlackRestController {
             logger.warn("Cant read json form Slack", e);
         }
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/get/students/statuses")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<String> getAllStatusForStudents() {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final ObjectMapper mapper = new ObjectMapper()
-                .configure(SerializationFeature.INDENT_OUTPUT, true);
-        try {
-            mapper.writeValue(out, statusService.getAllStatusesForStudents());
-        } catch (IOException e) {
-            logger.warn("Cant wrap json", e);
-        }
-        final byte[] data = out.toByteArray();
-        return new ResponseEntity<>(new String(data), HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/set/default/{statusId}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity setDefaultStatus(@PathVariable("statusId") Long id) {
-        ProjectProperties projectProperties = propertiesService.get();
-        if (projectProperties == null) {
-            propertiesService.saveAndFlash(new ProjectProperties());
-            projectProperties = propertiesService.get();
-        }
-        projectProperties.setDefaultStatusId(id);
-        propertiesService.saveAndFlash(projectProperties);
-        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/get/emails")
