@@ -198,13 +198,13 @@
                 <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
                      th:text="${client.name} + ' ' + ${client.lastName}"
                      th:attr="client-id=${client.id} "
-                     th:onclick="'changeUrl('+ ${client.id} +')'">
+                     th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
 
                 </div>
 
                 <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
                      th:attr="client-id=${client.id} "
-                     th:onclick="'changeUrl('+ ${client.id} +')'">
+                     th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
 
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
