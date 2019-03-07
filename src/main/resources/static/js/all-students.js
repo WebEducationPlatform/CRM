@@ -103,7 +103,6 @@ $('body').on('focus', '[contenteditable]', function() {
 }).on('keydown', '[contenteditable]', function(e) {
     if (e.keyCode === 13) {
         updateStudent(lastClickedId);
-        lastClickedId = -1;
         return false;
     }
 });
