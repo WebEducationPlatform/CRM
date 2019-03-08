@@ -1,5 +1,5 @@
 $('.checkbox').click(function() {
-    var table, rows, i, status;
+    var table, rows, i, status, json;
     table = document.getElementById("students-table");
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
@@ -8,8 +8,48 @@ $('.checkbox').click(function() {
             rows[i].style.display = this.checked ? '' : 'none';
         }
     }
+    json = '{';
+    $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
+        let input = v.getElementsByTagName("INPUT")[0];
+        if (input.checked) {
+            json += "'" + input.id + "':'true',";
+        }
+    });
+    json = json.replace(new RegExp(',$'), '}');
+    $.ajax({
+        async: true,
+        type: 'POST',
+        url: '/admin/rest/user/filters',
+        data: {'filters' : json}
+    });
     calc_info_values();
 });
+
+$(document).ready(function() {
+    renderStudentsTable();
+    calc_info_values();
+});
+
+function renderStudentsTable() {
+    var table, rows, i, status;
+    table = document.getElementById("students-table");
+    rows = table.rows;
+    for (i = 1; i < rows.length; i++) {
+        status = rows[i].getElementsByTagName("TD")[0];
+        rows[i].style.display = 'none';
+    }
+    $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
+        let input = v.getElementsByTagName("INPUT")[0];
+        if (input.checked) {
+            for (i = 1; i < rows.length; i++) {
+                status = rows[i].getElementsByTagName("TD")[0];
+                if (input.id == status.innerHTML) {
+                    rows[i].style.display = '';
+                }
+            }
+        }
+    });
+}
 
 function calc_info_values() {
     try {
@@ -365,7 +405,7 @@ $('.button_delete').click(function () {
 $('#reject_student').on('click', function () {
     var id = $('#student-reject-modal').data('reject-student-id');
     var message = $('#reject-reason').val();
-
+    var defaultStatus = $('#defaultStatusForRejectedStudent').text();
     $.ajax({
         type: 'POST',
         url: '/rest/student/reject/' + id,
@@ -375,8 +415,10 @@ $('#reject_student').on('click', function () {
         },
         success: function (response) {
             $('#student-reject-modal').modal('hide');
-            if (response != 'CONFLICT') {
-                $('#row_' + id).hide();
+            if (response !== 'CONFLICT') {
+                $('#status_' + id).text(defaultStatus);
+                renderStudentsTable();
+                calc_info_values();
             } else {
                 alert('Probably default statuses is not set')
             }
