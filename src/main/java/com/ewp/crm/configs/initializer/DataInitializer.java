@@ -13,10 +13,7 @@ import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 public class DataInitializer {
@@ -90,16 +87,16 @@ public class DataInitializer {
         roleService.add(roleOwner);
         roleService.add(roleMentor);
 
-        SocialProfileType VK = new SocialProfileType("vk");
+        SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
-		SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType TELEGRAM = new SocialProfileType("telegram");
         SocialProfileType whatsApp = new SocialProfileType("whatsapp");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
-		socialProfileTypeService.add(TELEGRAM);
-		socialProfileTypeService.add(whatsApp);
+        socialProfileTypeService.add(TELEGRAM);
+        socialProfileTypeService.add(whatsApp);
 
         User admin = new User(
                 "Stanislav",
@@ -221,10 +218,10 @@ public class DataInitializer {
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
-        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
-        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
-        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
-        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
+        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
+        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
+        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", LocalDate.parse("1975-03-10"), Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", LocalDate.parse("1995-05-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
         client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
         client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
         client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));
@@ -233,14 +230,22 @@ public class DataInitializer {
         client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
         client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook"))));
-        client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook"))));
-        client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook"))));
-        client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-4", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook"))));
+        List<SocialProfile> spList1 = new ArrayList<>();
+        spList1.add(new SocialProfile("https://vk.com/id1", socialProfileTypeService.getByTypeName("vk")));
+        spList1.add(  new SocialProfile("https://fb.com/id1", socialProfileTypeService.getByTypeName("facebook")));
+        client1.setSocialProfiles(spList1);
+        List<SocialProfile> spList2 = new ArrayList<>();
+        spList2.add(new SocialProfile("https://vk.com/id6", socialProfileTypeService.getByTypeName("vk")));
+        spList2.add(  new SocialProfile("https://fb.com/id6", socialProfileTypeService.getByTypeName("facebook")));
+        client2.setSocialProfiles(spList2);
+        List<SocialProfile> spList3 = new ArrayList<>();
+        spList3.add(new SocialProfile("https://vk.com/id7", socialProfileTypeService.getByTypeName("vk")));
+        spList3.add(  new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook")));
+        client3.setSocialProfiles(spList3);
+        List<SocialProfile> spList4 = new ArrayList<>();
+        spList4.add(new SocialProfile("https://vk.com/id8", socialProfileTypeService.getByTypeName("vk")));
+        spList4.add(  new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook")));
+        client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
         vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
@@ -292,7 +297,7 @@ public class DataInitializer {
         Faker faker = new Faker();
         List<Client> list = new LinkedList<>();
         for (int i = 0; i < 20; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
+            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("trialLearnStatus"));
             client.addHistory(clientHistoryService.createHistory("инициализация crm"));
             list.add(client);
         }
@@ -300,7 +305,7 @@ public class DataInitializer {
         list.clear();
 
         for (int i = 0; i < 50; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("endLearningStatus"));
+            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("endLearningStatus"));
             client.addHistory(clientHistoryService.createHistory("инициализация crm"));
             list.add(client);
         }
@@ -314,20 +319,17 @@ public class DataInitializer {
                         statusService.getStatusByName("trialLearnStatus").getId()
                 ));
 
+
         VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Фамилия", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Номер телефона", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Ваш skype для первого созвона с ментором (необязательно)", "Дополнительная информация");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Когда удобно начать первый пробный день?", "Дополнительная информация");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
         vkRequestFormService.addVkRequestForm(vkRequestForm3);
         vkRequestFormService.addVkRequestForm(vkRequestForm4);
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
-        vkRequestFormService.addVkRequestForm(vkRequestForm6);
-        vkRequestFormService.addVkRequestForm(vkRequestForm7);
     }
 }
