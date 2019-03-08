@@ -45,6 +45,7 @@ public class IncomeStringToClient {
             } else {
                 logger.error("The incoming email does not match any of the templates!!!");
             }
+            vkService.fillClientFromProfileVK(client);
         }
         return client;
     }

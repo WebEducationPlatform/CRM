@@ -6,6 +6,7 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -39,12 +38,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final VKService vkService;
 
+    private final PhoneValidator phoneValidator;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.vkService = vkService;
         this.roleService = roleService;
+        this.phoneValidator = phoneValidator;
     }
 
     @Override
@@ -127,8 +129,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         Client existClient = null;
 
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
+            client.setCanCall(true);
             existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
 
         }
@@ -230,31 +234,43 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         checkSocialIds(client);
 
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
+            client.setCanCall(true);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-            if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
-        }
-        clientRepository.saveAndFlush(client);
-    }
-
-    private void phoneNumberValidation(Client client) {
-        String phoneNumber = client.getPhoneNumber();
-        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-        Matcher matcher = pattern.matcher(phoneNumber);
-        if (matcher.matches()) {
-            client.setCanCall(true);
-            if (phoneNumber.startsWith("8")) {
-                phoneNumber = phoneNumber.replaceFirst("8", "7");
-            }
-            client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-                    .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
         }
+        //checkSocialLinks(client);
+        clientRepository.saveAndFlush(client);
     }
+
+//    private void checkSocialLinks(Client client) {
+//        for (int i = 0; i < client.getSocialProfiles().size(); i++) {
+//            String link = client.getSocialProfiles().get(i).getSocialId();
+//            SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
+//            if (type.getName().equals("unknown")) {
+//                if (!link.startsWith("https")) {
+//                    if (link.startsWith("http")) {
+//                        link = link.replaceFirst("http", "https");
+//                    } else {
+//                        link = "https://" + link;
+//                    }
+//                }
+//            } else {
+//                int indexOfLastSlash = link.lastIndexOf("/");
+//                if (indexOfLastSlash != -1) {
+//                    link = link.substring(indexOfLastSlash + 1);
+//                }
+//                link = "https://" + type.getName() + ".com/" + link;
+//            }
+//            client.getSocialProfiles().get(i).setSocialId(link);
+//        }
+//    }
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
@@ -296,14 +312,19 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void refactorDataBase() {
         getAll().forEach(c -> c.getSocialProfiles().forEach(p -> {
-                    if (p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
-                        Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
-                        if (id.isPresent()) {
-                            p.setSocialId(String.valueOf(id.get()));
-                            updateClient(c);
-                        }
-                    }
+            if (p.getSocialId() == null) {
+                p.setSocialId("-1");
+            }
+            if (p.getSocialId() != null && p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
+                Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
+                if (id.isPresent()) {
+                    p.setSocialId(String.valueOf(id.get()));
+                    updateClient(c);
+                } else {
+                    p.setSocialId("-1");
+                    updateClient(c);
                 }
-        ));
+            }
+        }));
     }
 }
