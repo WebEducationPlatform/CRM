@@ -1,12 +1,19 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.ClientFeedback;
+import java.util.List;
 
 public interface ClientFeedbackService {
 
     ClientFeedback addFeedback(ClientFeedback feedback);
 
-    ClientFeedback createFeedback(String socialurl, String text, String videoUrl);
+    ClientFeedback createFeedback(String socialUrl, String text, String videoUrl);
 
-    //List<Feedback> getAllFeedbacks();
+    List<ClientFeedback> getAllByClientId(Long id);
+
+    List<ClientFeedback> getAllFeedback();
+
+    void deleteFeedback(Long id);
+
+    void updateFeedback(ClientFeedback feedback);
 }

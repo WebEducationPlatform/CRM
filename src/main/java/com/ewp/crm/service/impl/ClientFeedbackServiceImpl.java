@@ -5,6 +5,7 @@ import com.ewp.crm.repository.interfaces.ClientFeedbackRepository;
 import com.ewp.crm.service.interfaces.ClientFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class ClientFeedbackServiceImpl implements ClientFeedbackService {
@@ -22,7 +23,31 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
     }
 
     @Override
-    public ClientFeedback createFeedback(String socialurl, String text, String videoUrl) {
-        return new ClientFeedback(socialurl,text,videoUrl);
+    public ClientFeedback createFeedback(String socialUrl, String text, String videoUrl) {
+        return new ClientFeedback(socialUrl,text,videoUrl);
+    }
+
+    @Override
+    public List<ClientFeedback> getAllByClientId(Long id) {
+        return clientFeedbackRepository.getAllByClientId(id);
+    }
+
+    @Override
+    public List<ClientFeedback> getAllFeedback() {
+        return clientFeedbackRepository.findAll();
+    }
+
+    @Override
+    public void deleteFeedback(Long id) {
+        clientFeedbackRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateFeedback(ClientFeedback feedback) {
+        ClientFeedback newFeedback = clientFeedbackRepository.getClientFeedbackById(feedback.getId());
+        newFeedback.setSocialUrl(feedback.getSocialUrl());
+        newFeedback.setText(feedback.getText());
+        newFeedback.setVideoUrl(feedback.getVideoUrl());
+        clientFeedbackRepository.saveAndFlush(newFeedback);
     }
 }
