@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -21,6 +23,13 @@ public class ClientFeedback {
 
     @Column(name = "video_url")
     private String videoUrl;
+
+    @JsonBackReference
+    @OneToOne
+    @JoinTable(name = "feedback_client",
+            joinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))},
+            inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
+    private Client client;
 
     public ClientFeedback() {}
 
@@ -56,6 +65,14 @@ public class ClientFeedback {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     @Override
