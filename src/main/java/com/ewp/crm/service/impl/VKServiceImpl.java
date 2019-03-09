@@ -23,7 +23,7 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.springframework.security.crypto.codec.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -1053,8 +1053,8 @@ public class VKServiceImpl implements VKService {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     private static String getByteArrayFromImageURL(String url) {
-        String result;
         try {
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
@@ -1066,12 +1066,11 @@ public class VKServiceImpl implements VKService {
                 baos.write(buffer, 0, read);
             }
             baos.flush();
-            result = Base64.encode(baos.toByteArray());
+            return new String(Base64.encode(baos.toByteArray()));
         } catch (Exception e) {
             logger.error("Failed to get array from image url " + url, e);
-            result = "";
         }
-        return result;
+        return null;
     }
 
     private String getResultCaptcha(String taskId) throws JSONException, IOException {

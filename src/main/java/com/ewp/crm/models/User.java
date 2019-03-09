@@ -146,6 +146,11 @@ public class User implements UserDetails {
 	@Column(name = "color_background")
 	private String colorBackground;
 
+	/**
+	 * Настройки фильтров на странице Все студенты
+	 */
+	@Column(name = "student_page_filters")
+	private String studentPageFilters;
 
 	public User() {
 		this.isEnabled = false;
@@ -359,6 +364,14 @@ public class User implements UserDetails {
 
 	public void setNewClienNotifyIsEnabled(boolean newClienNotifyIsEnabled) {
 		this.newClienNotifyIsEnabled = newClienNotifyIsEnabled;
+	}
+
+	public String getStudentPageFilters() {
+		return studentPageFilters;
+	}
+
+	public void setStudentPageFilters(String studentPageFilters) {
+		this.studentPageFilters = studentPageFilters;
 	}
 
 	@Override

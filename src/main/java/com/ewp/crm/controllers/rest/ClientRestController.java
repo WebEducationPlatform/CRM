@@ -268,7 +268,7 @@ public class ClientRestController {
 	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-
+		String separator = "\r\n";
 		String path = "DownloadData";
 		File dir = new File(path);
 		if (!dir.exists()) {

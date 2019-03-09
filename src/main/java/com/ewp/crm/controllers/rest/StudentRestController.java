@@ -69,7 +69,10 @@ public class StudentRestController {
         Student previous = studentService.get(student.getId());
         Client updatedClient = student.getClient();
         Client client = previous.getClient();
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT));
+        ClientHistory history = clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT);
+        if (history.getLink() != null && !history.getLink().isEmpty()) {
+            client.addHistory(history);
+        }
         if (updatedClient.getName() != null && !updatedClient.getName().isEmpty()) {
             client.setName(updatedClient.getName());
         }
@@ -99,11 +102,14 @@ public class StudentRestController {
         Student student = studentService.get(id);
         Client client = student.getClient();
         client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT, message));
-        Status status = statusService.get(properties.getClientRejectStudentStatus());
-        if (status != null) {
-            client.setStatus(status);
-            clientService.updateClient(client);
-            return HttpStatus.OK;
+        Long statusId = properties.getClientRejectStudentStatus();
+        if (statusId != null) {
+            Status status = statusService.get(statusId);
+            if (status != null) {
+                client.setStatus(status);
+                clientService.updateClient(client);
+                return HttpStatus.OK;
+            }
         }
         logger.info("Default statuses for rejected students not set!");
         return HttpStatus.CONFLICT;
