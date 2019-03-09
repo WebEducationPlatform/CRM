@@ -1,5 +1,5 @@
 $('.checkbox').click(function() {
-    var table, rows, i, status;
+    var table, rows, i, status, json;
     table = document.getElementById("students-table");
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
@@ -8,8 +8,48 @@ $('.checkbox').click(function() {
             rows[i].style.display = this.checked ? '' : 'none';
         }
     }
+    json = '{';
+    $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
+        let input = v.getElementsByTagName("INPUT")[0];
+        if (input.checked) {
+            json += "'" + input.id + "':'true',";
+        }
+    });
+    json = json.replace(new RegExp(',$'), '}');
+    $.ajax({
+        async: true,
+        type: 'POST',
+        url: '/admin/rest/user/filters',
+        data: {'filters' : json}
+    });
     calc_info_values();
 });
+
+$(document).ready(function() {
+    renderStudentsTable();
+    calc_info_values();
+});
+
+function renderStudentsTable() {
+    var table, rows, i, status;
+    table = document.getElementById("students-table");
+    rows = table.rows;
+    for (i = 1; i < rows.length; i++) {
+        status = rows[i].getElementsByTagName("TD")[0];
+        rows[i].style.display = 'none';
+    }
+    $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
+        let input = v.getElementsByTagName("INPUT")[0];
+        if (input.checked) {
+            for (i = 1; i < rows.length; i++) {
+                status = rows[i].getElementsByTagName("TD")[0];
+                if (input.id == status.innerHTML) {
+                    rows[i].style.display = '';
+                }
+            }
+        }
+    });
+}
 
 function calc_info_values() {
     try {
@@ -94,6 +134,19 @@ $('body').on('focus', '[contenteditable]', function() {
     }
     const $this = $(this);
     $this.data('before', $this.html());
+}).on('focusout', '[id*="table-body"]', function () {
+    if (lastClickedId != -1) {
+        $('#trial-end-date_' + lastClickedId).addClass('hidden');
+        $('#next-payment-date_' + lastClickedId).addClass('hidden');
+        $('#student-status_' + lastClickedId).addClass('hidden');
+        $('#statusValue_' + lastClickedId).show();
+        $('#trialEndDateValue_' + lastClickedId).show();
+        $('#nextPaymentDateValue_' + lastClickedId).show();
+        updateStudent(lastClickedId);
+        lastClickedId = -1;
+    }
+    const $this = $(this);
+    $this.data('before', $this.html());
 }).on('blur paste', '[contenteditable]', function() {
     const $this = $(this);
     if ($this.data('before') !== $this.html()) {
@@ -103,7 +156,17 @@ $('body').on('focus', '[contenteditable]', function() {
 }).on('keydown', '[contenteditable]', function(e) {
     if (e.keyCode === 13) {
         updateStudent(lastClickedId);
-        lastClickedId = -1;
+        return false;
+    }
+}).on('keydown', 'input[type*="date"]', function (e) {
+    if (e.keyCode === 13) {
+        $('#trial-end-date_' + lastClickedId).addClass('hidden');
+        $('#next-payment-date_' + lastClickedId).addClass('hidden');
+        $('#student-status_' + lastClickedId).addClass('hidden');
+        $('#statusValue_' + lastClickedId).show();
+        $('#trialEndDateValue_' + lastClickedId).show();
+        $('#nextPaymentDateValue_' + lastClickedId).show();
+        updateStudent(lastClickedId);
         return false;
     }
 });
@@ -114,7 +177,7 @@ function changeDateValue(field, id, valueLink, inputLink) {
         case 'add_weeks_button':
             dateArr = $("#" + valueLink + id).text().split('.');
             var d = new Date(dateArr[2], dateArr[1], dateArr[0]);
-            var date = d.getDate() + 14;
+            var date = d.getDate() + 15;
             var newDate = new Date(d.getFullYear(), d.getMonth(), date);
             var month = newDate.getMonth();
             if (month == 0) {
@@ -122,18 +185,14 @@ function changeDateValue(field, id, valueLink, inputLink) {
                 month = 12;
             }
             $('#' + valueLink + id).text((newDate.getDate() < 10 ? '0' : '') + newDate.getDate() + '.' + (month < 10 ? '0' : '') + month + '.' + newDate.getFullYear());
+            $('#' + inputLink + id).val(newDate.getFullYear() + '-' + (month < 10 ? '0' : '') + month + '-' + (newDate.getDate() < 10 ? '0' : '') + newDate.getDate());
             break;
         case 'add_month_button':
             dateArr = $("#" + valueLink + id).text().split('.');
             var d = new Date(dateArr[2], dateArr[1], dateArr[0]);
             var month = d.getMonth() + 1;
             $('#' + valueLink + id).text((d.getDate() < 10 ? '0' : '') + d.getDate() + '.' + (month < 10 ? '0' : '') + month + '.' + d.getFullYear());
-            break;
-        case 'calendar_button':
-            $('#' + valueLink + id).hide();
-            $('#' + inputLink + id).removeClass('hidden');
-            dateArr = $("#" + valueLink + id).text().split('.');
-            $('#' + inputLink + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            $('#' + inputLink + id).val(d.getFullYear() + '-' + (month < 10 ? '0' : '') + month + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate());
             break;
     }
 }
@@ -146,6 +205,7 @@ $('.trial-date-btn').on('click', function () {
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     changeDateValue(field, id, 'trialEndDateValue_', 'trial-end-date_');
     updateStudent(id);
+    return false;
 });
 
 $('#additional-data-clickable-zone').on('click', function () {
@@ -167,29 +227,27 @@ $('.payment-date-btn').on('click', function () {
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     changeDateValue(field, id, 'nextPaymentDateValue_', 'next-payment-date_');
     updateStudent(id);
+    return false;
 });
 
 $('.button_color').on('click', function () {
-    var currentModal = $('#studentColorModal');
-    currentModal.data('clientId', this.value);
-    currentModal.modal('show');
+    $(this).colorpicker({format: 'hex'});
 });
 
-$('#studentColorModal').on('show.bs.modal', function() {
+$('.button_color').colorpicker().on('changeColor', function (e) {
+    let id = $(this)[0].value;
+    let color = e.color.toHex();
+    $('#row_' + id).css({'background-color' : color});
+}).on('hidePicker', function (e) {
+    let id = $(this)[0].value;
+    let color = e.color.toHex();
     $.ajax({
         async: false,
-        type: 'GET',
-        url: '/rest/student/' + $(this).data('clientId'),
-        success: function (student) {
-            $('#reset-color').data('clientId', student.id);
-            $('#update-color').data('clientId', student.id);
-            $('#selected-color').val(student.color);
-            $(this).data('color', student.color);
-            $('#wrap-selected-color').colorpicker('setValue', '#ffffff');
-            if (student.color != null) {
-                $("#wrap-selected-color").colorpicker('setValue', student.color);
-                $("#selected-color").val(student.color);
-            }
+        type: 'POST',
+        url: '/rest/student/color/set/' + id,
+        data: {'color' : color},
+        success: function () {
+            $('#row_' + id).css({'background-color' : color});
         }
     });
 });
@@ -207,27 +265,14 @@ $('#reset-all-colors-btn').on('click', function () {
     });
 });
 
-$('#reset-color').on('click', function () {
-    let id = $(this).data('clientId');
+$('.button_color_reset').on('click', function () {
+    let id = $(this).val();
     $.ajax({
         async: false,
         type: 'POST',
         url: '/rest/student/color/reset/' + id,
         success: function () {
             $('#row_' + id).css({'background-color' : ''});
-        }
-    });
-});
-
-$('#update-color').on('click', function () {
-    let id = $(this).data('clientId');
-    $.ajax({
-        async: false,
-        type: 'POST',
-        url: '/rest/student/color/set/' + id,
-        data: {'color' : $('#selected-color').val()},
-        success: function () {
-            $('#row_' + id).css({'background-color' : $('#selected-color').val()});
         }
     });
 });
@@ -251,6 +296,18 @@ $('td').click(function () {
     lastClickedId = id;
     $('#editBtn' + id).removeAttr('disabled');
     switch (field) {
+        case 'trialEndDate':
+            $('#trialEndDateValue_' + id).hide();
+            $('#trial-end-date_' + id).removeClass('hidden');
+            dateArr = $("#trialEndDateValue_" + id).text().split('.');
+            $('#trial-end-date_' + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            break;
+        case 'nextPaymentDate':
+            $('#nextPaymentDateValue_' + id).hide();
+            $('#next-payment-date_' + id).removeClass('hidden');
+            dateArr = $("#nextPaymentDateValue_" + id).text().split('.');
+            $('#next-payment-date_' + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            break;
         case 'status':
             for(i=0; i<clickedStatus.length; i++) {
                 if (clickedStatus[i] == id) {
@@ -288,18 +345,12 @@ $("input[type='date']").on('change', function() {
         case 'trial-end-date':
             var arr = $(this).val().split('-');
             var date = arr[2] + '.' + arr[1] + '.' + arr[0];
-            $('#'+this.id).addClass('hidden');
             $('#trialEndDateValue_' + id).text(date);
-            $('#trialEndDateValue_' + id).show();
-            updateStudent(id);
             break;
         case 'next-payment-date':
             var arr = $(this).val().split('-');
             var date = arr[2] + '.' + arr[1] + '.' + arr[0];
-            $('#'+this.id).addClass('hidden');
             $('#nextPaymentDateValue_' + id).text(date);
-            $('#nextPaymentDateValue_' + id).show();
-            updateStudent(id);
             break;
     }
 });
@@ -382,7 +433,7 @@ $('.button_delete').click(function () {
 $('#reject_student').on('click', function () {
     var id = $('#student-reject-modal').data('reject-student-id');
     var message = $('#reject-reason').val();
-
+    var defaultStatus = $('#defaultStatusForRejectedStudent').text();
     $.ajax({
         type: 'POST',
         url: '/rest/student/reject/' + id,
@@ -392,8 +443,10 @@ $('#reject_student').on('click', function () {
         },
         success: function (response) {
             $('#student-reject-modal').modal('hide');
-            if (response != 'CONFLICT') {
-                $('#row_' + id).hide();
+            if (response !== 'CONFLICT') {
+                $('#status_' + id).text(defaultStatus);
+                renderStudentsTable();
+                calc_info_values();
             } else {
                 alert('Probably default statuses is not set')
             }
