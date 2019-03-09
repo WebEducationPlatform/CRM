@@ -99,14 +99,14 @@
                 <td th:id="${'trialEndDate_' + student.id}">
                     <span th:id="${'trialEndDateValue_' + student.id}" th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></span>
                     <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
-                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+2W</button>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+15D</button>
                     <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+1M</button>
                     <button th:id="${'calendar_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">...</button>
                 </td>
                 <td th:id="${'nextPaymentDate_' + student.id}">
                     <span th:id="${'nextPaymentDateValue_' + student.id}" th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></span>
                     <input th:id="${'next-payment-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
-                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+2W</button>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+15D</button>
                     <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+1M</button>
                     <button th:id="${'calendar_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">...</button>
                 </td>
