@@ -153,7 +153,7 @@ function changeDateValue(field, id, valueLink, inputLink) {
         case 'add_weeks_button':
             dateArr = $("#" + valueLink + id).text().split('.');
             var d = new Date(dateArr[2], dateArr[1], dateArr[0]);
-            var date = d.getDate() + 14;
+            var date = d.getDate() + 15;
             var newDate = new Date(d.getFullYear(), d.getMonth(), date);
             var month = newDate.getMonth();
             if (month == 0) {
