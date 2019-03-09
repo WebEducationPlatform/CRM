@@ -40,14 +40,6 @@ public class AdminRestClientController {
         this.studentService = studentService;
     }
 
-    // TODO Удалить после первого использования
-    @GetMapping(value = "/admin/doRefactor")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity refactorDataBase() {
-        clientService.refactorDataBase();
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
     @PostMapping(value = "/add")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity addClient(@RequestBody Client client,
