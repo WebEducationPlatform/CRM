@@ -72,7 +72,7 @@ public class IPTelephonyRestController {
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public byte[] getCallRecord(@PathVariable String file) throws IOException {
-		Path fileLocation = Paths.get("CallRecords\\" + file);
+		Path fileLocation = Paths.get("CallRecords/" + file);
 		return Files.readAllBytes(fileLocation);
 	}
 
