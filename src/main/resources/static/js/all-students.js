@@ -134,6 +134,19 @@ $('body').on('focus', '[contenteditable]', function() {
     }
     const $this = $(this);
     $this.data('before', $this.html());
+}).on('focusout', '[id*="table-body"]', function () {
+    if (lastClickedId != -1) {
+        $('#trial-end-date_' + lastClickedId).addClass('hidden');
+        $('#next-payment-date_' + lastClickedId).addClass('hidden');
+        $('#student-status_' + lastClickedId).addClass('hidden');
+        $('#statusValue_' + lastClickedId).show();
+        $('#trialEndDateValue_' + lastClickedId).show();
+        $('#nextPaymentDateValue_' + lastClickedId).show();
+        updateStudent(lastClickedId);
+        lastClickedId = -1;
+    }
+    const $this = $(this);
+    $this.data('before', $this.html());
 }).on('blur paste', '[contenteditable]', function() {
     const $this = $(this);
     if ($this.data('before') !== $this.html()) {
@@ -142,6 +155,17 @@ $('body').on('focus', '[contenteditable]', function() {
     }
 }).on('keydown', '[contenteditable]', function(e) {
     if (e.keyCode === 13) {
+        updateStudent(lastClickedId);
+        return false;
+    }
+}).on('keydown', 'input[type*="date"]', function (e) {
+    if (e.keyCode === 13) {
+        $('#trial-end-date_' + lastClickedId).addClass('hidden');
+        $('#next-payment-date_' + lastClickedId).addClass('hidden');
+        $('#student-status_' + lastClickedId).addClass('hidden');
+        $('#statusValue_' + lastClickedId).show();
+        $('#trialEndDateValue_' + lastClickedId).show();
+        $('#nextPaymentDateValue_' + lastClickedId).show();
         updateStudent(lastClickedId);
         return false;
     }
@@ -161,18 +185,14 @@ function changeDateValue(field, id, valueLink, inputLink) {
                 month = 12;
             }
             $('#' + valueLink + id).text((newDate.getDate() < 10 ? '0' : '') + newDate.getDate() + '.' + (month < 10 ? '0' : '') + month + '.' + newDate.getFullYear());
+            $('#' + inputLink + id).val(newDate.getFullYear() + '-' + (month < 10 ? '0' : '') + month + '-' + (newDate.getDate() < 10 ? '0' : '') + newDate.getDate());
             break;
         case 'add_month_button':
             dateArr = $("#" + valueLink + id).text().split('.');
             var d = new Date(dateArr[2], dateArr[1], dateArr[0]);
             var month = d.getMonth() + 1;
             $('#' + valueLink + id).text((d.getDate() < 10 ? '0' : '') + d.getDate() + '.' + (month < 10 ? '0' : '') + month + '.' + d.getFullYear());
-            break;
-        case 'calendar_button':
-            $('#' + valueLink + id).hide();
-            $('#' + inputLink + id).removeClass('hidden');
-            dateArr = $("#" + valueLink + id).text().split('.');
-            $('#' + inputLink + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            $('#' + inputLink + id).val(d.getFullYear() + '-' + (month < 10 ? '0' : '') + month + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate());
             break;
     }
 }
@@ -185,6 +205,7 @@ $('.trial-date-btn').on('click', function () {
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     changeDateValue(field, id, 'trialEndDateValue_', 'trial-end-date_');
     updateStudent(id);
+    return false;
 });
 
 $('#additional-data-clickable-zone').on('click', function () {
@@ -206,6 +227,7 @@ $('.payment-date-btn').on('click', function () {
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     changeDateValue(field, id, 'nextPaymentDateValue_', 'next-payment-date_');
     updateStudent(id);
+    return false;
 });
 
 $('.button_color').on('click', function () {
@@ -274,6 +296,18 @@ $('td').click(function () {
     lastClickedId = id;
     $('#editBtn' + id).removeAttr('disabled');
     switch (field) {
+        case 'trialEndDate':
+            $('#trialEndDateValue_' + id).hide();
+            $('#trial-end-date_' + id).removeClass('hidden');
+            dateArr = $("#trialEndDateValue_" + id).text().split('.');
+            $('#trial-end-date_' + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            break;
+        case 'nextPaymentDate':
+            $('#nextPaymentDateValue_' + id).hide();
+            $('#next-payment-date_' + id).removeClass('hidden');
+            dateArr = $("#nextPaymentDateValue_" + id).text().split('.');
+            $('#next-payment-date_' + id).val(dateArr[2] + '-' + dateArr[1] + '-' + dateArr[0]);
+            break;
         case 'status':
             for(i=0; i<clickedStatus.length; i++) {
                 if (clickedStatus[i] == id) {
@@ -311,18 +345,12 @@ $("input[type='date']").on('change', function() {
         case 'trial-end-date':
             var arr = $(this).val().split('-');
             var date = arr[2] + '.' + arr[1] + '.' + arr[0];
-            $('#'+this.id).addClass('hidden');
             $('#trialEndDateValue_' + id).text(date);
-            $('#trialEndDateValue_' + id).show();
-            updateStudent(id);
             break;
         case 'next-payment-date':
             var arr = $(this).val().split('-');
             var date = arr[2] + '.' + arr[1] + '.' + arr[0];
-            $('#'+this.id).addClass('hidden');
             $('#nextPaymentDateValue_' + id).text(date);
-            $('#nextPaymentDateValue_' + id).show();
-            updateStudent(id);
             break;
     }
 });
