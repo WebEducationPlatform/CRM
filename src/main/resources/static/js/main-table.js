@@ -1899,6 +1899,17 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
+                    $('#client-date-of-birth').text(client.birthDate);
+                    $('#client-country').text(client.country);
+                    $('#client-city').text(client.city);
+                    $('#client-university').text(client.university);
+                    if (client.requestFrom !== null) {
+                        $('#client-request-button').show();
+                        $('#client-request').text(client.requestFrom);
+                    } else {
+                        $('#client-request-button').hide();
+                        $('#client-request').empty();
+                    }
 
                     // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
@@ -2477,3 +2488,12 @@ function slackInvite(email) {
         }
     })
 }
+
+$('#client-request-button').click( () => {
+    var x = document.getElementById("client-request");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+});
