@@ -74,6 +74,9 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "university")
     private String university;
 
+    @Column(name = "request_from")
+    private String requestFrom;
+
     @Column(name = "postponeDate")
     private ZonedDateTime postponeDate;
 
@@ -344,6 +347,14 @@ public class Client implements Serializable, Diffable<Client> {
         this.university = university;
     }
 
+    public String getRequestFrom() {
+        return requestFrom;
+    }
+
+    public void setRequestFrom(String requestFrom) {
+        this.requestFrom = requestFrom;
+    }
+
     public void setAge(byte age) {
         this.age = age;
     }
@@ -511,13 +522,14 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(skype, client.skype) &&
                 Objects.equals(postponeDate, client.postponeDate)&&
                 Objects.equals(birthDate, client.birthDate) &&
-                Objects.equals(university, client.university);
+                Objects.equals(university, client.university) &&
+                Objects.equals(requestFrom, client.requestFrom);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, lastName, phoneNumber, email, skype, sex, city, country,
-                state, jobs, socialProfiles, postponeDate, birthDate, university);
+                state, jobs, socialProfiles, postponeDate, birthDate, university,requestFrom);
     }
 
     @Override
