@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.CommentAnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CommentAnswerServiceImpl extends CommonServiceImpl<CommentAnswer> implements CommentAnswerService {
 	private final CommentAnswerRepository commentAnswerRepository;
@@ -16,7 +18,7 @@ public class CommentAnswerServiceImpl extends CommonServiceImpl<CommentAnswer> i
 	}
 
 	@Override
-    public CommentAnswer addCommentAnswer(CommentAnswer commentAnswer){
-	    return commentAnswerRepository.saveAndFlush(commentAnswer);
+    public Optional<CommentAnswer> addCommentAnswer(CommentAnswer commentAnswer){
+	    return Optional.of(commentAnswerRepository.saveAndFlush(commentAnswer));
     }
 }

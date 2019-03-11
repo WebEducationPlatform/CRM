@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VkRequestFormServiceImpl implements VkRequestFormService {
@@ -24,8 +25,8 @@ public class VkRequestFormServiceImpl implements VkRequestFormService {
     }
 
     @Override
-    public VkRequestForm getVkRequestFormById(Long id) {
-        return vkRequestFormRepository.getOne(id);
+    public Optional<VkRequestForm> getVkRequestFormById(Long id) {
+        return Optional.of(vkRequestFormRepository.getOne(id));
     }
 
     @Override

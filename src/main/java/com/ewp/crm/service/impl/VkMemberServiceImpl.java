@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VkMemberServiceImpl implements VkMemberService {
@@ -24,8 +25,8 @@ public class VkMemberServiceImpl implements VkMemberService {
     }
 
     @Override
-    public VkMember get(Long id) {
-        return vkMemberRepository.getOne(id);
+    public Optional<VkMember> get(Long id) {
+        return Optional.of(vkMemberRepository.getOne(id));
     }
 
     @Override
@@ -59,7 +60,7 @@ public class VkMemberServiceImpl implements VkMemberService {
     }
 
     @Override
-    public VkMember getVkMemberById(Long id) {
-        return vkMemberRepository.getByVkId(id);
+    public Optional<VkMember> getVkMemberById(Long id) {
+        return Optional.ofNullable(vkMemberRepository.getByVkId(id));
     }
 }

@@ -78,7 +78,7 @@ public class AdminRestUserController {
     public ResponseEntity addUser(@Valid @RequestBody User user,
                                   @AuthenticationPrincipal User currentAdmin) {
         ResponseEntity result;
-        if (userService.getUserByEmail(user.getEmail()) == null) {
+        if (!userService.getUserByEmail(user.getEmail()).isPresent()) {
             user.setEnabled(true);
             userService.add(user);
             result = new ResponseEntity(user, HttpStatus.OK);
