@@ -63,12 +63,12 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         while (matcher.find()) {
             String[] fullName = matcher.group().split(regexForSplit);
             if (fullName.length == 3) {
-                User userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
-                if (Optional.ofNullable(userToNotify).isPresent()) {
-                    if (userToNotify.isEnableMailNotifications()) {
-                        mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
+                Optional<User> userToNotify = userService.getUserByFirstNameAndLastName(fullName[1], fullName[2]);
+                if (userToNotify.isPresent()) {
+                    if (userToNotify.get().isEnableMailNotifications()) {
+                        mailSendService.sendNotificationMessage(userToNotify.get(), notificationMessage);
                     }
-                    Notification notification = new Notification(client, userToNotify, Notification.Type.COMMENT);
+                    Notification notification = new Notification(client, userToNotify.get(), Notification.Type.COMMENT);
                     notificationService.add(notification);
                 }
             }

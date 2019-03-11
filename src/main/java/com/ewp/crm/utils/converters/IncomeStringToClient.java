@@ -179,16 +179,15 @@ public class IncomeStringToClient {
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")) {
-                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
+                socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
             } else {
                 socialProfile.setSocialId(vkService.getIdFromLink(link));
-                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
+                socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
-
-            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("facebook"));
+            socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);
         } else {
-            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
+            socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
         }
         return socialProfile;
     }

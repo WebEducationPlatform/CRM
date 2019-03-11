@@ -8,17 +8,17 @@ import java.util.Optional;
 
 public interface WhatsappMessageService {
 
-    WhatsappMessage findById(String id);
+    Optional<WhatsappMessage> findById(String id);
 
     List<WhatsappMessage> findTop40BySeenFalseAndClient_IdOrderByTimeDesc(long clientId);
 
     long countAllBySeenFalseAndClient_Id(long clientId);
 
-    WhatsappMessage findByMessageNumber(long messageNumber);
+    Optional<WhatsappMessage> findByMessageNumber(long messageNumber);
 
     List<WhatsappMessage> findAllByClient_Id(long clientId);
 
-    WhatsappMessage save(WhatsappMessage whatsappMessage);
+    Optional<WhatsappMessage> save(WhatsappMessage whatsappMessage);
 
     Optional<WhatsappMessage> findTopByClient_IdAndSeenTrueAndFromMeTrueOrderByTimeDesc(long clientId);
 
@@ -26,5 +26,5 @@ public interface WhatsappMessageService {
 
     List<WhatsappMessage> saveAll(List<WhatsappMessage> newWhatsappMessages);
 
-    WhatsappMessage findTopByFromMeTrueOrderByMessageNumberDesc();
+    Optional<WhatsappMessage> findTopByFromMeTrueOrderByMessageNumberDesc();
 }

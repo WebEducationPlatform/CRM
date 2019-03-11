@@ -1,6 +1,5 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
@@ -43,8 +42,7 @@ public class StudentController {
         modelAndView.addObject("filters", userFromSession.getStudentPageFilters() != null ? userFromSession.getStudentPageFilters() : "");
         Long defaultStatusId = projectPropertiesService.getOrCreate().getClientRejectStudentStatus();
         if (defaultStatusId != null) {
-            Status status = statusService.get(defaultStatusId);
-            modelAndView.addObject("defaultStatusForRejectedStudent", status.getName());
+            statusService.get(defaultStatusId).ifPresent(s -> modelAndView.addObject("defaultStatusForRejectedStudent", s));
         } else {
             modelAndView.addObject("defaultStatusForRejectedStudent", "");
         }
