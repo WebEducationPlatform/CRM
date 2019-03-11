@@ -110,7 +110,7 @@ public class DataInitializer {
                 null, Client.Sex.MALE.toString(),
                 "Moscow",
                 "Russia",
-                Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
+                Arrays.asList(roleService.getRoleByName("ADMIN"),
                         roleService.getRoleByName("OWNER")),
                 true,
                 true);
@@ -121,7 +121,7 @@ public class DataInitializer {
         userService.add(user1);
 
         User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
-                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
+                "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("MENTOR")),  true, true);
         userService.add(user2);
 
         User user3 = new User("Vlad", "Mentor", "89118465234", "photolife9112@gmail.com",
@@ -220,6 +220,7 @@ public class DataInitializer {
         Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
+
 
         Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
         Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));

@@ -59,6 +59,20 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public Status getStatusByNameWithSortedClients(@AuthenticationPrincipal User userFromSession, String name) {
+		Status status = getStatusByName(name);
+		SortedStatuses sorted;
+		sorted = new SortedStatuses(status, userFromSession);
+		if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
+			SortedStatuses finalSorted = sorted;
+			SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+			status.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
+		}
+
+		return status;
+	}
+
+	@Override
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}

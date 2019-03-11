@@ -19,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -93,22 +92,35 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
         List<Status> statuses;
-        ModelAndView modelAndView;
+        Status singleStatus;
+        ModelAndView modelAndView = null;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         statuses = statusService.getStatusesWithSortedClients(userFromSession);
-        if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
+        if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) ||
+                sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
             modelAndView = new ModelAndView("main-client-table");
-        } else {
-            modelAndView = new ModelAndView("main-client-table-user");
+            modelAndView.addObject("statuses", statuses);
         }
+
+        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))) {
+            modelAndView = new ModelAndView("main-client-table-user");
+            singleStatus = statusService.getStatusByNameWithSortedClients(userFromSession, "trialLearnStatus");
+            modelAndView.addObject("statuses", singleStatus);
+        }
+
+        else if (sessionRoles.contains(roleService.getRoleByName("USER"))) {
+            modelAndView = new ModelAndView("main-client-table-user");
+            modelAndView.addObject("statuses", statuses);
+
+        }
+
         List<User> userList = userService.getAll();
         statuses.sort(Comparator.comparing(Status::getPosition));
         modelAndView.addObject("user", userFromSession);
-        modelAndView.addObject("statuses", statuses);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));

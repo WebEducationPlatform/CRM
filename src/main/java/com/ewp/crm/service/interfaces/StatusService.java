@@ -13,6 +13,8 @@ public interface StatusService {
 
     List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession);
 
+    Status getStatusByNameWithSortedClients(@AuthenticationPrincipal User userFromSession, String name);
+
     Status get(Long id);
 
     Status get(String name);
