@@ -245,6 +245,13 @@
 			<artifactId>dfp-axis</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.8.0-beta4</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
