@@ -1,0 +1,56 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Оформление договора</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="container">
+    <form class="form-contract" action="/g-url" method='POST'>
+        <div class="form-group row">
+            <label for="inputName" class="col-sm-2 col-form-label">Фамилия Имя Очество :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputName" placeholder="пример: Васильев Василий Васильевич" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassportNumber" class="col-sm-2 col-form-label">Серия и номер пасспорта :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputPassportNumber" placeholder="пример: 1234 123456" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassportIssued" class="col-sm-2 col-form-label">Кем выдан(полностью) :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputPassportIssued" placeholder="пример: Отделением УФМС России по гор.Москве по району Аэропорт 19.07.1111" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputBirthday" class="col-sm-2 col-form-label">Дата рождения :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputBirthday" placeholder="пример: 24 июня 1111" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputRegistrationAddress" class="col-sm-2 col-form-label">Адресс Регистрации :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputRegistrationAddress" placeholder="пример: г.Москва 1111 ул.Верхняя Масловка дом 11, кв.11" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputEmail" class="col-sm-2 col-form-label">Емеил :</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="inputEmail" placeholder="пример: primer@test.ru" >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPhoneNumber" class="col-sm-2 col-form-label">Номер телефона :</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="inputPhoneNumber" placeholder="пример: +79876543210" >
+            </div>
+        </div>
+        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" value="Отправить"/>
+    </form>
+</div>
+</body>
+</html>
