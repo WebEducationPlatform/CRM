@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/client/feedback/rest")
@@ -30,28 +31,32 @@ public class ClientFeedbackRestController {
 
     @GetMapping("/all")
     public ResponseEntity getAllFeedback() {
-        List<ClientFeedback> allFeedback = clientFeedbackService.getAllFeedback();
-        if (allFeedback == null || allFeedback.isEmpty()) {
+        Optional<List<ClientFeedback>> clientFeedbacks = clientFeedbackService.getAllFeedback();
+        if(clientFeedbacks.isPresent()) {
+            List<ClientFeedback> allFeedback = clientFeedbacks.get();
+            return ResponseEntity.ok(allFeedback);
+        } else {
             logger.error("not found feedback");
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(allFeedback);
     }
 
     @GetMapping("/{clientId}")
-    public ResponseEntity getFeedbackByClientId(@PathVariable("clientId")Long id) {
-        List<ClientFeedback> clientFeedback = clientFeedbackService.getAllByClientId(id);
-        if (clientFeedback == null || clientFeedback.isEmpty()) {
+    public ResponseEntity getFeedbackByClientId(@PathVariable("clientId") Long id) {
+        Optional<List<ClientFeedback>> clientFeedbacks = clientFeedbackService.getAllByClientId(id);
+        if(clientFeedbacks.isPresent()) {
+            List<ClientFeedback> allClientFeedback = clientFeedbacks.get();
+            return ResponseEntity.ok(allClientFeedback);
+        } else {
             logger.error("no more feedback");
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(clientFeedback);
     }
 
     @DeleteMapping("/{feedbackId}")
-    public ResponseEntity deleteFeedback(@PathVariable("feedbackId")Long id) {
+    public ResponseEntity deleteFeedback(@PathVariable("feedbackId") Long id) {
         clientFeedbackService.deleteFeedback(id);
-        logger.info("feedback id="+id+" deleted");
+        logger.info("feedback id= " + id + "deleted");
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -62,11 +67,17 @@ public class ClientFeedbackRestController {
     }
 
     @PostMapping("/add/{userId}")
-    public ResponseEntity addFeedbackByClientId(@PathVariable("userId")Long id,@RequestBody ClientFeedback feedback) {
-        ClientFeedback newFeedback = clientFeedbackService.addFeedback(feedback);
-        Client client = clientRepository.getClientById(id);
-        client.addFeedback(newFeedback);
-        clientRepository.saveAndFlush(client);
-        return ResponseEntity.ok(HttpStatus.OK);
+    public ResponseEntity addFeedbackByClientId(@PathVariable("userId") Long id,@RequestBody ClientFeedback feedback) {
+        Optional<ClientFeedback> newFeedback = clientFeedbackService.addFeedback(feedback);
+        if(newFeedback.isPresent()) {
+            ClientFeedback newClientFeedback = newFeedback.get();
+            Client client = clientRepository.getClientById(id);
+            client.addFeedback(newClientFeedback);
+            clientRepository.saveAndFlush(client);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } else {
+            logger.warn("Error adding feedback");
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
     }
 }

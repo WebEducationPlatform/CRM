@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.ClientFeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClientFeedbackServiceImpl implements ClientFeedbackService {
@@ -18,8 +19,8 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
     }
 
     @Override
-    public ClientFeedback addFeedback(ClientFeedback feedback) {
-        return clientFeedbackRepository.saveAndFlush(feedback);
+    public Optional<ClientFeedback> addFeedback(ClientFeedback feedback) {
+        return Optional.of(clientFeedbackRepository.saveAndFlush(feedback));
     }
 
     @Override
@@ -28,13 +29,13 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
     }
 
     @Override
-    public List<ClientFeedback> getAllByClientId(Long id) {
-        return clientFeedbackRepository.getAllByClientId(id);
+    public Optional<List<ClientFeedback>> getAllByClientId(Long id) {
+        return Optional.ofNullable(clientFeedbackRepository.getAllByClientId(id));
     }
 
     @Override
-    public List<ClientFeedback> getAllFeedback() {
-        return clientFeedbackRepository.findAll();
+    public Optional<List<ClientFeedback>> getAllFeedback() {
+        return Optional.ofNullable(clientFeedbackRepository.findAll());
     }
 
     @Override
