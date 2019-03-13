@@ -51,14 +51,14 @@ public class IncomeStringToClient {
     }
 
     private static String prepareForm(String text) {
-        return text.substring(text.indexOf("Форма:"), text.length())
+        return text.substring(text.indexOf("Страница:"), text.length())
                 .replaceAll("<b>|</b>|(\\r\\n|\\n)", "");
     }
 
     private Client parseClientFormOne(String form) {
         logger.info("Parsing FormOne...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Страница"), form.length())
                 .replaceAll(" ", "~")
                 .replaceAll("Name~5", "Name")
                 .replaceAll("Email~5", "Email")
@@ -74,6 +74,9 @@ public class IncomeStringToClient {
         client.setCity(clientData.get("Город").replace("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+        if (clientData.containsKey("Запрос")) {
+            client.setRequestFrom(clientData.get("Запрос").replace("~", ""));
+        }
         if (clientData.containsKey("Соцсеть")) {
             String link = clientData.get("Соцсеть").replace("~", "");
             SocialProfile currentSocialProfile = getSocialNetwork(link);

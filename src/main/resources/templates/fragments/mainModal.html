@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
 
@@ -93,6 +94,11 @@
                                     <td id="client-phone"></td>
                                 </tr>
                                 <tr>
+                                    <td>Дата рождения:</td>
+                                    <td id="client-date-of-birth"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Возраст:</td>
                                     <td id="client-age">
                                         <th:block>
@@ -106,8 +112,31 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td>Страна:</td>
+                                    <td id="client-country"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Город:</td>
+                                    <td id="client-city"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Университет:</td>
+                                    <td id="client-university"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Заметка:</td>
                                     <td id="client-label" style="word-wrap:break-word; width: 300px;"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Запрос:</td>
+                                    <td>
+                                        <button id="client-request-button" class="btn btn-default btn-xs">Показать/Скрыть</button>
+                                        <p id="client-request" style="display: none"></p>
+                                    </td>
                                     <td></td>
                                 </tr>
                                 <br/>
