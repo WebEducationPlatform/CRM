@@ -73,4 +73,6 @@ public interface VKService {
 
     void fillClientFromProfileVK(Client client);
 
+    void sendDailyAdvertisementReport(String template);
+
 }

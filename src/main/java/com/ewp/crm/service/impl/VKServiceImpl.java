@@ -23,6 +23,9 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -41,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,12 +74,15 @@ public class VKServiceImpl implements VKService {
     private final VkRequestFormService vkRequestFormService;
     private final VkMemberService vkMemberService;
     private final PhoneValidator phoneValidator;
+    private final RestTemplate restTemplate;
+    private final AdReportService yandexDirectAdReportService;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
     private final String idString = "id";
     private final String zeroString = "0";
     private final String vkURL = "https://vk.com/";
+    private final String dailyReport_URL = "https://api.vk.com/method/messages.send?random_id={random_id}&chat_id={chat_id}&message={message}&access_token={access_token}&v={v}";
 
     private String vkAPI;
     //Токен аккаунта, отправляющего сообщения
@@ -95,6 +102,8 @@ public class VKServiceImpl implements VKService {
     private OAuth20Service service;
     private String firstContactMessage;
     private String managerToken;
+    //ID чата, в который посылается отчёт
+    private String vkReportChatID;
 
     @Value("${userKey}")
     private String userKey;
@@ -113,7 +122,9 @@ public class VKServiceImpl implements VKService {
                          ProjectPropertiesService projectPropertiesService,
                          VkRequestFormService vkRequestFormService,
                          VkMemberService vkMemberService,
-                         PhoneValidator phoneValidator) {
+                         PhoneValidator phoneValidator,
+                         RestTemplate restTemplate,
+                         @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService) {
         this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
@@ -124,6 +135,7 @@ public class VKServiceImpl implements VKService {
         scope = vkConfig.getScope();
         vkAPI = vkConfig.getVkAPIUrl();
         managerToken = vkConfig.getManagerToken();
+        vkReportChatID = vkConfig.getVkReportChatID();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -137,6 +149,8 @@ public class VKServiceImpl implements VKService {
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.firstContactMessage = vkConfig.getFirstContactMessage();
         this.phoneValidator = phoneValidator;
+        this.restTemplate = restTemplate;
+        this.yandexDirectAdReportService = yandexDirectAdReportService;
     }
 
     public HttpClient getHttpClient() {
@@ -1198,6 +1212,58 @@ public class VKServiceImpl implements VKService {
             if (client.getUniversity() == null || client.getUniversity().isEmpty()) {
                 client.setUniversity(vkInfo.getUniversity());
             }
+        }
+    }
+
+    @Override
+    public void sendDailyAdvertisementReport(String template) {
+        //Отчёт с Яндекс Дайрект
+        String balanceFromYandexDirect;
+        String spentFromYandexDirect;
+        try {
+            balanceFromYandexDirect = yandexDirectAdReportService.getYandexDirectBalance() + " рублей";
+        } catch (JSONException | IOException e) {
+            balanceFromYandexDirect = "Ошибка получения баланса";
+            logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API is correct", e);
+        }
+        try {
+            spentFromYandexDirect = yandexDirectAdReportService.getYandexDirectSpentMoney() + " рублей";
+        } catch (JSONException | IOException e) {
+            spentFromYandexDirect = "Ошибка получения отчёта по кампаниям";
+            logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API is correct", e);
+        }
+
+        //Отчёт с ВКонтакте.
+        //ПОКА ЗАГЛУШКА! ОЖИДАЕТСЯ ПОЛУЧЕНИЕ ДАННЫХ С СЕРВИСА РЕКЛАМНОГО КАБИНЕТА ВК!
+        String balanceFromVK = "В процессе разработки";
+        String spentFromVK = "В процессе разработки";
+
+        //Формируем окончательный вид сообщения, заполняя параметры шаблона
+        Map<String, String> params = new HashMap<>();
+        params.put("yandexDirectBalance", balanceFromYandexDirect);
+        params.put("yandexDirectSpent", spentFromYandexDirect);
+        params.put("vkBalance", balanceFromVK);
+        params.put("vkSpent", spentFromVK);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            template = template.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
+
+        //Подставляем параметры, заданные в vk.properties, в URL
+        Map<String, String> urlVariables = new HashMap<>();
+        urlVariables.put("random_id", String.valueOf(new Random().nextInt(32)));
+        urlVariables.put("chat_id", vkReportChatID);
+        urlVariables.put("message", template);
+        urlVariables.put("access_token", communityToken);
+        urlVariables.put("v", version);
+
+        //Посылаем сообщение в диалог
+        ResponseEntity<String> response = restTemplate.postForEntity(dailyReport_URL, null, String.class, urlVariables);
+        //Обрабатываем ответ
+        HttpStatus responseStatusCode = response.getStatusCode();
+        if (responseStatusCode == HttpStatus.OK) {
+            logger.info("Daily advertisement report successfully has been sent to the dialogue");
+        } else {
+            logger.error("Can't send daily advertisement report. Check if the request to the VK API is correct");
         }
     }
 }

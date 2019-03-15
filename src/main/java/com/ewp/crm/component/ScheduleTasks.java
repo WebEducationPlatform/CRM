@@ -15,14 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import java.util.Optional;
 @Component
 @EnableScheduling
 @PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
+@PropertySource(value = "file:./advertisement-report.properties", encoding = "UTF-8")
 public class ScheduleTasks {
 
 	private final VKService vkService;
@@ -88,6 +88,8 @@ public class ScheduleTasks {
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
+	private String adReportTemplate;
+
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
@@ -128,6 +130,7 @@ public class ScheduleTasks {
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
 		this.vkCampaignService = vkCampaignService;
+		this.adReportTemplate=env.getProperty("template.daily.report");
 	}
 
 	private void addClient(Client newClient) {
@@ -286,7 +289,14 @@ public class ScheduleTasks {
 		}
 	}
 
-
+	@Scheduled(cron = "0 0 0 * * *")
+	private void sendDailyAdvertisementReport() {
+        LocalDate date = LocalDate.now().minusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        String formattedDate = date.format(formatter);
+        adReportTemplate = adReportTemplate.replace("{date}", formattedDate);
+        vkService.sendDailyAdvertisementReport(adReportTemplate);
+	}
 
 	@Scheduled(cron = "0 0 10 01 * ?")
 	private void buildAndSendReport() {
