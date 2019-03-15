@@ -245,6 +245,14 @@
 			<artifactId>dfp-axis</artifactId>
 			<version>RELEASE</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.api-ads/google-ads -->
+		<dependency>
+			<groupId>com.google.api-ads</groupId>
+			<artifactId>google-ads</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
