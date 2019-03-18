@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -31,7 +32,8 @@ public class ReportRestController {
 
     @PostMapping(value = "/last-days")
     public ResponseEntity clientReportByLastNDays(@RequestBody String date) {
-        return ResponseEntity.ok(reportService.buildReport(date));
+        Optional<String> report = reportService.buildReport(date);
+        return report.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(value = "/getReportsStatus")

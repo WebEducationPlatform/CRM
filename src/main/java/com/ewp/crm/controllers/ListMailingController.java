@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -46,22 +47,25 @@ public class ListMailingController {
             @RequestParam("editRecipientsEmail") String editRecipientsEmail,
             @RequestParam("editRecipientsSms") String editRecipientsSms,
             @RequestParam("editRecipientsVk") String editRecipientsVk) {
-        ListMailing listMailing = listMailingService.getListMailingById(id);
-        List<String> editRecipientsEmailList = new ArrayList<>(Arrays.asList(editRecipientsEmail.split("\n")));
-        List<String> editRecipientsSmsList = new ArrayList<>(Arrays.asList(editRecipientsSms.split("\n")));
-        List<String> editRecipientsVklList = new ArrayList<>(Arrays.asList(editRecipientsVk.split("\n")));
-        listMailing.setListName(editlistName);
-        listMailing.setRecipientsEmail(editRecipientsEmailList);
-        listMailing.setRecipientsSms(editRecipientsSmsList);
-        listMailing.setRecipientsVk(editRecipientsVklList);
-        listMailingService.update(listMailing);
+        Optional<ListMailing> listMailingOptional = listMailingService.getListMailingById(id);
+        if (listMailingOptional.isPresent()) {
+            ListMailing listMailing = listMailingOptional.get();
+            List<String> editRecipientsEmailList = new ArrayList<>(Arrays.asList(editRecipientsEmail.split("\n")));
+            List<String> editRecipientsSmsList = new ArrayList<>(Arrays.asList(editRecipientsSms.split("\n")));
+            List<String> editRecipientsVklList = new ArrayList<>(Arrays.asList(editRecipientsVk.split("\n")));
+            listMailing.setListName(editlistName);
+            listMailing.setRecipientsEmail(editRecipientsEmailList);
+            listMailing.setRecipientsSms(editRecipientsSmsList);
+            listMailing.setRecipientsVk(editRecipientsVklList);
+            listMailingService.update(listMailing);
+        }
         return "redirect:/client/mailing";
     }
 
     @RequestMapping(value = "/remove/list-mailing", method = RequestMethod.POST)
     public String removeListMailing(@RequestParam("listId") long id) {
-        ListMailing listMailing = listMailingService.getListMailingById(id);
-        listMailingService.delete(listMailing);
+        Optional<ListMailing> listMailing = listMailingService.getListMailingById(id);
+        listMailing.ifPresent(listMailingService::delete);
         return "redirect:/client/mailing";
     }
 

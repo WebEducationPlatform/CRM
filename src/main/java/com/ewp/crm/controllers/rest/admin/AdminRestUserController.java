@@ -65,11 +65,20 @@ public class AdminRestUserController {
         return ResponseEntity.ok().body("{\"msg\":\"Сохранено\"}");
     }
 
+    @PostMapping(value = "/admin/rest/user/filters")
+    public HttpStatus setFiltersForAllStudents(@RequestParam("filters") String filters, @AuthenticationPrincipal User currentAdmin) {
+        User user = userService.get(currentAdmin.getId());
+        user.setStudentPageFilters(filters);
+        currentAdmin.setStudentPageFilters(filters);
+        userService.update(user);
+        return HttpStatus.OK;
+    }
+
     @PostMapping(value = "/admin/rest/user/add")
     public ResponseEntity addUser(@Valid @RequestBody User user,
                                   @AuthenticationPrincipal User currentAdmin) {
         ResponseEntity result;
-        if (userService.getUserByEmail(user.getEmail()) == null) {
+        if (!userService.getUserByEmail(user.getEmail()).isPresent()) {
             user.setEnabled(true);
             userService.add(user);
             result = new ResponseEntity(user, HttpStatus.OK);

@@ -6,6 +6,7 @@ import com.ewp.crm.models.User;
 import org.json.JSONException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface SMSService {
@@ -27,7 +28,7 @@ public interface SMSService {
 
 	void plannedSMS(List<Client> client, String text, String date, User sender);
 
-	String getBalance();
+	Optional<String> getBalance();
 
-	String getStatusMessage(long smsId);
+	Optional<String> getStatusMessage(long smsId);
 }
