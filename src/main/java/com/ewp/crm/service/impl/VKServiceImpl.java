@@ -76,6 +76,7 @@ public class VKServiceImpl implements VKService {
     private final PhoneValidator phoneValidator;
     private final RestTemplate restTemplate;
     private final AdReportService yandexDirectAdReportService;
+    private final AdReportService VkAdsReportServiceImpl;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
@@ -124,7 +125,8 @@ public class VKServiceImpl implements VKService {
                          VkMemberService vkMemberService,
                          PhoneValidator phoneValidator,
                          RestTemplate restTemplate,
-                         @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService) {
+                         @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService,
+                         @Qualifier("VkAds")AdReportService VkAdsReportServiceImpl) {
         this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
@@ -151,7 +153,9 @@ public class VKServiceImpl implements VKService {
         this.phoneValidator = phoneValidator;
         this.restTemplate = restTemplate;
         this.yandexDirectAdReportService = yandexDirectAdReportService;
+        this.VkAdsReportServiceImpl = VkAdsReportServiceImpl;
     }
+
 
     public HttpClient getHttpClient() {
         return HttpClients.custom()
@@ -1235,8 +1239,21 @@ public class VKServiceImpl implements VKService {
 
         //Отчёт с ВКонтакте.
         //ПОКА ЗАГЛУШКА! ОЖИДАЕТСЯ ПОЛУЧЕНИЕ ДАННЫХ С СЕРВИСА РЕКЛАМНОГО КАБИНЕТА ВК!
-        String balanceFromVK = "В процессе разработки";
-        String spentFromVK = "В процессе разработки";
+        String balanceFromVK;
+        String spentFromVK;
+        try {
+            balanceFromVK = VkAdsReportServiceImpl.getYandexDirectBalance() + " рублей";
+        } catch (JSONException |IOException  e) {
+            balanceFromVK = "Ошибка получения баланса рекламного кабинета VK";
+            logger.error("Can't receive balance from VK. Check if request to VK ads API is correct", e);
+        }
+        try {
+            spentFromVK = VkAdsReportServiceImpl.getYandexDirectSpentMoney() + " рублей";
+        } catch (JSONException |IOException  e) {
+           spentFromVK =  "Ошибка получения отчёта по затратам VK ads";
+           logger.error("Can't receive spent report from VK ads. Check if request to VK ads API is correct", e);
+        }
+
 
         //Формируем окончательный вид сообщения, заполняя параметры шаблона
         Map<String, String> params = new HashMap<>();

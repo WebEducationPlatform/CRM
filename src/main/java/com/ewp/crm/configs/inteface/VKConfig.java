@@ -14,4 +14,7 @@ public interface VKConfig {
     String getFirstContactMessage();
     String getManagerToken();
     String getVkReportChatID();
+    String getVkAdsClientId();
+    String getRobotClientId();
+    String getVkAppAccessToken();
 }
