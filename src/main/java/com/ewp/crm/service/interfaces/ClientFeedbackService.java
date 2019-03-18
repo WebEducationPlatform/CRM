@@ -10,9 +10,9 @@ public interface ClientFeedbackService {
 
     ClientFeedback createFeedback(String socialUrl, String text, String videoUrl);
 
-    Optional<List<ClientFeedback>> getAllByClientId(Long id);
+    List<ClientFeedback> getAllByClientId(Long id);
 
-    Optional<List<ClientFeedback>> getAllFeedback();
+    List<ClientFeedback> getAllFeedback();
 
     void deleteFeedback(Long id);
 

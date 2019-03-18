@@ -31,24 +31,22 @@ public class ClientFeedbackRestController {
 
     @GetMapping("/all")
     public ResponseEntity getAllFeedback() {
-        Optional<List<ClientFeedback>> clientFeedbacks = clientFeedbackService.getAllFeedback();
-        if(clientFeedbacks.isPresent()) {
-            List<ClientFeedback> allFeedback = clientFeedbacks.get();
+        List<ClientFeedback> allFeedback = clientFeedbackService.getAllFeedback();
+        if(!allFeedback.isEmpty()) {
             return ResponseEntity.ok(allFeedback);
         } else {
-            logger.error("not found feedback");
+            logger.info("feedbacks not found");
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/{clientId}")
     public ResponseEntity getFeedbackByClientId(@PathVariable("clientId") Long id) {
-        Optional<List<ClientFeedback>> clientFeedbacks = clientFeedbackService.getAllByClientId(id);
-        if(clientFeedbacks.isPresent()) {
-            List<ClientFeedback> allClientFeedback = clientFeedbacks.get();
+        List<ClientFeedback> allClientFeedback = clientFeedbackService.getAllByClientId(id);
+        if(!allClientFeedback.isEmpty()) {
             return ResponseEntity.ok(allClientFeedback);
         } else {
-            logger.error("no more feedback");
+            logger.info("client with id " + id + " has no feedback");
             return ResponseEntity.notFound().build();
         }
     }

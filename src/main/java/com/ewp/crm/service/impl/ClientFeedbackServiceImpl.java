@@ -29,13 +29,13 @@ public class ClientFeedbackServiceImpl implements ClientFeedbackService {
     }
 
     @Override
-    public Optional<List<ClientFeedback>> getAllByClientId(Long id) {
-        return Optional.ofNullable(clientFeedbackRepository.getAllByClientId(id));
+    public List<ClientFeedback> getAllByClientId(Long id) {
+        return clientFeedbackRepository.getAllByClientId(id);
     }
 
     @Override
-    public Optional<List<ClientFeedback>> getAllFeedback() {
-        return Optional.ofNullable(clientFeedbackRepository.findAll());
+    public List<ClientFeedback> getAllFeedback() {
+        return clientFeedbackRepository.findAll();
     }
 
     @Override
