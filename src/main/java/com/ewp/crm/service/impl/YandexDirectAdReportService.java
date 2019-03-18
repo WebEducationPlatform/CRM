@@ -52,18 +52,21 @@ public class YandexDirectAdReportService implements AdReportService {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
         // Тело запроса к операции Get метода AccountManagement API v4.
-        JSONObject bodyForHttpRequest = new JSONObject("{\n" +
-                "\"method\": \"AccountManagement\",\n" +
-                "   \"param\": {\n" +
-                "      \"Action\": Get,\n" +
-                "      \"SelectionCriteria\": {\n" +
-                "         \"Logins\": [\n" + clientLogin + "]\n" +
-                "      }\n" +
-                "   }," +
-                "\"locale\": \"" + acceptLanguage + "\"," +
-                "\"token\": \"" + tokenAPIv4Live + "\"" +
-                "}");
+        StringBuilder requestBodyBuilder = new StringBuilder()
+                .append("{\n")
+                    .append("\"method\": \"AccountManagement\",\n")
+                    .append( "   \"param\": {\n")
+                    .append("      \"Action\": Get,\n")
+                    .append("      \"SelectionCriteria\": {\n")
+                    .append( "         \"Logins\": [\n").append(clientLogin).append("]\n")
+                    .append("      }\n")
+                    .append("   },")
+                    .append( "\"locale\": \"").append(acceptLanguage).append("\",")
+                    .append("\"token\": \"").append(tokenAPIv4Live).append("\"")
+                .append( "}");
+        JSONObject bodyForHttpRequest = new JSONObject(requestBodyBuilder.toString());
         RequestBody balanceBody = RequestBody.create(JSON, bodyForHttpRequest.toString());
+
         // По заданному URL, методом POST, используя сформированное выше тело, формируем запрос.
         Request requestBalance = new Request.Builder()
                 .url(urlAPIv4Live)
@@ -86,21 +89,24 @@ public class YandexDirectAdReportService implements AdReportService {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
         // Тело запроса к методу get сервиса Campaigns API v5.
-        JSONObject bodyForHttpRequest = new JSONObject("{\n" +
-                "\"params\": {\n" +
-                "        \"SelectionCriteria\": {},\n" +
-                "        \"FieldNames\": [\n" +
-                "            \"Cost\"\n" +
-                "        ],\n" +
-                "        \"ReportName\": \"YaD Daily Spent Money Stats\",\n" +
-                "        \"ReportType\": \"CAMPAIGN_PERFORMANCE_REPORT\",\n" +
-                "        \"DateRangeType\": \"YESTERDAY\",\n" +
-                "        \"Format\": \"TSV\",\n" +
-                "        \"IncludeVAT\": \"YES\",\n" +
-                "        \"IncludeDiscount\": \"YES\"\n" +
-                "    }\n" +
-                "}");
+        StringBuilder requestBodyBuilder = new StringBuilder()
+                .append("{\n")
+                .append(  "\"params\": {\n")
+                .append("        \"SelectionCriteria\": {},\n")
+                .append("        \"FieldNames\": [\n")
+                .append("            \"Cost\"\n")
+                .append("        ],\n")
+                .append("        \"ReportName\": \"YaD Daily Spent Money Stats\",\n")
+                .append("        \"ReportType\": \"CAMPAIGN_PERFORMANCE_REPORT\",\n")
+                .append("        \"DateRangeType\": \"YESTERDAY\",\n")
+                .append("        \"Format\": \"TSV\",\n")
+                .append("        \"IncludeVAT\": \"YES\",\n")
+                .append("        \"IncludeDiscount\": \"YES\"\n")
+                .append("    }\n")
+                .append("}");
+        JSONObject bodyForHttpRequest = new JSONObject(requestBodyBuilder.toString());
         RequestBody report = RequestBody.create(JSON, bodyForHttpRequest.toString());
+
         // Задание заголовков, URL, метода обращения. Используя сформированное выше тело, формируем запрос.
         Request requestStats = new Request.Builder()
                 .addHeader("Authorization", tokenAPIv5)
