@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl extends CommonServiceImpl<User> implements UserService {
@@ -39,8 +40,8 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    public User getByEmailOrPhone(String email, String phone) {
-        return userDAO.getUserByEmailOrPhoneNumber(email, phone);
+    public Optional<User> getByEmailOrPhone(String email, String phone) {
+        return Optional.ofNullable(userDAO.getUserByEmailOrPhoneNumber(email, phone));
     }
 
     @Override
@@ -100,13 +101,13 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userDAO.getUserByEmail(email);
+    public Optional<User> getUserByEmail(String email) {
+        return Optional.ofNullable(userDAO.getUserByEmail(email));
     }
 
     @Override
-    public User getUserByFirstNameAndLastName(String firstName, String lastName) {
-        return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
+    public Optional<User> getUserByFirstNameAndLastName(String firstName, String lastName) {
+        return Optional.ofNullable(userDAO.getUserByFirstNameAndLastName(firstName, lastName));
     }
 
     @Override

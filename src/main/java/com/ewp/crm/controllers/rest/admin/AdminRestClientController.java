@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/rest/client")
@@ -46,12 +47,13 @@ public class AdminRestClientController {
                                     @AuthenticationPrincipal User userFromSession) {
         if (!"deleted".equals(client.getStatus().getName())) {
             for (SocialProfile socialProfile : client.getSocialProfiles()) {
-                socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-                        socialProfile.getSocialProfileType().getName()).getId());
+                Optional<SocialProfileType> socialProfileTypeOptional = socialProfileTypeService.getByTypeName(
+                        socialProfile.getSocialProfileType().getName());
+                socialProfileTypeOptional.ifPresent(s -> socialProfile.getSocialProfileType().setId(s.getId()));
             }
-            Status status = statusService.get(client.getStatus().getName());
-            client.setStatus(status);
-            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD));
+            Optional<Status> status = statusService.get(client.getStatus().getName());
+            status.ifPresent(client::setStatus);
+            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
             clientService.addClient(client);
             studentService.addStudentForClient(client);
             logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
@@ -64,8 +66,9 @@ public class AdminRestClientController {
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
         for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
-            socialProfile.getSocialProfileType().setId(socialProfileTypeService.getByTypeName(
-                    socialProfile.getSocialProfileType().getName()).getId());
+            Optional<SocialProfileType> socialProfileTypeOptional = socialProfileTypeService.getByTypeName(
+                    socialProfile.getSocialProfileType().getName());
+            socialProfileTypeOptional.ifPresent(s -> socialProfile.getSocialProfileType().setId(s.getId()));
         }
 
         Client clientFromDB = clientService.get(currentClient.getId());
@@ -84,7 +87,7 @@ public class AdminRestClientController {
         if (currentClient.equals(clientFromDB)) {
             return ResponseEntity.noContent().build();
         }
-        currentClient.addHistory(clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE));
+        clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
         clientService.updateClient(currentClient);
         logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);

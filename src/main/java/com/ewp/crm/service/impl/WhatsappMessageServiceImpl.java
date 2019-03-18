@@ -19,8 +19,8 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public WhatsappMessage findById(String id) {
-        return whatsappMessageRepository.findById(id);
+    public Optional<WhatsappMessage> findById(String id) {
+        return Optional.ofNullable(whatsappMessageRepository.findById(id));
     }
 
     @Override
@@ -34,8 +34,8 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public WhatsappMessage findByMessageNumber(long messageNumber) {
-        return whatsappMessageRepository.findByMessageNumber(messageNumber);
+    public Optional<WhatsappMessage> findByMessageNumber(long messageNumber) {
+        return Optional.ofNullable(whatsappMessageRepository.findByMessageNumber(messageNumber));
     }
 
     @Override
@@ -44,8 +44,8 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public WhatsappMessage save(WhatsappMessage whatsappMessage) {
-        return whatsappMessageRepository.save(whatsappMessage);
+    public Optional<WhatsappMessage> save(WhatsappMessage whatsappMessage) {
+        return Optional.of(whatsappMessageRepository.save(whatsappMessage));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class WhatsappMessageServiceImpl implements WhatsappMessageService {
     }
 
     @Override
-    public WhatsappMessage findTopByFromMeTrueOrderByMessageNumberDesc() {
-        return whatsappMessageRepository.findTopByFromMeTrueOrderByMessageNumberDesc();
+    public Optional<WhatsappMessage> findTopByFromMeTrueOrderByMessageNumberDesc() {
+        return Optional.ofNullable(whatsappMessageRepository.findTopByFromMeTrueOrderByMessageNumberDesc());
     }
 }

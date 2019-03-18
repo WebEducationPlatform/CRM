@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/comment")
@@ -72,10 +73,13 @@ public class CommentRestController {
 		Client client = comment.getClient();
 		sendNotificationService.sendNotification(content, client);
 		CommentAnswer commentAnswer = new CommentAnswer(fromDB, content, client);
-		CommentAnswer answer = commentAnswerService.addCommentAnswer(commentAnswer);
-		comment.addAnswer(answer);
-		commentService.update(comment);
-		return ResponseEntity.status(HttpStatus.OK).body(answer);
+		Optional<CommentAnswer> answer = commentAnswerService.addCommentAnswer(commentAnswer);
+		if (answer.isPresent()) {
+			comment.addAnswer(answer.get());
+			commentService.update(comment);
+			return ResponseEntity.status(HttpStatus.OK).body(answer.get());
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/delete/answer")
