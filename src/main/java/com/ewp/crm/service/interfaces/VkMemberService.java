@@ -3,12 +3,13 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.VkMember;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VkMemberService {
 
     List<VkMember> getAll();
 
-    VkMember get(Long id);
+    Optional<VkMember> get(Long id);
 
     void add(VkMember vkMember);
 
@@ -22,5 +23,5 @@ public interface VkMemberService {
 
     List<VkMember> getAllMembersByGroupId(Long id);
 
-    VkMember getVkMemberById(Long id);
+    Optional<VkMember> getVkMemberById(Long id);
 }
