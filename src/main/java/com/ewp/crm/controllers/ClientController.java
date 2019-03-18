@@ -19,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -72,7 +71,7 @@ public class ClientController {
     public ModelAndView addClient(@PathVariable String statusName,
                                   @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
-        modelAndView.addObject("status", statusService.get(statusName));
+        statusService.get(statusName).ifPresent(s -> modelAndView.addObject("status", s));
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);

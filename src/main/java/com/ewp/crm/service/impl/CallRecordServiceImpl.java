@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.CallRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> implements CallRecordService {
     private final CallRecordRepository callRecordRepository;
@@ -16,8 +18,8 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     }
 
     @Override
-    public CallRecord addCallRecord(CallRecord callRecord) {
-        return callRecordRepository.saveAndFlush(callRecord);
+    public Optional<CallRecord> addCallRecord(CallRecord callRecord) {
+        return Optional.of(callRecordRepository.saveAndFlush(callRecord));
     }
 
 }

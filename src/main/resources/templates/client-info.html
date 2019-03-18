@@ -73,10 +73,9 @@
                                th:value="${client.skype}"/>
                     </div>
                     <div class="form-group">
-                        <label for="edit-client-age">Возраст</label>
-                        <input type="number" class="form-control" min="0" max="127" disabled="disabled"
-                               title="Диапазон от 0 до 127" onkeydown="disableInputE()" id="edit-client-age"
-                               th:value="${client.age}"/>
+                        <label for="edit-client-birthday">Дата рождения</label>
+                        <input type="date" class="form-control" disabled="disabled" id="edit-client-birthday"
+                               th:value="${client.birthDate}"/>
                         <div class="help-block with-error" style="color: red"></div>
                     </div>
                     <div class="form-group">
@@ -102,14 +101,15 @@
                             <thead class="thead-inverse">
                             <tr>
                                 <th hidden="hidden" abbr="id">id</th>
-                                <th abbr="link">Link</th>
+                                <th abbr="socialId">Link</th>
                                 <th abbr="socialProfileType">Type</th>
                             </tr>
                             </thead>
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialProfiles}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td th:value="${socials.socialId}" th:text="${socials.socialId}"></td>
+                                <td th:if="${socials.socialProfileType.link == null}" th:value="${socials.socialId}" th:text="${socials.socialId}"></td>
+                                <td th:if="${socials.socialProfileType.link != null}" th:value="${socials.socialId}" th:text="${socials.socialProfileType.link + socials.socialId}"></td>
                                 <td th:value="${socials.socialProfileType.id}"
                                     th:text="${socials.socialProfileType.name}"></td>
                                 <td>
@@ -158,7 +158,7 @@
                             id="saveChanges"
                             th:onclick="'changeClient(\''+ ${client.id} +'\')'">Сохранить
                     </button>
-                    <a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                    <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
                     <p><span id="message"></span></p>
                 </div>
             </div>

@@ -45,19 +45,20 @@ public class IncomeStringToClient {
             } else {
                 logger.error("The incoming email does not match any of the templates!!!");
             }
+            vkService.fillClientFromProfileVK(client);
         }
         return client;
     }
 
     private static String prepareForm(String text) {
-        return text.substring(text.indexOf("Форма:"), text.length())
+        return text.substring(text.indexOf("Страница:"), text.length())
                 .replaceAll("<b>|</b>|(\\r\\n|\\n)", "");
     }
 
     private Client parseClientFormOne(String form) {
         logger.info("Parsing FormOne...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Страница"), form.length())
                 .replaceAll(" ", "~")
                 .replaceAll("Name~5", "Name")
                 .replaceAll("Email~5", "Email")
@@ -73,6 +74,9 @@ public class IncomeStringToClient {
         client.setCity(clientData.get("Город").replace("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+        if (clientData.containsKey("Запрос")) {
+            client.setRequestFrom(clientData.get("Запрос").replace("~", ""));
+        }
         if (clientData.containsKey("Соцсеть")) {
             String link = clientData.get("Соцсеть").replace("~", "");
             SocialProfile currentSocialProfile = getSocialNetwork(link);
@@ -178,16 +182,15 @@ public class IncomeStringToClient {
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")) {
-                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
+                socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
             } else {
                 socialProfile.setSocialId(vkService.getIdFromLink(link));
-                socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
+                socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
-
-            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("facebook"));
+            socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);
         } else {
-            socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("unknown"));
+            socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
         }
         return socialProfile;
     }
