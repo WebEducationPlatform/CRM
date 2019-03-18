@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component("YandexDirect")
-@PropertySource(value = "file:./yad.properties", encoding = "windows-1251")
+@PropertySource(value = "file:./yandex-direct.properties", encoding = "windows-1251")
 public class YandexDirectAdReportService implements AdReportService {
     private static Logger logger = LoggerFactory.getLogger(YandexDirectAdReportService.class);
 
