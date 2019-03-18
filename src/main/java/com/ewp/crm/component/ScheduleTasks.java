@@ -10,6 +10,7 @@ import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import org.drinkless.tdlib.TdApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,8 @@ public class ScheduleTasks {
 
 	private final VkCampaignService vkCampaignService;
 
+	private final TelegramService telegramService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	@Autowired
@@ -101,7 +104,7 @@ public class ScheduleTasks {
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService,
-						 VkCampaignService vkCampaignService) {
+						 VkCampaignService vkCampaignService, TelegramService telegramService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -128,6 +131,7 @@ public class ScheduleTasks {
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
 		this.vkCampaignService = vkCampaignService;
+		this.telegramService = telegramService;
 	}
 
 	private void addClient(Client newClient) {
@@ -381,6 +385,19 @@ public class ScheduleTasks {
 		} else {
 			logger.info("Payment notification properties not set!");
 		}
+	}
+
+	@Scheduled(fixedRate = 60_000)
+	private void fetchTelegramMessages() {
+		if (telegramService.isTdlibInstalled() && telegramService.isAuthenticated()) {
+			TdApi.Chats chats = telegramService.getChats();
+			for (int i = 0; i < chats.chatIds.length; i++) {
+				telegramService.getUnreadMessagesFromChat(chats.chatIds[i], 1);
+			}
+		} else {
+			logger.info("TDLib not installed or telegram client not authenticated!");
+		}
+
 	}
 
 	/**

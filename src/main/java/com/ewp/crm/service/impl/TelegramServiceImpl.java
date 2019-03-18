@@ -8,11 +8,8 @@ import com.ewp.crm.service.conversation.ChatType;
 import com.ewp.crm.service.conversation.Interlocutor;
 import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.tdlib.Example;
-import com.github.javafaker.Bool;
 import com.google.common.primitives.Longs;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
@@ -151,6 +148,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 messages = (TdApi.Messages) handler.getObject();
                 handler.setObject(null);
             } while (messages.totalCount < chat.get().unreadCount);
+            client.send(new TdApi.GetUser(messages.messages[0].senderUserId), new NewUserHandler());
             markMessagesAsRead(chatId, messages);
         }
         return messages;
@@ -161,7 +159,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         for (int i = 0; i < messages.messages.length; i++) {
             messageIds[i] = messages.messages[i].id;
         }
-        client.send(new TdApi.ViewMessages(chatId, messageIds, false), new DefaultHandler());
+        client.send(new TdApi.ViewMessages(chatId, messageIds, true), new DefaultHandler());
     }
 
     @Override
@@ -194,7 +192,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         GetObjectHandler handler = new GetObjectHandler();
         client.send(new TdApi.GetChat(chatId), handler);
         if (handlerDelay(handler)) {
-            result = Optional.of((TdApi.Chat) handler.getObject());
+            result = Optional.ofNullable((TdApi.Chat) handler.getObject());
         }
         return result;
     }
@@ -206,7 +204,9 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         if (tdlibInstalled) {
             client.send(new TdApi.GetMe(), handler);
             handlerDelay(handler);
-            result = (TdApi.User) handler.getObject();
+            if (handler.getObject() instanceof TdApi.User) {
+                result = (TdApi.User) handler.getObject();
+            }
         }
         return result;
     }
@@ -336,12 +336,14 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     @Override
     public List<ChatMessage> getMessages(com.ewp.crm.models.Client client, int count) {
         List<ChatMessage> result = new ArrayList<>();
-        Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
-        if (link.isPresent()) {
-            TdApi.Messages tgMessages = getChatMessages(Long.parseLong(link.get()), count);
-            Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
-            if (chat.isPresent()) {
-                result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+        if (isAuthenticated()) {
+            Optional<String> link = socialProfileService.getClientSocialProfileLinkByTypeName(client, "telegram");
+            if (link.isPresent()) {
+                TdApi.Messages tgMessages = getChatMessages(Long.parseLong(link.get()), count);
+                Optional<TdApi.Chat> chat = getChat(Long.parseLong(link.get()));
+                if (chat.isPresent()) {
+                    result = tdlibMessagesToChatMessages(tgMessages, chat.get());
+                }
             }
         }
         return result;
@@ -371,12 +373,15 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
 
     @Override
     public Optional<Interlocutor> getMe() {
-        Optional<Interlocutor> result = Optional.empty();
-        Optional<TdApi.User> user = Optional.of(getTgMe());
-        if (user.isPresent()) {
-            result = Optional.of(tdlibUserToInterlocutor(user.get()));
+        if (isAuthenticated()) {
+            Optional<Interlocutor> result = Optional.empty();
+            Optional<TdApi.User> user = Optional.ofNullable(getTgMe());
+            if (user.isPresent()) {
+                result = Optional.of(tdlibUserToInterlocutor(user.get()));
+            }
+            return result;
         }
-        return result;
+        return Optional.empty();
     }
 
     private ChatMessage tdlibMessageToChatMessage(TdApi.Message message, TdApi.Chat chat) {
@@ -427,14 +432,14 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                     onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
                     break;
                 }
-                case TdApi.UpdateNewChat.CONSTRUCTOR: {
-                    TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
-                    if (chat.type instanceof TdApi.ChatTypePrivate) {
-                        TdApi.ChatTypePrivate chatTypePrivate = (TdApi.ChatTypePrivate) chat.type;
-                        client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
-                    }
-                    break;
-                }
+//                case TdApi.UpdateNewChat.CONSTRUCTOR: {
+//                    TdApi.Chat chat = ((TdApi.UpdateNewChat) object).chat;
+//                    if (chat.type instanceof TdApi.ChatTypePrivate) {
+//                        TdApi.ChatTypePrivate chatTypePrivate = (TdApi.ChatTypePrivate) chat.type;
+//                        client.send(new TdApi.GetUser(chatTypePrivate.userId), new NewUserHandler());
+//                    }
+//                    break;
+//                }
                 case TdApi.UpdateFile.CONSTRUCTOR: {
                     TdApi.File file = ((TdApi.UpdateFile) object).file;
                     if (downloadingFiles.containsKey(file.id)) {
