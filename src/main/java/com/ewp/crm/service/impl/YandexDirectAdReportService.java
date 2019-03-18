@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component("YandexDirect")
-@PropertySource(value = "file:./yandex-direct.properties", encoding = "windows-1251")
+@PropertySource(value = "file:./yad.properties", encoding = "windows-1251")
 public class YandexDirectAdReportService implements AdReportService {
     private static Logger logger = LoggerFactory.getLogger(YandexDirectAdReportService.class);
 
@@ -48,7 +48,7 @@ public class YandexDirectAdReportService implements AdReportService {
     }
 
     // Получение баланса обращением к API v4 Live
-    public String getYandexDirectBalance() throws JSONException, IOException {
+    public String getBalance() throws JSONException, IOException {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
         // Тело запроса к операции Get метода AccountManagement API v4.
@@ -85,7 +85,7 @@ public class YandexDirectAdReportService implements AdReportService {
     }
 
     // Получение отчёта обращением к API v5, сервису Reports, и расчёт потраченных средств.
-    public String getYandexDirectSpentMoney() throws JSONException, IOException {
+    public String getSpentMoney() throws JSONException, IOException {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
         // Тело запроса к методу get сервиса Campaigns API v5.

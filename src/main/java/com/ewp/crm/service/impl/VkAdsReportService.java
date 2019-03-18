@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Component("VkAds")
-public class VkAdsReportServiceImpl implements AdReportService {
+public class VkAdsReportService implements AdReportService {
     private final VKConfig vkConfig;
 
     private String vkAPI;
@@ -40,7 +40,7 @@ public class VkAdsReportServiceImpl implements AdReportService {
 
 
     @Autowired
-    public VkAdsReportServiceImpl(VKConfig vkConfig) {
+    public VkAdsReportService(VKConfig vkConfig) {
         this.vkConfig = vkConfig;
         vkAPI = vkConfig.getVkAPIUrl();
         redirectUri = vkConfig.getRedirectUri();
@@ -135,7 +135,7 @@ public class VkAdsReportServiceImpl implements AdReportService {
         return spent.toString();
     }
 
-    public String getYandexDirectBalance() throws JSONException {
+    public String getBalance() throws JSONException {
         String balanceUri = vkAdsBudgetUri();
         JSONObject jsonBalance = getJsonByUri(balanceUri);
       //  jsonBalance = new JSONObject("{\"response\":\"15.00\"}");
@@ -143,7 +143,7 @@ public class VkAdsReportServiceImpl implements AdReportService {
         return  balance;
     }
 
-    public String  getYandexDirectSpentMoney() throws JSONException {
+    public String getSpentMoney() throws JSONException {
         String spentMoneyUri = vkAdsStatUri();
         JSONObject jsonSpentMoney = getJsonByUri(spentMoneyUri);
       //  jsonSpentMoney = new JSONObject("{\"response\":[{\"id\":1605137078,\"type\":\"office\",\"stats\":[{\"spent\":\"6.00\", \"clicks\":\"16.00\"}]}]}");
@@ -154,14 +154,14 @@ public class VkAdsReportServiceImpl implements AdReportService {
 
     public static void main(String[] args) throws JSONException {
       /*  Environment env;
-        VkAdsReportServiceImpl vkAdsReport = new VkAdsReportServiceImpl(new VKConfigImpl(env));
+        VkAdsReportService vkAdsReport = new VkAdsReportService(new VKConfigImpl(env));
 
         String baltest = "{\"response\":\"15.00\"}";
         String bigJson = "{\"response\":[{\"id\":1605137078,\"type\":\"office\",\"stats\":[{\"spent\":\"6.00\", \"clicks\":\"16.00\"}]}]}";
         String spent = vkAdsReport.spentFromJson(new JSONObject(bigJson));
         System.out.println("spent = " + spent);
-        System.out.println(vkAdsReport.getYandexDirectBalance());
-        System.out.println(vkAdsReport.getYandexDirectSpentMoney()); */
+        System.out.println(vkAdsReport.getBalance());
+        System.out.println(vkAdsReport.getSpentMoney()); */
     }
 
 

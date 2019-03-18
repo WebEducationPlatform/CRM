@@ -1225,13 +1225,13 @@ public class VKServiceImpl implements VKService {
         String balanceFromYandexDirect;
         String spentFromYandexDirect;
         try {
-            balanceFromYandexDirect = yandexDirectAdReportService.getYandexDirectBalance() + " рублей";
+            balanceFromYandexDirect = yandexDirectAdReportService.getBalance() + " рублей";
         } catch (JSONException | IOException e) {
             balanceFromYandexDirect = "Ошибка получения баланса";
             logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API is correct", e);
         }
         try {
-            spentFromYandexDirect = yandexDirectAdReportService.getYandexDirectSpentMoney() + " рублей";
+            spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney() + " рублей";
         } catch (JSONException | IOException e) {
             spentFromYandexDirect = "Ошибка получения отчёта по кампаниям";
             logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API is correct", e);
@@ -1242,18 +1242,17 @@ public class VKServiceImpl implements VKService {
         String balanceFromVK;
         String spentFromVK;
         try {
-            balanceFromVK = VkAdsReportServiceImpl.getYandexDirectBalance() + " рублей";
+            balanceFromVK = VkAdsReportServiceImpl.getBalance() + " рублей";
         } catch (JSONException |IOException  e) {
             balanceFromVK = "Ошибка получения баланса рекламного кабинета VK";
             logger.error("Can't receive balance from VK. Check if request to VK ads API is correct", e);
         }
         try {
-            spentFromVK = VkAdsReportServiceImpl.getYandexDirectSpentMoney() + " рублей";
+            spentFromVK = VkAdsReportServiceImpl.getSpentMoney() + " рублей";
         } catch (JSONException |IOException  e) {
            spentFromVK =  "Ошибка получения отчёта по затратам VK ads";
            logger.error("Can't receive spent report from VK ads. Check if request to VK ads API is correct", e);
         }
-
 
         //Формируем окончательный вид сообщения, заполняя параметры шаблона
         Map<String, String> params = new HashMap<>();

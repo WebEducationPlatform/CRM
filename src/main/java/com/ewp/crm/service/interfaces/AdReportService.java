@@ -6,8 +6,8 @@ import java.io.IOException;
 
 public interface AdReportService {
 
-    String getYandexDirectBalance() throws JSONException, IOException;
+    String getBalance() throws JSONException, IOException;
 
-    String getYandexDirectSpentMoney() throws JSONException, IOException;
+    String getSpentMoney() throws JSONException, IOException;
 
 }
