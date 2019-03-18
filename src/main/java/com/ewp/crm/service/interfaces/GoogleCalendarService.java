@@ -7,9 +7,10 @@ import java.io.IOException;
 
 public interface GoogleCalendarService {
 
-    String authorize();
+    /*String authorize();
 
-    Calendar tokenResponse(String code);
+    Calendar tokenResponse(String code);*/
+    Calendar calendarBuilder();
 
     Calendar getCalendarBuilder();
 

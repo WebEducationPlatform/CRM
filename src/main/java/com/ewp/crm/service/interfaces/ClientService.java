@@ -57,6 +57,7 @@ public interface ClientService extends CommonService<Client> {
 
 	Client findByNameAndLastNameIgnoreCase(String name, String lastName);
 
+	public void updateClientByIdFromContractForm(Long id, ContractFormData data);
 	// TODO Удалить после первого использования
 	void refactorDataBase();
 }

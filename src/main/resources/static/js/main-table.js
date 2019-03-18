@@ -1934,6 +1934,9 @@ $(function () {
                     if (client.ownerUser !== null && owenerName === adminName) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
+                    btnBlock.append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#client-contract-modal" ' +
+                        'onclick="getUrlContract(' + client.id + ')">сгенерировать ссылку на форму договора</button>');
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
                 });
@@ -2436,4 +2439,12 @@ function slackInvite(email) {
             alert('The user is not invited')
         }
     })
+}
+
+function getUrlContract(clientId) {
+    var link = $('#contract-link');
+    link.empty();
+    var url = window.location.href;
+    var str = url.substr(0,url.indexOf("/client",0)) + '/contract?id=' + clientId;
+    link.val(str);
 }

@@ -276,6 +276,21 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
     }
+    //TODO Пасспорт, Договор в сущность клиента
+    @Override
+    public void updateClientByIdFromContractForm(Long id, ContractFormData data) {
+        Client client = clientRepository.getOne(id);
+        String[] fullName = data.getInputName().split(" ");
+        client.setLastName(fullName[0]);
+        client.setName(fullName[1]);
+        if(!data.getInputEmail().isEmpty()) {
+            client.setEmail(data.getInputEmail());
+        }
+        if(!data.getInputPhoneNumber().isEmpty()) {
+            client.setPhoneNumber(data.getInputPhoneNumber());
+        }
+        updateClient(client);
+    }
 
     // TODO Удалить после первого использования
     @Override
