@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkTrackedClub;
@@ -43,6 +44,7 @@ public class VkController {
     private final VkTrackedClubService vkTrackedClubService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkCampaignService vkCampaignService;
+    private final VKConfig vkConfig;
 
     private ProjectProperties projectProperties;
 
@@ -51,12 +53,14 @@ public class VkController {
                         UserService userService,
                         VkTrackedClubService vkTrackedClubService,
                         ProjectPropertiesService projectPropertiesService,
-                        VkCampaignService vkCampaignService) {
+                        VkCampaignService vkCampaignService,
+                        VKConfig vkConfig) {
         this.vkService = vkService;
         this.userService = userService;
         this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkCampaignService = vkCampaignService;
+        this.vkConfig = vkConfig;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -172,6 +176,16 @@ public class VkController {
         campaign.getVkUsersToAdd().addAll(usersSet);
         vkCampaignService.update(campaign);
         return "redirect:/vk/campaigns/all";
+    }
+
+    @GetMapping("/vk-ads")
+    public String getAdvertisementVk() {
+        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize")
+                .append("?client_id=").append(vkConfig.getRobotClientId())
+                .append("&display=page&redirect_uri=").append(vkConfig.getRedirectUri())
+                .append("&scope=ads,offline,groups").append("&response_type=token")
+                .append("&v=5.92&state=");
+        return "redirect:" + stb.toString();
     }
 
     private Set<VkUser> processUploadedFile(MultipartFile file) {
