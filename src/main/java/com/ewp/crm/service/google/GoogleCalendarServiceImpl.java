@@ -1,20 +1,14 @@
-package com.ewp.crm.service.impl;
+package com.ewp.crm.service.google;
 
-import com.ewp.crm.configs.GoogleCalendarConfigImpl;
 import com.ewp.crm.models.Client;
+import com.ewp.crm.service.interfaces.GoogleAuthorizationService;
 import com.ewp.crm.service.interfaces.GoogleCalendarService;
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import org.slf4j.Logger;
@@ -23,11 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -39,54 +31,20 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	private HttpTransport httpTransport;
 	private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-	private String clientId;
-	private String clientSecret;
-	private String redirectURI;
-	private GoogleClientSecrets clientSecrets;
-	private GoogleAuthorizationCodeFlow flow;
 	private Credential credential;
 
+	private final GoogleAuthorizationService authorizationService;
+
 	@Autowired
-	public GoogleCalendarServiceImpl(GoogleCalendarConfigImpl config) {
-		this.clientId = config.getClientId();
-		this.clientSecret = config.getClientSecret();
-		this.redirectURI = config.getRedirectURI();
+	public GoogleCalendarServiceImpl(GoogleAuthorizationService authorizationService) {
+		this.authorizationService = authorizationService;
 	}
 
 	@Override
-	public String authorize() {
-		AuthorizationCodeRequestUrl authorizationUrl;
-		if (flow == null) {
-			GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
-			web.setClientId(clientId);
-			web.setClientSecret(clientSecret);
-			clientSecrets = new GoogleClientSecrets().setWeb(web);
-			try {
-				httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-			} catch (GeneralSecurityException | IOException e) {
-				logger.error("Error to send message ", e);
-			}
-			flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
-					Collections.singleton(CalendarScopes.CALENDAR)).setAccessType("offline").build();
-		}
-		authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectURI);
-		return authorizationUrl.build();
-	}
-
-	@Override
-	public Calendar tokenResponse(String code) {
-		try {
-			TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-			credential = flow.createAndStoreCredential(response, "userID");
-			return calendarBuilder = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-					.setApplicationName(APPLICATION_NAME).build();
-
-		} catch (IOException e) {
-			logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")."
-					+ " Redirecting to google connection status page.");
-			logger.error("Error to send message ", e);
-		}
-		return calendarBuilder;
+	public Calendar calendarBuilder() {
+		credential = authorizationService.getCredential();
+		return calendarBuilder = new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
+				.setApplicationName(APPLICATION_NAME).build();
 	}
 
 	@Override

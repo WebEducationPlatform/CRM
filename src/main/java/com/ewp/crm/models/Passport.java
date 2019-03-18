@@ -23,7 +23,7 @@ public class Passport implements Serializable {
     private String number;
 
     @Column(name = "date_of_issue")
-    private LocalDate dateOfIssue;
+    private String dateOfIssue;
 
     @Column(name = "issued_by")
     private String issuedBy;
@@ -42,7 +42,7 @@ public class Passport implements Serializable {
     public Passport() {
     }
 
-    public Passport(String series, String number, LocalDate dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
+    public Passport(String series, String number, String dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
         this.series = series;
         this.number = number;
         this.dateOfIssue = dateOfIssue;
@@ -76,11 +76,11 @@ public class Passport implements Serializable {
         this.number = number;
     }
 
-    public LocalDate getDateOfIssue() {
+    public String getDateOfIssue() {
         return dateOfIssue;
     }
 
-    public void setDateOfIssue(LocalDate dateOfIssue) {
+    public void setDateOfIssue(String dateOfIssue) {
         this.dateOfIssue = dateOfIssue;
     }
 

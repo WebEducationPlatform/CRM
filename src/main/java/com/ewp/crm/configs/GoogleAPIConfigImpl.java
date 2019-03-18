@@ -8,22 +8,23 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("file:./google-calendar.properties")
-public class GoogleCalendarConfigImpl {
+@PropertySource("file:./google-api.properties")
+public class GoogleAPIConfigImpl {
 
     private String clientId;
     private String clientSecret;
     private String redirectURI;
-    private static Logger logger = LoggerFactory.getLogger(GoogleCalendarConfigImpl.class);
+    private String scope;
+    private static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
-    public GoogleCalendarConfigImpl(Environment env) {
+    public GoogleAPIConfigImpl(Environment env) {
         clientId = env.getProperty("google.client.client-id");
         clientSecret = env.getProperty("google.client.client-secret");
         redirectURI = env.getProperty("google.client.redirectUri");
-
+        scope = env.getProperty("google.client.scope");
         if (!configIsValid()) {
-            logger.error("Google configs have not initialized. Check google-calendar.properties file");
+            logger.error("Google configs have not initialized. Check google-api.properties file");
             System.exit(-1);
         }
     }
@@ -45,4 +46,7 @@ public class GoogleCalendarConfigImpl {
         return redirectURI;
     }
 
+    public String getScope() {
+        return scope;
+    }
 }
