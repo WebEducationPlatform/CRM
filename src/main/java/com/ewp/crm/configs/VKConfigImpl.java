@@ -38,6 +38,10 @@ public class VKConfigImpl implements VKConfig {
 
     private String vkReportChatID;
 
+    private String vkAdsClientId;
+
+    private String vkAppAccessToken;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -56,6 +60,8 @@ public class VKConfigImpl implements VKConfig {
             apiUrl  = env.getProperty("vk.apiUrl");
             managerToken = env.getProperty("vk.manager.token");
             vkReportChatID = env.getProperty("vk.app.reports.serviceChatId");
+            vkAdsClientId = env.getProperty("vk.ads.ClientId");
+            vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
 
             if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
                     display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
@@ -121,5 +127,11 @@ public class VKConfigImpl implements VKConfig {
 
     public String getVkReportChatID() {
         return vkReportChatID;
+    }
+
+    public String getVkAdsClientId() {return vkAdsClientId; }
+
+    public String getVkAppAccessToken() {
+        return vkAppAccessToken;
     }
 }
