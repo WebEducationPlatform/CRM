@@ -1238,7 +1238,6 @@ public class VKServiceImpl implements VKService {
         }
 
         //Отчёт с ВКонтакте.
-        //ПОКА ЗАГЛУШКА! ОЖИДАЕТСЯ ПОЛУЧЕНИЕ ДАННЫХ С СЕРВИСА РЕКЛАМНОГО КАБИНЕТА ВК!
         String balanceFromVK;
         String spentFromVK;
         try {
