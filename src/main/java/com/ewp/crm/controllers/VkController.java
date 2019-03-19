@@ -180,11 +180,25 @@ public class VkController {
 
     @GetMapping("/vk-ads")
     public String getAdvertisementVk() {
-        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize")
-                .append("?client_id=").append(vkConfig.getRobotClientId())
-                .append("&display=page&redirect_uri=").append(vkConfig.getRedirectUri())
-                .append("&scope=ads,offline,groups").append("&response_type=token")
-                .append("&v=5.92&state=");
+      String robotClientId=null;
+      String redirectUri=null;
+      try{
+          robotClientId = vkConfig.getRobotClientId();
+          redirectUri = vkConfig.getRedirectUri();
+          if(robotClientId.isEmpty() || redirectUri.isEmpty()) {
+              throw new NullPointerException();
+          }
+      } catch (NullPointerException npe) {
+          logger.error("Check the robotClientId or redirectUri from vk.properties -> vk.robot.app.clientId or vk.app.redirect_uri", npe);
+      }
+        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize");
+        stb.append("?client_id=");
+        stb.append(robotClientId);
+        stb.append("&display=page&redirect_uri=");
+        stb.append(redirectUri);
+        stb.append("&scope=ads,offline,groups");
+        stb.append("&response_type=token");
+        stb.append("&v=5.92&state=");
         return "redirect:" + stb.toString();
     }
 
