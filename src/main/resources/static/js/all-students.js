@@ -36,7 +36,7 @@ function renderStudentsTable() {
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
         status = rows[i].getElementsByTagName("TD")[0];
-        rows[i].style.display = 'none';
+        rows[i].style.display = 'yes';
     }
     $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
         let input = v.getElementsByTagName("INPUT")[0];
