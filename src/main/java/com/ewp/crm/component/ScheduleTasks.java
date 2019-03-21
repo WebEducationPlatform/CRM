@@ -130,7 +130,7 @@ public class ScheduleTasks {
 		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
 		this.vkCampaignService = vkCampaignService;
-		this.adReportTemplate=env.getProperty("template.daily.report");
+		this.adReportTemplate = env.getProperty("template.daily.report");
 	}
 
 	private void addClient(Client newClient) {
