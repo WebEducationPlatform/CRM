@@ -1810,7 +1810,9 @@ function changeStatus(clientId, statusId) {
             "statusId" : statusId,
             "clientId" : clientId
         },
-        success: reloadClientStatus(clientId)
+        success: function () {
+            reloadClientStatus(clientId);
+        }
     });
 }
 
