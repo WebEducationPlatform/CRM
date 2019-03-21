@@ -27,10 +27,10 @@ public class VkAdsReportService implements AdReportService {
     private static Logger logger = LoggerFactory.getLogger(VkAdsReportService.class);
     private final VKConfig vkConfig;
 
-    private String vkAPI;
+    private String vkApi;
     private String version;
     private String adsClientId;
-    private String access_token;
+    private String accessToken;
 
     private Date date = new Date();
     private Date dateBeforeOneDay = new Date(date.getTime() - 24 * 3600 * 1000l );
@@ -38,26 +38,18 @@ public class VkAdsReportService implements AdReportService {
     private String dateTo = simpleDateFormat.format(date);
     private String dateFrom = simpleDateFormat.format(dateBeforeOneDay);
 
-
     @Autowired
     public VkAdsReportService(VKConfig vkConfig) {
         this.vkConfig = vkConfig;
-        try {
-            vkAPI = vkConfig.getVkAPIUrl();
-            version = vkConfig.getVersion();
-            adsClientId = vkConfig.getVkAdsClientId();
-            access_token = vkConfig.getVkAppAccessToken();
-            if(vkAPI.isEmpty() || version.isEmpty() || adsClientId.isEmpty() || access_token.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (Exception e) {
-            logger.error("VKConfig haven't been initialized. Check vk.properties file parameters vk.apiUrl, vk.version, vk.ads.ClientId or vk.robot.app.accesstoken" );
-        }
+        vkApi = vkConfig.getVkApiUrl();
+        version = vkConfig.getVersion();
+        adsClientId = vkConfig.getVkAdsClientId();
+        accessToken = vkConfig.getVkAppAccessToken();
     }
 
     //формирование строки запроса для получения статистики рекламного кабинетв ВК
-    public String vkAdsStatUri() {
-        StringBuilder stb = new StringBuilder(vkAPI).append("ads.getStatistics")
+    private String vkAdsStatUri() {
+        StringBuilder stb = new StringBuilder(vkApi).append("ads.getStatistics")
                 .append("?account_id=").append(adsClientId)
                 .append("&ids_type=office")
                 .append("&ids=").append(adsClientId)
@@ -65,21 +57,21 @@ public class VkAdsReportService implements AdReportService {
                 .append("&date_from=").append(dateFrom)
                 .append("&date_to=").append(dateTo)
                 .append("&version=").append(version)
-                .append("&access_token=").append(access_token);
+                .append("&access_token=").append(accessToken);
         return stb.toString();
     }
 
     //формирование строки запроса для получения баланса рекламногокабинета ВК
-    public String vkAdsBudgetUri() {
-        StringBuilder stb = new StringBuilder(vkAPI).append("ads.getBudget")
+    private String vkAdsBudgetUri() {
+        StringBuilder stb = new StringBuilder(vkApi).append("ads.getBudget")
                 .append("?account_id=").append(adsClientId)
                 .append("&version=").append(version)
-                .append("&access_token=").append(access_token);
+                .append("&access_token=").append(accessToken);
         return stb.toString();
     }
 
     //выполнение запроса и получение json ответа
-    public JSONObject getJsonByUri(String uri) {
+    private JSONObject getJsonByUri(String uri) {
         HttpGet httpGetStat = new HttpGet(uri);
         HttpClient httpClientStat = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -100,7 +92,7 @@ public class VkAdsReportService implements AdReportService {
     }
 
     //получение баланса рекламного кабинета вконтакте из json
-    public String balanceFromJson(JSONObject jsonBalance) {
+    private String balanceFromJson(JSONObject jsonBalance) {
         String balance = "";
         try {
             balance = jsonBalance.getString("response");
@@ -111,13 +103,13 @@ public class VkAdsReportService implements AdReportService {
     }
 
     //получение суммы потраченных денег в реламном кабинете из json
-    public String spentFromJson(JSONObject jsonStat) {
+    private String spentFromJson(JSONObject jsonStat) {
         String spent = "0.00";
-        JSONArray responce = null;
+        JSONArray response = null;
         try {
-            responce = jsonStat.getJSONArray("response");
-            for (int i = 0; i < responce.length() ; i++) {
-                JSONObject item = responce.getJSONObject(i);
+            response = jsonStat.getJSONArray("response");
+            for (int i = 0; i < response.length() ; i++) {
+                JSONObject item = response.getJSONObject(i);
                 if(item.has("stats")) {
                     JSONArray stats = item.getJSONArray("stats");
                     for (int j = 0; j < stats.length() ; j++) {

@@ -127,7 +127,7 @@ public class VkRestController {
 		param.put("groupID", vkConfig.getClubId());
 		param.put("accessToken", vkConfig.getCommunityToken());
 		param.put("version", vkConfig.getVersion());
-		param.put("url", vkConfig.getVkAPIUrl());
+		param.put("url", vkConfig.getVkApiUrl());
 
 		return param;
 	}
