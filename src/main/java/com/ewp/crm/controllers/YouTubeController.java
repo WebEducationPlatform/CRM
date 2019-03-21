@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -61,7 +62,7 @@ public class YouTubeController {
 
 	@PostMapping(value = "/deleteYouTubeTrackingCard")
 	public String deleteYouTubeTrackingCard(long id) {
-		youTubeTrackingCardService.deleteYouTubeTrackingCard(youTubeTrackingCardService.getYouTubeTrackingCardByID(id));
+		youTubeTrackingCardService.getYouTubeTrackingCardByID(id).ifPresent(youTubeTrackingCardService::deleteYouTubeTrackingCard);
 		return "redirect:/admin/YouTubeLive";
 	}
 
@@ -70,9 +71,11 @@ public class YouTubeController {
 		response.setContentType("text/plain");
 		response.setHeader("Content-Disposition", "attachment;filename=vkIDs.txt");
 		try (ServletOutputStream out = response.getOutputStream()) {
-			String result = fileService.getAllVkIDs();
-			out.println(result);
-			out.flush();
+			Optional<String> result = fileService.getAllVkIDs();
+			if (result.isPresent()) {
+				out.println(result.get());
+				out.flush();
+			}
 		} catch (IOException e) {
 			logger.error("IOException: ", e);
 		}

@@ -622,10 +622,12 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 newClient.setName(user.firstName);
                 newClient.setLastName(user.lastName);
                 newClient.setPhoneNumber(user.phoneNumber);
-                SocialProfile profile  = new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram"));
-                newClient.setSocialProfiles(Collections.singletonList(profile));
+                if (socialProfileTypeService.getByTypeName("telegram").isPresent()) {
+                    SocialProfile profile = new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram").get());
+                    newClient.setSocialProfiles(Collections.singletonList(profile));
+                }
                 newClient.setStatus(statusRepository.findById(projectPropertiesService.getOrCreate().getNewClientStatus()).get());
-                newClient.addHistory(clientHistoryService.createHistory("Telegram"));
+                clientHistoryService.createHistory("Telegram").ifPresent(newClient::addHistory);
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 logger.info("Client with Telegram id {} added from telegram.", user.id);

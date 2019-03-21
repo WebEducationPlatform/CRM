@@ -15,6 +15,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @RestController
@@ -64,15 +65,17 @@ public class StudentRestController {
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         if (student.getStatus().getId() == null) {
-            student.setStatus(studentStatusService.getByName(student.getStatus().getStatus()));
+            studentStatusService.getByName(student.getStatus().getStatus()).ifPresent(student::setStatus);
         }
         Student previous = studentService.get(student.getId());
         Client updatedClient = student.getClient();
         Client client = previous.getClient();
         student.setColor(previous.getColor());
-        ClientHistory history = clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT);
-        if (history.getLink() != null && !history.getLink().isEmpty()) {
-            client.addHistory(history);
+        Optional<ClientHistory> history = clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT);
+        if (history.isPresent()) {
+            if (history.get().getLink() != null && !history.get().getLink().isEmpty()) {
+                client.addHistory(history.get());
+            }
         }
         if (updatedClient.getName() != null && !updatedClient.getName().isEmpty()) {
             client.setName(updatedClient.getName());
@@ -91,7 +94,7 @@ public class StudentRestController {
     @PostMapping("/delete/{id}")
     public HttpStatus deleteStudent(@PathVariable("id") Long id, @AuthenticationPrincipal User userFromSession) {
         Client client = studentService.get(id).getClient();
-        client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT));
+        clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT).ifPresent(client::addHistory);
         clientService.updateClient(client);
         studentService.delete(id);
         return HttpStatus.OK;
@@ -102,12 +105,12 @@ public class StudentRestController {
         ProjectProperties properties = projectPropertiesService.getOrCreate();
         Student student = studentService.get(id);
         Client client = student.getClient();
-        client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT, message));
+        clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.DELETE_STUDENT, message).ifPresent(client::addHistory);
         Long statusId = properties.getClientRejectStudentStatus();
         if (statusId != null) {
-            Status status = statusService.get(statusId);
-            if (status != null) {
-                client.setStatus(status);
+            Optional<Status> status = statusService.get(statusId);
+            if (status.isPresent()) {
+                client.setStatus(status.get());
                 clientService.updateClient(client);
                 return HttpStatus.OK;
             }
@@ -211,7 +214,7 @@ public class StudentRestController {
         };
         Student current = filterMap.get(key).get();
         Client client = current.getClient();
-        client.addHistory(clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT));
+        clientHistoryService.createStudentUpdateHistory(userFromSession, client.getStudent(), current, ClientHistory.Type.UPDATE_STUDENT).ifPresent(client::addHistory);
         studentService.update(current);
         clientService.updateClient(client);
     }

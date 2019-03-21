@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class VkRequestFormRestController {
@@ -42,7 +43,8 @@ public class VkRequestFormRestController {
 
     @RequestMapping(value = "/vk/request/{id}", method = RequestMethod.GET)
     public ResponseEntity<VkRequestForm> getVkRequestFormById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(vkRequestFormService.getVkRequestFormById(id));
+        Optional<VkRequestForm> requestForm = vkRequestFormService.getVkRequestFormById(id);
+        return requestForm.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 

@@ -70,7 +70,7 @@ public class SendMailsController {
                                                   @AuthenticationPrincipal User userFromSession) {
         MailingMessage message = null;
         List<MailingMessage> vkMessages = new ArrayList<>();
-        User user = userService.getUserByEmail(userFromSession.getEmail());
+        Optional<User> user = userService.getUserByEmail(userFromSession.getEmail());
         switch (type) {
             case "vk":
                 pattern = "";
@@ -88,51 +88,53 @@ public class SendMailsController {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
         LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+      
+        if (user.isPresent()) {
+            Set<ClientData> clientsInfo = new HashSet<>();
+            if (type.equals("vk")) {
+                String[] vkIds = recipients.split("\n");
+                Set<String> vkIdSet = new HashSet<>();
+                Arrays.asList(vkIds).forEach(x -> {
 
+                    String vkIdentify = vkService.getIdFromLink(x);
 
-        Set<ClientData> clientsInfo = new HashSet<>();
-        if (type.equals("vk")) {
-            String[] vkIds = recipients.split("\n");
-            Set<String> vkIdSet = new HashSet<>();
-            Arrays.asList(vkIds).forEach(x -> {
+                    if (vkIdentify != null) {
+                        vkIdSet.add(vkIdentify);
+                    }
 
-                String vkIdentify = vkService.getIdFromLink(x);
-
-                if (vkIdentify != null) {
-                    vkIdSet.add(vkIdentify);
-                }
-
-            });
-
-            vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
-
-            clientsInfo.forEach(c -> vkMessages.add(new MailingMessage(type, template, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
-
-        } else {
-            Matcher matcher2 = p.matcher(recipients);
-            while (matcher2.find()) {
-                clientsInfo.add(new ClientData(matcher2.group()));
-            }
-        }
-        if (!type.equals("vk")) {
-            message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
-            if (sendnow) {
-                message.setDate(LocalDateTime.now());
-                mailingService.addMailingMessage(message);
-            } else {
-                mailingService.addMailingMessage(message);
-            }
-        } else {
-            if (sendnow) {
-                vkMessages.forEach(msg -> {
-                    msg.setDate(LocalDateTime.now());
-                    mailingService.addMailingMessage(msg);
                 });
+
+                vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
+
+                clientsInfo.forEach(c -> vkMessages.add(new MailingMessage(type, template, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.get().getId())));
+
             } else {
-                vkMessages.forEach(mailingService::addMailingMessage);
+                Matcher matcher2 = p.matcher(recipients);
+                while (matcher2.find()) {
+                    clientsInfo.add(new ClientData(matcher2.group()));
+                }
             }
+            if (!type.equals("vk")) {
+                message = new MailingMessage(type, template, clientsInfo, destinationDate, user.get().getId());
+                if (sendnow) {
+                    message.setDate(LocalDateTime.now());
+                    mailingService.addMailingMessage(message);
+                } else {
+                    mailingService.addMailingMessage(message);
+                }
+            } else {
+                if (sendnow) {
+                    vkMessages.forEach(msg -> {
+                        msg.setDate(LocalDateTime.now());
+                        mailingService.addMailingMessage(msg);
+                    });
+                } else {
+                    vkMessages.forEach(mailingService::addMailingMessage);
+                }
+            }
+            return ResponseEntity.ok("");
         }
-        return ResponseEntity.ok("");
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 

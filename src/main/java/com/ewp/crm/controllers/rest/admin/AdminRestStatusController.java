@@ -8,11 +8,13 @@ import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
@@ -37,45 +39,54 @@ public class AdminRestStatusController {
 									 @RequestParam(name = "trialOffset") Integer trialOffset,
 									 @RequestParam(name = "nextPaymentOffset") Integer nextPaymentOffset,
 									 @AuthenticationPrincipal User currentAdmin) {
-		Status status = statusService.get(oldStatusId);
-		status.setName(statusName);
-		status.setTrialOffset(trialOffset);
-		status.setNextPaymentOffset(nextPaymentOffset);
-		statusService.update(status);
-		logger.info("{} has updated status {}", currentAdmin.getFullName(), statusName);
-		return ResponseEntity.ok().build();
+		Optional<Status> status = statusService.get(oldStatusId);
+		if (status.isPresent()) {
+			status.get().setName(statusName);
+			status.get().setTrialOffset(trialOffset);
+			status.get().setNextPaymentOffset(nextPaymentOffset);
+			statusService.update(status.get());
+			logger.info("{} has updated status {}", currentAdmin.getFullName(), statusName);
+			return ResponseEntity.ok().build();
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/delete")
 	public ResponseEntity deleteStatus(@RequestParam(name = "deleteId") Long deleteId,
 									   @AuthenticationPrincipal User currentAdmin) {
-		Status status = statusService.get(deleteId);
-		List<Client> clients = status.getClients();
-		for (Client client : clients) {
-			notificationService.deleteNotificationsByClient(client);
-		}
-		statusService.delete(deleteId);
+		Optional<Status> status = statusService.get(deleteId);
+		if (status.isPresent()) {
+			List<Client> clients = status.get().getClients();
+			for (Client client : clients) {
+				notificationService.deleteNotificationsByClient(client);
+			}
+			statusService.delete(deleteId);
 
-		logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
-		return ResponseEntity.ok().build();
+			logger.info("{} has  deleted status  with id {}", currentAdmin.getFullName(), deleteId);
+			return ResponseEntity.ok().build();
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/visible/change")
 	public ResponseEntity changeVisibleStatus(@RequestParam("statusId") long statusId,
 											  @RequestParam("invisible") boolean bool) {
-		Status status = statusService.get(statusId);
-		if (status.getInvisible() == bool) {
-			String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
-			logger.error(reason);
-			return ResponseEntity.badRequest().body(reason);
+		Optional<Status> status = statusService.get(statusId);
+		if (status.isPresent()) {
+			if (status.get().getInvisible() == bool) {
+				String reason = "Статус уже " + (bool ? "невидимый" : "видимый");
+				logger.error(reason);
+				return ResponseEntity.badRequest().body(reason);
+			}
+			List<Client> clients = status.get().getClients();
+			for (Client client : clients) {
+				notificationService.deleteNotificationsByClient(client);
+			}
+			status.get().setInvisible(bool);
+			statusService.update(status.get());
+			return ResponseEntity.ok().body(status);
 		}
-		List<Client> clients = status.getClients();
-		for (Client client : clients) {
-			notificationService.deleteNotificationsByClient(client);
-		}
-		status.setInvisible(bool);
-		statusService.update(status);
-		return ResponseEntity.ok().body(status);
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 }

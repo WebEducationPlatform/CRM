@@ -135,11 +135,10 @@ public class ScheduleTasks {
 	}
 
 	private void addClient(Client newClient) {
-		Status newClientsStatus = statusService.getFirstStatusForClient();
-		newClient.setStatus(newClientsStatus);
+		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
 		newClient.setState(Client.State.NEW);
-		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
-		newClient.addHistory(clientHistoryService.createHistory("vk"));
+		socialProfileTypeService.getByTypeName("vk").ifPresent(newClient.getSocialProfiles().get(0)::setSocialProfileType);
+		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
 		vkService.fillClientFromProfileVK(newClient);
 		String email = newClient.getEmail();
 		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
@@ -303,7 +302,8 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 10 01 * ?")
 	private void buildAndSendReport() {
-		mailSendService.sendReportToJavaMentorEmail(reportService.buildReportOfLastMonth());
+		Optional<String> report = reportService.buildReportOfLastMonth();
+		report.ifPresent(mailSendService::sendReportToJavaMentorEmail);
 	}
 
 	@Scheduled(fixedRate = 600_000)
@@ -311,20 +311,22 @@ public class ScheduleTasks {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
-			String status = smsService.getStatusMessage(sms.getSmsId());
-			if (!status.equals("queued")) {
-				if (status.equals("delivered")) {
-					sms.setDeliveryStatus("доставлено");
-				} else if (sms.getClient() == null) {
-					logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-					sms.setDeliveryStatus("Клиент не найден");
-				} else {
-					String deliveryStatus = determineStatusOfResponse(status);
-					sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
-					sms.setDeliveryStatus(deliveryStatus);
+			Optional<String> status = smsService.getStatusMessage(sms.getSmsId());
+			if (status.isPresent()) {
+				if (!status.get().equals("queued")) {
+					if (status.get().equals("delivered")) {
+						sms.setDeliveryStatus("доставлено");
+					} else if (sms.getClient() == null) {
+						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
+						sms.setDeliveryStatus("Клиент не найден");
+					} else {
+						String deliveryStatus = determineStatusOfResponse(status.get());
+						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
+						sms.setDeliveryStatus(deliveryStatus);
+					}
+					sms.setChecked(true);
+					smsInfoService.update(sms);
 				}
-				sms.setChecked(true);
-				smsInfoService.update(sms);
 			}
 		}
 	}

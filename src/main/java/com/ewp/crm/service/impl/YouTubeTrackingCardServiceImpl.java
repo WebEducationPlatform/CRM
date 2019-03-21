@@ -33,24 +33,20 @@ public class YouTubeTrackingCardServiceImpl implements YouTubeTrackingCardServic
 	}
 
 	@Override
-	public YouTubeTrackingCard getYouTubeTrackingCardByID(Long id) {
-		Optional<YouTubeTrackingCard> optional = youTubeTrackingCardRepository.findById(id);
-		if (optional.isPresent()) {
-			return optional.get();
-		}
-		return null;
+	public Optional<YouTubeTrackingCard> getYouTubeTrackingCardByID(Long id) {
+		return youTubeTrackingCardRepository.findById(id);
 	}
 
 	@Override
-	public YouTubeTrackingCard addYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard) {
+	public Optional<YouTubeTrackingCard> addYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard) {
 		turnLinksIntoID(youTubeTrackingCard);
-		return youTubeTrackingCardRepository.saveAndFlush(youTubeTrackingCard);
+		return Optional.of(youTubeTrackingCardRepository.saveAndFlush(youTubeTrackingCard));
 	}
 
 	@Override
-	public YouTubeTrackingCard updateYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard) {
+	public Optional<YouTubeTrackingCard> updateYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard) {
 		turnLinksIntoID(youTubeTrackingCard);
-		return youTubeTrackingCardRepository.saveAndFlush(youTubeTrackingCard);
+		return Optional.of(youTubeTrackingCardRepository.saveAndFlush(youTubeTrackingCard));
 	}
 
 	@Override

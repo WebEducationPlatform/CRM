@@ -60,8 +60,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public Client getClientBySkype(String skypeLogin) {
-        return clientRepository.getClientBySkype(skypeLogin);
+    public Optional<Client> getClientBySkype(String skypeLogin) {
+        return Optional.ofNullable(clientRepository.getClientBySkype(skypeLogin));
     }
 
     @Override
@@ -70,30 +70,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public Client getClientByEmail(String email) {
-        return clientRepository.getClientByEmail(email);
+    public Optional<Client> getClientByEmail(String email) {
+        return Optional.ofNullable(clientRepository.getClientByEmail(email));
     }
 
     @Override
-    public Client getClientByPhoneNumber(String phoneNumber) {
-        return clientRepository.getClientByPhoneNumber(phoneNumber);
+    public Optional<Client> getClientByPhoneNumber(String phoneNumber) {
+        return Optional.ofNullable(clientRepository.getClientByPhoneNumber(phoneNumber));
     }
 
     @Override
-    public Client getClientBySocialProfile(SocialProfile socialProfile) {
+    public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {
         List<SocialProfile> socialProfiles = new ArrayList<>();
         socialProfiles.add(socialProfile);
-        return clientRepository.getClientBySocialProfiles(socialProfiles);
+        return Optional.ofNullable(clientRepository.getClientBySocialProfiles(socialProfiles));
     }
 
     @Override
-    public Client getClientByID(Long id) {
-        Optional<Client> optional = clientRepository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        } else {
-            return null;
-        }
+    public Optional<Client> getClientByID(Long id) {
+        return clientRepository.findById(id);
     }
 
     @Override
@@ -127,25 +122,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setLastName("");
         }
 
-        Client existClient = null;
+        Optional<Client> existClient = Optional.empty();
 
         client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
-            existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
+            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(client.getPhoneNumber()));
 
         }
 
-        if (existClient == null && client.getEmail() != null && !client.getEmail().isEmpty()) {
-            existClient = clientRepository.getClientByEmail(client.getEmail());
+        if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
+            existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
 
         }
 
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (existClient == null) {
+            if (!existClient.isPresent()) {
                 socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
                     existClient = getClientBySocialProfile(socialProfile);
@@ -155,21 +150,21 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             }
         }
 
-        if (existClient != null) {
+        if (existClient.isPresent()) {
             //если с новым клиентом пришла история, то добавим ее к старому клиенту.
             for (ClientHistory clientHistory : client.getHistory()) {
                 if (clientHistory.getTitle().contains("Новая заявка")) {
                     String repeated = clientHistory.getTitle().replaceAll("Новая заявка", "Повторная заявка");
                     clientHistory.setTitle(repeated);
                 }
-                existClient.addHistory(clientHistory);
+                existClient.get().addHistory(clientHistory);
             }
 
-            existClient.setClientDescriptionComment(REPEATED_CLIENT);
-            existClient.setRepeated(true);
-            sendNotificationService.sendNotificationsAllUsers(existClient);
-            existClient.setStatus(statusService.getRepeatedStatusForClient());
-            clientRepository.saveAndFlush(existClient);
+            existClient.get().setClientDescriptionComment(REPEATED_CLIENT);
+            existClient.get().setRepeated(true);
+            sendNotificationService.sendNotificationsAllUsers(existClient.get());
+            statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            clientRepository.saveAndFlush(existClient.get());
 
             return;
         }
@@ -304,8 +299,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
     @Override
-    public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
-        return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
+    public Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName) {
+        return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
 }

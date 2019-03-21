@@ -2,9 +2,11 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.MessageDialog;
 
+import java.util.Optional;
+
 public interface FacebookDialogService extends CommonService<MessageDialog> {
 
-	MessageDialog addDialog(MessageDialog messageDialog);
+	Optional<MessageDialog> addDialog(MessageDialog messageDialog);
 
-	MessageDialog getByDialogId(String id);
+	Optional<MessageDialog> getByDialogId(String id);
 }

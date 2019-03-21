@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.SMSInfoService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SMSInfoServiceImpl extends CommonServiceImpl<SMSInfo> implements SMSInfoService {
@@ -16,8 +17,8 @@ public class SMSInfoServiceImpl extends CommonServiceImpl<SMSInfo> implements SM
 	}
 
 	@Override
-	public SMSInfo addSMSInfo(SMSInfo smsInfo) {
-		return smsInfoRepository.saveAndFlush(smsInfo);
+	public Optional<SMSInfo> addSMSInfo(SMSInfo smsInfo) {
+		return Optional.of(smsInfoRepository.saveAndFlush(smsInfo));
 	}
 
 	@Override

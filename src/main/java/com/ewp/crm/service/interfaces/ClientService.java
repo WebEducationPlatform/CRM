@@ -5,6 +5,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ClientService extends CommonService<Client> {
@@ -13,17 +14,17 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getAllClients();
 
-	Client getClientBySkype(String skypeLogin);
+	Optional<Client> getClientBySkype(String skypeLogin);
 
 	List<Client> getClientsByOwnerUser(User ownerUser);
 
-	Client getClientByEmail(String name);
+	Optional<Client> getClientByEmail(String name);
 
-	Client getClientByPhoneNumber(String phoneNumber);
+	Optional<Client> getClientByPhoneNumber(String phoneNumber);
 
-	Client getClientByID(Long id);
+	Optional<Client> getClientByID(Long id);
 
-	Client getClientBySocialProfile(SocialProfile socialProfile);
+	Optional<Client> getClientBySocialProfile(SocialProfile socialProfile);
 
 	void addClient(Client client);
 
@@ -55,6 +56,6 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
 
-	Client findByNameAndLastNameIgnoreCase(String name, String lastName);
+	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
 	
 }
