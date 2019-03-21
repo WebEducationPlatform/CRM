@@ -26,14 +26,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @EnableScheduling
 @PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
 public class ScheduleTasks {
+
+	private static LocalDateTime nextSendTime = LocalDateTime.now();
 
 	private final VKService vkService;
 
@@ -273,13 +273,22 @@ public class ScheduleTasks {
 	private void sendMailing() {
 		LocalDateTime currentTime = LocalDateTime.now();
 		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
-		messages.forEach(x -> {
-			if (x.getDate().compareTo(currentTime) < 0) {
-			    mailingService.sendMessage(x);
+		messages.forEach(message -> {
+			if (message.getDate().compareTo(currentTime) < 0) {
+				// VK messages from user's page are sending with limit
+				if ("vk".equals(message.getType()) && !"managerPage".equals(message.getVkType())) {
+					if (nextSendTime.isBefore(currentTime)) {
+						// Next message will be send after 72 minutes (limit is 20 messages per day)
+						// plus some random time to avoid anti-spam blocking
+						nextSendTime = nextSendTime.plusSeconds((long) (4320 + new Random().nextInt(300)));
+						mailingService.sendMessage(message);
+					}
+				} else {
+					mailingService.sendMessage(message);
+				}
 			}
 		});
 	}
-
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {

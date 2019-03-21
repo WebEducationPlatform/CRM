@@ -28,10 +28,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +68,8 @@ public class SendMailsController {
                                                   @RequestParam("sendnow") boolean sendnow,
                                                   @RequestParam("vkType") String vkType,
                                                   @AuthenticationPrincipal User userFromSession) {
-        MailingMessage message;
+        MailingMessage message = null;
+        List<MailingMessage> vkMessages = new ArrayList<>();
         User user = userService.getUserByEmail(userFromSession.getEmail());
         switch (type) {
             case "vk":
@@ -108,23 +106,31 @@ public class SendMailsController {
 
             vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
 
+            clientsInfo.forEach(c -> vkMessages.add(new MailingMessage(type, template, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
+
         } else {
             Matcher matcher2 = p.matcher(recipients);
             while (matcher2.find()) {
                 clientsInfo.add(new ClientData(matcher2.group()));
             }
         }
-        if (type.equals("vk")) {
-            message = new MailingMessage(type, template, clientsInfo, destinationDate, vkType, user.getId());
-        } else {
+        if (!type.equals("vk")) {
             message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
-        }
-        if (sendnow) {
-            if (!mailingService.sendMessage(message)) {
-                return ResponseEntity.noContent().build();
+            if (sendnow) {
+                message.setDate(LocalDateTime.now());
+                mailingService.addMailingMessage(message);
+            } else {
+                mailingService.addMailingMessage(message);
             }
         } else {
-            mailingService.addMailingMessage(message);
+            if (sendnow) {
+                vkMessages.forEach(msg -> {
+                    msg.setDate(LocalDateTime.now());
+                    mailingService.addMailingMessage(msg);
+                });
+            } else {
+                vkMessages.forEach(mailingService::addMailingMessage);
+            }
         }
         return ResponseEntity.ok("");
     }

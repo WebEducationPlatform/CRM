@@ -40,8 +40,6 @@ public class MailingService {
     private final UserService userService;
 
 
-
-
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
                           MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
