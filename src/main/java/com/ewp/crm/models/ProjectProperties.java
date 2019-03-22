@@ -70,6 +70,19 @@ public class ProjectProperties {
     @JoinColumn(name = "default_student_status")
     private StudentStatus defaultStudentStatus;
 
+    /**
+     * Номер последнего договора об оплате
+     */
+    @Column(name = "contract_last_id")
+    private Long contractLastId;
+
+    /**
+     * Шаблон отправки сообщения договора
+     */
+    @OneToOne
+    @JoinColumn(name = "contract_template")
+    private MessageTemplate contractTemplate;
+
     public ProjectProperties() {
     }
 
@@ -172,6 +185,22 @@ public class ProjectProperties {
 
     public MessageTemplate getAutoAnswerTemplate() {
         return autoAnswerTemplate;
+    }
+
+    public Long getContractLastId() {
+        return contractLastId;
+    }
+
+    public void setContractLastId(Long contractLastId) {
+        this.contractLastId = contractLastId;
+    }
+
+    public MessageTemplate getContractTemplate() {
+        return contractTemplate;
+    }
+
+    public void setContractTemplate(MessageTemplate contractTemplate) {
+        this.contractTemplate = contractTemplate;
     }
 
     public void setAutoAnswerTemplate(MessageTemplate autoAnswerTemplate) {
