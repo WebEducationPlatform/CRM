@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.PassportDAO;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +39,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final VKService vkService;
 
+    private final PassportDAO passportDAO;
+
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.vkService = vkService;
         this.roleService = roleService;
+        this.passportDAO = passportDAO;
     }
 
     @Override
@@ -276,20 +280,31 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
     }
-    //TODO Пасспорт, Договор в сущность клиента
+
     @Override
-    public void updateClientByIdFromContractForm(Long id, ContractFormData data) {
-        Client client = clientRepository.getOne(id);
-        String[] fullName = data.getInputName().split(" ");
-        client.setLastName(fullName[0]);
-        client.setName(fullName[1]);
-        if(!data.getInputEmail().isEmpty()) {
-            client.setEmail(data.getInputEmail());
+    public void updateClientFromContractForm(Long clientId, ContractDataForm contractForm) {
+        Client client = clientRepository.getOne(clientId);
+        client.setName(contractForm.getInputFirstName());
+        client.setMiddleName(contractForm.getInputMiddleName());
+        client.setLastName(contractForm.getInputLastName());
+        if (!contractForm.getInputEmail().isEmpty()) {
+            client.setEmail(contractForm.getInputEmail());
         }
-        if(!data.getInputPhoneNumber().isEmpty()) {
-            client.setPhoneNumber(data.getInputPhoneNumber());
+        if (!contractForm.getInputPhoneNumber().isEmpty()) {
+            client.setPhoneNumber(contractForm.getInputPhoneNumber());
         }
-        updateClient(client);
+        Passport passport = contractForm.getPassportData();
+        passport.setClient(client);
+        client.setPassport(passport);
+        clientRepository.saveAndFlush(client);
+    }
+
+    @Override
+    public void setContractLink(Long clientId, ContractLinkData contractLink) {
+        Client client = clientRepository.getOne(clientId);
+        contractLink.setClient(client);
+        client.setContractLinkData(contractLink);
+        clientRepository.saveAndFlush(client);
     }
 
     // TODO Удалить после первого использования
