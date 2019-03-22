@@ -1,6 +1,6 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.ClientsContractLinks;
+import com.ewp.crm.models.ContractLinkData;
 
-public interface ClientsContractLinksRepository extends CommonGenericRepository<ClientsContractLinks> {
+public interface ClientsContractLinkRepository extends CommonGenericRepository<ContractLinkData> {
 }
