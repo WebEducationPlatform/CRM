@@ -17,5 +17,3 @@ public class CrmApplication {
 		return new DataInitializer();
 	}
 }
-
-

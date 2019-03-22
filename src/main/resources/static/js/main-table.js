@@ -11,6 +11,7 @@ var voxPassword;
 var callerId;
 var callToPhone;
 var micMuted;
+var backFromModalUrl;
 
 $('.fix-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
@@ -29,7 +30,7 @@ function drawCheckbox(currentForm, clientId) {
     let formData = {clientId: clientId};
     $.ajax({
         type: 'GET',
-        url: 'rest/client/' + clientId,
+        url: '/rest/client/' + clientId,
         data: formData,
         beforeSend: function () {
             if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
@@ -90,7 +91,7 @@ $("#save-description").on("click", function saveDescription() {
     let text = $('#clientDescriptionModal').find('textarea').val();
     let id = $(this).attr("data-id");
     let
-        url = 'rest/client/addDescription',
+        url = '/rest/client/addDescription',
         formData = {
             clientId: id,
             clientDescription: text
@@ -1037,7 +1038,7 @@ $(function () {
 
 
 function hideClient(clientId) {
-    let url = 'rest/client/postpone';
+    let url = '/rest/client/postpone';
     let flag = document.querySelector(".isPostponeFlag").checked;
     let commentUrl = '/rest/comment/add';
     let comment = document.querySelector(".postponeComment").value;
@@ -1148,7 +1149,7 @@ function assignSkype(id) {
     var startDate = minDate;
     $.ajax({
         type: 'GET',
-        url: 'rest/client/' + clientId,
+        url: '/rest/client/' + clientId,
         data: formData,
         success: function (client) {
             btnBlockTask.attr('id', 'assign-skype' + clientId);
@@ -1162,7 +1163,7 @@ function assignSkype(id) {
                 // Get the list of mentors
                 $.ajax({
                     type: 'GET',
-                    url: 'rest/skype/allMentors',
+                    url: '/rest/skype/allMentors',
                     dataType: 'json',
                     success: function (mentors) {
                         currentStatus.css('color', '#333');
@@ -1241,7 +1242,7 @@ function confirmSkype(id) {
     var startDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     $.ajax({
         type: 'POST',
-        url: 'rest/client/setSkypeLogin',
+        url: '/rest/client/setSkypeLogin',
         data: formData,
         success: function (client) {
             currentStatus.css('color', '#229922');
@@ -1252,7 +1253,7 @@ function confirmSkype(id) {
             // Get the list of mentors
             $.ajax({
                 type: 'GET',
-                url: 'rest/skype/allMentors',
+                url: '/rest/skype/allMentors',
                 dataType: 'json',
                 success: function (mentors) {
                     currentStatus.css('color', '#333');
@@ -1343,7 +1344,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDateAndCorrectEmail',
+        url: '/rest/skype/checkFreeDateAndCorrectEmail',
         data: checkCallSkype,
         dataType: 'json',
         statusCode: {
@@ -1351,7 +1352,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 // Add Event in calendar mentor
                 $.ajax({
                     type: 'POST',
-                    url: 'rest/skype/addSkypeCallAndNotification',
+                    url: '/rest/skype/addSkypeCallAndNotification',
                     data: addCallSkype,
                     success: function () {
                         $('.assign-skype-call-btn').hide();
@@ -1424,7 +1425,7 @@ function updateCallDate(id) {
     $(document).find('.update-date-btn').attr("disabled", "true");
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/' + clientId,
+        url: '/rest/skype/' + clientId,
         data: formData,
         dataType: 'json',
         success: function (assignSkypeCall) {
@@ -1437,7 +1438,7 @@ function updateCallDate(id) {
             // Get the list of mentors
             $.ajax({
                 type: 'GET',
-                url: 'rest/skype/allMentors',
+                url: '/rest/skype/allMentors',
                 dataType: 'json',
                 success: function (mentors) {
                     currentStatus.show();
@@ -1564,7 +1565,7 @@ $(document).on('click','.update-skype-call', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDateAndCorrectEmail',
+        url: '/rest/skype/checkFreeDateAndCorrectEmail',
         data: checkFreeDate,
         dataType: 'json',
             statusCode: {
@@ -1575,7 +1576,7 @@ $(document).on('click','.update-skype-call', function (e) {
                     // Update Event in calendar mentor
                     $.ajax({
                         type: 'POST',
-                        url: 'rest/mentor/updateEvent',
+                        url: '/rest/mentor/updateEvent',
                         data: updateEvent,
                         success: function (e) {
                             if (!document.getElementById('freeDate')) {
@@ -1643,7 +1644,7 @@ function deleteCallDate(id) {
 
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/' + clientId,
+        url: '/rest/skype/' + clientId,
         data: formDataId,
         dataType: 'json',
         success: function (assignSkypeCall) {
@@ -1659,7 +1660,7 @@ function deleteCallDate(id) {
 
             $.ajax({
                 type: 'POST',
-                url: 'rest/mentor/deleteEvent',
+                url: '/rest/mentor/deleteEvent',
                 data: deleteEvent,
                 success: function() {
                     currentBtn.removeAttr("disabled");
@@ -1800,6 +1801,31 @@ function client_has_telegram(client) {
     return has_telegram;
 }
 
+function changeStatus(clientId, statusId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/status/client/change',
+        data: {
+            "statusId" : statusId,
+            "clientId" : clientId
+        },
+        success: reloadClientStatus(clientId)
+    });
+}
+
+function reloadClientStatus(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            $('#client-set-status-button').text(client.status.name);
+        }
+    });
+}
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
         var currentModal = $(this);
@@ -1809,14 +1835,28 @@ $(function () {
         $.ajax({
             async: false,
             type: 'GET',
-            url: 'rest/client/' + clientId,
+            url: '/rest/status',
+            success: function (status) {
+                $('#client-status-list').empty();
+                $.each(status, function (i, s) {
+                    $('#client-status-list').append(
+                        '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
+                    );
+                });
+            }
+        });
+
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/rest/client/' + clientId,
             data: formData,
             success: function (client) {
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
                 }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
-                $.get('rest/client/getPrincipal', function (user) {
+                $.get('/rest/client/getPrincipal', function (user) {
                 }).done(function (user) {
                     if (client.ownerUser != null) {
                         var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
@@ -1827,6 +1867,7 @@ $(function () {
                     $('#main-modal-window').data('userId', user.id);
 
                     currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+                    currentModal.find('#client-set-status-button').text(client.status.name);
 
                     $('#client-email').text(client.email);
                     $('#client-phone').text(client.phoneNumber);
@@ -1858,6 +1899,17 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
+                    $('#client-date-of-birth').text(client.birthDate);
+                    $('#client-country').text(client.country);
+                    $('#client-city').text(client.city);
+                    $('#client-university').text(client.university);
+                    if (client.requestFrom !== null) {
+                        $('#client-request-button').show();
+                        $('#client-request').text(client.requestFrom);
+                    } else {
+                        $('#client-request-button').hide();
+                        $('#client-request').empty();
+                    }
 
                     // здесь вставка ссылок в кнопки вк, фб и слак
                     $('#vk-href').hide();
@@ -1872,7 +1924,7 @@ $(function () {
                     for (var i = 0; i < client.socialProfiles.length; i++) {
                         if (client.socialProfiles[i].socialProfileType.name === 'vk') {
                             //ajax call for profile photo
-                            let vkref = client.socialProfiles[i].link;
+                            let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
                             let url = '/rest/vkontakte/getProfilePhotoById';
 
                             $.ajax({
@@ -1897,7 +1949,7 @@ $(function () {
 
 
                         if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].link);
+                            $('#fb-href').attr('href', client.socialProfiles[i].socialId);
                             $('#fb-href').show();
                         }
                         get_interlocutors(clientId);
@@ -2013,7 +2065,7 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
-        backUrl();
+        backUrl(backFromModalUrl);
         clientsSearch();
     });
 });
@@ -2296,18 +2348,17 @@ $(".change-status-position").on('click', function () {
     });
 });
 
-function changeUrl(id) {
+function changeUrl(page, id) {
     var state = {'page_id': id, 'user_id': id};
     var title = '';
-    var url = '/client?id=' + id;
-
+    var url = page + '?id=' + id;
+    backFromModalUrl = page;
     history.replaceState(state, title, url);
 }
 
-function backUrl() {
+function backUrl(url) {
     var state = {};
     var title = '';
-    var url = '/client';
 
     history.replaceState(state, title, url);
 }
@@ -2440,6 +2491,15 @@ function slackInvite(email) {
         }
     })
 }
+
+$('#client-request-button').click( () => {
+    var x = document.getElementById("client-request");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+});
 
 function createContractSetting() {
     var baseUrl = window.location.href;

@@ -13,10 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -67,9 +67,11 @@ public class NotificationRestController {
         notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
         for (Notification notification : notifications) {
             if (notification.getType() == Notification.Type.POSTPONE) {
-                ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
-                clientHistory.setClient(client);
-                clientHistoryService.addHistory(clientHistory);
+                Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
+                if (clientHistory.isPresent()) {
+                    clientHistory.get().setClient(client);
+                    clientHistoryService.addHistory(clientHistory.get());
+                }
             }
         }
         return ResponseEntity.ok(HttpStatus.OK);
@@ -86,9 +88,11 @@ public class NotificationRestController {
             notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
             for (Notification notification : notifications) {
                 if (notification.getType() == Notification.Type.POSTPONE) {
-                    ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
-                    clientHistory.setClient(client);
-                    clientHistoryService.addHistory(clientHistory);
+                    Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.NOTIFICATION);
+                    if (clientHistory.isPresent()) {
+                        clientHistory.get().setClient(client);
+                        clientHistoryService.addHistory(clientHistory.get());
+                    }
                 }
             }
         }
@@ -113,8 +117,11 @@ public class NotificationRestController {
     @PostMapping(value = "/postpone/getAll")
     public ResponseEntity getPostnopeNotify(@RequestParam(name = "clientId") long id,
                                             @AuthenticationPrincipal User userFromSession) {
-        Client client = clientService.getClientByID(id);
-        List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client);
-        return ResponseEntity.ok(notifications);
+        Optional<Client> client = clientService.getClientByID(id);
+        if (client.isPresent()) {
+            List<Notification> notifications = notificationService.getByUserToNotifyAndTypeAndClient(userFromSession, Notification.Type.POSTPONE, client.get());
+            return ResponseEntity.ok(notifications);
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 }

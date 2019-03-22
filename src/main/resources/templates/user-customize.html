@@ -77,7 +77,7 @@
         <div id="new-student-config-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#new-student-config-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
-                Параметры создания студента
+                Параметры по-умолчанию для студентов
             </button>
         </div>
         <br/>
@@ -195,7 +195,11 @@
                     </div>
                     <div class="row">
                         <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
-                        <select id="status-column" class="form-control"> </select>
+                        <select id="status-column" class="form-control"></select>
+                    </div>
+                    <div class="row">
+                        <label for="reject-student-status-column">Выберите статус клиента студента-отказника</label>
+                        <select id="reject-student-status-column" class="form-control"> </select>
                     </div>
                 </div>
             </div>

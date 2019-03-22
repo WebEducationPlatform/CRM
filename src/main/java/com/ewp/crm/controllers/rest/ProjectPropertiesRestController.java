@@ -95,14 +95,6 @@ public class ProjectPropertiesRestController {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @PostMapping("/repeated-user-status")
-    public HttpStatus setRepeatedUserStatus(@RequestParam("statusId") Long statusId) {
-        ProjectProperties properties = projectPropertiesService.getOrCreate();
-        properties.setRepeatedDefaultStatusId(statusId);
-        projectPropertiesService.saveAndFlash(properties);
-        return HttpStatus.OK;
-    }
-
     @GetMapping("/repeatedStatus")
     public ResponseEntity<Long> getRepeatedStatus() {
         ProjectProperties projectProperties = projectPropertiesService.getOrCreate();
@@ -122,10 +114,22 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/new-student-properties")
-    public HttpStatus setNewStudentProperties(@RequestParam BigDecimal price, @RequestParam("id") long statusId) {
+    public HttpStatus setNewStudentProperties(@RequestParam BigDecimal price, @RequestParam BigDecimal payment, @RequestParam("id") long statusId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setDefaultPricePerMonth(price);
+        current.setDefaultPayment(payment);
         current.setDefaultStudentStatus(studentStatusService.get(statusId));
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/client-default-properties")
+    public HttpStatus setClientDefaults(@RequestParam Long repeatedStatus, @RequestParam Long newClientStatus, @RequestParam Long id, @RequestParam Long rejectId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        current.setRepeatedDefaultStatusId(repeatedStatus);
+        current.setNewClientStatus(newClientStatus);
+        current.setDefaultStatusId(id);
+        current.setClientRejectStudentStatus(rejectId);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }

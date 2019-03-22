@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FacebookServiceImpl implements FacebookService {
@@ -68,12 +69,14 @@ public class FacebookServiceImpl implements FacebookService {
 			while (count != jsonData.length()) {
 				JSONObject jsonDataObj = jsonData.getJSONObject(count);
 				JSONObject jsonDataObjMessages = jsonDataObj.getJSONObject("messages");
-				MessageDialog messageDialog = facebookDialogService.getByDialogId(jsonDataObj.getString("id"));
-				if (messageDialog == null) {
+				Optional<MessageDialog> messageDialogOpt = facebookDialogService.getByDialogId(jsonDataObj.getString("id"));
+				MessageDialog messageDialog;
+				if (!messageDialogOpt.isPresent()) {
 					messageDialog = new MessageDialog();
 					messageDialog.setDialogId(jsonDataObj.getString("id"));
 					nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
 				} else {
+					messageDialog = messageDialogOpt.get();
 					messageDialog.setDialogId(jsonDataObj.getString("id"));
 					nestedDatajsonjMessages = jsonDataObjMessages.getJSONArray("data");
 				}

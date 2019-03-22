@@ -4,6 +4,7 @@ import com.ewp.crm.models.YouTubeTrackingCard;
 import com.ewp.crm.models.YoutubeClient;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface YoutubeClientService {
 
@@ -15,7 +16,7 @@ public interface YoutubeClientService {
 
     List<YoutubeClient> getAllByYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
 
-    YoutubeClient getClientByName(String name);
+    Optional<YoutubeClient> getClientByName(String name);
 
     void update(YoutubeClient youtubeClient);
 }
