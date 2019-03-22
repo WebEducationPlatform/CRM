@@ -1251,7 +1251,7 @@ public class VKServiceImpl implements VKService {
         try {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
-           spentFromVk =  "Ошибка получения отчёта по затратам VK ads";
+           spentFromVk =  GETTING_SPENT_MONEY_ERROR;
            logger.error("Can't receive spent report from VK ads. Check if request to VK ads API is correct", e);
         }
 
