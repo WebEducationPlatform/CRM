@@ -15,6 +15,7 @@ public class GoogleAPIConfigImpl {
     private String clientSecret;
     private String redirectURI;
     private String scope;
+    private String accessTokenUri;
     private String docsUri;
     private String driveUploadUri;
     private String driveUpdateUri;
@@ -24,6 +25,7 @@ public class GoogleAPIConfigImpl {
     public GoogleAPIConfigImpl(Environment env) {
         clientId = env.getProperty("google.client.client-id");
         clientSecret = env.getProperty("google.client.client-secret");
+        accessTokenUri = env.getProperty("google.client.access-token-uri");
         redirectURI = env.getProperty("google.client.redirectUri");
         scope = env.getProperty("google.client.scope");
         docsUri = env.getProperty("google.docs.uri");
@@ -66,5 +68,9 @@ public class GoogleAPIConfigImpl {
 
     public String getDriveUpdateUri() {
         return driveUpdateUri;
+    }
+
+    public String getAccessTokenUri() {
+        return accessTokenUri;
     }
 }
