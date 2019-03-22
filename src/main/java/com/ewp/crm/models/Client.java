@@ -36,6 +36,9 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "first_name", nullable = false)
 	private String name;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
 	@Column(name = "last_name")
 	private String lastName;
 
@@ -171,6 +174,12 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Passport passport;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private ContractLinkData contractLinkData;
+
     public Client() {
         this.state = State.NEW;
         this.dateOfRegistration = ZonedDateTime.now();
@@ -286,6 +295,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
     public String getPhoneNumber() {
@@ -458,6 +475,22 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setPostponeComment(String postponeComment) {
         this.postponeComment = postponeComment;
+    }
+
+    public Passport getPassport() {
+        return passport;
+    }
+
+    public void setPassport(Passport passport) {
+        this.passport = passport;
+    }
+
+    public ContractLinkData getContractLinkData() {
+        return contractLinkData;
+    }
+
+    public void setContractLinkData(ContractLinkData contractLinkData) {
+        this.contractLinkData = contractLinkData;
     }
 
     @Override
