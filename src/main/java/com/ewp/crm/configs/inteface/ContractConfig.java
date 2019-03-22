@@ -13,4 +13,6 @@ public interface ContractConfig {
     String getOnetimePoint();
 
     String getDiploma();
+
+    String getFormat();
 }
