@@ -219,3 +219,50 @@ function validate_new_student_parameters(price, status) {
     }
     return true;
 }
+
+//Fill values on contract user setting
+$('#contract-user-setting-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#contract-mail-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#contract-mail-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.contractTemplate == null) {
+                        $("#contract-mail-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#contract-mail-template option[value=" + response.contractTemplate.id + "]").prop('selected', true);
+                    }
+                    $('#input-contract-last-id').empty().val(response.contractLastId);
+                }
+            })
+        }
+    });
+});
+
+$("#update-contract-user-setting").click(function () {
+    let data = {
+        contractTemplate: $("#contract-mail-template").val(),
+        contractLastId: $('#input-contract-last-id').val()
+    };
+    if (data.contractTemplate == '') {
+        alert("Внимание: Отправка сообщения отключена!");
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/contractUserSetting',
+        data: data,
+        success: function () {
+        }
+    })
+});
