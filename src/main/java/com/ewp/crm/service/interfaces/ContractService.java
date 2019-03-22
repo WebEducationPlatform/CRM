@@ -5,7 +5,7 @@ import com.ewp.crm.models.ContractSetting;
 
 import java.util.Optional;
 
-public interface GoogleDriveService {
+public interface ContractService {
 
     Optional<String> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting);
 }
