@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -38,6 +37,11 @@ public class Passport implements Serializable {
     @Lob
     @Column(name = "photo_of_residence_permit")
     private byte[] photoOfResidencePermit;
+
+    @JsonIgnore
+    @JoinColumn (name = "client_id")
+    @OneToOne
+    private Client client;
 
     public Passport() {
     }
@@ -114,6 +118,14 @@ public class Passport implements Serializable {
 
     public void setPhotoOfResidencePermit(byte[] photoOfResidencePermit) {
         this.photoOfResidencePermit = photoOfResidencePermit;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     @Override
