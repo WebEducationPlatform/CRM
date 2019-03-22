@@ -1,6 +1,6 @@
 package com.ewp.crm.models;
 
-public class ContractFormData {
+public class ContractDataForm {
 
     private String inputFirstName;
     private String inputMiddleName;
@@ -19,7 +19,7 @@ public class ContractFormData {
         this.passportData = passportData;
     }
 
-    public ContractFormData() {
+    public ContractDataForm() {
     }
 
     public String getInputFirstName() {
