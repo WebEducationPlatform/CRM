@@ -3,9 +3,7 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.LastContractIdRepository;
 import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
-import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.conversation.JMConversationHelper;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
@@ -72,9 +70,6 @@ public class DataInitializer {
 
     @Autowired
     private VkAttemptResponseRepository vkAttemptResponseRepository;
-
-    @Autowired
-    private LastContractIdRepository lastContractIdRepository;
 
     @Autowired
     private JMConversationHelper jmConversationHelper;
@@ -334,8 +329,5 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm6);
         vkRequestFormService.addVkRequestForm(vkRequestForm7);
 
-        LastContractId contractId = new LastContractId();
-        contractId.setLastId(45L);
-        lastContractIdRepository.save(contractId);
     }
 }
