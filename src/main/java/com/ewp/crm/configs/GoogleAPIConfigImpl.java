@@ -15,6 +15,9 @@ public class GoogleAPIConfigImpl {
     private String clientSecret;
     private String redirectURI;
     private String scope;
+    private String docsUri;
+    private String driveUploadUri;
+    private String driveUpdateUri;
     private static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
@@ -23,6 +26,9 @@ public class GoogleAPIConfigImpl {
         clientSecret = env.getProperty("google.client.client-secret");
         redirectURI = env.getProperty("google.client.redirectUri");
         scope = env.getProperty("google.client.scope");
+        docsUri = env.getProperty("google.docs.uri");
+        driveUploadUri = env.getProperty("google.drive.upload-uri");
+        driveUpdateUri = env.getProperty("google.drive.update-uri");
         if (!configIsValid()) {
             logger.error("Google configs have not initialized. Check google-api.properties file");
             System.exit(-1);
@@ -48,5 +54,17 @@ public class GoogleAPIConfigImpl {
 
     public String getScope() {
         return scope;
+    }
+
+    public String getDocsUri() {
+        return docsUri;
+    }
+
+    public String getDriveUploadUri() {
+        return driveUploadUri;
+    }
+
+    public String getDriveUpdateUri() {
+        return driveUpdateUri;
     }
 }
