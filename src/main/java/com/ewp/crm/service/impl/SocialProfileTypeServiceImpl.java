@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.SocialProfileTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class SocialProfileTypeServiceImpl extends CommonServiceImpl<SocialProfileType> implements SocialProfileTypeService {
     private SocialProfileTypeRepository socialProfileTypeRepository;
@@ -16,8 +18,8 @@ public class SocialProfileTypeServiceImpl extends CommonServiceImpl<SocialProfil
     }
 
     @Override
-    public SocialProfileType getByTypeName(String name) {
-        return socialProfileTypeRepository.getSocialProfileTypeByName(name);
+    public Optional<SocialProfileType> getByTypeName(String name) {
+        return Optional.ofNullable(socialProfileTypeRepository.getSocialProfileTypeByName(name));
     }
 
 }

@@ -61,61 +61,73 @@ public class TelegramRestController {
 
     @GetMapping("/messages/chat/open")
     public ResponseEntity<Map<String, Object>> getChatMessages(@RequestParam("clientId") Long clientId) {
-        List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        TdApi.Messages messages;
-        Optional<TdApi.Chat> chat;
-        ResponseEntity result = new ResponseEntity(new HashMap<String, Object>(), HttpStatus.OK);
-        for (SocialProfile profile : profiles) {
-            if("telegram".equals(profile.getSocialProfileType().getName())) {
-                String chatId = profile.getSocialId();
-                messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
-                Map<String, Object> map = new HashMap<>();
-                map.put("messages", messages);
-                chat = telegramService.getChat(Long.parseLong(chatId));
-                if (chat.isPresent()) {
-                    map.put("chat", chat.get());
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            List<SocialProfile> profiles = client.get().getSocialProfiles();
+            TdApi.Messages messages;
+            Optional<TdApi.Chat> chat;
+            ResponseEntity result = new ResponseEntity(new HashMap<String, Object>(), HttpStatus.OK);
+            for (SocialProfile profile : profiles) {
+                if ("telegram".equals(profile.getSocialProfileType().getName())) {
+                    String chatId = profile.getSocialId();
+                    messages = telegramService.getChatMessages(Long.parseLong(chatId), MESSAGE_LIMIT);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("messages", messages);
+                    chat = telegramService.getChat(Long.parseLong(chatId));
+                    if (chat.isPresent()) {
+                        map.put("chat", chat.get());
+                    }
+                    result = new ResponseEntity<>(map, HttpStatus.OK);
+                    break;
                 }
-                result = new ResponseEntity<>(map, HttpStatus.OK);
-                break;
             }
+            return result;
         }
-        return result;
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/messages/chat/close")
     public HttpStatus closeChat(@RequestParam("clientId") Long clientId) {
-        List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        HttpStatus result = HttpStatus.NOT_FOUND;
-        for (SocialProfile profile : profiles) {
-            if("telegram".equals(profile.getSocialProfileType().getName())) {
-                String chatId = profile.getSocialId();
-                telegramService.closeChat(Long.parseLong(chatId));
-                result = HttpStatus.OK;
-                break;
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            List<SocialProfile> profiles = client.get().getSocialProfiles();
+            HttpStatus result = HttpStatus.NOT_FOUND;
+            for (SocialProfile profile : profiles) {
+                if ("telegram".equals(profile.getSocialProfileType().getName())) {
+                    String chatId = profile.getSocialId();
+                    telegramService.closeChat(Long.parseLong(chatId));
+                    result = HttpStatus.OK;
+                    break;
+                }
             }
+            return result;
         }
-        return result;
+        return HttpStatus.NOT_FOUND;
     }
 
     @GetMapping("/messages/chat/unread")
     public ResponseEntity<Map<String, Object>>  getUnreadChatMessages(@RequestParam("clientId") Long clientId) {
-        List<SocialProfile> profiles =  clientService.getClientByID(clientId).getSocialProfiles();
-        TdApi.Messages messages = new TdApi.Messages();
-        TdApi.Chat chat = new TdApi.Chat();
-        ResponseEntity result = ResponseEntity.badRequest().build();
-        for (SocialProfile profile : profiles) {
-            if("telegram".equals(profile.getSocialProfileType().getName())) {
-                String chatId = profile.getSocialId();
-                messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
-                chat = telegramService.getChat(Long.parseLong(chatId)).get();
-                Map<String, Object> map = new HashMap<>();
-                map.put("messages", messages);
-                map.put("chat", chat);
-                result = new ResponseEntity<>(map, HttpStatus.OK);
-                break;
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            List<SocialProfile> profiles = client.get().getSocialProfiles();
+            TdApi.Messages messages = new TdApi.Messages();
+            TdApi.Chat chat = new TdApi.Chat();
+            ResponseEntity result = ResponseEntity.badRequest().build();
+            for (SocialProfile profile : profiles) {
+                if ("telegram".equals(profile.getSocialProfileType().getName())) {
+                    String chatId = profile.getSocialId();
+                    messages = telegramService.getUnreadMessagesFromChat(Long.parseLong(chatId), MESSAGE_LIMIT);
+                    chat = telegramService.getChat(Long.parseLong(chatId)).get();
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("messages", messages);
+                    map.put("chat", chat);
+                    result = new ResponseEntity<>(map, HttpStatus.OK);
+                    break;
+                }
             }
+            return result;
         }
-        return result;
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/message/send")
@@ -125,11 +137,11 @@ public class TelegramRestController {
         if (profile.isPresent()) {
             result = new ResponseEntity(telegramService.sendChatMessage(Long.parseLong(profile.get().getSocialId()), text), HttpStatus.OK);
         } else {
-            Client client = clientService.getClientByID(clientId);
-            if (client.getEmail() != null) {
-                int telegramId = telegramService.getClientIdByPhone(client.getPhoneNumber());
-                client.getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), socialProfileTypeService.getByTypeName("telegram")));
-                clientService.update(client);
+            Optional<Client> client = clientService.getClientByID(clientId);
+            if (client.isPresent() && client.get().getEmail() != null) {
+                int telegramId = telegramService.getClientIdByPhone(client.get().getPhoneNumber());
+                socialProfileTypeService.getByTypeName("telegram").ifPresent(s -> client.get().getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), s)));
+                clientService.update(client.get());
                 result = new ResponseEntity(telegramService.sendChatMessage((long) telegramId, text), HttpStatus.OK);
             }
         }
@@ -154,12 +166,14 @@ public class TelegramRestController {
     @GetMapping("/id-by-phone")
     public ResponseEntity<Integer> getClientIdByPhone(@RequestParam("phone") String phone) {
         int telegramId = telegramService.getClientIdByPhone(phone);
-        Client client = clientService.getClientByPhoneNumber(phone);
-        Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(client.getId(), "telegram");
-        if (!profile.isPresent() && telegramId != 0) {
-            if (client.getEmail() != null) {
-                client.getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), socialProfileTypeService.getByTypeName("telegram")));
-                clientService.update(client);
+        Optional<Client> client = clientService.getClientByPhoneNumber(phone);
+        if (client.isPresent()) {
+            Optional<SocialProfile> profile = socialProfileService.getSocialProfileByClientIdAndTypeName(client.get().getId(), "telegram");
+            if (!profile.isPresent() && telegramId != 0) {
+                if (client.get().getEmail() != null) {
+                    socialProfileTypeService.getByTypeName("telegram").ifPresent(s -> client.get().getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), s)));
+                    clientService.update(client.get());
+                }
             }
         }
         return new ResponseEntity<>(telegramService.getClientIdByPhone(phone), HttpStatus.OK);

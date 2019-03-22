@@ -27,12 +27,8 @@ public class PotentialClientServiceImpl implements PotentialClientService {
 	}
 
 	@Override
-	public PotentialClient getPotentialClientByID(Long id) {
-		Optional<PotentialClient> optional = potentialClientRepository.findById(id);
-		if (optional.isPresent()) {
-			return optional.get();
-		}
-		return null;
+	public Optional<PotentialClient> getPotentialClientByID(Long id) {
+		return potentialClientRepository.findById(id);
 	}
 
 	@Override
@@ -51,9 +47,9 @@ public class PotentialClientServiceImpl implements PotentialClientService {
 	}
 
 	@Override
-	public PotentialClient getPotentialClientBySocialProfile(SocialProfile socialProfile) {
+	public Optional<PotentialClient> getPotentialClientBySocialProfile(SocialProfile socialProfile) {
 		List<SocialProfile> socialProfiles = new ArrayList<>();
 		socialProfiles.add(socialProfile);
-		return potentialClientRepository.getPotentialClientBySocialProfiles(socialProfiles);
+		return Optional.ofNullable(potentialClientRepository.getPotentialClientBySocialProfiles(socialProfiles));
 	}
 }

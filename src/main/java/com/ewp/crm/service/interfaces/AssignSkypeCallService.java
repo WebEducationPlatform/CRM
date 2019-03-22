@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.AssignSkypeCall;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AssignSkypeCallService extends CommonService<AssignSkypeCall> {
 
@@ -14,5 +15,5 @@ public interface AssignSkypeCallService extends CommonService<AssignSkypeCall> {
 
 	void deleteByIdSkypeCall(Long id);
 
-	AssignSkypeCall getAssignSkypeCallByClientId(Long clientId);
+	Optional<AssignSkypeCall> getAssignSkypeCallByClientId(Long clientId);
 }

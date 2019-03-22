@@ -68,11 +68,11 @@ public class JMWhatsappConversation implements JMConversation {
 
 
         new RestTemplate().postForObject(sendUrl, whatsappMessageSendable, WhatsappCheckDeliveryMsg.class);
-        WhatsappMessage lastMessage = whatsappMessageService.findTopByFromMeTrueOrderByMessageNumberDesc();
+        Optional<WhatsappMessage> lastMessage = whatsappMessageService.findTopByFromMeTrueOrderByMessageNumberDesc();
 
         String lastMessagesUrl = "https://" + environment.getProperty("server.api") +
                 ".chat-api.com/" + environment.getProperty("instance") +
-                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (lastMessage==null?0+"&last":lastMessage.getMessageNumber() - 2);
+                "/messages?" + environment.getProperty("token") + "&lastMessageNumber=" + (!lastMessage.isPresent()?0+"&last":lastMessage.get().getMessageNumber() - 2);
         boolean messgesUpdated =false;
         Long lastMessageNumber;
         String id;

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class YoutubeClientServiceImpl implements YoutubeClientService {
@@ -39,8 +40,8 @@ public class YoutubeClientServiceImpl implements YoutubeClientService {
     }
 
     @Override
-    public YoutubeClient getClientByName(String name) {
-        return youtubeClientDAO.getByFullName(name);
+    public Optional<YoutubeClient> getClientByName(String name) {
+        return Optional.ofNullable(youtubeClientDAO.getByFullName(name));
     }
 
     @Override
