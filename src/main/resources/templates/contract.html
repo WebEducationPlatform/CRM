@@ -5,13 +5,23 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
 </head>
 <body>
-<div class="d-flex align-items-center flex-column justify-content-center h-100 row">
-    <form class="col-sm-5" th:action="@{/contract(id=${clientId})}" th:method="POST" th:object="${data}">
+<div class="d-flex align-items-center flex-column h-100 row">
+    <form class="col-sm-5" th:action="@{/contract/{hash}(hash=${hash})}" th:method="POST" th:object="${data}">
         <div class="form-group">
-            <label for="inputName" class="col-sm col-form-label">Фамилия Имя Отчество :</label>
+            <label for="inputLastName" class="col-sm col-form-label">Фамилия :</label>
             <div class="col-sm">
-                <input type="text" class="form-control" id="inputName" th:field="*{inputName}"
-                       placeholder="пример: Васильев Василий Васильевич"/>
+                <input type="text" class="form-control" id="inputLastName" th:field="*{inputLastName}"
+                       placeholder="пример: Васильев"/>
+            </div>
+            <label for="inputFirstName" class="col-sm col-form-label">Имя :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputFirstName" th:field="*{inputFirstName}"
+                       placeholder="пример: Василий "/>
+            </div>
+            <label for="inputMiddleName" class="col-sm col-form-label">Отчество :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputMiddleName" th:field="*{inputMiddleName}"
+                       placeholder="пример: Васильевич"/>
             </div>
         </div>
         <div class="form-group">
@@ -37,7 +47,7 @@
                 </div>
             </div>
             <div>
-                <label for="inputDateOfIssue" class="col-sm col-form-label">Дата выдачи :</label>
+                <label for="inputDateOfIssue" class="col-sm col-form-label">Когда выдан :</label>
                 <div class="col-sm">
                     <input type="text" class="form-control" id="inputDateOfIssue" th:field="*{passportData.dateOfIssue}"
                            placeholder="пример: 01.01.1111"/>
