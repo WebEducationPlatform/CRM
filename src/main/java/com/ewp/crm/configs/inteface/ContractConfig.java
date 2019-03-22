@@ -2,9 +2,9 @@ package com.ewp.crm.configs.inteface;
 
 public interface ContractConfig {
 
-    String getName();
+    String getFileName();
 
-    String getPath();
+    String getFilePath();
 
     String getMonth();
 

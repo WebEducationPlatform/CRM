@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @PropertySource("file:./contract.properties")
 public class ContractConfigImpl implements ContractConfig {
 
-    private String name;
-    private String path;
+    private String fileName;
+    private String filePath;
     private String month;
     private String monthPoint;
     private String onetimePoint;
@@ -19,20 +19,20 @@ public class ContractConfigImpl implements ContractConfig {
 
     @Autowired
     public ContractConfigImpl(Environment env) {
-        name = env.getProperty("contract.name");
-        path = env.getProperty("contract.path");
+        fileName = env.getProperty("contract.name");
+        filePath = env.getProperty("contract.path");
         month = env.getProperty("contract.doc.part.month");
         monthPoint = env.getProperty("contract.doc.part.month.point");
         onetimePoint = env.getProperty("contract.doc.part.onetime.point");
         diploma = env.getProperty("contract.doc.part.diploma");
     }
 
-    public String getName() {
-        return name;
+    public String getFileName() {
+        return fileName;
     }
 
-    public String getPath() {
-        return path;
+    public String getFilePath() {
+        return filePath;
     }
 
     public String getMonth() {
