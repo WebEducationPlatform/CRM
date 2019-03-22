@@ -64,6 +64,18 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/contractUserSetting")
+    public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplate") Long templateId, @RequestParam(name = "contractLastId") Long lastId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId == null) {
+            current.setContractTemplate(null);
+        } else {
+            current.setContractTemplate(messageTemplateService.get(templateId));
+        }
+        current.setContractLastId(lastId);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
 
     @PostMapping("/new-user-status")
     public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
