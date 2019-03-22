@@ -1,24 +1,27 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
-@Table(name = "clients_contract_link")
-public class ContractLink {
+@Table(name = "contract_links")
+public class ContractLinkData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id")
+    @JsonIgnore
+    @JoinColumn (name = "client_id")
+    @OneToOne
     private Client client;
 
     @Column(name = "contract_link")
     private String contractLink;
 
-    public ContractLink() {
+    public ContractLinkData() {
     }
 
     public Long getId() {
