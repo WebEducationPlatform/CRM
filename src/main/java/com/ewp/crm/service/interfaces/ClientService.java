@@ -59,7 +59,7 @@ public interface ClientService extends CommonService<Client> {
 
 	void updateClientFromContractForm(Long clientId, ContractDataForm contractForm);
 
-	void setContractLink(Long clientId, ContractLinkData contractLink);
+	void setContractLink(Long clientId, String contractLink);
 	// TODO Удалить после первого использования
 	void refactorDataBase();
 }
