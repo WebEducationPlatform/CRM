@@ -3,33 +3,34 @@ package com.ewp.crm.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "clients_contract_links")
-public class ClientsContractLinks {
+@Table(name = "clients_contract_link")
+public class ContractLink {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "client_id")
-    private Long clientId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @Column(name = "contract_link")
     private String contractLink;
 
-    public ClientsContractLinks() {
+    public ContractLink() {
     }
 
     public Long getId() {
         return id;
     }
 
-    public Long getClientId() {
-        return clientId;
+    public Client getClient() {
+        return client;
     }
 
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public String getContractLink() {

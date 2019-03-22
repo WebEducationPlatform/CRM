@@ -2,7 +2,9 @@ package com.ewp.crm.models;
 
 public class ContractFormData {
 
-    private String inputName;
+    private String inputFirstName;
+    private String inputMiddleName;
+    private String inputLastName;
     private String inputBirthday;
     private String inputEmail;
     private String inputPhoneNumber;
@@ -20,12 +22,28 @@ public class ContractFormData {
     public ContractFormData() {
     }
 
-    public String getInputName() {
-        return inputName;
+    public String getInputFirstName() {
+        return inputFirstName;
     }
 
-    public void setInputName(String inputName) {
-        this.inputName = inputName;
+    public void setInputFirstName(String inputFirstName) {
+        this.inputFirstName = inputFirstName;
+    }
+
+    public String getInputMiddleName() {
+        return inputMiddleName;
+    }
+
+    public void setInputMiddleName(String inputMiddleName) {
+        this.inputMiddleName = inputMiddleName;
+    }
+
+    public String getInputLastName() {
+        return inputLastName;
+    }
+
+    public void setInputLastName(String inputLastName) {
+        this.inputLastName = inputLastName;
     }
 
     public String getInputBirthday() {

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+
+<th:block th:fragment="contractUserSettingModal">
+    <div th:id="contract-user-setting-modal" class="modal fade client-contract-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Ссылка на форму для договора:</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="form-group">
+                            <div class="row" style="margin-bottom: 5%">
+                                <div class="form-check col-sm-6">
+                                    <input class="form-check-input" type="checkbox" id="contract-user-setting-one-time-payment-checkbox"
+                                           hidden="hidden" />
+                                    <label class="form-check-label" for="contract-user-setting-one-time-payment-checkbox">Разовая?</label>
+                                </div>
+                                <div class="form-check col-sm-6">
+                                    <input class="form-check-input" type="checkbox" id="contract-user-setting-diploma-checkbox"
+                                           hidden="hidden" />
+                                    <label class="form-check-label" for="contract-user-setting-diploma-checkbox">Диплом</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label for="contract-user-setting-payment-amount-form" class="col-sm-2 col-form-label">Сумма платежа</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="contract-user-setting-payment-amount-form"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <button class="btn btn-primary col-sm-4" type="button" id="contract-user-setting-generate-contract-button"
+                                    onclick="createContractSetting()" >Сгенерировать ссылку</button>
+                            <div class="col-sm-8">
+                                <input class="form-control" type="text" id="contract-user-setting-contract-link"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<script th:src="@{/js/main-table.js}"></script>
+</body>
+</html>
