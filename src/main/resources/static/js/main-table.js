@@ -1934,11 +1934,11 @@ $(function () {
                     if (client.ownerUser !== null && owenerName === adminName) {
                         btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                     }
-                    btnBlock.append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
-                        'data-toggle="modal" data-target="#client-contract-modal" ' +
-                        'onclick="getUrlContract(' + client.id + ')">сгенерировать ссылку на форму договора</button>');
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+
+                    $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
                 });
 
                 $('.send-all-custom-message').attr('clientId', clientId);
@@ -2441,10 +2441,31 @@ function slackInvite(email) {
     })
 }
 
-function getUrlContract(clientId) {
-    var link = $('#contract-link');
-    link.empty();
-    var url = window.location.href;
-    var str = url.substr(0,url.indexOf("/client",0)) + '/contract?id=' + clientId;
-    link.val(str);
+function createContractSetting() {
+    var baseUrl = window.location.href;
+    var url = '/client/contract/rest/create';
+
+    var clientId = baseUrl.substring(baseUrl.lastIndexOf('=') + 1);
+    var hash = (+new Date).toString(36);
+    var setting = {
+        hash: hash,
+        clientId: clientId,
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-checkbox').prop("checked"),
+        diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        paymentAmount: $('#contract-client-setting-payment-amount-form').val()
+    };
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: url,
+        data: JSON.stringify(setting),
+        success: function () {
+            var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
+            $('#contract-client-setting-contract-link').val(contractLink)
+        },
+        error: function () {
+            console.log('error save contract setting');
+        }
+    });
 }
