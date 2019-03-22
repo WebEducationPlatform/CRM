@@ -5,7 +5,6 @@ import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
 import org.slf4j.Logger;
@@ -23,41 +22,60 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 @Service
 //@EnableAsync
 public class MailingService {
     private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
+    private static LocalDateTime vkMessageNextSendTime = LocalDateTime.now();
+    private static final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
+    private static final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
+
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
     private final VKService vkService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
-    private final UserService userService;
-
-
-
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine, UserService userService) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
-        this.userService = userService;
-
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
         return mailingMessageRepository.saveAndFlush(message);
     }
 
+    public void sendMessages() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
+        messages.forEach(message -> {
+            if (message.getDate().compareTo(currentTime) < 0) {
+                // VK messages from user's page are sending with limit
+                if ("vk".equals(message.getType()) && !"managerPage".equals(message.getVkType())) {
+                    if (vkMessageNextSendTime.isBefore(currentTime)) {
+                        // Next message will be send after 72 minutes (limit is 20 messages per day)
+                        // plus some random time to avoid anti-spam blocking
+                        vkMessageNextSendTime = vkMessageNextSendTime.plusMinutes(72);
+                        vkMessageNextSendTime = vkMessageNextSendTime.plusSeconds(new Random().nextInt(300));
+                        sendMessage(message);
+                    }
+                } else {
+                    sendMessage(message);
+                }
+            }
+        });
+    }
 
     public boolean sendMessage(MailingMessage message) {
         boolean result = true;
@@ -159,6 +177,65 @@ public class MailingService {
             }
         }
         mailingMessageRepository.save(message);
+    }
+
+    public boolean parseMailingMessages(String type, String templateText, String recipients, String text, String date, boolean sendnow, String vkType, User user) {
+        String pattern;
+        String template;
+        switch (type) {
+            case "vk":
+                pattern = "";
+                template = text;
+                break;
+            case "sms":
+                pattern = smsPattern;
+                template = text;
+                break;
+            case "email":
+                pattern = emailPattern;
+                template = templateText;
+                break;
+            default:
+                return false;
+        }
+        LocalDateTime destinationDate = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК"));
+        Set<ClientData> clientsInfo = new HashSet<>();
+        if (type.equals("vk")) {
+            // Preparing messages
+            List<MailingMessage> vkMessages = new ArrayList<>();
+            String[] vkIds = recipients.split("\n");
+            Arrays.asList(vkIds).forEach(x -> {
+                String vkIdentify = vkService.getIdFromLink(x.trim());
+                if (vkIdentify != null) {
+                    clientsInfo.add(new ClientData(vkIdentify));
+                }
+            });
+            clientsInfo.forEach(c -> vkMessages.add(new MailingMessage(type, template, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
+            // Adding messages to queue
+            if (sendnow) {
+                vkMessages.forEach(msg -> {
+                    msg.setDate(LocalDateTime.now());
+                    addMailingMessage(msg);
+                });
+            } else {
+                vkMessages.forEach(this::addMailingMessage);
+            }
+        } else {
+            // Preparing messages: only get recepients who matches address pattern
+            Matcher recepientMatcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(recipients);
+            while (recepientMatcher.find()) {
+                clientsInfo.add(new ClientData(recepientMatcher.group()));
+            }
+            // Adding messages to queue
+            MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
+            if (sendnow) {
+                message.setDate(LocalDateTime.now());
+                addMailingMessage(message);
+            } else {
+                addMailingMessage(message);
+            }
+        }
+        return true;
     }
 }
 

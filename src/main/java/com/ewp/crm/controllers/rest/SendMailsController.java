@@ -4,13 +4,10 @@ import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ImageUploadDto;
-import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.MailingMessageService;
-import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -29,27 +26,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 @PropertySource("file:./ckeditor.properties")
 public class SendMailsController {
 
-    private final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
-
-    private String pattern;
-    private String template;
     private final MailingMessageService mailingMessageSendService;
     private final MailingService mailingService;
     private final UserService userService;
-
-
-
-    @Autowired
-    private VKService vkService;
 
     @Autowired
     public SendMailsController(MailingMessageService mailingMessageSendService, MailingService mailingService,
@@ -60,76 +45,20 @@ public class SendMailsController {
     }
 
     @PostMapping(value = "/client/mailing/send")
-    public ResponseEntity<String> parseClientData(@RequestParam("type") String type,
-                                                  @RequestParam("templateText") String templateText,
-                                                  @RequestParam("recipients") String recipients,
-                                                  @RequestParam("text") String text,
-                                                  @RequestParam("date") String date,
-                                                  @RequestParam("sendnow") boolean sendnow,
-                                                  @RequestParam("vkType") String vkType,
-                                                  @AuthenticationPrincipal User userFromSession) {
-        MailingMessage message;
+    public ResponseEntity<String> sendMails(@RequestParam("type") String type,
+                                            @RequestParam("templateText") String templateText,
+                                            @RequestParam("recipients") String recipients,
+                                            @RequestParam("text") String text,
+                                            @RequestParam("date") String date,
+                                            @RequestParam("sendnow") boolean sendnow,
+                                            @RequestParam("vkType") String vkType,
+                                            @AuthenticationPrincipal User userFromSession) {
         Optional<User> user = userService.getUserByEmail(userFromSession.getEmail());
-        switch (type) {
-            case "vk":
-                pattern = "";
-                template = text;
-                break;
-            case "sms":
-                pattern = smsPattern;
-                template = text;
-                break;
-            case "email":
-                pattern = emailPattern;
-                template = templateText;
-                break;
-        }
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК");
-        LocalDateTime destinationDate = LocalDateTime.parse(date, dateTimeFormatter);
-        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-
-
-        Set<ClientData> clientsInfo = new HashSet<>();
-        if (type.equals("vk")) {
-            String[] vkIds = recipients.split("\n");
-            Set<String> vkIdSet = new HashSet<>();
-            Arrays.asList(vkIds).forEach(x -> {
-
-                String vkIdentify = vkService.getIdFromLink(x);
-
-                if (vkIdentify != null) {
-                    vkIdSet.add(vkIdentify);
-                }
-
-            });
-
-            vkIdSet.forEach(vkIdentify -> clientsInfo.add(new ClientData(vkIdentify)));
-
-        } else {
-            Matcher matcher2 = p.matcher(recipients);
-            while (matcher2.find()) {
-                clientsInfo.add(new ClientData(matcher2.group()));
-            }
-        }
-        if (user.isPresent()) {
-            if (type.equals("vk")) {
-                message = new MailingMessage(type, template, clientsInfo, destinationDate, vkType, user.get().getId());
-            } else {
-                message = new MailingMessage(type, template, clientsInfo, destinationDate, user.get().getId());
-            }
-            if (sendnow) {
-                if (!mailingService.sendMessage(message)) {
-                    return ResponseEntity.noContent().build();
-                }
-            } else {
-                mailingService.addMailingMessage(message);
-            }
+        if (user.isPresent() && mailingService.parseMailingMessages(type, templateText, recipients, text, date, sendnow, vkType, user.get())) {
             return ResponseEntity.ok("");
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-
 
     @Value("${ckeditor.img.upload.path}")
     String uploadPath;

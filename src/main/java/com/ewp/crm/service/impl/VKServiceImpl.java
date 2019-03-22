@@ -148,14 +148,13 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String receivingTokenUri() {
-
         return "https://oauth.vk.com/authorize" +
                 "?client_id=" + applicationId +
-                "&display=" + display +
-                "&redirect_uri=" + redirectUri +
                 "&scope=" + scope +
-                "&response_type=token" +
-                "&v" + version;
+                "&redirect_uri=" + redirectUri +
+                "&display=" + display +
+                "&v=" + version +
+                "&response_type=token";
     }
 
     @Override
