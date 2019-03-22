@@ -413,12 +413,29 @@ function updateStudent(id) {
     });
 }
 
+$('#main-modal-window').on('hidden.bs.modal', function () {
+    var clientId = $(this).data('clientId');
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            var studentId = $('#main-modal-window').data('studentId');
+            $('#status_' + studentId).text(client.status.name);
+        }
+    });
+    renderStudentsTable();
+    calc_info_values();
+});
+
 //go to student info page
 $('.button_info').click(function () {
     var clientId = this.value;
     changeUrl('/student/all', clientId);
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', clientId);
+    currentModal.data('studentId', this.id.split("_")[3]);
     currentModal.modal('show');
 });
 
