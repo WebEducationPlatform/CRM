@@ -63,7 +63,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
             }
             Collection<String> collectionScope = Arrays.asList(scope.split(","));
             flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
-                    collectionScope).setAccessType("offline").build();
+                    collectionScope).setAccessType("offline").setApprovalPrompt("force").build();
         }
         authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectURI);
         return authorizationUrl.build();
@@ -73,7 +73,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
     public Credential tokenResponse(String code) {
         try {
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            tokenRepository.saveAndFlush(new GoogleToken(response.getAccessToken()));
+            tokenRepository.saveAndFlush(new GoogleToken(response.getAccessToken(),response.getRefreshToken()));
             credential = flow.createAndStoreCredential(response, "userID");
             return credential;
         } catch (IOException e) {
