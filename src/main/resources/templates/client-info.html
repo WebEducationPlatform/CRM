@@ -28,6 +28,11 @@
                                th:value="${client.lastName}"/>
                     </div>
                     <div class="form-group">
+                        <label for="edit-client-middle-name">Отчество</label>
+                        <input class="form-control" id="edit-client-middle-name" disabled="disabled"
+                               th:value="${client.middleName}"/>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-client-status">Статус</label>
                         <select class="form-control" id="edit-client-status" disabled="disabled">
                             <option th:each="status : ${statuses}" th:value="${status}" th:id="${status.id}"
