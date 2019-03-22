@@ -179,7 +179,7 @@ public class VkController {
     }
 
     @GetMapping("/vk-ads")
-    public String getAdvertisementVk() {
+    public String getAccessTokenVkAds() {
       String robotClientId=null;
       String redirectUri=null;
       try{

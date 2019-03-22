@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component("VkAds")
@@ -31,12 +32,10 @@ public class VkAdsReportService implements AdReportService {
     private String version;
     private String adsClientId;
     private String accessToken;
-
-    private Date date = new Date();
-    private Date dateBeforeOneDay = new Date(date.getTime() - 24 * 3600 * 1000l );
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private String dateTo = simpleDateFormat.format(date);
-    private String dateFrom = simpleDateFormat.format(dateBeforeOneDay);
+    private String dateTo;
+    private String dateFrom;
+    private StringBuilder vkAdsStatUri;
+    private StringBuilder vkAdsBudgetUri;
 
     @Autowired
     public VkAdsReportService(VKConfig vkConfig) {
@@ -45,11 +44,10 @@ public class VkAdsReportService implements AdReportService {
         version = vkConfig.getVersion();
         adsClientId = vkConfig.getVkAdsClientId();
         accessToken = vkConfig.getVkAppAccessToken();
-    }
-
-    //формирование строки запроса для получения статистики рекламного кабинетв ВК
-    private String vkAdsStatUri() {
-        StringBuilder stb = new StringBuilder(vkApi).append("ads.getStatistics")
+        dateTo = LocalDateTime.now().toLocalDate().toString()+"her"; //текущая дата
+        dateFrom = LocalDateTime.now().minusDays(1).toLocalDate().toString(); //вчерашняя дата - отняли один день
+        //строка запроса для получения статистики рекламного кабинетв ВК
+        vkAdsStatUri = new StringBuilder(vkApi).append("ads.getStatistics")
                 .append("?account_id=").append(adsClientId)
                 .append("&ids_type=office")
                 .append("&ids=").append(adsClientId)
@@ -58,56 +56,31 @@ public class VkAdsReportService implements AdReportService {
                 .append("&date_to=").append(dateTo)
                 .append("&version=").append(version)
                 .append("&access_token=").append(accessToken);
-        return stb.toString();
-    }
-
-    //формирование строки запроса для получения баланса рекламногокабинета ВК
-    private String vkAdsBudgetUri() {
-        StringBuilder stb = new StringBuilder(vkApi).append("ads.getBudget")
+        //строка запроса для получения баланса рекламногокабинета ВК
+        vkAdsBudgetUri = new StringBuilder(vkApi).append("ads.getBudget")
                 .append("?account_id=").append(adsClientId)
                 .append("&version=").append(version)
                 .append("&access_token=").append(accessToken);
-        return stb.toString();
+
     }
 
     //выполнение запроса и получение json ответа
-    private JSONObject getJsonByUri(String uri) {
+    private JSONObject getJsonByUri(String uri) throws JSONException, IOException {
         HttpGet httpGetStat = new HttpGet(uri);
         HttpClient httpClientStat = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setCookieSpec(CookieSpecs.STANDARD).build())
                 .build();
-        HttpResponse response = null;
-        JSONObject json = null;
-        try {
-            response = httpClientStat.execute(httpGetStat);
+            HttpResponse response = httpClientStat.execute(httpGetStat);
             String result = EntityUtils.toString(response.getEntity());
-            json = new JSONObject(result);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject  json = new JSONObject(result);
         return  json;
     }
 
-    //получение баланса рекламного кабинета вконтакте из json
-    private String balanceFromJson(JSONObject jsonBalance) {
-        String balance = "";
-        try {
-            balance = jsonBalance.getString("response");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return balance;
-    }
-
     //получение суммы потраченных денег в реламном кабинете из json
-    private String spentFromJson(JSONObject jsonStat) {
+    private String spentFromJson(JSONObject jsonStat) throws JSONException {
         String spent = "0.00";
-        JSONArray response = null;
-        try {
-            response = jsonStat.getJSONArray("response");
+        JSONArray response = jsonStat.getJSONArray("response");
             for (int i = 0; i < response.length() ; i++) {
                 JSONObject item = response.getJSONObject(i);
                 if(item.has("stats")) {
@@ -119,25 +92,21 @@ public class VkAdsReportService implements AdReportService {
                         }
                     }
                 }
-            }    } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
         return spent;
     }
 
     //получение баланса рекламного кабинета вк
-    public String getBalance() throws JSONException {
-        String balanceUri = vkAdsBudgetUri();
-        JSONObject jsonBalance = getJsonByUri(balanceUri);
-     String balance = balanceFromJson(jsonBalance);
+    public String getBalance() throws JSONException, IOException {
+        JSONObject jsonBalance = getJsonByUri(vkAdsBudgetUri.toString());
+        String balance = jsonBalance.getString("response");
         return  balance;
     }
 
     //получение отчета по потраченным средствам из рекламного кабинета ВК
-    public String getSpentMoney() throws JSONException {
-        String spentMoneyUri = vkAdsStatUri();
-        JSONObject jsonSpentMoney = getJsonByUri(spentMoneyUri);
-       String spentMoney = spentFromJson(jsonSpentMoney);
+    public String getSpentMoney() throws JSONException, IOException {
+        JSONObject jsonSpentMoney = getJsonByUri(vkAdsStatUri.toString());
+        String spentMoney = spentFromJson(jsonSpentMoney);
         return spentMoney;
     }
 }
