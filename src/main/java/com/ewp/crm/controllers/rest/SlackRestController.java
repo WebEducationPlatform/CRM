@@ -1,7 +1,6 @@
 package com.ewp.crm.controllers.rest;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+
 import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.StatusService;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -17,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-
 
 /**
  * TODO before start.
@@ -41,18 +38,13 @@ public class SlackRestController {
     private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
 
     private final SlackService slackService;
-    private String inviteToken;
+    private final String inviteToken;
 
     @Autowired
-    public SlackRestController(Environment environment,
-                               SlackService slackService) {
-        try {
-            this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
-            if (inviteToken.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (NullPointerException npe) {
-            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
+    public SlackRestController(Environment environment, SlackService slackService) {
+        this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
+        if (inviteToken.isEmpty()) {
+            logger.warn("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
         }
         this.slackService = slackService;
     }
