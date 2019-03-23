@@ -105,21 +105,4 @@ public class SlackRestController {
         headers.add("Content-type", "text/plain;charset=UTF-8");
         return new ResponseEntity<>(result, headers, HttpStatus.OK);
     }
-
-    @GetMapping("{email}")
-    public ResponseEntity<String> slackInvite(@PathVariable String email) {
-
-        String url = "https://slack.com/api/users.admin.invite?" +
-                "email=" + email +
-                "&token=" + inviteToken;
-        String json = null;
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
-            HttpEntity entity = response.getEntity();
-            json = EntityUtils.toString(entity);
-        } catch (Throwable e) {
-            logger.warn("Can't invite Client Slack profile", e);
-        }
-        return new ResponseEntity<>(json, HttpStatus.OK);
-    }
 }
