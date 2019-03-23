@@ -19,6 +19,7 @@ public class GoogleAPIConfigImpl {
     private String docsUri;
     private String driveUploadUri;
     private String driveUpdateUri;
+    private String folderId;
     private static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
@@ -31,6 +32,7 @@ public class GoogleAPIConfigImpl {
         docsUri = env.getProperty("google.docs.uri");
         driveUploadUri = env.getProperty("google.drive.upload-uri");
         driveUpdateUri = env.getProperty("google.drive.update-uri");
+        folderId = env.getProperty("google.drive.folder-id");
         if (!configIsValid()) {
             logger.error("Google configs have not initialized. Check google-api.properties file");
             System.exit(-1);
@@ -72,5 +74,9 @@ public class GoogleAPIConfigImpl {
 
     public String getAccessTokenUri() {
         return accessTokenUri;
+    }
+
+    public String getFolderId() {
+        return folderId;
     }
 }
