@@ -1,11 +1,7 @@
 package com.ewp.crm.controllers.rest;
-
-import com.ewp.crm.models.SlackProfile;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+
 
 /**
  * TODO before start.
@@ -49,9 +45,7 @@ public class SlackRestController {
 
     @Autowired
     public SlackRestController(Environment environment,
-                               SlackService slackService,
-                               StatusService statusService,
-                               ProjectPropertiesService propertiesService) {
+                               SlackService slackService) {
         try {
             this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
             if (inviteToken.isEmpty()) {
@@ -63,31 +57,6 @@ public class SlackRestController {
         this.slackService = slackService;
     }
 
-    @PostMapping
-    public ResponseEntity<String> interactionsWithSlack(@RequestBody String body) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(body);
-
-            //валидация ссылки куда Слак будет слать запросы. Выполняется 1 раз при смене ссылки в Слак
-            JsonNode challenge = jsonNode.get("challenge");
-            if (challenge != null) {
-                logger.info("Slack url_verification done");
-                return new ResponseEntity<>(challenge.asText(), HttpStatus.OK);
-            }
-
-            //обрабатываем событие на вход юзера на канал.
-            JsonNode event = jsonNode.get("event").get("type");
-            if ("member_joined_channel".equals(event.asText())) {
-                String slackHashName = jsonNode.get("event").get("user").asText();
-                SlackProfile slackProfile = slackService.receiveClientSlackProfileBySlackHashName(slackHashName);
-                slackService.memberJoinSlack(slackProfile);
-            }
-        } catch (IOException e) {
-            logger.warn("Cant read json form Slack", e);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     @GetMapping("/get/emails")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
