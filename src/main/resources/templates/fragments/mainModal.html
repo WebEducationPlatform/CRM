@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
 
@@ -16,8 +17,21 @@
                             border-radius: 50%; margin-right: 5px"/>
                     </div>
                     <div>
-                        <h4 style="float: left; width: auto; height: 30px; line-height: 30px"
-                            class="modal-title-profile"></h4>
+                        <h4 style="float: left; width: auto; height: 30px; line-height: 30px; margin-right: 10px;"
+                            class="modal-title-profile">
+                        </h4>
+                    </div>
+                    <div>
+                        <div style="margin-top: 15px" class="btn-group">
+                            <button th:id="'client-set-status-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Status <span class="caret"></span>
+                            </button>
+                            <ul th:id="client-status-list" class="dropdown-menu">
+                                <li><a href="#">Status 1</a></li>
+                                <li><a href="#">Status 2</a></li>
+                                <li><a href="#">Status 3</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-body">
@@ -80,6 +94,11 @@
                                     <td id="client-phone"></td>
                                 </tr>
                                 <tr>
+                                    <td>Дата рождения:</td>
+                                    <td id="client-date-of-birth"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Возраст:</td>
                                     <td id="client-age">
                                         <th:block>
@@ -93,8 +112,31 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td>Страна:</td>
+                                    <td id="client-country"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Город:</td>
+                                    <td id="client-city"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Университет:</td>
+                                    <td id="client-university"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Заметка:</td>
                                     <td id="client-label" style="word-wrap:break-word; width: 300px;"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Запрос:</td>
+                                    <td>
+                                        <button id="client-request-button" class="btn btn-default btn-xs">Показать/Скрыть</button>
+                                        <p id="client-request" style="display: none"></p>
+                                    </td>
                                     <td></td>
                                 </tr>
                                 <br/>

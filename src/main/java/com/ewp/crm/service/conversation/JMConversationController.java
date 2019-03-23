@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/conversation")
@@ -46,30 +47,33 @@ public class JMConversationController {
     @GetMapping(value = "/all-new", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<List<ChatMessage>> getNewMessages(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        return ResponseEntity.ok(conversationHelper.getNewMessages(client));
+        Optional<Client> client = clientService.getClientByID(clientId);
+        return client.map(c -> ResponseEntity.ok(conversationHelper.getNewMessages(c))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = "/last-read", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<Map<ChatType, String>> getLastReadMessageIds(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        return new ResponseEntity<>(conversationHelper.getReadMessages(client), HttpStatus.OK);
+        Optional<Client> client = clientService.getClientByID(clientId);
+        return client.map(c -> new ResponseEntity<>(conversationHelper.getReadMessages(c), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<List<ChatMessage>> getAllMessage(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        List<ChatMessage> messages = conversationHelper.getMessages(client);
-        return ResponseEntity.ok(messages);
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            List<ChatMessage> messages = conversationHelper.getMessages(client.get());
+            return ResponseEntity.ok(messages);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(value = "/interlocutors", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<List<Interlocutor>> getInterlocutors(@RequestParam("id") long clientId) {
-        Client client = clientService.getClientByID(clientId);
-        return ResponseEntity.ok(conversationHelper.getInterlocutors(client));
+        Optional<Client> client = clientService.getClientByID(clientId);
+        return client.map(c -> ResponseEntity.ok(conversationHelper.getInterlocutors(c))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = "/us", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -64,33 +64,28 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public Status get(Long id) {
-		Optional<Status> optional = statusDAO.findById(id);
-		return optional.orElse(null);
+	public Optional<Status> get(Long id) {
+		return statusDAO.findById(id);
 	}
 
 	@Override
-	public Status get(String name) {
-		return statusDAO.getStatusByName(name);
+	public Optional<Status> get(String name) {
+		return Optional.ofNullable(statusDAO.getStatusByName(name));
 	}
 
 	@Override
-	public Status getFirstStatusForClient() {
-		Optional<Status> optional = statusDAO.findById(propertiesService.getOrCreate().getNewClientStatus());
-		return optional.orElse(null);
+	public Optional<Status> getFirstStatusForClient() {
+		return statusDAO.findById(propertiesService.getOrCreate().getNewClientStatus());
 	}
 
 	@Override
-	public Status getRepeatedStatusForClient() {
-		Optional<Status> optional = statusDAO.findById(propertiesService.getOrCreate().getRepeatedDefaultStatusId());
-		return optional.orElse(null);
+	public Optional<Status> getRepeatedStatusForClient() {
+		return statusDAO.findById(propertiesService.getOrCreate().getRepeatedDefaultStatusId());
 	}
 
 	@Override
-	public Status getStatusByName(String name) {
-		Status statusByName = statusDAO.getStatusByName(name);
-		assert statusByName!=null;
-		return statusByName;
+	public Optional<Status> getStatusByName(String name) {
+		return Optional.ofNullable(statusDAO.getStatusByName(name));
 	}
 
 	@Override
@@ -171,8 +166,8 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public Long findMaxPosition() {
-		return statusDAO.findMaxPosition();
+	public Optional<Long> findMaxPosition() {
+		return Optional.ofNullable(statusDAO.findMaxPosition());
 	}
 
 	@Override
@@ -182,8 +177,10 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser) {
-		SortedStatuses sortedStatus = new SortedStatuses(get(statusId), currentUser);
-		sortedStatus.setSortingType(newOrder);
-		sortedStatusesRepository.save(sortedStatus);
+		if (get(statusId).isPresent()) {
+			SortedStatuses sortedStatus = new SortedStatuses(get(statusId).get(), currentUser);
+			sortedStatus.setSortingType(newOrder);
+			sortedStatusesRepository.save(sortedStatus);
+		}
 	}
 }

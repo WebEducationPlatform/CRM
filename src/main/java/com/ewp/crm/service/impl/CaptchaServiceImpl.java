@@ -8,13 +8,14 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +38,11 @@ public class CaptchaServiceImpl implements CaptchaService {
 
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
+        Optional<String> array = getByteArrayFromImageURL(captchaURL);
+        if (!array.isPresent()) {
+            logger.error("Can't get byte array from image URL " + captchaURL);
+            return Optional.empty();
+        }
         JSONObject bodyForReport;
         try {
             bodyForReport = new JSONObject("{\n" +
@@ -45,7 +50,7 @@ public class CaptchaServiceImpl implements CaptchaService {
                     "    \"task\":\n" +
                     "        {\n" +
                     "            \"type\":\"ImageToTextTask\",\n" +
-                    "            \"body\":\"" + getByteArrayFromImageURL(captchaURL) + "\",\n" +
+                    "            \"body\":\"" + array.get() + "\",\n" +
                     "            \"phrase\":false,\n" +
                     "            \"case\":false,\n" +
                     "            \"numeric\":false,\n" +
@@ -90,7 +95,7 @@ public class CaptchaServiceImpl implements CaptchaService {
             logger.error("InterruptedException", e);
         }
 
-        String solution = null;
+        Optional<String> solution = Optional.empty();
         try {
             solution = getResultCaptcha(taskId);
         } catch (NullPointerException | JSONException | IOException e) {
@@ -106,10 +111,11 @@ public class CaptchaServiceImpl implements CaptchaService {
                 logger.error("Unable to get captcha solution after 2 attempts, surrender...", e1);
             }
         }
-        return Optional.ofNullable(solution);
+        return solution;
     }
 
-    private static String getByteArrayFromImageURL(String url) {
+    @SuppressWarnings("deprecation")
+    private static Optional<String> getByteArrayFromImageURL(String url) {
         try {
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
@@ -121,14 +127,14 @@ public class CaptchaServiceImpl implements CaptchaService {
                 baos.write(buffer, 0, read);
             }
             baos.flush();
-            return Base64.encode(baos.toByteArray());
+            return Optional.of(new String(Base64.encode(baos.toByteArray())));
         } catch (Exception e) {
             logger.error("Error converting captcha image to bytes", e);
         }
-        return "";
+        return Optional.empty();
     }
 
-    private static String getResultCaptcha(String taskId) throws JSONException, IOException {
+    private static Optional<String> getResultCaptcha(String taskId) throws JSONException, IOException {
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -147,6 +153,6 @@ public class CaptchaServiceImpl implements CaptchaService {
         Response responseResult = client.newCall(requestResult).execute();
         JsonObject convertedObjectResult = new Gson().fromJson(responseResult.body().string(), JsonObject.class);
 
-        return convertedObjectResult.getAsJsonObject("solution").get("text").getAsString();
+        return Optional.of(convertedObjectResult.getAsJsonObject("solution").get("text").getAsString());
     }
 }

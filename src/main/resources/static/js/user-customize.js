@@ -171,33 +171,42 @@ $('#new-student-config-modal').on('show.bs.modal', function () {
         dataType: 'JSON',
         success: function (response) {
             $("#month-price").val(response.defaultPricePerMonth);
+            $("#month-payment").val(response.defaultPayment);
             $.ajax({
                 type: 'GET',
                 url: '/rest/student/status',
                 dataType: 'JSON',
                 success: function (statuses) {
-                    $("#new-student-status").empty().append(
-                        $('<option>').val('0').text('Не выбрано')
-                    );
-                    $.each(statuses, function (i, item) {
-                        $("#new-student-status").append(
-                            $('<option>').val(item.id).text(item.status)
-                        )
-                    });
-                    if (response.defaultStudentStatus == null) {
-                        $("#new-student-status option[value='0']").prop('selected', true)
-                    } else {
-                        $("#new-student-status option[value=" + response.defaultStudentStatus.id + "]").prop('selected', true);
-                    }
+                    var newStudentStatusField = '#new-student-status';
+                    var rejectStudentStatusField = '#reject-student-status';
+                    fillStatuses(newStudentStatusField, statuses, response.defaultStudentStatus);
+                    fillStatuses(rejectStudentStatusField, statuses, response.defaultRejectStudentStatus);
                 }
             });
         }
     });
 });
 
+function fillStatuses(field, statuses, defaultStatus) {
+    $(field).empty().append(
+        $('<option>').val('0').text('Не выбрано')
+    );
+    $.each(statuses, function (i, item) {
+        $(field).append(
+            $('<option>').val(item.id).text(item.status)
+        )
+    });
+    if (defaultStatus == null) {
+        $(field + " option[value='0']").prop('selected', true)
+    } else {
+        $(field + " option[value=" + defaultStatus.id + "]").prop('selected', true);
+    }
+}
+
 //Update new student creation properties
 $("#update-new-student-settings").click(function () {
     let price = $("#month-price").val();
+    let payment = $("#month-payment").val();
     let status_id = $("#new-student-status").val();
     if (!validate_new_student_parameters(price, status)) {
         return
@@ -208,7 +217,7 @@ $("#update-new-student-settings").click(function () {
     $.ajax({
         type: 'POST',
         url: '/rest/properties/new-student-properties',
-        data: {price: price, id: status_id},
+        data: {price: price, payment: payment, id: status_id}
     })
 });
 

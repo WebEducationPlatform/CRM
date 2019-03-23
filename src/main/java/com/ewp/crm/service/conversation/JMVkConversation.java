@@ -99,12 +99,16 @@ public class JMVkConversation implements JMConversation {
     public List<ChatMessage> getMessages(Client client, int count) {
 
         Optional<Interlocutor> interlocutor = getInterlocutor(client);
+        List<ChatMessage> chatMessages;
 
         if (interlocutor.isPresent()){
 
             Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, false);
+
             if (vkChatMessages.isPresent()) {
-                return vkChatMessages.get();
+                chatMessages = vkChatMessages.get();
+                markAsRead(interlocutor, chatMessages);
+                return chatMessages;
             }
 
         }
@@ -166,17 +170,19 @@ public class JMVkConversation implements JMConversation {
             Optional<List<ChatMessage>> vkChatMessages = vkService.getMassagesFromGroup(interlocutor.get().getId(), count, false, true);
 
             if (vkChatMessages.isPresent()) {
-
                 chatMessages = vkChatMessages.get();
-
-                for (ChatMessage chatMessage : chatMessages) {
-                    vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
-                    chatMessage.setRead(true);
-                }
-
+                markAsRead(interlocutor, chatMessages);
                 return chatMessages;
             }
         }
         return chatMessages;
+    }
+
+    //Помечаем сообщения как прочитанные
+    private void markAsRead(Optional<Interlocutor> interlocutor, List<ChatMessage> chatMessages) {
+        for (ChatMessage chatMessage : chatMessages) {
+            vkService.markAsRead(interlocutor.get().getId(), vkConfig.getCommunityToken(), chatMessage.getId());
+            chatMessage.setRead(true);
+        }
     }
 }

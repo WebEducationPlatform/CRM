@@ -28,6 +28,10 @@ public class ProjectProperties {
     @Column(name = "new_client_status")
     private Long newClientStatus = 1L;
 
+    // ID статуса по-умолчанию для клиентов студентов-отказников
+    @Column(name = "client_reject_student_status")
+    private Long clientRejectStudentStatus = -1L;
+
     /**
      * Message template for scheduled payment notification.
      */
@@ -62,6 +66,12 @@ public class ProjectProperties {
      */
     @Column(name = "default_price_per_month")
     private BigDecimal defaultPricePerMonth = new BigDecimal(12000.00);
+
+    /**
+     * Оплата по-умолчанию
+     */
+    @Column(name = "default_payment")
+    private BigDecimal defaultPayment = new BigDecimal(12000.00);
 
     /**
      * Cтатус по-умолчанию для нового студента.
@@ -134,6 +144,14 @@ public class ProjectProperties {
         this.repeatedDefaultStatusId = repeatedDefaultStatusId;
     }
 
+    public Long getClientRejectStudentStatus() {
+        return clientRejectStudentStatus;
+    }
+
+    public void setClientRejectStudentStatus(Long clientRejectStudentStatus) {
+        this.clientRejectStudentStatus = clientRejectStudentStatus;
+    }
+
     public Long getDefaultStatusId() {
         return defaultStatusId;
     }
@@ -188,6 +206,14 @@ public class ProjectProperties {
 
     public void setDefaultPricePerMonth(BigDecimal defaultPricePerMonth) {
         this.defaultPricePerMonth = defaultPricePerMonth;
+    }
+
+    public BigDecimal getDefaultPayment() {
+        return defaultPayment;
+    }
+
+    public void setDefaultPayment(BigDecimal defaultPayment) {
+        this.defaultPayment = defaultPayment;
     }
 
     public StudentStatus getDefaultStudentStatus() {

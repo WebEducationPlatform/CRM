@@ -3,7 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
@@ -58,18 +57,20 @@ public class WhatsappWebhook {
                 }
 
                 whatsappMessage.setChatId(whatsappMessage.getChatId().replaceAll("\\D", ""));
-                Client client = clientService.getClientByPhoneNumber(whatsappMessage.getChatId());
+                Optional<Client> client = clientService.getClientByPhoneNumber(whatsappMessage.getChatId());
 
-                if (client == null) {
-
-                    client = new Client(whatsappMessage.getSenderName(), whatsappMessage.getChatId(), whatsappMessage.getTime());
-                    checkSocialProfile(whatsappMessage, client);
-                    client.setStatus(statusService.getFirstStatusForClient());
-                    client.addHistory(new ClientHistory("Был добавлен из WhatsApp", whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
-                    clientService.addClient(client);
+                if (!client.isPresent()) {
+                    Client newClient = new Client(whatsappMessage.getSenderName(), whatsappMessage.getChatId(), whatsappMessage.getTime());
+                    checkSocialProfile(whatsappMessage, newClient);
+                    statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
+                    newClient.addHistory(new ClientHistory("Был добавлен из WhatsApp", whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
+                    clientService.addClient(newClient);
+                    checkSocialProfile(whatsappMessage, newClient);
+                    whatsappMessage.setClient(newClient);
+                } else {
+                    checkSocialProfile(whatsappMessage, client.get());
+                    whatsappMessage.setClient(client.get());
                 }
-                checkSocialProfile(whatsappMessage, client);
-                whatsappMessage.setClient(client);
             }
 
 
@@ -78,10 +79,10 @@ public class WhatsappWebhook {
         if (receipts != null) {
 
             for (WhatsappAcknowledgement whatsappAcknowledgement : receipts) {
-                WhatsappMessage whatsappMessage = whatsappMessageService.findById(whatsappAcknowledgement.getId());
-                if (whatsappMessage != null && whatsappAcknowledgement.getStatus().getPriority() > 2) {
-                    whatsappMessage.setSeen(true);
-                    whatsappMessageService.save(whatsappMessage);
+                Optional<WhatsappMessage> whatsappMessage = whatsappMessageService.findById(whatsappAcknowledgement.getId());
+                if (whatsappMessage.isPresent() && whatsappAcknowledgement.getStatus().getPriority() > 2) {
+                    whatsappMessage.get().setSeen(true);
+                    whatsappMessageService.save(whatsappMessage.get());
                 }
             }
         }
@@ -91,17 +92,17 @@ public class WhatsappWebhook {
 
     private void checkSocialProfile(WhatsappMessage whatsappMessage, Client client) {
         List<SocialProfile> socialProfiles = client.getSocialProfiles();
-
-        SocialProfileType whatsAppProfileType = socialProfileTypeService.getByTypeName("whatsapp");
-        SocialProfile socialProfile = new SocialProfile(whatsappMessage.getChatId(), whatsAppProfileType);
-        if (client.getId() != null) {
-            Optional<SocialProfile> socialProfileWhatsApp = socialProfileService.getSocialProfileByClientIdAndTypeName(client.getId(), "whatsapp");
-            if (socialProfiles.contains(socialProfileWhatsApp.get())) {
-                return;
+        if (socialProfileTypeService.getByTypeName("whatsapp").isPresent()) {
+            SocialProfile socialProfile = new SocialProfile(whatsappMessage.getChatId(), socialProfileTypeService.getByTypeName("whatsapp").get());
+            if (client.getId() != null) {
+                Optional<SocialProfile> socialProfileWhatsApp = socialProfileService.getSocialProfileByClientIdAndTypeName(client.getId(), "whatsapp");
+                if (socialProfiles.contains(socialProfileWhatsApp.get())) {
+                    return;
+                }
             }
+            socialProfiles.add(socialProfile);
+            client.setSocialProfiles(socialProfiles);
         }
-        socialProfiles.add(socialProfile);
-        client.setSocialProfiles(socialProfiles);
     }
 
 }

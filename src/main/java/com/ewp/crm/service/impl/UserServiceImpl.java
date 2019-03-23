@@ -7,6 +7,7 @@ import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +20,28 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl extends CommonServiceImpl<User> implements UserService {
     private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserDAO userDAO;
     private final ImageConfig imageConfig;
+    private final PhoneValidator phoneValidator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig,PhoneValidator phoneValidator) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
+        this.phoneValidator = phoneValidator;
     }
 
     @Override
-    public User getByEmailOrPhone(String email, String phone) {
-        return userDAO.getUserByEmailOrPhoneNumber(email, phone);
+    public Optional<User> getByEmailOrPhone(String email, String phone) {
+        return Optional.ofNullable(userDAO.getUserByEmailOrPhoneNumber(email, phone));
     }
 
     @Override
@@ -50,7 +52,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public User add(User user) {
         logger.info("{}: adding of a new user...", UserServiceImpl.class.getName());
-        phoneNumberValidation(user);
+        user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
         if (userDAO.getUserByEmail(user.getEmail()) != null) {
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
             throw new UserExistsException();
@@ -64,7 +66,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     @Override
     public void update(User user) {
         logger.info("{}: updating of a user...", UserServiceImpl.class.getName());
-        phoneNumberValidation(user);
+        user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
         User currentUserByEmail;
         if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
@@ -99,13 +101,13 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userDAO.getUserByEmail(email);
+    public Optional<User> getUserByEmail(String email) {
+        return Optional.ofNullable(userDAO.getUserByEmail(email));
     }
 
     @Override
-    public User getUserByFirstNameAndLastName(String firstName, String lastName) {
-        return userDAO.getUserByFirstNameAndLastName(firstName, lastName);
+    public Optional<User> getUserByFirstNameAndLastName(String firstName, String lastName) {
+        return Optional.ofNullable(userDAO.getUserByFirstNameAndLastName(firstName, lastName));
     }
 
     @Override
@@ -115,19 +117,6 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         update(user);
 
         logger.info("{}: color background set from {} to {}", user.getFullName(), precolor, color);
-    }
-
-    private void phoneNumberValidation(User user) {
-        String phoneNumber = user.getPhoneNumber();
-        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-        Matcher matcher = pattern.matcher(phoneNumber);
-        if (matcher.matches()) {
-            if (phoneNumber.startsWith("8")) {
-                phoneNumber = phoneNumber.replaceFirst("8", "7");
-            }
-            user.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-                    .replaceAll("\\s", ""));
-        }
     }
 
     @Override
