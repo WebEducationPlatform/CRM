@@ -21,7 +21,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.docx4j.Docx4J;
-import org.docx4j.model.datastorage.migration.VariablePrepare;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +44,7 @@ public class ContractServiceImpl implements ContractService {
     private final static String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
     private final String uploadUri;
     private final String updateUri;
+    private final String folderId;
 
     private final ProjectPropertiesService projectPropertiesService;
     private final GoogleTokenService googleTokenService;
@@ -57,6 +57,7 @@ public class ContractServiceImpl implements ContractService {
         this.contractConfig = contractConfig;
         this.uploadUri = googleAPIConfig.getDriveUploadUri();
         this.updateUri = googleAPIConfig.getDriveUpdateUri();
+        this.folderId = googleAPIConfig.getFolderId();
     }
 
     @Override
@@ -72,7 +73,7 @@ public class ContractServiceImpl implements ContractService {
 
                 String id = uploadFileAndGetFileId(file, token, httpClient);
                 if (!id.isEmpty()) {
-                    updateFileNameOnGoogleDrive(id, file.getName(), token, httpClient);
+                    updateFileNameAndFolderOnGoogleDrive(id, file.getName(), token, httpClient);
                     uploadFileAccessOnGoogleDrive(id, token, httpClient);
                     optionalId = Optional.of(id);
                 }
@@ -108,9 +109,9 @@ public class ContractServiceImpl implements ContractService {
         return "";
     }
 
-    private void updateFileNameOnGoogleDrive(String id, String fileName, String token, HttpClient httpClient) {
+    private void updateFileNameAndFolderOnGoogleDrive(String id, String fileName, String token, HttpClient httpClient) {
         try {
-            HttpPatch httpPatch = new HttpPatch(updateUri + id + "?access_token=" + token);
+            HttpPatch httpPatch = new HttpPatch(updateUri + id + "?access_token=" + token + "&addParents=" + folderId);
             httpPatch.setHeader("Content-type", "application/json");
             String jsonUpdateName = "{ \"name\":\"" + fileName + "\"}";
             httpPatch.setEntity(new StringEntity(jsonUpdateName));
@@ -141,35 +142,44 @@ public class ContractServiceImpl implements ContractService {
             String templateName = contractConfig.getFileName();
             WordprocessingMLPackage mlp = WordprocessingMLPackage.load(new File(templatePath + templateName));
             HashMap<String, String> map = new HashMap<>();
-            VariablePrepare.prepare(mlp); // throws Exception
             ProjectProperties projectProperties = projectPropertiesService.get();
             Long lastId = projectProperties.getContractLastId();
 
-            map.put("contract-number", String.valueOf(++lastId));
+            map.put("contractNumber", String.valueOf(++lastId));
             map.put("date", new SimpleDateFormat("dd MM yyyy").format(new Date()));
             map.put("name", data.getInputLastName() + " " + data.getInputFirstName() + " " + data.getInputMiddleName());
-            map.put("passport-series", data.getPassportData().getSeries());
-            map.put("passport-number", data.getPassportData().getNumber());
-            map.put("passport-issued", data.getPassportData().getIssuedBy());
-            map.put("passport-date", data.getPassportData().getDateOfIssue());
-            map.put("passport-registration", data.getPassportData().getIssuedBy());
+            map.put("passportSeries", data.getPassportData().getSeries());
+            map.put("passportNumber", data.getPassportData().getNumber());
+            map.put("passportIssued", data.getPassportData().getIssuedBy());
+            map.put("passportDate", data.getPassportData().getDateOfIssue());
+            map.put("passportRegistration", data.getPassportData().getIssuedBy());
             map.put("birthday", data.getInputBirthday());
             map.put("email", data.getInputEmail());
-            map.put("phone-number", data.getInputPhoneNumber());
+            map.put("phoneNumber", data.getInputPhoneNumber());
+            //Месячная опл
             if (!setting.isOneTimePayment()) {
-                map.put("onetime", contractConfig.getMonth());
-                map.put("point", contractConfig.getMonthPoint());
+                map.put("onetime32",contractConfig.getMonthParagraphThreeDotTwo());
+                map.put("onetime3", contractConfig.getMonthParagraphThree());
+                map.put("point3", contractConfig.getMonthPointParagraphThree());
+                map.put("onetime4", contractConfig.getMonthParagraphFour());
+                map.put("point4", contractConfig.getMonthPointParagraphFour());
             } else {
-                map.put("onetime", "");
-                map.put("point", contractConfig.getOnetimePoint());
+                map.put("onetime32",contractConfig.getOnetimeParagraphThreeDotTwo());
+                map.put("onetime3", " ");
+                map.put("point3", contractConfig.getOnetimePointParagraphThree());
+                map.put("onetime4", " ");
+                map.put("point4", contractConfig.getOnetimePointParagraphFour());
             }
             if (setting.isDiploma()) {
                 map.put("diploma", contractConfig.getDiploma());
             } else {
                 map.put("diploma", "");
             }
+            map.put("nalogNumber", projectProperties.getNalogNumber().toString());
+            map.put("checkingAccount", projectProperties.getCheckingAccount().toString());
+            map.put("correspondentAccount", projectProperties.getCorrespondentAccount().toString());
+            map.put("bankIdentificationCode", projectProperties.getBankIdentificationCode().toString());
             map.put("summa", setting.getPaymentAmount());
-
             mlp.getMainDocumentPart().variableReplace(map);
             File file = new File(templatePath + renameFileToLatin(data) + contractConfig.getFormat());
             if (file.createNewFile()) {
