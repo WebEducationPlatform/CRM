@@ -65,7 +65,12 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/contractUserSetting")
-    public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplate") Long templateId, @RequestParam(name = "contractLastId") Long lastId) {
+    public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplateId") Long templateId,
+                                              @RequestParam(name = "contractLastId") Long lastId,
+                                              @RequestParam(name = "nalogNumber") Long nalogNumber,
+                                              @RequestParam(name = "checkingAccount") Long checkingAccount,
+                                              @RequestParam(name = "correspondentAccount") Long correspondentAccount,
+                                              @RequestParam(name = "bankIdentificationCode") Long bankIdentificationCode) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setContractTemplate(null);
@@ -73,6 +78,10 @@ public class ProjectPropertiesRestController {
             current.setContractTemplate(messageTemplateService.get(templateId));
         }
         current.setContractLastId(lastId);
+        current.setNalogNumber(nalogNumber);
+        current.setCheckingAccount(checkingAccount);
+        current.setCorrespondentAccount(correspondentAccount);
+        current.setBankIdentificationCode(bankIdentificationCode);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
