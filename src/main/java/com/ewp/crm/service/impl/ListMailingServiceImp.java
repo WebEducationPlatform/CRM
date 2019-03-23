@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.ListMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implements ListMailingService {
 
@@ -22,12 +24,12 @@ public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implem
     }
 
     @Override
-    public ListMailing getByListName(String listName) {
-        return listMailingDAO.getByListName(listName);
+    public Optional<ListMailing> getByListName(String listName) {
+        return Optional.ofNullable(listMailingDAO.getByListName(listName));
     }
 
-    public ListMailing getListMailingById(Long id) {
-        return listMailingDAO.getOne(id);
+    public Optional<ListMailing> getListMailingById(Long id) {
+        return Optional.of(listMailingDAO.getOne(id));
     }
 
     public void update(ListMailing listMailing) {

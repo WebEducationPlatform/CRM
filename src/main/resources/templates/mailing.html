@@ -8,7 +8,7 @@
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangeipicker/2/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangeipicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 
     <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
@@ -241,6 +241,9 @@
 
                 <div class="modal-footer">
                 <div class="form-group">
+                    <button class="btn btn-primary" id="slackImportButton">
+                        Загрузить email из Slack
+                    </button>
                 <button class="btn btn-success" onclick="addToListMailing()">
                     Создать
                 </button>
@@ -300,6 +303,9 @@
 
                 <div class="modal-footer">
                     <div class="form-group">
+                        <button class="btn btn-primary" id="slackUpdateImportButton">
+                            Загрузить email из Slack
+                        </button>
                         <button id= "editButton" class="btn btn-success" onclick="editListMailing()" disabled="disabled">
                             Редактировать
                         </button>

@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -20,7 +19,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -30,6 +28,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -216,57 +215,63 @@ public class MailSendServiceImpl implements MailSendService {
 
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";
-        Client client = clientService.getClientByID(clientId);
-        String recipient = client.getEmail();
-        String fullName = client.getName() + " " + client.getLastName();
-        Map<String, String> params = new HashMap<>();
-        if (client.getContractLinkData() != null) {
-            String link = client.getContractLinkData().getContractLink();
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            String recipient = client.get().getEmail();
+            String fullName = client.get().getName() + " " + client.get().getLastName();
+            Map<String, String> params = new HashMap<>();
+            if (client.get().getContractLinkData() != null) {
+            String link = client.get().getContractLinkData().getContractLink();
                 params.put("%contractLink%", link);
-        }
-        //TODO в конфиг
-        params.put("%fullName%", fullName);
-        params.put("%bodyText%", body);
-        params.put("%dateOfSkypeCall%", body);
-        final Context ctx = new Context();
-        templateText = templateText.replaceAll("\n", "");
-        ctx.setVariable("templateText", templateText);
-        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        try {
-            final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setSubject("Java Mentor");
-            mimeMessageHelper.setTo(recipient);
-            mimeMessageHelper.setFrom(emailLogin);
-            StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
             }
-            mimeMessageHelper.setText(htmlContent.toString(), true);
-            Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
-            //inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
-            //Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
-            //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
-            Matcher matcher = pattern.matcher(templateText);
-            while (matcher.find()) {
-                String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
-                File file = new File(path);
-                if (file.exists()) {
-                    InputStreamSource inputStreamSource = new FileSystemResource(file);
-                    mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
-                } else {
-                    logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
-                    return;
+            //TODO в конфиг
+            params.put("%fullName%", fullName);
+            params.put("%bodyText%", body);
+            params.put("%dateOfSkypeCall%", body);
+            final Context ctx = new Context();
+            templateText = templateText.replaceAll("\n", "");
+            ctx.setVariable("templateText", templateText);
+            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            try {
+                final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                mimeMessageHelper.setSubject("Java Mentor");
+                mimeMessageHelper.setTo(recipient);
+                mimeMessageHelper.setFrom(emailLogin);
+                StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
                 }
+                mimeMessageHelper.setText(htmlContent.toString(), true);
+                Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
+                //inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
+                //Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
+                //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
+                Matcher matcher = pattern.matcher(templateText);
+                while (matcher.find()) {
+                    String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
+                    File file = new File(path);
+                    if (file.exists()) {
+                        InputStreamSource inputStreamSource = new FileSystemResource(file);
+                        mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                    } else {
+                        logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
+                        return;
+                    }
+                }
+                javaMailSender.send(mimeMessage);
+                if (principal != null) {
+                    Optional<Client> clientEmail = clientService.getClientByEmail(recipient);
+                    Optional<Message> message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+                    if (clientEmail.isPresent() && message.isPresent()) {
+                        clientHistoryService.createHistory(principal, clientEmail.get(), message.get()).ifPresent(client.get()::addHistory);
+                        clientService.updateClient(client.get());
+                    } else {
+                        logger.error("Can't send mail to {}", recipient);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Can't send mail to {}", recipient, e);
             }
-            javaMailSender.send(mimeMessage);
-            if (principal != null) {
-                Client clientEmail = clientService.getClientByEmail(recipient);
-                Message message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-                client.addHistory(clientHistoryService.createHistory(principal, clientEmail, message));
-                clientService.updateClient(client);
-            }
-        } catch (Exception e) {
-            logger.error("Can't send mail to {}", recipient, e);
         }
     }
 

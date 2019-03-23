@@ -3,13 +3,13 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.ListMailing;
 import com.ewp.crm.service.interfaces.ListMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ListMailingRestController {
@@ -23,7 +23,7 @@ public class ListMailingRestController {
 
     @PostMapping("/get/listMailing")
     public ResponseEntity<ListMailing> getListMailing(@RequestParam("listGroupId") Long id) {
-        return ResponseEntity.ok(listMailingService.getListMailingById(id));
-
+        Optional<ListMailing> listMailing = listMailingService.getListMailingById(id);
+        return listMailing.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

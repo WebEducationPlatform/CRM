@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCall> implements AssignSkypeCallService {
@@ -39,7 +40,7 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	}
 
 	@Override
-	public AssignSkypeCall getAssignSkypeCallByClientId(Long clientId) {
-		return assignSkypeCallRepository.getAssignSkypeCallByClientId(clientId);
+	public Optional<AssignSkypeCall> getAssignSkypeCallByClientId(Long clientId) {
+		return Optional.ofNullable(assignSkypeCallRepository.getAssignSkypeCallByClientId(clientId));
 	}
 }

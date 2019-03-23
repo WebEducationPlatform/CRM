@@ -21,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @Component
 public class ListLiveChatMessagesServiceImpl implements ListLiveChatMessagesService {
@@ -133,17 +130,17 @@ public class ListLiveChatMessagesServiceImpl implements ListLiveChatMessagesServ
     }
 
     private void addYoutubeClientToDB(YouTubeTrackingCard youTubeTrackingCard, String name, String message) {
-        YoutubeClient youtubeClient = youtubeClientService.getClientByName(name);
+        Optional<YoutubeClient> youtubeClient = youtubeClientService.getClientByName(name);
         String clearMessage = clearYoutubeMessageOfEmoji(message);
 
-        if (youtubeClient != null) {
-            YoutubeClientMessage youtubeClientMessage = new YoutubeClientMessage(youtubeClient, clearMessage);
+        if (youtubeClient.isPresent()) {
+            YoutubeClientMessage youtubeClientMessage = new YoutubeClientMessage(youtubeClient.get(), clearMessage);
             List<YoutubeClientMessage> messages = new ArrayList<>();
             messages.add(youtubeClientMessage);
-            youtubeClientService.update(youtubeClient);
-            youtubeClient.setMessages(messages);
+            youtubeClientService.update(youtubeClient.get());
+            youtubeClient.get().setMessages(messages);
             youtubeClientMessageService.add(youtubeClientMessage);
-            logger.info("YoutubeClient with name{} has been updated from Youtube", youtubeClient.getFullName());
+            logger.info("YoutubeClient with name{} has been updated from Youtube", youtubeClient.get().getFullName());
         } else {
             YoutubeClient newYoutubeClient = new YoutubeClient();
             newYoutubeClient.setFullName(name);

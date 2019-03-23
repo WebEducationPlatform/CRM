@@ -21,13 +21,8 @@ public class VkTrackedClubServiceImpl implements VkTrackedClubService {
     }
 
     @Override
-    public VkTrackedClub get(Long id) {
-        Optional<VkTrackedClub> optional = vkTrackedClubRepository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        } else {
-            return null;
-        }
+    public Optional<VkTrackedClub> get(Long id) {
+        return vkTrackedClubRepository.findById(id);
     }
 
     @Override

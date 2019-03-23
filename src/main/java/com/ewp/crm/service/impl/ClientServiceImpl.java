@@ -7,6 +7,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.PassportDAO;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -40,14 +40,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final VKService vkService;
 
     private final PassportDAO passportDAO;
+  
+    private final PhoneValidator phoneValidator;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.vkService = vkService;
         this.roleService = roleService;
         this.passportDAO = passportDAO;
+        this.phoneValidator = phoneValidator;
     }
 
     @Override
@@ -61,8 +64,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public Client getClientBySkype(String skypeLogin) {
-        return clientRepository.getClientBySkype(skypeLogin);
+    public Optional<Client> getClientBySkype(String skypeLogin) {
+        return Optional.ofNullable(clientRepository.getClientBySkype(skypeLogin));
     }
 
     @Override
@@ -71,30 +74,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public Client getClientByEmail(String email) {
-        return clientRepository.getClientByEmail(email);
+    public Optional<Client> getClientByEmail(String email) {
+        return Optional.ofNullable(clientRepository.getClientByEmail(email));
     }
 
     @Override
-    public Client getClientByPhoneNumber(String phoneNumber) {
-        return clientRepository.getClientByPhoneNumber(phoneNumber);
+    public Optional<Client> getClientByPhoneNumber(String phoneNumber) {
+        return Optional.ofNullable(clientRepository.getClientByPhoneNumber(phoneNumber));
     }
 
     @Override
-    public Client getClientBySocialProfile(SocialProfile socialProfile) {
+    public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {
         List<SocialProfile> socialProfiles = new ArrayList<>();
         socialProfiles.add(socialProfile);
-        return clientRepository.getClientBySocialProfiles(socialProfiles);
+        return Optional.ofNullable(clientRepository.getClientBySocialProfiles(socialProfiles));
     }
 
     @Override
-    public Client getClientByID(Long id) {
-        Optional<Client> optional = clientRepository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        } else {
-            return null;
-        }
+    public Optional<Client> getClientByID(Long id) {
+        return clientRepository.findById(id);
     }
 
     @Override
@@ -128,27 +126,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setLastName("");
         }
 
-        Client existClient = null;
+        Optional<Client> existClient = Optional.empty();
+
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
-            existClient = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
+            client.setCanCall(true);
+            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(client.getPhoneNumber()));
 
         }
 
-        if (existClient == null && client.getEmail() != null && !client.getEmail().isEmpty()) {
-            existClient = clientRepository.getClientByEmail(client.getEmail());
+        if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
+            existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
 
         }
+
+        checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
-                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
-                if (id.isPresent()) {
-                    socialProfile.setSocialId(String.valueOf(id.get()));
-                }
-            }
-            if (existClient == null) {
+            if (!existClient.isPresent()) {
                 socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                 if (socialProfile != null) {
                     existClient = getClientBySocialProfile(socialProfile);
@@ -158,27 +154,42 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             }
         }
 
-        if (existClient != null) {
+        if (existClient.isPresent()) {
             //если с новым клиентом пришла история, то добавим ее к старому клиенту.
             for (ClientHistory clientHistory : client.getHistory()) {
                 if (clientHistory.getTitle().contains("Новая заявка")) {
                     String repeated = clientHistory.getTitle().replaceAll("Новая заявка", "Повторная заявка");
                     clientHistory.setTitle(repeated);
                 }
-                existClient.addHistory(clientHistory);
+                existClient.get().addHistory(clientHistory);
             }
 
-            existClient.setClientDescriptionComment(REPEATED_CLIENT);
-            existClient.setRepeated(true);
-            sendNotificationService.sendNotificationsAllUsers(existClient);
-            existClient.setStatus(statusService.getRepeatedStatusForClient());
-            clientRepository.saveAndFlush(existClient);
+            existClient.get().setClientDescriptionComment(REPEATED_CLIENT);
+            existClient.get().setRepeated(true);
+            sendNotificationService.sendNotificationsAllUsers(existClient.get());
+            statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            clientRepository.saveAndFlush(existClient.get());
 
             return;
         }
 
         clientRepository.saveAndFlush(client);
         sendNotificationService.sendNotificationsAllUsers(client);
+    }
+
+    private void checkSocialIds(Client client) {
+        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
+            SocialProfile socialProfile = iterator.next();
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+                Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
+                if (id.isPresent()) {
+                    socialProfile.setSocialId(String.valueOf(id.get()));
+                } else {
+                    client.setComment("Не удалось получить социальную сеть клиента: " + socialProfile.getSocialId() + "\n" + client.getComment());
+                    client.deleteSocialProfile(socialProfile);
+                }
+            }
+        }
     }
 
     @Override
@@ -219,31 +230,46 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 throw new ClientExistsException();
             }
         }
+
+        checkSocialIds(client);
+
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
-            phoneNumberValidation(client);
+            client.setCanCall(true);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-            if (clientByPhone != null && !clientByPhone.getId().equals(client.getId())) {
+            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
-        }
-        clientRepository.saveAndFlush(client);
-    }
-
-    private void phoneNumberValidation(Client client) {
-        String phoneNumber = client.getPhoneNumber();
-        Pattern pattern = Pattern.compile("^((8|\\+7|7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
-        Matcher matcher = pattern.matcher(phoneNumber);
-        if (matcher.matches()) {
-            client.setCanCall(true);
-            if (phoneNumber.startsWith("8")) {
-                phoneNumber = phoneNumber.replaceFirst("8", "7");
-            }
-            client.setPhoneNumber(phoneNumber.replaceAll("[+()-]", "")
-                    .replaceAll("\\s", ""));
         } else {
             client.setCanCall(false);
         }
+        //checkSocialLinks(client);
+        clientRepository.saveAndFlush(client);
     }
+
+//    private void checkSocialLinks(Client client) {
+//        for (int i = 0; i < client.getSocialProfiles().size(); i++) {
+//            String link = client.getSocialProfiles().get(i).getSocialId();
+//            SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
+//            if (type.getName().equals("unknown")) {
+//                if (!link.startsWith("https")) {
+//                    if (link.startsWith("http")) {
+//                        link = link.replaceFirst("http", "https");
+//                    } else {
+//                        link = "https://" + link;
+//                    }
+//                }
+//            } else {
+//                int indexOfLastSlash = link.lastIndexOf("/");
+//                if (indexOfLastSlash != -1) {
+//                    link = link.substring(indexOfLastSlash + 1);
+//                }
+//                link = "https://" + type.getName() + ".com/" + link;
+//            }
+//            client.getSocialProfiles().get(i).setSocialId(link);
+//        }
+//    }
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
@@ -277,8 +303,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	}
 
     @Override
-    public Client findByNameAndLastNameIgnoreCase(String name, String lastName) {
-        return clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName);
+    public Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName) {
+        return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
     @Override
@@ -307,20 +333,5 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         contractLinkData.setClient(client);
         client.setContractLinkData(contractLinkData);
         clientRepository.saveAndFlush(client);
-    }
-
-    // TODO Удалить после первого использования
-    @Override
-    public void refactorDataBase() {
-        getAll().forEach(c -> c.getSocialProfiles().forEach(p -> {
-                    if (p.getSocialId().contains("vk") && "vk".equals(p.getSocialProfileType().getName())) {
-                        Optional<Long> id = vkService.getVKIdByUrl(p.getSocialId());
-                        if (id.isPresent()) {
-                            p.setSocialId(String.valueOf(id.get()));
-                            updateClient(c);
-                        }
-                    }
-                }
-        ));
     }
 }

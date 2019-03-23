@@ -5,17 +5,13 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
 import com.ewp.crm.service.conversation.JMConversationHelper;
-import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 public class DataInitializer {
@@ -89,16 +85,16 @@ public class DataInitializer {
         roleService.add(roleOwner);
         roleService.add(roleMentor);
 
-        SocialProfileType VK = new SocialProfileType("vk");
+        SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
-		SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType TELEGRAM = new SocialProfileType("telegram");
         SocialProfileType whatsApp = new SocialProfileType("whatsapp");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
-		socialProfileTypeService.add(TELEGRAM);
-		socialProfileTypeService.add(whatsApp);
+        socialProfileTypeService.add(TELEGRAM);
+        socialProfileTypeService.add(whatsApp);
 
         User admin = new User(
                 "Stanislav",
@@ -220,26 +216,34 @@ public class DataInitializer {
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
-        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", (byte) 21, Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
-        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", (byte) 33, Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
-        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", (byte) 53, Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
-        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", (byte) 20, Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
+        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
+        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
+        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", LocalDate.parse("1975-03-10"), Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", LocalDate.parse("1995-05-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
         client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
         client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
         client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));
         client4.addSMSInfo(new SMSInfo(123456L, "SMS Message to client 4", admin));
-        client1.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client2.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client3.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client4.addHistory(clientHistoryService.createHistory("инициализации crm"));
-        client1.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-1", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-1", socialProfileTypeService.getByTypeName("facebook"))));
-        client2.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-2", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-2", socialProfileTypeService.getByTypeName("facebook"))));
-        client3.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-3", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-3", socialProfileTypeService.getByTypeName("facebook"))));
-        client4.setSocialProfiles(Arrays.asList(new SocialProfile("https://vk.com/id-4", socialProfileTypeService.getByTypeName("vk")),
-                new SocialProfile("https://fb.com/id-4", socialProfileTypeService.getByTypeName("facebook"))));
+        clientHistoryService.createHistory("инициализации crm").ifPresent(client1::addHistory);
+        clientHistoryService.createHistory("инициализации crm").ifPresent(client2::addHistory);
+        clientHistoryService.createHistory("инициализации crm").ifPresent(client3::addHistory);
+        clientHistoryService.createHistory("инициализации crm").ifPresent(client4::addHistory);
+        List<SocialProfile> spList1 = new ArrayList<>();
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList1.add(new SocialProfile("https://vk.com/id1", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList1.add(  new SocialProfile("https://fb.com/id1", s)));
+        client1.setSocialProfiles(spList1);
+        List<SocialProfile> spList2 = new ArrayList<>();
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList2.add(new SocialProfile("https://vk.com/id6", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList2.add(new SocialProfile("https://fb.com/id6", s)));
+        client2.setSocialProfiles(spList2);
+        List<SocialProfile> spList3 = new ArrayList<>();
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList3.add(new SocialProfile("https://vk.com/id7", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList3.add(new SocialProfile("https://fb.com/id-3", s)));
+        client3.setSocialProfiles(spList3);
+        List<SocialProfile> spList4 = new ArrayList<>();
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList4.add(new SocialProfile("https://vk.com/id8", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList4.add(new SocialProfile("https://fb.com/id-4", s)));
+        client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
         vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
@@ -263,10 +267,10 @@ public class DataInitializer {
         clientService.addClient(client2);
         clientService.addClient(client3);
         clientService.addClient(client4);
-        status0.addClient(clientService.getClientByEmail("u.dolg@mail.ru"));
-        status1.addClient(clientService.getClientByEmail("i.fiod@mail.ru"));
-        status2.addClient(clientService.getClientByEmail("vboyko@mail.ru"));
-        status3.addClient(clientService.getClientByEmail("a.solo@mail.ru"));
+        clientService.getClientByEmail("u.dolg@mail.ru").ifPresent(status0::addClient);
+        clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(status1::addClient);
+        clientService.getClientByEmail("vboyko@mail.ru").ifPresent(status2::addClient);
+        clientService.getClientByEmail("a.solo@mail.ru").ifPresent(status3::addClient);
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(status2);
@@ -279,47 +283,61 @@ public class DataInitializer {
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
         StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
-        Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
-        Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
-        Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
-        studentService.add(trialStudent);
-        studentService.add(learningStudent);
-        studentService.add(pauseStudent);
+        clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(c -> studentService.add(
+                new Student(c, LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00),
+                        new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных")));
+        clientService.getClientByEmail("vboyko@mail.ru").ifPresent(c -> studentService.add(
+                new Student(c, LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00),
+                        new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится")));
+        clientService.getClientByEmail("a.solo@mail.ru").ifPresent(c -> studentService.add(
+                new Student(c, LocalDateTime.now(), LocalDateTime.now().plusDays(14), new BigDecimal(12000.00),
+                        new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели")));
+
 
         //TODO удалить после теста
 
         Faker faker = new Faker();
         List<Client> list = new LinkedList<>();
         for (int i = 0; i < 20; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("trialLearnStatus"));
-            client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-            list.add(client);
+            if (statusService.get("trialLearnStatus").isPresent()) {
+                Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("trialLearnStatus").get());
+                clientHistoryService.createHistory("инициализация crm").ifPresent(client::addHistory);
+                list.add(client);
+            }
         }
         clientService.addBatchClients(list);
         list.clear();
 
         for (int i = 0; i < 50; i++) {
-            Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", (byte) 20, Client.Sex.MALE, statusService.get("endLearningStatus"));
-            client.addHistory(clientHistoryService.createHistory("инициализация crm"));
-            list.add(client);
+            if (statusService.get("endLearningStatus").isPresent()) {
+                Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("endLearningStatus").get());
+                clientHistoryService.createHistory("инициализация crm").ifPresent(client::addHistory);
+                list.add(client);
+            }
         }
         clientService.addBatchClients(list);
-        reportsStatusService.
-                add(new ReportsStatus(
-                        statusService.getStatusByName("dropOut Status").getId(),
-                        statusService.getStatusByName("endLearningStatus").getId(),
-                        statusService.getStatusByName("inLearningStatus").getId(),
-                        statusService.getStatusByName("pauseLearnStatus").getId(),
-                        statusService.getStatusByName("trialLearnStatus").getId()
-                ));
+        Optional<Status> st0 = statusService.getStatusByName("dropOut Status");
+        Optional<Status> st1 = statusService.getStatusByName("endLearningStatus");
+        Optional<Status> st2 = statusService.getStatusByName("inLearningStatus");
+        Optional<Status> st3 = statusService.getStatusByName("pauseLearnStatus");
+        Optional<Status> st4 = statusService.getStatusByName("trialLearnStatus");
+        if (st0.isPresent() && st1.isPresent() && st2.isPresent() && st3.isPresent() && st4.isPresent()) {
+            reportsStatusService.
+                    add(new ReportsStatus(
+                            st0.get().getId(),
+                            st1.get().getId(),
+                            st2.get().getId(),
+                            st3.get().getId(),
+                            st4.get().getId()
+                    ));
+        }
+
 
         VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Номер телефона", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Email", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Товары", "Дополнительная информация");
-        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Пожелания", "Дополнительная информация");
-        VkRequestForm vkRequestForm6 = new VkRequestForm(6, "Фамилия", "Поле сопоставленное с данными");
-        VkRequestForm vkRequestForm7 = new VkRequestForm(7, "Test", "Дополнительная информация");
+        VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Фамилия", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Номер телефона", "Поле сопоставленное с данными");
+        VkRequestForm vkRequestForm4 = new VkRequestForm(4, "Ваш skype для первого созвона с ментором (необязательно)", "Дополнительная информация");
+        VkRequestForm vkRequestForm5 = new VkRequestForm(5, "Когда удобно начать первый пробный день?", "Дополнительная информация");
 
         vkRequestFormService.addVkRequestForm(vkRequestForm1);
         vkRequestFormService.addVkRequestForm(vkRequestForm2);
@@ -328,6 +346,5 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
         vkRequestFormService.addVkRequestForm(vkRequestForm6);
         vkRequestFormService.addVkRequestForm(vkRequestForm7);
-
     }
 }

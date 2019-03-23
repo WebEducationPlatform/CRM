@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class MessageTemplateServiceImpl extends CommonServiceImpl<MessageTemplate> implements MessageTemplateService {
@@ -18,8 +19,8 @@ public class MessageTemplateServiceImpl extends CommonServiceImpl<MessageTemplat
 	}
 
 	@Override
-	public MessageTemplate getByName(String name) {
-		return MessageTemplateDAO.getByName(name);
+	public Optional<MessageTemplate> getByName(String name) {
+		return Optional.ofNullable(MessageTemplateDAO.getByName(name));
 	}
 
 	@Override

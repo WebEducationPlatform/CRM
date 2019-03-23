@@ -7,62 +7,110 @@
     <meta charset="UTF-8" />
     <div th:replace="fragments/htmlFragments::header"></div>
     <link rel="stylesheet" href="/css/style.css"/>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <script type="text/javascript" th:src="@{/js/status.js}"></script>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
 <div style="margin: 2%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-
+    <div th:id="defaultStatusForRejectedStudent" th:text="${defaultStatusForRejectedStudent}" hidden="hidden"></div>
     <div class="container-fluid">
         <div><h1>Таблица всех студентов</h1></div>
 
         <div class="row">
             <div class="col-md-4">
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#filter">Фильтр</button>
+                <button type="button" class="btn btn-info" data-toggle="collapse" id="reset-all-colors-btn">Сбросить цвета</button>
             </div>
             <div class="col-md-4"><input class="form-control" id="searchInput" placeholder="Поиск студента..."/></div>
         </div>
-
         <div id="filter" class="collapse filter">
             <div class="row">
                 <div class="col-xs-1" th:each="status : ${statuses}">
                     <label class="control-label" th:for="${status.name}" th:text="${status.name}"></label>
-                    <input th:id="${status.name}" class="checkbox" type="checkbox" checked="checked"/>
+                    <input th:id="${status.name}" class="checkbox" type="checkbox" th:checked="${#strings.contains(filters,status.name)}"/>
                 </div>
             </div>
         </div>
         <br />
+
+        <div sec:authorize="hasAnyAuthority('OWNER')" class="row">
+            <div class="col-md-12">
+                <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <br/>
+                </div>
+            </div>
+        </div>
+
+        <div sec:authorize="hasAnyAuthority('OWNER')" id="additional-data" class="row justify-content-md-start hidden">
+            <div class="col-md-2 well">
+                <div class="row justify-content-md-start">
+                    <div class="col-md-6">
+                        <strong>Всего студентов</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <strong id="students-count">0</strong>
+                    </div>
+                </div>
+                <div class="row justify-content-md-start">
+                    <div class="col-md-6">
+                        <strong>Сумма оплаты</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <strong id="students-price-info">0.00</strong>
+                    </div>
+                </div>
+                <div class="row justify-content-md-start">
+                    <div id="additional-data-clickable-zone" class="col-md-12">
+                        <u><small>Скрыть</small></u>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10"></div>
+        </div>
+
         <table class="table table-hover table-fixed" id="students-table">
             <thead id="thead-table-students">
             <tr class="head-table">
-                <th class="fit" onclick="sort_table(1)">#</th>
-                <th onclick="sort_table(2, 'href')">Имя</th>
-                <th onclick="sort_table(3)">Фамилия</th>
-                <th onclick="sort_table(4)">Email</th>
-                <th class="fit" onclick="sort_table(5, 'date')">Конец пробных</th>
-                <th class="fit" onclick="sort_table(6, 'date')">Следующая оплата</th>
-                <th class="fit" onclick="sort_table(7)">Цена</th>
-                <th class="fit" onclick="sort_table(8)">Сумма платежа</th>
-                <th class="fit" onclick="sort_table(9)">Оплата после</th>
+                <th onclick="sort_table(1)">Имя</th>
+                <th onclick="sort_table(2)">Фамилия</th>
+                <th onclick="sort_table(3)">Email</th>
+                <th onclick="sort_table(4, 'date')">Конец пробных</th>
+                <th onclick="sort_table(5, 'date')">Следующая оплата</th>
+                <th class="fit" onclick="sort_table(6)">Цена</th>
+                <th class="fit" onclick="sort_table(7)">Сумма платежа</th>
+                <th class="fit" onclick="sort_table(8)">Оплата после</th>
                 <th width="240px">Напоминание</th>
-                <th onclick="sort_table(11)">Статус учёбы</th>
-                <th onclick="sort_table(12)">Заметки</th>
-                <th class="fit"></th>
+                <th class="fit" onclick="sort_table(10)">Статус учёбы</th>
+                <th onclick="sort_table(11)">Заметки</th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="table-body">
-            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" >
-                <td style="display:none;" th:text="${student.client.status.name}"></td>
-                <td th:text="${student.id}"></td>
-                <td class="line-decoration" ><a th:text="${student.client.name}" th:href="@{'/client/clientInfo/' + ${student.client.id}}"></a></td>
-                <td th:text="${student.client.lastName}"></td>
-                <td th:text="${student.client.email}"></td>
-                <td th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></td>
-                <td th:text="${student.price}"></td>
-                <td th:text="${student.paymentAmount}"></td>
-                <td th:text="${student.payLater}"></td>
+            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="${(student.client.status.name != 'deleted' ? '' : 'display:none;') + student.color != null ? 'background-color: ' + student.color : ''}">
+                <td th:id="${'status_' + student.id}" hidden="hidden" th:text="${student.client.status.name}"></td>
+                <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
+                <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
+                <td th:id="${'email_' + student.id}" th:text="${student.client.email}"></td>
+                <td th:id="${'trialEndDate_' + student.id}">
+                    <span th:id="${'trialEndDateValue_' + student.id}" th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></span>
+                    <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+15D</button>
+                    <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs trial-date-btn">+1M</button>
+                </td>
+                <td th:id="${'nextPaymentDate_' + student.id}">
+                    <span th:id="${'nextPaymentDateValue_' + student.id}" th:text="${#temporals.format(student.nextPaymentDate, 'dd.MM.yyyy')}"></span>
+                    <input th:id="${'next-payment-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>
+                    <button th:id="${'add_weeks_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+15D</button>
+                    <button th:id="${'add_month_button_' + student.id}" type="button" class="btn btn-default btn-xs payment-date-btn">+1M</button>
+                </td>
+                <td class="price-for-student" th:id="${'price_' + student.id}" th:text="${student.price}"></td>
+                <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
+                <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}"></td>
                 <td>
                     <table width="240px">
                         <tr>
@@ -79,10 +127,12 @@
                                 </label>
                             </td>
                             <td width="25%">
-                                <label th:for="${student.id+'_notify_vk'}" th:hidden="${!#strings.contains(student.client.socialProfiles,'vk.com')}">
+                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'vk'}" th:remove="tag">
+                                <label th:for="${student.id+'_notify_vk'}">
                                     VK:
-                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}" th:disabled="${!#strings.contains(student.client.socialProfiles,'vk.com')}"/>
+                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}"/>
                                 </label>
+                                </span>
                             </td>
                             <td width="25%">
                                 <label th:for="${student.id+'_notify_all'}">
@@ -93,11 +143,16 @@
                         </tr>
                     </table>
                 </td>
-                <td th:text="${student.status.status}"></td>
-                <td th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
+                <td th:id="${'status_' + student.id}">
+                    <span th:id="${'statusValue_' + student.id}" th:text="${student.status.status}"></span>
+                    <select th:id="${'student-status_' + student.id}" class="form-control hidden"></select>
+                </td>
+                <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
-                    <button class="button_edit btn btn-info glyphicon glyphicon-pencil" th:value="${student.id}" title="Изменить студента"></button>
-                    <button class="button_delete btn btn-danger glyphicon glyphicon-remove" th:value="${student.id}" title="Удалить студента"></button>
+                    <button class="button_color btn btn-success glyphicon glyphicon-tint btn-xs" th:value="${student.id}" title="Окраска"></button>
+                    <button class="button_color_reset btn btn-warning glyphicon glyphicon-repeat btn-xs" th:value="${student.id}" title="Сброс окраски"></button>
+                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:value="${student.client.id}" title="Информация"></button>
+                    <button class="button_delete btn btn-danger glyphicon glyphicon-remove btn-xs" th:value="${student.id}" title="Удалить студента"></button>
                 </td>
             </tr>
             </tbody>
@@ -106,7 +161,25 @@
         </table>
     </div>
 </div>
-<div th:replace="fragments/student-edit-modal::studentEditModal"></div>
+<div th:replace="fragments/student-reject-modal::studentRejectModal"></div>
+<div th:replace="fragments/mainModal::mainModalWindow"></div>
+<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="/js/moment-timezone.js"></script>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
+<script type="text/javascript" th:src="@{/js/comments.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+<script type="text/javascript" th:src="@{/js/status.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
 </body>
 </html>
