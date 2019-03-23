@@ -180,17 +180,8 @@ public class VkController {
 
     @GetMapping("/vk-ads")
     public String getAccessTokenVkAds() {
-      String robotClientId=null;
-      String redirectUri=null;
-      try{
-          robotClientId = vkConfig.getRobotClientId();
-          redirectUri = vkConfig.getRedirectUri();
-          if(robotClientId.isEmpty() || redirectUri.isEmpty()) {
-              throw new NullPointerException();
-          }
-      } catch (NullPointerException npe) {
-          logger.error("Check the robotClientId or redirectUri from vk.properties -> vk.robot.app.clientId or vk.app.redirect_uri", npe);
-      }
+         String robotClientId = vkConfig.getRobotClientId();
+         String redirectUri = vkConfig.getRedirectUri();
         StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize");
         stb.append("?client_id=");
         stb.append(robotClientId);
