@@ -2466,6 +2466,7 @@ function createContractSetting() {
         },
         error: function () {
             console.log('error save contract setting');
+            alert('Нужна авторизация в Google!')
         }
     });
 }
