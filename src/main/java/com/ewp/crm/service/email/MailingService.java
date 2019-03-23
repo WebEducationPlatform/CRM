@@ -1,6 +1,7 @@
 package com.ewp.crm.service.email;
 
 
+import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
@@ -33,8 +34,8 @@ import java.util.regex.Pattern;
 public class MailingService {
     private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
     private static LocalDateTime vkMessageNextSendTime = LocalDateTime.now();
-    private static final String emailPattern = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private static final String smsPattern = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
+    private static final String EMAIL_PATTERN = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
+    private static final String SMS_PATTERN = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
 
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
@@ -179,63 +180,48 @@ public class MailingService {
         mailingMessageRepository.save(message);
     }
 
-    public boolean parseMailingMessages(String type, String templateText, String recipients, String text, String date, boolean sendnow, String vkType, User user) {
+    private void addVkMailingToSendQueue(String recipients, String text, LocalDateTime destinationDate, String vkType, User user) {
+        // Preparing messages:
+        // 0. Get recipient's id from links in 'recipients' String
+        // 1. Put every recipient's id to clientsInfo HashSet to avoid duplicates
+        // 2. Create message for every recipient from 'recipients' String
+        Set<ClientData> clientsInfo = new HashSet<>();
+        List<MailingMessage> vkMessages = new ArrayList<>();
+        Arrays.asList(recipients.split("\n")).forEach(recipient -> vkService.getIdFromLink(recipient.trim()).ifPresent(id -> clientsInfo.add(new ClientData(id))));
+        clientsInfo.forEach(c -> vkMessages.add(new MailingMessage("vk", text, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
+        // Adding all messages to queue
+        vkMessages.forEach(this::addMailingMessage);
+    }
+
+    private void addMailingToSendQueue(String messageType, String recipients, String text, String pattern, LocalDateTime destinationDate, User user) {
+        Set<ClientData> clientsInfo = new HashSet<>();
+        // Only get recipients who matches address pattern and add them to HashMap to avoid duplicates
+        Matcher recipientMatcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(recipients);
+        while (recipientMatcher.find()) {
+            clientsInfo.add(new ClientData(recipientMatcher.group()));
+        }
+        // Adding message to queue
+        MailingMessage message = new MailingMessage(messageType, text, clientsInfo, destinationDate, user.getId());
+        addMailingMessage(message);
+    }
+
+    public void prepareAndSendMailingMessages(String messageType, String recipients, String text, String mailingSendDate, String vkType, User user) throws ParseMailingDataException {
         String pattern;
-        String template;
-        switch (type) {
+        LocalDateTime destinationDate = LocalDateTime.parse(mailingSendDate, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК"));
+        switch (messageType) {
             case "vk":
-                pattern = "";
-                template = text;
-                break;
+                addVkMailingToSendQueue(recipients, text, destinationDate, vkType, user);
+                return;
             case "sms":
-                pattern = smsPattern;
-                template = text;
+                pattern = SMS_PATTERN;
                 break;
             case "email":
-                pattern = emailPattern;
-                template = templateText;
+                pattern = EMAIL_PATTERN;
                 break;
             default:
-                return false;
+                throw new ParseMailingDataException("Incorrect input data for mailing: messageType = " + messageType);
         }
-        LocalDateTime destinationDate = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК"));
-        Set<ClientData> clientsInfo = new HashSet<>();
-        if (type.equals("vk")) {
-            // Preparing messages
-            List<MailingMessage> vkMessages = new ArrayList<>();
-            String[] vkIds = recipients.split("\n");
-            Arrays.asList(vkIds).forEach(x -> {
-                String vkIdentify = vkService.getIdFromLink(x.trim());
-                if (vkIdentify != null) {
-                    clientsInfo.add(new ClientData(vkIdentify));
-                }
-            });
-            clientsInfo.forEach(c -> vkMessages.add(new MailingMessage(type, template, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
-            // Adding messages to queue
-            if (sendnow) {
-                vkMessages.forEach(msg -> {
-                    msg.setDate(LocalDateTime.now());
-                    addMailingMessage(msg);
-                });
-            } else {
-                vkMessages.forEach(this::addMailingMessage);
-            }
-        } else {
-            // Preparing messages: only get recepients who matches address pattern
-            Matcher recepientMatcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(recipients);
-            while (recepientMatcher.find()) {
-                clientsInfo.add(new ClientData(recepientMatcher.group()));
-            }
-            // Adding messages to queue
-            MailingMessage message = new MailingMessage(type, template, clientsInfo, destinationDate, user.getId());
-            if (sendnow) {
-                message.setDate(LocalDateTime.now());
-                addMailingMessage(message);
-            } else {
-                addMailingMessage(message);
-            }
-        }
-        return true;
+        addMailingToSendQueue(messageType, recipients, text, pattern, destinationDate, user);
     }
 }
 
