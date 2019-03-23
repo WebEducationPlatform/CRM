@@ -83,6 +83,21 @@ public class ProjectProperties {
     @JoinColumn(name = "contract_template")
     private MessageTemplate contractTemplate;
 
+    /**
+     * Банковские реквизиты
+     */
+    @Column(name = "nalog_number")
+    private Long nalogNumber;
+
+    @Column(name = "bank_checking_account")
+    private Long checkingAccount;
+
+    @Column(name = "bank_correspondent_account")
+    private Long correspondentAccount;
+
+    @Column(name = "bank_identification_code")
+    private Long bankIdentificationCode;
+
     public ProjectProperties() {
     }
 
@@ -205,6 +220,38 @@ public class ProjectProperties {
 
     public void setAutoAnswerTemplate(MessageTemplate autoAnswerTemplate) {
         this.autoAnswerTemplate = autoAnswerTemplate;
+    }
+
+    public Long getNalogNumber() {
+        return nalogNumber;
+    }
+
+    public void setNalogNumber(Long nalogNumber) {
+        this.nalogNumber = nalogNumber;
+    }
+
+    public Long getCheckingAccount() {
+        return checkingAccount;
+    }
+
+    public void setCheckingAccount(Long checkingAccount) {
+        this.checkingAccount = checkingAccount;
+    }
+
+    public Long getCorrespondentAccount() {
+        return correspondentAccount;
+    }
+
+    public void setCorrespondentAccount(Long correspondentAccount) {
+        this.correspondentAccount = correspondentAccount;
+    }
+
+    public Long getBankIdentificationCode() {
+        return bankIdentificationCode;
+    }
+
+    public void setBankIdentificationCode(Long bankIdentificationCode) {
+        this.bankIdentificationCode = bankIdentificationCode;
     }
 
     @Override
