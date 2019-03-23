@@ -138,9 +138,4 @@ public class VkRestController {
 		return ResponseEntity.ok(profilePhotoLink);
 	}
 
-	@GetMapping(value = "/vktest")
-	public String vktestreport() {
-		vkService.sendDailyAdvertisementReport("123");
-		return "done";
-	}
 }
