@@ -6,11 +6,21 @@ public interface ContractConfig {
 
     String getFilePath();
 
-    String getMonth();
+    String getMonthParagraphThree();
 
-    String getMonthPoint();
+    String getMonthParagraphFour();
 
-    String getOnetimePoint();
+    String getMonthPointParagraphFour();
+
+    String getMonthPointParagraphThree();
+
+    String getOnetimePointParagraphThree();
+
+    String getOnetimePointParagraphFour();
+
+    String getMonthParagraphThreeDotTwo();
+
+    String getOnetimeParagraphThreeDotTwo();
 
     String getDiploma();
 

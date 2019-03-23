@@ -16,9 +16,14 @@ public class ContractConfigImpl implements ContractConfig {
 
     private String fileName;
     private String filePath;
-    private String month;
-    private String monthPoint;
-    private String onetimePoint;
+    private String monthParagraphThree;
+    private String monthParagraphFour;
+    private String monthPointParagraphFour;
+    private String monthPointParagraphThree;
+    private String onetimePointParagraphThree;
+    private String onetimePointParagraphFour;
+    private String monthParagraphThreeDotTwo;
+    private String onetimeParagraphThreeDotTwo;
     private String diploma;
     private String format;
 
@@ -26,9 +31,14 @@ public class ContractConfigImpl implements ContractConfig {
     public ContractConfigImpl(Environment env) {
         fileName = env.getProperty("contract.name");
         filePath = env.getProperty("contract.path");
-        month = env.getProperty("contract.doc.part.month");
-        monthPoint = env.getProperty("contract.doc.part.month.point");
-        onetimePoint = env.getProperty("contract.doc.part.onetime.point");
+        monthParagraphThree = env.getProperty("contract.doc.part.month-3");
+        monthPointParagraphThree = env.getProperty("contract.doc.part.month.point-3");
+        onetimePointParagraphThree = env.getProperty("contract.doc.part.onetime.point-3");
+        monthParagraphFour = env.getProperty("contract.doc.part.month-4");
+        monthPointParagraphFour = env.getProperty("contract.doc.part.month.point-4");
+        onetimePointParagraphFour = env.getProperty("contract.doc.part.onetime.point-4");
+        monthParagraphThreeDotTwo = env.getProperty("contract.doc.part.month-3-2");
+        onetimeParagraphThreeDotTwo = env.getProperty("contract.doc.part.onetime-3-2");
         diploma = env.getProperty("contract.doc.part.diploma");
         format = env.getProperty("contract.format");
     }
@@ -44,18 +54,43 @@ public class ContractConfigImpl implements ContractConfig {
     }
 
     @Override
-    public String getMonth() {
-        return month;
+    public String getMonthParagraphThree() {
+        return monthParagraphThree;
     }
 
     @Override
-    public String getMonthPoint() {
-        return monthPoint;
+    public String getMonthParagraphFour() {
+        return monthParagraphFour;
     }
 
     @Override
-    public String getOnetimePoint() {
-        return onetimePoint;
+    public String getMonthPointParagraphFour() {
+        return monthPointParagraphFour;
+    }
+
+    @Override
+    public String getMonthPointParagraphThree() {
+        return monthPointParagraphThree;
+    }
+
+    @Override
+    public String getOnetimePointParagraphThree() {
+        return onetimePointParagraphThree;
+    }
+
+    @Override
+    public String getOnetimePointParagraphFour() {
+        return onetimePointParagraphFour;
+    }
+
+    @Override
+    public String getMonthParagraphThreeDotTwo() {
+        return monthParagraphThreeDotTwo;
+    }
+
+    @Override
+    public String getOnetimeParagraphThreeDotTwo() {
+        return onetimeParagraphThreeDotTwo;
     }
 
     @Override
