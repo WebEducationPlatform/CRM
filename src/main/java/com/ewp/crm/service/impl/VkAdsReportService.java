@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Component("VkAds")
 public class VkAdsReportService implements AdReportService {
@@ -65,7 +63,7 @@ public class VkAdsReportService implements AdReportService {
     }
 
     //выполнение запроса и получение json ответа
-    private JSONObject getJsonByUri(String uri) throws JSONException, IOException {
+    private JSONObject getAdsFromVkApi(String uri) throws JSONException, IOException {
         HttpGet httpGetStat = new HttpGet(uri);
         HttpClient httpClientStat = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -98,14 +96,14 @@ public class VkAdsReportService implements AdReportService {
 
     //получение баланса рекламного кабинета вк
     public String getBalance() throws JSONException, IOException {
-        JSONObject jsonBalance = getJsonByUri(vkAdsBudgetUri.toString());
+        JSONObject jsonBalance = getAdsFromVkApi(vkAdsBudgetUri.toString());
         String balance = jsonBalance.getString("response");
         return  balance;
     }
 
     //получение отчета по потраченным средствам из рекламного кабинета ВК
     public String getSpentMoney() throws JSONException, IOException {
-        JSONObject jsonSpentMoney = getJsonByUri(vkAdsStatUri.toString());
+        JSONObject jsonSpentMoney = getAdsFromVkApi(vkAdsStatUri.toString());
         String spentMoney = spentFromJson(jsonSpentMoney);
         return spentMoney;
     }
