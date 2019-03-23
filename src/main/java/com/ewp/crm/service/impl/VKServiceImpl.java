@@ -776,9 +776,9 @@ public class VKServiceImpl implements VKService {
             newClient.setClientDescriptionComment(description.toString());
             Optional<SocialProfileType> socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
-            String socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
-            if (socialProfileType.isPresent()) {
-                SocialProfile socialProfile = new SocialProfile(socialId, socialProfileType.get());
+            Optional<String> socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
+            if (socialProfileType.isPresent() && socialId.isPresent()) {
+                SocialProfile socialProfile = new SocialProfile(socialId.get(), socialProfileType.get());
                 newClient.setSocialProfiles(Collections.singletonList(socialProfile));
             }
         } catch (Exception e) {
@@ -1027,7 +1027,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public String getIdFromLink(String link) {
+    public Optional<String> getIdFromLink(String link) {
 
         Pattern p = Pattern.compile(vkPattern, Pattern.CASE_INSENSITIVE);
 
@@ -1044,11 +1044,11 @@ public class VKServiceImpl implements VKService {
             }
 
             if (!zeroString.equals(vkIdentify)) {
-                return vkIdentify;
+                return Optional.ofNullable(vkIdentify);
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @SuppressWarnings("deprecation")

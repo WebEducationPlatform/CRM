@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
+import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.*;
@@ -8,6 +9,8 @@ import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.MailingMessageService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -32,6 +35,7 @@ import java.util.*;
 @PropertySource("file:./ckeditor.properties")
 public class SendMailsController {
 
+    private static Logger logger = LoggerFactory.getLogger(SendMailsController.class);
     private final MailingMessageService mailingMessageSendService;
     private final MailingService mailingService;
     private final UserService userService;
@@ -46,15 +50,19 @@ public class SendMailsController {
 
     @PostMapping(value = "/client/mailing/send")
     public ResponseEntity<String> sendMails(@RequestParam("type") String type,
-                                            @RequestParam("templateText") String templateText,
                                             @RequestParam("recipients") String recipients,
                                             @RequestParam("text") String text,
                                             @RequestParam("date") String date,
-                                            @RequestParam("sendnow") boolean sendnow,
                                             @RequestParam("vkType") String vkType,
                                             @AuthenticationPrincipal User userFromSession) {
         Optional<User> user = userService.getUserByEmail(userFromSession.getEmail());
-        if (user.isPresent() && mailingService.parseMailingMessages(type, templateText, recipients, text, date, sendnow, vkType, user.get())) {
+        if (user.isPresent()) {
+            try {
+                mailingService.prepareAndSendMailingMessages(type, recipients, text, date, vkType, user.get());
+            } catch (ParseMailingDataException e) {
+                logger.error("Incorrect data at send mailing request", e);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return ResponseEntity.ok("");
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
