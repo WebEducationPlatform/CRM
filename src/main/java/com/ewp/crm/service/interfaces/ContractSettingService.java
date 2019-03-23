@@ -11,4 +11,6 @@ public interface ContractSettingService {
     Optional<ContractSetting> getByHash(String hash);
 
     void deleteByHash(String hash);
+
+    void save(ContractSetting setting);
 }

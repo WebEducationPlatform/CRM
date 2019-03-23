@@ -32,4 +32,9 @@ public class ContractSettingServiceImpl implements ContractSettingService {
     public void deleteByHash(String hash) {
         contractSettingRepository.deleteByHash(hash);
     }
+
+    @Override
+    public void save(ContractSetting setting) {
+        contractSettingRepository.save(setting);
+    }
 }
