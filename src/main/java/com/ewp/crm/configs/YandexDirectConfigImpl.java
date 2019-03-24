@@ -27,7 +27,7 @@ public class YandexDirectConfigImpl implements YandexDirectConfig {
             acceptLanguage= env.getRequiredProperty("accept.language");
             clientLogin= env.getRequiredProperty("client.login");
         } catch (Exception e) {
-            logger.error("yandex-direct configs haven't been initialized. Check yandex-direct.properties file");
+            logger.error("Yandex-direct configs haven't been initialized. Check yandex-direct.properties file", e);
         }
     }
 

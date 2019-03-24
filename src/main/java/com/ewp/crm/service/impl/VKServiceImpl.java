@@ -106,7 +106,7 @@ public class VKServiceImpl implements VKService {
     private String firstContactMessage;
     private String managerToken;
     //ID чата, в который посылается отчёт
-    private String vkReportChatId;
+    private final String vkReportChatId;
 
     @Value("${userKey}")
     private String userKey;
@@ -544,6 +544,24 @@ public class VKServiceImpl implements VKService {
             logger.error("Failed to get captcha ", e);
         }
         return "Failed to send message";
+    }
+
+    @Override
+    public void sendMessageByChatId(String id, String message) {
+        String url = vkApi + "messages.send" +
+                "?random_id=" + new Random().nextInt(32) +
+                "&chat_id=" + id +
+                "&message=" + message +
+                "&access_token=" + communityToken +
+                "&v=" + version;
+        ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
+
+        HttpStatus responseStatusCode = response.getStatusCode();
+        if (responseStatusCode.equals(HttpStatus.OK)) {
+            logger.info("Message successfully has been sent to the dialogue");
+        } else {
+            logger.error("Can't send message. Check if the request to the VK API is correct");
+        }
     }
 
     // Determine text, which varies depending of the success of the sending message
@@ -1241,7 +1259,7 @@ public class VKServiceImpl implements VKService {
             spentFromYandexDirect = GETTING_SPENT_MONEY_ERROR;
             logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API is correct", e);
         }
-        // Получение отчёта с ВКонтакте.
+        // Получение отчёта со ВКонтакте.
         try {
             balanceFromVk = vkAdsReportService.getBalance();
         } catch (Exception e) {
@@ -1252,28 +1270,14 @@ public class VKServiceImpl implements VKService {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
            spentFromVk =  GETTING_SPENT_MONEY_ERROR;
-           logger.error("Can't receive spent report from VK ads. Check if request to VK ads API is correct", e);
+           logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
         Object[] params = {balanceFromYandexDirect, spentFromYandexDirect, balanceFromVk, spentFromVk};
         String message = MessageFormat.format(template, params);
 
-        //Отправка сообщения в диалог
-        String dailyReportUrl = vkApi + "messages.send" +
-                "?random_id=" + new Random().nextInt(32) +
-                "&chat_id=" + vkReportChatId +
-                "&message=" + message +
-                "&access_token=" + communityToken +
-                "&v=" + version;
-        ResponseEntity<String> response = restTemplate.postForEntity(dailyReportUrl, null, String.class);
-
-        //Обработка ответа
-        HttpStatus responseStatusCode = response.getStatusCode();
-        if (responseStatusCode == HttpStatus.OK) {
-            logger.info("Daily advertisement report successfully has been sent to the dialogue");
-        } else {
-            logger.error("Can't send daily advertisement report. Check if the request to the VK API is correct");
-        }
+        //Отправка в диалог
+        sendMessageByChatId(vkReportChatId, message);
     }
 }
