@@ -1,6 +1,5 @@
 package com.ewp.crm.service.impl;
 
-
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.service.interfaces.AdReportService;
 import org.apache.http.HttpResponse;
@@ -13,27 +12,22 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Component("VkAds")
 public class VkAdsReportService implements AdReportService {
-    private static Logger logger = LoggerFactory.getLogger(VkAdsReportService.class);
     private final VKConfig vkConfig;
-
-    private String vkApi;
-    private String version;
-    private String adsClientId;
-    private String accessToken;
-    private String dateTo;
-    private String dateFrom;
-    private StringBuilder vkAdsStatUri;
-    private StringBuilder vkAdsBudgetUri;
+    private final String vkApi;
+    private final String version;
+    private final String adsClientId;
+    private final String accessToken;
+    private final String dateTo;
+    private final String dateFrom;
+    private final String vkAdsStatUri;
+    private final String vkAdsBudgetUri;
 
     @Autowired
     public VkAdsReportService(VKConfig vkConfig) {
@@ -42,10 +36,15 @@ public class VkAdsReportService implements AdReportService {
         version = vkConfig.getVersion();
         adsClientId = vkConfig.getVkAdsClientId();
         accessToken = vkConfig.getVkAppAccessToken();
-        dateTo = LocalDateTime.now().toLocalDate().toString()+"her"; //текущая дата
+        dateTo = LocalDateTime.now().toLocalDate().toString(); //текущая дата
         dateFrom = LocalDateTime.now().minusDays(1).toLocalDate().toString(); //вчерашняя дата - отняли один день
-        //строка запроса для получения статистики рекламного кабинетв ВК
-        vkAdsStatUri = new StringBuilder(vkApi).append("ads.getStatistics")
+        vkAdsStatUri = vkAdsStatUri(); //строка запроса для получения статистики рекламного кабинетв ВК
+        vkAdsBudgetUri = vkAdsBudgetUri(); //строка запроса для получения баланса рекламногокабинета ВК
+    }
+
+    //формирование строки запроса для получения статистики рекламного кабинетв ВК
+    private String vkAdsStatUri() {
+        StringBuilder stb = new StringBuilder(vkApi).append("ads.getStatistics")
                 .append("?account_id=").append(adsClientId)
                 .append("&ids_type=office")
                 .append("&ids=").append(adsClientId)
@@ -54,12 +53,16 @@ public class VkAdsReportService implements AdReportService {
                 .append("&date_to=").append(dateTo)
                 .append("&version=").append(version)
                 .append("&access_token=").append(accessToken);
-        //строка запроса для получения баланса рекламногокабинета ВК
-        vkAdsBudgetUri = new StringBuilder(vkApi).append("ads.getBudget")
+        return stb.toString();
+    }
+
+    //формирование строки запроса для получения баланса рекламногокабинета ВК
+    private String vkAdsBudgetUri() {
+        StringBuilder stb = new StringBuilder(vkApi).append("ads.getBudget")
                 .append("?account_id=").append(adsClientId)
                 .append("&version=").append(version)
                 .append("&access_token=").append(accessToken);
-
+        return stb.toString();
     }
 
     //выполнение запроса и получение json ответа
@@ -67,12 +70,11 @@ public class VkAdsReportService implements AdReportService {
         HttpGet httpGetStat = new HttpGet(uri);
         HttpClient httpClientStat = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .setCookieSpec(CookieSpecs.STANDARD).build())
                 .build();
-            HttpResponse response = httpClientStat.execute(httpGetStat);
-            String result = EntityUtils.toString(response.getEntity());
-        JSONObject  json = new JSONObject(result);
-        return  json;
+        HttpResponse response = httpClientStat.execute(httpGetStat);
+        String result = EntityUtils.toString(response.getEntity());
+        return new JSONObject(result);
     }
 
     //получение суммы потраченных денег в реламном кабинете из json
@@ -81,7 +83,7 @@ public class VkAdsReportService implements AdReportService {
         JSONArray response = jsonStat.getJSONArray("response");
             for (int i = 0; i < response.length() ; i++) {
                 JSONObject item = response.getJSONObject(i);
-                if(item.has("stats")) {
+                if (item.has("stats")) {
                     JSONArray stats = item.getJSONArray("stats");
                     for (int j = 0; j < stats.length() ; j++) {
                         JSONObject aim = stats.getJSONObject(j);
@@ -96,16 +98,14 @@ public class VkAdsReportService implements AdReportService {
 
     //получение баланса рекламного кабинета вк
     public String getBalance() throws JSONException, IOException {
-        JSONObject jsonBalance = getAdsFromVkApi(vkAdsBudgetUri.toString());
-        String balance = jsonBalance.getString("response");
-        return  balance;
+        JSONObject jsonBalance = getAdsFromVkApi(vkAdsBudgetUri);
+        return   jsonBalance.getString("response");
     }
 
     //получение отчета по потраченным средствам из рекламного кабинета ВК
     public String getSpentMoney() throws JSONException, IOException {
-        JSONObject jsonSpentMoney = getAdsFromVkApi(vkAdsStatUri.toString());
-        String spentMoney = spentFromJson(jsonSpentMoney);
-        return spentMoney;
+        JSONObject jsonSpentMoney = getAdsFromVkApi(vkAdsStatUri);
+        return spentFromJson(jsonSpentMoney);
     }
 }
 
