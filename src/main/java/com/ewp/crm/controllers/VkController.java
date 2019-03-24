@@ -180,16 +180,19 @@ public class VkController {
 
     @GetMapping("/vk-ads")
     public String getAccessTokenVkAds() {
-         String robotClientId = vkConfig.getRobotClientId();
-         String redirectUri = vkConfig.getRedirectUri();
-        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize");
-        stb.append("?client_id=");
-        stb.append(robotClientId);
-        stb.append("&display=page&redirect_uri=");
-        stb.append(redirectUri);
-        stb.append("&scope=ads,offline,groups");
-        stb.append("&response_type=token");
-        stb.append("&v=5.92&state=");
+        String robotClientId = vkConfig.getRobotClientId();
+        String redirectUri = vkConfig.getRedirectUri();
+        String version = vkConfig.getVersion();
+        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize")
+                .append("?client_id=")
+                .append(robotClientId)
+                .append("&display=page&redirect_uri=")
+                .append(redirectUri)
+                .append("&scope=ads,offline,groups")
+                .append("&response_type=token")
+                .append("&v=")
+                .append(version)
+                .append("&state=");
         return "redirect:" + stb.toString();
     }
 
