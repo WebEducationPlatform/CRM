@@ -35,20 +35,25 @@ function renderStudentsTable() {
     table = document.getElementById("students-table");
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
-        status = rows[i].getElementsByTagName("TD")[0];
-        rows[i].style.display = 'yes';
+        status = rows[i].getElementsByTagName("TD")[0].innerHTML;
+        if (isStatusVisible(status)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
     }
+}
+
+function isStatusVisible(status) {
+    let result = false;
     $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
         let input = v.getElementsByTagName("INPUT")[0];
-        if (input.checked) {
-            for (i = 1; i < rows.length; i++) {
-                status = rows[i].getElementsByTagName("TD")[0];
-                if (input.id == status.innerHTML) {
-                    rows[i].style.display = '';
-                }
-            }
+        if (input.id === status) {
+            result = input.checked;
+            return false;
         }
     });
+    return result;
 }
 
 function calc_info_values() {
@@ -542,9 +547,9 @@ function update_notification(checkbox_id, checked) {
 //Search on page
 $("#searchInput").keyup(function () {
     let data = this.value.toLowerCase().split(" ");
-    let jo = $("#table-body").find("tr");
+    let jo = $("#table-body").find("tr[id^='row_']");
     if (this.value.trim() === "") {
-        jo.show();
+        renderStudentsTable();
         return;
     }
     jo.hide();
@@ -552,6 +557,7 @@ $("#searchInput").keyup(function () {
     jo.filter(function () {
         let $validCount = 0;
         let $t = $(this);
+        let status = $t[0].getElementsByTagName("TD")[0].innerHTML;
         let $temp = $t.clone();
         $temp.text($temp.text().toLowerCase());
         for (let d = 0; d < data.length; ++d) {
@@ -559,7 +565,7 @@ $("#searchInput").keyup(function () {
                 $validCount++;
             }
         }
-        return $validCount === data.length;
+        return isStatusVisible(status) && $validCount === data.length;
     }).show();
 }).focus(function () {
     this.value = "";
