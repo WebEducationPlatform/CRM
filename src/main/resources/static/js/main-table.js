@@ -1812,6 +1812,9 @@ function changeStatus(clientId, statusId) {
         },
         success: function () {
             reloadClientStatus(clientId);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 }
@@ -2327,6 +2330,9 @@ $(".change-student-status").on('click', function () {
         success: function () {
             let x = document.getElementById(clientId);
             $('#status-column'+statusId).append(x);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 });
