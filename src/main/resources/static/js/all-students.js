@@ -550,6 +550,7 @@ $("#searchInput").keyup(function () {
     let jo = $("#table-body").find("tr[id^='row_']");
     if (this.value.trim() === "") {
         renderStudentsTable();
+        calc_info_values();
         return;
     }
     jo.hide();
@@ -567,6 +568,7 @@ $("#searchInput").keyup(function () {
         }
         return isStatusVisible(status) && $validCount === data.length;
     }).show();
+    calc_info_values();
 }).focus(function () {
     this.value = "";
     $(this).css({
