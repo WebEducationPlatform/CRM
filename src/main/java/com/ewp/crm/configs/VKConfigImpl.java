@@ -63,8 +63,7 @@ public class VKConfigImpl implements VKConfig {
             vkAdsClientId = env.getProperty("vk.ads.client.id");
             vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
         } catch (Exception e) {
-            logger.error("VK configs have not initialized. Check vk.properties file");
-            System.exit(-1);
+            logger.error("VK configs have not initialized. Check vk.properties file", e);
         }
     }
 
