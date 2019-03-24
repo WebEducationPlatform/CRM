@@ -1,6 +1,8 @@
 package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.PersistentLogin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -8,11 +10,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.Date;
 
 @Repository
 @Transactional
 public class PersistentLoginRepositoryImpl implements PersistentTokenRepository {
+
+    private static Logger logger = LoggerFactory.getLogger(PersistentLoginRepositoryImpl.class);
 
     private final EntityManager entityManager;
 
@@ -44,11 +49,15 @@ public class PersistentLoginRepositoryImpl implements PersistentTokenRepository 
 
     @Override
     public PersistentRememberMeToken getTokenForSeries(String s) {
-        PersistentLogin login = entityManager.createQuery("SELECT pl FROM PersistentLogin pl WHERE pl.series = :seriesId", PersistentLogin.class)
-                .setParameter("seriesId", s)
-                .getSingleResult();
-        if (login != null) {
-            return new PersistentRememberMeToken(login.getUsername(), login.getSeries(), login.getToken(), login.getLastUsed());
+        try {
+            PersistentLogin login = entityManager.createQuery("SELECT pl FROM PersistentLogin pl WHERE pl.series = :seriesId", PersistentLogin.class)
+                    .setParameter("seriesId", s)
+                    .getSingleResult();
+            if (login != null) {
+                return new PersistentRememberMeToken(login.getUsername(), login.getSeries(), login.getToken(), login.getLastUsed());
+            }
+        } catch (NoResultException e) {
+            logger.error("No entity for persistent token: " + s, e);
         }
         return null;
     }
