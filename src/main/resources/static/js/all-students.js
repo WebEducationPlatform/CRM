@@ -26,8 +26,10 @@ $('.checkbox').click(function() {
 });
 
 $(document).ready(function() {
-    renderStudentsTable();
-    calc_info_values();
+    if (document.URL.indexOf("student/all") !== -1) {
+        renderStudentsTable();
+        calc_info_values();
+    }
 });
 
 function renderStudentsTable() {
