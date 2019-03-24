@@ -15,15 +15,14 @@ import java.util.regex.Pattern;
 
 @Component("YandexDirect")
 public class YandexDirectAdReportService implements AdReportService {
-//    private static Logger logger = LoggerFactory.getLogger(YandexDirectAdReportService.class);
     private final YandexDirectConfig yandexDirectConfig;
     private static final String API_V5_AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
     private static final String API_V5_REPORT_SERVICE_URL_SUFFIX = "reports";
-    private String apiV4LiveUrl;
-    private String apiV5Url;
-    private String authorizationToken;
-    private String acceptLanguage;
-    private String clientLogin;
+    private final String apiV4LiveUrl;
+    private final String apiV5Url;
+    private final String authorizationToken;
+    private final String acceptLanguage;
+    private final String clientLogin;
 
     @Autowired
     public YandexDirectAdReportService(YandexDirectConfig yandexDirectConfig) {
@@ -37,46 +36,47 @@ public class YandexDirectAdReportService implements AdReportService {
 
     // Получение баланса обращением к API v4 Live
     public String getBalance() throws JSONException, IOException {
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        MediaType typeJson = MediaType.parse("application/json; charset=utf-8");
+
         // Тело запроса к операции Get метода AccountManagement API v4.
-        StringBuilder requestBodyBuilder = new StringBuilder()
+        RequestBody bodyForBalance = RequestBody.create(typeJson, new JSONObject(new StringBuilder()
                 .append("{\n")
-                    .append("\"method\": \"AccountManagement\",\n")
-                    .append( "   \"param\": {\n")
-                    .append("      \"Action\": Get,\n")
-                    .append("      \"SelectionCriteria\": {\n")
-                    .append( "         \"Logins\": [\n").append(clientLogin).append("]\n")
-                    .append("      }\n")
-                    .append("   },")
-                    .append( "\"locale\": \"").append(acceptLanguage).append("\",")
-                    .append("\"token\": \"").append(authorizationToken).append("\"")
-                .append( "}");
-        JSONObject bodyForHttpRequest = new JSONObject(requestBodyBuilder.toString());
-        RequestBody balanceBody = RequestBody.create(JSON, bodyForHttpRequest.toString());
+                .append("\"method\": \"AccountManagement\",\n")
+                .append( "   \"param\": {\n")
+                .append("      \"Action\": Get,\n")
+                .append("      \"SelectionCriteria\": {\n")
+                .append( "         \"Logins\": [\n").append(clientLogin).append("]\n")
+                .append("      }\n")
+                .append("   },")
+                .append( "\"locale\": \"").append(acceptLanguage).append("\",")
+                .append("\"token\": \"").append(authorizationToken).append("\"")
+                .append( "}")
+                .toString())
+                .toString());
 
         // По заданному URL, методом POST, используя сформированное выше тело, формируем запрос.
-        Request requestBalance = new Request.Builder()
+        Request requestForBalance = new Request.Builder()
                 .url(apiV4LiveUrl)
-                .post(balanceBody).build();
+                .post(bodyForBalance).build();
 
         // Исполняем запрос
-        OkHttpClient client = new OkHttpClient();
-        Response responseBalance = client.newCall(requestBalance).execute();
+        OkHttpClient requestClient = new OkHttpClient();
+        Response response = requestClient.newCall(requestForBalance).execute();
 
         // Обрабатываем ответ
-        JSONObject jsonObject = new JSONObject(responseBalance.body().string());
-        JSONObject responseData = jsonObject.getJSONObject("data");
-        JSONArray jsonArray = responseData.getJSONArray("Accounts");
+        JSONArray responseData = new JSONObject(response.body().string())
+                .getJSONObject("data")
+                .getJSONArray("Accounts");
 
-        return jsonArray.getJSONObject(0).getString("Amount");
+        return responseData.getJSONObject(0).getString("Amount");
     }
 
     // Получение отчёта обращением к API v5, сервису Reports, и расчёт потраченных средств.
     public String getSpentMoney() throws JSONException, IOException {
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        MediaType typeJson = MediaType.parse("application/json; charset=utf-8");
 
         // Тело запроса к методу get сервиса Campaigns API v5.
-        StringBuilder requestBodyBuilder = new StringBuilder()
+        RequestBody bodyForReport = RequestBody.create(typeJson, new JSONObject(new StringBuilder()
                 .append("{\n")
                 .append(  "\"params\": {\n")
                 .append("        \"SelectionCriteria\": {},\n")
@@ -90,33 +90,34 @@ public class YandexDirectAdReportService implements AdReportService {
                 .append("        \"IncludeVAT\": \"YES\",\n")
                 .append("        \"IncludeDiscount\": \"YES\"\n")
                 .append("    }\n")
-                .append("}");
-        JSONObject bodyForHttpRequest = new JSONObject(requestBodyBuilder.toString());
-        RequestBody report = RequestBody.create(JSON, bodyForHttpRequest.toString());
+                .append("}")
+                .toString())
+                .toString());
 
         // Задание заголовков, URL, метода обращения. Используя сформированное выше тело, формируем запрос.
-        Request requestStats = new Request.Builder()
+        Request requestForReport = new Request.Builder()
                 .addHeader("Authorization", API_V5_AUTHORIZATION_TOKEN_PREFIX + authorizationToken)
                 .addHeader("Accept-Language", acceptLanguage)
                 .addHeader("Client-Login", clientLogin)
                 .addHeader("processingMode", "online")
                 .addHeader("returnMoneyInMicros", "false")
                 .url(apiV5Url + API_V5_REPORT_SERVICE_URL_SUFFIX)
-                .post(report).build();
+                .post(bodyForReport)
+                .build();
         // Исполняем запрос
-        OkHttpClient client = new OkHttpClient();
-        Response responseReport = client.newCall(requestStats).execute();
+        OkHttpClient requestClient = new OkHttpClient();
+        Response response = requestClient.newCall(requestForReport).execute();
 
         // Обрабатываем и возвращаем ответ
-        String responseAsString = responseReport.body().string();
-        return summaryOfSpentMoney(responseAsString);
+        String reportAsString = response.body().string();
+        return summaryOfSpentMoney(reportAsString);
     }
 
     // Парсинг и суммирование потраченных денег по всем кампаниям
-    private String summaryOfSpentMoney(String rawHttpResponse) {
+    private String summaryOfSpentMoney(String rawResponse) {
         float result = 0.00f;
         Pattern money = Pattern.compile("\\d+\\.\\d+");
-        Matcher matcher = money.matcher(rawHttpResponse);
+        Matcher matcher = money.matcher(rawResponse);
         while (matcher.find()) {
             result += Float.parseFloat(matcher.group());
         }
