@@ -137,7 +137,7 @@
                             <td width="25%">
                                 <label th:for="${student.id+'_notify_all'}">
                                     Все:
-                                    <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/>
+                                    <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk')) or student.notifyVK)}"/>
                                 </label>
                             </td>
                         </tr>
