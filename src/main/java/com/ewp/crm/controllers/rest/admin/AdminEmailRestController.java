@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @RestController
 public class AdminEmailRestController {
@@ -55,16 +56,18 @@ public class AdminEmailRestController {
             throw new MessageTemplateException(msgTemplateDefaultTextBody + "должен присутствовать или остутствовать всех типах сообщения!");
         }
 
-        MessageTemplate messageTemplate = messageTemplateService.getByName(templateName);
+        Optional<MessageTemplate> messageTemplateOpt = messageTemplateService.getByName(templateName);
+        MessageTemplate messageTemplate;
         String text =templateText.replaceAll("(\\s+)|(</?pre>)|(&nbsp;)|(</?p>)|(%bodyText%)","");
         String otherText = otherTemplateText.replaceAll("(\\s+)|(%bodyText%)","");
         if (text.length() == 0 || otherText.length() == 0) {
             throw new MessageTemplateException("Заполните шаблоны для всех типов сообщения: email/vk,sms,facebook");
         }
 
-        if (messageTemplate == null) {
+        if (!messageTemplateOpt.isPresent()) {
             messageTemplate = new MessageTemplate(templateName, templateText, otherTemplateText);
         } else {
+            messageTemplate = messageTemplateOpt.get();
             messageTemplate.setTemplateText(templateText);
             messageTemplate.setOtherText(otherTemplateText);
         }

@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
@@ -16,6 +17,8 @@ import java.time.ZonedDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
@@ -36,8 +39,8 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public ClientHistory addHistory(ClientHistory history) {
-		return clientHistoryRepository.saveAndFlush(history);
+	public Optional<ClientHistory> addHistory(ClientHistory history) {
+		return Optional.of(clientHistoryRepository.saveAndFlush(history));
 	}
 
 	@Override
@@ -47,15 +50,19 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
-		return clientHistoryRepository.getAllByClientId(id, pageable);
+		return clientHistoryRepository.getAllByClientId(id, pageable).stream().peek((h) -> {
+			if (h.getType().equals(ClientHistory.Type.CALL) && (h.getLink() == null || IPTelephonyRestController.INIT_RECORD_LINK.equals(h.getLink()))) {
+				h.setTitle(h.getTitle() + ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo());
+			}
+		}).collect(Collectors.toList());
 	}
 
 	@Override
-	public ClientHistory createHistory(String socialRequest) {
+	public Optional<ClientHistory> createHistory(String socialRequest) {
 		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SOCIAL_REQUEST);
 		clientHistory.setTitle(ClientHistory.Type.SOCIAL_REQUEST.getInfo() + " " + socialRequest);
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	/*
@@ -67,8 +74,9 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		worker unassigned
 	*/
 	@Override
-	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type) {
+	public Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type) {
 		logger.info("creation of client history...");
+		Optional<AssignSkypeCall> assignSkypeCall;
 		ClientHistory clientHistory = new ClientHistory(type);
 		String action = user.getFullName() + " " + type.getInfo();
 		StringBuilder title = new StringBuilder(action);
@@ -86,28 +94,17 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				title.append(" ");
 				break;
 			case SKYPE:
-				title.append(" ");
-				title.append("(");
-				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
-						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
-				title.append(")");
-				break;
 			case SKYPE_UPDATE:
-				title.append(" ");
-				title.append("(");
-				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
-						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
-				title.append(")");
-				break;
 			case SKYPE_DELETE:
-				title.append(" ");
-				title.append("(");
-				title.append(ZonedDateTime.parse(
-						assignSkypeCallService.getAssignSkypeCallByClientId(client.getId()).getSkypeCallDate().toString())
-						.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
-				title.append(")");
+				assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
+				if (assignSkypeCall.isPresent()) {
+					title.append(" ");
+					title.append("(");
+					title.append(ZonedDateTime.parse(
+							assignSkypeCall.get().getSkypeCallDate().toString())
+							.withZoneSameInstant(ZoneId.of("Europe/Moscow")).format(DateTimeFormatter.ofPattern("dd MMM yyyy'г' HH:mm МСК")));
+					title.append(")");
+				}
 				break;
 			case STATUS:
 				title.append(" ").append(client.getStatus());
@@ -118,7 +115,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				break;
 		}
 		clientHistory.setTitle(title.toString());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	/*
@@ -126,44 +123,46 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		admin unassigned worker on client
 	 */
 	@Override
-	public ClientHistory createHistory(User admin, User worker, Client client, ClientHistory.Type type) {
+	public Optional<ClientHistory> createHistory(User admin, User worker, Client client, ClientHistory.Type type) {
 		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(admin.getFullName() + " " + type.getInfo() + " " + worker.getFullName());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	// worker call to client [link]
 	@Override
-	public ClientHistory createHistory(User user, Client client, ClientHistory.Type type, String link) {
+	public Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type, String link) {
 		logger.info("creation of client history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setLink(link);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	@Override
-	public ClientHistory createInfoHistory(User user, Client client, ClientHistory.Type type, String info) {
+	public Optional<ClientHistory> createInfoHistory(User user, Client client, ClientHistory.Type type, String info) {
 		logger.info("creation of client info history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo());
 		if (info != null && !info.isEmpty()) {
-			Message message = messageService.addMessage(Message.Type.DATA, info);
-			clientHistory.setMessage(message);
-			clientHistory.setLink(message.getId().toString());
+			Optional<Message> message = messageService.addMessage(Message.Type.DATA, info);
+			if (message.isPresent()) {
+				clientHistory.setMessage(message.get());
+				clientHistory.setLink(message.get().getId().toString());
+			}
 		}
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	@Override
-	public ClientHistory createHistory(User user , String recordLink) {
+	public Optional<ClientHistory> createHistory(User user , String recordLink) {
 		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.CALL);
 		clientHistory.setRecordLink(recordLink);
 		clientHistory.setTitle(user.getFullName() + " " + ClientHistory.Type.CALL.getInfo());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 
@@ -171,13 +170,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		worker send message by email/vk/facebook/sms [link]
 	 */
 	@Override
-	public ClientHistory createHistory(User user, Client client, Message message) {
+	public Optional<ClientHistory> createHistory(User user, Client client, Message message) {
 		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.SEND_MESSAGE);
 		clientHistory.setMessage(message);
 		clientHistory.setLink(message.getId().toString());
 		clientHistory.setTitle(user.getFullName() + " " + clientHistory.getType().getInfo() + " " + message.getType().getInfo());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	/*
@@ -185,14 +184,14 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		Worker change client data [link]
 	 */
 	@Override
-	public ClientHistory createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
+	public Optional<ClientHistory> createHistory(User admin, Client prev, Client current, ClientHistory.Type type) {
 		logger.info("creation of history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 
         // if user updated client, which has no changes.
         if (current.equals(prev)) {
             logger.info("Can't find changes");
-            return clientHistory;
+            return Optional.of(clientHistory);
         }
 
         clientHistory.setTitle(admin.getFullName() + " " + type.getInfo());
@@ -205,12 +204,12 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
 				.forEach(str -> content.append(str).append("\n"));
 
-		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
-
-		clientHistory.setMessage(message);
-
-		clientHistory.setLink(message.getId().toString());
-		return clientHistory;
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, content.toString());
+		if (message.isPresent()) {
+			clientHistory.setMessage(message.get());
+			clientHistory.setLink(message.get().getId().toString());
+		}
+		return Optional.of(clientHistory);
 	}
 
 	/**
@@ -220,11 +219,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 * @return client history object.
 	 */
 	@Override
-	public ClientHistory creteStudentHistory(User user, ClientHistory.Type type) {
+	public Optional<ClientHistory> creteStudentHistory(User user, ClientHistory.Type type) {
 		logger.debug("creation of become student history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
-		return clientHistory;
+		return Optional.of(clientHistory);
 	}
 
 	/**
@@ -236,13 +235,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	 * @return client history object.
 	 */
 	@Override
-	public ClientHistory createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
+	public Optional<ClientHistory> createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type) {
 		logger.debug("creation of student history...");
 		ClientHistory clientHistory = new ClientHistory(type);
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		if (current.equals(prev)) {
 			logger.info("Can't find changes");
-			return clientHistory;
+			return Optional.of(clientHistory);
 		}
 		DiffResult diffs = prev.diff(current);
 		DiffResult diffsClients = prev.getClient().diffOnStudentEdit(current.getClient());
@@ -255,12 +254,14 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				.forEach(str -> content.append(str).append("\n"));
 		if (content.toString().isEmpty()) {
 			logger.info("Can't find changes");
-			return clientHistory;
+			return Optional.of(clientHistory);
 		}
-		Message message = messageService.addMessage(Message.Type.DATA, content.toString());
-		clientHistory.setMessage(message);
-		clientHistory.setLink(message.getId().toString());
-		return clientHistory;
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, content.toString());
+		if (message.isPresent()) {
+			clientHistory.setMessage(message.get());
+			clientHistory.setLink(message.get().getId().toString());
+		}
+		return Optional.of(clientHistory);
 	}
 
 }

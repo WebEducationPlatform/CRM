@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -91,11 +92,11 @@ public class SMSRestController {
 
 	@GetMapping("/balance")
 	public ResponseEntity<String> getBalance() {
-		String response = smsService.getBalance();
-		if (response.contains("balance")) {
-			return ResponseEntity.ok(response);
+		Optional<String> response = smsService.getBalance();
+		if (response.isPresent() && response.get().contains("balance")) {
+			return ResponseEntity.ok(response.get());
 		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 }

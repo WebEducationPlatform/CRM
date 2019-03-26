@@ -38,6 +38,9 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "first_name", nullable = false)
 	private String name;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
 	@Column(name = "last_name")
 	private String lastName;
 
@@ -140,6 +143,15 @@ public class Client implements Serializable, Diffable<Client> {
     @OrderBy("id DESC")
     private List<ClientHistory> history = new ArrayList<>();
 
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @Fetch(value = FetchMode.SUBSELECT)
+    @JoinTable(name = "feedback_client",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))})
+    @OrderBy("id DESC")
+    private List<ClientFeedback> feedback = new ArrayList<>();
+
     @Column
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "client_job",
@@ -181,6 +193,12 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Passport passport;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private ContractLinkData contractLinkData;
 
     public Client() {
         this.state = State.NEW;
@@ -297,6 +315,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
     public String getPhoneNumber() {
@@ -503,6 +529,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.postponeComment = postponeComment;
     }
 
+    public Passport getPassport() {
+        return passport;
+    }
+
+    public void setPassport(Passport passport) {
+        this.passport = passport;
+    }
+
+    public ContractLinkData getContractLinkData() {
+        return contractLinkData;
+    }
+
+    public void setContractLinkData(ContractLinkData contractLinkData) {
+        this.contractLinkData = contractLinkData;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -571,6 +613,18 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void addCallRecord(CallRecord callRecord) {
         this.callRecords.add(callRecord);
+    }
+
+    public List<ClientFeedback> getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(List<ClientFeedback> feedback) {
+        this.feedback = feedback;
+    }
+
+    public void addFeedback(ClientFeedback feedback) {
+        this.feedback.add(feedback);
     }
 
     @Override

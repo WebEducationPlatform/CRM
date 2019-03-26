@@ -16,6 +16,8 @@
             <div class="col-md-6" id="column1">
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
                         id="editClientBtn" onclick="revertUnable()">Редактировать</button>
+                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
+                        style="margin-bottom: 10px" id="feedbackClientBtn" th:onclick="'getFeedback('+ ${client.id} + ')'">смотреть отзывы</button>
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="edit-client-first-name">Имя</label>
@@ -26,6 +28,11 @@
                         <label for="edit-client-last-name">Фамилия</label>
                         <input class="form-control" id="edit-client-last-name" disabled="disabled"
                                th:value="${client.lastName}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-client-middle-name">Отчество</label>
+                        <input class="form-control" id="edit-client-middle-name" disabled="disabled"
+                               th:value="${client.middleName}"/>
                     </div>
                     <div class="form-group">
                         <label for="edit-client-status">Статус</label>
@@ -184,8 +191,10 @@
     </div>
 </div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<div th:replace="fragments/modal-client-feedback::modalClientFeedback"></div>
 <script type="text/javascript" th:src="@{/js/client-info.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientFeedback.js}"></script>
 <script th:src="@{/js/validator.min.js}"></script>
 </body>
 </html>

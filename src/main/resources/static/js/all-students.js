@@ -26,8 +26,10 @@ $('.checkbox').click(function() {
 });
 
 $(document).ready(function() {
-    renderStudentsTable();
-    calc_info_values();
+    if (document.URL.indexOf("student/all") !== -1) {
+        renderStudentsTable();
+        calc_info_values();
+    }
 });
 
 function renderStudentsTable() {
@@ -35,20 +37,25 @@ function renderStudentsTable() {
     table = document.getElementById("students-table");
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
-        status = rows[i].getElementsByTagName("TD")[0];
-        rows[i].style.display = 'none';
+        status = rows[i].getElementsByTagName("TD")[0].innerHTML;
+        if (isStatusVisible(status)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
     }
+}
+
+function isStatusVisible(status) {
+    let result = false;
     $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
         let input = v.getElementsByTagName("INPUT")[0];
-        if (input.checked) {
-            for (i = 1; i < rows.length; i++) {
-                status = rows[i].getElementsByTagName("TD")[0];
-                if (input.id == status.innerHTML) {
-                    rows[i].style.display = '';
-                }
-            }
+        if (input.id === status) {
+            result = input.checked;
+            return false;
         }
     });
+    return result;
 }
 
 function calc_info_values() {
@@ -413,12 +420,29 @@ function updateStudent(id) {
     });
 }
 
+$('#main-modal-window').on('hidden.bs.modal', function () {
+    var clientId = $(this).data('clientId');
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            var studentId = $('#main-modal-window').data('studentId');
+            $('#status_' + studentId).text(client.status.name);
+        }
+    });
+    renderStudentsTable();
+    calc_info_values();
+});
+
 //go to student info page
 $('.button_info').click(function () {
     var clientId = this.value;
     changeUrl('/student/all', clientId);
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', clientId);
+    currentModal.data('studentId', this.id.split("_")[3]);
     currentModal.modal('show');
 });
 
@@ -525,9 +549,10 @@ function update_notification(checkbox_id, checked) {
 //Search on page
 $("#searchInput").keyup(function () {
     let data = this.value.toLowerCase().split(" ");
-    let jo = $("#table-body").find("tr");
+    let jo = $("#table-body").find("tr[id^='row_']");
     if (this.value.trim() === "") {
-        jo.show();
+        renderStudentsTable();
+        calc_info_values();
         return;
     }
     jo.hide();
@@ -535,6 +560,7 @@ $("#searchInput").keyup(function () {
     jo.filter(function () {
         let $validCount = 0;
         let $t = $(this);
+        let status = $t[0].getElementsByTagName("TD")[0].innerHTML;
         let $temp = $t.clone();
         $temp.text($temp.text().toLowerCase());
         for (let d = 0; d < data.length; ++d) {
@@ -542,8 +568,9 @@ $("#searchInput").keyup(function () {
                 $validCount++;
             }
         }
-        return $validCount === data.length;
+        return isStatusVisible(status) && $validCount === data.length;
     }).show();
+    calc_info_values();
 }).focus(function () {
     this.value = "";
     $(this).css({

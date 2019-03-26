@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
@@ -39,13 +40,13 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Override
-    public Student addStudentForClient(Client client) {
+    public Optional<Student> addStudentForClient(Client client) {
         Student result;
         if (client.getStudent() == null && client.getStatus().isCreateStudent()) {
             StudentStatus status = projectPropertiesService.getOrCreate().getDefaultStudentStatus();
             if (status == null) {
                 logger.error("Default student status not set!");
-                return null;
+                return Optional.empty();
 //                status = studentStatusRepository.save(new StudentStatus("Новый студент"));
             }
             int trialOffset = client.getStatus().getTrialOffset();
@@ -62,7 +63,7 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
         } else {
             result = client.getStudent();
         }
-        return result;
+        return Optional.ofNullable(result);
     }
 
     @Override
@@ -81,8 +82,8 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     }
 
     @Override
-    public Student getStudentByClientId(Long clientId) {
-        return studentRepository.getStudentByClientId(clientId);
+    public Optional<Student> getStudentByClientId(Long clientId) {
+        return Optional.ofNullable(studentRepository.getStudentByClientId(clientId));
     }
 
     @Override

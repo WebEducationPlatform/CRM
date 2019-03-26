@@ -7,6 +7,8 @@ import com.ewp.crm.service.interfaces.PotentialClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class FileServiceImpl implements FileService{
 
@@ -18,7 +20,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public String getAllVkIDs() {
+	public Optional<String> getAllVkIDs() {
 		StringBuilder result = new StringBuilder();
 		for (PotentialClient potentialClient : potentialClientService.getAllPotentialClients()) {
 			for (SocialProfile socialProfile : potentialClient.getSocialProfiles()) {
@@ -27,6 +29,6 @@ public class FileServiceImpl implements FileService{
 				}
 			}
 		}
-		return result.toString();
+		return Optional.of(result.toString());
 	}
 }

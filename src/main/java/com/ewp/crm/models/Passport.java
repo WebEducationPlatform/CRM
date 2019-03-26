@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public class Passport implements Serializable {
     private String number;
 
     @Column(name = "date_of_issue")
-    private LocalDate dateOfIssue;
+    private String dateOfIssue;
 
     @Column(name = "issued_by")
     private String issuedBy;
@@ -39,10 +38,15 @@ public class Passport implements Serializable {
     @Column(name = "photo_of_residence_permit")
     private byte[] photoOfResidencePermit;
 
+    @JsonIgnore
+    @JoinColumn (name = "client_id")
+    @OneToOne
+    private Client client;
+
     public Passport() {
     }
 
-    public Passport(String series, String number, LocalDate dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
+    public Passport(String series, String number, String dateOfIssue, String issuedBy, String registration, byte[] photoOfTheMainPage, byte[] photoOfResidencePermit) {
         this.series = series;
         this.number = number;
         this.dateOfIssue = dateOfIssue;
@@ -76,11 +80,11 @@ public class Passport implements Serializable {
         this.number = number;
     }
 
-    public LocalDate getDateOfIssue() {
+    public String getDateOfIssue() {
         return dateOfIssue;
     }
 
-    public void setDateOfIssue(LocalDate dateOfIssue) {
+    public void setDateOfIssue(String dateOfIssue) {
         this.dateOfIssue = dateOfIssue;
     }
 
@@ -114,6 +118,14 @@ public class Passport implements Serializable {
 
     public void setPhotoOfResidencePermit(byte[] photoOfResidencePermit) {
         this.photoOfResidencePermit = photoOfResidencePermit;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     @Override

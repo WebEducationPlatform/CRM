@@ -4,6 +4,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.YouTubeTrackingCard;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface YouTubeTrackingCardService {
 
@@ -11,11 +12,11 @@ public interface YouTubeTrackingCardService {
 
 	List<YouTubeTrackingCard> getAllByHasLiveStream(boolean hasLiveStream);
 
-	YouTubeTrackingCard getYouTubeTrackingCardByID(Long id);
+	Optional<YouTubeTrackingCard> getYouTubeTrackingCardByID(Long id);
 
-	YouTubeTrackingCard addYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
+	Optional<YouTubeTrackingCard> addYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
 
-	YouTubeTrackingCard updateYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
+	Optional<YouTubeTrackingCard> updateYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
 
 	void deleteYouTubeTrackingCard(YouTubeTrackingCard youTubeTrackingCard);
 }

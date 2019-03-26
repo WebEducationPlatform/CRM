@@ -6,6 +6,8 @@ import com.ewp.crm.service.interfaces.FacebookDialogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 public class FacebookDialogServiceImpl extends CommonServiceImpl<MessageDialog> implements FacebookDialogService {
@@ -18,12 +20,12 @@ public class FacebookDialogServiceImpl extends CommonServiceImpl<MessageDialog> 
 	}
 
 	@Override
-	public MessageDialog addDialog(MessageDialog messageDialog) {
-		return facebookDialogDAO.saveAndFlush(messageDialog);
+	public Optional<MessageDialog> addDialog(MessageDialog messageDialog) {
+		return Optional.of(facebookDialogDAO.saveAndFlush(messageDialog));
 	}
 
 	@Override
-	public MessageDialog getByDialogId(String id) {
-		return facebookDialogDAO.getByDialogId(id);
+	public Optional<MessageDialog> getByDialogId(String id) {
+		return Optional.ofNullable(facebookDialogDAO.getByDialogId(id));
 	}
 }

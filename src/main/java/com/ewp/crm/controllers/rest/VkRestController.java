@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -70,22 +71,28 @@ public class VkRestController {
 											  @RequestParam String groupName,
 											  @RequestParam String token,
 											  @AuthenticationPrincipal User userFromSession) {
-		VkTrackedClub vkTrackedClub = vkTrackedClubService.get(id);
-		vkTrackedClub.setGroupName(groupName);
-		vkTrackedClub.setToken(token);
-		vkTrackedClubService.update(vkTrackedClub);
-		logger.info("{} has updated VkTrackedClub: club id {}", userFromSession.getFullName(), vkTrackedClub.getGroupId());
-		return ResponseEntity.ok(HttpStatus.OK);
+		Optional<VkTrackedClub> vkTrackedClub = vkTrackedClubService.get(id);
+		if (vkTrackedClub.isPresent()) {
+			vkTrackedClub.get().setGroupName(groupName);
+			vkTrackedClub.get().setToken(token);
+			vkTrackedClubService.update(vkTrackedClub.get());
+			logger.info("{} has updated VkTrackedClub: club id {}", userFromSession.getFullName(), vkTrackedClub.get().getGroupId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/trackedclub/delete")
 	public ResponseEntity deleteVkTrackedClub(@RequestParam Long deleteId,
 											  @AuthenticationPrincipal User userFromSession) {
-		VkTrackedClub currentClub = vkTrackedClubService.get(deleteId);
-		vkTrackedClubService.delete(deleteId);
-		logger.info("{} has deleted VkTrackedClub: club name {}, id {}", userFromSession.getFullName(),
-																		currentClub.getGroupName(), currentClub.getGroupId());
-		return ResponseEntity.ok(HttpStatus.OK);
+		Optional<VkTrackedClub> currentClub = vkTrackedClubService.get(deleteId);
+		if (currentClub.isPresent()) {
+			vkTrackedClubService.delete(deleteId);
+			logger.info("{} has deleted VkTrackedClub: club name {}, id {}", userFromSession.getFullName(),
+					currentClub.get().getGroupName(), currentClub.get().getGroupId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/trackedclub/add")

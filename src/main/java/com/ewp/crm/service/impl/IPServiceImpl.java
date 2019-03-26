@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class IPServiceImpl implements IPService {
@@ -69,20 +70,20 @@ public class IPServiceImpl implements IPService {
 		}
 	}
 
-	public String getVoximplantLoginForWebCall() {
-		return voximplantLoginForWebCall;
+	public Optional<String> getVoximplantLoginForWebCall() {
+		return Optional.ofNullable(voximplantLoginForWebCall);
 	}
 
-	public String getVoximplantPasswordForWebCall() {
-		return voximplantPasswordForWebCall;
+	public Optional<String> getVoximplantPasswordForWebCall() {
+		return Optional.ofNullable(voximplantPasswordForWebCall);
 	}
 
-    public String getVoximplantUserLogin(String fullLogin) {
-        return fullLogin.replaceAll("@.+", "");
+    public Optional<String> getVoximplantUserLogin(String fullLogin) {
+        return Optional.of(fullLogin.replaceAll("@.+", ""));
     }
 
-	public String getVoximplantCodeToSetRecord() {
-		return voximplantCodeToSetRecord;
+	public Optional<String> getVoximplantCodeToSetRecord() {
+		return Optional.ofNullable(voximplantCodeToSetRecord);
 	}
 }
 

@@ -168,14 +168,13 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public String receivingTokenUri() {
-
         return "https://oauth.vk.com/authorize" +
                 "?client_id=" + applicationId +
-                "&display=" + display +
-                "&redirect_uri=" + redirectUri +
                 "&scope=" + scope +
-                "&response_type=token" +
-                "&v" + version;
+                "&redirect_uri=" + redirectUri +
+                "&display=" + display +
+                "&v=" + version +
+                "&response_type=token";
     }
 
     @Override
@@ -326,28 +325,32 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
-        Client client = clientService.getClientByID(clientId);
-        String fullName = client.getName() + " " + client.getLastName();
-        Map<String, String> params = new HashMap<>();
-        params.put("%fullName%", fullName);
-        params.put("%bodyText%", body);
-        params.put("%dateOfSkypeCall%", body);
-        List<SocialProfile> socialProfiles = client.getSocialProfiles();
-        for (SocialProfile socialProfile : socialProfiles) {
-            if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-                Long id = Long.parseLong(socialProfile.getSocialId());
-                String vkText = replaceName(templateText, params);
-                String token = communityToken;
-                if (principal != null) {
-                    User user = userService.get(principal.getId());
-                    if (user.getVkToken() != null) {
-                        token = user.getVkToken();
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent()) {
+            String fullName = client.get().getName() + " " + client.get().getLastName();
+            Map<String, String> params = new HashMap<>();
+            params.put("%fullName%", fullName);
+            params.put("%bodyText%", body);
+            params.put("%dateOfSkypeCall%", body);
+            List<SocialProfile> socialProfiles = client.get().getSocialProfiles();
+            for (SocialProfile socialProfile : socialProfiles) {
+                if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+                    Long id = Long.parseLong(socialProfile.getSocialId());
+                    String vkText = replaceName(templateText, params);
+                    String token = communityToken;
+                    if (principal != null) {
+                        User user = userService.get(principal.getId());
+                        if (user.getVkToken() != null) {
+                            token = user.getVkToken();
+                        }
+                        Optional<Message> message = messageService.addMessage(Message.Type.VK, vkText);
+                        if (message.isPresent()) {
+                            clientHistoryService.createHistory(principal, client.get(), message.get()).ifPresent(client.get()::addHistory);
+                            clientService.updateClient(client.get());
+                        }
                     }
-                    Message message = messageService.addMessage(Message.Type.VK, vkText);
-                    client.addHistory(clientHistoryService.createHistory(principal, client, message));
-                    clientService.updateClient(client);
+                    sendMessageById(id, vkText, token);
                 }
-                sendMessageById(id, vkText, token);
             }
         }
     }
@@ -421,7 +424,7 @@ public class VKServiceImpl implements VKService {
             List<VkMember> vkMembers = new LinkedList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 VkMember vkMember = new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId);
-                if (vkMemberService.getVkMemberById(vkMember.getVkId()) == null) {
+                if (!vkMemberService.getVkMemberById(vkMember.getVkId()).isPresent()) {
                     vkMembers.add(vkMember);
                 }
             }
@@ -632,10 +635,10 @@ public class VKServiceImpl implements VKService {
 
         //сначала ищем у себя в базе
         SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(String.valueOf(id), "vk");
-        Client client = clientService.getClientBySocialProfile(socialProfile);
+        Optional<Client> client = clientService.getClientBySocialProfile(socialProfile);
 
-        if (client != null) {
-            return Optional.of(client);
+        if (client.isPresent()) {
+            return client;
         }
 
         Map<String, String> param = getUserDataById(id, "", "");
@@ -645,12 +648,12 @@ public class VKServiceImpl implements VKService {
 
         try {
             if (name != null && lastName != null) {
-                client = new Client(name, lastName);
+                Client newClient = new Client(name, lastName);
                 socialProfile = new SocialProfile(String.valueOf(id));
                 List<SocialProfile> socialProfiles = new ArrayList<>();
                 socialProfiles.add(socialProfile);
-                client.setSocialProfiles(socialProfiles);
-                return Optional.of(client);
+                newClient.setSocialProfiles(socialProfiles);
+                return Optional.of(newClient);
             }
         } catch (NullPointerException e) {
             logger.error("Set social profile error", e);
@@ -742,15 +745,8 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public Optional<Client> getVkLinkById(String userID) {
-
         SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, "vk");
-        Client client = clientService.getClientBySocialProfile(socialProfile);
-
-        if (client == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(client);
+        return clientService.getClientBySocialProfile(socialProfile);
     }
 
     @Override
@@ -816,11 +812,13 @@ public class VKServiceImpl implements VKService {
             }
 
             newClient.setClientDescriptionComment(description.toString());
-            SocialProfileType socialProfileType = socialProfileTypeService.getByTypeName("vk");
+            Optional<SocialProfileType> socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
-            String socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
-            SocialProfile socialProfile = new SocialProfile(socialId, socialProfileType);
-            newClient.setSocialProfiles(Collections.singletonList(socialProfile));
+            Optional<String> socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
+            if (socialProfileType.isPresent() && socialId.isPresent()) {
+                SocialProfile socialProfile = new SocialProfile(socialId.get(), socialProfileType.get());
+                newClient.setSocialProfiles(Collections.singletonList(socialProfile));
+            }
         } catch (Exception e) {
             logger.error("Parse error, can't parse income string", e);
         }
@@ -1009,7 +1007,7 @@ public class VKServiceImpl implements VKService {
                     String vkLink = "https://vk.com/id" + id;
                     PotentialClient potentialClient = new PotentialClient(firstName, lastName);
                     SocialProfile socialProfile = new SocialProfile(vkLink);
-                    socialProfile.setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
+                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
                     List<SocialProfile> socialProfiles = new ArrayList<>();
                     socialProfiles.add(socialProfile);
                     potentialClient.setSocialProfiles(socialProfiles);
@@ -1067,7 +1065,7 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
-    public String getIdFromLink(String link) {
+    public Optional<String> getIdFromLink(String link) {
 
         Pattern p = Pattern.compile(vkPattern, Pattern.CASE_INSENSITIVE);
 
@@ -1084,11 +1082,11 @@ public class VKServiceImpl implements VKService {
             }
 
             if (!zeroString.equals(vkIdentify)) {
-                return vkIdentify;
+                return Optional.ofNullable(vkIdentify);
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @SuppressWarnings("deprecation")
