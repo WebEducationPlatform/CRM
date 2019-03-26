@@ -5,11 +5,11 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import org.drinkless.tdlib.TdApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -34,7 +37,7 @@ import java.util.Optional;
 @PropertySource(value = "file:./advertisement-report.properties", encoding = "UTF-8")
 public class ScheduleTasks {
 
-	private final VKService vkService;
+    private final VKService vkService;
 
 	private final PotentialClientService potentialClientService;
 
@@ -74,17 +77,15 @@ public class ScheduleTasks {
 
 	private final ReportService reportService;
 
-	private final MessageTemplateService messageTemplateService;
-
 	private final ProjectPropertiesService projectPropertiesService;
 
 	private Environment env;
 
-	private final MailingMessageRepository mailingMessageRepository;
-
 	private final MailingService mailingService;
 
 	private final VkCampaignService vkCampaignService;
+
+    private final TelegramService telegramService;
 
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
@@ -94,7 +95,7 @@ public class ScheduleTasks {
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
 						 ClientService clientService, StudentService studentService,
-						 StatusService statusService, MailingMessageRepository mailingMessageRepository,
+						 StatusService statusService, ProjectPropertiesService projectPropertiesService,
 						 MailingService mailingService, SocialProfileService socialProfileService,
 						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
@@ -102,8 +103,7 @@ public class ScheduleTasks {
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService,
-						 VkCampaignService vkCampaignService) {
+						 VkCampaignService vkCampaignService, TelegramService telegramService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -125,20 +125,18 @@ public class ScheduleTasks {
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.reportService = reportService;
 		this.env = env;
-		this.mailingMessageRepository = mailingMessageRepository;
 		this.mailingService = mailingService;
-		this.messageTemplateService = messageTemplateService;
 		this.projectPropertiesService = projectPropertiesService;
 		this.vkCampaignService = vkCampaignService;
 		this.adReportTemplate = env.getProperty("template.daily.report");
+		this.telegramService = telegramService;
 	}
 
 	private void addClient(Client newClient) {
-		Status newClientsStatus = statusService.getFirstStatusForClient();
-		newClient.setStatus(newClientsStatus);
+		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
 		newClient.setState(Client.State.NEW);
-		newClient.getSocialProfiles().get(0).setSocialProfileType(socialProfileTypeService.getByTypeName("vk"));
-		newClient.addHistory(clientHistoryService.createHistory("vk"));
+		socialProfileTypeService.getByTypeName("vk").ifPresent(newClient.getSocialProfiles().get(0)::setSocialProfileType);
+		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
 		vkService.fillClientFromProfileVK(newClient);
 		String email = newClient.getEmail();
 		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
@@ -268,17 +266,10 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedDelay = 6_000)
 	private void sendMailing() {
-		LocalDateTime currentTime = LocalDateTime.now();
-		List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
-		messages.forEach(x -> {
-			if (x.getDate().compareTo(currentTime) < 0) {
-			    mailingService.sendMessage(x);
-			}
-		});
+        mailingService.sendMessages();
 	}
-
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {
@@ -300,7 +291,8 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 10 01 * ?")
 	private void buildAndSendReport() {
-		mailSendService.sendReportToJavaMentorEmail(reportService.buildReportOfLastMonth());
+		Optional<String> report = reportService.buildReportOfLastMonth();
+		report.ifPresent(mailSendService::sendReportToJavaMentorEmail);
 	}
 
 	@Scheduled(fixedRate = 600_000)
@@ -308,20 +300,22 @@ public class ScheduleTasks {
 		logger.info("start checking sms statuses");
 		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
 		for (SMSInfo sms : queueSMS) {
-			String status = smsService.getStatusMessage(sms.getSmsId());
-			if (!status.equals("queued")) {
-				if (status.equals("delivered")) {
-					sms.setDeliveryStatus("доставлено");
-				} else if (sms.getClient() == null) {
-					logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-					sms.setDeliveryStatus("Клиент не найден");
-				} else {
-					String deliveryStatus = determineStatusOfResponse(status);
-					sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
-					sms.setDeliveryStatus(deliveryStatus);
+			Optional<String> status = smsService.getStatusMessage(sms.getSmsId());
+			if (status.isPresent()) {
+				if (!status.get().equals("queued")) {
+					if (status.get().equals("delivered")) {
+						sms.setDeliveryStatus("доставлено");
+					} else if (sms.getClient() == null) {
+						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
+						sms.setDeliveryStatus("Клиент не найден");
+					} else {
+						String deliveryStatus = determineStatusOfResponse(status.get());
+						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
+						sms.setDeliveryStatus(deliveryStatus);
+					}
+					sms.setChecked(true);
+					smsInfoService.update(sms);
 				}
-				sms.setChecked(true);
-				smsInfoService.update(sms);
 			}
 		}
 	}
@@ -392,6 +386,18 @@ public class ScheduleTasks {
 			logger.info("Payment notification properties not set!");
 		}
 	}
+
+    @Scheduled(fixedRate = 60_000)
+    private void fetchTelegramMessages() {
+        if (telegramService.isTdlibInstalled() && telegramService.isAuthenticated()) {
+            TdApi.Chats chats = telegramService.getChats();
+            for (int i = 0; i < chats.chatIds.length; i++) {
+                telegramService.getUnreadMessagesFromChat(chats.chatIds[i], 1);
+            }
+        } else {
+            logger.info("TDLib not installed or telegram client not authenticated!");
+        }
+    }
 
 	/**
 	 * Sends friend requests from all VK friends campaigns

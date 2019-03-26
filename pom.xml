@@ -152,6 +152,22 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.directory.studio</groupId>
@@ -225,6 +241,26 @@
 			<artifactId>sdk</artifactId>
 			<version>0.5.12</version>
 		</dependency>
+		<dependency>
+			<groupId>org.docx4j</groupId>
+			<artifactId>docx4j</artifactId>
+			<version>6.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>61.1</version>
+        </dependency>
 	</dependencies>
 
 	<build>

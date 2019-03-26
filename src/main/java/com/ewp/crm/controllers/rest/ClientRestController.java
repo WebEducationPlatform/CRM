@@ -130,14 +130,13 @@ public class ClientRestController {
 																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
         SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, socialProfileType);
-        Client client = clientService.getClientBySocialProfile(socialProfile);
+        Optional<Client> client = clientService.getClientBySocialProfile(socialProfile);
 
         Map<String, String> returnMap = new HashMap<>();
-        if (client == null) {
+        if (!client.isPresent()) {
             returnMap.put("clientID", "0");
-        }
-        else{
-            returnMap.put("clientID", Long.toString(client.getId()));
+        } else {
+            returnMap.put("clientID", Long.toString(client.get().getId()));
         }
         returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
         returnMap.put("userID", userID);
@@ -154,7 +153,7 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body(null);
 		}
 		client.setOwnerUser(userFromSession);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN));
+		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
 		clientService.updateClient(client);
 		logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
 		return ResponseEntity.ok(client.getOwnerUser());
@@ -172,9 +171,9 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().build();
 		}
 		if (userFromSession.equals(assignUser)) {
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN));
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
 		} else {
-			client.addHistory(clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN));
+			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
 		}
 		client.setOwnerUser(assignUser);
 		clientService.updateClient(client);
@@ -192,9 +191,9 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().build();
 		}
 		if (client.getOwnerUser().equals(userFromSession)) {
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN));
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
 		} else {
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN));
+			clientHistoryService.createHistory(userFromSession, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
 		}
 		client.setOwnerUser(null);
 		clientService.updateClient(client);
@@ -235,8 +234,8 @@ public class ClientRestController {
 		try(FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
-			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(selected)).isPresent()) {
-				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).getSocialProfileList();
+			if (socialProfileTypeService.getByTypeName(selected).isPresent()) {
+				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).get().getSocialProfileList();
 				for (SocialProfile socialProfile : socialProfiles) {
 					bufferedWriter.write(socialProfile.getSocialId() + "\r\n");
 				}
@@ -291,7 +290,7 @@ public class ClientRestController {
 		try(FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
 
-			if (Optional.ofNullable(socialProfileTypeService.getByTypeName(filteringCondition.getSelected())).isPresent()) {
+			if (socialProfileTypeService.getByTypeName(filteringCondition.getSelected()).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
 				    if (socialNetworkLink != null && !socialNetworkLink.isEmpty()) {
@@ -342,7 +341,7 @@ public class ClientRestController {
             client.setPostponeComment(postponeComment);
             client.setPostponeDate(postponeDate);
             client.setOwnerUser(userFromSession);
-            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE));
+            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.POSTPONE).ifPresent(client::addHistory);
             clientService.updateClient(client);
             logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
@@ -359,7 +358,7 @@ public class ClientRestController {
 			Client client = clientService.get(clientId);
 			client.setHideCard(false);
 			client.setPostponeDate(null);
-			client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE));
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE).ifPresent(client::addHistory);
 			clientService.updateClient(client);
 			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
 			return ResponseEntity.ok(HttpStatus.OK);
@@ -383,7 +382,7 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().body("Client has same description");
 		}
 		client.setClientDescriptionComment(clientDescription);
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
+		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
 	}
@@ -394,17 +393,17 @@ public class ClientRestController {
 													  @RequestParam(name = "skypeLogin") String skypeLogin,
 													  @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
-		Client checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
+		Optional<Client> checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
 		if (client == null) {
 			logger.error("Client with id {} not found", clientId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
 		}
-		if (checkDuplicateLogin != null && checkDuplicateLogin.getSkype().equals(skypeLogin)) {
+		if (checkDuplicateLogin.isPresent() && checkDuplicateLogin.get().getSkype().equals(skypeLogin)) {
 			logger.error("client with this skype login already exists");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
 		}
 		client.setSkype(skypeLogin);
-		client.addHistory(clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin));
+		clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin).ifPresent(client::addHistory);
 		clientService.updateClient(client);
 		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
 	}
@@ -439,7 +438,7 @@ public class ClientRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
         }
         if (client.isRepeated()) {
-            client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION));
+            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
         }
         client.setRepeated(isRepeated);
 
@@ -479,17 +478,17 @@ public class ClientRestController {
 			BigDecimal price = new BigDecimal(resultPriceList.get(i));
 			BigDecimal paymentAmount = new BigDecimal(resultPaymentSumList.get(i));
             String[] nameAndLastNameArr = resultFioList.get(i).split(" ");
-            Client client = Objects.nonNull(clientService.getClientByEmail(resultEmailList.get(i).trim()))?
-                    clientService.getClientByEmail(resultEmailList.get(i).trim()):
-                    clientService.findByNameAndLastNameIgnoreCase(nameAndLastNameArr[0].trim(),
-                            nameAndLastNameArr[1].trim());
-			if (Objects.nonNull(client)) {
-				Student student = studentService.getStudentByClientId(client.getId());
-				if (Objects.nonNull(student)) {
-					studentService.update(setStudentParams(student, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
+            Optional<Client> client = clientService.getClientByEmail(resultEmailList.get(i).trim());
+            if (!client.isPresent()) {
+				client = clientService.findByNameAndLastNameIgnoreCase(nameAndLastNameArr[0].trim(), nameAndLastNameArr[1].trim());
+			}
+			if (client.isPresent()) {
+				Optional<Student> student = studentService.getStudentByClientId(client.get().getId());
+				if (student.isPresent()) {
+					studentService.update(setStudentParams(student.get(), endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 				} else {
                     Student newStudent = new Student();
-					newStudent.setClient(client);
+					newStudent.setClient(client.get());
 					studentService.save(setStudentParams(newStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 				}
 			} else {
@@ -497,7 +496,7 @@ public class ClientRestController {
                 newClient.setName(nameAndLastNameArr[0].trim());
                 newClient.setLastName(nameAndLastNameArr[1].trim());
                 newClient.setEmail(resultEmailList.get(i).trim());
-                newClient.setStatus(statusService.get(1L));
+				statusService.get(1L).ifPresent(newClient::setStatus);
 				clientService.addClient(newClient);
 				Student createStudent = new Student();
 				createStudent.setClient(newClient);

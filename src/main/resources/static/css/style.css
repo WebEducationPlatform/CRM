@@ -246,6 +246,10 @@ ul.nav a:hover {
 	max-width: 700px;
 }
 
+.client-request {
+	width: 350px;
+}
+
 .modal-header {
 	border-bottom: 1px solid #cdcfd0;
 }
@@ -485,7 +489,7 @@ input[type="checkbox"]:checked + label:before {
 	transform: rotate(45deg);
 }
 
-#showallbtn, #addNewUser, #vkClubList, #YouTubeLive, #report {
+#showallbtn, #addNewUser, #vkClubList, #YouTubeLive, #report, #feedback {
 	width: 100%;
 	margin-bottom: 10px;
 	border-radius: 5px;
@@ -955,6 +959,34 @@ li.dropdown:hover .dropdown-menu {
 .clearable.onX{ cursor: pointer; }              /* (jQ) hover cursor style */
 .clearable::-ms-clear {display: none; width:0; height:0;} /* Remove IE default X */
 
-.modal-body {
-	overflow-x: auto;
+textarea[class*="feedback-social-url"],
+textarea[class*="feedback-text"],
+textarea[class*="feedback-video-url"] {
+	border: none;
+	background: #edeff0;
+	width:100%
+}
+
+#client-feedback-table textarea[class*="feedback-social-url"] {
+	max-width: 200px;
+}
+
+#client-feedback-table textarea[class*="feedback-text"] {
+	max-width: 354px;
+}
+
+#client-feedback-table textarea[class*="feedback-video-url"] {
+	max-width: 170px;
+}
+
+#tbody-all-feedback-table textarea[class*="feedback-social-url"] {
+	max-width: 265px;
+}
+
+#tbody-all-feedback-table textarea[class*="feedback-text"] {
+	max-width: 350px;
+}
+
+#tbody-all-feedback-table textarea[class*="feedback-video-url"] {
+	max-width: 230px;
 }

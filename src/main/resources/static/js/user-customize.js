@@ -228,3 +228,58 @@ function validate_new_student_parameters(price, status) {
     }
     return true;
 }
+
+//Fill values on contract user setting
+$('#contract-user-setting-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#contract-mail-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#contract-mail-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.contractTemplate == null) {
+                        $("#contract-mail-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#contract-mail-template option[value=" + response.contractTemplate.id + "]").prop('selected', true);
+                    }
+                    $('#input-contract-last-id').empty().val(response.contractLastId);
+                    $('#input-contract-inn').empty().val(response.nalogNumber);
+                    $('#input-contract-ras-s').empty().val(response.checkingAccount);
+                    $('#input-contract-kor-s').empty().val(response.correspondentAccount);
+                    $('#input-contract-bic').empty().val(response.bankIdentificationCode);
+                }
+            })
+        }
+    });
+});
+
+$("#update-contract-user-setting").click(function () {
+    let data = {
+        contractTemplateId: $("#contract-mail-template").val(),
+        contractLastId: $('#input-contract-last-id').val(),
+        nalogNumber: $('#input-contract-inn').val(),
+        checkingAccount: $('#input-contract-ras-s').val(),
+        correspondentAccount: $('#input-contract-kor-s').val(),
+        bankIdentificationCode: $('#input-contract-bic').val()
+    };
+    if (data.contractTemplateId == '') {
+        alert("Внимание: Нужно указать шаблон!");
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/contractUserSetting',
+        data: data,
+        success: function () {
+        }
+    })
+});

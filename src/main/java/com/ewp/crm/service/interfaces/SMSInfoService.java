@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.SMSInfo;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SMSInfoService extends CommonService<SMSInfo> {
 
@@ -10,5 +11,5 @@ public interface SMSInfoService extends CommonService<SMSInfo> {
 
 	List<SMSInfo> getSMSByIsChecked(boolean isChecked);
 
-	SMSInfo addSMSInfo(SMSInfo smsInfo);
+	Optional<SMSInfo> addSMSInfo(SMSInfo smsInfo);
 }
