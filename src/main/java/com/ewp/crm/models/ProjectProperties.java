@@ -96,8 +96,8 @@ public class ProjectProperties {
     /**
      * Банковские реквизиты
      */
-    @Column(name = "nalog_number")
-    private Long nalogNumber;
+    @Column(name = "inn")
+    private Long inn;
 
     @Column(name = "bank_checking_account")
     private Long checkingAccount;
@@ -248,12 +248,12 @@ public class ProjectProperties {
         this.autoAnswerTemplate = autoAnswerTemplate;
     }
 
-    public Long getNalogNumber() {
-        return nalogNumber;
+    public Long getInn() {
+        return inn;
     }
 
-    public void setNalogNumber(Long nalogNumber) {
-        this.nalogNumber = nalogNumber;
+    public void setInn(Long inn) {
+        this.inn = inn;
     }
 
     public Long getCheckingAccount() {
