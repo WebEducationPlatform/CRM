@@ -36,6 +36,12 @@ public class VKConfigImpl implements VKConfig {
 
     private String managerToken;
 
+    private String vkReportChatId;
+
+    private String vkAdsClientId;
+
+    private String vkAppAccessToken;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -53,14 +59,11 @@ public class VKConfigImpl implements VKConfig {
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
             managerToken = env.getProperty("vk.manager.token");
-
-            if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
-                    display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("VK configs have not initialized. Check vk.properties file");
-            System.exit(-1);
+            vkReportChatId = env.getProperty("vk.app.reports.service.chat.id");
+            vkAdsClientId = env.getProperty("vk.ads.client.id");
+            vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
+        } catch (Exception e) {
+            logger.error("VK configs have not initialized. Check vk.properties file", e);
         }
     }
 
@@ -108,7 +111,7 @@ public class VKConfigImpl implements VKConfig {
         return firstContactMessage;
     }
 
-    public String getVkAPIUrl() {
+    public String getVkApiUrl() {
         return apiUrl;
     }
 
@@ -116,4 +119,13 @@ public class VKConfigImpl implements VKConfig {
         return managerToken;
     }
 
+    public String getVkReportChatId() {
+        return vkReportChatId;
+    }
+
+    public String getVkAdsClientId() {return vkAdsClientId; }
+
+    public String getVkAppAccessToken() {
+        return vkAppAccessToken;
+    }
 }

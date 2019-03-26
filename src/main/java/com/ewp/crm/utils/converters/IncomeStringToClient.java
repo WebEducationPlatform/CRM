@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
@@ -187,8 +188,11 @@ public class IncomeStringToClient {
             if (validLink.equals("undefined")) {
                 socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
             } else {
-                socialProfile.setSocialId(vkService.getIdFromLink(link));
-                socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                Optional<String> socialId = vkService.getIdFromLink(link);
+                if (socialId.isPresent()) {
+                    socialProfile.setSocialId(socialId.get());
+                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                }
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
             socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);

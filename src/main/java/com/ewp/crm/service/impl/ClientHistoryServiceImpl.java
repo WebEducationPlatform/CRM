@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
@@ -17,6 +18,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
@@ -48,7 +50,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
-		return clientHistoryRepository.getAllByClientId(id, pageable);
+		return clientHistoryRepository.getAllByClientId(id, pageable).stream().peek((h) -> {
+			if (h.getType().equals(ClientHistory.Type.CALL) && (h.getLink() == null || IPTelephonyRestController.INIT_RECORD_LINK.equals(h.getLink()))) {
+				h.setTitle(h.getTitle() + ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo());
+			}
+		}).collect(Collectors.toList());
 	}
 
 	@Override
