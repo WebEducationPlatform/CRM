@@ -4,12 +4,13 @@ import com.ewp.crm.models.PotentialClient;
 import com.ewp.crm.models.SocialProfile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PotentialClientService {
 
 	List<PotentialClient> getAllPotentialClients();
 
-	PotentialClient getPotentialClientByID(Long id);
+	Optional<PotentialClient> getPotentialClientByID(Long id);
 
 	void addPotentialClient(PotentialClient potentialClient);
 
@@ -17,5 +18,5 @@ public interface PotentialClientService {
 
 	void deletePotentialClient(PotentialClient potentialClient);
 
-	PotentialClient getPotentialClientBySocialProfile(SocialProfile socialProfile);
+	Optional<PotentialClient> getPotentialClientBySocialProfile(SocialProfile socialProfile);
 }

@@ -1,8 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
-import com.github.javafaker.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/status")
@@ -46,8 +49,7 @@ public class StatusRestController {
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
 	public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
-		Status status = statusService.get(id);
-		return ResponseEntity.ok(clientService.getAllClientsByStatus(status));
+		return statusService.get(id).map(s -> ResponseEntity.ok(clientService.getAllClientsByStatus(s))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
 	@PostMapping(value = "/add")
@@ -68,10 +70,10 @@ public class StatusRestController {
 		if (currentClient.getStatus().getId().equals(statusId)) {
 			return ResponseEntity.badRequest().body("Клиент уже находится на данном статусе");
 		}
-		currentClient.setStatus(statusService.get(statusId));
-		currentClient.addHistory(clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS));
+		statusService.get(statusId).ifPresent(currentClient::setStatus);
+		clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS).ifPresent(currentClient::addHistory);
 		if (currentClient.getStudent() == null) {
-			currentClient.addHistory(clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT));
+			clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
 		}
 		clientService.updateClient(currentClient);
 		studentService.addStudentForClient(currentClient);
@@ -90,8 +92,8 @@ public class StatusRestController {
 			return ResponseEntity.notFound().build();
 		}
 		Status status = client.getStatus();
-		client.setStatus(statusService.get("deleted"));
-		client.addHistory(clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.STATUS));
+		statusService.get("deleted").ifPresent(client::setStatus);
+		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.STATUS).ifPresent(client::addHistory);
 		clientService.updateClient(client);
 		notificationService.deleteNotificationsByClient(client);
 		logger.info("{} delete client with id = {} in status {}", userFromSession.getFullName(), client.getId(), status.getName());
@@ -102,25 +104,28 @@ public class StatusRestController {
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity changePositionOfTwoStatuses(@RequestParam("sourceId") long sourceId,
 													  @RequestParam("destinationId") long destinationId) {
-		Status sourceStatus = statusService.get(sourceId);
-		Status destinationStatus = statusService.get(destinationId);
-		if (sourceStatus == null || destinationStatus == null) {
+		Optional<Status> sourceStatus = statusService.get(sourceId);
+		Optional<Status> destinationStatus = statusService.get(destinationId);
+		if (!sourceStatus.isPresent() || !destinationStatus.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		Long tempPosition = sourceStatus.getPosition();
-		sourceStatus.setPosition(destinationStatus.getPosition());
-		destinationStatus.setPosition(tempPosition);
-		statusService.update(sourceStatus);
+		Long tempPosition = sourceStatus.get().getPosition();
+		sourceStatus.get().setPosition(destinationStatus.get().getPosition());
+		destinationStatus.get().setPosition(tempPosition);
+		statusService.update(sourceStatus.get());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping (value = "/create-student")
 	@PreAuthorize ("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public HttpStatus setCreateStudent(@RequestParam("id") Long id, @RequestParam("create") Boolean create) {
-		Status status = statusService.get(id);
-		status.setCreateStudent(create);
-		statusService.update(status);
-		return HttpStatus.OK;
+		Optional<Status> status = statusService.get(id);
+		if (status.isPresent()) {
+			status.get().setCreateStudent(create);
+			statusService.update(status.get());
+			return HttpStatus.OK;
+		}
+		return HttpStatus.NOT_FOUND;
 	}
 
 	@PostMapping ("/client/changeByName")
@@ -129,7 +134,11 @@ public class StatusRestController {
 										 @RequestParam("clientId") Long clientId,
 										 @AuthenticationPrincipal User currentUser){
 
-		Long statusId = statusService.getStatusByName(newStatus).getId();
-		return this.changeClientStatus(statusId,clientId,currentUser);
+		Optional<Status> st = statusService.getStatusByName(newStatus);
+		if (st.isPresent()) {
+			Long statusId = st.get().getId();
+			return this.changeClientStatus(statusId, clientId, currentUser);
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 }

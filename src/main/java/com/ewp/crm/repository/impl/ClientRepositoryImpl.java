@@ -14,7 +14,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
-    private final String queryPattern = " (c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
+    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -182,11 +184,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getAgeFrom() != null) {
-            query.append(" and cl.age >= ").append(filteringCondition.getAgeFrom());
-
+            LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
+            String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and cl.birthDate <= '").append(dateTo).append("'");
         }
         if (filteringCondition.getAgeTo() != null) {
-            query.append(" and cl.age <= ").append(filteringCondition.getAgeTo());
+            LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
+            String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and cl.birthDate >= '").append(dateFrom).append("'");
         }
 
         if (!filteringCondition.getCity().isEmpty()) {
@@ -227,11 +232,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getAgeFrom() != null) {
-            query.append(" and client.age >= ").append(filteringCondition.getAgeFrom());
-
+            LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
+            String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and client.birth_date <= '").append(dateTo).append("'");
         }
         if (filteringCondition.getAgeTo() != null) {
-            query.append(" and client.age <= ").append(filteringCondition.getAgeTo());
+            LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
+            String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and client.birth_date >= '").append(dateFrom).append("'");
         }
 
         if (!filteringCondition.getCity().isEmpty()) {
@@ -259,7 +267,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
-        StringBuilder searchString = new StringBuilder("SELECT c FROM Client c WHERE");
+        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles s WHERE");
         String[] searchWords = search.split(" ");
         for (int i = 0; i < searchWords.length; i++) {
             searchString.append(queryPattern.replace("search", "search" + i));
