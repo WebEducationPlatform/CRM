@@ -146,6 +146,7 @@ public class ClientHistory {
 		ASSIGN("прикрепил"),
 		UNASSIGN("открепил"),
 		CALL("совершил звонок"),
+		CALL_WITHOUT_RECORD(", не дозвонился"),
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
 		UPDATE("обновил информацию"),

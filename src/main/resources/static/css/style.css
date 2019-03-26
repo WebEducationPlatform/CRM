@@ -246,6 +246,10 @@ ul.nav a:hover {
 	max-width: 700px;
 }
 
+.client-request {
+	width: 350px;
+}
+
 .modal-header {
 	border-bottom: 1px solid #cdcfd0;
 }
@@ -985,8 +989,4 @@ textarea[class*="feedback-video-url"] {
 
 #tbody-all-feedback-table textarea[class*="feedback-video-url"] {
 	max-width: 230px;
-}
-
-.modal-body {
-	overflow-x: auto;
 }
