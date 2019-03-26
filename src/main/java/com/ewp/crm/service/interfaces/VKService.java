@@ -33,6 +33,8 @@ public interface VKService {
 
     String sendMessageById(Long id, String msg, String token);
 
+    void sendMessageByChatId(String id, String message);
+
     Optional<List<Long>> getUsersIdFromCommunityMessages();
 
     Optional<Client> getClientFromVkId(Long id);
@@ -72,5 +74,7 @@ public interface VKService {
     Optional<VkProfileInfo> getProfileInfoById(long vkId);
 
     void fillClientFromProfileVK(Client client);
+
+    void sendDailyAdvertisementReport(String template);
 
 }
