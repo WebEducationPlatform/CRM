@@ -8,7 +8,7 @@
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
 <body>
@@ -250,13 +250,13 @@
                 <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
                      th:text="${client.name} + ' ' + ${client.lastName}"
                      th:attr="client-id=${client.id} "
-                     th:onclick="'changeUrl('+ ${client.id} +')'">
+                     th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
 
                 </div>
 
                 <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
                      th:attr="client-id=${client.id} "
-                     th:onclick="'changeUrl('+ ${client.id} +')'">
+                     th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
 
                     <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
                     ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
@@ -403,6 +403,9 @@
                 <p><a href="/admin/YouTubeLive">
                     <button type="button" id="YouTubeLive">Отслеживаемая трансляция YouTube</button>
                 </a></p>
+                <p><a href="/feedback/all">
+                    <button type="button" id="feedback">Посмотреть все отзывы</button>
+                </a></p>
                 <p><a href="/report">
                     <button class="button" type="button" id="report">Отчет</button>
                 </a></p>
@@ -443,6 +446,7 @@
     <a href="/vk/campaigns/all">Продвижение</a>
 </div>
 
+<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -458,7 +462,7 @@
 <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
 
 
-<script type="text/javascript" src="//cdn.voximplant.com/edge/voximplant.min.js"></script>
+<script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
@@ -467,8 +471,8 @@
 <script type="text/javascript" th:src="@{/js/conversations.js}"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>

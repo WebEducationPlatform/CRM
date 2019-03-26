@@ -19,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -34,18 +35,24 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private StatusService statusService;
 
-    public String buildReport(String date) {
-        ZonedDateTime[] dates = parseTwoDate(date);
-        return formationOfReportsText(dates);
+    public Optional<String> buildReport(String date) {
+        if (date != null) {
+            ZonedDateTime[] dates = parseTwoDate(date);
+            if (dates == null) {
+                return Optional.empty();
+            }
+            return Optional.of(formationOfReportsText(dates));
+        }
+        return Optional.empty();
     }
 
-    public String buildReportOfLastMonth() {
+    public Optional<String> buildReportOfLastMonth() {
         LocalDate today = LocalDate.now();
         LocalDate firstDayMonth = today.minusDays(1).withDayOfMonth(1);
-        return formationOfReportsText(new ZonedDateTime[]{
+        return Optional.of(formationOfReportsText(new ZonedDateTime[]{
                 ZonedDateTime.from(firstDayMonth.atStartOfDay(ZoneId.systemDefault())),
                 ZonedDateTime.from(today.atStartOfDay(ZoneId.systemDefault()))
-        });
+        }));
     }
 
     private ZonedDateTime[] parseTwoDate(String date) {
@@ -66,42 +73,50 @@ public class ReportServiceImpl implements ReportService {
 
     private String formationOfReportsText(ZonedDateTime[] dates) {
         ReportsStatus reportsStatus = reportsStatusService.getAll().get(0);
-        String dropOutStatusName = statusService.get(reportsStatus.getDropOutStatus()).getName();
-        String endLearningName = statusService.get(reportsStatus.getEndLearningStatus()).getName();
-        Status inLearningStatus = statusService.get(reportsStatus.getInLearningStatus());
-        Status pauseLearnStatus = statusService.get(reportsStatus.getPauseLearnStatus());
-        Status trialLearnStatus = statusService.get(reportsStatus.getTrialLearnStatus());
+        if (statusService.get(reportsStatus.getDropOutStatus()).isPresent() &&
+                statusService.get(reportsStatus.getEndLearningStatus()).isPresent() &&
+                statusService.get(reportsStatus.getInLearningStatus()).isPresent() &&
+                statusService.get(reportsStatus.getPauseLearnStatus()).isPresent() &&
+                statusService.get(reportsStatus.getTrialLearnStatus()).isPresent()) {
+
+            String dropOutStatusName = statusService.get(reportsStatus.getDropOutStatus()).get().getName();
+            String endLearningName = statusService.get(reportsStatus.getEndLearningStatus()).get().getName();
+            Status inLearningStatus = statusService.get(reportsStatus.getInLearningStatus()).get();
+            Status pauseLearnStatus = statusService.get(reportsStatus.getPauseLearnStatus()).get();
+            Status trialLearnStatus = statusService.get(reportsStatus.getTrialLearnStatus()).get();
 
 //		ZonedDateTime datePlusOneWeek = ZonedDateTime.of(dates[0].toLocalDate(), LocalTime.MIN, ZoneId.systemDefault()).minusWeeks(1); todo зачем нужна была?
-        List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
+            List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
+                    new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
 
-        long countFirstPaymentClients = newClientPlusOneWeek.stream()
-                .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(trialLearnStatus.getName())))
-                .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(inLearningStatus.getName()))).count();
-        int countNewClient = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
-        long countDropOutClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, dropOutStatusName);
-        long countEndLearningClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, endLearningName);
-        long countTakePauseClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, pauseLearnStatus.getName());
-        int countInLearningClients = clientRepository.getAllByStatus(inLearningStatus).size();
-        int countPauseLearnClients = clientRepository.getAllByStatus(pauseLearnStatus).size();
-        int countTrialLearnClients = clientRepository.getAllByStatus(trialLearnStatus).size();
+            long countFirstPaymentClients = newClientPlusOneWeek.stream()
+                    .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(trialLearnStatus.getName())))
+                    .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(inLearningStatus.getName()))).count();
+            int countNewClient = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
+                    new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
+            long countDropOutClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
+                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, dropOutStatusName);
+            long countEndLearningClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
+                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, endLearningName);
+            long countTakePauseClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
+                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, pauseLearnStatus.getName());
+            int countInLearningClients = clientRepository.getAllByStatus(inLearningStatus).size();
+            int countPauseLearnClients = clientRepository.getAllByStatus(pauseLearnStatus).size();
+            int countTrialLearnClients = clientRepository.getAllByStatus(trialLearnStatus).size();
 
-        String dateFrom = dates[0].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
-        String dateTo = dates[1].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
-        return "Отчет с " + dateFrom + " года \n " +
-                "        по " + dateTo + " года. \n" +
-                "Начали учёбу " + countNewClient + " новых человек \n" +
-                "Произвели оплату " + countFirstPaymentClients + " новых человек\n" +
-                "Бросили учёбу " + countDropOutClients + " человек\n" +
-                "Окончили учёбу " + countEndLearningClients + " человек\n" +
-                "Взяли паузу " + countTakePauseClients + " человек\n" +
-                "В настоящее время на пробных " + countTrialLearnClients + " новых человек\n" +
-                "В настоящее время на паузе " + countPauseLearnClients + " человек\n" +
-                "В настоящее время обучается " + countInLearningClients + " человек.\n";
+            String dateFrom = dates[0].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
+            String dateTo = dates[1].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
+            return "Отчет с " + dateFrom + " года \n " +
+                    "        по " + dateTo + " года. \n" +
+                    "Начали учёбу " + countNewClient + " новых человек \n" +
+                    "Произвели оплату " + countFirstPaymentClients + " новых человек\n" +
+                    "Бросили учёбу " + countDropOutClients + " человек\n" +
+                    "Окончили учёбу " + countEndLearningClients + " человек\n" +
+                    "Взяли паузу " + countTakePauseClients + " человек\n" +
+                    "В настоящее время на пробных " + countTrialLearnClients + " новых человек\n" +
+                    "В настоящее время на паузе " + countPauseLearnClients + " человек\n" +
+                    "В настоящее время обучается " + countInLearningClients + " человек.\n";
+        }
+        return "Ошибка формирования отчета";
     }
 }

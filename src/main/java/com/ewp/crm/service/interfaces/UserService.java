@@ -3,14 +3,14 @@ package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService extends CommonService<User> {
 
-	User getByEmailOrPhone(String email, String phone);
+	Optional<User> getByEmailOrPhone(String email, String phone);
 
 	User add(User user);
 
@@ -20,9 +20,9 @@ public interface UserService extends CommonService<User> {
 
 	List<User> getByRole(Role role);
 
-	User getUserByEmail(String email);
+	Optional<User> getUserByEmail(String email);
 
-	User getUserByFirstNameAndLastName(String firstName, String lastName);
+	Optional<User> getUserByFirstNameAndLastName(String firstName, String lastName);
 
 	void setColorBackground(String color, User user);
 

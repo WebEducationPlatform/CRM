@@ -83,6 +83,9 @@ public class Student implements Diffable<Student> {
     @Column (name = "notify_vk")
     private boolean notifyVK = false;
 
+    @Column (name = "color")
+    private String color;
+
     public Student() {
     }
 
@@ -95,6 +98,14 @@ public class Student implements Diffable<Student> {
         this.payLater = payLater;
         this.status = status;
         this.notes = notes;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public Long getId() {

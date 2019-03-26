@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class MessageServiceImpl extends CommonServiceImpl<Message> implements MessageService {
 
@@ -19,8 +21,8 @@ public class MessageServiceImpl extends CommonServiceImpl<Message> implements Me
 	}
 
 	@Override
-	public Message addMessage(Message.Type type, String content) {
+	public Optional<Message> addMessage(Message.Type type, String content) {
 		logger.info("adding message...");
-		return messageRepository.saveAndFlush(new Message(type, content));
+		return Optional.of(messageRepository.saveAndFlush(new Message(type, content)));
 	}
 }

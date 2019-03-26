@@ -3,12 +3,13 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.VkTrackedClub;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VkTrackedClubService {
 
     List<VkTrackedClub> getAll();
 
-    VkTrackedClub get(Long id);
+    Optional<VkTrackedClub> get(Long id);
 
     void add(VkTrackedClub vkTrackedClub);
 

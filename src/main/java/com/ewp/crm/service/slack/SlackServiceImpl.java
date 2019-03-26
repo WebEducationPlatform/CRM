@@ -9,6 +9,9 @@ import com.ewp.crm.service.interfaces.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Optional;
 
 @Service
 @PropertySources(value = {
@@ -92,26 +96,54 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
+    public String getEmailListFromJson(String json) {
+        try {
+            StringBuilder result = new StringBuilder();
+            JSONObject jsonObj = new JSONObject(json);
+            JSONArray jsonData = jsonObj.getJSONArray("members");
+            for (int i = 0; i < jsonData.length(); i++) {
+                JSONObject userProfile = jsonData.getJSONObject(i).optJSONObject("profile");
+                if (userProfile == null) {
+                    continue;
+                }
+                String mail = userProfile.optString("email");
+                if (mail != null && !mail.isEmpty()) {
+                    result.append(mail);
+                    if (i != jsonData.length() - 1) {
+                        result.append("\n");
+                    }
+                }
+            }
+            return result.toString();
+        } catch (JSONException e) {
+            logger.warn("Can't parse emails from slack", e);
+        }
+        return "Error";
+    }
+
+    @Override
     public void memberJoinSlack(SlackProfile slackProfile) {
-        Client client = clientService.getClientByEmail(slackProfile.getEmail());
-        if (client != null) {
-            client.setSlackProfile(slackProfile);
-            slackProfile.setClient(client);
+        Optional<Client> client = clientService.getClientByEmail(slackProfile.getEmail());
+        if (client.isPresent()) {
+            client.get().setSlackProfile(slackProfile);
+            slackProfile.setClient(client.get());
             ProjectProperties projectProperties = propertiesService.get();
             if (projectProperties == null || projectProperties.getDefaultStatusId() == null) {
                 logger.warn("Don't have projectProperties yet! Create it.");
             } else {
-                Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId());
-                client.setStatus(newClientStatus);
-                newClientStatus.addClient(client);
-                statusService.update(newClientStatus);
+                if (statusService.get(projectProperties.getDefaultStatusId()).isPresent()) {
+                    Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId()).get();
+                    client.get().setStatus(newClientStatus);
+                    newClientStatus.addClient(client.get());
+                    statusService.update(newClientStatus);
+                }
             }
-            if (client.getStudent() == null) {
-                studentService.addStudentForClient(client);
+            if (client.get().getStudent() == null) {
+                studentService.addStudentForClient(client.get());
             }
-            client.addHistory(clientHistoryService.createHistory("Slack, nickname: " + slackProfile.getDisplayName()
-                    + ". " + client.getName() + " " + client.getLastName() + " теперь студент"));
-            clientService.updateClient(client);
+            clientHistoryService.createHistory("Slack, nickname: " + slackProfile.getDisplayName()
+                    + ". " + client.get().getName() + " " + client.get().getLastName() + " теперь студент").ifPresent(client.get()::addHistory);
+            clientService.updateClient(client.get());
             logger.info("New member " + slackProfile.getDisplayName() + " "
                     + slackProfile.getEmail() + " joined to general channel");
         } else {
