@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -89,10 +90,10 @@ public class Student implements Diffable<Student> {
     public Student() {
     }
 
-    public Student(Client client, LocalDateTime trialEndDate, LocalDateTime nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
+    public Student(Client client, LocalDateTime trialEndDate, BigDecimal price, BigDecimal paymentAmount, BigDecimal payLater, StudentStatus status, String notes) {
         this.client = client;
         this.trialEndDate = trialEndDate;
-        this.nextPaymentDate = nextPaymentDate;
+        this.nextPaymentDate = calculateNextPayDate();
         this.price = price;
         this.paymentAmount = paymentAmount;
         this.payLater = payLater;
@@ -238,4 +239,9 @@ public class Student implements Diffable<Student> {
                 .append("Оповещение по Вконтакте", this.notifyVK, student.notifyVK)
                 .build();
     }
+
+    private LocalDateTime calculateNextPayDate() {
+        return LocalDateTime.now().plusDays(LocalDateTime.now().getMonth().length(LocalDate.now().isLeapYear()));
+    }
+
 }

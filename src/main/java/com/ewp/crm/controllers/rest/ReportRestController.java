@@ -29,9 +29,9 @@ public class ReportRestController {
     @Autowired
     private MailSendService mailSendService;
 
-    @PostMapping(value = "/last-days")
-    public ResponseEntity clientReportByLastNDays(@RequestBody String date) {
-        return ResponseEntity.ok(reportService.buildReport(date));
+    @GetMapping(value = "/getGeneralReport")
+    public ResponseEntity clientReportByLastNDays(@RequestParam String period) {
+        return ResponseEntity.ok(reportService.buildReport(period));
     }
 
     @PostMapping(value = "/getReportsStatus")

@@ -75,8 +75,8 @@ public class DataInitializer {
     private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
-        Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
-        Status status0 = new Status("New clients", false, 1L, false, 0, 0);
+        Status defaultStatus = new Status("deleted", true, 5L, false, 0);
+        Status status0 = new Status("New clients", false, 1L, false, 0);
 
         Role roleAdmin = new Role("ADMIN");
         Role roleOwner = new Role("OWNER");
@@ -212,11 +212,11 @@ public class DataInitializer {
         MessageTemplateService.add(MessageTemplate4);
         MessageTemplateService.add(MessageTemplate5);
 
-        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
-        Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
-        Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
-        Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
-        Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
+        Status status1 = new Status("trialLearnStatus", false, 2L, true, 3);
+        Status status2 = new Status("inLearningStatus", false, 3L, true, 0);
+        Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0);
+        Status status4 = new Status("endLearningStatus", false, 5L, false, 0);
+        Status status5 = new Status("dropOut Status", false, 6L, false, 0);
 
         Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
         Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
@@ -285,9 +285,9 @@ public class DataInitializer {
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));
         StudentStatus pauseStatus = studentStatusService.add(new StudentStatus("Spring MVC"));
 
-        Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
-        Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(30), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
-        Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), LocalDateTime.now(), LocalDateTime.now().plusDays(14), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
+        Student trialStudent = new Student(clientService.getClientByEmail("i.fiod@mail.ru"), LocalDateTime.now().plusDays(3), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), trialStatus, "На пробных");
+        Student learningStudent = new Student(clientService.getClientByEmail("vboyko@mail.ru"), LocalDateTime.now(), new BigDecimal(12000.00), new BigDecimal(8000.00), new BigDecimal(4000.00), learningStatus, "Быстро учится");
+        Student pauseStudent = new Student(clientService.getClientByEmail("a.solo@mail.ru"), LocalDateTime.now(), new BigDecimal(12000.00), new BigDecimal(12000.00), new BigDecimal(0.00), pauseStatus, "Уехал в отпуск на 2 недели");
         studentService.add(trialStudent);
         studentService.add(learningStudent);
         studentService.add(pauseStudent);

@@ -57,16 +57,24 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types) {
-        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
-                .setParameter("firstDay", firstDay)
-                .setParameter("lastDay", lastDay)
+    public List<Client> getClientsByHistoryTypes(ClientHistory.Type[] types) {
+        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.type IN :types")
+                .setParameter("types", Arrays.asList(types))
+                .getResultList();
+    }
+
+
+    @Override
+    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types) {
+        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date =< :lastDate AND p.type IN :types")
+                .setParameter("firstDate", firstDate)
+                .setParameter("lastDate", lastDate)
                 .setParameter("types", Arrays.asList(types))
                 .getResultList();
     }
 
     public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title) {
-        return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+        return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date >= :firstDay AND p.date <= :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
                 .setParameter("types", Arrays.asList(types))

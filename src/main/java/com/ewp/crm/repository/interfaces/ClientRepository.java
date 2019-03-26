@@ -6,10 +6,14 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface ClientRepository extends CommonGenericRepository<Client>, ClientRepositoryCustom {
+
+	@Query("select c from Client c")
+	List<Client> findAll();
 
 	Client getClientBySocialProfiles(List<SocialProfile> list);
 

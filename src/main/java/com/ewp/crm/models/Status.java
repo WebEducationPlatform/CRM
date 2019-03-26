@@ -60,31 +60,23 @@ public class Status implements Serializable {
 	@Column(name = "trial_offset")
 	private Integer trialOffset = 0;
 
-	/**
-	 * Дней до следующей оплаты
-	 */
-	@Column(name = "next_payment_offset")
-	private Integer nextPaymentOffset = 0;
-
 	@JsonIgnore
 	@OneToMany(mappedBy = "sortedStatusesId.statusId")
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
 
-	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
+	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset) {
 		this.name = name;
 		this.isInvisible = isInvisible;
 		this.position = position;
 		this.createStudent = createStudent;
 		this.trialOffset = trialOffset;
-		this.nextPaymentOffset = nextPaymentOffset;
 	}
 
 	public Status(String name) {
 		this.name = name;
 		this.createStudent = false;
 		this.trialOffset = 0;
-		this.nextPaymentOffset = 0;
 	}
 
 	public Status() {
@@ -145,14 +137,6 @@ public class Status implements Serializable {
 		this.trialOffset = trialOffset;
 	}
 
-	public Integer getNextPaymentOffset() {
-		return nextPaymentOffset;
-	}
-
-	public void setNextPaymentOffset(Integer nextPaymentOffset) {
-		this.nextPaymentOffset = nextPaymentOffset;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -188,4 +172,5 @@ public class Status implements Serializable {
 	public void setSortedStatuses(Set<SortedStatuses> sortedStatuses) {
 		this.sortedStatuses = sortedStatuses;
 	}
+
 }

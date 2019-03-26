@@ -20,9 +20,9 @@ $('#mailingDate').on('apply.daterangepicker', function () {
     var date = document.getElementById("mailingDate").value;
 
     $.ajax({
-        url: "/rest/report/last-days",
-        type: "POST",
-        data: date,
+        url: "/rest/report/getGeneralReport",
+        type: "GET",
+        data: {period: date},
         success: function (response) {
             var formCreate = document.getElementById('formToSend');
             formCreate.style.visibility = "visible";

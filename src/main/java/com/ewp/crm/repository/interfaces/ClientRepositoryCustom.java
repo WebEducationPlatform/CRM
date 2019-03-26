@@ -30,6 +30,8 @@ public interface ClientRepositoryCustom {
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
 
+	List<Client> getClientsByHistoryTypes(ClientHistory.Type[] types);
+
 	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title);
 
 	Long countByDate(String date);

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,25 +41,31 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Override
     public Student addStudentForClient(Client client) {
+
         Student result;
+
         if (client.getStudent() == null && client.getStatus().isCreateStudent()) {
+
             StudentStatus status = projectPropertiesService.getOrCreate().getDefaultStudentStatus();
             if (status == null) {
                 logger.error("Default student status not set!");
                 return null;
-//                status = studentStatusRepository.save(new StudentStatus("Новый студент"));
+                // status = studentStatusRepository.save(new StudentStatus("Новый студент"));
             }
+
             int trialOffset = client.getStatus().getTrialOffset();
-            int nextPaymentOffset = client.getStatus().getNextPaymentOffset();
-            result = new Student(client,
-                    LocalDateTime.now().plusDays(trialOffset),
-                    LocalDateTime.now().plusDays(nextPaymentOffset),
+
+
+            Student newStudent = new Student(
+                    client,
+                    calculateTrialPeriodEnd(trialOffset),
+
                     projectPropertiesService.getOrCreate().getDefaultPricePerMonth(),
                     projectPropertiesService.getOrCreate().getDefaultPayment(),
                     new BigDecimal(0.00),
                     status,
                     "");
-            result = studentRepository.save(result);
+            result = studentRepository.save(newStudent);
         } else {
             result = client.getStudent();
         }
@@ -93,6 +100,10 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     @Override
     public void resetColors() {
         studentRepositoryCustom.resetColors();
+    }
+
+    private LocalDateTime calculateTrialPeriodEnd(int trialOffset) {
+        return LocalDateTime.now().plusDays(trialOffset);
     }
 
 }

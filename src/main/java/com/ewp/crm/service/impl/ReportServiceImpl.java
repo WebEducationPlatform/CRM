@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -34,69 +36,64 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private StatusService statusService;
 
-    public String buildReport(String date) {
-        ZonedDateTime[] dates = parseTwoDate(date);
-        return formationOfReportsText(dates);
+    public String buildReport(String period) {
+        ZonedDateTime[] dates = parsePeriod(period);
+        if (dates == null) return null;
+        return generateReportText(dates[0], dates[1]);
     }
 
     public String buildReportOfLastMonth() {
         LocalDate today = LocalDate.now();
         LocalDate firstDayMonth = today.minusDays(1).withDayOfMonth(1);
-        return formationOfReportsText(new ZonedDateTime[]{
+        return generateReportText(
                 ZonedDateTime.from(firstDayMonth.atStartOfDay(ZoneId.systemDefault())),
                 ZonedDateTime.from(today.atStartOfDay(ZoneId.systemDefault()))
-        });
+        );
     }
 
-    private ZonedDateTime[] parseTwoDate(String date) {
-        String date1 = date.substring(0, 10);
-        String date2 = date.substring(13, 23);
+    private ZonedDateTime[] parsePeriod(String period) {
+        String[] dates = period.split(" - ");
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        TemporalAccessor parse1 = format.parse(date1);
-        TemporalAccessor parse2 = format.parse(date2);
+        TemporalAccessor parse1 = format.parse(dates[0]);
+        TemporalAccessor parse2 = format.parse(dates[1]);
         try {
             ZonedDateTime localDate1 = LocalDate.from(parse1).atStartOfDay(ZoneId.systemDefault());
             ZonedDateTime localDate2 = LocalDate.from(parse2).atStartOfDay(ZoneId.systemDefault()).plusHours(23).plusMinutes(59).plusSeconds(59);
             return new ZonedDateTime[]{localDate1, localDate2};
         } catch (DateTimeParseException e) {
-            logger.error("String \"" + date + "\" hasn't parsed");
+            logger.error("String \"" + period + "\" hadn't parsed");
             return null;
         }
     }
 
-    private String formationOfReportsText(ZonedDateTime[] dates) {
+    private String generateReportText(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+
         ReportsStatus reportsStatus = reportsStatusService.getAll().get(0);
-        String dropOutStatusName = statusService.get(reportsStatus.getDropOutStatus()).getName();
-        String endLearningName = statusService.get(reportsStatus.getEndLearningStatus()).getName();
+
+        Status dropOutStatus = statusService.get(reportsStatus.getDropOutStatus());
+        Status endLearningStatus = statusService.get(reportsStatus.getEndLearningStatus());
         Status inLearningStatus = statusService.get(reportsStatus.getInLearningStatus());
         Status pauseLearnStatus = statusService.get(reportsStatus.getPauseLearnStatus());
         Status trialLearnStatus = statusService.get(reportsStatus.getTrialLearnStatus());
 
-//		ZonedDateTime datePlusOneWeek = ZonedDateTime.of(dates[0].toLocalDate(), LocalTime.MIN, ZoneId.systemDefault()).minusWeeks(1); todo зачем нужна была?
-        List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
+        int countNewClients = countNewClients(firstReportDate, lastReportDate);
 
-        long countFirstPaymentClients = newClientPlusOneWeek.stream()
-                .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(trialLearnStatus.getName())))
-                .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(inLearningStatus.getName()))).count();
-        int countNewClient = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
-        long countDropOutClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, dropOutStatusName);
-        long countEndLearningClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, endLearningName);
-        long countTakePauseClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, pauseLearnStatus.getName());
+        long countDropOutClients = countClientsByHistoryStatusAndInterval(firstReportDate, lastReportDate, dropOutStatus);
+        long countEndLearningClients = countClientsByHistoryStatusAndInterval(firstReportDate, lastReportDate, endLearningStatus);
+        long countTakePauseClients = countClientsByHistoryStatusAndInterval(firstReportDate, lastReportDate, pauseLearnStatus);
+
         int countInLearningClients = clientRepository.getAllByStatus(inLearningStatus).size();
         int countPauseLearnClients = clientRepository.getAllByStatus(pauseLearnStatus).size();
         int countTrialLearnClients = clientRepository.getAllByStatus(trialLearnStatus).size();
 
-        String dateFrom = dates[0].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
-        String dateTo = dates[1].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
+        String dateFrom = firstReportDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
+        String dateTo = lastReportDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
+
+        // ToDo: make mvc great again
         return "Отчет с " + dateFrom + " года \n " +
                 "        по " + dateTo + " года. \n" +
-                "Начали учёбу " + countNewClient + " новых человек \n" +
-                "Произвели оплату " + countFirstPaymentClients + " новых человек\n" +
+                "Начали учёбу " + countNewClients + " новых человек \n" +
+                "Произвели оплату " + countFirstPaymentClients(inLearningStatus.getName(), firstReportDate, lastReportDate) + " новых человек\n" +
                 "Бросили учёбу " + countDropOutClients + " человек\n" +
                 "Окончили учёбу " + countEndLearningClients + " человек\n" +
                 "Взяли паузу " + countTakePauseClients + " человек\n" +
@@ -104,4 +101,39 @@ public class ReportServiceImpl implements ReportService {
                 "В настоящее время на паузе " + countPauseLearnClients + " человек\n" +
                 "В настоящее время обучается " + countInLearningClients + " человек.\n";
     }
+
+    private long countClientsByHistoryStatusAndInterval(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, Status status) {
+        return clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(firstReportDate, lastReportDate,
+                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, status.getName());
+    }
+
+    private int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+        return clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, lastReportDate,
+                    new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
+    }
+
+    private long countFirstPaymentClients(String inProgressStatus, ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+        long result = 0;
+
+        List<Client> allClients = clientRepository.findAll();
+
+        for (Client client : allClients) {
+
+            ClientHistory clientFirstPayment = client.getHistory().stream()
+                    .filter(x -> x.getTitle().contains(inProgressStatus))
+                    .findFirst()
+                    .orElse(null);
+
+            if (clientFirstPayment == null) break;
+
+            ZonedDateTime firstPaymentDate = clientFirstPayment.getDate();
+            if (firstPaymentDate.isAfter(firstReportDate) && firstPaymentDate.isBefore(lastReportDate)) {
+                result++;
+            }
+
+        }
+
+        return result;
+    }
+
 }
