@@ -15,6 +15,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -313,6 +317,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setName(contractForm.getInputFirstName());
         client.setMiddleName(contractForm.getInputMiddleName());
         client.setLastName(contractForm.getInputLastName());
+        client.setBirthDate(LocalDate.parse(contractForm.getInputBirthday(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
         if (!contractForm.getInputEmail().isEmpty()) {
             client.setEmail(contractForm.getInputEmail());
         }
