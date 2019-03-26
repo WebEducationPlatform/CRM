@@ -344,6 +344,5 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm3);
         vkRequestFormService.addVkRequestForm(vkRequestForm4);
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
-
     }
 }

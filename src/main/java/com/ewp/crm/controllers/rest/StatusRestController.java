@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,15 +65,24 @@ public class StatusRestController {
 											 @AuthenticationPrincipal User userFromSession) {
 		Client currentClient = clientService.get(clientId);
 		if (currentClient.getStatus().getId().equals(statusId)) {
-			return ResponseEntity.badRequest().body("Клиент уже находится на данном статусе");
+			return ResponseEntity.ok().build();
 		}
 		statusService.get(statusId).ifPresent(currentClient::setStatus);
 		clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS).ifPresent(currentClient::addHistory);
 		if (currentClient.getStudent() == null) {
 			clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
 		}
+		if (currentClient.getStatus().isCreateStudent()) {
+			Optional<Student> newStudent = studentService.addStudentForClient(currentClient);
+			if (newStudent.isPresent()) {
+				clientService.updateClient(currentClient);
+				notificationService.deleteNotificationsByClient(currentClient);
+				logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
+				return ResponseEntity.ok().build();
+			}
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
 		clientService.updateClient(currentClient);
-		studentService.addStudentForClient(currentClient);
 		notificationService.deleteNotificationsByClient(currentClient);
 		logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
 		return ResponseEntity.ok().build();

@@ -1810,7 +1810,12 @@ function changeStatus(clientId, statusId) {
             "statusId" : statusId,
             "clientId" : clientId
         },
-        success: reloadClientStatus(clientId)
+        success: function () {
+            reloadClientStatus(clientId);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+        }
     });
 }
 
@@ -1899,7 +1904,12 @@ $(function () {
                     } else {
                         $('#email-href').show();
                     }
-                    $('#client-date-of-birth').text(client.birthDate);
+                    if (client.birthDate) {
+                        let bDate = client.birthDate.split('-');
+                        $('#client-date-of-birth').text(bDate[2] + '.' + bDate[1] + '.' + bDate[0]);
+                    } else {
+                        $('#client-date-of-birth').text('');
+                    }
                     $('#client-country').text(client.country);
                     $('#client-city').text(client.city);
                     $('#client-university').text(client.university);
@@ -2323,6 +2333,9 @@ $(".change-student-status").on('click', function () {
         success: function () {
             let x = document.getElementById(clientId);
             $('#status-column'+statusId).append(x);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 });
