@@ -31,8 +31,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -144,38 +144,39 @@ public class ContractServiceImpl implements ContractService {
             HashMap<String, String> map = new HashMap<>();
             ProjectProperties projectProperties = projectPropertiesService.get();
             Long lastId = projectProperties.getContractLastId();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
             map.put("contractNumber", String.valueOf(++lastId));
-            map.put("date", new SimpleDateFormat("dd MM yyyy").format(new Date()));
+            map.put("date", LocalDate.now().format(formatter));
             map.put("name", data.getInputLastName() + " " + data.getInputFirstName() + " " + data.getInputMiddleName());
             map.put("passportSeries", data.getPassportData().getSeries());
             map.put("passportNumber", data.getPassportData().getNumber());
             map.put("passportIssued", data.getPassportData().getIssuedBy());
-            map.put("passportDate", data.getPassportData().getDateOfIssue());
+            map.put("passportDate", data.getPassportData().getDateOfIssue().format(formatter));
             map.put("passportRegistration", data.getPassportData().getIssuedBy());
             map.put("birthday", data.getInputBirthday());
             map.put("email", data.getInputEmail());
             map.put("phoneNumber", data.getInputPhoneNumber());
             //Месячная опл
             if (!setting.isOneTimePayment()) {
-                map.put("onetime32",contractConfig.getMonthParagraphThreeDotTwo());
-                map.put("onetime3", contractConfig.getMonthParagraphThree());
-                map.put("point3", contractConfig.getMonthPointParagraphThree());
-                map.put("onetime4", contractConfig.getMonthParagraphFour());
-                map.put("point4", contractConfig.getMonthPointParagraphFour());
+                map.put("period",contractConfig.getMonthPointThreeTwoPeriod());
+                map.put("point3.3", contractConfig.getMonthPointThreeThree());
+                map.put("point3.4", contractConfig.getMonthPointThreeFour());
+                map.put("point4.2", contractConfig.getMonthPointFourTwo());
+                map.put("point4.3", contractConfig.getMonthPointFourThree());
             } else {
-                map.put("onetime32",contractConfig.getOnetimeParagraphThreeDotTwo());
-                map.put("onetime3", " ");
-                map.put("point3", contractConfig.getOnetimePointParagraphThree());
-                map.put("onetime4", " ");
-                map.put("point4", contractConfig.getOnetimePointParagraphFour());
+                map.put("period",contractConfig.getOnetimePointThreeTwoPeriod());
+                map.put("point3.3", " ");
+                map.put("point3.4", contractConfig.getOnetimePointThreeFour());
+                map.put("point4.2", " ");
+                map.put("point4.3", contractConfig.getOnetimePointFourThree());
             }
             if (setting.isDiploma()) {
                 map.put("diploma", contractConfig.getDiploma());
             } else {
                 map.put("diploma", "");
             }
-            map.put("nalogNumber", projectProperties.getNalogNumber().toString());
+            map.put("inn", projectProperties.getInn().toString());
             map.put("checkingAccount", projectProperties.getCheckingAccount().toString());
             map.put("correspondentAccount", projectProperties.getCorrespondentAccount().toString());
             map.put("bankIdentificationCode", projectProperties.getBankIdentificationCode().toString());
