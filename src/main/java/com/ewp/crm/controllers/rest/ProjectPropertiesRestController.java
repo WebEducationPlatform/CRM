@@ -64,6 +64,36 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/contractUserSetting")
+    public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplateId") Long templateId,
+                                              @RequestParam(name = "contractLastId") Long lastId,
+                                              @RequestParam(name = "nalogNumber") Long nalogNumber,
+                                              @RequestParam(name = "checkingAccount") Long checkingAccount,
+                                              @RequestParam(name = "correspondentAccount") Long correspondentAccount,
+                                              @RequestParam(name = "bankIdentificationCode") Long bankIdentificationCode) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId == null) {
+            current.setContractTemplate(null);
+        } else {
+            current.setContractTemplate(messageTemplateService.get(templateId));
+        }
+        current.setContractLastId(lastId);
+        current.setNalogNumber(nalogNumber);
+        current.setCheckingAccount(checkingAccount);
+        current.setCorrespondentAccount(correspondentAccount);
+        current.setBankIdentificationCode(bankIdentificationCode);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/new-user-status")
+    public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        properties.setNewClientStatus(statusId);
+        projectPropertiesService.saveAndFlash(properties);
+        return HttpStatus.OK;
+    }
+
     @GetMapping("/status")
     public ResponseEntity<Long> getStatus() {
         ProjectProperties projectProperties = projectPropertiesService.getOrCreate();

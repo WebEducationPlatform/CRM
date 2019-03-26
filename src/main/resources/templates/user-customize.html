@@ -53,6 +53,13 @@
             </button>
         </div>
         <br/>
+        <div id="contract-user-setting-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#contract-user-setting-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настройки договора
+            </button>
+        </div>
+        <br/>
         <div id="choice-status-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
@@ -203,6 +210,7 @@
     </div>
 </div>
 <div th:replace="fragments/auto-answer-modal::autoAnswerModal"></div>
+<div th:replace="fragments/contract-user-setting-modal::contractUserSettingModal"></div>
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <div th:replace="fragments/telegram-auth-modal::telegramAuthModal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>

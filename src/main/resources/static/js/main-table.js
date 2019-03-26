@@ -1998,6 +1998,9 @@ $(function () {
                     }
                     btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                         '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+
+                    $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
                 });
 
                 $('.send-all-custom-message').attr('clientId', clientId);
@@ -2510,3 +2513,33 @@ $('#client-request-button').click( () => {
         x.style.display = "none";
     }
 });
+
+function createContractSetting() {
+    var baseUrl = window.location.href;
+    var url = '/client/contract/rest/create';
+
+    var clientId = baseUrl.substring(baseUrl.lastIndexOf('=') + 1);
+    var hash = (+new Date).toString(36);
+    var setting = {
+        hash: hash,
+        clientId: clientId,
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-checkbox').prop("checked"),
+        diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        paymentAmount: $('#contract-client-setting-payment-amount-form').val()
+    };
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: url,
+        data: JSON.stringify(setting),
+        success: function () {
+            var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
+            $('#contract-client-setting-contract-link').val(contractLink)
+        },
+        error: function () {
+            console.log('error save contract setting');
+            alert('Нужна авторизация в Google!')
+        }
+    });
+}
