@@ -74,9 +74,9 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                 return Optional.of(googleToken);
             }
         } catch (IOException e) {
-            logger.error("Error with upload json for refreshing token");
+            logger.error("Error with upload json for refreshing token", e);
         } catch (JSONException e) {
-            logger.error("Error with parsing json");
+            logger.error("Error with parsing json", e);
         }
         return Optional.empty();
     }
