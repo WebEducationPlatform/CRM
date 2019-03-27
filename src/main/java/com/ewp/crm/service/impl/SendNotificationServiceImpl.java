@@ -3,13 +3,11 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Notification;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.MailSendService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +26,19 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private final NotificationService notificationService;
 
+    private final SMSService smsService;
+
+    private final VKService vkService;
+
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
     @Autowired
-    public SendNotificationServiceImpl(UserService userService, MailSendService mailSendService, NotificationService notificationService) {
+    public SendNotificationServiceImpl(UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService) {
         this.userService = userService;
         this.mailSendService = mailSendService;
         this.notificationService = notificationService;
+        this.smsService = smsService;
+        this.vkService = vkService;
     }
 
     @Override
@@ -42,8 +46,28 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         logger.info("sending notification to all clients...");
         List<User> usersToNotify = userService.getAll();
         for (User user : usersToNotify) {
-            if (user.isNewClienNotifyIsEnabled()) {
+            if (user.isNewClientNotifyIsEnabled()) {
                 notificationService.add(new Notification(client, user, Notification.Type.NEW_USER));
+            }
+        }
+    }
+
+    @Override
+    public void sendNewClientNotification(Client client, String from) {
+        String newClientUrl = "https://crm.java-mentor.com/client?id=" + client.getId();
+        Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
+        String notificationMessage = "Поступила новая заявка ";
+        if (from != null && !from.isEmpty()) {
+            notificationMessage += "из " + from + " ";
+        }
+        notificationMessage += shortUrl.orElse(newClientUrl);
+        List<User> usersToNotify = userService.getAll();
+        for (User userToNotify : usersToNotify) {
+            if (userToNotify.isEnableMailNotifications()) {
+                mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
+            }
+            if (userToNotify.isEnableSmsNotifications()) {
+                smsService.sendSimpleSMS(userToNotify.getId(), notificationMessage.replace("https://", ""));
             }
         }
     }
