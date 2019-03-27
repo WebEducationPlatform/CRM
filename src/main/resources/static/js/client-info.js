@@ -71,6 +71,7 @@ function changeClient(id) {
         id: id,
         name: $('#edit-client-first-name').val(),
         lastName: $('#edit-client-last-name').val(),
+        middleName: $('#edit-client-middle-name').val(),
         phoneNumber: $('#edit-client-phone-number').val(),
         email: $('#edit-client-email').val(),
         age: $('#edit-client-age').val(),

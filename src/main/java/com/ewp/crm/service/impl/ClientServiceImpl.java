@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.PassportDAO;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
@@ -14,6 +15,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,14 +43,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private final VKService vkService;
 
+    private final PassportDAO passportDAO;
+  
     private final PhoneValidator phoneValidator;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.vkService = vkService;
         this.roleService = roleService;
+        this.passportDAO = passportDAO;
         this.phoneValidator = phoneValidator;
     }
 
@@ -303,4 +311,32 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
+    @Override
+    public void updateClientFromContractForm(Long clientId, ContractDataForm contractForm) {
+        Client client = clientRepository.getOne(clientId);
+        client.setName(contractForm.getInputFirstName());
+        client.setMiddleName(contractForm.getInputMiddleName());
+        client.setLastName(contractForm.getInputLastName());
+        client.setBirthDate(LocalDate.parse(contractForm.getInputBirthday(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        if (!contractForm.getInputEmail().isEmpty()) {
+            client.setEmail(contractForm.getInputEmail());
+        }
+        if (!contractForm.getInputPhoneNumber().isEmpty()) {
+            client.setPhoneNumber(contractForm.getInputPhoneNumber());
+        }
+        Passport passport = contractForm.getPassportData();
+        passport.setClient(client);
+        client.setPassport(passport);
+        clientRepository.saveAndFlush(client);
+    }
+
+    @Override
+    public void setContractLink(Long clientId, String contractLink) {
+        Client client = clientRepository.getOne(clientId);
+        ContractLinkData contractLinkData = new ContractLinkData();
+        contractLinkData.setContractLink(contractLink);
+        contractLinkData.setClient(client);
+        client.setContractLinkData(contractLinkData);
+        clientRepository.saveAndFlush(client);
+    }
 }

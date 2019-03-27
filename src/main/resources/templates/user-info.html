@@ -92,6 +92,29 @@
                             <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
                         </div>
                     </div>
+                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <label for="edit-user-notifications-settings">Настройки оповещений</label>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                        </div>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="col-md-3" id="column2" style="margin-top: 2%">

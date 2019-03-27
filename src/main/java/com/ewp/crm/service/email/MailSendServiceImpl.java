@@ -220,6 +220,10 @@ public class MailSendServiceImpl implements MailSendService {
             String recipient = client.get().getEmail();
             String fullName = client.get().getName() + " " + client.get().getLastName();
             Map<String, String> params = new HashMap<>();
+            if (client.get().getContractLinkData() != null) {
+            String link = client.get().getContractLinkData().getContractLink();
+                params.put("%contractLink%", link);
+            }
             //TODO в конфиг
             params.put("%fullName%", fullName);
             params.put("%bodyText%", body);

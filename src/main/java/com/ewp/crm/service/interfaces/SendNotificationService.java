@@ -7,6 +7,6 @@ import com.ewp.crm.models.User;
 public interface SendNotificationService {
 	void sendNotificationsAllUsers(Client client);
 	void sendNotification(String content, Client client);
-
+	void sendNewClientNotification(Client client, String from);
 	void sendNotificationType(String info, Client client, User user, Notification.Type type);
 }

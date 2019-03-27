@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,6 +23,7 @@ public class Passport implements Serializable {
     @Column(name = "number")
     private String number;
 
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
     @Column(name = "date_of_issue")
     private LocalDate dateOfIssue;
 
@@ -38,6 +40,11 @@ public class Passport implements Serializable {
     @Lob
     @Column(name = "photo_of_residence_permit")
     private byte[] photoOfResidencePermit;
+
+    @JsonIgnore
+    @JoinColumn (name = "client_id")
+    @OneToOne
+    private Client client;
 
     public Passport() {
     }
@@ -114,6 +121,14 @@ public class Passport implements Serializable {
 
     public void setPhotoOfResidencePermit(byte[] photoOfResidencePermit) {
         this.photoOfResidencePermit = photoOfResidencePermit;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     @Override

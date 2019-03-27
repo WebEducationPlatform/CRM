@@ -4,7 +4,7 @@ public interface VKConfig {
 
     String getClubIdWithMinus();
     String getClubId();
-    String getVkAPIUrl();
+    String getVkApiUrl();
     String getVersion();
     String getCommunityToken();
     String getApplicationId();
@@ -13,4 +13,8 @@ public interface VKConfig {
     String getScope();
     String getFirstContactMessage();
     String getManagerToken();
+    String getVkReportChatId();
+    String getVkAdsClientId();
+    String getRobotClientId();
+    String getVkAppAccessToken();
 }
