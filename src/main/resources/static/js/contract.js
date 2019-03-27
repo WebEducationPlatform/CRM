@@ -1,6 +1,5 @@
 $(document).ready(function() {
 
-
     var check_box = $("#customCheck1");
 
     check_box.click(function() {
@@ -17,3 +16,4 @@ $('#go-button').on("click", function(){
 });
 
 $('#inputDateOfIssue').mask('00.00.0000');
+$('#inputBirthday').mask('00.00.0000');

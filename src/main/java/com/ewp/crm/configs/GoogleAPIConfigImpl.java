@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 @PropertySource("file:./google-api.properties")
 public class GoogleAPIConfigImpl {
 
-    private String clientId;
-    private String clientSecret;
-    private String redirectURI;
-    private String scope;
-    private String accessTokenUri;
-    private String docsUri;
-    private String driveUploadUri;
-    private String driveUpdateUri;
-    private String folderId;
-    private static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
+    private final String clientId;
+    private final String clientSecret;
+    private final String redirectURI;
+    private final String scope;
+    private final String accessTokenUri;
+    private final String docsUri;
+    private final String driveUploadUri;
+    private final String driveUpdateUri;
+    private final String folderId;
+    private final static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
     public GoogleAPIConfigImpl(Environment env) {

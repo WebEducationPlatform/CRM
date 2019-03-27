@@ -8,16 +8,7 @@ public class ContractDataForm {
     private String inputBirthday;
     private String inputEmail;
     private String inputPhoneNumber;
-
     private Passport passportData;
-
-    public Passport getPassportData() {
-        return passportData;
-    }
-
-    public void setPassportData(Passport passportData) {
-        this.passportData = passportData;
-    }
 
     public ContractDataForm() {
     }
@@ -68,5 +59,13 @@ public class ContractDataForm {
 
     public void setInputPhoneNumber(String inputPhoneNumber) {
         this.inputPhoneNumber = inputPhoneNumber;
+    }
+
+    public Passport getPassportData() {
+        return passportData;
+    }
+
+    public void setPassportData(Passport passportData) {
+        this.passportData = passportData;
     }
 }
