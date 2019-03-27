@@ -4,41 +4,38 @@ import com.ewp.crm.configs.inteface.ContractConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.stereotype.Component;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Objects;
 
 @Component
 @PropertySource(value = "file:./contract.properties",encoding = "UTF-8")
 public class ContractConfigImpl implements ContractConfig {
 
-    private String fileName;
-    private String filePath;
-    private String monthParagraphThree;
-    private String monthParagraphFour;
-    private String monthPointParagraphFour;
-    private String monthPointParagraphThree;
-    private String onetimePointParagraphThree;
-    private String onetimePointParagraphFour;
-    private String monthParagraphThreeDotTwo;
-    private String onetimeParagraphThreeDotTwo;
-    private String diploma;
-    private String format;
+    private final String fileName;
+    private final String filePath;
+    private final String monthPointThreeTwoPeriod;
+    private final String monthPointThreeThree;
+    private final String monthPointThreeFour;
+    private final String monthPointFourTwo;
+    private final String monthPointFourThree;
+    private final String onetimePointThreeTwoPeriod;
+    private final String onetimePointThreeFour;
+    private final String onetimePointFourThree;
+    private final String diploma;
+    private final String format;
 
     @Autowired
     public ContractConfigImpl(Environment env) {
         fileName = env.getProperty("contract.name");
         filePath = env.getProperty("contract.path");
-        monthParagraphThree = env.getProperty("contract.doc.part.month-3");
-        monthPointParagraphThree = env.getProperty("contract.doc.part.month.point-3");
-        onetimePointParagraphThree = env.getProperty("contract.doc.part.onetime.point-3");
-        monthParagraphFour = env.getProperty("contract.doc.part.month-4");
-        monthPointParagraphFour = env.getProperty("contract.doc.part.month.point-4");
-        onetimePointParagraphFour = env.getProperty("contract.doc.part.onetime.point-4");
-        monthParagraphThreeDotTwo = env.getProperty("contract.doc.part.month-3-2");
-        onetimeParagraphThreeDotTwo = env.getProperty("contract.doc.part.onetime-3-2");
+        monthPointThreeTwoPeriod = env.getProperty("contract.doc.part.month.point-3.2.period");
+        monthPointThreeThree = env.getProperty("contract.doc.part.month.point-3.3");
+        monthPointThreeFour = env.getProperty("contract.doc.part.month.point-3.4");
+        monthPointFourTwo = env.getProperty("contract.doc.part.month.point-4.2");
+        monthPointFourThree = env.getProperty("contract.doc.part.month.point-4.3");
+        onetimePointThreeTwoPeriod = env.getProperty("contract.doc.part.onetime.point-3.2.period");
+        onetimePointThreeFour = env.getProperty("contract.doc.part.onetime.point-3.4");
+        onetimePointFourThree = env.getProperty("contract.doc.part.onetime.point-4.3");
+
         diploma = env.getProperty("contract.doc.part.diploma");
         format = env.getProperty("contract.format");
     }
@@ -54,43 +51,43 @@ public class ContractConfigImpl implements ContractConfig {
     }
 
     @Override
-    public String getMonthParagraphThree() {
-        return monthParagraphThree;
+    public String getMonthPointThreeTwoPeriod() {
+        return monthPointThreeTwoPeriod;
     }
 
     @Override
-    public String getMonthParagraphFour() {
-        return monthParagraphFour;
+    public String getMonthPointThreeThree() {
+        return monthPointThreeThree;
     }
 
     @Override
-    public String getMonthPointParagraphFour() {
-        return monthPointParagraphFour;
+    public String getMonthPointThreeFour() {
+        return monthPointThreeFour;
     }
 
     @Override
-    public String getMonthPointParagraphThree() {
-        return monthPointParagraphThree;
+    public String getMonthPointFourTwo() {
+        return monthPointFourTwo;
     }
 
     @Override
-    public String getOnetimePointParagraphThree() {
-        return onetimePointParagraphThree;
+    public String getMonthPointFourThree() {
+        return monthPointFourThree;
     }
 
     @Override
-    public String getOnetimePointParagraphFour() {
-        return onetimePointParagraphFour;
+    public String getOnetimePointThreeTwoPeriod() {
+        return onetimePointThreeTwoPeriod;
     }
 
     @Override
-    public String getMonthParagraphThreeDotTwo() {
-        return monthParagraphThreeDotTwo;
+    public String getOnetimePointThreeFour() {
+        return onetimePointThreeFour;
     }
 
     @Override
-    public String getOnetimeParagraphThreeDotTwo() {
-        return onetimeParagraphThreeDotTwo;
+    public String getOnetimePointFourThree() {
+        return onetimePointFourThree;
     }
 
     @Override

@@ -27,17 +27,17 @@ import java.util.Collection;
 public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationService {
 
     private static Logger logger = LoggerFactory.getLogger(GoogleAuthorizationServiceImpl.class);
-    private HttpTransport httpTransport;
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private final GoogleTokenRepository tokenRepository;
 
-    private String clientId;
-    private String clientSecret;
-    private String redirectURI;
-    private String scope;
+    private final String clientId;
+    private final String clientSecret;
+    private final String redirectURI;
+    private final String scope;
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
     private Credential credential;
+    private HttpTransport httpTransport;
 
     @Autowired
     public GoogleAuthorizationServiceImpl(GoogleAPIConfigImpl config, GoogleTokenRepository tokenRepository) {

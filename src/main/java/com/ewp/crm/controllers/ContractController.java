@@ -45,7 +45,7 @@ public class ContractController {
             model.addObject("data", new ContractDataForm());
             return model;
         }
-        return new ModelAndView();
+        return new ModelAndView("404");
     }
 
     @Transactional
@@ -70,9 +70,9 @@ public class ContractController {
                     contractSettingService.deleteByHash(hash);
                     return "redirect:" + docLink;
                 }
+                logger.error("Error with getting contract id for client_id = " + clientId);
             }
         }
-        //TODO страница ошибок
-        return "";
+        return "404";
     }
 }
