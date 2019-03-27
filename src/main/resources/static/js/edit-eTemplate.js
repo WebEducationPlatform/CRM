@@ -150,6 +150,6 @@ $(document).ready(function () {
         label: "Info",
         command: 'infoCommend',
         toolbar: 'styles',
-        icon: 'info.png'
+        icon: 'https://img.icons8.com/ios/26/000000/info.png'
     });
 });

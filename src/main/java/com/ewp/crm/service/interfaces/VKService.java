@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface VKService {
     String receivingTokenUri();
 
+    Optional<String> getShortLinkForUrl(String url);
+
     Optional<List<String>> getNewMassages() throws VKAccessTokenException;
 
     Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied, boolean getNew);
@@ -32,6 +34,8 @@ public interface VKService {
     String sendMessageById(Long id, String msg);
 
     String sendMessageById(Long id, String msg, String token);
+
+    void sendMessageByChatId(String id, String message);
 
     Optional<List<Long>> getUsersIdFromCommunityMessages();
 
@@ -63,7 +67,7 @@ public interface VKService {
 
     Optional<PotentialClient> getPotentialClientFromYoutubeLiveStreamByYoutubeClient(YoutubeClient youtubeClient);
 
-    String getIdFromLink(String link);
+    Optional<String> getIdFromLink(String link);
 
     void markAsRead(String userId, String token, String startMessageId);
 
@@ -72,5 +76,7 @@ public interface VKService {
     Optional<VkProfileInfo> getProfileInfoById(long vkId);
 
     void fillClientFromProfileVK(Client client);
+
+    void sendDailyAdvertisementReport(String template);
 
 }

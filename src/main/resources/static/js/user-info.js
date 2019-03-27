@@ -66,7 +66,7 @@ function changeUser(id, authId) {
         firstName: $('#edit-user-first-name').val(),
         lastName: $('#edit-user-last-name').val(),
         phoneNumber: $('#edit-user-phone-number').val(),
-        ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
+        ipTelephony: $("#ipTel").is(":checked") ? true : false,
         email: $('#edit-user-email').val(),
         sex: $('#edit-user-sex').find('option:selected').text(),
         country: $('#edit-user-country').val(),
@@ -75,7 +75,9 @@ function changeUser(id, authId) {
         password: $('#edit-user-password').val(),
         isVerified: true,
         enabled: true,
-        role: myRows
+        role: myRows,
+        enableSmsNotifications: $("#checkbox-user-sms-notify").is(":checked") ? true : false,
+        enableMailNotifications: $("#checkbox-user-email-notify").is(":checked") ? true : false
     };
 
     $.ajax({
