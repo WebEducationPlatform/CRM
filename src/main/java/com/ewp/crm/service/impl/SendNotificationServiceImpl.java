@@ -2,7 +2,6 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Notification;
-import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -54,12 +53,12 @@ public class SendNotificationServiceImpl implements SendNotificationService {
     }
 
     @Override
-    public void sendNewClientNotification(Client client, Optional<SocialProfileType> socialProfileType) {
+    public void sendNewClientNotification(Client client, String from) {
         String newClientUrl = "https://crm.java-mentor.com/client?id=" + client.getId();
         Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
         String notificationMessage = "Поступила новая заявка ";
-        if (socialProfileType.isPresent()) {
-            notificationMessage += "из " + socialProfileType.get().getName() + " ";
+        if (from != null && !from.isEmpty()) {
+            notificationMessage += "из " + from + " ";
         }
         notificationMessage += shortUrl.orElse(newClientUrl);
         List<User> usersToNotify = userService.getAll();
