@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface VKService {
     String receivingTokenUri();
 
+    Optional<String> getShortLinkForUrl(String url);
+
     Optional<List<String>> getNewMassages() throws VKAccessTokenException;
 
     Optional<List<ChatMessage>> getMassagesFromGroup(String userid, int count, boolean getLastReadied, boolean getNew);
