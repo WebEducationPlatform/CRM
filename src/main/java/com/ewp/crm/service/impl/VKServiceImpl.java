@@ -178,6 +178,32 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
+    public Optional<String> getShortLinkForUrl(String url) {
+        String uriGetShortLink = vkApi + "utils.getShortLink" +
+                "?url=" + url +
+                "&access_token=" + technicalAccountToken +
+                "&v=" + version +
+                "&private=1";
+        try {
+            HttpGet httpGetMessages = new HttpGet(uriGetShortLink);
+            HttpClient httpClient = getHttpClient();
+            HttpResponse response = httpClient.execute(httpGetMessages);
+            String result = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(result);
+            JSONObject responseObj = json.getJSONObject("response");
+            if (responseObj != null) {
+                String link = responseObj.optString("short_url");
+                return Optional.ofNullable(link);
+            }
+        } catch (JSONException e) {
+            logger.error("Can not read short link from JSON ", e);
+        } catch (IOException e) {
+            logger.error("Failed to connect to VK server ", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
         logger.info("VKService: getting new messages...");
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {

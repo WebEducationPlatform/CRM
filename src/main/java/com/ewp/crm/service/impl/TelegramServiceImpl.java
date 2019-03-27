@@ -617,6 +617,16 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         public void onResult(TdApi.Object object) {
             TdApi.User user = (TdApi.User) object;
             if (user.type.getConstructor() == TdApi.UserTypeRegular.CONSTRUCTOR && !clientRepository.isTelegramClientPresent(user.id)) {
+                if (user.phoneNumber != null && !user.phoneNumber.isEmpty()) {
+                    com.ewp.crm.models.Client clientByPhone = clientRepository.getClientByPhoneNumber(user.phoneNumber);
+                    if (clientByPhone != null) {
+                        if (socialProfileTypeService.getByTypeName("telegram").isPresent()) {
+                            clientByPhone.addSocialProfile(new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram").get()));
+                            clientRepository.saveAndFlush(clientByPhone);
+                        }
+                        return;
+                    }
+                }
                 com.ewp.crm.models.Client newClient = new com.ewp.crm.models.Client();
                 newClient.setName(user.firstName);
                 newClient.setLastName(user.lastName);
@@ -629,6 +639,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 clientHistoryService.createHistory("Telegram").ifPresent(newClient::addHistory);
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
+                sendNotificationService.sendNewClientNotification(newClient, socialProfileTypeService.getByTypeName("telegram"));
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
         }

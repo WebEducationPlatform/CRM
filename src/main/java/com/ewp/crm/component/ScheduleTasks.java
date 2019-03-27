@@ -144,6 +144,7 @@ public class ScheduleTasks {
 			newClient.setEmail(null);
 		}
 		clientService.addClient(newClient);
+		sendNotificationService.sendNewClientNotification(newClient, socialProfileTypeService.getByTypeName("vk"));
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
