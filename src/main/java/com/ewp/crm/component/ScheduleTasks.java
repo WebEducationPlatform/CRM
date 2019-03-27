@@ -15,13 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -144,7 +142,7 @@ public class ScheduleTasks {
 			newClient.setEmail(null);
 		}
 		clientService.addClient(newClient);
-		sendNotificationService.sendNewClientNotification(newClient, socialProfileTypeService.getByTypeName("vk"));
+		sendNotificationService.sendNewClientNotification(newClient, "vk");
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 

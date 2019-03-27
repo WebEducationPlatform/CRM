@@ -639,7 +639,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 clientHistoryService.createHistory("Telegram").ifPresent(newClient::addHistory);
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
-                sendNotificationService.sendNewClientNotification(newClient, socialProfileTypeService.getByTypeName("telegram"));
+                sendNotificationService.sendNewClientNotification(newClient, "telegram");
                 logger.info("Client with Telegram id {} added from telegram.", user.id);
             }
         }
