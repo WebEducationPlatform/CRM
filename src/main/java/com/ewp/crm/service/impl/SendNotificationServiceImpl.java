@@ -1,17 +1,18 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Notification;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +20,12 @@ import java.util.regex.Pattern;
 
 @Service
 public class SendNotificationServiceImpl implements SendNotificationService {
+
+    private final String serverUrl;
+
+    private final ProjectProperties projectProperties;
+
+    private final MessageTemplateService messageTemplateService;
 
     private final UserService userService;
 
@@ -33,12 +40,15 @@ public class SendNotificationServiceImpl implements SendNotificationService {
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
     @Autowired
-    public SendNotificationServiceImpl(UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService) {
+    public SendNotificationServiceImpl(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, Environment env, UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService) {
         this.userService = userService;
         this.mailSendService = mailSendService;
         this.notificationService = notificationService;
         this.smsService = smsService;
         this.vkService = vkService;
+        this.messageTemplateService = messageTemplateService;
+        this.projectProperties = projectPropertiesService.getOrCreate();
+        this.serverUrl = env.getProperty("server.url");
     }
 
     @Override
@@ -54,20 +64,22 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     @Override
     public void sendNewClientNotification(Client client, String from) {
-        String newClientUrl = "https://crm.java-mentor.com/client?id=" + client.getId();
-        Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
-        String notificationMessage = "Поступила новая заявка ";
-        if (from != null && !from.isEmpty()) {
-            notificationMessage += "из " + from + " ";
-        }
-        notificationMessage += shortUrl.orElse(newClientUrl);
-        List<User> usersToNotify = userService.getAll();
-        for (User userToNotify : usersToNotify) {
-            if (userToNotify.isEnableMailNotifications()) {
-                mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
-            }
-            if (userToNotify.isEnableSmsNotifications()) {
-                smsService.sendSimpleSMS(userToNotify.getId(), notificationMessage.replace("https://", ""));
+        MessageTemplate template = projectProperties.getNewClientMessageTemplate();
+        if (template != null) {
+            String newClientUrl = serverUrl + "/client?id=" + client.getId();
+            Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
+            Map<String, String> params = new HashMap<>();
+            params.put("%from%", from);
+            params.put("%link%", shortUrl.orElse(newClientUrl));
+            String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
+            List<User> usersToNotify = userService.getAll();
+            for (User userToNotify : usersToNotify) {
+                if (userToNotify.isEnableMailNotifications()) {
+                    mailSendService.sendNotificationMessage(userToNotify, notificationMessage);
+                }
+                if (userToNotify.isEnableSmsNotifications()) {
+                    smsService.sendSimpleSmsToUser(userToNotify, notificationMessage.replace("https://", ""));
+                }
             }
         }
     }
