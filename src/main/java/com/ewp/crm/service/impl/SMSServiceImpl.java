@@ -73,6 +73,13 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
+	public void sendSimpleSmsToUser(User user, String messageText) {
+		Set<ClientData> phoneSet = new HashSet<>();
+		phoneSet.add(new ClientData(user.getPhoneNumber()));
+		sendSMS(phoneSet, messageText);
+	}
+
+	@Override
 	public void sendSimpleSMS(Long clientId, String templateText) {
 		try {
 			sendSMS(clientId, templateText, "", null);

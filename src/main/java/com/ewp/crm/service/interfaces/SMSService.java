@@ -22,6 +22,8 @@ public interface SMSService {
 	 */
 	void sendSimpleSMS(Long clientId, String templateText);
 
+	void sendSimpleSmsToUser(User user, String templateText);
+
 	void sendSMS(List<Client> clients, String text, User sender);
 
 	void plannedSMS(Client client, String text, String date, User sender);
