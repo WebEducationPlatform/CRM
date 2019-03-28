@@ -60,7 +60,7 @@ public class ContractController {
                 //Работа с договором и получение ссылки на него
                 Optional<String> contractId = contractService.getContractIdByFormDataWithSetting(data, setting);
                 if (contractId.isPresent()) {
-                    clientService.updateClientFromContractForm(clientService.get(clientId), data);
+                    clientService.updateClientFromContractForm(clientService.get(clientId), data, setting.getUser());
                     String docLink = googleAPIConfig.getDocsUri() + contractId.get() + "/edit?usp=sharing";
                     clientService.setContractLink(clientId, docLink);
                     ProjectProperties current = projectPropertiesService.get();

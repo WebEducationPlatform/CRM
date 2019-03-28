@@ -1,5 +1,7 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -23,6 +25,11 @@ public class ContractSetting {
 
     @Column(name = "payment_amount")
     private String paymentAmount;
+
+    @JsonIgnore
+    @JoinColumn (name = "user_id")
+    @OneToOne
+    private User user;
 
     public ContractSetting() {
     }
@@ -77,6 +84,14 @@ public class ContractSetting {
 
     public void setPaymentAmount(String paymentAmount) {
         this.paymentAmount = paymentAmount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
