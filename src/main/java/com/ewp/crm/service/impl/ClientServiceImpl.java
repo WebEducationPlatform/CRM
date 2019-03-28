@@ -1,6 +1,5 @@
 package com.ewp.crm.service.impl;
 
-
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
@@ -15,9 +14,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,23 +32,19 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	private final ClientRepository clientRepository;
 
     private StatusService statusService;
-
     private SendNotificationService sendNotificationService;
-
     private final SocialProfileService socialProfileService;
-  
+    private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
-
     private final VKService vkService;
-
     private final PassportDAO passportDAO;
-  
     private final PhoneValidator phoneValidator;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.clientHistoryService = clientHistoryService;
         this.vkService = vkService;
         this.roleService = roleService;
         this.passportDAO = passportDAO;
@@ -312,8 +306,28 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public void updateClientFromContractForm(Long clientId, ContractDataForm contractForm) {
+    public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm) {
+        Client client = createUpdateClient(clientOld, contractForm);
+        User bot = new User();
+        bot.setFirstName("бот");
+        bot.setLastName("Договор");
+        clientHistoryService.createHistory(bot, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
+        clientRepository.saveAndFlush(client);
+        logger.info("{} has updated client: id {}, email {}", bot.getFullName(), client.getId(), client.getEmail());
+    }
+
+    @Override
+    public void setContractLink(Long clientId, String contractLink) {
         Client client = clientRepository.getOne(clientId);
+        ContractLinkData contractLinkData = new ContractLinkData();
+        contractLinkData.setContractLink(contractLink);
+        contractLinkData.setClient(client);
+        client.setContractLinkData(contractLinkData);
+        clientRepository.saveAndFlush(client);
+    }
+
+    private Client createUpdateClient(Client old, ContractDataForm contractForm) {
+        Client client = new Client();
         client.setName(contractForm.getInputFirstName());
         client.setMiddleName(contractForm.getInputMiddleName());
         client.setLastName(contractForm.getInputLastName());
@@ -327,16 +341,28 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         Passport passport = contractForm.getPassportData();
         passport.setClient(client);
         client.setPassport(passport);
-        clientRepository.saveAndFlush(client);
-    }
-
-    @Override
-    public void setContractLink(Long clientId, String contractLink) {
-        Client client = clientRepository.getOne(clientId);
-        ContractLinkData contractLinkData = new ContractLinkData();
-        contractLinkData.setContractLink(contractLink);
-        contractLinkData.setClient(client);
-        client.setContractLinkData(contractLinkData);
-        clientRepository.saveAndFlush(client);
+        client.setId(old.getId());
+        client.setStatus(old.getStatus());
+        client.setSocialProfiles(old.getSocialProfiles());
+        client.setCountry(old.getCountry());
+        client.setCity(old.getCity());
+        client.setAge((byte) old.getAge());
+        client.setSex(old.getSex());
+        client.setState(old.getState());
+        client.setSkype(old.getSkype());
+        client.setJobs(old.getJobs());
+        client.setWhatsappMessages(old.getWhatsappMessages());
+        client.setHistory(old.getHistory());
+        client.setComments(old.getComments());
+        client.setOwnerUser(old.getOwnerUser());
+        client.setStatus(old.getStatus());
+        client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
+        client.setSmsInfo(old.getSmsInfo());
+        client.setNotifications(old.getNotifications());
+        client.setCanCall(old.isCanCall());
+        client.setCallRecords(old.getCallRecords());
+        client.setClientDescriptionComment(old.getClientDescriptionComment());
+        client.setLiveSkypeCall(old.isLiveSkypeCall());
+        return client;
     }
 }

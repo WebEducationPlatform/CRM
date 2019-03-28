@@ -9,6 +9,7 @@ import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.service.interfaces.ContractService;
 import com.ewp.crm.service.interfaces.GoogleTokenService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.utils.converters.DocxRemoveBookMark;
 import com.ibm.icu.text.Transliterator;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -22,6 +23,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.wml.Body;
+import org.docx4j.wml.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -176,12 +179,15 @@ public class ContractServiceImpl implements ContractService {
             } else {
                 map.put("diploma", "");
             }
-            map.put("inn", projectProperties.getInn().toString());
-            map.put("checkingAccount", projectProperties.getCheckingAccount().toString());
-            map.put("correspondentAccount", projectProperties.getCorrespondentAccount().toString());
-            map.put("bankIdentificationCode", projectProperties.getBankIdentificationCode().toString());
+            map.put("inn", projectProperties.getInn());
+            map.put("checkingAccount", projectProperties.getCheckingAccount());
+            map.put("correspondentAccount", projectProperties.getCorrespondentAccount());
+            map.put("bankIdentificationCode", projectProperties.getBankIdentificationCode());
             map.put("summa", setting.getPaymentAmount());
             mlp.getMainDocumentPart().variableReplace(map);
+            Document document = mlp.getMainDocumentPart().getJaxbElement();
+            Body body = document.getBody();
+            DocxRemoveBookMark.fixRange(body.getContent(), "CTBookmark", "CTMarkupRange");
             File file = new File(templatePath + renameFileToLatin(data) + contractConfig.getFormat());
             if (file.createNewFile()) {
                 logger.info("Creating file " + file.getName());
