@@ -25,6 +25,7 @@ import java.util.Optional;
 @RequestMapping("/user/rest/call")
 public class IPTelephonyRestController {
 
+	public static final String INIT_RECORD_LINK = "http://www.google.com";
 	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
 
 	private final IPService ipService;
@@ -45,7 +46,10 @@ public class IPTelephonyRestController {
 		this.clientHistoryService = clientHistoryService;
 		this.callRecordService = callRecordService;
 		this.downloadCallRecordService = downloadCallRecordService;
-		this.voximplantHash = DigestUtils.md5DigestAsHex((ipService.getVoximplantUserLogin(ipService.getVoximplantLoginForWebCall()) + ":voximplant.com:" + ipService.getVoximplantPasswordForWebCall()).getBytes());
+		String loginForWebCall = ipService.getVoximplantLoginForWebCall().isPresent() ? ipService.getVoximplantLoginForWebCall().get() : "";
+		String userLogin = ipService.getVoximplantUserLogin(loginForWebCall).isPresent() ? ipService.getVoximplantUserLogin(loginForWebCall).get() : "";
+		String pass = ipService.getVoximplantPasswordForWebCall().isPresent() ? ipService.getVoximplantPasswordForWebCall().get() : "";
+		this.voximplantHash = DigestUtils.md5DigestAsHex((userLogin + ":voximplant.com:" + pass).getBytes());
 	}
 
 	//Сервис voximplant обращается к нашему rest контроллеру и сетит ему запись разговора.
@@ -53,80 +57,105 @@ public class IPTelephonyRestController {
 	@GetMapping(value = "/setCallRecord")
 	public ResponseEntity setCallRecord(@RequestParam String url, @RequestParam Long clientCallId,
 										@RequestParam String code) {
-		if (!code.equals(ipService.getVoximplantCodeToSetRecord())) {
+		String codeOpt = ipService.getVoximplantCodeToSetRecord().isPresent() ? ipService.getVoximplantCodeToSetRecord().get() : "";
+		if (code != null && !code.equals(codeOpt)) {
 			return new ResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		CallRecord callRecord = callRecordService.get(clientCallId);
 		if (Optional.ofNullable(callRecord).isPresent()) {
-			String downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
-			callRecord.setLink(downloadLink);
-			callRecord.getClientHistory().setLink(url);
-			callRecord.getClientHistory().setRecordLink(downloadLink);
-			callRecordService.update(callRecord);
-			logger.info("CallRecord to client id {} has download", clientCallId);
+			Optional<String> downloadLink = downloadCallRecordService.downloadRecord(url, clientCallId, callRecord.getClientHistory().getId());
+			if (downloadLink.isPresent()) {
+				callRecord.setLink(downloadLink.get());
+				callRecord.getClientHistory().setLink(url);
+				callRecord.getClientHistory().setRecordLink(downloadLink.get());
+				callRecordService.update(callRecord);
+				logger.info("CallRecord to client id {} has download", clientCallId);
+			} else {
+				logger.info("Can't download CallRecord to client id {}: no download link present", clientCallId);
+			}
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
-	public byte[] getCallRecord(@PathVariable String file) throws IOException {
-		Path fileLocation = Paths.get("CallRecords\\" + file);
-		return Files.readAllBytes(fileLocation);
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public byte[] getCallRecord(@PathVariable String file) {
+		Path fileLocation = Paths.get("CallRecords/" + file);
+		try {
+			return Files.readAllBytes(fileLocation);
+		} catch (IOException e) {
+			logger.error("File with record not found: " + fileLocation.toString(), e);
+		}
+		return new byte[0];
 	}
 
 	@GetMapping(value = "/voximplantCredentials")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public String getVoximplantCredentials() {
-		return ipService.getVoximplantLoginForWebCall() + "," + ipService.getVoximplantPasswordForWebCall();
+		if (ipService.getVoximplantLoginForWebCall().isPresent() && ipService.getVoximplantPasswordForWebCall().isPresent()) {
+			return ipService.getVoximplantLoginForWebCall().get() + "," + ipService.getVoximplantPasswordForWebCall().get();
+		} else {
+			return "";
+		}
 	}
 
 	@PostMapping(value = "/voximplant")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public void voximplantCall(@RequestParam String from,
 							   @RequestParam String to,
 							   @AuthenticationPrincipal User userFromSession) {
-		Client client = clientService.getClientByPhoneNumber(to);
-		if (client.isCanCall() && userFromSession.isIpTelephony()) {
+		Optional<Client> client = clientService.getClientByPhoneNumber(to);
+		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
-			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
-			client.addHistory(historyFromDB);
-			callRecord.setClientHistory(historyFromDB);
-			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
-			client.addCallRecord(callRecordFromDB);
-			clientService.updateClient(client);
-			callRecordFromDB.setClient(client);
-			callRecordService.update(callRecordFromDB);
-			ipService.call(from, to, callRecordFromDB.getId());
+			Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, INIT_RECORD_LINK);
+			if (clientHistory.isPresent()) {
+				Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
+				if (historyFromDB.isPresent()) {
+					client.get().addHistory(historyFromDB.get());
+					callRecord.setClientHistory(historyFromDB.get());
+					Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
+					if (callRecordFromDB.isPresent()) {
+						client.get().addCallRecord(callRecordFromDB.get());
+						clientService.updateClient(client.get());
+						callRecordFromDB.get().setClient(client.get());
+						callRecordService.update(callRecordFromDB.get());
+						ipService.call(from, to, callRecordFromDB.get().getId());
+					}
+				}
+			}
 		}
 	}
 
 	@PostMapping(value = "/sendData")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getCallRecordsCredentials(@RequestParam String to,
 													@AuthenticationPrincipal User userFromSession) {
-		Client client = clientService.getClientByPhoneNumber(to);
-		if (client.isCanCall() && userFromSession.isIpTelephony()) {
+		Optional<Client> client = clientService.getClientByPhoneNumber(to);
+		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			ClientHistory clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
-			ClientHistory historyFromDB = clientHistoryService.addHistory(clientHistory);
-			client.addHistory(historyFromDB);
-			callRecord.setClientHistory(historyFromDB);
-			CallRecord callRecordFromDB = callRecordService.addCallRecord(callRecord);
-			client.addCallRecord(callRecordFromDB);
-			clientService.updateClient(client);
-			callRecordFromDB.setClient(client);
-			callRecordService.update(callRecordFromDB);
-			return ResponseEntity.ok(callRecordFromDB);
-		} else {
-			return ResponseEntity.badRequest().build();
+			Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
+			if (clientHistory.isPresent()) {
+				Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
+				if (historyFromDB.isPresent()) {
+					client.get().addHistory(historyFromDB.get());
+					callRecord.setClientHistory(historyFromDB.get());
+					Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
+					if (callRecordFromDB.isPresent()) {
+						client.get().addCallRecord(callRecordFromDB.get());
+						clientService.updateClient(client.get());
+						callRecordFromDB.get().setClient(client.get());
+						callRecordService.update(callRecordFromDB.get());
+						return ResponseEntity.ok(callRecordFromDB.get());
+					}
+				}
+			}
 		}
+		return ResponseEntity.badRequest().build();
 	}
 
 	@PostMapping(value = "/calcKey")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN, USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());

@@ -1,6 +1,8 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SortedStatuses.SortingType;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -24,8 +26,6 @@ public interface ClientRepositoryCustom {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
-	List<Client> getByStatusAndOwnerUserOrOwnerUserIsNull(Status status, User ownUser);
-
 	List<ClientHistory> getClientByTimeInterval(int days);
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
@@ -35,4 +35,13 @@ public interface ClientRepositoryCustom {
 	Long countByDate(String date);
 
 	List<Client> getClientsBySearchPhrase(String search);
+
+	List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user);
+
+	boolean isTelegramClientPresent(Integer id);
+
+	Client getClientBySocialProfile(String id, String socialProfileType);
+
+	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user);
+
 }

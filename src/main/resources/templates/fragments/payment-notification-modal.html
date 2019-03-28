@@ -11,10 +11,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 id="modal-header" class="modal-title">Настройка оповещения об оплате</h4>
+                    <h4 id="modal-header" class="modal-title">Настройка оповещений</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="container-fluid">
+                    <div class="container-fluid" id="payment-notif-block">
+                        <label for="payment-notif-block">Оповещения об оплате</label>
                         <div class="row">
                             <table class="table table-condensed font-size">
                                 <tr>
@@ -28,6 +29,17 @@
                                 <tr>
                                     <td><label for="payment-notification-enable">Включить оповещение</label></td>
                                     <td><input id="payment-notification-enable" type="checkbox"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="container-fluid" id="new-client-notif-block">
+                        <label for="new-client-notif-block">Оповещения о новых заявках</label>
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+                                <tr>
+                                    <td><label for="new-client-notification-template">Выберите шаблон для оповещения</label></td>
+                                    <td><select id="new-client-notification-template" class="form-control"></select></td>
                                 </tr>
                             </table>
                         </div>

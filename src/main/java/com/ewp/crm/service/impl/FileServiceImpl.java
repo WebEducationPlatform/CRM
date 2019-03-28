@@ -7,6 +7,8 @@ import com.ewp.crm.service.interfaces.PotentialClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class FileServiceImpl implements FileService{
 
@@ -18,23 +20,15 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public String getAllVkIDs() {
-		String result = "";
+	public Optional<String> getAllVkIDs() {
+		StringBuilder result = new StringBuilder();
 		for (PotentialClient potentialClient : potentialClientService.getAllPotentialClients()) {
 			for (SocialProfile socialProfile : potentialClient.getSocialProfiles()) {
 				if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-					String link = socialProfile.getLink();
-					int indexOfLastSlash = link.lastIndexOf("/");
-					if (indexOfLastSlash != -1) {
-						link = link.substring(indexOfLastSlash + 1);
-					}
-					if (link.startsWith("id")) {
-						link = link.replaceFirst("id", "");
-					}
-					result += link + "\n";
+					result.append(socialProfile.getSocialId()).append("\n");
 				}
 			}
 		}
-		return result;
+		return Optional.of(result.toString());
 	}
 }

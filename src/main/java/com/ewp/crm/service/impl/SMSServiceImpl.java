@@ -42,30 +42,41 @@ public class SMSServiceImpl implements SMSService {
 	@Override
 	public void sendSMS(Long clientId, String smsTemplateText, String body, User principal) throws JSONException {
 		logger.info("{} sending sms message to client...", SMSServiceImpl.class.getName());
-		Client client = clientService.getClientByID(clientId);
-		String fullName = client.getName() + " " + client.getLastName();
-		Map<String, String> params = new HashMap<>();
-		//TODO в конфиг
-		params.put("%fullName%", fullName);
-		params.put("%bodyText%", body);
-		params.put("%dateOfSkypeCall%", body);
-		String smsText = messageTemplateService.replaceName(smsTemplateText, params);
-		URI uri = URI.create(TEMPLATE_URI + "/send.json");
-		JSONObject jsonRequest = new JSONObject();
-		JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client), smsText);
-		HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		JSONObject jsonBody = new JSONObject(response.getBody());
-		JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
-		SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
-		client.addSMSInfo(smsInfoService.addSMSInfo(smsInfo));
-		if (principal != null) {
-			ClientHistory clientHistory = clientHistoryService.createHistory(principal, client, new Message(Message.Type.SMS, smsInfo.getMessage()));
-			clientHistory.setLink("/client/sms/info/" + smsInfo.getId());
-			client.addHistory(clientHistory);
+		Optional<Client> client = clientService.getClientByID(clientId);
+		if (client.isPresent()) {
+			String fullName = client.get().getName() + " " + client.get().getLastName();
+			Map<String, String> params = new HashMap<>();
+			//TODO в конфиг
+			params.put("%fullName%", fullName);
+			params.put("%bodyText%", body);
+			params.put("%dateOfSkypeCall%", body);
+			String smsText = messageTemplateService.replaceName(smsTemplateText, params);
+			URI uri = URI.create(TEMPLATE_URI + "/send.json");
+			JSONObject jsonRequest = new JSONObject();
+			JSONObject request = buildMessages(jsonRequest, Collections.singletonList(client.get()), smsText);
+			HttpEntity<String> entity = new HttpEntity<>(request.toString(), createHeaders());
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+			JSONObject jsonBody = new JSONObject(response.getBody());
+			JSONObject message = (JSONObject) jsonBody.getJSONArray("messages").get(0);
+			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
+			smsInfoService.addSMSInfo(smsInfo).ifPresent(si -> client.get().addSMSInfo(si));
+			if (principal != null) {
+				Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(principal, client.get(), new Message(Message.Type.SMS, smsInfo.getMessage()));
+				if (clientHistory.isPresent()) {
+					clientHistory.get().setLink("/client/sms/info/" + smsInfo.getId());
+					client.get().addHistory(clientHistory.get());
+				}
+			}
+			clientService.updateClient(client.get());
+			logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
 		}
-		clientService.updateClient(client);
-		logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
+	}
+
+	@Override
+	public void sendSimpleSmsToUser(User user, String messageText) {
+		Set<ClientData> phoneSet = new HashSet<>();
+		phoneSet.add(new ClientData(user.getPhoneNumber()));
+		sendSMS(phoneSet, messageText);
 	}
 
 	@Override
@@ -142,7 +153,7 @@ public class SMSServiceImpl implements SMSService {
 	}
 
 	@Override
-	public String getBalance() {
+	public Optional<String> getBalance() {
 		logger.info("{} getting balance...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/balance.json");
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(createHeaders()), String.class);
@@ -151,16 +162,16 @@ public class SMSServiceImpl implements SMSService {
 				JSONObject jsonObject = new JSONObject(response.getBody());
 				JSONArray jsonArray = jsonObject.getJSONArray("balance");
 				JSONObject object = (JSONObject) jsonArray.get(0);
-				return object.getString("balance") + " " + object.getString("type");
+				return Optional.of(object.getString("balance") + " " + object.getString("type"));
 			} catch (JSONException e) {
 				logger.error("Can`t take balance, error authorization ", e);
 			}
 		}
-		return "Error";
+		return Optional.empty();
 	}
 
 	@Override
-	public String getStatusMessage(long smsId) {
+	public Optional<String> getStatusMessage(long smsId) {
 		logger.info("{} getting of a status message...", SMSServiceImpl.class.getName());
 		URI uri = URI.create(TEMPLATE_URI + "/status.json");
 		JSONObject request = new JSONObject();
@@ -175,12 +186,12 @@ public class SMSServiceImpl implements SMSService {
 
 			JSONObject body = new JSONObject(response.getBody());
 			JSONObject message = (JSONObject) body.getJSONArray("messages").get(0);
-			return message.getString("status");
+			return Optional.ofNullable(message.getString("status"));
 		} catch (JSONException e) {
 			logger.error("Can`t take sms status, JSON parse error ", e);
 		}
 
-		return "Error";
+		return Optional.empty();
 	}
 
 	private JSONObject buildMessages(JSONObject jsonRequest, List<Client> clients, String text) {

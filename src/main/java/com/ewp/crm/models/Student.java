@@ -5,11 +5,13 @@ import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Студент
+ */
 @Table (name = "student")
 @Entity
 public class Student implements Diffable<Student> {
@@ -19,32 +21,59 @@ public class Student implements Diffable<Student> {
     @Column (name = "id")
     private Long id;
 
+    /**
+     * Клиент, который стал студентом (изначально клиент студентом не является)
+     */
     @JoinColumn (name = "client_id")
     @OneToOne
     private Client client;
 
+    /**
+     * Дата окончания пробного периода обучения
+     */
     @Column (name = "end_trial")
     private LocalDateTime trialEndDate;
 
+    /**
+     * Дата следующего платежа
+     */
     @Column (name = "next_pay")
     private LocalDateTime nextPaymentDate;
 
+    /**
+     * Стоимость обучения в месяц, руб
+     */
     @Column (name = "price")
     private BigDecimal price;
 
+    /**
+     * Уже получено от студента, руб
+     */
     @Column (name = "amount")
     private BigDecimal paymentAmount;
 
+    /**
+     * Осталось получить со студента (долг): price - paymentAmount
+     */
     @Column (name = "later")
     private BigDecimal payLater;
 
+    /**
+     * Специальность (направление обучения) студента (Java Core, Java Web и тд) (Статус???)
+     */
     @JoinColumn (name = "status_id")
     @OneToOne
     private StudentStatus status;
 
+    /**
+     * Заметки по студенту
+     */
     @Column (name = "notes")
     private String notes;
 
+    /**
+     * Напоминать ли студенту по электронке (поля ниже по смс, в vk) об оплате
+     */
     @Column (name = "notify_email")
     private boolean notifyEmail = false;
 
@@ -53,6 +82,9 @@ public class Student implements Diffable<Student> {
 
     @Column (name = "notify_vk")
     private boolean notifyVK = false;
+
+    @Column (name = "color")
+    private String color;
 
     public Student() {
     }
@@ -66,6 +98,14 @@ public class Student implements Diffable<Student> {
         this.payLater = payLater;
         this.status = status;
         this.notes = notes;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public Long getId() {

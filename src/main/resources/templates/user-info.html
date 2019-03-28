@@ -18,8 +18,8 @@
                 <form id="user-form" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" id="editUser">Редактировать</button>
-                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + ${#authentication.getPrincipal().getId()} + '\')'">Сохранить</button>
-						<a href="/client" class="btn btn-primary" id="backToMain">Назад</a>
+                        <button type="submit" class="btn btn-primary" id="saveChanges" th:onclick="'changeUser(\''+ ${user.id} +'\' , \'' + '\')'">Сохранить</button>
+                        <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
 					</div>
                     <p><span id = "message"></span></p>
                     <input type="checkbox" checked="checked" class="form-control"  style="display:none"    id="edit-user-isVerified"/>
@@ -90,6 +90,29 @@
                         <div class="checkbox" th:each="role : ${roles}">
                             <input type="checkbox" disabled="disabled" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}" name = "roleCheckBx" title=""/>
                             <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
+                        </div>
+                    </div>
+                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <label for="edit-user-notifications-settings">Настройки оповещений</label>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                        </div>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
                         </div>
                     </div>
                 </form>

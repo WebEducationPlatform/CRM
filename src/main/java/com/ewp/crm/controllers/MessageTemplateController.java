@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/template")
-@PreAuthorize("hasAnyAuthority('OWNER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 public class MessageTemplateController {
 
     private static Logger logger = LoggerFactory.getLogger(MessageTemplateController.class);
@@ -48,6 +48,15 @@ public class MessageTemplateController {
     public ModelAndView editTemplatePage(@PathVariable("templateId") Long templateId,
                                          @AuthenticationPrincipal User userFromSession) {
         MessageTemplate messageTemplate = messageTemplateService.get(templateId);
+        return getModelAndView(userFromSession, messageTemplate);
+    }
+    @GetMapping(value = {"/create/{templateName}"})
+    public ModelAndView editTemplatePage(@AuthenticationPrincipal User userFromSession, @PathVariable String templateName) {
+        MessageTemplate messageTemplate = new MessageTemplate(templateName);
+        return getModelAndView(userFromSession, messageTemplate);
+    }
+
+    private ModelAndView getModelAndView(@AuthenticationPrincipal User userFromSession, MessageTemplate messageTemplate) {
         ModelAndView modelAndView = new ModelAndView("edit-eTemplate");
         modelAndView.addObject("template", messageTemplate);
         modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());

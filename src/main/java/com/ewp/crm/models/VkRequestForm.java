@@ -2,25 +2,36 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 import javax.persistence.*;
-import java.util.Comparator;
 
+/**
+ * Форма заявки из vk
+ */
 @Entity
 @Table(name = "vk_request_form")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class VkRequestForm {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+    /**
+     * Номер поля
+     */
     @Column(name = "number_vk_field")
     private Integer numberVkField;
 
+    /**
+     * Название поля
+     */
     @Column(name = "name_vk_field")
     private String nameVkField;
 
+    /**
+     * Тип поля, Поле сопоставленное с данными или дополнительная информация
+     */
     @Column(name = "type_vk_field")
     private String typeVkField;
 

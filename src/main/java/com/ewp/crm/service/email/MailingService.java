@@ -1,7 +1,10 @@
 package com.ewp.crm.service.email;
 
+
+import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
+import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
@@ -20,14 +23,20 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 @Service
 //@EnableAsync
 public class MailingService {
     private static Logger logger = LoggerFactory.getLogger(MailSendServiceImpl.class);
+    private static LocalDateTime vkMessageNextSendTime = LocalDateTime.now();
+    private static final String EMAIL_PATTERN = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
+    private static final String SMS_PATTERN = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
+
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
     private final VKService vkService;
@@ -48,6 +57,26 @@ public class MailingService {
         return mailingMessageRepository.saveAndFlush(message);
     }
 
+    public void sendMessages() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        List<MailingMessage> messages = mailingMessageRepository.getAllByReadedMessageIsFalse();
+        messages.forEach(message -> {
+            if (message.getDate().compareTo(currentTime) < 0) {
+                // VK messages from user's page are sending with limit
+                if ("vk".equals(message.getType()) && !"managerPage".equals(message.getVkType())) {
+                    if (vkMessageNextSendTime.isBefore(currentTime)) {
+                        // Next message will be send after 72 minutes (limit is 20 messages per day)
+                        // plus some random time to avoid anti-spam blocking
+                        vkMessageNextSendTime = vkMessageNextSendTime.plusMinutes(72);
+                        vkMessageNextSendTime = vkMessageNextSendTime.plusSeconds(new Random().nextInt(300));
+                        sendMessage(message);
+                    }
+                } else {
+                    sendMessage(message);
+                }
+            }
+        });
+    }
 
     public boolean sendMessage(MailingMessage message) {
         boolean result = true;
@@ -55,7 +84,9 @@ public class MailingService {
             result = sendingMailingsEmails(message);
         } else if (message.getType().equals("sms")) {
             sendingMailingSMS(message);
-        } else if (message.getType().equals("vk")) {
+        } else if (message.getType().equals("vk") && message.getVkType().equals("managerPage")) {
+            sendingMailingVkWithManagerAccount(message);
+        } else {
             sendingMailingVk(message);
         }
         return result;
@@ -110,14 +141,88 @@ public class MailingService {
     }
 
     private void sendingMailingVk(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
         for (ClientData idVk : message.getClientsData()) {
             try {
-                vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                Thread.sleep(1000);
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
+                if (!value.equalsIgnoreCase("Message sent")) {
+                    notSendList.add(value);
+                }
+                message.setReadedMessage(true);
             } catch (ClassCastException e) {
                 logger.info("bad vk id, " + idVk + ", ", e);
+            } catch (InterruptedException e) {
+                logger.error("a lot of requests", e);
             }
         }
-        message.setReadedMessage(true);
+        message.setNotSendId(notSendList);
         mailingMessageRepository.save(message);
     }
+
+    private void sendingMailingVkWithManagerAccount(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
+        for (ClientData idVk : message.getClientsData()) {
+            try {
+                Thread.sleep(1000);
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
+                if (!value.equalsIgnoreCase("Message sent")) {
+                    notSendList.add(value);
+                    message.setNotSendId(notSendList);
+                }
+                message.setReadedMessage(true);
+            } catch (ClassCastException e) {
+                logger.info("bad vk id, " + idVk + ", ", e);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        mailingMessageRepository.save(message);
+    }
+
+    private void addVkMailingToSendQueue(String recipients, String text, LocalDateTime destinationDate, String vkType, User user) {
+        // Preparing messages:
+        // 0. Get recipient's id from links in 'recipients' String
+        // 1. Put every recipient's id to clientsInfo HashSet to avoid duplicates
+        // 2. Create message for every recipient from 'recipients' String
+        Set<ClientData> clientsInfo = new HashSet<>();
+        List<MailingMessage> vkMessages = new ArrayList<>();
+        Arrays.asList(recipients.split("\n")).forEach(recipient -> vkService.getIdFromLink(recipient.trim()).ifPresent(id -> clientsInfo.add(new ClientData(id))));
+        clientsInfo.forEach(c -> vkMessages.add(new MailingMessage("vk", text, new HashSet<>(Collections.singletonList(c)), destinationDate, vkType, user.getId())));
+        // Adding all messages to queue
+        vkMessages.forEach(this::addMailingMessage);
+    }
+
+    private void addMailingToSendQueue(String messageType, String recipients, String text, String pattern, LocalDateTime destinationDate, User user) {
+        Set<ClientData> clientsInfo = new HashSet<>();
+        // Only get recipients who matches address pattern and add them to HashMap to avoid duplicates
+        Matcher recipientMatcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(recipients);
+        while (recipientMatcher.find()) {
+            clientsInfo.add(new ClientData(recipientMatcher.group()));
+        }
+        // Adding message to queue
+        MailingMessage message = new MailingMessage(messageType, text, clientsInfo, destinationDate, user.getId());
+        addMailingMessage(message);
+    }
+
+    public void prepareAndSendMailingMessages(String messageType, String recipients, String text, String mailingSendDate, String vkType, User user) throws ParseMailingDataException {
+        String pattern;
+        LocalDateTime destinationDate = LocalDateTime.parse(mailingSendDate, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm МСК"));
+        switch (messageType) {
+            case "vk":
+                addVkMailingToSendQueue(recipients, text, destinationDate, vkType, user);
+                return;
+            case "sms":
+                pattern = SMS_PATTERN;
+                break;
+            case "email":
+                pattern = EMAIL_PATTERN;
+                break;
+            default:
+                throw new ParseMailingDataException("Incorrect input data for mailing: messageType = " + messageType);
+        }
+        addMailingToSendQueue(messageType, recipients, text, pattern, destinationDate, user);
+    }
 }
+
+

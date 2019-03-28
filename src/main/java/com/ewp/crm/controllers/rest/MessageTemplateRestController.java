@@ -37,10 +37,7 @@ public class MessageTemplateRestController {
     @PostMapping
     public HttpStatus createTemplate(@RequestParam("name") String name) {
         HttpStatus status = HttpStatus.OK;
-        if (messageTemplateService.getByName(name) == null) {
-            messageTemplateService.add(new MessageTemplate(name));
-            logger.info("Template with name {} created", name);
-        } else {
+        if (messageTemplateService.getByName(name).isPresent()) {
             logger.info("Template with name {} already exists", name);
             status = HttpStatus.CONFLICT;
         }

@@ -32,8 +32,9 @@
                     <li><a href="/client/allClients">Все клиенты</a></li>
                     <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
                     <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER')">Статусы обучения</a></li>
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER')">Рассылка</a></li>
-                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER')">Шаблоны</a></li>
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Рассылка</a></li>
+                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Шаблоны</a></li>
+                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
@@ -41,12 +42,22 @@
                                    placeholder="Search"/>
                         </div>
                     </li>
+
+
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li class="nav-item dropdown">
+                        <a class="chat-notifications" id="chatNavbarDropdown" href="#" role="button" data-toggle="dropdown" style="color: red;display: none;">Новые сообщения</a>
+                        <div class="dropdown-menu" aria-labelledby="chatNavbarDropdown" id="chatNewMessageMenu">
+                            <!--<a class="dropdown-item vk-items" th:id="chatNotifyItem" onclick="showModal(1)">Action</a>-->
+
+                        </div>
+                    </li>
+
                     <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <a class="glyphicon glyphicon-bell redBell"
-                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown"></a>
-                        <ul class="dropdown-menu notification-dropdown">
+                           th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown" id="bell"></a>
+                        <ul class="dropdown-menu notification-dropdown" id = "Notify">
                             <th:block th:if="${notifications.size() > 0}">
                                 <th:block>
                                     <li>
@@ -54,18 +65,18 @@
                                                 type="button" data-toggle="modal"
                                                 class="glyphicon glyphicon-trash pull-right"
                                                 title="Очистить всё"
-                                                th:onclick="'cleanAll()'">
+                                                th:onclick="'cleanAll()'" id="bucket">
                                         </button>
                                     </li>
                                 </th:block>
                                 <th:block th:each="notification : ${notifications}"
-                                          th:if="${!notification.client.status.invisible}">
+                                          th:if="${notification.client ne null and !notification.client.status.invisible}">
                                     <th:block
                                             th:if="${notification.type == T(com.ewp.crm.models.Notification.Type).COMMENT}">
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
                                                th:text="${'Вас упомянули в карточке ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
@@ -84,7 +95,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
                                                th:text="${'Отложенный клиент ' + notification.client.name + ' ' + notification.client.lastName} + ' возвращен на доску'">
                                             </a>
                                         </li>
@@ -94,7 +105,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
                                                th:text="${'На доску добавлена новая карточка ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
@@ -104,7 +115,7 @@
                                         <li th:class="'menu' + ${notification.client.id}">
                                             <a data-toggle="modal" class="link-cursor-pointer notify"
                                                th:attrappend="data-target='#client-'+ ${notification.client.id}+ '-modal'"
-                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +')'"
+                                               th:onclick="'markAsReadMenu('+ ${notification.client.id} +', 1)'"
                                                th:text="${'На ' + notification.information + ' ' + 'у Вас запланирована беседа по Skype c' + ' ' + notification.client.name + ' ' + notification.client.lastName}">
                                             </a>
                                         </li>
@@ -115,6 +126,7 @@
                             <th:block th:if="${notifications.size() == 0}">
                                 <li><a>У вас нет новых оповещений</a></li>
                             </th:block>
+                            <li><a id="noNotify"></a></li>
                         </ul>
                     </li>
                     <li>
@@ -147,7 +159,7 @@
 </th:block>
 
 <th:block th:fragment="header">
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
           crossorigin="anonymous"/>
@@ -166,12 +178,12 @@
     <!--card from 'Форма: Java Test' doesn't appear on a board with it-->
     <style th:inline="text">
         body {
-            background-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
 
         .navbar-fixed-top {
-            background-image: -webkit-gradient(linear, left top, left bottom, from([ [${#authentication.getPrincipal().colorBackground}] ]), to([ [${#authentication.getPrincipal().colorBackground}] ]));
-            border-color: [ [${#authentication.getPrincipal().colorBackground}] ];
+            background-image: -webkit-gradient(linear, left top, left bottom, from([[${#authentication.getPrincipal().colorBackground}]]), to([[${#authentication.getPrincipal().colorBackground}]]));
+            border-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
     </style>
 </th:block>
@@ -193,6 +205,8 @@
         </div>
     </div>
 </th:block>
+
+
 
 <!--Отправка фиксированного сообщения во все сети.-->
 <th:block th:fragment="sendTemplateModal">
@@ -473,15 +487,19 @@
                         <label th:for="'change-status-name' + ${status.id}">Новое название статуса</label>
                         <input type="text" class="form-control" th:id="'change-status-name' + ${status.id}"
                                maxlength="30" th:value="${status.name}"/>
-                        <label th:for="'trial_offset_' + ${status.id}">Интервал по-умолчанию для даты пробного
-                            периода</label>
-                        <input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/>
-                        <label th:for="'next_payment_offset_' + ${status.id}">Интервал по-умолчанию для даты следующей
-                            оплаты</label>
-                        <input th:id="'next_payment_offset_' + ${status.id}" type="number"
-                               th:value="${status.nextPaymentOffset}"/>
+                        <table style="margin: 2%">
+                            <tr>
+                                <td><label th:for="'trial_offset_' + ${status.id}">Длительность пробного периода на этом статусе</label></td>
+                                <td><input th:id="'trial_offset_' + ${status.id}" type="number" th:value="${status.trialOffset}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label th:for="'next_payment_offset_' + ${status.id}">Длительность учебного интервала в днях</label></td>
+                                <td><input th:id="'next_payment_offset_' + ${status.id}" type="number"
+                                           th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
+                            </tr>
+                        </table>
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"
                             th:onclick="'changeStatusName(\''+ ${status.id} +'\')'">Сохранить
                     </button>
@@ -819,6 +837,7 @@
         <option th:text="${status.name}" th:value="${status.id}"></option>
     </div>
 </th:block>
+
 
 </body>
 </html>

@@ -15,29 +15,6 @@
 
         <div><h3>Настройки</h3></div>
         <br/>
-        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-            <button onclick="setAllNotifications(false)" type="button" class="btn btn-primary pull">
-                Выключить оповещения
-            </button>
-        </div>
-        <br/>
-        <div th:if="${!#authentication.getPrincipal().isEnableMailNotifications()}">
-            <button onclick="setAllNotifications(true)" type="button" class="btn btn-primary pull">
-                Включить оповещения</button>
-        </div>
-        <div th:if="${#authentication.getPrincipal().isEnableMailNotifications()}">
-            <div th:if="${#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
-                    Не оповещать о новых клиентах
-                </button>
-            </div>
-            <div th:if="${!#authentication.getPrincipal().isNewClienNotifyIsEnabled()}">
-                <button onclick="cleanAllNewUserNotify()" class="btn btn-primary pull notify">
-                    Оповещать о новых клиентах
-                </button>
-            </div>
-        </div>
-        <br/>
         <div id="change-profile-button">
             <a th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">
                 <button sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" class="btn btn-primary pull">Изменить профиль
@@ -64,26 +41,60 @@
         <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google">
-                <input type="submit" class="btn btn btn-success pul" value="Авторизация Google"/>
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google"/>
             </form>
         </div>
         <br/>
         <br/>
-        <div>
-            <a class="btn btn-primary pull" href="/user/autoAnswer" sec:authorize="hasAnyAuthority('OWNER')">Настроить
-                автоответ</a>
+        <div id="auto-answer-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#auto-answer-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настроить автоответ
+            </button>
+        </div>
+        <br/>
+        <div id="contract-user-setting-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#contract-user-setting-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настройки договора
+            </button>
         </div>
         <br/>
         <div id="choice-status-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal" sec:authorize="hasAnyAuthority('OWNER')">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
                 Статусы по-умолчанию
             </button>
         </div>
         <br/>
         <div id="payment-notification-button">
-            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal" sec:authorize="hasAnyAuthority('OWNER')">
-                Оповещение об оплате
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настройка оповещений
             </button>
+        </div>
+        <br/>
+        <div id="new-student-config-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#new-student-config-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Параметры по-умолчанию для студентов
+            </button>
+        </div>
+        <br/>
+        <div>
+            <th:block th:if="isTdlibInstalled">
+                <th:block th:if="${isTelegramAuthenticated}">
+                    <button id="telegram-logout-button" class="btn btn-primary pull">
+                        Выйти из Telegram
+                    </button>
+                </th:block>
+                <th:block th:if="!${isTelegramAuthenticated}">
+                    <button id="telegram-auth-button" class="btn btn-primary pull" data-toggle="modal"
+                            data-target="#telegram-auth-modal">
+                        Авторизация в Telegram
+                    </button>
+                </th:block>
+            </th:block>
         </div>
     </div>
 
@@ -103,11 +114,13 @@
                         <label for="selected-color">Цвет фона оформления</label>
                         <div id="wrap-selected-color" class="input-group colorpicker-component">
                             <span class="input-group-addon" id="inputGroup-sizing-lg" style="width: 85%"><i></i></span>
-                            <input id="selected-color" type="text" style="width: 100%" th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677" class="form-control"/>
+                            <input id="selected-color" type="text" style="width: 100%"
+                                   th:value="${#authentication.getPrincipal().colorBackground}" value="#38a677"
+                                   class="form-control"/>
                         </div>
                         <script>
                             $(function () {
-                                $('#wrap-selected-color').colorpicker({format:'hex'});
+                                $('#wrap-selected-color').colorpicker({format: 'hex'});
                             });
                         </script>
                     </div>
@@ -162,7 +175,8 @@
     </div>
 </div>
 <!--Модалка для настройки статусов-->
-<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true" sec:authorize="hasAnyAuthority('OWNER')">
+<div class="modal fade" id="choice-status-column-modal" tabindex="-1" role="dialog" aria-hidden="true"
+     sec:authorize="hasAnyAuthority('OWNER')">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -176,8 +190,16 @@
                         <select id="new-client-status" class="form-control"> </select>
                     </div>
                     <div class="row">
+                        <label for="repeated-client-status">Выберите статус клиента повторно оставившего заявку</label>
+                        <select id="repeated-client-status" class="form-control"> </select>
+                    </div>
+                    <div class="row">
                         <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
-                        <select id="status-column" class="form-control"> </select>
+                        <select id="status-column" class="form-control"></select>
+                    </div>
+                    <div class="row">
+                        <label for="reject-student-status-column">Выберите статус клиента студента-отказника</label>
+                        <select id="reject-student-status-column" class="form-control"> </select>
                     </div>
                 </div>
             </div>
@@ -187,7 +209,12 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments/auto-answer-modal::autoAnswerModal"></div>
+<div th:replace="fragments/contract-user-setting-modal::contractUserSettingModal"></div>
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
+<div th:replace="fragments/telegram-auth-modal::telegramAuthModal"></div>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<div th:replace="fragments/new-student-config-modal::newStudentConfigModal"></div>
 <script type="text/javascript" th:src="@{/js/vk-auth.js}"></script>
 <script type="text/javascript" th:src="@{/js/user-customize.js}"></script>
 <script type="text/javascript" th:src="@{/js/choice-status-column.js}"></script>
@@ -195,6 +222,7 @@
 <script type="text/javascript" th:src="@{/js/choice-color-picker.js}"></script>
 <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 </body>
 </html>
