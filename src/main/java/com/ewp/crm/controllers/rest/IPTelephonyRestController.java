@@ -80,9 +80,14 @@ public class IPTelephonyRestController {
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public byte[] getCallRecord(@PathVariable String file) throws IOException {
+	public byte[] getCallRecord(@PathVariable String file) {
 		Path fileLocation = Paths.get("CallRecords/" + file);
-		return Files.readAllBytes(fileLocation);
+		try {
+			return Files.readAllBytes(fileLocation);
+		} catch (IOException e) {
+			logger.error("File with record not found: " + fileLocation.toString(), e);
+		}
+		return new byte[0];
 	}
 
 	@GetMapping(value = "/voximplantCredentials")

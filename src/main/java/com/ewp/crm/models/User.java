@@ -2,7 +2,9 @@ package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -40,6 +42,7 @@ public class User implements UserDetails {
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "password", nullable = false)
 	private String password;
 
@@ -140,6 +143,7 @@ public class User implements UserDetails {
 	 */
 	@NotNull
 	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
