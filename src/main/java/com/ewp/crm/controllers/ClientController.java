@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +33,9 @@ public class ClientController {
     private final NotificationService notificationService;
     private final RoleService roleService;
     private final ProjectPropertiesService propertiesService;
+    private final ListMailingService listMailingService;
+    private final MailingMessageRepository messageService;
+    private final StudentStatusService studentStatus;
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -46,7 +49,10 @@ public class ClientController {
                             SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
-                            ProjectPropertiesService propertiesService) {
+                            ProjectPropertiesService propertiesService,
+                            ListMailingService listMailingService,
+                            MailingMessageRepository messageService,
+                            StudentStatusService studentStatus) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -55,6 +61,9 @@ public class ClientController {
         this.notificationService = notificationService;
         this.roleService = roleService;
         this.propertiesService = propertiesService;
+        this.listMailingService = listMailingService;
+        this.messageService = messageService;
+        this.studentStatus = studentStatus;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -62,7 +71,7 @@ public class ClientController {
     public ModelAndView addClient(@PathVariable String statusName,
                                   @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
-        modelAndView.addObject("status", statusService.get(statusName));
+        statusService.get(statusName).ifPresent(s -> modelAndView.addObject("status", s));
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);
@@ -89,11 +98,10 @@ public class ClientController {
         ModelAndView modelAndView;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
+        statuses = statusService.getStatusesWithSortedClients(userFromSession);
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getAll();
             modelAndView = new ModelAndView("main-client-table");
         } else {
-            statuses = statusService.getStatusesWithClientsForUser(userFromSession);
             modelAndView = new ModelAndView("main-client-table-user");
         }
         List<User> userList = userService.getAll();
@@ -119,13 +127,17 @@ public class ClientController {
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
+        modelAndView.addObject("studentStatuses", studentStatus.getAll());
         return modelAndView;
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
-    public ModelAndView mailingPage() {
-        return new ModelAndView("mailing");
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public String mailingPage(Model model) {
+        model.addAttribute("listMailing", listMailingService.getAll());
+        model.addAttribute("chooseUser", userService.getAll());
+        model.addAttribute("mailingMessage", messageService.findAll());
+        return "mailing";
     }
 
     @GetMapping(value = "/client/clientInfo/{id}")
@@ -134,6 +146,7 @@ public class ClientController {
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
         modelAndView.addObject("client", clientService.get(id));
+        modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
         modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
         modelAndView.addObject("user", userFromSession);

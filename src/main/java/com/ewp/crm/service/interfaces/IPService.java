@@ -1,14 +1,16 @@
 package com.ewp.crm.service.interfaces;
 
+import java.util.Optional;
+
 public interface IPService {
 
 	void call(String from, String to, Long callId);
 
-	String getVoximplantLoginForWebCall();
+	Optional<String> getVoximplantLoginForWebCall();
 
-	String getVoximplantPasswordForWebCall();
+	Optional<String> getVoximplantPasswordForWebCall();
 
-	String getVoximplantUserLogin(String fullLogin);
+	Optional<String> getVoximplantUserLogin(String fullLogin);
 
-	String getVoximplantCodeToSetRecord();
+	Optional<String> getVoximplantCodeToSetRecord();
 }

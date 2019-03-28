@@ -16,6 +16,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -28,6 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthenticationService authenticationService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final PersistentTokenRepository persistentTokenRepository;
     private final RequestMatcher csrfRequestMatcher = new RequestMatcher() {
         private final RegexRequestMatcher requestMatcher = new RegexRequestMatcher("/processing-url", null);
 
@@ -38,19 +40,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     };
 
     @Autowired
-    public SecurityConfig(AuthenticationService authenticationService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+    public SecurityConfig(AuthenticationService authenticationService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                          PersistentTokenRepository persistentTokenRepository) {
         this.authenticationService = authenticationService;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.persistentTokenRepository = persistentTokenRepository;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/init/**").permitAll()
+                .antMatchers("/init/**","/contract/**").permitAll()
                 .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER")
                 .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
                 .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
+                .and()
+                .httpBasic()
                 .and()
                 .formLogin()
                 .loginPage("/login")
@@ -71,6 +77,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER);
+
+        http
+                .rememberMe()
+                .tokenRepository(persistentTokenRepository)
+                .rememberMeParameter("remember-me-param")
+                .rememberMeCookieName("my-remember-me")
+                .tokenValiditySeconds(604800);
     }
 
     @Bean

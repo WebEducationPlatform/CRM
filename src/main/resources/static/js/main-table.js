@@ -11,6 +11,8 @@ var voxPassword;
 var callerId;
 var callToPhone;
 var micMuted;
+var backFromModalUrl;
+var userLoggedIn;
 
 $('.fix-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
@@ -29,7 +31,7 @@ function drawCheckbox(currentForm, clientId) {
     let formData = {clientId: clientId};
     $.ajax({
         type: 'GET',
-        url: 'rest/client/' + clientId,
+        url: '/rest/client/' + clientId,
         data: formData,
         beforeSend: function () {
             if (currentForm.find('.my-checkbox-soc').is('.my-checkbox-soc')) {
@@ -90,7 +92,7 @@ $("#save-description").on("click", function saveDescription() {
     let text = $('#clientDescriptionModal').find('textarea').val();
     let id = $(this).attr("data-id");
     let
-        url = 'rest/client/addDescription',
+        url = '/rest/client/addDescription',
         formData = {
             clientId: id,
             clientDescription: text
@@ -132,12 +134,39 @@ function clientsSearch() {
     });
 }
 
+let logged_in_profiles;
+
+function get_us() {
+    $.ajax({
+        async: true,
+        type: "GET",
+        url: "/rest/conversation/us",
+        success: function (response) {
+            logged_in_profiles = response;
+        }
+    });
+}
+
+function getUserLoggedIn(asyncr) {
+    $.ajax({
+        async: asyncr,
+        type: "GET",
+        url: "/rest/client/getPrincipal",
+        success: function (user) {
+            userLoggedIn = user;
+        }
+    });
+}
+
+//func responsible for the client's cards motion
 $(document).ready(function () {
+    getUserLoggedIn(true);
+    get_us();
     $(".column").sortable({
         delay: 100,
         items: '> .portlet',
         connectWith: ".column",
-        handle: ".portlet-body",
+        handle: ".portlet-title, .portlet-header",
         cancel: ".portlet-toggle",
         start: function (event, ui) {
             ui.item.addClass('tilt');
@@ -147,9 +176,10 @@ $(document).ready(function () {
             ui.item.removeClass("tilt");
             $("html").unbind('mousemove', ui.item.data("move_handler"));
             ui.item.removeData("move_handler");
-            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'))
+            senReqOnChangeStatus(ui.item.attr('value'), ui.item.parent().attr('value'));
         }
     });
+
 
     $(document).ready(function () {
         $("#new-status-name").keypress(function (e) {
@@ -239,31 +269,39 @@ function createNewUser() {
 function createNewStatus() {
     let url = '/rest/status/add';
     let statusName = $('#new-status-name').val() || $('#default-status-name').val();
+    let currentStatus = document.getElementById("sendSocialTemplateStatus");
+
     if (typeof statusName === "undefined" || statusName === "") return;
     let formData = {
         statusName: statusName
     };
 
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function (result) {
-            window.location.reload();
-        },
-        error: function (e) {
-            alert(e.responseText);
-            console.log(e.responseText);
-        }
-    });
+    if(statusName.length < 25) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (result) {
+                window.location.reload();
+            },
+            error: function (e) {
+                alert(e.responseText);
+                console.log(e.responseText);
+            }
+        });
+    }
+    else {
+        currentStatus.style.color = "red";
+        currentStatus.textContent = "Название уменьши ка, будь человеком";
+    }
 }
 
 //Change status button
 function changeStatusName(id) {
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
-    let trial_offset = $("#trial_offset_" + id).val();
-    let next_payment_offset = $("#next_payment_offset_" + id).val();
+    let trial_offset = parseInt($("#trial_offset_" + id).val());
+    let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
@@ -334,7 +372,7 @@ function assign(id) {
             );
             assignBtn.remove();
             $('#info-client' + id).append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + "&nbsp" + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -364,7 +402,7 @@ function assignUser(id, user, principalId) {
                 target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
 
             //If admin assigned himself
             // if(principalId === user){
@@ -385,7 +423,7 @@ function assignUser(id, user, principalId) {
 
             //Add Worker icon and info for search by worker
             info_client.append(
-                "<p class='user-icon' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "<p class='user-icon_card' id='own-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
                 owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</p>" +
                 "<p style='display:none'>" + owner.firstName + " " + owner.lastName + "</p>"
@@ -413,7 +451,7 @@ function unassign(id) {
         success: function (owner) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
-            info_client.find(".user-icon").remove();
+            info_client.find(".user-icon_card").remove();
             if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
@@ -451,7 +489,7 @@ $(document).ready(function () {
         }
         jo.hide();
         jo.filter(function (i, v) {
-            var d = $(this)[0].getElementsByClassName("user-icon");
+            var d = $(this)[0].getElementsByClassName("user-icon_card");
             if (d.length === 0) {
                 return false;
             }
@@ -466,7 +504,7 @@ $(document).ready(function () {
 
 function fillFilterList() {
     $("#client_filter").empty();
-    var names = $("#status-columns").find($(".user-icon"));
+    var names = $("#status-columns").find($(".user-icon_card"));
     if (names.length === 0) {
         $("#client_filter_group").hide();
     } else {
@@ -857,29 +895,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        current.attr("disabled", "true");
+                        console.log(e)
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    current.attr("disabled", "true");
-                    console.log(e)
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -920,15 +960,6 @@ $(function () {
     });
 
 });
-// Кнопка  вк
-// $(function () {
-//     $(function (client) {
-//
-//  var clientId = client.age;
-//
-//     $('#vk-href').attr('href', clientId);
-//     });
-// });
 
 //Отправка выбранных чекбоксов на контроллер отрпавки сообщений в email.SMS, VK,FB.
 $(function () {
@@ -982,29 +1013,31 @@ $(function () {
                     url = '/temporary blank';
                     break;
             }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formData,
-                beforeSend: function () {
-                    current.text("Отправка..");
-                    current.attr("disabled", "true")
-                },
-                success: function (result) {
-                    if (err.length === 0) {
-                        $(".modal").modal('hide');
-                        $('#custom-eTemplate-body').val("");
+            if (url.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    beforeSend: function () {
+                        current.text("Отправка..");
+                        current.attr("disabled", "true")
+                    },
+                    success: function (result) {
+                        if (err.length === 0) {
+                            $(".modal").modal('hide');
+                            $('#custom-eTemplate-body').val("");
+                            current.text("Отправить");
+                            current.removeAttr("disabled");
+                        }
+                    },
+                    error: function (e) {
+                        err.push(valuecheck);
                         current.text("Отправить");
-                        current.removeAttr("disabled");
+                        currentStatus.text("Не удалось отправить сообщение " + err);
+                        console.log(e);
                     }
-                },
-                error: function (e) {
-                    err.push(valuecheck);
-                    current.text("Отправить");
-                    currentStatus.text("Не удалось отправить сообщение " + err);
-                    console.log(e);
-                }
-            });
+                });
+            }
         });
     });
 });
@@ -1019,7 +1052,7 @@ $(function () {
 
 
 function hideClient(clientId) {
-    let url = 'rest/client/postpone';
+    let url = '/rest/client/postpone';
     let flag = document.querySelector(".isPostponeFlag").checked;
     let commentUrl = '/rest/comment/add';
     let comment = document.querySelector(".postponeComment").value;
@@ -1029,30 +1062,36 @@ function hideClient(clientId) {
         isPostponeFlag: flag,
         postponeComment: comment,
     };
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-            success: function () {
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: commentUrl,
-                    data: {
-                        clientId: clientId,
-                        content: comment
-                    },
-                    success: function () {
-                        location.reload();
-                    },
-                });
-            },
-            error: function (e) {
-                currentStatus = $("#postponeStatus" + clientId)[0];
-                currentStatus.textContent = "Произошла ошибка";
-                console.log(e.responseText)
-            }
-        });
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: commentUrl,
+                data: {
+                    clientId: clientId,
+                    content: comment
+                },
+                success: function () {
+                    let currentStatus = document.getElementById("postpone-status");
+                    currentStatus.style.color = "limegreen";
+                    if (flag) {
+                        currentStatus.textContent = "Клиент успешно скрыт";
+                    } else {
+                        currentStatus.textContent = "Напоминание добавлено";
+                    }
+                },
+            });
+        },
+        error: function (e) {
+            currentStatus = $("#postponeStatus" + clientId)[0];
+            currentStatus.textContent = "Произошла ошибка";
+            console.log(e.responseText)
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -1076,12 +1115,12 @@ $(document).ready(function () {
 
 $(function () {
     $('.portlet-body').on('click', function (e) {
-        if (e.target.className.startsWith("portlet-body") === true) {
+        if (e.target.className.startsWith("portlet-body") === true ) {
             var clientId = $(this).parents('.common-modal').data('cardId');
             var currentModal = $('#main-modal-window');
             currentModal.data('clientId', clientId);
             currentModal.modal('show');
-            markAsReadMenu($(e.target).attr('client-id'))
+            markAsReadMenu($(e.target).attr('client-id'),0)
         }
     });
 });
@@ -1093,6 +1132,8 @@ $(function () {
         var currentModal = $('#main-modal-window');
         currentModal.data('clientId', clientId);
         currentModal.modal('show');
+        markAsReadMenu($(e.target).attr('client-id'));
+
     });
 });
 
@@ -1122,7 +1163,7 @@ function assignSkype(id) {
     var startDate = minDate;
     $.ajax({
         type: 'GET',
-        url: 'rest/client/' + clientId,
+        url: '/rest/client/' + clientId,
         data: formData,
         success: function (client) {
             btnBlockTask.attr('id', 'assign-skype' + clientId);
@@ -1136,7 +1177,7 @@ function assignSkype(id) {
                 // Get the list of mentors
                 $.ajax({
                     type: 'GET',
-                    url: 'rest/skype/allMentors',
+                    url: '/rest/skype/allMentors',
                     dataType: 'json',
                     success: function (mentors) {
                         currentStatus.css('color', '#333');
@@ -1215,7 +1256,7 @@ function confirmSkype(id) {
     var startDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), nowDate.getHours(), minutes , 0, 0);
     $.ajax({
         type: 'POST',
-        url: 'rest/client/setSkypeLogin',
+        url: '/rest/client/setSkypeLogin',
         data: formData,
         success: function (client) {
             currentStatus.css('color', '#229922');
@@ -1226,7 +1267,7 @@ function confirmSkype(id) {
             // Get the list of mentors
             $.ajax({
                 type: 'GET',
-                url: 'rest/skype/allMentors',
+                url: '/rest/skype/allMentors',
                 dataType: 'json',
                 success: function (mentors) {
                     currentStatus.css('color', '#333');
@@ -1317,7 +1358,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDateAndCorrectEmail',
+        url: '/rest/skype/checkFreeDateAndCorrectEmail',
         data: checkCallSkype,
         dataType: 'json',
         statusCode: {
@@ -1325,7 +1366,7 @@ $(document).on('click','.confirm-skype-btn', function (e) {
                 // Add Event in calendar mentor
                 $.ajax({
                     type: 'POST',
-                    url: 'rest/skype/addSkypeCallAndNotification',
+                    url: '/rest/skype/addSkypeCallAndNotification',
                     data: addCallSkype,
                     success: function () {
                         $('.assign-skype-call-btn').hide();
@@ -1398,7 +1439,7 @@ function updateCallDate(id) {
     $(document).find('.update-date-btn').attr("disabled", "true");
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/' + clientId,
+        url: '/rest/skype/' + clientId,
         data: formData,
         dataType: 'json',
         success: function (assignSkypeCall) {
@@ -1411,7 +1452,7 @@ function updateCallDate(id) {
             // Get the list of mentors
             $.ajax({
                 type: 'GET',
-                url: 'rest/skype/allMentors',
+                url: '/rest/skype/allMentors',
                 dataType: 'json',
                 success: function (mentors) {
                     currentStatus.show();
@@ -1538,7 +1579,7 @@ $(document).on('click','.update-skype-call', function (e) {
     // Check free date
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/checkFreeDateAndCorrectEmail',
+        url: '/rest/skype/checkFreeDateAndCorrectEmail',
         data: checkFreeDate,
         dataType: 'json',
             statusCode: {
@@ -1549,7 +1590,7 @@ $(document).on('click','.update-skype-call', function (e) {
                     // Update Event in calendar mentor
                     $.ajax({
                         type: 'POST',
-                        url: 'rest/mentor/updateEvent',
+                        url: '/rest/mentor/updateEvent',
                         data: updateEvent,
                         success: function (e) {
                             if (!document.getElementById('freeDate')) {
@@ -1617,7 +1658,7 @@ function deleteCallDate(id) {
 
     $.ajax({
         type: 'GET',
-        url: 'rest/skype/' + clientId,
+        url: '/rest/skype/' + clientId,
         data: formDataId,
         dataType: 'json',
         success: function (assignSkypeCall) {
@@ -1633,7 +1674,7 @@ function deleteCallDate(id) {
 
             $.ajax({
                 type: 'POST',
-                url: 'rest/mentor/deleteEvent',
+                url: '/rest/mentor/deleteEvent',
                 data: deleteEvent,
                 success: function() {
                     currentBtn.removeAttr("disabled");
@@ -1686,117 +1727,304 @@ function deleteCallDate(id) {
     });
 };
 
+let interlocutor_profiles;
+
+function get_interlocutors(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/interlocutors",
+        data: {id: clientId},
+        success: function (response) {
+            interlocutor_profiles = response;
+        }
+    })
+}
+
+let conversations = $("#conversations-body");
+
+function start_chats(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/all",
+        data: {id: clientId},
+        success: function (response) {
+            $("#chat-messages").empty();
+            for (let i in response) {
+                let message_id = response[i].id;
+                let send_date = new Date(response[i].time);
+                let text = response[i].text;
+                let is_outgoing = response[i].outgoing;
+                let is_read = response[i].read;
+                let sn_type = response[i].chatType;
+                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
+            }
+            $("#send-selector").prop('value', response[response.length - 1].chatType);
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    })
+}
+
+function set_send_selector(clientId) {
+    let selector = $("#send-selector");
+    selector.empty();
+    $.ajax({
+        type: "GET",
+        url: "/rest/client/" + clientId,
+        success: function (client) {
+            for (let i = 0; i < client.socialProfiles.length; i++) {
+                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                }
+                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                }
+                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
+                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                }
+            }
+        }
+    })
+
+}
+
+$('#conversations-modal').on('show.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    set_send_selector(clientId);
+    start_chats(clientId);
+});
+
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    $("#chat-messages").empty();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/close',
+        data: {clientId: clientId}
+    })
+});
+
+function client_has_telegram(client) {
+    let has_telegram = false;
+    for (let i = 0; i < client.socialProfiles.length; i++) {
+        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+            has_telegram = true;
+            break;
+        }
+    }
+    return has_telegram;
+}
+
+function changeStatus(clientId, statusId) {
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/rest/status/client/change',
+        data: {
+            "statusId" : statusId,
+            "clientId" : clientId
+        },
+        success: function () {
+            reloadClientStatus(clientId);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+        }
+    });
+}
+
+function reloadClientStatus(clientId) {
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            $('#client-set-status-button').text(client.status.name);
+        }
+    });
+}
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
+        var t0 = performance.now();
+
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
-        let formData = {clientId: clientId};
+
+        $.ajax({
+            async: true,
+            type: 'GET',
+            url: '/rest/status',
+            success: function (status) {
+                $('#client-status-list').empty();
+                $.each(status, function (i, s) {
+                    $('#client-status-list').append(
+                        '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
+                    );
+                });
+            }
+        });
+        console.log('Point #1: ' + (performance.now() - t0));
         $.ajax({
             async: false,
             type: 'GET',
-            url: 'rest/client/' + clientId,
-            data: formData,
+            url: '/rest/client/' + clientId,
             success: function (client) {
-                $.get('rest/client/getPrincipal', function (user) {
-                }).done(function (user) {
-                    if (client.ownerUser != null) {
-                        var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                console.log('Point #2: ' + (performance.now() - t0));
+                if (!client_has_telegram(client) && client.phoneNumber !== '') {
+                    set_telegram_id_by_phone(client.phoneNumber);
+                }
+                $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
+
+                if (userLoggedIn === undefined) {
+                    getUserLoggedIn(false);
+                }
+
+                let user = userLoggedIn;
+                console.log('Point #3: ' + (performance.now() - t0));
+                if (client.ownerUser != null) {
+                    var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+                var adminName = user.firstName + ' ' + user.lastName;
+
+                $('#main-modal-window').data('userId', user.id);
+
+                currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+                currentModal.find('#client-set-status-button').text(client.status.name);
+                console.log('Point #4: ' + (performance.now() - t0));
+                $('#client-email').text(client.email);
+                $('#client-phone').text(client.phoneNumber);
+                if (client.canCall && user.ipTelephony) {
+                    $('#client-phone')
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                    $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                    $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                    $('#btn-call-off').css("background", "red");
+                    $('#btn-call-off').css("color", "white");
+                    $('#btn-mic-off').hide();
+                    $('#btn-call-off').hide();
+                }
+                console.log('Point #5: ' + (performance.now() - t0));
+                if (client.age > 0) {
+                    $('#client-age').text(client.age);
+                } else {
+                    $('#client-age').text('');
+                }
+                $('#client-sex').text(client.sex);
+                if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
+                    $('#client-label').text(client.clientDescriptionComment);
+                } else {
+                    $('#client-label').text('');
+                }
+                if (client.email == null) {
+                    $('#email-href').hide();
+                } else {
+                    $('#email-href').show();
+                }
+                if (client.birthDate) {
+                    let bDate = client.birthDate.split('-');
+                    $('#client-date-of-birth').text(bDate[2] + '.' + bDate[1] + '.' + bDate[0]);
+                } else {
+                    $('#client-date-of-birth').text('');
+                }
+                $('#client-country').text(client.country);
+                $('#client-city').text(client.city);
+                $('#client-university').text(client.university);
+                if (client.requestFrom !== null) {
+                    $('#client-request-button').show();
+                    $('#client-request').text(client.requestFrom);
+                } else {
+                    $('#client-request-button').hide();
+                    $('#client-request').empty();
+                }
+                console.log('Point #6: ' + (performance.now() - t0));
+                // здесь вставка ссылок в кнопки вк, фб и слак
+                $('#vk-href').hide();
+                $('#vk-im-button').hide();
+
+                $('#fb-href').hide();
+                $('#slack-href').hide();
+
+                $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
+
+                document.getElementById("profilePhoto").removeAttribute("src");
+                for (var i = 0; i < client.socialProfiles.length; i++) {
+                    if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                        //ajax call for profile photo
+                        let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
+                        let url = '/rest/vkontakte/getProfilePhotoById';
+
+                        $.ajax({
+                            url: url,
+                            async: true,
+                            type: 'GET',
+                            data: {vkref: vkref},
+                            dataType:'json',
+                            complete: function(data) {
+                                document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                            }
+                        });
+
+                        $('#vk-href').attr('href', vkref);
+                        $('#vk-href').show();
+
+
                     }
-                    var adminName = user.firstName + ' ' + user.lastName;
-                    $('#main-modal-window').data('userId', user.id);
 
-                    currentModal.find('.modal-title').text(client.name + ' ' + client.lastName);
-                    $('#client-email').text(client.email);
-                    $('#client-phone').text(client.phoneNumber);
-                    if (client.canCall && user.ipTelephony) {
-                        $('#client-phone')
-                            .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                            .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-                        $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
-                        $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
-                        $('#btn-call-off').css("background", "red");
-                        $('#btn-call-off').css("color", "white");
-                        $('#btn-mic-off').hide();
-                        $('#btn-call-off').hide();
+                    $('#chat-button').attr("clientID", client.id);
+                    $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                    $('#chat-button').show();
+
+
+                    if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
+                        $('#fb-href').attr('href', client.socialProfiles[i].socialId);
+                        $('#fb-href').show();
                     }
+                    get_interlocutors(clientId);
+                }
+                console.log('Point #7: ' + (performance.now() - t0));
+                if (client.slackProfile != undefined) {
+                    $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
+                    $('#slack-href').show();
+                }
 
-                    if (client.age > 0) {
-                        $('#client-age').text(client.age);
-                    } else {
-                        $('#client-age').text('');
-                    }
-                    $('#client-sex').text(client.sex);
-                    if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
-                        $('#client-label').text(client.clientDescriptionComment);
-                    } else {
-                        $('#client-label').text('');
-                    }
-                    if (client.email == null) {
-                        $('#email-href').hide();
-                    } else {
-                        $('#email-href').show();
-                    }
+                var btnBlock = $('div#assign-unassign-btns');
 
-                    // здесь вставка ссылок в кнопки вк, фб и слак
-                    $('#vk-href').hide();
-                    $('#vk-im-button').hide();
+                if (client.liveSkypeCall) {
+                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
+                        '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
+                        '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
+                        '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
+                        '    <li><a href="#">Отмена</a></li>\n' +
+                        '    </ul>' +
+                        '</div>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                } else {
+                    btnBlock.after(
+                        '<div class="remove-tag confirm-skype-interceptor">' +
+                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                }
 
-                    $('#fb-href').hide();
-                    $('#slack-href').hide();
+                if (client.ownerUser === null) {
+                    btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                }
+                if (client.ownerUser !== null && owenerName === adminName) {
+                    btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                }
+                btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
+                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
 
-                    for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name == 'vk') {
-                            $('#vk-href').attr('href', client.socialProfiles[i].link);
-                            $('#vk-href').show();
+                $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                    'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
 
-
-                            var vkref = client.socialProfiles[i].link;
-                            $('#vk-im-button').data("userID", vkref.replace("https://vk.com/id", ""));
-                            $('#vk-im-button').attr("clientID", client.id);
-                            $('#vk-im-count').text($('#VK-notification'+clientId).text());
-                            $('#vk-im-button').show();
-                        }
-                        if (client.socialProfiles[i].socialProfileType.name == 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].link);
-                            $('#fb-href').show();
-                        }
-                    }
-
-                    if (client.slackProfile != undefined) {
-                        $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
-                        $('#slack-href').show();
-                    }
-
-                    var btnBlock = $('div#assign-unassign-btns');
-
-                    if (client.liveSkypeCall) {
-                        btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
-                            '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
-                            '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
-                            '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
-                            '    <li><a href="#">Отмена</a></li>\n' +
-                            '    </ul>' +
-                            '</div>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    } else {
-                        btnBlock.after(
-                            '<div class="remove-tag confirm-skype-interceptor">' +
-                            '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    }
-
-                    if (client.ownerUser === null) {
-                        btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
-                    }
-                    if (client.ownerUser !== null && owenerName === adminName) {
-                        btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
-                    }
-                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
-                });
-
+                console.log('Point #8: ' + (performance.now() - t0));
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
@@ -1811,13 +2039,46 @@ $(function () {
                 $('.client-collapse').attr('id', 'collapse' + client.id);
                 $('.history-line').attr('id', 'client-' + client.id + 'history');
                 $('.upload-more-history').attr('data-clientid', client.id);
+                $('#repeated-client-info').hide();
+
+                if (client.repeated) {
+
+                    $('#repeated-client-info').show();
+
+                }
             }
         });
+        var tEnd = performance.now();
+        console.log('Point #9: ' + (performance.now() - t0));
     });
 });
 
+function dropRepeatedFlag(clientId, repeated) {
+    var url = '/rest/client/setRepeated';
+    var formData = {
+        clientId: clientId,
+        isRepeated: repeated
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        success: function () {
+
+        },
+        error: function (e) {
+            console.log(e);
+        }
+    });
+
+    $('#repeated-client-info').hide();
+
+}
 $(function () {
     $('#main-modal-window').on('hidden.bs.modal', function () {
+        var clientId = $(this).data('clientId');
+        dropRepeatedFlag(clientId, false);
         $('.assign-skype-call-btn').removeAttr("disabled");
         $('div#assign-unassign-btns').empty();
         $('.skype-notification').empty();
@@ -1838,7 +2099,7 @@ $(function () {
         $('.remove-history').remove();
         $('.upload-more-history').removeAttr('data-clientid');
         $('.upload-more-history').attr("data-page", 1);
-        backUrl();
+        backUrl(backFromModalUrl);
         clientsSearch();
     });
 });
@@ -2079,6 +2340,30 @@ $(document).on('click','#btn-mic-off',function(){
     };
 });
 
+$(".change-student-status").on('click', function () {
+    let clientId = $(this).attr("id");
+    let statusId = $(this).attr("value");
+    // let currentStatusId = $(this).attr("name");
+    let url = "/rest/status/client/change";
+
+    let formData = {
+        clientId: clientId,
+        statusId: statusId
+    };
+    $.ajax({
+        type: 'post',
+        url: url,
+        data: formData,
+        success: function () {
+            let x = document.getElementById(clientId);
+            $('#status-column'+statusId).append(x);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+        }
+    });
+});
+
 $(".change-status-position").on('click', function () {
     let destinationId = $(this).attr("value");
     let sourceId = $(this).parents(".column").attr("value");
@@ -2100,18 +2385,17 @@ $(".change-status-position").on('click', function () {
     });
 });
 
-function changeUrl(id) {
+function changeUrl(page, id) {
     var state = {'page_id': id, 'user_id': id};
     var title = '';
-    var url = '/client?id=' + id;
-
+    var url = page + '?id=' + id;
+    backFromModalUrl = page;
     history.replaceState(state, title, url);
 }
 
-function backUrl() {
+function backUrl(url) {
     var state = {};
     var title = '';
-    var url = '/client';
 
     history.replaceState(state, title, url);
 }
@@ -2226,3 +2510,60 @@ $(function () {
         });
     });
 });*/
+
+function slackInvite(email) {
+    $.ajax({
+        type: "GET",
+        url: "/slack/" + email,
+        dataType: "json",
+
+        success: function (data) {
+            var ok = data.ok;
+            if (ok) {
+                alert('User is invited');
+            } else alert('already_invited');
+        },
+        error: function (e) {
+            alert('The user is not invited')
+        }
+    })
+}
+
+$('#client-request-button').click( () => {
+    var x = document.getElementById("client-request");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+});
+
+function createContractSetting() {
+    var baseUrl = window.location.href;
+    var url = '/client/contract/rest/create';
+
+    var clientId = baseUrl.substring(baseUrl.lastIndexOf('=') + 1);
+    var hash = (+new Date).toString(36);
+    var setting = {
+        hash: hash,
+        clientId: clientId,
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-checkbox').prop("checked"),
+        diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        paymentAmount: $('#contract-client-setting-payment-amount-form').val()
+    };
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: url,
+        data: JSON.stringify(setting),
+        success: function () {
+            var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
+            $('#contract-client-setting-contract-link').val(contractLink)
+        },
+        error: function () {
+            console.log('error save contract setting');
+            alert('Нужна авторизация в Google!')
+        }
+    });
+}

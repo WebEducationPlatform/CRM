@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Кампании добавления друзей ВК</title>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link href="/css/bootstrap-social.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+</head>
+
+<body>
+<div style="margin: 2%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+    <div class="container">
+        <div><h1>Таблица открытых кампаний</h1></div>
+        <div class="row">
+            <div class="col-md-4">
+                <button id="button_create_campaign" type="button" class="btn btn-info">Создать</button>
+            </div>
+            <div class="col-md-4">
+                <input class="form-control" id="searchInput" placeholder="Поиск кампании..."/>
+            </div>
+        </div>
+        <br />
+        <th:block th:if="${campaignsList.size()!=0}">
+            <table class="table table-hover table-fixed">
+                <thead id="thead-table-students-status">
+                <tr class="head-table">
+                    <th class="col-md-1 text-center fit">Имя кампании</th>
+                    <th class="col-md-1 text-center fit">User ID</th>
+                    <th class="col-md-1 text-center fit">App ID</th>
+                    <th class="col-md-8 text-center">Текст в запросе</th>
+                    <th class="col-md-1 text-center fit">Всего</th>
+                    <th class="col-md-1 text-center fit">Отправлено</th>
+                    <th class="col-md-3 text-center">Действия</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                <tr th:each="campaign : ${campaignsList}" th:styleappend="${campaign.problem}? 'background-color:#FF0000'">
+                    <td th:text="${campaign.campaignName}"></td>
+                    <td th:text="${campaign.vkUserId}"></td>
+                    <td th:text="${campaign.appId}"></td>
+                    <td th:text="${campaign.requestText}"></td>
+                    <td th:text="${campaign.vkUsersToAdd.size()}"></td>
+                    <td th:text="${stats.get(campaign.campaignId)}"></td>
+                    <td class="text-center">
+                        <button th:if="${!campaign.active}"
+                                class="button_start_campaign btn btn-info glyphicon glyphicon-play"
+                                th:value="${campaign.campaignId}" title="Запустить кампанию"></button>
+                        <button th:unless="${!campaign.active}"
+                                class="button_stop_campaign btn btn-info glyphicon glyphicon-pause"
+                                th:value="${campaign.campaignId}" title="Приостановить кампанию"></button>
+                        <button class="button_stats_campaign btn btn-info glyphicon glyphicon-stats"
+                                th:value="${campaign.campaignId}" title="Статистика кампании"></button>
+                        <button class="button_edit_campaign btn btn-info glyphicon glyphicon-pencil"
+                                th:value="${campaign.campaignId}" title="Изменить кампанию"></button>
+                        <button class="button_delete_campaign btn btn-danger glyphicon glyphicon-remove"
+                                th:value="${campaign.campaignId}" title="Удалить кампанию"></button>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </th:block>
+    </div>
+    <div th:replace="fragments/add-vk-campaign-modal::vkCampaignCreateModal"></div>
+    <div th:replace="fragments/edit-vk-campaign-modal::vkCampaignEditModal"></div>
+    <div th:replace="fragments/stats-vk-campaign-modal::vkCampaignStatsModal"></div>
+    <script type="text/javascript" th:src="@{/js/all-campaigns.js}"></script>
+</div>
+</body>
+</html>

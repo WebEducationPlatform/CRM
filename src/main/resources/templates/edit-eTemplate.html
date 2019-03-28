@@ -18,15 +18,15 @@
         <div class="container head-padding">
             <label style="font-size: 20px" for="socNetworkChoose">Редактирование шаблона </label>
             <select style="font-size: 20px" class="form-inline" id="socNetworkChoose" th:onchange="'switchTemplate()'">
-                <option value="email">email</option>
-                <option value="vk">vk,sms,facebook</option>
+                <option th:id="email" value="email">email</option>
+                <option th:id="socialNet" value="vk">vk,sms,facebook</option>
             </select>
         </div>
 
         <div class="container">
             <fieldset id="field">
                 <div class="btn-group">
-                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ ${template.id} +'\',this)'" style="display: none"/>
+                    <input accept="image/*" th:max = "${maxSize}" type="file"  id='imgBtn' th:onchange="'sendImg(\''+ ${template.name} +'\',this)'" style="display: none"/>
                     <label for="imgBtn">
                         <span id="imgSelectBtn" class="btn btn-primary">Вставить картинку</span>
                     </label>
@@ -44,8 +44,8 @@
                 <textarea  th:id="textTemplateArea" th:text="${template.otherText}" rows="16"></textarea>
             </div>
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.id} +'\')'">Сохранить</button>
-                <a href="/template/all" class="btn btn-primary" id="backToMain">Назад</a>
+                <button type="submit" class="btn btn-primary" id="saveTemplate" th:onclick="'saveTemplate(\''+ ${template.name} +'\')'">Сохранить</button>
+                <a href="#" onclick="history.back();" class="btn btn-primary" id="backToMain">Назад</a>
             </div>
             <p><span id = "message"></span></p>
         </div>
@@ -71,6 +71,9 @@
                 </ul>
                 <ul>
                     <li>%bodyText% - Кастомный текст. При отправке сообщения будет отображено окно для ввода этого текста;</li>
+                </ul>
+                <ul>
+                    <li>%contractLink% - Ссылка на Договор клиента, если он его заключал;</li>
                 </ul>
             </div>
         </div>

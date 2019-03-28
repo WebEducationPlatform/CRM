@@ -1,24 +1,28 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.repository.interfaces.CommonGenericRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StatusService {
 
     List<Status> getAll();
 
-    List<Status> getStatusesWithClientsForUser(User ownerUser);
+    List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession);
 
-    Status get(Long id);
+    Optional<Status> get(Long id);
 
-    Status get(String name);
+    Optional<Status> get(String name);
 
-    Status getFirstStatusForClient();
+    Optional<Status> getFirstStatusForClient();
 
-	Status getStatusByName(String name);
+    Optional<Status> getRepeatedStatusForClient();
+
+    Optional<Status> getStatusByName(String name);
 
 	void add(Status status);
 
@@ -30,9 +34,11 @@ public interface StatusService {
 
     void delete(Long id);
 
-    Long findMaxPosition();
+    Optional<Long> findMaxPosition();
 
     List<Status> getAllStatusesForStudents();
+
+    void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
 
 }

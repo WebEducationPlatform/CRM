@@ -5,7 +5,10 @@ import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkMember;
 import com.ewp.crm.models.VkTrackedClub;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.VkMemberService;
+import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -67,22 +71,28 @@ public class VkRestController {
 											  @RequestParam String groupName,
 											  @RequestParam String token,
 											  @AuthenticationPrincipal User userFromSession) {
-		VkTrackedClub vkTrackedClub = vkTrackedClubService.get(id);
-		vkTrackedClub.setGroupName(groupName);
-		vkTrackedClub.setToken(token);
-		vkTrackedClubService.update(vkTrackedClub);
-		logger.info("{} has updated VkTrackedClub: club id {}", userFromSession.getFullName(), vkTrackedClub.getGroupId());
-		return ResponseEntity.ok(HttpStatus.OK);
+		Optional<VkTrackedClub> vkTrackedClub = vkTrackedClubService.get(id);
+		if (vkTrackedClub.isPresent()) {
+			vkTrackedClub.get().setGroupName(groupName);
+			vkTrackedClub.get().setToken(token);
+			vkTrackedClubService.update(vkTrackedClub.get());
+			logger.info("{} has updated VkTrackedClub: club id {}", userFromSession.getFullName(), vkTrackedClub.get().getGroupId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/trackedclub/delete")
 	public ResponseEntity deleteVkTrackedClub(@RequestParam Long deleteId,
 											  @AuthenticationPrincipal User userFromSession) {
-		VkTrackedClub currentClub = vkTrackedClubService.get(deleteId);
-		vkTrackedClubService.delete(deleteId);
-		logger.info("{} has deleted VkTrackedClub: club name {}, id {}", userFromSession.getFullName(),
-																		currentClub.getGroupName(), currentClub.getGroupId());
-		return ResponseEntity.ok(HttpStatus.OK);
+		Optional<VkTrackedClub> currentClub = vkTrackedClubService.get(deleteId);
+		if (currentClub.isPresent()) {
+			vkTrackedClubService.delete(deleteId);
+			logger.info("{} has deleted VkTrackedClub: club name {}, id {}", userFromSession.getFullName(),
+					currentClub.get().getGroupName(), currentClub.get().getGroupId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		}
+		return new ResponseEntity(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "/trackedclub/add")
@@ -124,8 +134,15 @@ public class VkRestController {
 		param.put("groupID", vkConfig.getClubId());
 		param.put("accessToken", vkConfig.getCommunityToken());
 		param.put("version", vkConfig.getVersion());
-		param.put("url", vkConfig.getVkAPIUrl());
+		param.put("url", vkConfig.getVkApiUrl());
 
 		return param;
 	}
+
+	@GetMapping(value = "/getProfilePhotoById", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getProfilePhotoLinkById(@RequestParam String vkref){
+		String profilePhotoLink = vkService.getVkPhotoLinkByClientProfileId(vkref);
+		return ResponseEntity.ok(profilePhotoLink);
+	}
+
 }

@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 
 @Service
 public class DownloadCallRecordServiceImpl implements DownloadCallRecordService {
 	private static Logger logger = LoggerFactory.getLogger(DownloadCallRecordServiceImpl.class);
 
 	@Override
-	public String downloadRecord(String urlStr, Long clientId, Long historyId) {
+	public Optional<String> downloadRecord(String urlStr, Long clientId, Long historyId) {
 
 		String path = "CallRecords";
 		File dir = new File(path);
@@ -45,6 +46,6 @@ public class DownloadCallRecordServiceImpl implements DownloadCallRecordService 
 			logger.error("Could not download the call record file!");
 			e.printStackTrace();
 		}
-			return "/user/rest/call/record/" + fileName;
+			return Optional.of("/user/rest/call/record/" + fileName);
 	}
 }

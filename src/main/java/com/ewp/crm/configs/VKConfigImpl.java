@@ -30,13 +30,17 @@ public class VKConfigImpl implements VKConfig {
 
     private String robotClientId;
 
-    private String robotUsername;
-
-    private String robotPassword;
-
     private String firstContactMessage;
 
     private String apiUrl;
+
+    private String managerToken;
+
+    private String vkReportChatId;
+
+    private String vkAdsClientId;
+
+    private String vkAppAccessToken;
 
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
@@ -51,19 +55,15 @@ public class VKConfigImpl implements VKConfig {
             redirectUri = env.getRequiredProperty("vk.app.redirect_uri");
             scope = env.getRequiredProperty("vk.app.scope");
             robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
-            robotUsername = env.getRequiredProperty("vk.robot.profile.username");
-            robotPassword = env.getRequiredProperty("vk.robot.profile.password");
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
             firstContactMessage = env.getProperty("vk.robot.message.firstContact");
             apiUrl  = env.getProperty("vk.apiUrl");
-
-            if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
-                    display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("VK configs have not initialized. Check vk.properties file");
-            System.exit(-1);
+            managerToken = env.getProperty("vk.manager.token");
+            vkReportChatId = env.getProperty("vk.app.reports.service.chat.id");
+            vkAdsClientId = env.getProperty("vk.ads.client.id");
+            vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
+        } catch (Exception e) {
+            logger.error("VK configs have not initialized. Check vk.properties file", e);
         }
     }
 
@@ -107,19 +107,25 @@ public class VKConfigImpl implements VKConfig {
         return robotClientId;
     }
 
-    public String getRobotUsername() {
-        return robotUsername;
-    }
-
-    public String getRobotPassword() {
-        return robotPassword;
-    }
-
     public String getFirstContactMessage() {
         return firstContactMessage;
     }
 
-    public String getVkAPIUrl() {
+    public String getVkApiUrl() {
         return apiUrl;
+    }
+
+    public String getManagerToken() {
+        return managerToken;
+    }
+
+    public String getVkReportChatId() {
+        return vkReportChatId;
+    }
+
+    public String getVkAdsClientId() {return vkAdsClientId; }
+
+    public String getVkAppAccessToken() {
+        return vkAppAccessToken;
     }
 }

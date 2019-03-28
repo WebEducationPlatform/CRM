@@ -1,8 +1,10 @@
 package com.ewp.crm.service.interfaces;
 
+import java.util.Optional;
+
 public interface ReportService {
 
-    String buildReport(String date);
+    Optional<String> buildReport(String date);
 
-    String buildReportOfLastMonth();
+    Optional<String> buildReportOfLastMonth();
 }

@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
 
@@ -11,15 +12,35 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" th:onclick="'backUrl()'" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
+                    <div style="height: auto">
+                        <img id="profilePhoto" style="float: left; width: auto; height: auto;
+                            border-radius: 50%; margin-right: 5px"/>
+                    </div>
+                    <div>
+                        <h4 style="float: left; width: auto; height: 30px; line-height: 30px; margin-right: 10px;"
+                            class="modal-title-profile">
+                        </h4>
+                    </div>
+                    <div>
+                        <div style="margin-top: 15px" class="btn-group">
+                            <button th:id="'client-set-status-button'" class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Status <span class="caret"></span>
+                            </button>
+                            <ul th:id="client-status-list" class="dropdown-menu">
+                                <li><a href="#">Status 1</a></li>
+                                <li><a href="#">Status 2</a></li>
+                                <li><a href="#">Status 3</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
                             <table class="table table-condensed font-size">
-
                                 <tbody>
                                 <tr>
+                                    <div th:id="repeated-client-info" class="alert alert-warning text-center" role="alert"><h4><strong>Этот клиент оставил заявку повторно !</strong></h4></div>
                                     <td>Email:</td>
                                     <td id="client-email"></td>
                                     <td>
@@ -73,6 +94,11 @@
                                     <td id="client-phone"></td>
                                 </tr>
                                 <tr>
+                                    <td>Дата рождения:</td>
+                                    <td id="client-date-of-birth"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Возраст:</td>
                                     <td id="client-age">
                                         <th:block>
@@ -86,8 +112,33 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td>Страна:</td>
+                                    <td id="client-country"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Город:</td>
+                                    <td id="client-city"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Университет:</td>
+                                    <td id="client-university"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td>Заметка:</td>
                                     <td id="client-label" style="word-wrap:break-word; width: 300px;"></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Запрос:</td>
+                                    <td>
+                                        <div class="client-request">
+                                            <button id="client-request-button" class="btn btn-default btn-xs">Показать/Скрыть</button>
+                                            <p id="client-request" style="word-wrap: break-word; white-space: pre-line; display: none"></p>
+                                        </div>
+                                    </td>
                                     <td></td>
                                 </tr>
                                 <br/>
@@ -100,11 +151,7 @@
                                                    class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
                                                     <span class="fa fa-vk"></span>
                                                 </a>
-                                                <button id="vk-im-button" type="button" class="btn btn-primary btn-sm"
-                                                        data-toggle="modal" data-target="#customVKIMMessage">
-                                                    <a href="#" style="color: white;">Общение <span id="vk-im-count"
-                                                                                                    class="badge"></span></a>
-                                                </button>
+
                                             </div>
                                             <div>
                                                 <a id="fb-href" target="_blank"
@@ -116,6 +163,16 @@
                                                 </a>
                                             </div>
                                         </div>
+                                        <div>
+                                            <button id="slack-invite-href" type="submit" class="btn btn-success">Пригласить в Slack</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button id="chat-button" type="button" class="btn btn-primary btn-sm"
+                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
+                                            <a href="#" style="color: white;"> Чаты <span id="chat-im-count"
+                                                                                            class="badge"></span></a>
+                                        </button>
                                     </td>
                                     <td>
                                         <div th:id="'sendSocialTemplateStatus'"></div>
@@ -124,6 +181,8 @@
                                 </tbody>
                             </table>
                             <div id="assign-unassign-btns">
+                            </div>
+                            <div id="contract-btn">
                             </div>
                         </div>
                     </div>
@@ -147,7 +206,7 @@
                                     <textarea class="form-control postponeComment"
                                               placeholder="причина напоминания"></textarea>
                                 </div>
-
+                                <div class="form-group" id="postpone-status"></div>
                                 <span class="postponeStatus" th:id="'postponeStatus'"></span>
                             </div>
                         </div>
@@ -159,5 +218,6 @@
         </div>
     </div>
 </th:block>
+<script th:src="@{/js/user-info.js}"></script>
 </body>
 </html>
