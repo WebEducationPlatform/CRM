@@ -121,12 +121,7 @@ public class ClientRestController {
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
-        logger.debug("Start executing query getClientByID(" + id + ")");
-        long start = System.currentTimeMillis();
-        Client client = clientService.get(id);
-        long end = System.currentTimeMillis();
-        logger.debug("Query getClientByID(" + id + ") takes " + (end - start) + "ms");
-		return ResponseEntity.ok(client);
+		return ResponseEntity.ok(clientService.get(id));
 	}
 
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
