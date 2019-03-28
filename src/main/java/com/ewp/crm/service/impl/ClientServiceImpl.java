@@ -306,14 +306,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm) {
+    public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
         Client client = createUpdateClient(clientOld, contractForm);
-        User bot = new User();
-        bot.setFirstName("бот");
-        bot.setLastName("Договор");
-        clientHistoryService.createHistory(bot, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
+        clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
         clientRepository.saveAndFlush(client);
-        logger.info("{} has updated client: id {}, email {}", bot.getFullName(), client.getId(), client.getEmail());
+        logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
     }
 
     @Override

@@ -58,7 +58,7 @@ public interface ClientService extends CommonService<Client> {
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
   
-	void updateClientFromContractForm(Client client, ContractDataForm contractForm);
+	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
 	void setContractLink(Long clientId, String contractLink);
 }

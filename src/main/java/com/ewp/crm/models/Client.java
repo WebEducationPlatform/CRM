@@ -194,10 +194,10 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Passport passport;
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
     public Client() {
