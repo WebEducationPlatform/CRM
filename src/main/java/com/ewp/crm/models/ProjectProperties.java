@@ -104,16 +104,16 @@ public class ProjectProperties {
      * Банковские реквизиты
      */
     @Column(name = "inn")
-    private Long inn;
+    private String inn;
 
     @Column(name = "bank_checking_account")
-    private Long checkingAccount;
+    private String checkingAccount;
 
     @Column(name = "bank_correspondent_account")
-    private Long correspondentAccount;
+    private String correspondentAccount;
 
     @Column(name = "bank_identification_code")
-    private Long bankIdentificationCode;
+    private String bankIdentificationCode;
 
     public ProjectProperties() {
     }
@@ -255,35 +255,35 @@ public class ProjectProperties {
         this.autoAnswerTemplate = autoAnswerTemplate;
     }
 
-    public Long getInn() {
+    public String getInn() {
         return inn;
     }
 
-    public void setInn(Long inn) {
+    public void setInn(String inn) {
         this.inn = inn;
     }
 
-    public Long getCheckingAccount() {
+    public String getCheckingAccount() {
         return checkingAccount;
     }
 
-    public void setCheckingAccount(Long checkingAccount) {
+    public void setCheckingAccount(String checkingAccount) {
         this.checkingAccount = checkingAccount;
     }
 
-    public Long getCorrespondentAccount() {
+    public String getCorrespondentAccount() {
         return correspondentAccount;
     }
 
-    public void setCorrespondentAccount(Long correspondentAccount) {
+    public void setCorrespondentAccount(String correspondentAccount) {
         this.correspondentAccount = correspondentAccount;
     }
 
-    public Long getBankIdentificationCode() {
+    public String getBankIdentificationCode() {
         return bankIdentificationCode;
     }
 
-    public void setBankIdentificationCode(Long bankIdentificationCode) {
+    public void setBankIdentificationCode(String bankIdentificationCode) {
         this.bankIdentificationCode = bankIdentificationCode;
     }
 
