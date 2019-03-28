@@ -67,10 +67,10 @@ public class ProjectPropertiesRestController {
     @PostMapping("/contractUserSetting")
     public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplateId") Long templateId,
                                               @RequestParam(name = "contractLastId") Long lastId,
-                                              @RequestParam(name = "inn") Long inn,
-                                              @RequestParam(name = "checkingAccount") Long checkingAccount,
-                                              @RequestParam(name = "correspondentAccount") Long correspondentAccount,
-                                              @RequestParam(name = "bankIdentificationCode") Long bankIdentificationCode) {
+                                              @RequestParam(name = "inn") String inn,
+                                              @RequestParam(name = "checkingAccount") String checkingAccount,
+                                              @RequestParam(name = "correspondentAccount") String correspondentAccount,
+                                              @RequestParam(name = "bankIdentificationCode") String bankIdentificationCode) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setContractTemplate(null);
