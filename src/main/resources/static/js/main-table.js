@@ -1851,7 +1851,6 @@ $(function () {
 
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
-        let formData = {clientId: clientId};
 
         $.ajax({
             async: true,
@@ -1868,11 +1867,11 @@ $(function () {
         });
         console.log('Point #1: ' + (performance.now() - t0));
         $.ajax({
-            async: true,
+            async: false,
             type: 'GET',
             url: '/rest/client/' + clientId,
-            data: formData,
             success: function (client) {
+
                 console.log('Point #2: ' + (performance.now() - t0));
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
