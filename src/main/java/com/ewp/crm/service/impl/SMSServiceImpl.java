@@ -27,11 +27,13 @@ public class SMSServiceImpl implements SMSService {
 	private final ClientHistoryService clientHistoryService;
 	private final SMSInfoService smsInfoService;
 	private final MessageTemplateService messageTemplateService;
+	private final MessageService messageService;
 	private final String TEMPLATE_URI = "https://api.prostor-sms.ru/messages/v2";
 
 	@Autowired
-	public SMSServiceImpl(RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
-		this.restTemplate = restTemplate;
+	public SMSServiceImpl(MessageService messageService, RestTemplate restTemplate, SMSConfig smsConfig, ClientService clientService, ClientHistoryService clientHistoryService, SMSInfoService smsInfoService, MessageTemplateService messageTemplateService) {
+		this.messageService = messageService;
+	    this.restTemplate = restTemplate;
 		this.smsConfig = smsConfig;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
@@ -61,11 +63,14 @@ public class SMSServiceImpl implements SMSService {
 			SMSInfo smsInfo = new SMSInfo(message.getLong("smscId"), smsText, principal);
 			smsInfoService.addSMSInfo(smsInfo).ifPresent(si -> client.get().addSMSInfo(si));
 			if (principal != null) {
-				Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(principal, client.get(), new Message(Message.Type.SMS, smsInfo.getMessage()));
-				if (clientHistory.isPresent()) {
-					clientHistory.get().setLink("/client/sms/info/" + smsInfo.getId());
-					client.get().addHistory(clientHistory.get());
-				}
+				Optional<Message> msg = messageService.addMessage(Message.Type.SMS, smsInfo.getMessage());
+				if (msg.isPresent()) {
+                    Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(principal, client.get(), msg.get());
+                    if (clientHistory.isPresent()) {
+                        clientHistory.get().setLink("/client/sms/info/" + smsInfo.getId());
+                        client.get().addHistory(clientHistory.get());
+                    }
+                }
 			}
 			clientService.updateClient(client.get());
 			logger.info("{} sms sent successfully...", SMSServiceImpl.class.getName());
