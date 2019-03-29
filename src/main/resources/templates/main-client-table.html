@@ -417,15 +417,7 @@
     </div>
 </div>
 
-<!--settings-remainder Модалка про сеттинги напоминалка-->
-<div id="msg_pop" sec:authorize="hasAnyAuthority('OWNER')">
-        <span class="msg_close"
-              onclick="document.getElementById('msg_pop').style.display='none'; return false;">X</span>
-    <h4>Напоминание</h4>
-    Необходимо установить статус по умолчанию для клиентов вошедших в Slack
-    <p></p>
-    <a href="/user/customize">Настройки</a>
-</div>
+
 
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
 <div id="msg_pop2" sec:authorize="hasAnyAuthority('OWNER')">

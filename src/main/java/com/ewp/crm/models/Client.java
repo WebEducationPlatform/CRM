@@ -3,14 +3,12 @@ package com.ewp.crm.models;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-
 import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.Email;
 
@@ -134,16 +132,14 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
     private List<Notification> notifications = new ArrayList<>();
 
-    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(value = FetchMode.JOIN)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
     @OrderBy("id DESC")
     private List<ClientHistory> history = new ArrayList<>();
 
-    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "feedback_client",
@@ -186,10 +182,6 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client")
     @JoinColumn(name = "student_id")
     private Student student;
-
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
-    @JoinColumn(name = "slack_profile_id")
-    private SlackProfile slackProfile;
 
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
@@ -495,14 +487,6 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setStudent(Student student) {
         this.student = student;
-    }
-
-    public SlackProfile getSlackProfile() {
-        return slackProfile;
-    }
-
-    public void setSlackProfile(SlackProfile slackProfile) {
-        this.slackProfile = slackProfile;
     }
 
     public boolean isRepeated() {

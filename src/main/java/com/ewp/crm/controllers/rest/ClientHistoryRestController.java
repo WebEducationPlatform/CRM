@@ -35,11 +35,10 @@ public class ClientHistoryRestController {
 		Pageable pageable = new PageRequest(page, pageSize, new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
 		List<ClientHistory> clientHistory = clientHistoryService.getAllClientById(id, pageable);
 		if (clientHistory == null || clientHistory.isEmpty()) {
-			logger.error("no more history");
+			logger.info("no more history for client id " + id);
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(clientHistory);
 	}
-
 
 }

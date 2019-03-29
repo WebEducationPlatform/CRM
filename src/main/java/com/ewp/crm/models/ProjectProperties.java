@@ -40,6 +40,13 @@ public class ProjectProperties {
     private MessageTemplate paymentMessageTemplate;
 
     /**
+     * Message template for scheduled payment notification.
+     */
+    @OneToOne
+    @JoinColumn(name = "new_client_message_template")
+    private MessageTemplate newClientMessageTemplate;
+
+    /**
      * Time of the day payment notification invoked in.
      */
     @Column(name = "payment_notification_time")
@@ -278,6 +285,14 @@ public class ProjectProperties {
 
     public void setBankIdentificationCode(String bankIdentificationCode) {
         this.bankIdentificationCode = bankIdentificationCode;
+    }
+
+    public MessageTemplate getNewClientMessageTemplate() {
+        return newClientMessageTemplate;
+    }
+
+    public void setNewClientMessageTemplate(MessageTemplate newClientMessageTemplate) {
+        this.newClientMessageTemplate = newClientMessageTemplate;
     }
 
     @Override
