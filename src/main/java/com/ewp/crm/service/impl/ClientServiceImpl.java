@@ -1,10 +1,10 @@
 package com.ewp.crm.service.impl;
 
-
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.repository.interfaces.PassportDAO;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,23 +32,22 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	private final ClientRepository clientRepository;
 
     private StatusService statusService;
-
     private SendNotificationService sendNotificationService;
-
     private final SocialProfileService socialProfileService;
-  
+    private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
-
     private final VKService vkService;
-
+    private final PassportDAO passportDAO;
     private final PhoneValidator phoneValidator;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.clientHistoryService = clientHistoryService;
         this.vkService = vkService;
         this.roleService = roleService;
+        this.passportDAO = passportDAO;
         this.phoneValidator = phoneValidator;
     }
 
@@ -303,4 +305,61 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
+    @Override
+    public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
+        Client client = createUpdateClient(clientOld, contractForm);
+        clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
+        clientRepository.saveAndFlush(client);
+        logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
+    }
+
+    @Override
+    public void setContractLink(Long clientId, String contractLink) {
+        Client client = clientRepository.getOne(clientId);
+        ContractLinkData contractLinkData = new ContractLinkData();
+        contractLinkData.setContractLink(contractLink);
+        contractLinkData.setClient(client);
+        client.setContractLinkData(contractLinkData);
+        clientRepository.saveAndFlush(client);
+    }
+
+    private Client createUpdateClient(Client old, ContractDataForm contractForm) {
+        Client client = new Client();
+        client.setName(contractForm.getInputFirstName());
+        client.setMiddleName(contractForm.getInputMiddleName());
+        client.setLastName(contractForm.getInputLastName());
+        client.setBirthDate(LocalDate.parse(contractForm.getInputBirthday(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        if (!contractForm.getInputEmail().isEmpty()) {
+            client.setEmail(contractForm.getInputEmail());
+        }
+        if (!contractForm.getInputPhoneNumber().isEmpty()) {
+            client.setPhoneNumber(contractForm.getInputPhoneNumber());
+        }
+        Passport passport = contractForm.getPassportData();
+        passport.setClient(client);
+        client.setPassport(passport);
+        client.setId(old.getId());
+        client.setStatus(old.getStatus());
+        client.setSocialProfiles(old.getSocialProfiles());
+        client.setCountry(old.getCountry());
+        client.setCity(old.getCity());
+        client.setAge((byte) old.getAge());
+        client.setSex(old.getSex());
+        client.setState(old.getState());
+        client.setSkype(old.getSkype());
+        client.setJobs(old.getJobs());
+        client.setWhatsappMessages(old.getWhatsappMessages());
+        client.setHistory(old.getHistory());
+        client.setComments(old.getComments());
+        client.setOwnerUser(old.getOwnerUser());
+        client.setStatus(old.getStatus());
+        client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
+        client.setSmsInfo(old.getSmsInfo());
+        client.setNotifications(old.getNotifications());
+        client.setCanCall(old.isCanCall());
+        client.setCallRecords(old.getCallRecords());
+        client.setClientDescriptionComment(old.getClientDescriptionComment());
+        client.setLiveSkypeCall(old.isLiveSkypeCall());
+        return client;
+    }
 }

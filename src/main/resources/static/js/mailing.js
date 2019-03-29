@@ -14,39 +14,36 @@ var vkPage;
 var listMailing;
 
 function sendMessages(sendnow) {
-    let date = $('#messageSendingTime').val();
-    let text = CKEDITOR.instances.editor.getData();
+    let date;
+    let msgFeedBack;
     let recipients = $('#addresses-area').val();
-    console.warn(recipients);
     if (recipients === '') {alert("Введите получателей!"); return}
-    let x;
+    let text;
     if (messageType !== "email") {
-        x = CKEDITOR.instances.editor.document.getBody().getText();
+        text = CKEDITOR.instances.editor.document.getBody().getText();
     } else {
-        x = "";
+        text = CKEDITOR.instances.editor.getData();
     }
 
-    let mesfeedback;
-    if (sendnow==1) {
-        mesfeedback = "Сообщение отправлено";
+    if (sendnow===1) {
+        date = $.date(new Date(), 'format', 'd.m.Y H:i МСК');
+        msgFeedBack = "Сообщение отправлено";
     } else {
-        mesfeedback = "Отправка запланирована на " + date;
+        date = $('#messageSendingTime').val();
+        msgFeedBack = "Отправка запланирована на " + date;
     }
 
     let wrap = {
-        sendnow: sendnow,
         type: messageType,
-        templateText: text,
-        text: x,
+        text: text,
         date: date,
         recipients: recipients,
         vkType: vkPage = $("#vkTokenSelect").val(),
         listMailing: listMailing
-
     };
 
     let label = $("#message");
-    label.prop('innerHTML', "Идет отправка соощения")
+    label.prop('innerHTML', "Идет отправка сообщения")
     label.css('color', 'blue');
 
     $.ajax({
@@ -57,7 +54,7 @@ function sendMessages(sendnow) {
             if (xhr.status === 204) {
                 setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
             } else {
-                setErrorMessage(mesfeedback, 'green')
+                setErrorMessage(msgFeedBack, 'green')
             }
         },
         error: function (xhr) {

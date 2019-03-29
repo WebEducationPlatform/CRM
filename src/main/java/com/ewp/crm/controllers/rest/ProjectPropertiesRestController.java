@@ -36,10 +36,11 @@ public class ProjectPropertiesRestController {
         return new ResponseEntity<>(projectPropertiesService.getOrCreate(), HttpStatus.OK);
     }
 
-    @PostMapping("/email-notification")
+    @PostMapping("/notifications")
     public HttpStatus setPaymentNotificationSettings(@RequestParam( name = "paymentMessageTemplate") Long templateId,
                                                      @RequestParam( name = "paymentNotificationTime") String time,
-                                                     @RequestParam( name = "paymentNotificationEnabled") Boolean enabled) {
+                                                     @RequestParam( name = "paymentNotificationEnabled") Boolean enabled,
+                                                     @RequestParam( name = "newClientMessageTemplate") Long newClientTemplateId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setPaymentMessageTemplate(null);
@@ -48,6 +49,11 @@ public class ProjectPropertiesRestController {
         }
         current.setPaymentNotificationTime(LocalTime.parse(time));
         current.setPaymentNotificationEnabled(enabled);
+        if (newClientTemplateId == null) {
+            current.setNewClientMessageTemplate(null);
+        } else {
+            current.setNewClientMessageTemplate(messageTemplateService.get(newClientTemplateId));
+        }
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
@@ -61,6 +67,36 @@ public class ProjectPropertiesRestController {
             current.setAutoAnswerTemplate(messageTemplateService.get(templateId));
         }
         projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/contractUserSetting")
+    public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplateId") Long templateId,
+                                              @RequestParam(name = "contractLastId") Long lastId,
+                                              @RequestParam(name = "inn") String inn,
+                                              @RequestParam(name = "checkingAccount") String checkingAccount,
+                                              @RequestParam(name = "correspondentAccount") String correspondentAccount,
+                                              @RequestParam(name = "bankIdentificationCode") String bankIdentificationCode) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId == null) {
+            current.setContractTemplate(null);
+        } else {
+            current.setContractTemplate(messageTemplateService.get(templateId));
+        }
+        current.setContractLastId(lastId);
+        current.setInn(inn);
+        current.setCheckingAccount(checkingAccount);
+        current.setCorrespondentAccount(correspondentAccount);
+        current.setBankIdentificationCode(bankIdentificationCode);
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
+    @PostMapping("/new-user-status")
+    public HttpStatus setNewUserStatus(@RequestParam("statusId") Long statusId) {
+        ProjectProperties properties = projectPropertiesService.getOrCreate();
+        properties.setNewClientStatus(statusId);
+        projectPropertiesService.saveAndFlash(properties);
         return HttpStatus.OK;
     }
 

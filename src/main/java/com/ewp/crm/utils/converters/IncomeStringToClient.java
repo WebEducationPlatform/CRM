@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
@@ -143,11 +144,11 @@ public class IncomeStringToClient {
     private Client parseClientFormFour(String form) {
         logger.info("Parsing FormFour...");
         Client client = new Client();
-        String removeExtraCharacters = form.substring(form.indexOf("Форма"), form.length())
+        String removeExtraCharacters = form.substring(form.indexOf("Страница"), form.length())
                 .replaceAll(" ", "~")
                 .replaceAll("Email~2", "Email")
                 .replaceAll("Phone~6", "Phone")
-                .replaceAll("City~6", "City");
+                .replaceAll("City~6", "Country");
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
@@ -155,9 +156,12 @@ public class IncomeStringToClient {
         String formattedName = name.replaceAll("~", " ");
         setClientName(client, formattedName);
         client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
-        client.setCity(clientData.get("City").replace("~", ""));
+        client.setCountry(clientData.get("Country").replace("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+        if (clientData.containsKey("Запрос")) {
+            client.setRequestFrom(clientData.get("Запрос").replace("~", ""));
+        }
 
         checkSocialNetworks(client, clientData);
         logger.info("Form Four parsing finished");
@@ -184,8 +188,11 @@ public class IncomeStringToClient {
             if (validLink.equals("undefined")) {
                 socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
             } else {
-                socialProfile.setSocialId(vkService.getIdFromLink(link));
-                socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                Optional<String> socialId = vkService.getIdFromLink(link);
+                if (socialId.isPresent()) {
+                    socialProfile.setSocialId(socialId.get());
+                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                }
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
             socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);

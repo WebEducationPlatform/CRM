@@ -57,7 +57,7 @@ public class SocialProfile implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.valueOf(this.socialId);
+		return String.format("{type = '%s', socialId = '%s'}", socialProfileType, socialId);
 	}
 
 	public long getId() {

@@ -12,6 +12,7 @@ var callerId;
 var callToPhone;
 var micMuted;
 var backFromModalUrl;
+var userLoggedIn;
 
 $('.fix-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
@@ -137,16 +138,29 @@ let logged_in_profiles;
 
 function get_us() {
     $.ajax({
+        async: true,
         type: "GET",
         url: "/rest/conversation/us",
         success: function (response) {
             logged_in_profiles = response;
         }
-    })
+    });
+}
+
+function getUserLoggedIn(asyncr) {
+    $.ajax({
+        async: asyncr,
+        type: "GET",
+        url: "/rest/client/getPrincipal",
+        success: function (user) {
+            userLoggedIn = user;
+        }
+    });
 }
 
 //func responsible for the client's cards motion
 $(document).ready(function () {
+    getUserLoggedIn(true);
     get_us();
     $(".column").sortable({
         delay: 100,
@@ -1810,7 +1824,12 @@ function changeStatus(clientId, statusId) {
             "statusId" : statusId,
             "clientId" : clientId
         },
-        success: reloadClientStatus(clientId)
+        success: function () {
+            reloadClientStatus(clientId);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+        }
     });
 }
 
@@ -1828,12 +1847,13 @@ function reloadClientStatus(clientId) {
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
+        var t0 = performance.now();
+
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
-        let formData = {clientId: clientId};
 
         $.ajax({
-            async: false,
+            async: true,
             type: 'GET',
             url: '/rest/status',
             success: function (status) {
@@ -1845,143 +1865,159 @@ $(function () {
                 });
             }
         });
-
+        console.log('Point #1: ' + (performance.now() - t0));
         $.ajax({
             async: false,
             type: 'GET',
             url: '/rest/client/' + clientId,
-            data: formData,
             success: function (client) {
+
+                console.log('Point #2: ' + (performance.now() - t0));
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
                 }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
-                $.get('/rest/client/getPrincipal', function (user) {
-                }).done(function (user) {
-                    if (client.ownerUser != null) {
-                        var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                if (userLoggedIn === undefined) {
+                    getUserLoggedIn(false);
+                }
+
+                let user = userLoggedIn;
+                console.log('Point #3: ' + (performance.now() - t0));
+                if (client.ownerUser != null) {
+                    var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+                var adminName = user.firstName + ' ' + user.lastName;
+
+                $('#main-modal-window').data('userId', user.id);
+
+                currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+                currentModal.find('#client-set-status-button').text(client.status.name);
+                console.log('Point #4: ' + (performance.now() - t0));
+                $('#client-email').text(client.email);
+                $('#client-phone').text(client.phoneNumber);
+                if (client.canCall && user.ipTelephony) {
+                    $('#client-phone')
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                    $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                    $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                    $('#btn-call-off').css("background", "red");
+                    $('#btn-call-off').css("color", "white");
+                    $('#btn-mic-off').hide();
+                    $('#btn-call-off').hide();
+                }
+                console.log('Point #5: ' + (performance.now() - t0));
+                if (client.age > 0) {
+                    $('#client-age').text(client.age);
+                } else {
+                    $('#client-age').text('');
+                }
+                $('#client-sex').text(client.sex);
+                if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
+                    $('#client-label').text(client.clientDescriptionComment);
+                } else {
+                    $('#client-label').text('');
+                }
+                if (client.email == null) {
+                    $('#email-href').hide();
+                } else {
+                    $('#email-href').show();
+                }
+                if (client.birthDate) {
+                    let bDate = client.birthDate.split('-');
+                    $('#client-date-of-birth').text(bDate[2] + '.' + bDate[1] + '.' + bDate[0]);
+                } else {
+                    $('#client-date-of-birth').text('');
+                }
+                $('#client-country').text(client.country);
+                $('#client-city').text(client.city);
+                $('#client-university').text(client.university);
+                if (client.requestFrom !== null) {
+                    $('#client-request-button').show();
+                    $('#client-request').text(client.requestFrom);
+                } else {
+                    $('#client-request-button').hide();
+                    $('#client-request').empty();
+                }
+                console.log('Point #6: ' + (performance.now() - t0));
+                // здесь вставка ссылок в кнопки вк, фб и слак
+                $('#vk-href').hide();
+                $('#vk-im-button').hide();
+
+                $('#fb-href').hide();
+
+                document.getElementById("profilePhoto").removeAttribute("src");
+                for (var i = 0; i < client.socialProfiles.length; i++) {
+                    if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                        //ajax call for profile photo
+                        let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
+                        let url = '/rest/vkontakte/getProfilePhotoById';
+
+                        $.ajax({
+                            url: url,
+                            async: true,
+                            type: 'GET',
+                            data: {vkref: vkref},
+                            dataType:'json',
+                            complete: function(data) {
+                                document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                            }
+                        });
+
+                        $('#vk-href').attr('href', vkref);
+                        $('#vk-href').show();
+
 
                     }
-                    var adminName = user.firstName + ' ' + user.lastName;
 
-                    $('#main-modal-window').data('userId', user.id);
+                    $('#chat-button').attr("clientID", client.id);
+                    $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                    $('#chat-button').show();
 
-                    currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
-                    currentModal.find('#client-set-status-button').text(client.status.name);
 
-                    $('#client-email').text(client.email);
-                    $('#client-phone').text(client.phoneNumber);
-                    if (client.canCall && user.ipTelephony) {
-                        $('#client-phone')
-                            .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                            .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-                        $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
-                        $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
-                        $('#btn-call-off').css("background", "red");
-                        $('#btn-call-off').css("color", "white");
-                        $('#btn-mic-off').hide();
-                        $('#btn-call-off').hide();
+                    if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
+                        $('#fb-href').attr('href', client.socialProfiles[i].socialId);
+                        $('#fb-href').show();
                     }
+                    get_interlocutors(clientId);
+                }
+                console.log('Point #7: ' + (performance.now() - t0));
 
-                    if (client.age > 0) {
-                        $('#client-age').text(client.age);
-                    } else {
-                        $('#client-age').text('');
-                    }
-                    $('#client-sex').text(client.sex);
-                    if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
-                        $('#client-label').text(client.clientDescriptionComment);
-                    } else {
-                        $('#client-label').text('');
-                    }
-                    if (client.email == null) {
-                        $('#email-href').hide();
-                    } else {
-                        $('#email-href').show();
-                    }
-                    $('#client-date-of-birth').text(client.birthDate);
-                    $('#client-country').text(client.country);
-                    $('#client-city').text(client.city);
-                    $('#client-university').text(client.university);
-                    if (client.requestFrom !== null) {
-                        $('#client-request-button').show();
-                        $('#client-request').text(client.requestFrom);
-                    } else {
-                        $('#client-request-button').hide();
-                        $('#client-request').empty();
-                    }
+                var btnBlock = $('div#assign-unassign-btns');
 
-                    // здесь вставка ссылок в кнопки вк, фб и слак
-                    $('#vk-href').hide();
-                    $('#vk-im-button').hide();
+                if (client.liveSkypeCall) {
+                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
+                        '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
+                        '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
+                        '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
+                        '    <li><a href="#">Отмена</a></li>\n' +
+                        '    </ul>' +
+                        '</div>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                } else {
+                    btnBlock.after(
+                        '<div class="remove-tag confirm-skype-interceptor">' +
+                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                }
 
-                    $('#fb-href').hide();
+                if (client.ownerUser === null) {
+                    btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                }
+                if (client.ownerUser !== null && owenerName === adminName) {
+                    btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                }
+                btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
+                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
 
-                    document.getElementById("profilePhoto").removeAttribute("src");
-                    for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                            //ajax call for profile photo
-                            let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
-                            let url = '/rest/vkontakte/getProfilePhotoById';
+                $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                    'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
 
-                            $.ajax({
-                                url: url,
-                                type: 'GET',
-                                data: {vkref: vkref},
-                                dataType:'json',
-                                complete: function(data) {
-                                    document.getElementById("profilePhoto").setAttribute("src", data.responseText);
-                                }
-                            });
-
-                            $('#vk-href').attr('href', vkref);
-                            $('#vk-href').show();
-
-
-                        }
-
-                        $('#chat-button').attr("clientID", client.id);
-                        $('#chat-im-count').text($('#chat-notification'+clientId).text());
-                        $('#chat-button').show();
-
-
-                        if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].socialId);
-                            $('#fb-href').show();
-                        }
-                        get_interlocutors(clientId);
-                    }
-
-                    var btnBlock = $('div#assign-unassign-btns');
-
-                    if (client.liveSkypeCall) {
-                        btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
-                            '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
-                            '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
-                            '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
-                            '    <li><a href="#">Отмена</a></li>\n' +
-                            '    </ul>' +
-                            '</div>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    } else {
-                        btnBlock.after(
-                            '<div class="remove-tag confirm-skype-interceptor">' +
-                            '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    }
-
-                    if (client.ownerUser === null) {
-                        btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
-                    }
-                    if (client.ownerUser !== null && owenerName === adminName) {
-                        btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
-                    }
-                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
-                });
-
+                console.log('Point #8: ' + (performance.now() - t0));
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
@@ -2005,7 +2041,9 @@ $(function () {
                 }
             }
         });
-    })
+        var tEnd = performance.now();
+        console.log('Point #9: ' + (performance.now() - t0));
+    });
 });
 
 function dropRepeatedFlag(clientId, repeated) {
@@ -2312,6 +2350,9 @@ $(".change-student-status").on('click', function () {
         success: function () {
             let x = document.getElementById(clientId);
             $('#status-column'+statusId).append(x);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 });
@@ -2463,8 +2504,6 @@ $(function () {
     });
 });*/
 
-
-
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
     if (x.style.display === "none") {
@@ -2473,3 +2512,33 @@ $('#client-request-button').click( () => {
         x.style.display = "none";
     }
 });
+
+function createContractSetting() {
+    var baseUrl = window.location.href;
+    var url = '/client/contract/rest/create';
+
+    var clientId = baseUrl.substring(baseUrl.lastIndexOf('=') + 1);
+    var hash = (+new Date).toString(36);
+    var setting = {
+        hash: hash,
+        clientId: clientId,
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-checkbox').prop("checked"),
+        diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        paymentAmount: $('#contract-client-setting-payment-amount-form').val()
+    };
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: url,
+        data: JSON.stringify(setting),
+        success: function () {
+            var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
+            $('#contract-client-setting-contract-link').val(contractLink)
+        },
+        error: function () {
+            console.log('error save contract setting');
+            alert('Нужна авторизация в Google!')
+        }
+    });
+}
