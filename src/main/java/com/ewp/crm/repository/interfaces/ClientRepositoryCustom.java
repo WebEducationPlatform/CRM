@@ -28,6 +28,8 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 
+	List<Long> getChangedStatusClientIdsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types, String title);
+
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
 
 	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title);
