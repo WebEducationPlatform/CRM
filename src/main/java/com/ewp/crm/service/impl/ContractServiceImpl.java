@@ -156,18 +156,18 @@ public class ContractServiceImpl implements ContractService {
             map.put("passportNumber", data.getPassportData().getNumber());
             map.put("passportIssued", data.getPassportData().getIssuedBy());
             map.put("passportDate", data.getPassportData().getDateOfIssue().format(formatter));
-            map.put("passportRegistration", data.getPassportData().getIssuedBy());
+            map.put("passportRegistration", data.getPassportData().getRegistration());
             map.put("birthday", data.getInputBirthday());
             map.put("email", data.getInputEmail());
             map.put("phoneNumber", data.getInputPhoneNumber());
             //Месячная опл
-            if (!setting.isOneTimePayment()) {
+            if (setting.isMonthPayment()) {
                 map.put("period",contractConfig.getMonthPointThreeTwoPeriod());
                 map.put("point3.3", contractConfig.getMonthPointThreeThree());
                 map.put("point3.4", contractConfig.getMonthPointThreeFour());
                 map.put("point4.2", contractConfig.getMonthPointFourTwo());
                 map.put("point4.3", contractConfig.getMonthPointFourThree());
-            } else {
+            } else if (setting.isOneTimePayment()){
                 map.put("period",contractConfig.getOnetimePointThreeTwoPeriod());
                 map.put("point3.3", " ");
                 map.put("point3.4", contractConfig.getOnetimePointThreeFour());
