@@ -166,8 +166,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
             statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            client.setId(existClient.get().getId());
             clientRepository.saveAndFlush(existClient.get());
-
             return;
         }
 
