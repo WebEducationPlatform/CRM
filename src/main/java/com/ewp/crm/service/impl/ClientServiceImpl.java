@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -37,18 +34,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
     private final VKService vkService;
-    private final PassportDAO passportDAO;
     private final PhoneValidator phoneValidator;
+    private final PassportService passportService;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportDAO passportDAO) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportService passportService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
         this.vkService = vkService;
         this.roleService = roleService;
-        this.passportDAO = passportDAO;
         this.phoneValidator = phoneValidator;
+        this.passportService = passportService;
     }
 
     @Override
@@ -336,6 +333,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setPhoneNumber(contractForm.getInputPhoneNumber());
         }
         Passport passport = contractForm.getPassportData();
+        passport = passportService.encode(passport);
         passport.setClient(client);
         client.setPassport(passport);
         client.setId(old.getId());
