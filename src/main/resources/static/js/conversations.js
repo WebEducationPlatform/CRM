@@ -236,6 +236,7 @@ function set_telegram_id_by_phone(phone) {
     if (phone === undefined || phone === '' || phone === null) {return;}
     $.ajax({
         type: 'GET',
+        async: true,
         url: '/rest/telegram/id-by-phone',
         data: {phone: phone},
         success: function (response) {
