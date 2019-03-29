@@ -1,5 +1,9 @@
 package com.ewp.crm.service.interfaces;
 
+import java.util.Optional;
+
 public interface SlackService {
-    String getEmailListFromJson(String json);
+    Optional<String> getEmailListFromJson(String json);
+    boolean tryLinkSlackAccountToStudent(long studentId);
+    Optional<String> receiveAllClientsFromWorkspace();
 }
