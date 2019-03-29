@@ -1947,9 +1947,6 @@ $(function () {
                 $('#vk-im-button').hide();
 
                 $('#fb-href').hide();
-                $('#slack-href').hide();
-
-                $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
 
                 document.getElementById("profilePhoto").removeAttribute("src");
                 for (var i = 0; i < client.socialProfiles.length; i++) {
@@ -1987,10 +1984,6 @@ $(function () {
                     get_interlocutors(clientId);
                 }
                 console.log('Point #7: ' + (performance.now() - t0));
-                if (client.slackProfile != undefined) {
-                    $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
-                    $('#slack-href').show();
-                }
 
                 var btnBlock = $('div#assign-unassign-btns');
 
@@ -2510,24 +2503,6 @@ $(function () {
         });
     });
 });*/
-
-function slackInvite(email) {
-    $.ajax({
-        type: "GET",
-        url: "/slack/" + email,
-        dataType: "json",
-
-        success: function (data) {
-            var ok = data.ok;
-            if (ok) {
-                alert('User is invited');
-            } else alert('already_invited');
-        },
-        error: function (e) {
-            alert('The user is not invited')
-        }
-    })
-}
 
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
