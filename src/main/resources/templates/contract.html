@@ -8,15 +8,15 @@
 <div class="d-flex align-items-center flex-column h-100 row">
     <form class="col-sm-5" th:action="@{/contract/{hash}(hash=${hash})}" th:method="POST" th:object="${data}">
         <div class="form-group">
-            <label for="inputLastName" class="col-sm col-form-label">Фамилия :</label>
-            <div class="col-sm">
-                <input type="text" class="form-control" id="inputLastName" th:field="*{inputLastName}"
-                       placeholder="пример: Васильев"/>
-            </div>
             <label for="inputFirstName" class="col-sm col-form-label">Имя :</label>
             <div class="col-sm">
                 <input type="text" class="form-control" id="inputFirstName" th:field="*{inputFirstName}"
                        placeholder="пример: Василий "/>
+            </div>
+            <label for="inputLastName" class="col-sm col-form-label">Фамилия :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputLastName" th:field="*{inputLastName}"
+                       placeholder="пример: Васильев"/>
             </div>
             <label for="inputMiddleName" class="col-sm col-form-label">Отчество :</label>
             <div class="col-sm">
@@ -85,7 +85,7 @@
         </div>
         <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="customCheck1"/>
-            <label class="custom-control-label" for="customCheck1">Согласие на обработку данных</label>
+            <label class="custom-control-label" for="customCheck1">Я согласен <a href="http://java-mentor.com/politika2.html" >с условиями передачи и обработки данных</a></label>
         </div>
         <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" id="go-button" value="Отправить"
                disabled="disabled" style="margin-top: 20px"/>
