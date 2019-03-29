@@ -906,7 +906,7 @@ $(function () {
                     },
                     success: function (result) {
                         if (err.length === 0) {
-                            $(".modal").modal('hide');
+                            currentStatus.text("Отправлено!");
                             current.text("Отправить");
                             current.removeAttr("disabled");
                         }
