@@ -12,6 +12,16 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                     $('<option>').val(item.id).text(item.name)
                 )
             });
+
+            $("#new-client-notification-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#new-client-notification-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+
             $.ajax({
                 type: 'GET',
                 url: '/rest/properties',
@@ -20,6 +30,11 @@ $('#payment-notification-modal').on('show.bs.modal', function () {
                         $("#payment-notification-template option[value='']").prop('selected', true)
                     } else {
                         $("#payment-notification-template option[value=" + response.paymentMessageTemplate.id + "]").prop('selected', true);
+                    }
+                    if (response.newClientMessageTemplate == null) {
+                        $("#new-client-notification-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#new-client-notification-template option[value=" + response.newClientMessageTemplate.id + "]").prop('selected', true);
                     }
                     $("#payment-notification-time").val(response.paymentNotificationTime);
                     $("#payment-notification-enable").prop('checked', response.paymentNotificationEnabled);
@@ -34,18 +49,19 @@ $("#update-payment-notification").click(function () {
     let data = {
         paymentMessageTemplate: $("#payment-notification-template").val(),
         paymentNotificationTime: $("#payment-notification-time").val(),
-        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked')
+        paymentNotificationEnabled: $("#payment-notification-enable").prop('checked'),
+        newClientMessageTemplate: $("#new-client-notification-template").val()
     };
     if (!validate_input(data)) {
         return
-    }
+    };
     $.ajax({
         type: 'POST',
-        url: '/rest/properties/email-notification',
+        url: '/rest/properties/notifications',
         data: data,
         success: function () {
         }
-    })
+    });
 });
 
 //Validate input data
@@ -228,3 +244,58 @@ function validate_new_student_parameters(price, status) {
     }
     return true;
 }
+
+//Fill values on contract user setting
+$('#contract-user-setting-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#contract-mail-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#contract-mail-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.contractTemplate == null) {
+                        $("#contract-mail-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#contract-mail-template option[value=" + response.contractTemplate.id + "]").prop('selected', true);
+                    }
+                    $('#input-contract-last-id').empty().val(response.contractLastId);
+                    $('#input-contract-inn').empty().val(response.inn);
+                    $('#input-contract-ras-s').empty().val(response.checkingAccount);
+                    $('#input-contract-kor-s').empty().val(response.correspondentAccount);
+                    $('#input-contract-bic').empty().val(response.bankIdentificationCode);
+                }
+            })
+        }
+    });
+});
+
+$("#update-contract-user-setting").click(function () {
+    let data = {
+        contractTemplateId: $("#contract-mail-template").val(),
+        contractLastId: $('#input-contract-last-id').val(),
+        inn: $('#input-contract-inn').val(),
+        checkingAccount: $('#input-contract-ras-s').val(),
+        correspondentAccount: $('#input-contract-kor-s').val(),
+        bankIdentificationCode: $('#input-contract-bic').val()
+    };
+    if (data.contractTemplateId == '') {
+        alert("Внимание: Нужно указать шаблон!");
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/contractUserSetting',
+        data: data,
+        success: function () {
+        }
+    })
+});
