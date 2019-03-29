@@ -2001,6 +2001,7 @@ $(function () {
 
                     $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
                         'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
+                    $('#contract-client-setting-contract-link').empty();
                 });
 
                 $('.send-all-custom-message').attr('clientId', clientId);
@@ -2523,7 +2524,8 @@ function createContractSetting() {
     var setting = {
         hash: hash,
         clientId: clientId,
-        oneTimePayment: !!$('#contract-client-setting-one-time-payment-checkbox').prop("checked"),
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-radio').prop("checked"),
+        monthPayment: !!$('#contract-client-setting-month-payment-radio').prop("checked"),
         diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
         paymentAmount: $('#contract-client-setting-payment-amount-form').val()
     };
@@ -2535,7 +2537,12 @@ function createContractSetting() {
         data: JSON.stringify(setting),
         success: function () {
             var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
-            $('#contract-client-setting-contract-link').val(contractLink)
+            $('#contract-client-setting-contract-link').val(contractLink);
+            navigator.clipboard.writeText(contractLink);
+            $('#contract-copy-modal').modal('show');
+            setTimeout(function(){
+                $('#contract-copy-modal').modal('hide');
+            }, 1500);
         },
         error: function () {
             console.log('error save contract setting');
