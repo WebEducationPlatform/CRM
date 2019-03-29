@@ -257,11 +257,7 @@ public class DataInitializer {
             vkMemberService.addAllMembers(memberList);
         }
 
-        SlackProfile slackProfile = new SlackProfile();
-        slackProfile.setName("Вадим");
-        slackProfile.setHashName("U75SN67H8");
-        client2.setSlackProfile(slackProfile);
-        slackProfile.setClient(client2);
+
 
         clientService.addClient(client1);
         clientService.addClient(client2);
