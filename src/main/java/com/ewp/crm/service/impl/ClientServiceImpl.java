@@ -142,13 +142,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (!existClient.isPresent()) {
-                socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
-                if (socialProfile != null) {
-                    existClient = getClientBySocialProfile(socialProfile);
+            if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
+                if (!existClient.isPresent()) {
+                    socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
+                    if (socialProfile != null) {
+                        existClient = getClientBySocialProfile(socialProfile);
+                    }
+                } else {
+                    break;
                 }
-            } else {
-                break;
             }
         }
 
