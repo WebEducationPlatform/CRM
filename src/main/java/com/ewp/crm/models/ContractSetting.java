@@ -21,6 +21,9 @@ public class ContractSetting {
     @Column(name = "one_time_payment")
     private boolean oneTimePayment;
 
+    @Column(name = "month_payment")
+    private boolean monthPayment;
+
     private boolean diploma;
 
     @Column(name = "payment_amount")
@@ -34,10 +37,11 @@ public class ContractSetting {
     public ContractSetting() {
     }
 
-    public ContractSetting(String hash, Long clientId, boolean oneTimePayment, boolean diploma, String paymentAmount) {
+    public ContractSetting(String hash, Long clientId, boolean oneTimePayment, boolean monthPayment, boolean diploma, String paymentAmount) {
         this.hash = hash;
         this.clientId = clientId;
         this.oneTimePayment = oneTimePayment;
+        this.monthPayment = monthPayment;
         this.diploma = diploma;
         this.paymentAmount = paymentAmount;
     }
@@ -84,6 +88,14 @@ public class ContractSetting {
 
     public void setPaymentAmount(String paymentAmount) {
         this.paymentAmount = paymentAmount;
+    }
+
+    public boolean isMonthPayment() {
+        return monthPayment;
+    }
+
+    public void setMonthPayment(boolean monthPayment) {
+        this.monthPayment = monthPayment;
     }
 
     public User getUser() {
