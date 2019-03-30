@@ -26,6 +26,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,11 +217,17 @@ public class SlackServiceImpl implements SlackService {
     }
 
     private boolean trySendMessageToSlackChannel(String channelId, String text) {
-        String url = SLACK_API_URL + "chat.postMessage" +
-                "?token=" + inviteToken +
-                "&channel=" + channelId +
-                "&text=" + text +
-                "&as_user=true";
+        String url;
+        try {
+            url = SLACK_API_URL + "chat.postMessage" +
+                    "?token=" + inviteToken +
+                    "&channel=" + channelId +
+                    "&text=" + URLEncoder.encode(text, "UTF-8") +
+                    "&as_user=true";
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Can't format URL for Slack post message request", e);
+            return false;
+        }
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             HttpEntity entity = response.getEntity();
