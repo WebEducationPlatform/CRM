@@ -413,9 +413,11 @@ function updateStudent(id) {
             let email_selector = '#' + id + '_notify_email';
             let sms_selector = '#' + id + '_notify_sms';
             let vk_selector = '#' + id + '_notify_vk';
+            let slack_selector = '#' + id + '_notify_slack';
             let email_notify = $(email_selector).prop('checked');
             let sms_notify = $(sms_selector).prop('checked');
             let vk_notify = $(vk_selector).prop('checked');
+            let slack_notify = $(slack_selector).prop('checked');
             let data = {
                 id : id,
                 client : {id : client.id, name : $("#name_"+id).text(), lastName : $("#lastName_"+id).text(), email : $("#email_"+id).text()},
@@ -428,7 +430,8 @@ function updateStudent(id) {
                 notes : $("#notes_"+id).text(),
                 notifyEmail: email_notify,
                 notifySMS: sms_notify,
-                notifyVK: vk_notify
+                notifyVK: vk_notify,
+                notifySlack: slack_notify
             };
 
             $.ajax({
