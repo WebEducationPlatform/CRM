@@ -1,8 +1,10 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.configs.inteface.CallRecordConfig;
 import com.ewp.crm.service.interfaces.DownloadCallRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,15 +19,26 @@ import java.util.Optional;
 public class DownloadCallRecordServiceImpl implements DownloadCallRecordService {
 
 	private static Logger logger = LoggerFactory.getLogger(DownloadCallRecordServiceImpl.class);
-	private static final String RECORD_FOLDER = "CallRecords";
-	private static final String RECORDING_FORMAT = ".mp3";
-	private static final String CALL_TO_CLIENT_RECORDING_PREFIX = "callRecord";
-	private static final String COMMON_CALL_RECORDING_PREFIX = "commonCallRecord";
-	private static final String DOWNLOAD_LINK_PREFIX = "/user/rest/call/record/";
+	private final CallRecordConfig callRecordConfig;
+	private final String recordFolderName;
+	private final String recordingFormat;
+	private final String callToClientRecordingPrefix;
+	private final String commonCallRecordingPrefix;
+	private final String downloadLinkPrefix;
+
+	@Autowired
+	public DownloadCallRecordServiceImpl(CallRecordConfig callRecordConfig) {
+		this.callRecordConfig = callRecordConfig;
+		recordFolderName = callRecordConfig.getRecordFolderName();
+		recordingFormat = callRecordConfig.getRecordingFormat();
+		callToClientRecordingPrefix = callRecordConfig.getRecordingToClientNamePrefix();
+		commonCallRecordingPrefix = callRecordConfig.getCommonRecordingNamePrefix();
+		downloadLinkPrefix = callRecordConfig.getRecordDownloadLinkPrefix();
+	}
 
 	@Override
 	public Optional<String> getRecordLink(String downloadUrl, Long clientCallId, Long historyId) {
-		String fileName = CALL_TO_CLIENT_RECORDING_PREFIX + clientCallId + historyId + RECORDING_FORMAT;
+		String fileName = callToClientRecordingPrefix + clientCallId + historyId + recordingFormat;
 		File file = new File(createDirectory(), fileName);
 
 		return downloadRecording(file, downloadUrl, fileName);
@@ -33,7 +46,7 @@ public class DownloadCallRecordServiceImpl implements DownloadCallRecordService 
 
 	@Override
 	public Optional<String> getRecordLink(String downloadUrl, Long commonCallId) {
-		String fileName = COMMON_CALL_RECORDING_PREFIX + commonCallId + RECORDING_FORMAT;
+		String fileName = commonCallRecordingPrefix + commonCallId + recordingFormat;
 		File file = new File(createDirectory(), fileName);
 
 		return downloadRecording(file, downloadUrl, fileName);
@@ -56,12 +69,12 @@ public class DownloadCallRecordServiceImpl implements DownloadCallRecordService 
 		} catch (IOException e) {
 			logger.error("Could not download the call record file!", e);
 		}
-		return Optional.of(DOWNLOAD_LINK_PREFIX + fileName);
+		return Optional.of(downloadLinkPrefix + fileName);
 	}
 
 	private File createDirectory() {
-		File dir = new File(RECORD_FOLDER);
-		if (!dir.exists() ) {
+		File dir = new File(recordFolderName);
+		if (!dir.exists()) {
 			if (!dir.mkdirs()) {
 				logger.error("Could not create folder for call records");
 			}

@@ -128,7 +128,7 @@ public class IPTelephonyRestController {
 
 	@GetMapping(value = "/records/all")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity getAllCommonRecords(@RequestParam("page")int page) {
+	public ResponseEntity getAllCommonRecords(@RequestParam("page") int page) {
 		Pageable pageable = PageRequest.of(page, pageSize);
 		List<CallRecord> callRecords = callRecordService.getAllCommonRecords(pageable);
 		if (callRecords == null || callRecords.isEmpty()) {
