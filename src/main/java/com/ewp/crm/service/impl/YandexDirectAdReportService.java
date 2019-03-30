@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 @Component("YandexDirect")
 public class YandexDirectAdReportService implements AdReportService {
+
     private final YandexDirectConfig yandexDirectConfig;
     private static final String API_V5_AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
     private static final String API_V5_REPORT_SERVICE_URL_SUFFIX = "reports";

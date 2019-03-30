@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource(value = "file:./yandex-direct.properties", encoding = "windows-1251")
 public class YandexDirectConfigImpl implements YandexDirectConfig {
+
     private static Logger logger = LoggerFactory.getLogger(YandexDirectConfigImpl.class);
     private String apiV4LiveUrl;
     private String apiV5Url;
@@ -24,8 +25,8 @@ public class YandexDirectConfigImpl implements YandexDirectConfig {
             apiV4LiveUrl = env.getRequiredProperty("api.v4.live.url");
             apiV5Url = env.getRequiredProperty("api.v5.url");
             authorizationToken = env.getRequiredProperty("authorization.token");
-            acceptLanguage= env.getRequiredProperty("accept.language");
-            clientLogin= env.getRequiredProperty("client.login");
+            acceptLanguage = env.getRequiredProperty("accept.language");
+            clientLogin = env.getRequiredProperty("client.login");
         } catch (Exception e) {
             logger.error("Yandex-direct configs haven't been initialized. Check yandex-direct.properties file", e);
         }
