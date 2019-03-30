@@ -73,7 +73,7 @@ public class PassportServiceImpl extends CommonServiceImpl<Passport> implements 
         return null;
     }
 
-    private static byte[] toByte(String str) {
+    private byte[] toByte(String str) {
         String[] byteValues = str.substring(1, str.length() - 1).split(",");
         byte[] bytes = new byte[byteValues.length];
 

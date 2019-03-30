@@ -335,7 +335,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setPhoneNumber(contractForm.getInputPhoneNumber());
         }
         Passport passport = contractForm.getPassportData();
-        //passport = passportService.encode(passport);
+        passport = passportService.encode(passport);
         passport.setClient(client);
         client.setPassport(passport);
         client.setId(old.getId());
