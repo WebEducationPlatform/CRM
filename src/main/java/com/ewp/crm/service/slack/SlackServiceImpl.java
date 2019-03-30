@@ -1,5 +1,6 @@
 package com.ewp.crm.service.slack;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.Student;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -94,6 +96,24 @@ public class SlackServiceImpl implements SlackService {
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean trySendSlackMessageToStudent(long studentId, String text) {
+        Student student = studentService.get(studentId);
+        if (student != null) {
+            Client client = student.getClient();
+            List<SocialProfile> profiles = client.getSocialProfiles();
+            for (SocialProfile socialProfile :profiles) {
+                if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
+                    return trySendMessageToSlackUser(socialProfile.getSocialId(), text);
+                }
+            }
+            if (tryLinkSlackAccountToStudent(studentId)) {
+                return trySendSlackMessageToStudent(studentId, text);
             }
         }
         return false;
