@@ -11,10 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -64,6 +61,22 @@ public class SlackRestController {
     @GetMapping("/find/student/{studentId}")
     public ResponseEntity<String> findStudentSlackProfile(@PathVariable long studentId) {
         if (slackService.tryLinkSlackAccountToStudent(studentId)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/send/student/{studentId}")
+    public ResponseEntity sendMessageToStudent(@PathVariable long studentId, @RequestParam("text") String text) {
+        if (slackService.trySendSlackMessageToStudent(studentId, text)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
+    @PostMapping("/send/all")
+    public ResponseEntity sendMessageToAllSlackUsers(@RequestParam("text") String text) {
+        if (slackService.trySendMessageToAllSlackUsers(text)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
