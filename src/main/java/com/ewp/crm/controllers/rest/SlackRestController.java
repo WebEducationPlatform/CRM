@@ -3,12 +3,6 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,20 +72,8 @@ public class SlackRestController {
     @GetMapping("/get/emails")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<String> getAllEmailsFromSlack() {
-        String url = "https://slack.com/api/users.list?token=" + inviteToken;
-        String result = "Error";
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
-            HttpEntity entity = response.getEntity();
-            Optional<String> emails = slackService.getEmailListFromJson(EntityUtils.toString(entity));
-            if (emails.isPresent()) {
-                result = emails.get();
-            }
-        } catch (Throwable e) {
-            logger.warn("Can't parse emails from Slack", e);
-        }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
-        return new ResponseEntity<>(result, headers, HttpStatus.OK);
+        return new ResponseEntity<>(slackService.getAllEmailsFromSlack().orElse("Error"), headers, HttpStatus.OK);
     }
 }

@@ -3,7 +3,8 @@ package com.ewp.crm.service.interfaces;
 import java.util.Optional;
 
 public interface SlackService {
-    Optional<String> getEmailListFromJson(String json);
+    Optional<String> getAllEmailsFromSlack();
     boolean tryLinkSlackAccountToStudent(long studentId);
-    Optional<String> receiveAllClientsFromWorkspace();
+    boolean trySendMessageToSlackUser(String slackUserId, String text);
+    boolean trySendMessageToAllSlackUsers(String text);
 }
