@@ -2017,7 +2017,7 @@ $(function () {
                     $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
                         'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
                     $('#contract-client-setting-contract-link').empty();
-                });
+
 
                 console.log('Point #8: ' + (performance.now() - t0));
                 $('.send-all-custom-message').attr('clientId', clientId);
