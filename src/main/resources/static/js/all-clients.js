@@ -6,6 +6,8 @@ let statuscol, arrKeys;
 //массив статусов
 let statuses = [];
 
+var searchProcess = false;
+
 //Получаем объект Статус - цвет, и массив ключей
 $.get('/rest/properties', function getStatusesColor(projectProperties) {
     statuscol = JSON.parse(projectProperties.statusColor);
@@ -198,7 +200,9 @@ function drawClients(table, res) {
 //Search by keyword
 $("#searchInput").keyup(function (e) {
     let body = $("#table-body");
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13 && searchProcess === false) {
+        startAnimation();
+        searchProcess = true;
         let search = this.value.toLowerCase();
         body.empty();
         if (search === "") {
@@ -209,6 +213,8 @@ $("#searchInput").keyup(function (e) {
                 url: "/rest/client/search",
                 data: {search: search},
                 success: function (response) {
+                    stopAnimation();
+                    searchProcess = false;
                     drawClients(body, response);
                 }
             })
@@ -225,6 +231,7 @@ $("#searchInput").keyup(function (e) {
 });
 
 $(document).ready(function () {
+    stopAnimation();
     let win = $(window);
     let body = $("#table-body");
     win.scroll(function () {
