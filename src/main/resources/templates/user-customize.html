@@ -70,7 +70,7 @@
         <div id="payment-notification-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
-                Оповещение об оплате
+                Настройка оповещений
             </button>
         </div>
         <br/>
@@ -192,10 +192,6 @@
                     <div class="row">
                         <label for="repeated-client-status">Выберите статус клиента повторно оставившего заявку</label>
                         <select id="repeated-client-status" class="form-control"> </select>
-                    </div>
-                    <div class="row">
-                        <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
-                        <select id="status-column" class="form-control"></select>
                     </div>
                     <div class="row">
                         <label for="reject-student-status-column">Выберите статус клиента студента-отказника</label>
