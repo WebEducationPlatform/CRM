@@ -8,4 +8,5 @@ public interface SlackService {
     boolean trySendMessageToSlackUser(String slackUserId, String text);
     boolean trySendMessageToAllSlackUsers(String text);
     boolean trySendSlackMessageToStudent(long studentId, String text);
+    boolean trySendMessageToAllStudents(String text);
 }

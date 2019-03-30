@@ -141,10 +141,20 @@ public class SlackServiceImpl implements SlackService {
         boolean result = false;
         if (json.isPresent()) {
             Map<String, String[]> data = parseSlackUsersFromJson(json.get());
-            result = true;
+            result = !data.isEmpty();
             for (String id : data.keySet()) {
                 result &= trySendMessageToSlackUser(id, text);
             }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean trySendMessageToAllStudents(String text) {
+        List<Student> students = studentService.getAll();
+        boolean result = !students.isEmpty();
+        for (Student student :students) {
+            result &= trySendSlackMessageToStudent(student.getId(), text);
         }
         return result;
     }
