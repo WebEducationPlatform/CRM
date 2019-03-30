@@ -36,6 +36,7 @@ import java.util.Optional;
 })
 public class SlackServiceImpl implements SlackService {
 
+    private static final String SLACK_API_URL = "https://slack.com/api/";
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
     private final StudentService studentService;
     private final SocialProfileTypeService socialProfileTypeService;
@@ -99,21 +100,38 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
-    public Optional<String> getEmailListFromJson(String json) {
-        Map<String, String[]> data = parseSlackUsersFromJson(json);
+    public Optional<String> getAllEmailsFromSlack() {
+        Optional<String> json = receiveAllClientsFromWorkspace();
         StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, String[]> entry :data.entrySet()) {
-            String email = entry.getValue()[1];
-            if (email != null && !email.isEmpty()){
-                result.append(email).append("\n");
+        if (json.isPresent()) {
+            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
+            for (Map.Entry<String, String[]> entry : data.entrySet()) {
+                String email = entry.getValue()[1];
+                if (email != null && !email.isEmpty()) {
+                    result.append(email).append("\n");
+                }
             }
         }
         return result.toString().isEmpty() ? Optional.empty() : Optional.of(result.toString());
     }
 
     @Override
-    public Optional<String> receiveAllClientsFromWorkspace() {
-        String url = "https://slack.com/api/users.list?token=" + inviteToken;
+    public boolean trySendMessageToAllSlackUsers(String text) {
+        Optional<String> json = receiveAllClientsFromWorkspace();
+        boolean result = false;
+        if (json.isPresent()) {
+            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
+            result = true;
+            for (String id : data.keySet()) {
+                result &= trySendMessageToSlackUser(id, text);
+            }
+        }
+        return result;
+    }
+
+    private Optional<String> receiveAllClientsFromWorkspace() {
+        String url = SLACK_API_URL + "users.list" +
+                "?token=" + inviteToken;
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             HttpEntity entity = response.getEntity();
@@ -122,6 +140,55 @@ public class SlackServiceImpl implements SlackService {
             logger.error("Can't get data from Slack server", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean trySendMessageToSlackUser(String slackUserId, String text) {
+        Optional<String> chatId = getChatIdForSlackUser(slackUserId);
+        return chatId.filter(s -> trySendMessageToSlackChannel(s, text)).isPresent();
+    }
+
+    private Optional<String> getChatIdForSlackUser(String slackUserId) {
+        String url = SLACK_API_URL + "im.open" +
+                "?token=" + inviteToken +
+                "&user=" + slackUserId +
+                "&return_im=true";
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            JSONObject jsonObj = new JSONObject(EntityUtils.toString(entity));
+            JSONObject chatData = jsonObj.optJSONObject("channel");
+            if (chatData != null) {
+                return Optional.ofNullable(chatData.optString("id"));
+            }
+        } catch (IOException e) {
+            logger.error("Can't get slack chat id for user id " + slackUserId, e);
+        } catch (JSONException e) {
+            logger.error("Can't parse slack chat id for user id " + slackUserId, e);
+        }
+        return Optional.empty();
+    }
+
+    private boolean trySendMessageToSlackChannel(String channelId, String text) {
+        String url = SLACK_API_URL + "chat.postMessage" +
+                "?token=" + inviteToken +
+                "&channel=" + channelId +
+                "&text=" + text +
+                "&as_user=true";
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            JSONObject jsonObj = new JSONObject(EntityUtils.toString(entity));
+            String sendResult = jsonObj.optString("ok");
+            if ("true".equals(sendResult)) {
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("Can't post message to Slack channel " + channelId, e);
+        } catch (JSONException e) {
+            logger.error("Can't parse result of sending message to Slack channel " + channelId, e);
+        }
+        return false;
     }
 
     /**
