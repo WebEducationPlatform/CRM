@@ -8,6 +8,7 @@ const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
 const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (не более 20 человек в день, которые не в друзьях и каждый с новой строки):";
+const SEND_TO_SLACK = "Укажите список id Slack получателей (каждый с новой строки):";
 
 var messageType = 'email';
 var vkPage;
@@ -80,16 +81,25 @@ $(document).ready(function () {
         }
         messageType = $(this).attr("id");
 
+        switch (messageType) {
+            case 'sms':
+                $("#addresses-label").text(SEND_SMSS);
+                break;
+            case 'vk':
+                $("#addresses-label").text(SEND_TO_VK);
+                break;
+            case 'slack':
+                $("#addresses-label").text(SEND_TO_SLACK);
+                break;
+            case 'email':
+                $("#addresses-label").text(SEND_EMAILS);
+                break;
+        }
+
         if (messageType !== 'email') {
             ckeditorRemoveAllToolbars();
-            if (messageType === 'sms') {
-                $("#addresses-label").text(SEND_SMSS);
-            } else {
-                $("#addresses-label").text(SEND_TO_VK);
-            }
         } else {
             ckeditorAddAllToolbars();
-            $("#addresses-label").text(SEND_EMAILS);
         }
 
         $("#message-type-button-group > button").each(function (index, element) {
@@ -117,8 +127,48 @@ $(document).ready(function () {
         };
     })( jQuery );
 
+    (function( $ ){
+        $.fn.fillWithIds = function() {
+            var field = this;
+            $.ajax({
+                url: '/slack/get/ids/all',
+                contentType: "text/plain;charset=UTF-8",
+                type: 'GET',
+                dataType: 'text',
+                async: true,
+                success: function (data) {
+                    field.val(data);
+                }
+            });
+        };
+    })( jQuery );
+
+    (function( $ ){
+        $.fn.fillWithStudentsIds = function() {
+            var field = this;
+            $.ajax({
+                url: '/slack/get/ids/students',
+                contentType: "text/plain;charset=UTF-8",
+                type: 'GET',
+                dataType: 'text',
+                async: true,
+                success: function (data) {
+                    field.val(data);
+                }
+            });
+        };
+    })( jQuery );
+
     $("#slackImportButton").click(function () {
         $("#listEmail").fillWithEmails();
+    });
+
+    $("#slackIdAllImportButton").click(function () {
+        $("#listSlack").fillWithIds();
+    });
+
+    $("#slackIdStudentsImportButton").click(function () {
+        $("#listSlack").fillWithStudentsIds();
     });
 
     $("#slackUpdateImportButton").click(function () {
@@ -510,23 +560,20 @@ function removeHistory() {
     $('#recipientBodyMailing').empty();
 };
 
-
-
-
 function addToListMailing() {
     let recipientsEmail = $('#listEmail').val();
     let recipientsSms = $('#listSms').val();
     let recipientsVk = $('#listVk').val();
+    let recipientsSlack = $('#listSlack').val();
     let listName = $('#listName').val();
-
-    if(listName != '') {
+    if (listName !== '') {
         let wrap = {
             recipientsEmail: recipientsEmail,
             recipientsSms: recipientsSms,
             recipientsVk: recipientsVk,
+            recipientsSlack: recipientsSlack,
             listName: listName
-        }
-
+        };
         $.ajax({
             type: "POST",
             url: '/list-mailing',
@@ -536,7 +583,7 @@ function addToListMailing() {
             }
         });
     } else {
-       $('#errorListName').html('<p style="color: red">Введите название списка</p>')
+       $('#errorListName').html('<p style="color: red">Введите название списка</p>');
     }
 }
 
@@ -620,29 +667,37 @@ function showListMailing() {
                 listGroupId: listGroupName
             },
             success: function (data) {
-
-                    if (messageType == "email") {
+                switch (messageType) {
+                    case 'email':
                         for(var i = 0; i < data.recipientsEmail.length; i++) {
                             $("#addresses-area").each(function() {
                                 $(this).val(data.recipientsEmail.join("\n"));
                             });
                         }
-                    } else if (messageType == 'sms') {
+                        break;
+                    case 'sms':
                         for(var i = 0; i < data.recipientsSms.length; i++) {
                             $("#addresses-area").each(function() {
                                 $(this).val(data.recipientsSms.join("\n"));
                             });
                         }
-                    } else if (messageType == "vk") {
+                        break;
+                    case 'vk':
                         for(var i = 0; i < data.recipientsVk.length; i++) {
                             $("#addresses-area").each(function() {
                                 $(this).val(data.recipientsVk.join("\n"));
                             });
                         }
-                    }
+                        break;
+                    case 'slack':
+                        for (var i = 0; i < data.recipientsSlack.length; i++) {
+                            $("#addresses-area").each(function() {
+                                $(this).val(data.recipientsSlack.join("\n"));
+                            });
+                        }
+                        break;
                 }
-
-
+            }
         });
 }
 
@@ -676,6 +731,10 @@ function openEditShowListMailing() {
             $("#editListVk").each(function () {
                 $(this).val(data.recipientsVk.join("\n"));
             });
+
+            $("#editListSlack").each(function () {
+                $(this).val(data.recipientsSlack.join("\n"));
+            });
         }
 
     });
@@ -683,17 +742,12 @@ function openEditShowListMailing() {
 
 
 function editListMailing() {
-
-    var listName = $("#listMailingSelect").val()
-
-    var editListName = $("#editListName").val()
-
-    var editListEmail = $("#editListEmail").val()
-
-    var editListSms = $("#editListSms").val()
-
-    var editListVk = $("#editListVk").val()
-
+    let listName = $("#listMailingSelect").val();
+    let editListName = $("#editListName").val();
+    let editListEmail = $("#editListEmail").val();
+    let editListSms = $("#editListSms").val();
+    let editListVk = $("#editListVk").val();
+    let editListSlack = $("#editListSlack").val();
     $.ajax({
         url: '/edit/list-mailing',
         type: 'POST',
@@ -701,11 +755,12 @@ function editListMailing() {
                 editListName: editListName,
                 editRecipientsEmail: editListEmail,
                 editRecipientsSms: editListSms,
-                editRecipientsVk: editListVk
-        }, success: function () {
+                editRecipientsVk: editListVk,
+                editRecipientsSlack: editListSlack
+        },
+        success: function () {
             location.reload();
         }
-
     });
 }
 

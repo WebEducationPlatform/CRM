@@ -28,14 +28,18 @@ public class ListMailing implements Serializable {
     @ElementCollection
     private List<String> recipientsVk;
 
+    @ElementCollection
+    private List<String> recipientsSlack;
+
     public ListMailing() {
     }
 
-    public ListMailing(String listName, List<String> recipientsEmail, List<String> recipientsSms, List<String> recipientsVk) {
+    public ListMailing(String listName, List<String> recipientsEmail, List<String> recipientsSms, List<String> recipientsVk, List<String> recipientsSlack) {
         this.listName = listName;
         this.recipientsEmail = recipientsEmail;
         this.recipientsSms = recipientsSms;
         this.recipientsVk = recipientsVk;
+        this.recipientsSlack = recipientsSlack;
     }
 
     public Long getId() {
@@ -76,5 +80,13 @@ public class ListMailing implements Serializable {
 
     public void setRecipientsVk(List<String> recipientsVk) {
         this.recipientsVk = recipientsVk;
+    }
+
+    public List<String> getRecipientsSlack() {
+        return recipientsSlack;
+    }
+
+    public void setRecipientsSlack(List<String> recipientsSlack) {
+        this.recipientsSlack = recipientsSlack;
     }
 }
