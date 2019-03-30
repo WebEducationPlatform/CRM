@@ -1,7 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.ContractSetting;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -13,10 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/client/contract/rest")
@@ -54,5 +51,4 @@ public class ClientContractRestController {
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
-
 }
