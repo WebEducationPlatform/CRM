@@ -3,10 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,18 +30,11 @@ import java.util.Optional;
 @RequestMapping("/slack")
 public class SlackRestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
-
     private final SlackService slackService;
     private final ClientService clientService;
-    private final String inviteToken;
 
     @Autowired
-    public SlackRestController(ClientService clientService, Environment environment, SlackService slackService) {
-        this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
-        if (inviteToken.isEmpty()) {
-            logger.warn("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
-        }
+    public SlackRestController(ClientService clientService, SlackService slackService) {
         this.slackService = slackService;
         this.clientService = clientService;
     }
@@ -73,7 +63,7 @@ public class SlackRestController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    
+
     @PostMapping("/send/all")
     public ResponseEntity sendMessageToAllSlackUsers(@RequestParam("text") String text) {
         if (slackService.trySendMessageToAllSlackUsers(text)) {
