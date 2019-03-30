@@ -26,15 +26,16 @@ public class ListMailingController {
 
 
     @RequestMapping(value = "/list-mailing", method = RequestMethod.POST)
-    public String addListMailing(
-                                @RequestParam("listName") String listName,
+    public String addListMailing(@RequestParam("listName") String listName,
                                 @RequestParam("recipientsEmail") String recipientsEmail,
                                 @RequestParam("recipientsSms") String recipientsSms,
-                                @RequestParam("recipientsVk") String recipientsVk) {
+                                @RequestParam("recipientsVk") String recipientsVk,
+                                @RequestParam("recipientsSlack") String recipientsSlack) {
         List<String> recipientsEmailList = Arrays.asList(recipientsEmail.split("\n"));
         List<String> recipientsSmsList = Arrays.asList(recipientsSms.split("\n"));
-        List<String> recipientsVklList = Arrays.asList(recipientsVk.split("\n"));
-        ListMailing listMailing = new ListMailing(listName, recipientsEmailList, recipientsSmsList, recipientsVklList);
+        List<String> recipientsVkList = Arrays.asList(recipientsVk.split("\n"));
+        List<String> recipientsSlackList = Arrays.asList(recipientsSlack.split("\n"));
+        ListMailing listMailing = new ListMailing(listName, recipientsEmailList, recipientsSmsList, recipientsVkList, recipientsSlackList);
         listMailingService.addListMailing(listMailing);
         return "redirect:/client/mailing";
 
@@ -46,17 +47,20 @@ public class ListMailingController {
             @RequestParam("listId") Long id,
             @RequestParam("editRecipientsEmail") String editRecipientsEmail,
             @RequestParam("editRecipientsSms") String editRecipientsSms,
-            @RequestParam("editRecipientsVk") String editRecipientsVk) {
+            @RequestParam("editRecipientsVk") String editRecipientsVk,
+            @RequestParam("editRecipientsSlack") String editRecipientsSlack) {
         Optional<ListMailing> listMailingOptional = listMailingService.getListMailingById(id);
         if (listMailingOptional.isPresent()) {
             ListMailing listMailing = listMailingOptional.get();
             List<String> editRecipientsEmailList = new ArrayList<>(Arrays.asList(editRecipientsEmail.split("\n")));
             List<String> editRecipientsSmsList = new ArrayList<>(Arrays.asList(editRecipientsSms.split("\n")));
-            List<String> editRecipientsVklList = new ArrayList<>(Arrays.asList(editRecipientsVk.split("\n")));
+            List<String> editRecipientsVkList = new ArrayList<>(Arrays.asList(editRecipientsVk.split("\n")));
+            List<String> editRecipientsSlackList = new ArrayList<>(Arrays.asList(editRecipientsSlack.split("\n")));
             listMailing.setListName(editlistName);
             listMailing.setRecipientsEmail(editRecipientsEmailList);
             listMailing.setRecipientsSms(editRecipientsSmsList);
-            listMailing.setRecipientsVk(editRecipientsVklList);
+            listMailing.setRecipientsVk(editRecipientsVkList);
+            listMailing.setRecipientsSlack(editRecipientsSlackList);
             listMailingService.update(listMailing);
         }
         return "redirect:/client/mailing";

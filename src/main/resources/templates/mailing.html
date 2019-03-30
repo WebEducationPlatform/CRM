@@ -47,6 +47,7 @@
                         <button type="button" class="btn btn-secondary btn-info" id="email">e-mail</button>
                         <button type="button" class="btn btn-secondary" id="sms">sms</button>
                         <button type="button" class="btn btn-secondary" id="vk">VK</button>
+                        <button type="button" class="btn btn-secondary" id="slack">Slack</button>
                     </div>
                 </div>
             </div>
@@ -224,17 +225,22 @@
                 <div class="row">
                     <div class="col">
                         <label for="listEmail" >Укажите список email получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="listEmail" rows="14"
+                            <textarea class="form-control text-lowercase" id="listEmail" rows="8"
                                 style="font-size: 8pt"></textarea>
                     </div>
                     <div class="col">
                         <label for="listSms" >Укажите список телефонов получателей (каждый с новой строки):</label>
-                        <textarea class="form-control text-lowercase" id="listSms" rows="14"
+                        <textarea class="form-control text-lowercase" id="listSms" rows="8"
                           style="font-size: 8pt"></textarea>
                     </div>
                     <div class="col">
                         <label for="listVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
-                        <textarea class="form-control text-lowercase" id="listVk" rows="14"
+                        <textarea class="form-control text-lowercase" id="listVk" rows="8"
+                          style="font-size: 8pt"></textarea>
+                    </div>
+                    <div class="col">
+                        <label for="listSlack" >Укажите список id Slack получателей (каждый с новой строки):</label>
+                        <textarea class="form-control text-lowercase" id="listSlack" rows="8"
                           style="font-size: 8pt"></textarea>
                     </div>
                 </div>
@@ -242,6 +248,12 @@
 
                 <div class="modal-footer">
                 <div class="form-group">
+                    <button class="btn btn-primary" id="slackIdAllImportButton">
+                        Загрузить все id из Slack
+                    </button>
+                    <button class="btn btn-primary" id="slackIdStudentsImportButton">
+                        Загрузить id студентов из Slack
+                    </button>
                     <button class="btn btn-primary" id="slackImportButton">
                         Загрузить email из Slack
                     </button>
@@ -286,17 +298,22 @@
                     <div class="row">
                         <div class="col">
                             <label for="editListEmail" >Укажите список email получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListEmail" rows="14"
+                            <textarea class="form-control text-lowercase" id="editListEmail" rows="8"
                                       style="font-size: 8pt"></textarea>
                         </div>
                         <div class="col">
                             <label for="editListSms" >Укажите список телефонов получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListSms" rows="14"
+                            <textarea class="form-control text-lowercase" id="editListSms" rows="8"
                                       style="font-size: 8pt"></textarea>
                         </div>
                         <div class="col">
                             <label for="editListVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListVk" rows="14"
+                            <textarea class="form-control text-lowercase" id="editListVk" rows="8"
+                                      style="font-size: 8pt"></textarea>
+                        </div>
+                        <div class="col">
+                            <label for="editListSlack" >Укажите список id Slack получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="editListSlack" rows="8"
                                       style="font-size: 8pt"></textarea>
                         </div>
                     </div>

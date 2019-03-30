@@ -136,6 +136,21 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
+    public Optional<String> getAllIdsFromSlack() {
+        Optional<String> json = receiveAllClientsFromWorkspace();
+        StringBuilder result = new StringBuilder();
+        if (json.isPresent()) {
+            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
+            for (String id : data.keySet()) {
+                if (id != null && !id.isEmpty()) {
+                    result.append(id).append("\n");
+                }
+            }
+        }
+        return result.toString().isEmpty() ? Optional.empty() : Optional.of(result.toString());
+    }
+
+    @Override
     public boolean trySendMessageToAllSlackUsers(String text) {
         Optional<String> json = receiveAllClientsFromWorkspace();
         boolean result = false;

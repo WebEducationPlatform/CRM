@@ -1,8 +1,11 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,11 +35,13 @@ public class SlackRestController {
 
     private final SlackService slackService;
     private final ClientService clientService;
+    private final StudentService studentService;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService) {
+    public SlackRestController(ClientService clientService, SlackService slackService, StudentService studentService) {
         this.slackService = slackService;
         this.clientService = clientService;
+        this.studentService = studentService;
     }
 
     @GetMapping("/find/client/{clientId}")
@@ -78,5 +83,30 @@ public class SlackRestController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
         return new ResponseEntity<>(slackService.getAllEmailsFromSlack().orElse("Error"), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/ids/all")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getAllIdsFromSlack() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        return new ResponseEntity<>(slackService.getAllIdsFromSlack().orElse("Error"), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/ids/students")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getAllStudentsIdsFromSlack() {
+        StringBuilder result = new StringBuilder();
+        for (Student student :studentService.getAll()) {
+            for (SocialProfile socialProfile :student.getClient().getSocialProfiles()) {
+                if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
+                    result.append(socialProfile.getSocialId()).append("\n");
+                }
+            }
+        }
+        String returnValue = result.toString().isEmpty() ? "Error" : result.toString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        return new ResponseEntity<>(returnValue, headers, HttpStatus.OK);
     }
 }
