@@ -26,7 +26,7 @@ public class CallRecordConfigImpl implements CallRecordConfig {
             recordingFormat = env.getRequiredProperty("call.record.format");
             callToClientRecordingPrefix = env.getRequiredProperty("call.record.client.prefix");
             commonCallRecordingPrefix = env.getRequiredProperty("call.record.common.prefix");
-            downloadLinkPrefix = env.getRequiredProperty("/user/rest/call/record/");
+            downloadLinkPrefix = env.getRequiredProperty("call.record.download.link.prefix");
         } catch (Exception e) {
             logger.error("CallRecord configs haven't been initialized. Check call-record.properties file", e);
         }
