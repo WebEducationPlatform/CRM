@@ -60,7 +60,7 @@ public class SlackServiceImpl implements SlackService {
     @Override
     public boolean tryLinkSlackAccountToStudent(long studentId) {
         Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
-        return allWorkspaceUsersData.filter(s -> trySendSlackMessageToStudent(studentId, s)).isPresent();
+        return allWorkspaceUsersData.filter(s -> tryLinkSlackAccountToStudent(studentId, s)).isPresent();
     }
 
     @Override
