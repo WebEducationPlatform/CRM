@@ -281,13 +281,12 @@ public class SlackServiceImpl implements SlackService {
             for (int i = 0; i < jsonData.length(); i++) {
                 JSONObject current = jsonData.getJSONObject(i);
                 JSONObject userProfile = current.optJSONObject("profile");
-                if (userProfile == null) {
-                    continue;
+                if (userProfile != null) {
+                    String id = current.optString("id");
+                    String mail = userProfile.optString("email");
+                    String name = userProfile.optString("real_name");
+                    result.put(id, new String[]{name, mail});
                 }
-                String id = current.optString("id");
-                String mail = userProfile.optString("email");
-                String name = userProfile.optString("real_name");
-                result.put(id, new String[]{name, mail});
             }
         } catch (JSONException e) {
             logger.error("Can't parse users from slack", e);
