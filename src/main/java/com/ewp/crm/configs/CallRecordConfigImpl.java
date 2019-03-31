@@ -27,8 +27,14 @@ public class CallRecordConfigImpl implements CallRecordConfig {
             callToClientRecordingPrefix = env.getRequiredProperty("call.record.client.prefix");
             commonCallRecordingPrefix = env.getRequiredProperty("call.record.common.prefix");
             downloadLinkPrefix = env.getRequiredProperty("call.record.download.link.prefix");
-        } catch (Exception e) {
+
+            if (recordFolderName.isEmpty() || recordingFormat.isEmpty() || callToClientRecordingPrefix.isEmpty() ||
+                    commonCallRecordingPrefix.isEmpty() || downloadLinkPrefix.isEmpty()) {
+                throw new NoSuchFieldException();
+            }
+        } catch (NoSuchFieldException e) {
             logger.error("CallRecord configs haven't been initialized. Check call-record.properties file", e);
+            System.exit(1);
         }
     }
 
