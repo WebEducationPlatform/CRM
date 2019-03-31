@@ -6,6 +6,8 @@ public interface SlackService {
     Optional<String> getAllEmailsFromSlack();
     Optional<String> getAllIdsFromSlack();
     boolean tryLinkSlackAccountToStudent(long studentId);
+    boolean tryLinkSlackAccountToStudent(long studentId, String usersData);
+    void tryLinkSlackAccountToAllStudents();
     boolean trySendMessageToSlackUser(String slackUserId, String text);
     boolean trySendMessageToAllSlackUsers(String text);
     boolean trySendSlackMessageToStudent(long studentId, String text);

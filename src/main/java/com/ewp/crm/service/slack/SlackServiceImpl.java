@@ -4,10 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.Student;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.SocialProfileTypeService;
-import com.ewp.crm.service.interfaces.StudentService;
+import com.ewp.crm.service.interfaces.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -44,59 +41,88 @@ public class SlackServiceImpl implements SlackService {
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
     private final StudentService studentService;
     private final SocialProfileTypeService socialProfileTypeService;
+    private final SocialProfileService socialProfileService;
     private final ClientService clientService;
     private final String inviteToken;
 
     @Autowired
-    public SlackServiceImpl(Environment environment, StudentService studentService, SocialProfileTypeService socialProfileTypeService, ClientService clientService) {
-        this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
-        if (inviteToken.isEmpty()) {
+    public SlackServiceImpl(Environment environment, StudentService studentService, SocialProfileTypeService socialProfileTypeService, ClientService clientService, SocialProfileService socialProfileService) {
+        this.inviteToken = environment.getProperty("slack.legacyToken");
+        if (inviteToken == null || inviteToken.isEmpty()) {
             logger.warn("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
         }
         this.studentService = studentService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.clientService = clientService;
+        this.socialProfileService = socialProfileService;
     }
 
     @Override
     public boolean tryLinkSlackAccountToStudent(long studentId) {
+        Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
+        return allWorkspaceUsersData.filter(s -> trySendSlackMessageToStudent(studentId, s)).isPresent();
+    }
+
+    @Override
+    public void tryLinkSlackAccountToAllStudents() {
+        Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
+        List<Client> clients = clientService.getAllClients();
+        if (allWorkspaceUsersData.isPresent()) {
+            for (Client client : clients) {
+                if (client.getStudent() != null) {
+                    boolean hasSlackId = false;
+                    for (SocialProfile profile : client.getSocialProfiles()) {
+                        if ("slack".equals(profile.getSocialProfileType().getName())) {
+                            hasSlackId = true;
+                            break;
+                        }
+                    }
+                    if (!hasSlackId) {
+                        tryLinkSlackAccountToStudent(client.getStudent().getId(), allWorkspaceUsersData.get());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean tryLinkSlackAccountToStudent(long studentId, String usersData) {
         double emailWeight = 1.0d;
         double nameWeight = 0.25d;
         double lastNameWeight = 0.25d;
         Map<String, Double> result = new HashMap<>();
-        Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
         Student student = studentService.get(studentId);
-        if (allWorkspaceUsersData.isPresent()) {
-            Map<String, String[]> data = parseSlackUsersFromJson(allWorkspaceUsersData.get());
-            for (Map.Entry<String, String[]> entry :data.entrySet()) {
-                double weight = 0d;
-                String id = entry.getKey();
-                String name = entry.getValue()[0];
-                String email = entry.getValue()[1];
-                if (email != null && email.equals(student.getClient().getEmail())) {
-                    weight += emailWeight;
+        Map<String, String[]> data = parseSlackUsersFromJson(usersData);
+        for (Map.Entry<String, String[]> entry :data.entrySet()) {
+            double weight = 0d;
+            String id = entry.getKey();
+            String name = entry.getValue()[0];
+            String email = entry.getValue()[1];
+            if (email != null && !email.isEmpty() && email.equals(student.getClient().getEmail())) {
+                weight += emailWeight;
+            }
+            if (name != null) {
+                if (name.contains(student.getClient().getName())) {
+                    weight += nameWeight;
                 }
-                if (name != null) {
-                    if (name.contains(student.getClient().getName())) {
-                        weight += nameWeight;
-                    }
-                    if (name.contains(student.getClient().getLastName())) {
-                        weight += lastNameWeight;
-                    }
-                }
-                if (weight >= nameWeight + lastNameWeight) {
-                    result.put(id, weight);
+                if (name.contains(student.getClient().getLastName())) {
+                    weight += lastNameWeight;
                 }
             }
-            if (!result.isEmpty()) {
-                Optional<Map.Entry<String, Double>> entry = result.entrySet().stream().max(Map.Entry.comparingByValue());
-                if (entry.isPresent()) {
-                    Optional<SocialProfileType> slackSocialProfile = socialProfileTypeService.getByTypeName("slack");
-                    if (slackSocialProfile.isPresent()) {
+            if (weight >= nameWeight + lastNameWeight) {
+                result.put(id, weight);
+            }
+        }
+        if (!result.isEmpty()) {
+            Optional<Map.Entry<String, Double>> entry = result.entrySet().stream().max(Map.Entry.comparingByValue());
+            if (entry.isPresent()) {
+                Optional<SocialProfileType> slackSocialProfile = socialProfileTypeService.getByTypeName("slack");
+                if (slackSocialProfile.isPresent()) {
+                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(entry.get().getKey(), slackSocialProfile.get().getName()).isPresent()) {
                         student.getClient().addSocialProfile(new SocialProfile(entry.get().getKey(), slackSocialProfile.get()));
                         clientService.updateClient(student.getClient());
-                        return true;
                     }
+                    return true;
                 }
             }
         }
