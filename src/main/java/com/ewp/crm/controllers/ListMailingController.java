@@ -1,7 +1,9 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.ListMailing;
+import com.ewp.crm.models.ListMailingType;
 import com.ewp.crm.service.interfaces.ListMailingService;
+import com.ewp.crm.service.interfaces.ListMailingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,50 +20,45 @@ import java.util.Optional;
 public class ListMailingController {
 
     private final ListMailingService listMailingService;
+    private final ListMailingTypeService listMailingTypeService;
 
     @Autowired
-    public ListMailingController(ListMailingService listMailingService) {
+    public ListMailingController(ListMailingService listMailingService, ListMailingTypeService listMailingTypeService) {
         this.listMailingService = listMailingService;
+        this.listMailingTypeService = listMailingTypeService;
     }
 
 
     @RequestMapping(value = "/list-mailing", method = RequestMethod.POST)
     public String addListMailing(@RequestParam("listName") String listName,
-                                @RequestParam("recipientsEmail") String recipientsEmail,
-                                @RequestParam("recipientsSms") String recipientsSms,
-                                @RequestParam("recipientsVk") String recipientsVk,
-                                @RequestParam("recipientsSlack") String recipientsSlack) {
-        List<String> recipientsEmailList = Arrays.asList(recipientsEmail.split("\n"));
-        List<String> recipientsSmsList = Arrays.asList(recipientsSms.split("\n"));
-        List<String> recipientsVkList = Arrays.asList(recipientsVk.split("\n"));
-        List<String> recipientsSlackList = Arrays.asList(recipientsSlack.split("\n"));
-        ListMailing listMailing = new ListMailing(listName, recipientsEmailList, recipientsSmsList, recipientsVkList, recipientsSlackList);
-        listMailingService.addListMailing(listMailing);
+                                 @RequestParam("recipients") String recipients,
+                                 @RequestParam("typeId") Long typeId) {
+        ListMailingType type = listMailingTypeService.get(typeId);
+        if (type != null) {
+            List<String> recipientsList = Arrays.asList(recipients.split("\n"));
+            ListMailing listMailing = new ListMailing(listName, recipientsList, type);
+            listMailingService.addListMailing(listMailing);
+        }
         return "redirect:/client/mailing";
 
     }
 
     @RequestMapping(value = "/edit/list-mailing", method = RequestMethod.POST)
-    public String editListMailing(
-            @RequestParam("editListName") String editlistName,
-            @RequestParam("listId") Long id,
-            @RequestParam("editRecipientsEmail") String editRecipientsEmail,
-            @RequestParam("editRecipientsSms") String editRecipientsSms,
-            @RequestParam("editRecipientsVk") String editRecipientsVk,
-            @RequestParam("editRecipientsSlack") String editRecipientsSlack) {
-        Optional<ListMailing> listMailingOptional = listMailingService.getListMailingById(id);
-        if (listMailingOptional.isPresent()) {
-            ListMailing listMailing = listMailingOptional.get();
-            List<String> editRecipientsEmailList = new ArrayList<>(Arrays.asList(editRecipientsEmail.split("\n")));
-            List<String> editRecipientsSmsList = new ArrayList<>(Arrays.asList(editRecipientsSms.split("\n")));
-            List<String> editRecipientsVkList = new ArrayList<>(Arrays.asList(editRecipientsVk.split("\n")));
-            List<String> editRecipientsSlackList = new ArrayList<>(Arrays.asList(editRecipientsSlack.split("\n")));
-            listMailing.setListName(editlistName);
-            listMailing.setRecipientsEmail(editRecipientsEmailList);
-            listMailing.setRecipientsSms(editRecipientsSmsList);
-            listMailing.setRecipientsVk(editRecipientsVkList);
-            listMailing.setRecipientsSlack(editRecipientsSlackList);
-            listMailingService.update(listMailing);
+    public String editListMailing(@RequestParam("editListName") String editlistName,
+                                  @RequestParam("listId") Long id,
+                                  @RequestParam("editRecipients") String editRecipients,
+                                  @RequestParam("typeId") Long typeId) {
+        ListMailingType type = listMailingTypeService.get(typeId);
+        if (type != null) {
+            Optional<ListMailing> listMailingOptional = listMailingService.getListMailingById(id);
+            if (listMailingOptional.isPresent()) {
+                ListMailing listMailing = listMailingOptional.get();
+                List<String> editRecipientsList = new ArrayList<>(Arrays.asList(editRecipients.split("\n")));
+                listMailing.setListName(editlistName);
+                listMailing.setRecipients(editRecipientsList);
+                listMailing.setType(type);
+                listMailingService.update(listMailing);
+            }
         }
         return "redirect:/client/mailing";
     }
