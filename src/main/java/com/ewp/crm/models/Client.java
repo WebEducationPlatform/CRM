@@ -129,17 +129,26 @@ public class Client implements Serializable, Diffable<Client> {
     private List<Comment> comments = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "client_email_extra",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "email_extra_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA"))})
-    private List<Comment> emailsExtra = new ArrayList<>();
+    private List<EmailExtra> emailsExtra = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "client_phone_extra",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_PHONE_EXTRA_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "phone_extra_id", foreignKey = @ForeignKey(name = "FK_PHONE_EXTRA"))})
+    private List<PhoneExtra> phonesExtra = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "client_notification",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
     private List<Notification> notifications = new ArrayList<>();
+
 
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -552,6 +561,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.contractLinkData = contractLinkData;
     }
 
+    public List<EmailExtra> getEmailsExtra() {
+        return emailsExtra;
+    }
+
+    public void setEmailsExtra(List<EmailExtra> emailsExtra) {
+        this.emailsExtra = emailsExtra;
+    }
+
+    public List<PhoneExtra> getPhonesExtra() {
+        return phonesExtra;
+    }
+
+    public void setPhonesExtra(List<PhoneExtra> phonesExtra) {
+        this.phonesExtra = phonesExtra;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -633,6 +658,8 @@ public class Client implements Serializable, Diffable<Client> {
     public void addFeedback(ClientFeedback feedback) {
         this.feedback.add(feedback);
     }
+
+
 
     @Override
     public DiffResult diff(Client client) {

@@ -70,6 +70,15 @@ public class DataInitializer {
     @Autowired
     private JMConversationHelper jmConversationHelper;
 
+    @Autowired
+    private EmailExtraService emailExtraService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private  PhoneExtraService phoneExtraService;
+
     private void init() {
 
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
@@ -246,7 +255,7 @@ public class DataInitializer {
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
+     /*   vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
                 vkConfig.getCommunityToken(),
                 "JavaMentorTest",
                 Long.parseLong(vkConfig.getApplicationId())));
@@ -255,7 +264,7 @@ public class DataInitializer {
             List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
                     .orElseThrow(NotFoundMemberList::new);
             vkMemberService.addAllMembers(memberList);
-        }
+        }*/
 
         SlackProfile slackProfile = new SlackProfile();
         slackProfile.setName("Вадим");
@@ -344,5 +353,37 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm3);
         vkRequestFormService.addVkRequestForm(vkRequestForm4);
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
+
+        Client clientN2 = clientService.get(2L);
+        EmailExtra kolobok = new EmailExtra("kolobok@gmail.com");
+        EmailExtra gribok = new EmailExtra("gribok@gmail.com");
+        EmailExtra elk = new EmailExtra("elk@gmail.com", clientN2);
+        EmailExtra parrot = new EmailExtra("parrot@gmail.com", clientN2);
+
+        kolobok.setClient(clientN2);
+        elk.setClient(clientN2);
+        parrot.setClient(clientN2);
+        gribok.setClient(clientN2);
+
+        emailExtraService.add(kolobok);
+        emailExtraService.add(gribok);
+        emailExtraService.add(elk);
+        emailExtraService.add(parrot);
+        clientService.updateClient(clientN2);
+
+
+
+        PhoneExtra elkphone = new PhoneExtra("111222333");
+        elkphone.setClient(clientN2);
+        phoneExtraService.add(elkphone);
+        clientService.updateClient(clientN2);
+        List<EmailExtra> emailExtras = new ArrayList<>();
+        emailExtras.add(parrot);
+
+        emailExtraService.update(gribok);
+        List<EmailExtra> emailExtras1 = clientN2.getEmailsExtra();
+        List<PhoneExtra> phoneExtras = clientN2.getPhonesExtra();
+        List<Notification> notifications = clientN2.getNotifications();
+        System.out.println("вот такая лабуда!");
     }
 }
