@@ -66,12 +66,28 @@ function sendMessages(sendnow) {
     });
 }
 
+function setMailingLists() {
+    let selector = $('#listMailingSelect');
+    $.ajax({
+        url: '/get/listMailing/' + messageType,
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            selector.empty().append('<option value="null">Выберите список рассылки</option>');
+            for (var i = 0; i < data.length; i++) {
+                selector.append('<option value="' + data[i].id+'">'+data[i].listName+'</option>');
+            }
+        }
+    });
+}
+
 /**
  * Функция, переключающая состояние кнопок режима рассылки и перенастраивающая интерфейс редактора.
  * Для функции отправки сообщений посредством СМС, в CKEditor отключаются все плагины форматирования
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    setMailingLists();
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
@@ -80,6 +96,8 @@ $(document).ready(function () {
             return;
         }
         messageType = $(this).attr("id");
+
+        setMailingLists();
 
         switch (messageType) {
             case 'sms':
@@ -124,7 +142,7 @@ $(document).ready(function () {
                     field.val(data);
                 }
             });
-        };
+        };addToListMailing
     })( jQuery );
 
     (function( $ ){
@@ -160,19 +178,27 @@ $(document).ready(function () {
     })( jQuery );
 
     $("#slackImportButton").click(function () {
-        $("#listEmail").fillWithEmails();
+        $("#listRecipients").fillWithEmails();
     });
 
     $("#slackIdAllImportButton").click(function () {
-        $("#listSlack").fillWithIds();
+        $("#listRecipients").fillWithIds();
     });
 
     $("#slackIdStudentsImportButton").click(function () {
-        $("#listSlack").fillWithStudentsIds();
+        $("#listRecipients").fillWithStudentsIds();
     });
 
     $("#slackUpdateImportButton").click(function () {
-        $("#editListEmail").fillWithEmails();
+        $("#editListRecipients").fillWithEmails();
+    });
+
+    $("#slackUpdateIdAllImportButton").click(function () {
+        $("#editListRecipients").fillWithIds();
+    });
+
+    $("#slackUpdateIdStudentsImportButton").click(function () {
+        $("#editListRecipients").fillWithStudentsIds();
     });
 
     $.ajax({
@@ -561,17 +587,13 @@ function removeHistory() {
 };
 
 function addToListMailing() {
-    let recipientsEmail = $('#listEmail').val();
-    let recipientsSms = $('#listSms').val();
-    let recipientsVk = $('#listVk').val();
-    let recipientsSlack = $('#listSlack').val();
+    let recipients = $('#listRecipients').val();
     let listName = $('#listName').val();
-    if (listName !== '') {
+    let typeId = $('#mailing-list-type').val();
+    if (listName !== '' && typeId !== null && typeId !== '') {
         let wrap = {
-            recipientsEmail: recipientsEmail,
-            recipientsSms: recipientsSms,
-            recipientsVk: recipientsVk,
-            recipientsSlack: recipientsSlack,
+            recipients: recipients,
+            typeId: typeId,
             listName: listName
         };
         $.ajax({
@@ -667,35 +689,10 @@ function showListMailing() {
                 listGroupId: listGroupName
             },
             success: function (data) {
-                switch (messageType) {
-                    case 'email':
-                        for(var i = 0; i < data.recipientsEmail.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsEmail.join("\n"));
-                            });
-                        }
-                        break;
-                    case 'sms':
-                        for(var i = 0; i < data.recipientsSms.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsSms.join("\n"));
-                            });
-                        }
-                        break;
-                    case 'vk':
-                        for(var i = 0; i < data.recipientsVk.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsVk.join("\n"));
-                            });
-                        }
-                        break;
-                    case 'slack':
-                        for (var i = 0; i < data.recipientsSlack.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsSlack.join("\n"));
-                            });
-                        }
-                        break;
+                for(var i = 0; i < data.recipients.length; i++) {
+                    $("#addresses-area").each(function() {
+                        $(this).val(data.recipients.join("\n"));
+                    });
                 }
             }
         });
@@ -704,9 +701,9 @@ function showListMailing() {
 
 function openEditShowListMailing() {
 
-    listGroupName = $('#listMailingSelect').val()
+    listGroupName = $('#listMailingSelect').val();
 
-    if(listGroupName != "null") {
+    if(listGroupName !== "null") {
         $("#deleteListMaling").removeAttr("disabled");
         $("#editButton").removeAttr("disabled");
     }
@@ -717,26 +714,12 @@ function openEditShowListMailing() {
         data: { listGroupId: listGroupName
         },
         success: function (data) {
-
-            $("#editListName").val(data.listName)
-
-            $("#editListEmail").each(function () {
-                $(this).val(data.recipientsEmail.join("\n"));
+            $("#editListName").val(data.listName);
+            $("#editListRecipients").each(function () {
+                $(this).val(data.recipients.join("\n"));
             });
-
-            $("#editListSms").each(function () {
-                $(this).val(data.recipientsSms.join("\n"));
-            });
-
-            $("#editListVk").each(function () {
-                $(this).val(data.recipientsVk.join("\n"));
-            });
-
-            $("#editListSlack").each(function () {
-                $(this).val(data.recipientsSlack.join("\n"));
-            });
+            $("#edit-mailing-list-type").val(data.type.id);
         }
-
     });
 }
 
@@ -744,19 +727,16 @@ function openEditShowListMailing() {
 function editListMailing() {
     let listName = $("#listMailingSelect").val();
     let editListName = $("#editListName").val();
-    let editListEmail = $("#editListEmail").val();
-    let editListSms = $("#editListSms").val();
-    let editListVk = $("#editListVk").val();
-    let editListSlack = $("#editListSlack").val();
+    let editListRecipients = $("#editListRecipients").val();
+    let editTypeId = $("#edit-mailing-list-type").val();
     $.ajax({
         url: '/edit/list-mailing',
         type: 'POST',
-        data: { listId: listName,
-                editListName: editListName,
-                editRecipientsEmail: editListEmail,
-                editRecipientsSms: editListSms,
-                editRecipientsVk: editListVk,
-                editRecipientsSlack: editListSlack
+        data: {
+            listId: listName,
+            editListName: editListName,
+            editRecipients: editListRecipients,
+            typeId: editTypeId
         },
         success: function () {
             location.reload();
@@ -771,11 +751,12 @@ function deleteListMailing() {
     $.ajax({
         url: '/remove/list-mailing',
         type: 'POST',
-        data: { listId: listName
-        }, success: function () {
+        data: {
+            listId: listName
+        },
+        success: function () {
             location.reload();
         }
-
     });
 
 }
