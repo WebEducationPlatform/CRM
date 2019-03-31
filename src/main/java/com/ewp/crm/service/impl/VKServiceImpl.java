@@ -23,10 +23,6 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.codec.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -41,8 +37,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -660,13 +660,13 @@ public class VKServiceImpl implements VKService {
         logger.info("VKService: getting client by VK id...");
 
         //сначала ищем у себя в базе
-        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(String.valueOf(id), "vk");
-        Optional<Client> client = clientService.getClientBySocialProfile(socialProfile);
-
-        if (client.isPresent()) {
-            return client;
+        Optional<SocialProfile> socialProfileOpt = socialProfileService.getSocialProfileBySocialIdAndSocialType(String.valueOf(id), "vk");
+        if (socialProfileOpt.isPresent()) {
+            Optional<Client> client = clientService.getClientBySocialProfile(socialProfileOpt.get());
+            if (client.isPresent()) {
+                return client;
+            }
         }
-
         Map<String, String> param = getUserDataById(id, "", "");
 
         String name = param.get("first_name");
@@ -675,7 +675,7 @@ public class VKServiceImpl implements VKService {
         try {
             if (name != null && lastName != null) {
                 Client newClient = new Client(name, lastName);
-                socialProfile = new SocialProfile(String.valueOf(id));
+                SocialProfile socialProfile = new SocialProfile(String.valueOf(id));
                 List<SocialProfile> socialProfiles = new ArrayList<>();
                 socialProfiles.add(socialProfile);
                 newClient.setSocialProfiles(socialProfiles);
@@ -771,8 +771,11 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public Optional<Client> getVkLinkById(String userID) {
-        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, "vk");
-        return clientService.getClientBySocialProfile(socialProfile);
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, "vk");
+        if (socialProfile.isPresent()) {
+            return clientService.getClientBySocialProfile(socialProfile.get());
+        }
+        return Optional.empty();
     }
 
     @Override

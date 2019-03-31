@@ -247,7 +247,7 @@ public class ScheduleTasks {
 				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
 					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-					if (!(Optional.ofNullable(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk")).isPresent())) {
+					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
 						addClient(newClient.get());
 					}
 				}
@@ -350,7 +350,7 @@ public class ScheduleTasks {
 			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
 			if (newPotentialClient.isPresent()) {
 				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
-				if (socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk") == null) {
+				if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent()) {
 					potentialClientService.addPotentialClient(newPotentialClient.get());
 				}
 			}
