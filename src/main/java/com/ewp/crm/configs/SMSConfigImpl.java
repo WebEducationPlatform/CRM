@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @PropertySource("file:./sms.properties")
 public class SMSConfigImpl implements SMSConfig {
+
     private String login;
     private String password;
     private String alphaName;
@@ -21,14 +22,14 @@ public class SMSConfigImpl implements SMSConfig {
     @Autowired
     public SMSConfigImpl(Environment env) {
         try {
-            this.login = env.getRequiredProperty("sms.login");
-            this.password = env.getRequiredProperty("sms.password");
-            this.alphaName = env.getRequiredProperty("sms.alpha-name");
+            login = env.getRequiredProperty("sms.login");
+            password = env.getRequiredProperty("sms.password");
+            alphaName = env.getRequiredProperty("sms.alpha-name");
             if (login.isEmpty() || password.isEmpty() || alphaName.isEmpty()) {
-                throw new NullPointerException();
+                throw new NoSuchFieldException();
             }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("sms configs have not initialized. Check sms.properties file");
+        } catch (IllegalStateException | NoSuchFieldException e) {
+            logger.error("Sms config hasn't been initialized. Check sms.properties file", e);
         }
     }
 
