@@ -28,7 +28,7 @@ public class EmailExtra  implements Serializable {
     @Column(name = "email_extra", length = 50)
     private String emailExtra;
 
-    @ManyToOne(targetEntity = Client.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = Client.class)
     @JoinTable(name = "client_email_extra",
             joinColumns = {@JoinColumn(name = "email_extra_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA"))})

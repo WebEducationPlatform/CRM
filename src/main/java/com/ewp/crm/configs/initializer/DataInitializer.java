@@ -384,6 +384,7 @@ public class DataInitializer {
         List<EmailExtra> emailExtras1 = clientN2.getEmailsExtra();
         List<PhoneExtra> phoneExtras = clientN2.getPhonesExtra();
         List<Notification> notifications = clientN2.getNotifications();
+     //   emailExtraService.delete(1L);
         System.out.println("вот такая лабуда!");
     }
 }
