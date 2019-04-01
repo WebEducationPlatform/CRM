@@ -84,8 +84,7 @@ public class VKServiceImpl implements VKService {
     private final String idString = "id";
     private final String zeroString = "0";
     private final String vkURL = "https://vk.com/";
-    private static final String GETTING_BALANCE_ERROR = "Ошибка получения баланса";
-    private static final String GETTING_SPENT_MONEY_ERROR = "Ошибка получения потраченных денег";
+    private static final String GETTING_REPORT_ERROR = "Ошибка";
 
     private String vkApi;
     //Токен аккаунта, отправляющего сообщения
@@ -1274,26 +1273,26 @@ public class VKServiceImpl implements VKService {
         try {
             balanceFromYandexDirect = yandexDirectAdReportService.getBalance();
         } catch (Exception e) {
-            balanceFromYandexDirect = GETTING_BALANCE_ERROR;
-            logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API is correct", e);
+            balanceFromYandexDirect = GETTING_REPORT_ERROR;
+            logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
         }
         try {
             spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney();
         } catch (Exception e) {
-            spentFromYandexDirect = GETTING_SPENT_MONEY_ERROR;
-            logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API is correct", e);
+            spentFromYandexDirect = GETTING_REPORT_ERROR;
+            logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
         }
         // Получение отчёта со ВКонтакте.
         try {
             balanceFromVk = vkAdsReportService.getBalance();
         } catch (Exception e) {
-            balanceFromVk = GETTING_BALANCE_ERROR;
+            balanceFromVk = GETTING_REPORT_ERROR;
             logger.error("Can't receive balance from VK. Check if request to VK ads API is correct", e);
         }
         try {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
-           spentFromVk =  GETTING_SPENT_MONEY_ERROR;
+           spentFromVk =  GETTING_REPORT_ERROR;
            logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 

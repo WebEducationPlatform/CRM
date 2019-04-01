@@ -27,8 +27,14 @@ public class YandexDirectConfigImpl implements YandexDirectConfig {
             authorizationToken = env.getRequiredProperty("authorization.token");
             acceptLanguage = env.getRequiredProperty("accept.language");
             clientLogin = env.getRequiredProperty("client.login");
+
+            if (apiV4LiveUrl.isEmpty() || apiV5Url.isEmpty() || authorizationToken.isEmpty() ||
+                    acceptLanguage.isEmpty() || clientLogin.isEmpty()) {
+                throw new NoSuchFieldException();
+            }
         } catch (Exception e) {
             logger.error("Yandex-direct configs haven't been initialized. Check yandex-direct.properties file", e);
+            System.exit(1);
         }
     }
 

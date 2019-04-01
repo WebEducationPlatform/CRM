@@ -62,8 +62,16 @@ public class VKConfigImpl implements VKConfig {
             vkReportChatId = env.getProperty("vk.app.reports.service.chat.id");
             vkAdsClientId = env.getProperty("vk.ads.client.id");
             vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
+
+            if (clubId.isEmpty() || version.isEmpty() || communityToken.isEmpty() || applicationId.isEmpty() ||
+                    display.isEmpty() || redirectUri.isEmpty() || scope.isEmpty() || robotClientId.isEmpty() ||
+                    robotClientSecret.isEmpty() || firstContactMessage.isEmpty() || apiUrl.isEmpty() || managerToken.isEmpty() ||
+                    vkReportChatId.isEmpty() || vkAdsClientId.isEmpty() || vkAppAccessToken.isEmpty()) {
+                throw new NoSuchFieldException();
+            }
         } catch (Exception e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
+            System.exit(1);
         }
     }
 
