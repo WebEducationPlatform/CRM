@@ -50,9 +50,6 @@ public class DataInitializer {
     private ClientHistoryService clientHistoryService;
 
     @Autowired
-    private ReportsStatusService reportsStatusService;
-
-    @Autowired
     private StudentService studentService;
 
     @Autowired
@@ -312,21 +309,6 @@ public class DataInitializer {
             }
         }
         clientService.addBatchClients(list);
-        Optional<Status> st0 = statusService.getStatusByName("dropOut Status");
-        Optional<Status> st1 = statusService.getStatusByName("endLearningStatus");
-        Optional<Status> st2 = statusService.getStatusByName("inLearningStatus");
-        Optional<Status> st3 = statusService.getStatusByName("pauseLearnStatus");
-        Optional<Status> st4 = statusService.getStatusByName("trialLearnStatus");
-        if (st0.isPresent() && st1.isPresent() && st2.isPresent() && st3.isPresent() && st4.isPresent()) {
-            reportsStatusService.
-                    add(new ReportsStatus(
-                            st0.get().getId(),
-                            st1.get().getId(),
-                            st2.get().getId(),
-                            st3.get().getId(),
-                            st4.get().getId()
-                    ));
-        }
 
 
         VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
