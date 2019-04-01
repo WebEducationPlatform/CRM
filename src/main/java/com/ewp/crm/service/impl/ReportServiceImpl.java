@@ -40,7 +40,8 @@ public class ReportServiceImpl implements ReportService {
      * @param lastReportDate  дата окончания отчетного периода
      * @return количество найденных клиентов
      */
-    private int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+    @Override
+    public int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
         return clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, lastReportDate,
                 new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
     }
@@ -72,7 +73,8 @@ public class ReportServiceImpl implements ReportService {
      * @param exclude         список исключенных статусов
      * @return количество подходящих под критерии клиентов
      */
-    private int countChangedStatusClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, Status from, Status to, Set<Status> exclude) {
+    @Override
+    public int countChangedStatusClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, Status from, Status to, Set<Status> exclude) {
         int result = 0;
         // выбираем клиентов, которые на изменили стутус на заданный в выбранном периоде
         List<Long> clientIds = clientRepository.getChangedStatusClientIdsInPeriod(firstReportDate, lastReportDate,
@@ -109,7 +111,8 @@ public class ReportServiceImpl implements ReportService {
      * @param lastReportDate   дата окончания отчетного периода
      * @return количество студентов, впервые совершивших оплату в заданный период
      */
-    private long countFirstPaymentClients(Status inProgressStatus, ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+    @Override
+    public long countFirstPaymentClients(Status inProgressStatus, ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
         long result = 0;
         List<Client> allClients = clientRepository.findAll();
         for (Client client : allClients) {
