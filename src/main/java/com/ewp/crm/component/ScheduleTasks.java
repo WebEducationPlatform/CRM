@@ -290,8 +290,7 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 10 01 * ?")
 	private void buildAndSendReport() {
-		Optional<String> report = reportService.buildReportOfLastMonth();
-		report.ifPresent(mailSendService::sendReportToJavaMentorEmail);
+		// ToDo рассылка отчета
 	}
 
 	@Scheduled(fixedRate = 600_000)
