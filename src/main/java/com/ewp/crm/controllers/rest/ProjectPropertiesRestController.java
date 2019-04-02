@@ -139,11 +139,10 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/client-default-properties")
-    public HttpStatus setClientDefaults(@RequestParam Long repeatedStatus, @RequestParam Long newClientStatus, @RequestParam Long id, @RequestParam Long rejectId) {
+    public HttpStatus setClientDefaults(@RequestParam Long repeatedStatus, @RequestParam Long newClientStatus, @RequestParam Long rejectId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setRepeatedDefaultStatusId(repeatedStatus);
         current.setNewClientStatus(newClientStatus);
-        current.setDefaultStatusId(id);
         current.setClientRejectStudentStatus(rejectId);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
