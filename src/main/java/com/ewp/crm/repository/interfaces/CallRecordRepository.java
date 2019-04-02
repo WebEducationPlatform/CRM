@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface CallRecordRepository extends CommonGenericRepository<CallRecord> {
 
-    @Query("FROM CallRecord callRecord WHERE callRecord.client IS NULL ORDER BY callRecord.id DESC")
+    @Query("FROM CallRecord callRecord WHERE callRecord.clientHistory IS NULL ORDER BY callRecord.id DESC")
     List<CallRecord> getAllCommonRecords(Pageable pageable);
 
 }
