@@ -53,7 +53,7 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "skype")
     private String skype = "";
 
-    @Column(name = "birthDate")
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Formula("(if(birth_date is null,0,YEAR(CURDATE()) - YEAR(birth_date)))")
