@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
-      xmlns:display="http://www.w3.org/1999/xhtml">
+>
 <head>
     <title>Все студенты</title>
     <meta charset="UTF-8" />
@@ -91,7 +91,7 @@
             </tr>
             </thead>
             <tbody id="table-body">
-            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="${(student.client.status.name != 'deleted' ? '' : 'display:none;') + student.color != null ? 'background-color: ' + student.color : ''}">
+            <tr th:each="student : ${students}" th:id="'row_' + ${student.id}" th:style="'display:none; '+${student.color != null ? 'background-color: ' + student.color : ''}">
                 <td th:id="${'status_' + student.id}" hidden="hidden" th:text="${student.client.status.name}"></td>
                 <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
                 <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
@@ -112,33 +112,62 @@
                 <td th:id="${'paymentAmount_' + student.id}" th:text="${student.paymentAmount}"></td>
                 <td th:id="${'payLater_' + student.id}" th:text="${student.payLater}"></td>
                 <td>
-                    <table width="240px">
+                    <table width="160px">
                         <tr>
-                            <td width="25%">
-                                <label th:for="${student.id+'_notify_email'}" th:hidden="${student.client.email}==''">
-                                    Email:
-                                    <input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/>
-                                </label>
-                            </td>
-                            <td width="25%">
-                                <label th:for="${student.id+'_notify_sms'}" th:hidden="${student.client.phoneNumber}==''">
-                                    SMS:
-                                    <input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/>
-                                </label>
-                            </td>
-                            <td width="25%">
-                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'vk'}" th:remove="tag">
-                                <label th:for="${student.id+'_notify_vk'}">
-                                    VK:
-                                    <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}"/>
-                                </label>
+                            <td width="20%">
+                                <span th:if="${student.client.email!=''}" th:remove="tag">
+                                    <figure class="single">
+                                        <div class="figure-content"><img th:id="${student.id+'_notify_email_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/email_off.png}" class="notifier_img img-fluid"/></div>
+                                        <figcaption><img th:id="${student.id+'_notify_email_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/email_on.png}"/></figcaption>
+                                        <label th:for="${student.id+'_notify_email'}" th:hidden="${student.client.email}==''">
+                                            <input th:id="${student.id+'_notify_email'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyEmail}" th:disabled="${student.client.email}==''"/>
+                                        </label>
+                                    </figure>
                                 </span>
                             </td>
-                            <td width="25%">
-                                <label th:for="${student.id+'_notify_all'}">
-                                    Все:
-                                    <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk.com')) or student.notifyVK)}"/>
-                                </label>
+                            <td width="20%">
+                                <span th:if="${student.client.phoneNumber!=''}" th:remove="tag">
+                                    <figure class="single">
+                                        <div class="figure-content"><img th:id="${student.id+'_notify_sms_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/sms_off.png}" class="notifier_img img-fluid"/></div>
+                                        <figcaption><img th:id="${student.id+'_notify_sms_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/sms_on.png}"/></figcaption>
+                                        <label th:for="${student.id+'_notify_sms'}">
+                                            <input th:id="${student.id+'_notify_sms'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySMS}" th:disabled="${student.client.phoneNumber}==''"/>
+                                        </label>
+                                    </figure>
+                                </span>
+                            </td>
+                            <td width="20%">
+                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'vk'}" th:remove="tag">
+                                    <figure class="single">
+                                        <div class="figure-content"><img th:id="${student.id+'_notify_vk_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/vk_off.png}" class="notifier_img img-fluid"/></div>
+                                        <figcaption><img th:id="${student.id+'_notify_vk_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/vk_on.png}"/></figcaption>
+                                        <label th:for="${student.id+'_notify_vk'}">
+                                            <input th:id="${student.id+'_notify_vk'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifyVK}"/>
+                                        </label>
+                                    </figure>
+                                </span>
+                            </td>
+                            <td width="20%">
+                             <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'slack'}" th:remove="tag">
+                                    <figure class="single">
+                                        <div class="figure-content"><img th:id="${student.id+'_notify_slack_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/slack_off.png}" class="notifier_img img-fluid"/></div>
+                                        <figcaption><img th:id="${student.id+'_notify_slack_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/slack_on.png}"/></figcaption>
+                                        <label th:for="${student.id+'_notify_slack'}">
+                                            <input th:id="${student.id+'_notify_slack'}" type="checkbox" class="notifier" th:value="${student.id}" th:checked="${student.notifySlack}"/>
+                                        </label>
+                                    </figure>
+                                </span>
+                            </td>
+                            <td width="20%">
+                                <span th:if="${!((student.client.email=='') and (student.client.phoneNumber=='') and (!#strings.contains(student.client.socialProfiles,'vk')) and (!#strings.contains(student.client.socialProfiles,'slack')))}" th:remove="tag">
+                                    <figure class="all">
+                                        <div class="figure-content"><img th:id="${student.id+'_notify_all_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/check_all_off.png}" class="notifier_all_img img-fluid"/></div>
+                                        <figcaption><img th:id="${student.id+'_notify_all_img_on'}" class="notifier_all_img" style="width: 24px; height: 24px" th:src="@{/images/check_all_on.png}"/></figcaption>
+                                        <label th:for="${student.id+'_notify_all'}">
+                                            <input th:id="${student.id+'_notify_all'}" type="checkbox" class="notifier_all" th:value="${student.id}" th:checked="${((student.client.email=='') or student.notifyEmail) and ((student.client.phoneNumber=='') or student.notifySMS) and ((!#strings.contains(student.client.socialProfiles,'vk')) or student.notifyVK) and ((!#strings.contains(student.client.socialProfiles,'slack')) or student.notifySlack)}"/>
+                                        </label>
+                                    </figure>
+                                </span>
                             </td>
                         </tr>
                     </table>
@@ -151,7 +180,7 @@
                 <td>
                     <button class="button_color btn btn-success glyphicon glyphicon-tint btn-xs" th:value="${student.id}" title="Окраска"></button>
                     <button class="button_color_reset btn btn-warning glyphicon glyphicon-repeat btn-xs" th:value="${student.id}" title="Сброс окраски"></button>
-                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:value="${student.client.id}" title="Информация"></button>
+                    <button class="button_info btn btn-info glyphicon glyphicon-info-sign btn-xs" th:value="${student.client.id}" th:id="${'student_info_button_' + student.id}" title="Информация"></button>
                     <button class="button_delete btn btn-danger glyphicon glyphicon-remove btn-xs" th:value="${student.id}" title="Удалить студента"></button>
                 </td>
             </tr>
@@ -164,6 +193,15 @@
 <div th:replace="fragments/student-reject-modal::studentRejectModal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<div th:replace="fragments/htmlFragments::client_description_modal"></div>
+<div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<div th:replace="fragments/conversations::conversationsModal"></div>
+<div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
@@ -181,5 +219,6 @@
 <link href="/css/bootstrap-colorpicker.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.imgcheckbox.js}"></script>
 </body>
 </html>

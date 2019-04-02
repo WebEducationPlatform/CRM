@@ -1,6 +1,6 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -40,8 +40,8 @@ public class ClientHistory {
     @OneToOne(cascade = CascadeType.ALL)
     private Message message;
 
-    @JsonBackReference
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
@@ -142,6 +142,7 @@ public class ClientHistory {
 		ASSIGN("прикрепил"),
 		UNASSIGN("открепил"),
 		CALL("совершил звонок"),
+		CALL_WITHOUT_RECORD(", не дозвонился"),
 		SEND_MESSAGE("отправил сообщение по"),
 		ADD("добавил вручную"),
 		UPDATE("обновил информацию"),

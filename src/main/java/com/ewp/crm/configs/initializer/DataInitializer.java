@@ -90,11 +90,13 @@ public class DataInitializer {
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
         SocialProfileType TELEGRAM = new SocialProfileType("telegram");
         SocialProfileType whatsApp = new SocialProfileType("whatsapp");
+        SocialProfileType slack = new SocialProfileType("slack");
         socialProfileTypeService.add(VK);
         socialProfileTypeService.add(FACEBOOK);
         socialProfileTypeService.add(UNKNOWN);
         socialProfileTypeService.add(TELEGRAM);
         socialProfileTypeService.add(whatsApp);
+        socialProfileTypeService.add(slack);
 
         User admin = new User(
                 "Stanislav",
@@ -257,11 +259,7 @@ public class DataInitializer {
             vkMemberService.addAllMembers(memberList);
         }
 
-        SlackProfile slackProfile = new SlackProfile();
-        slackProfile.setName("Вадим");
-        slackProfile.setHashName("U75SN67H8");
-        client2.setSlackProfile(slackProfile);
-        slackProfile.setClient(client2);
+
 
         clientService.addClient(client1);
         clientService.addClient(client2);

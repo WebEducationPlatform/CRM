@@ -101,14 +101,14 @@ public class NotificationRestController {
 
     @PostMapping(value = "/comment/cleanAllNewUserNotify")
     public ResponseEntity markAsReadAllNewUserNotify(@AuthenticationPrincipal User userFromSession) {
-        if (userFromSession.isNewClienNotifyIsEnabled()) {
-            userFromSession.setNewClienNotifyIsEnabled(false);
+        if (userFromSession.isNewClientNotifyIsEnabled()) {
+            userFromSession.setNewClientNotifyIsEnabled(false);
             List<Client> clients = clientService.getAllClients();
             for (Client client : clients) {
                 notificationService.deleteByTypeAndClientAndUserToNotify(Notification.Type.NEW_USER, client, userFromSession);
             }
         } else {
-            userFromSession.setNewClienNotifyIsEnabled(true);
+            userFromSession.setNewClientNotifyIsEnabled(true);
         }
         userService.update(userFromSession);
         return ResponseEntity.ok(HttpStatus.OK);

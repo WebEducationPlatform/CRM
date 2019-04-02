@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+
+<th:block th:fragment="contractClientSettingModal">
+    <div th:id="contract-client-setting-modal" class="modal fade client-contract-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Ссылка на форму для договора:</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="form-group">
+                            <div class="row" style="margin-bottom: 5%">
+                                <div class="form-check col-sm-4">
+                                    <input class="form-check-input" type="radio" name="exampleRadios" value="option1"
+                                           id="contract-client-setting-one-time-payment-radio" checked="checked" />
+                                    <label class="form-check-label" for="contract-client-setting-one-time-payment-radio">
+                                        разовая
+                                    </label>
+                                </div>
+                                <div class="form-check col-sm-4">
+                                    <input class="form-check-input" type="radio" name="exampleRadios" value="option2"
+                                           id="contract-client-setting-month-payment-radio" />
+                                    <label class="form-check-label" for="contract-client-setting-month-payment-radio">
+                                        месячная
+                                    </label>
+                                </div>
+                                <div class="form-check col-sm-4">
+                                    <input class="form-check-input" type="checkbox" id="contract-client-setting-diploma-checkbox"
+                                           hidden="hidden" />
+                                    <label class="form-check-label" for="contract-client-setting-diploma-checkbox" style="font-weight: 700;" >диплом</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label for="contract-client-setting-payment-amount-form" class="col-sm-2 col-form-label">Сумма платежа</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="contract-client-setting-payment-amount-form"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <button class="btn btn-primary col-sm-4" type="button" id="contract-client-setting-generate-contract-button"
+                                    onclick="createContractSetting()" >Сгенерировать ссылку</button>
+                            <div class="col-sm-8">
+                                <input class="form-control" type="text" id="contract-client-setting-contract-link"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal" tabindex="-1" role="dialog" id="contract-copy-modal" style="z-index: 1000;">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                <p>Ссылка скопирована!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<script th:src="@{/js/main-table.js}"></script>
+</body>
+</html>

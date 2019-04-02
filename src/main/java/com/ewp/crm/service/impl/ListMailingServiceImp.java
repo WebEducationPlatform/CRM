@@ -6,6 +6,7 @@ import com.ewp.crm.service.interfaces.ListMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +19,10 @@ public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implem
         this.listMailingDAO = listMailingDAO;
     }
 
+    @Override
+    public List<ListMailing> getByType(String typeName) {
+        return listMailingDAO.getByType_Name(typeName);
+    }
 
     public void addListMailing(ListMailing listMailing) {
         listMailingDAO.save(listMailing);

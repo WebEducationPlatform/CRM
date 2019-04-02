@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
@@ -170,13 +171,15 @@ public class IncomeStringToClient {
     private void checkSocialNetworks(Client client, Map<String, String> clientData) {
         if (clientData.containsKey("Social")) {
             String link = clientData.get("Social").replace("~", "");
-            SocialProfile currentSocialProfile = getSocialNetwork(link);
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + link +
-                        " недействительна");
-                logger.warn("Unknown social network");
+            if (link != null && !link.isEmpty()) {
+                SocialProfile currentSocialProfile = getSocialNetwork(link);
+                if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                    client.setComment(String.format("Ссылка на социальную сеть %s недействительна", link));
+                    logger.warn("Unknown social network '" + link + "'");
+                } else {
+                    client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
+                }
             }
-            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
     }
 
@@ -187,8 +190,11 @@ public class IncomeStringToClient {
             if (validLink.equals("undefined")) {
                 socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
             } else {
-                socialProfile.setSocialId(vkService.getIdFromLink(link));
-                socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                Optional<String> socialId = vkService.getIdFromLink(link);
+                if (socialId.isPresent()) {
+                    socialProfile.setSocialId(socialId.get());
+                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                }
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
             socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);

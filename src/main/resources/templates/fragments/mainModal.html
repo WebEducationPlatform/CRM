@@ -134,8 +134,10 @@
                                 <tr>
                                     <td>Запрос:</td>
                                     <td>
-                                        <button id="client-request-button" class="btn btn-default btn-xs">Показать/Скрыть</button>
-                                        <p id="client-request" style="display: none"></p>
+                                        <div class="client-request">
+                                            <button id="client-request-button" class="btn btn-default btn-xs">Показать/Скрыть</button>
+                                            <p id="client-request" style="word-wrap: break-word; white-space: pre-line; display: none"></p>
+                                        </div>
                                     </td>
                                     <td></td>
                                 </tr>
@@ -156,13 +158,6 @@
                                                    class="btn btn-social-icon btn-facebook btn-sm">
                                                     <span class="fa fa-facebook"></span></a>
                                             </div>
-                                            <div class="btn-slack">
-                                                <a id="slack-href" target="_blank" class="slack-button">
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <button id="slack-invite-href" type="submit" class="btn btn-success">Пригласить в Slack</button>
                                         </div>
                                     </td>
                                     <td>
@@ -179,6 +174,8 @@
                                 </tbody>
                             </table>
                             <div id="assign-unassign-btns">
+                            </div>
+                            <div id="contract-btn">
                             </div>
                         </div>
                     </div>
