@@ -5,10 +5,9 @@ import com.ewp.crm.service.interfaces.ListMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,5 +24,10 @@ public class ListMailingRestController {
     public ResponseEntity<ListMailing> getListMailing(@RequestParam("listGroupId") Long id) {
         Optional<ListMailing> listMailing = listMailingService.getListMailingById(id);
         return listMailing.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/get/listMailing/{type}")
+    public ResponseEntity<List<ListMailing>> getListMailingByType(@PathVariable String type) {
+        return ResponseEntity.ok(listMailingService.getByType(type));
     }
 }
