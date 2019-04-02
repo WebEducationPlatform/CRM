@@ -2,24 +2,25 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.ReportsStatus;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ReportService;
-import com.ewp.crm.service.interfaces.ReportsStatusService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.ListIterator;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -30,29 +31,19 @@ public class ReportServiceImpl implements ReportService {
     private ClientRepository clientRepository;
 
     @Autowired
-    private ReportsStatusService reportsStatusService;
-
-    @Autowired
     private StatusService statusService;
 
-    public Optional<String> buildReport(String date) {
-        if (date != null) {
-            ZonedDateTime[] dates = parseTwoDate(date);
-            if (dates == null) {
-                return Optional.empty();
-            }
-            return Optional.of(formationOfReportsText(dates));
-        }
-        return Optional.empty();
-    }
-
-    public Optional<String> buildReportOfLastMonth() {
-        LocalDate today = LocalDate.now();
-        LocalDate firstDayMonth = today.minusDays(1).withDayOfMonth(1);
-        return Optional.of(formationOfReportsText(new ZonedDateTime[]{
-                ZonedDateTime.from(firstDayMonth.atStartOfDay(ZoneId.systemDefault())),
-                ZonedDateTime.from(today.atStartOfDay(ZoneId.systemDefault()))
-        }));
+    /**
+     * Подсчитывает количество клиентов в статусе "новые" за период
+     *
+     * @param firstReportDate дата начала отчетного периода
+     * @param lastReportDate  дата окончания отчетного периода
+     * @return количество найденных клиентов
+     */
+    @Override
+    public int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+        return clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, lastReportDate,
+                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
     }
 
     private ZonedDateTime[] parseTwoDate(String date) {
@@ -71,52 +62,75 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    private String formationOfReportsText(ZonedDateTime[] dates) {
-        ReportsStatus reportsStatus = reportsStatusService.getAll().get(0);
-        if (statusService.get(reportsStatus.getDropOutStatus()).isPresent() &&
-                statusService.get(reportsStatus.getEndLearningStatus()).isPresent() &&
-                statusService.get(reportsStatus.getInLearningStatus()).isPresent() &&
-                statusService.get(reportsStatus.getPauseLearnStatus()).isPresent() &&
-                statusService.get(reportsStatus.getTrialLearnStatus()).isPresent()) {
-
-            String dropOutStatusName = statusService.get(reportsStatus.getDropOutStatus()).get().getName();
-            String endLearningName = statusService.get(reportsStatus.getEndLearningStatus()).get().getName();
-            Status inLearningStatus = statusService.get(reportsStatus.getInLearningStatus()).get();
-            Status pauseLearnStatus = statusService.get(reportsStatus.getPauseLearnStatus()).get();
-            Status trialLearnStatus = statusService.get(reportsStatus.getTrialLearnStatus()).get();
-
-//		ZonedDateTime datePlusOneWeek = ZonedDateTime.of(dates[0].toLocalDate(), LocalTime.MIN, ZoneId.systemDefault()).minusWeeks(1); todo зачем нужна была?
-            List<Client> newClientPlusOneWeek = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                    new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
-
-            long countFirstPaymentClients = newClientPlusOneWeek.stream()
-                    .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(trialLearnStatus.getName())))
-                    .filter(x -> x.getHistory().stream().anyMatch(y -> y.getTitle().contains(inLearningStatus.getName()))).count();
-            int countNewClient = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(dates[0], dates[1],
-                    new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
-            long countDropOutClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, dropOutStatusName);
-            long countEndLearningClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, endLearningName);
-            long countTakePauseClients = clientRepository.getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(dates[0], dates[1],
-                    new ClientHistory.Type[]{ClientHistory.Type.STATUS}, pauseLearnStatus.getName());
-            int countInLearningClients = clientRepository.getAllByStatus(inLearningStatus).size();
-            int countPauseLearnClients = clientRepository.getAllByStatus(pauseLearnStatus).size();
-            int countTrialLearnClients = clientRepository.getAllByStatus(trialLearnStatus).size();
-
-            String dateFrom = dates[0].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
-            String dateTo = dates[1].format(DateTimeFormatter.ofPattern("d MMMM yyyy").withLocale(new Locale("ru")));
-            return "Отчет с " + dateFrom + " года \n " +
-                    "        по " + dateTo + " года. \n" +
-                    "Начали учёбу " + countNewClient + " новых человек \n" +
-                    "Произвели оплату " + countFirstPaymentClients + " новых человек\n" +
-                    "Бросили учёбу " + countDropOutClients + " человек\n" +
-                    "Окончили учёбу " + countEndLearningClients + " человек\n" +
-                    "Взяли паузу " + countTakePauseClients + " человек\n" +
-                    "В настоящее время на пробных " + countTrialLearnClients + " новых человек\n" +
-                    "В настоящее время на паузе " + countPauseLearnClients + " человек\n" +
-                    "В настоящее время обучается " + countInLearningClients + " человек.\n";
+    /**
+     * Подсчитывает количество клиентов, которые перешли в статус to в заданный период firstReportDate - lastReportDate
+     * из статуса from и в данный момент не находятся в исключенных статусах exclude
+     *
+     * @param firstReportDate дата начала отчетного периода
+     * @param lastReportDate  дата окончания отчетного периода
+     * @param from            исходный статус клиента
+     * @param to              конечный статус клиента
+     * @param exclude         список исключенных статусов
+     * @return количество подходящих под критерии клиентов
+     */
+    @Override
+    public int countChangedStatusClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, Status from, Status to, Set<Status> exclude) {
+        int result = 0;
+        // выбираем клиентов, которые на изменили стутус на заданный в выбранном периоде
+        List<Long> clientIds = clientRepository.getChangedStatusClientIdsInPeriod(firstReportDate, lastReportDate,
+                new ClientHistory.Type[]{ClientHistory.Type.STATUS}, to.getName());
+        List<Client> clients = clientRepository.getById(clientIds).stream().filter(x -> !exclude.contains(x.getStatus())).collect(Collectors.toList());
+        for (Client client : clients) {
+            ListIterator li = client.getHistory().listIterator(client.getHistory().size());
+            boolean needTo = true;
+            while (li.hasPrevious()) {
+                ClientHistory history = (ClientHistory) li.previous();
+                // ищем первое вхождение с конца в истории клиента (to)
+                if (needTo && history.getType().equals(ClientHistory.Type.STATUS) && history.getTitle().contains(to.getName())) {
+                    needTo = false;
+                    continue;
+                }
+                // анализируем, является ли предыдущий статус клиента заданным (from)
+                if (!needTo && history.getType().equals(ClientHistory.Type.STATUS)) {
+                    if (history.getTitle().contains(from.getName())) {
+                        result++;
+                    }
+                    break;
+                }
+            }
         }
-        return "Ошибка формирования отчета";
+        return result;
     }
+
+
+    /**
+     * Подсчитывает количество студентов, которые впервые совершили оплату в заданный период
+     *
+     * @param inProgressStatus статус, который получает клиент при оплате
+     * @param firstReportDate  дата начала отчетного периода
+     * @param lastReportDate   дата окончания отчетного периода
+     * @return количество студентов, впервые совершивших оплату в заданный период
+     */
+    @Override
+    public long countFirstPaymentClients(Status inProgressStatus, ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+        long result = 0;
+        List<Client> allClients = clientRepository.findAll();
+        for (Client client : allClients) {
+            // поиск записи о первой оплате клиента
+            ClientHistory clientFirstPayment = client.getHistory().stream()
+                    .filter(x -> x.getTitle().contains(inProgressStatus.getName()))
+                    .findFirst()
+                    .orElse(null);
+            if (clientFirstPayment == null) {
+                break;
+            }
+            // проверка попадания оплаты в заданный период
+            ZonedDateTime firstPaymentDate = clientFirstPayment.getDate();
+            if (firstPaymentDate.isAfter(firstReportDate) && firstPaymentDate.isBefore(lastReportDate)) {
+                result++;
+            }
+        }
+        return result;
+    }
+
 }
