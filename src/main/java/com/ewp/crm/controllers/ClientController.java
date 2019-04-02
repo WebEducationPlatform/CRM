@@ -36,6 +36,7 @@ public class ClientController {
     private final ListMailingService listMailingService;
     private final MailingMessageRepository messageService;
     private final StudentStatusService studentStatus;
+    private final ListMailingTypeService listMailingTypeService;
 
 
     @Value("${project.pagination.page-size.clients}")
@@ -52,7 +53,8 @@ public class ClientController {
                             ProjectPropertiesService propertiesService,
                             ListMailingService listMailingService,
                             MailingMessageRepository messageService,
-                            StudentStatusService studentStatus) {
+                            StudentStatusService studentStatus,
+                            ListMailingTypeService listMailingTypeService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -64,6 +66,7 @@ public class ClientController {
         this.listMailingService = listMailingService;
         this.messageService = messageService;
         this.studentStatus = studentStatus;
+        this.listMailingTypeService = listMailingTypeService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -137,6 +140,7 @@ public class ClientController {
         model.addAttribute("listMailing", listMailingService.getAll());
         model.addAttribute("chooseUser", userService.getAll());
         model.addAttribute("mailingMessage", messageService.findAll());
+        model.addAttribute("listMailingTypes", listMailingTypeService.getAll());
         return "mailing";
     }
 
