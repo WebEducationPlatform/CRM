@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 public class PassportServiceImpl extends CommonServiceImpl<Passport> implements PassportService {
@@ -28,49 +29,49 @@ public class PassportServiceImpl extends CommonServiceImpl<Passport> implements 
     }
 
     @Override
-    public Passport encode(Passport passport) {
-        passport.setSeries(encrypt(passport.getSeries()));
-        passport.setNumber(encrypt(passport.getNumber()));
-        passport.setIssuedBy(encrypt(passport.getIssuedBy()));
-        passport.setRegistration(encrypt(passport.getRegistration()));
-        return passport;
+    public Optional<Passport> encode(Passport passport) {
+        passport.setSeries(encrypt(passport.getSeries()).get());
+        passport.setNumber(encrypt(passport.getNumber()).get());
+        passport.setIssuedBy(encrypt(passport.getIssuedBy()).get());
+        passport.setRegistration(encrypt(passport.getRegistration()).get());
+        return Optional.of(passport);
     }
 
     @Override
-    public Passport decode(Passport passport) {
-        passport.setSeries(decrypt(passport.getSeries()));
-        passport.setNumber(decrypt(passport.getSeries()));
-        passport.setIssuedBy(decrypt(passport.getIssuedBy()));
-        passport.setRegistration(decrypt(passport.getRegistration()));
-        return passport;
+    public Optional<Passport> decode(Passport passport) {
+        passport.setSeries(decrypt(passport.getSeries()).get());
+        passport.setNumber(decrypt(passport.getSeries()).get());
+        passport.setIssuedBy(decrypt(passport.getIssuedBy()).get());
+        passport.setRegistration(decrypt(passport.getRegistration()).get());
+        return Optional.of(passport);
     }
 
-    private String encrypt(String inputData) {
+    private Optional<String> encrypt(String inputData) {
         try {
             SecretKey secretKey = new SecretKeySpec(decryptKey, 0, decryptKey.length, "AES");
 
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] byteCipherText = aesCipher.doFinal(inputData.getBytes());
-            return Arrays.toString(byteCipherText);
+            return Optional.of(Arrays.toString(byteCipherText));
         } catch (Exception e) {
             logger.error("Error with encrypt passport data", e);
         }
-        return null;
+        return Optional.empty();
     }
 
-    private String decrypt(String inputData) {
+    private Optional<String> decrypt(String inputData) {
         try {
             SecretKey secretKey = new SecretKeySpec(decryptKey, 0, decryptKey.length, "AES");
 
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] bytePlainText = aesCipher.doFinal(toByte(inputData));
-            return new String(bytePlainText);
+            return Optional.of(new String(bytePlainText));
         } catch (Exception e) {
             logger.error("Error with encrypt passport data", e);
         }
-        return null;
+        return Optional.empty();
     }
 
     private byte[] toByte(String str) {
