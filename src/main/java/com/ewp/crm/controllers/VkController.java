@@ -1,5 +1,6 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkTrackedClub;
@@ -43,6 +44,7 @@ public class VkController {
     private final VkTrackedClubService vkTrackedClubService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkCampaignService vkCampaignService;
+    private final VKConfig vkConfig;
 
     private ProjectProperties projectProperties;
 
@@ -51,12 +53,14 @@ public class VkController {
                         UserService userService,
                         VkTrackedClubService vkTrackedClubService,
                         ProjectPropertiesService projectPropertiesService,
-                        VkCampaignService vkCampaignService) {
+                        VkCampaignService vkCampaignService,
+                        VKConfig vkConfig) {
         this.vkService = vkService;
         this.userService = userService;
         this.vkTrackedClubService = vkTrackedClubService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkCampaignService = vkCampaignService;
+        this.vkConfig = vkConfig;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
@@ -78,11 +82,9 @@ public class VkController {
     @PostMapping(value = "/vk-auth")
     public String vkGetAccessToken(@RequestParam("token") String token, @AuthenticationPrincipal User userFromSession) {
         String applicationToken = vkService.replaceApplicationTokenFromUri(token);
-        if ((projectProperties = projectPropertiesService.get()) == null) {
-            projectProperties = new ProjectProperties();
-        }
+        projectProperties = projectPropertiesService.getOrCreate();
         projectProperties.setTechnicalAccountToken(applicationToken);
-        projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
+        projectPropertiesService.update(projectProperties);
         userFromSession.setVkToken(applicationToken);
         userService.update(userFromSession);
         return "redirect:/client";
@@ -172,6 +174,24 @@ public class VkController {
         campaign.getVkUsersToAdd().addAll(usersSet);
         vkCampaignService.update(campaign);
         return "redirect:/vk/campaigns/all";
+    }
+
+    @GetMapping("/vk-ads")
+    public String getAccessTokenVkAds() {
+        String robotClientId = vkConfig.getRobotClientId();
+        String redirectUri = vkConfig.getRedirectUri();
+        String version = vkConfig.getVersion();
+        StringBuilder stb = new StringBuilder("https://oauth.vk.com/authorize")
+                .append("?client_id=")
+                .append(robotClientId)
+                .append("&display=page&redirect_uri=")
+                .append(redirectUri)
+                .append("&scope=ads,offline,groups")
+                .append("&response_type=token")
+                .append("&v=")
+                .append(version)
+                .append("&state=");
+        return "redirect:" + stb.toString();
     }
 
     private Set<VkUser> processUploadedFile(MultipartFile file) {

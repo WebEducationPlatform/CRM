@@ -1,0 +1,109 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Оформление договора</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="d-flex align-items-center flex-column h-100 row">
+    <form class="col-sm-5" th:action="@{/contract/{hash}(hash=${hash})}" th:method="POST" th:object="${data}">
+        <div class="form-group">
+            <label for="inputFirstName" class="col-sm col-form-label">Имя :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputFirstName" th:field="*{inputFirstName}"
+                       placeholder="пример: Василий "/>
+            </div>
+            <label for="inputLastName" class="col-sm col-form-label">Фамилия :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputLastName" th:field="*{inputLastName}"
+                       placeholder="пример: Васильев"/>
+            </div>
+            <label for="inputMiddleName" class="col-sm col-form-label">Отчество :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputMiddleName" th:field="*{inputMiddleName}"
+                       placeholder="пример: Васильевич"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputBirthday" class="col-sm col-form-label">Дата рождения :</label>
+            <div class="col-sm">
+                <input type="text" name="date" class="form-control" id="inputBirthday" th:field="*{inputBirthday}"
+                       placeholder="пример: 01.01.1111"/>
+            </div>
+        </div>
+        <div class="row" style="margin-left: auto">
+            <div>
+                <label for="inputPassportSeries" class="col-sm col-form-label">Серия :</label>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="inputPassportSeries" th:field="*{passportData.series}"
+                           placeholder="пример: 1234"/>
+                </div>
+            </div>
+            <div>
+                <label for="inputPassportNumber" class="col-sm col-form-label">Номер :</label>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="inputPassportNumber" th:field="*{passportData.number}"
+                           placeholder="пример: 123456"/>
+                </div>
+            </div>
+            <div>
+                <label for="inputDateOfIssue" class="col-sm col-form-label">Когда выдан :</label>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="inputDateOfIssue" th:field="*{passportData.dateOfIssue}"
+                           placeholder="пример: 01.01.1111"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputPassportIssued" class="col-sm col-form-label">Кем выдан(полностью) :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputPassportIssued" th:field="*{passportData.issuedBy}"
+                       placeholder="пример: Отделением УФМС России по гор.Москве по району Аэропорт"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputRegistrationAddress" class="col-sm col-form-label">Адрес Регистрации :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputRegistrationAddress"
+                       th:field="*{passportData.registration}"
+                       placeholder="пример: г.Москва ул.Верхняя Масловка дом 11, кв.11"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-sm col-form-label">Электронная почта :</label>
+            <div class="col-sm">
+                <input type="email" class="form-control" id="inputEmail" th:field="*{inputEmail}"
+                       placeholder="пример: primer@test.ru"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputPhoneNumber" class="col-sm col-form-label">Номер телефона :</label>
+            <div class="col-sm">
+                <input type="text" class="form-control" id="inputPhoneNumber" th:field="*{inputPhoneNumber}"
+                       placeholder="пример: +79876543210"/>
+            </div>
+        </div>
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="customCheck1"/>
+            <label class="custom-control-label" for="customCheck1">Я согласен <a href="http://java-mentor.com/politika2.html" >с условиями передачи и обработки данных</a></label>
+        </div>
+        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" id="go-button" value="Отправить"
+               disabled="disabled" style="margin-top: 20px"/>
+    </form>
+    <div id="contract-loading" class="modal" style="
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, 0.4)
+                url('https://i.gifer.com/YCZH.gif')
+                50% 50%
+                no-repeat;"></div>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+<script type="text/javascript" th:src="@{/js/contract.js}"></script>
+</body>
+</html>

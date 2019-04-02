@@ -53,6 +53,13 @@
             </button>
         </div>
         <br/>
+        <div id="contract-user-setting-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#contract-user-setting-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настройки договора
+            </button>
+        </div>
+        <br/>
         <div id="choice-status-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#choice-status-column-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
@@ -63,7 +70,7 @@
         <div id="payment-notification-button">
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#payment-notification-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
-                Оповещение об оплате
+                Настройка оповещений
             </button>
         </div>
         <br/>
@@ -187,10 +194,6 @@
                         <select id="repeated-client-status" class="form-control"> </select>
                     </div>
                     <div class="row">
-                        <label for="status-column">Выберите статус клиента не студента после входа в Slack</label>
-                        <select id="status-column" class="form-control"></select>
-                    </div>
-                    <div class="row">
                         <label for="reject-student-status-column">Выберите статус клиента студента-отказника</label>
                         <select id="reject-student-status-column" class="form-control"> </select>
                     </div>
@@ -203,6 +206,7 @@
     </div>
 </div>
 <div th:replace="fragments/auto-answer-modal::autoAnswerModal"></div>
+<div th:replace="fragments/contract-user-setting-modal::contractUserSettingModal"></div>
 <div th:replace="fragments/payment-notification-modal::paymentNotificationModal"></div>
 <div th:replace="fragments/telegram-auth-modal::telegramAuthModal"></div>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>

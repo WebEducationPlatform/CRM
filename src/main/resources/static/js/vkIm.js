@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    setInterval(getUnreadMessages, 5000);
+    setInterval(getUnreadMessages, 9000);
 });
 
 function getUnreadMessages() {

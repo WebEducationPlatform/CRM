@@ -1,6 +1,6 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -24,7 +24,7 @@ public class ClientFeedback {
     @Column(name = "video_url")
     private String videoUrl;
 
-    @JsonBackReference
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToOne
     @JoinTable(name = "feedback_client",
             joinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))},

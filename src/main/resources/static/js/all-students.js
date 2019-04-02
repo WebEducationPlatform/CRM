@@ -26,29 +26,62 @@ $('.checkbox').click(function() {
 });
 
 $(document).ready(function() {
-    renderStudentsTable();
-    calc_info_values();
+    if (document.URL.indexOf("student/all") !== -1) {
+        renderStudentsTable();
+        calc_info_values();
+    };
+    $('figure').imgCheckbox({
+        width: 'auto',
+        height: 'auto',
+        textColor: 'white',
+        overlayBgColor: 'black',
+        overlayOpacity: '0',
+        round: false,
+        animation: false,
+        animationDuration: 300,
+        animationArray: ['scale']
+    });
 });
+
+function reInitCheckboxes() {
+    // Configure checkboxes animation
+    $('figure[class="single"]').imgCheckbox({
+        width: 'auto',
+        height: 'auto',
+        textColor: 'white',
+        overlayBgColor: 'black',
+        overlayOpacity: '0',
+        round: false,
+        animation: false,
+        animationDuration: 300,
+        animationArray: ['scale']
+    });
+}
 
 function renderStudentsTable() {
     var table, rows, i, status;
     table = document.getElementById("students-table");
     rows = table.rows;
     for (i = 1; i < rows.length; i++) {
-        status = rows[i].getElementsByTagName("TD")[0];
-        rows[i].style.display = 'yes';
+        status = rows[i].getElementsByTagName("TD")[0].innerHTML;
+        if (isStatusVisible(status)) {
+            rows[i].style.display = '';
+        } else {
+            rows[i].style.display = 'none';
+        }
     }
+}
+
+function isStatusVisible(status) {
+    let result = false;
     $.each($('#filter')[0]['children'][0]['children'], function (k, v) {
         let input = v.getElementsByTagName("INPUT")[0];
-        if (input.checked) {
-            for (i = 1; i < rows.length; i++) {
-                status = rows[i].getElementsByTagName("TD")[0];
-                if (input.id == status.innerHTML) {
-                    rows[i].style.display = '';
-                }
-            }
+        if (input.id === status) {
+            result = input.checked;
+            return false;
         }
     });
+    return result;
 }
 
 function calc_info_values() {
@@ -380,9 +413,11 @@ function updateStudent(id) {
             let email_selector = '#' + id + '_notify_email';
             let sms_selector = '#' + id + '_notify_sms';
             let vk_selector = '#' + id + '_notify_vk';
+            let slack_selector = '#' + id + '_notify_slack';
             let email_notify = $(email_selector).prop('checked');
             let sms_notify = $(sms_selector).prop('checked');
             let vk_notify = $(vk_selector).prop('checked');
+            let slack_notify = $(slack_selector).prop('checked');
             let data = {
                 id : id,
                 client : {id : client.id, name : $("#name_"+id).text(), lastName : $("#lastName_"+id).text(), email : $("#email_"+id).text()},
@@ -395,7 +430,8 @@ function updateStudent(id) {
                 notes : $("#notes_"+id).text(),
                 notifyEmail: email_notify,
                 notifySMS: sms_notify,
-                notifyVK: vk_notify
+                notifyVK: vk_notify,
+                notifySlack: slack_notify
             };
 
             $.ajax({
@@ -413,12 +449,29 @@ function updateStudent(id) {
     });
 }
 
+$('#main-modal-window').on('hidden.bs.modal', function () {
+    var clientId = $(this).data('clientId');
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/rest/client/' + clientId,
+        data: {"clientId": clientId},
+        success: function (client) {
+            var studentId = $('#main-modal-window').data('studentId');
+            $('#status_' + studentId).text(client.status.name);
+        }
+    });
+    renderStudentsTable();
+    calc_info_values();
+});
+
 //go to student info page
 $('.button_info').click(function () {
     var clientId = this.value;
     changeUrl('/student/all', clientId);
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', clientId);
+    currentModal.data('studentId', this.id.split("_")[3]);
     currentModal.modal('show');
 });
 
@@ -472,7 +525,7 @@ function validate_prices(id) {
 }
 
 //All available notification checkbox id patterns
-const notifications = ['_notify_email','_notify_sms','_notify_vk'];
+const notifications = ['_notify_email','_notify_sms','_notify_vk','_notify_slack'];
 
 //Check/uncheck all notifications
 $('.notifier_all').click(function() {
@@ -486,6 +539,34 @@ $('.notifier_all').click(function() {
         }
     }
     $(this.id).prop('checked', checked);
+});
+
+$('.notifier_img').on('click', function () {
+    let id = this.id.split("_")[0];
+    updateStudent(id);
+});
+
+$('.notifier_all_img').on('click', function () {
+    let id = this.id.split("_")[0];
+    let selector_all = $('#' + id + '_notify_all');
+    let checked = selector_all.prop('checked');
+    if (checked) {
+        for (let prefix of notifications) {
+            let selector = '#' + id + prefix;
+            if(!$(selector).prop('disabled')) {
+                $(selector).prop('checked', false);
+            }
+        }
+    } else {
+        for (let prefix of notifications) {
+            let selector = '#' + id + prefix;
+            if(!$(selector).prop('disabled')) {
+                $(selector).prop('checked', true);
+            }
+        }
+    }
+    reInitCheckboxes();
+    updateStudent(id);
 });
 
 //Notification checkbox change action
@@ -525,9 +606,10 @@ function update_notification(checkbox_id, checked) {
 //Search on page
 $("#searchInput").keyup(function () {
     let data = this.value.toLowerCase().split(" ");
-    let jo = $("#table-body").find("tr");
+    let jo = $("#table-body").find("tr[id^='row_']");
     if (this.value.trim() === "") {
-        jo.show();
+        renderStudentsTable();
+        calc_info_values();
         return;
     }
     jo.hide();
@@ -535,6 +617,7 @@ $("#searchInput").keyup(function () {
     jo.filter(function () {
         let $validCount = 0;
         let $t = $(this);
+        let status = $t[0].getElementsByTagName("TD")[0].innerHTML;
         let $temp = $t.clone();
         $temp.text($temp.text().toLowerCase());
         for (let d = 0; d < data.length; ++d) {
@@ -542,8 +625,9 @@ $("#searchInput").keyup(function () {
                 $validCount++;
             }
         }
-        return $validCount === data.length;
+        return isStatusVisible(status) && $validCount === data.length;
     }).show();
+    calc_info_values();
 }).focus(function () {
     this.value = "";
     $(this).css({

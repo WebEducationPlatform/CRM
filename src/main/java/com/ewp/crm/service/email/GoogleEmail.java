@@ -50,17 +50,19 @@ public class GoogleEmail {
     private final ClientHistoryService clientHistoryService;
     private final MailSendService prepareAndSend;
     private final ProjectPropertiesService projectPropertiesService;
+    private final SendNotificationService sendNotificationService;
 
 
     private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
 
     @Autowired
-    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService) {
+    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
         this.incomeStringToClient = incomeStringToClient;
         this.prepareAndSend = prepareAndSend;
+        this.sendNotificationService = sendNotificationService;
 
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
@@ -120,11 +122,12 @@ public class GoogleEmail {
                     if (parser.getHtmlContent().contains("Java Test")) {
                         prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
-                    if (clientService.getClientByEmail(client.getEmail()).isPresent()) {
+                    if (!clientService.getClientByEmail(client.getEmail()).isPresent()) {
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+                        statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        clientService.addClient(client);
+                        sendNotificationService.sendNewClientNotification(client, "gmail");
                     }
-                    statusService.getFirstStatusForClient().ifPresent(client::setStatus);
-                    clientService.addClient(client);
                     if (template != null) {
                         prepareAndSend.sendEmailInAllCases(client);
                     } else {

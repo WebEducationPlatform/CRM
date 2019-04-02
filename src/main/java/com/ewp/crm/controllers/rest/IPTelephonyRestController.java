@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequestMapping("/user/rest/call")
 public class IPTelephonyRestController {
 
-	private static final String INIT_RECORD_LINK = "http://www.google.com";
+	public static final String INIT_RECORD_LINK = "http://www.google.com";
 	private static Logger logger = LoggerFactory.getLogger(IPTelephonyRestController.class);
 	private final IPService ipService;
 	private final ClientService clientService;
@@ -111,9 +111,14 @@ public class IPTelephonyRestController {
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public byte[] getCallRecord(@PathVariable String file) throws IOException {
+	public byte[] getCallRecord(@PathVariable String file) {
 		Path fileLocation = Paths.get("CallRecords/" + file);
-		return Files.readAllBytes(fileLocation);
+		try {
+			return Files.readAllBytes(fileLocation);
+		} catch (IOException e) {
+			logger.error("File with record not found: " + fileLocation.toString(), e);
+		}
+		return new byte[0];
 	}
 
 	@GetMapping(value = "/voximplantCredentials")
@@ -145,7 +150,7 @@ public class IPTelephonyRestController {
 		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, "http://www.google.com");
+			Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, INIT_RECORD_LINK);
 			if (clientHistory.isPresent()) {
 				Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
 				if (historyFromDB.isPresent()) {
