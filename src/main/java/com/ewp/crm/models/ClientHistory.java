@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
