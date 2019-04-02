@@ -34,7 +34,6 @@ public class YandexDirectConfigImpl implements YandexDirectConfig {
             }
         } catch (Exception e) {
             logger.error("Yandex-direct configs haven't been initialized. Check yandex-direct.properties file", e);
-            System.exit(1);
         }
     }
 
