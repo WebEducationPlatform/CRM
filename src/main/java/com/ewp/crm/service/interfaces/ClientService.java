@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
 
+	List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType);
+
 	List<Client> getAllClientsByStatus(Status status);
 
 	List<Client> getAllClients();
