@@ -272,9 +272,6 @@ public class SlackServiceImpl implements SlackService {
         return false;
     }
 
-    /**
-     * Get slack users data and put it to map with user 'id' as a key and array [email, name] as value
-     */
     private List<SlackProfile> parseSlackUsersFromJson(String json) {
         List<SlackProfile> result = new ArrayList<>();
         try {
