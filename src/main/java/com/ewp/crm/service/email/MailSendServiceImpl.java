@@ -81,11 +81,11 @@ public class MailSendServiceImpl implements MailSendService {
             this.emailLogin = environment.getRequiredProperty("spring.mail.username");
             String password = environment.getRequiredProperty("spring.mail.password");
             if (emailLogin.isEmpty() || password.isEmpty()) {
-                throw new NullPointerException();
+                throw new NoSuchFieldException();
             }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("Mail configs have not initialized. Check application.properties file");
-            System.exit(-1);
+        } catch (IllegalStateException | NoSuchFieldException e) {
+            logger.error("Mail configs have not initialized. Check application.properties file", e);
+            System.exit(1);
         }
     }
 

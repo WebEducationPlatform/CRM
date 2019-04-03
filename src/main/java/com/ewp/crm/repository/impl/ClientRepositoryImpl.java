@@ -58,10 +58,19 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types) {
-        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
+        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDay AND p.date <= :lastDay AND p.type IN :types")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
                 .setParameter("types", Arrays.asList(types))
+                .getResultList();
+    }
+
+    public List<Long> getChangedStatusClientIdsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types, String title) {
+        return entityManager.createQuery("SELECT DISTINCT c.id FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+                .setParameter("firstDate", firstDate)
+                .setParameter("lastDate", lastDate)
+                .setParameter("types", Arrays.asList(types))
+                .setParameter("title", title)
                 .getResultList();
     }
 

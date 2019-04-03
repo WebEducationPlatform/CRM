@@ -247,7 +247,7 @@ public class ScheduleTasks {
 				Optional<Client> newClient = vkService.getClientFromVkId(id);
 				if (newClient.isPresent()) {
 					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-					if (!(Optional.ofNullable(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk")).isPresent())) {
+					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
 						addClient(newClient.get());
 					}
 				}
@@ -290,8 +290,7 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 10 01 * ?")
 	private void buildAndSendReport() {
-		Optional<String> report = reportService.buildReportOfLastMonth();
-		report.ifPresent(mailSendService::sendReportToJavaMentorEmail);
+		// ToDo рассылка отчета
 	}
 
 	@Scheduled(fixedRate = 600_000)
@@ -350,7 +349,7 @@ public class ScheduleTasks {
 			Optional<PotentialClient> newPotentialClient = vkService.getPotentialClientFromYoutubeLiveStreamByYoutubeClient(youtubeClient);
 			if (newPotentialClient.isPresent()) {
 				SocialProfile socialProfile = newPotentialClient.get().getSocialProfiles().get(0);
-				if (socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk") == null) {
+				if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent()) {
 					potentialClientService.addPotentialClient(newPotentialClient.get());
 				}
 			}

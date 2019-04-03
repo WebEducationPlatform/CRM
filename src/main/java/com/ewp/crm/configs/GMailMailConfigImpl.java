@@ -36,11 +36,11 @@ public class GMailMailConfigImpl implements MailConfig {
             imapServer = env.getRequiredProperty("mail.imap.server");
             if (login.isEmpty() || password.isEmpty() || mailFrom.isEmpty() || socketFactoryClass.isEmpty() ||
                     socketFactoryFallback.isEmpty() || protocol.isEmpty() || debug.isEmpty() || imapServer.isEmpty()) {
-                throw new NullPointerException();
+                throw new NoSuchFieldException();
             }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("GMail configs have not initialized. Check gmail.properties file");
-            System.exit(-1);
+        } catch (IllegalStateException | NoSuchFieldException e) {
+            logger.error("GMail configs have not been initialized. Check gmail.properties file", e);
+            System.exit(1);
         }
     }
 

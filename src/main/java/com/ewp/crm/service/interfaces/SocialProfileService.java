@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface SocialProfileService {
 
-	SocialProfile getSocialProfileBySocialIdAndSocialType(String id, String socialType);
+	Optional<SocialProfile> getSocialProfileBySocialIdAndSocialType(String id, String socialType);
 
 	Optional<SocialProfile> getSocialProfileByClientIdAndTypeName(long clientId, String profileName);
 
