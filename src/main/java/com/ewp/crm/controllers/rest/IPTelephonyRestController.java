@@ -114,7 +114,7 @@ public class IPTelephonyRestController {
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<FileSystemResource> getCallRecord(@PathVariable String file) {
-		File fileLocation = new File("CallRecords/" + file + ".mp3");
+		File fileLocation = new File("CallRecords/" + file);
 		if (fileLocation.exists()) {
 			return new ResponseEntity<>(new FileSystemResource(fileLocation), HttpStatus.OK);
 		} else {
