@@ -60,4 +60,20 @@ public class EmailExtraRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(emailExtra);
     } // http://localhost:9999/rest/emailextra/add [{"id":2,"emailExtra":"gribok@gmail.com"},{"id":3,"emailExtra":"elk@gmail.com"},{"id":4,"emailExtra":"parrot@gmail.com"}]
       // {"id":5,"emailExtra":"elk23@gmail.com"}
+
+    @PostMapping(value = "/edit")
+    public ResponseEntity<EmailExtra> editEmailExtra(@RequestParam(name = "id") Long emailExtraId,
+                                                    @RequestParam(name = "emailExtra") String mail) {
+        EmailExtra emailExtra = emailExtraService.get(emailExtraId);
+        if (emailExtra == null) {
+            logger.error("Can`t edit additional email, emailExtra with id {} not found", mail);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } else {
+            emailExtra.setEmailExtra(mail);
+            emailExtraService.update(emailExtra);
+            return ResponseEntity.status(HttpStatus.OK).body(emailExtra);
+        } // http://localhost:9999/rest/emailextra/edit { "id": 2, "emailExtra": "badabagaba@gmail.com"   }
+
+    }
+
 }
