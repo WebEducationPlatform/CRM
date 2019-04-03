@@ -45,6 +45,30 @@ function changeClient(id) {
     } catch (e) {
         return;
     }
+    var Emails = [];
+    $th = $('#AdditionalEmails').find('th');
+    try {
+        $('#AdditionalEmails').find('tbody tr').each(function (i, tr) {
+            var obj = {}, $tds = $(tr).find('td');
+            $th.each(function (index, th) {
+                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
+                    var current = document.getElementById("message");
+                    current.textContent = "Заполните пустые поля в таблице 'Доп. Email адреса'";
+                    current.style.color = "red";
+                    throw new Error("Пустые поля в таблице 'Доп. Email адреса'")
+                }
+                if ($(th).attr('abbr') !== "") {
+                    obj[$(th).attr('abbr')] = $tds.eq(index).text();
+                }
+            });
+            Emails.push(obj);
+        });
+    } catch (e) {
+        return;
+    }
+
+    console.log(Emails);
+
     var Job = [];
     $th = $('#Job').find('th');
     try {
@@ -66,6 +90,7 @@ function changeClient(id) {
     } catch (e) {
         return;
     }
+    console.log(Job);
     let url = '/admin/rest/client/update';
     let wrap = {
         id: id,
@@ -82,7 +107,8 @@ function changeClient(id) {
         skype: $('#edit-client-skype').val(),
         socialProfiles: SN,
         status: {},
-        jobs: Job
+        jobs: Job,
+        emailsExtra: Emails
     };
     var current = document.getElementById("message");
     let data = JSON.stringify(wrap);
