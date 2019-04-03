@@ -112,6 +112,7 @@ function changeClient(id) {
     };
     var current = document.getElementById("message");
     let data = JSON.stringify(wrap);
+    console.log('wrap = ' + data);
     $.ajax({
         type: "POST",
         url: url,
@@ -142,7 +143,7 @@ function disableInputE() {
 }
 
 $(document).on('click', 'td', (function (e) {
-    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job") || $('#edit-client-first-name')[0].disabled) {
+    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job" && e.target.offsetParent.id !== "AdditionalEmails") || $('#edit-client-first-name')[0].disabled) {
         return;
     }
     var t = e.target || e.srcElement;
@@ -183,6 +184,10 @@ function deleteJob(element) {
     $(element).parent().parent().remove();
 }
 
+function deleteEmail(element) {
+    $(element).parent().parent().remove();
+}
+
 var SNs = "";
 
 function addNewSN() {
@@ -197,6 +202,11 @@ function addNewSN() {
 function addNewJob() {
     var size = ($("#job-table-body")[0]).rows.length;
     $("#job-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteJob(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+}
+
+function addNewEmailExtra() {
+    var size = ($("#emails-table-body")[0]).rows.length;
+    $("#emails-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteEmail(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function revertUnable() {
@@ -221,6 +231,7 @@ function revertUnable() {
     });
     $("#addNewSN")[0].disabled = $("#addNewSN")[0].disabled !== true;
     $("#addNewJob")[0].disabled = $("#addNewJob")[0].disabled !== true;
+    $("#addNewEmail")[0].disabled = $("#addNewEmail")[0].disabled !== true;
 }
 
 $(function () {

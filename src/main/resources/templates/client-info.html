@@ -115,12 +115,17 @@
                                 <td hidden="hidden" th:value="${emails.id}" th:text="${emails.id}"></td>
                                 <td th:value="${emails.emailExtra}" th:text="${emails.emailExtra}"></td>
                                 <td>
-                                    <button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'"
+                                    <button disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div>
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить
+                            доп. Email
+                        </button>
                     </div>
 
                     <div class="form-group">
