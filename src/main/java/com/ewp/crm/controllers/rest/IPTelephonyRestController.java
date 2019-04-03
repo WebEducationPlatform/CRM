@@ -8,6 +8,7 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,10 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.Optional;
 
 @RestController
@@ -80,14 +78,14 @@ public class IPTelephonyRestController {
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public byte[] getCallRecord(@PathVariable String file) {
-		Path fileLocation = Paths.get("CallRecords/" + file);
-		try {
-			return Files.readAllBytes(fileLocation);
-		} catch (IOException e) {
-			logger.error("File with record not found: " + fileLocation.toString(), e);
+	public ResponseEntity<FileSystemResource> getCallRecord(@PathVariable String file) {
+		File fileLocation = new File("CallRecords/" + file + ".mp3");
+		if (fileLocation.exists()) {
+			return new ResponseEntity<>(new FileSystemResource(fileLocation), HttpStatus.OK);
+		} else {
+			logger.error("File with record not found: " + fileLocation.toString());
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
-		return new byte[0];
 	}
 
 	@GetMapping(value = "/voximplantCredentials")
