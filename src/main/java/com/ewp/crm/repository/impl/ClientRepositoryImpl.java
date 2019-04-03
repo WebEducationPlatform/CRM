@@ -41,6 +41,13 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType) {
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType")
+                .setParameter("socialProfileType", socialProfileType)
+                .getResultList();
+    }
+
+    @Override
     public List<ClientHistory> getClientByTimeInterval(int days) {
         return entityManager.createQuery("SELECT cl FROM ClientHistory cl where cl.date > (current_date() - (:days))")
                 .setParameter("days", days)
