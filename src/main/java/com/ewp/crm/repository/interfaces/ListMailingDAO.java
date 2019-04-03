@@ -8,6 +8,6 @@ public interface ListMailingDAO extends CommonGenericRepository<ListMailing> {
 
     ListMailing getByListName(String listName);
 
-    List<ListMailing> getByType_Name(String name);
+    List<ListMailing> getByTypeName(String name);
 
 }
