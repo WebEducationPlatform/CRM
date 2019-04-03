@@ -29,11 +29,11 @@ public class ImageConfig {
             pathForAvatar = environment.getRequiredProperty("pathForAvatar");
             pathForImages = environment.getRequiredProperty("pathForImages");
             if (maxImageSize == 0 || pathForAvatar.isEmpty() || pathForImages.isEmpty()) {
-                throw new NullPointerException();
+                throw new NoSuchFieldException();
             }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("image configure not specified check image.properties of application.properties/#File upload config");
-            System.exit(-1);
+        } catch (IllegalStateException | NoSuchFieldException e) {
+            logger.error("Image configuration not specified. Check image.properties of application.properties/#File upload config");
+            System.exit(1);
         }
         checkConfig();
     }

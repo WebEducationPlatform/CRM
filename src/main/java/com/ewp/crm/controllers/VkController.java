@@ -82,11 +82,9 @@ public class VkController {
     @PostMapping(value = "/vk-auth")
     public String vkGetAccessToken(@RequestParam("token") String token, @AuthenticationPrincipal User userFromSession) {
         String applicationToken = vkService.replaceApplicationTokenFromUri(token);
-        if ((projectProperties = projectPropertiesService.get()) == null) {
-            projectProperties = new ProjectProperties();
-        }
+        projectProperties = projectPropertiesService.getOrCreate();
         projectProperties.setTechnicalAccountToken(applicationToken);
-        projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
+        projectPropertiesService.update(projectProperties);
         userFromSession.setVkToken(applicationToken);
         userService.update(userFromSession);
         return "redirect:/client";

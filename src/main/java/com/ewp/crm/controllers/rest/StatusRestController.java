@@ -39,7 +39,7 @@ public class StatusRestController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Status>> getAllStudentStatuses() {
+	public ResponseEntity<List<Status>> getAllClientStatuses() {
 		return ResponseEntity.ok(statusService.getAll());
 	}
 

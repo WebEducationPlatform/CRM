@@ -129,14 +129,17 @@ public class ClientRestController {
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
 																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
-        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, socialProfileType);
-        Optional<Client> client = clientService.getClientBySocialProfile(socialProfile);
-
-        Map<String, String> returnMap = new HashMap<>();
-        if (!client.isPresent()) {
+		Map<String, String> returnMap = new HashMap<>();
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, socialProfileType);
+        if (socialProfile.isPresent()) {
+			Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
+			if (!client.isPresent()) {
+				returnMap.put("clientID", "0");
+			} else {
+				returnMap.put("clientID", Long.toString(client.get().getId()));
+			}
+		} else {
             returnMap.put("clientID", "0");
-        } else {
-            returnMap.put("clientID", Long.toString(client.get().getId()));
         }
         returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
         returnMap.put("userID", userID);

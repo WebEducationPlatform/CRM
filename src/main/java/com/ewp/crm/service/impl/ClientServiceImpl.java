@@ -141,8 +141,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
             if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
                 if (!existClient.isPresent()) {
-                    socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
-                    if (socialProfile != null) {
+                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
+                    if (profile.isPresent()) {
+                        socialProfile = profile.get();
                         existClient = getClientBySocialProfile(socialProfile);
                     }
                 } else {
@@ -335,9 +336,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setPhoneNumber(contractForm.getInputPhoneNumber());
         }
         Passport passport = contractForm.getPassportData();
-        passport = passportService.encode(passport);
-        passport.setClient(client);
-        client.setPassport(passport);
+        if (passportService.encode(passport).isPresent()) {
+            passport = passportService.encode(passport).get();
+            passport.setClient(client);
+            client.setPassport(passport);
+        }
         client.setId(old.getId());
         client.setStatus(old.getStatus());
         client.setSocialProfiles(old.getSocialProfiles());

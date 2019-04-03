@@ -3,6 +3,7 @@ package com.ewp.crm.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,26 +17,27 @@ public class ListMailing implements Serializable {
     @Column(name = "list_mailing_id")
     private Long id;
 
+    @NotNull
     @Column(name = "list_name")
     private String listName;
 
-    @ElementCollection
-    private List<String> recipientsEmail;
+    @ManyToOne
+    @JoinColumn(name = "mailing_type_id")
+    @JoinTable(name = "list_mailing_types",
+            joinColumns = {@JoinColumn(name = "list_mailing_id", foreignKey = @ForeignKey(name = "FK_LIST"))},
+            inverseJoinColumns = {@JoinColumn(name = "mailing_type_id", foreignKey = @ForeignKey(name = "FK_TYPE"))})
+    private ListMailingType type;
 
     @ElementCollection
-    private List<String> recipientsSms;
-
-    @ElementCollection
-    private List<String> recipientsVk;
+    private List<String> recipients;
 
     public ListMailing() {
     }
 
-    public ListMailing(String listName, List<String> recipientsEmail, List<String> recipientsSms, List<String> recipientsVk) {
+    public ListMailing(String listName, List<String> recipients, ListMailingType listMailingType) {
         this.listName = listName;
-        this.recipientsEmail = recipientsEmail;
-        this.recipientsSms = recipientsSms;
-        this.recipientsVk = recipientsVk;
+        this.recipients = recipients;
+        this.type = listMailingType;
     }
 
     public Long getId() {
@@ -54,27 +56,19 @@ public class ListMailing implements Serializable {
         this.listName = listName;
     }
 
-    public List<String> getRecipientsEmail() {
-        return recipientsEmail;
+    public ListMailingType getType() {
+        return type;
     }
 
-    public void setRecipientsEmail(List<String> recipientsEmail) {
-        this.recipientsEmail = recipientsEmail;
+    public void setType(ListMailingType type) {
+        this.type = type;
     }
 
-    public List<String> getRecipientsSms() {
-        return recipientsSms;
+    public List<String> getRecipients() {
+        return recipients;
     }
 
-    public void setRecipientsSms(List<String> recipientsSms) {
-        this.recipientsSms = recipientsSms;
-    }
-
-    public List<String> getRecipientsVk() {
-        return recipientsVk;
-    }
-
-    public void setRecipientsVk(List<String> recipientsVk) {
-        this.recipientsVk = recipientsVk;
+    public void setRecipients(List<String> recipients) {
+        this.recipients = recipients;
     }
 }

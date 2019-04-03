@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component("YandexDirect")
 public class YandexDirectAdReportService implements AdReportService {
+
     private final YandexDirectConfig yandexDirectConfig;
     private static final String API_V5_AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
     private static final String API_V5_REPORT_SERVICE_URL_SUFFIX = "reports";
@@ -60,7 +62,7 @@ public class YandexDirectAdReportService implements AdReportService {
                 .post(bodyForBalance).build();
 
         // Исполняем запрос
-        OkHttpClient requestClient = new OkHttpClient();
+        OkHttpClient requestClient = getCustomizedClient();
         Response response = requestClient.newCall(requestForBalance).execute();
 
         // Обрабатываем ответ
@@ -105,7 +107,7 @@ public class YandexDirectAdReportService implements AdReportService {
                 .post(bodyForReport)
                 .build();
         // Исполняем запрос
-        OkHttpClient requestClient = new OkHttpClient();
+        OkHttpClient requestClient = getCustomizedClient();
         Response response = requestClient.newCall(requestForReport).execute();
 
         // Обрабатываем и возвращаем ответ
@@ -122,5 +124,13 @@ public class YandexDirectAdReportService implements AdReportService {
             result += Float.parseFloat(matcher.group());
         }
         return Float.toString(result);
+    }
+
+    private OkHttpClient getCustomizedClient() {
+        OkHttpClient requestClient = new OkHttpClient();
+        requestClient.setConnectTimeout(30, TimeUnit.SECONDS);
+        requestClient.setReadTimeout(30, TimeUnit.SECONDS);
+        requestClient.setWriteTimeout(30, TimeUnit.SECONDS);
+        return requestClient;
     }
 }
