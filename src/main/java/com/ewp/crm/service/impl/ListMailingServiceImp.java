@@ -21,7 +21,7 @@ public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implem
 
     @Override
     public List<ListMailing> getByType(String typeName) {
-        return listMailingDAO.getByType_Name(typeName);
+        return listMailingDAO.getByTypeName(typeName);
     }
 
     public void addListMailing(ListMailing listMailing) {
