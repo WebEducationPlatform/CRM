@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ClientRepositoryCustom {
 
+	List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType);
+
 	List filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();

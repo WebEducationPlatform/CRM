@@ -4,7 +4,6 @@ import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.repository.interfaces.PassportDAO;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
@@ -17,7 +16,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -113,6 +115,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void addBatchClients(List<Client> clients) {
         clientRepository.addBatchClients(clients);
+    }
+
+    @Override
+    public List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType) {
+        return clientRepository.getSocialIdsBySocialProfileTypeAndStudentExists(socialProfileType);
     }
 
     @Override

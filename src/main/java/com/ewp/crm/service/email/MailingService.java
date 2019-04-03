@@ -155,8 +155,20 @@ public class MailingService {
     }
 
     private void sendingMailingSlack(MailingMessage message) {
-        message.getClientsData().forEach(c -> slackService.trySendMessageToSlackUser(c.getInfo(), message.getText()));
+        List<String> notSendList = new ArrayList<>();
+        message.getClientsData().forEach(c -> {
+            try {
+                boolean sendResult = slackService.trySendMessageToSlackUser(c.getInfo(), message.getText());
+                if (!sendResult) {
+                    notSendList.add(c.getInfo());
+                }
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.error("a lot of requests", e);
+            }
+        });
         message.setReadedMessage(true);
+        message.setNotSendId(notSendList);
         mailingMessageRepository.save(message);
     }
 
