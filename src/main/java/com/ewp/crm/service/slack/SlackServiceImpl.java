@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @PropertySources(value = {
@@ -86,41 +83,46 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
-    public boolean tryLinkSlackAccountToStudent(long studentId, String usersData) {
+    public boolean tryLinkSlackAccountToStudent(long studentId, String slackAllUsersJsonResponse) {
+        // Weights for matches
         double emailWeight = 1.0d;
         double nameWeight = 0.25d;
         double lastNameWeight = 0.25d;
-        Map<String, Double> result = new HashMap<>();
+        // Key = slack user id, Value = match weight
+        Map<String, Double> matchesWithWeight = new HashMap<>();
         Student student = studentService.get(studentId);
-        Map<String, String[]> data = parseSlackUsersFromJson(usersData);
-        for (Map.Entry<String, String[]> entry :data.entrySet()) {
-            double weight = 0d;
-            String id = entry.getKey();
-            String name = entry.getValue()[0];
-            String email = entry.getValue()[1];
-            if (email != null && !email.isEmpty() && email.equals(student.getClient().getEmail())) {
-                weight += emailWeight;
+        Client client = student.getClient();
+        List<SlackProfile> profiles = parseSlackUsersFromJson(slackAllUsersJsonResponse);
+        for (SlackProfile profile :profiles) {
+            double currentWeight = 0d;
+            String id = profile.id;
+            String name = profile.name;
+            String email = profile.mail;
+            if (email != null && !email.isEmpty() && email.equals(client.getEmail())) {
+                currentWeight += emailWeight;
             }
             if (name != null) {
-                if (name.contains(student.getClient().getName())) {
-                    weight += nameWeight;
+                if (name.contains(client.getName())) {
+                    currentWeight += nameWeight;
                 }
-                if (name.contains(student.getClient().getLastName())) {
-                    weight += lastNameWeight;
+                if (name.contains(client.getLastName())) {
+                    currentWeight += lastNameWeight;
                 }
             }
-            if (weight >= nameWeight + lastNameWeight) {
-                result.put(id, weight);
+            if (currentWeight >= nameWeight + lastNameWeight) {
+                matchesWithWeight.put(id, currentWeight);
             }
         }
-        if (!result.isEmpty()) {
-            Optional<Map.Entry<String, Double>> entry = result.entrySet().stream().max(Map.Entry.comparingByValue());
-            if (entry.isPresent()) {
-                Optional<SocialProfileType> slackSocialProfile = socialProfileTypeService.getByTypeName("slack");
-                if (slackSocialProfile.isPresent()) {
-                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(entry.get().getKey(), slackSocialProfile.get().getName()).isPresent()) {
-                        student.getClient().addSocialProfile(new SocialProfile(entry.get().getKey(), slackSocialProfile.get()));
-                        clientService.updateClient(student.getClient());
+        if (!matchesWithWeight.isEmpty()) {
+            Optional<Map.Entry<String, Double>> maximumMatch = matchesWithWeight.entrySet().stream().max(Map.Entry.comparingByValue());
+            if (maximumMatch.isPresent()) {
+                Optional<SocialProfileType> slackSocialProfileTypeOpt = socialProfileTypeService.getByTypeName("slack");
+                if (slackSocialProfileTypeOpt.isPresent()) {
+                    String slackId = maximumMatch.get().getKey();
+                    SocialProfileType slackSocialProfileType = slackSocialProfileTypeOpt.get();
+                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(slackId, slackSocialProfileType.getName()).isPresent()) {
+                        client.addSocialProfile(new SocialProfile(slackId, slackSocialProfileType));
+                        clientService.updateClient(client);
                     }
                     return true;
                 }
@@ -152,9 +154,9 @@ public class SlackServiceImpl implements SlackService {
         Optional<String> json = receiveAllClientsFromWorkspace();
         StringBuilder result = new StringBuilder();
         if (json.isPresent()) {
-            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
-            for (Map.Entry<String, String[]> entry : data.entrySet()) {
-                String email = entry.getValue()[1];
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            for (SlackProfile profile : slackProfiles) {
+                String email = profile.mail;
                 if (email != null && !email.isEmpty()) {
                     result.append(email).append("\n");
                 }
@@ -168,10 +170,10 @@ public class SlackServiceImpl implements SlackService {
         Optional<String> json = receiveAllClientsFromWorkspace();
         StringBuilder result = new StringBuilder();
         if (json.isPresent()) {
-            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
-            for (String id : data.keySet()) {
-                if (id != null && !id.isEmpty()) {
-                    result.append(id).append("\n");
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            for (SlackProfile profile : slackProfiles) {
+                if (profile.id != null && !profile.id.isEmpty()) {
+                    result.append(profile.id).append("\n");
                 }
             }
         }
@@ -183,10 +185,10 @@ public class SlackServiceImpl implements SlackService {
         Optional<String> json = receiveAllClientsFromWorkspace();
         boolean result = false;
         if (json.isPresent()) {
-            Map<String, String[]> data = parseSlackUsersFromJson(json.get());
-            result = !data.isEmpty();
-            for (String id : data.keySet()) {
-                result &= trySendMessageToSlackUser(id, text);
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            result = !slackProfiles.isEmpty();
+            for (SlackProfile profile : slackProfiles) {
+                result &= trySendMessageToSlackUser(profile.id, text);
             }
         }
         return result;
@@ -273,8 +275,8 @@ public class SlackServiceImpl implements SlackService {
     /**
      * Get slack users data and put it to map with user 'id' as a key and array [email, name] as value
      */
-    private Map<String, String[]> parseSlackUsersFromJson(String json) {
-        Map<String, String[]> result = new HashMap<>();
+    private List<SlackProfile> parseSlackUsersFromJson(String json) {
+        List<SlackProfile> result = new ArrayList<>();
         try {
             JSONObject jsonObj = new JSONObject(json);
             JSONArray jsonData = jsonObj.getJSONArray("members");
@@ -285,13 +287,25 @@ public class SlackServiceImpl implements SlackService {
                     String id = current.optString("id");
                     String mail = userProfile.optString("email");
                     String name = userProfile.optString("real_name");
-                    result.put(id, new String[]{name, mail});
+                    result.add(new SlackProfile(id, mail, name));
                 }
             }
         } catch (JSONException e) {
             logger.error("Can't parse users from slack", e);
         }
         return result;
+    }
+
+    private class SlackProfile {
+        private String id;
+        private String mail;
+        private String name;
+
+        private SlackProfile(String id, String mail, String name) {
+            this.id = id;
+            this.mail = mail;
+            this.name = name;
+        }
     }
 
 }
