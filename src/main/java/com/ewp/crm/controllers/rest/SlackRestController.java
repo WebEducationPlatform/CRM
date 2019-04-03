@@ -1,8 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.Student;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StudentService;
@@ -13,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -96,17 +95,9 @@ public class SlackRestController {
     @GetMapping("/get/ids/students")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<String> getAllStudentsIdsFromSlack() {
-        StringBuilder result = new StringBuilder();
-        for (Student student :studentService.getAll()) {
-            for (SocialProfile socialProfile :student.getClient().getSocialProfiles()) {
-                if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
-                    result.append(socialProfile.getSocialId()).append("\n");
-                }
-            }
-        }
-        String returnValue = result.toString().isEmpty() ? "Error" : result.toString();
+        List<String> slackIdsForAllStudents = clientService.getSocialIdsForStudentsBySocialProfileType("slack");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
-        return new ResponseEntity<>(returnValue, headers, HttpStatus.OK);
+        return new ResponseEntity<>(String.join("\n", slackIdsForAllStudents), headers, HttpStatus.OK);
     }
 }
