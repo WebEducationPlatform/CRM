@@ -147,6 +147,11 @@ function getUserLoggedIn(asyncr) {
 
 //func responsible for the client's cards motion
 $(document).ready(function () {
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true
+        }
+    });
     getUserLoggedIn(true);
     get_us();
     $(".column").sortable({
