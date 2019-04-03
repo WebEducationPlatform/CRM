@@ -54,7 +54,13 @@ $('#report-type-3').on('click', function () {
 
 $('#load-data-button').on('click', function () {
     let wrap;
-    if (selectedDateStart !== undefined && selectedDateEnd !== undefined) {
+    if (selectedDateStart === undefined || selectedDateEnd === undefined) {
+        let dates = $('#mailingDate').val().split(' - ');
+        let start = dates[0].split('.');
+        let end = dates[1].split('.');
+        selectedDateStart = start[2] + '-' + start[1] + '-' + start[0];
+        selectedDateEnd = end[2] + '-' + end[1] + '-' + end[0];
+    } else {
         switch (selectedReport) {
             case 1:
                 let selectedExcludes = [];
