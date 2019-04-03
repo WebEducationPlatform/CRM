@@ -74,7 +74,7 @@ function changeClient(id) {
         middleName: $('#edit-client-middle-name').val(),
         phoneNumber: $('#edit-client-phone-number').val(),
         email: $('#edit-client-email').val(),
-        age: $('#edit-client-age').val(),
+        birthDate: $('#edit-client-birthday').val(),
         sex: $('#edit-client-sex').find('option:selected').text(),
         state: $('#edit-client-state').val(),
         country: $('#edit-client-country').val(),
