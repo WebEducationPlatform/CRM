@@ -174,7 +174,7 @@
                 </td>
                 <td th:id="${'status_' + student.id}">
                     <span th:id="${'statusValue_' + student.id}" th:text="${student.status.status}"></span>
-                    <select th:id="${'student-status_' + student.id}" class="form-control hidden"></select>
+                    <select th:id="${'student-status_' + student.id}" class="form-control hidden student-changing"></select>
                 </td>
                 <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
