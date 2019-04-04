@@ -38,7 +38,7 @@ public class ClientContractRestController {
             Client client = clientService.get(clientId);
             if (client.getContractLinkData() == null) {
                 client.setOwnerUser(userFromSession);
-                clientService.updateClient(client);
+                clientService.update(client);
                 logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
                 setting.setUser(userFromSession);
                 settingService.save(setting);
