@@ -8,7 +8,7 @@ public interface GoogleTokenService {
 
     Optional<GoogleToken> getToken();
 
-    void update(GoogleToken accessToken);
+    void createOrUpdate(GoogleToken accessToken);
 
     Optional<GoogleToken> getRefreshedToken();
 }
