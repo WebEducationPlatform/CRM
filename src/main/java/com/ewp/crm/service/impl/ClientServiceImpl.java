@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -312,9 +313,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
+    @Transactional
     @Override
     public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
-        Client client = createUpdateClient(clientOld, contractForm);
+        Client client = createUpdateClient(user, clientOld, contractForm);
         Optional<ClientHistory> optionalHistory = clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE);
         if (optionalHistory.isPresent()) {
             ClientHistory history = optionalHistory.get();
@@ -336,14 +338,23 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.saveAndFlush(client);
     }
 
-    private Client createUpdateClient(Client old, ContractDataForm contractForm) {
+    private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
         Client client = new Client();
         client.setName(contractForm.getInputFirstName());
         client.setMiddleName(contractForm.getInputMiddleName());
         client.setLastName(contractForm.getInputLastName());
         client.setBirthDate(contractForm.getInputBirthday());
-        if (!contractForm.getInputEmail().isEmpty()) {
-            client.setEmail(contractForm.getInputEmail());
+        String email = contractForm.getInputEmail();
+        if (!email.isEmpty()) {
+            Optional<Client> checkEmailClient = getClientByEmail(email);
+            if (checkEmailClient.isPresent()) {
+                Client clientDelEmail = checkEmailClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.clientHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelEmail::addHistory);
+                clientDelEmail.setEmail(null);
+                update(clientDelEmail);
+            }
+            client.setEmail(email);
         }
         if (!contractForm.getInputPhoneNumber().isEmpty()) {
             client.setPhoneNumber(contractForm.getInputPhoneNumber());
