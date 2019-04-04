@@ -212,6 +212,20 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return Optional.of(clientHistory);
 	}
 
+	@Override
+	public Optional<ClientHistory> clientHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
+	}
+
 	/**
 	 * Create client history when student .
 	 * @param user change author.
