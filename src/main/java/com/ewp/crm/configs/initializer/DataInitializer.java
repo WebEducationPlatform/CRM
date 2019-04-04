@@ -65,6 +65,9 @@ public class DataInitializer {
     private VkAttemptResponseRepository vkAttemptResponseRepository;
 
     @Autowired
+    private ListMailingTypeService listMailingTypeService;
+
+    @Autowired
     private JMConversationHelper jmConversationHelper;
 
     private void init() {
@@ -81,6 +84,15 @@ public class DataInitializer {
         roleService.add(roleUser);
         roleService.add(roleOwner);
         roleService.add(roleMentor);
+
+        ListMailingType vkList = new ListMailingType("vk");
+        ListMailingType emailList = new ListMailingType("email");
+        ListMailingType slackList = new ListMailingType("slack");
+        ListMailingType smsList = new ListMailingType("sms");
+        listMailingTypeService.add(vkList);
+        listMailingTypeService.add(emailList);
+        listMailingTypeService.add(slackList);
+        listMailingTypeService.add(smsList);
 
         SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
