@@ -42,8 +42,14 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
     }
 
     @Override
-    public void update(GoogleToken accessToken) {
-        tokenRepository.saveAndFlush(accessToken);
+    public void createOrUpdate(GoogleToken accessToken) {
+        GoogleToken token = accessToken;
+        if (getToken().isPresent()) {
+            token = getToken().get();
+            token.setAccessToken(accessToken.getAccessToken());
+            token.setRefreshToken(accessToken.getRefreshToken());
+        }
+        tokenRepository.saveAndFlush(token);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                 JSONObject json = new JSONObject(res);
                 String accessToken = json.getString("access_token");
                 googleToken.setAccessToken(accessToken);
-                update(googleToken);
+                createOrUpdate(googleToken);
                 return Optional.of(googleToken);
             }
         } catch (IOException e) {
