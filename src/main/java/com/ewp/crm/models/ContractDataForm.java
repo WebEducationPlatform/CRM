@@ -1,11 +1,16 @@
 package com.ewp.crm.models;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+
 public class ContractDataForm {
 
     private String inputFirstName;
     private String inputMiddleName;
     private String inputLastName;
-    private String inputBirthday;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate inputBirthday;
     private String inputEmail;
     private String inputPhoneNumber;
     private Passport passportData;
@@ -37,11 +42,11 @@ public class ContractDataForm {
         this.inputLastName = inputLastName;
     }
 
-    public String getInputBirthday() {
+    public LocalDate getInputBirthday() {
         return inputBirthday;
     }
 
-    public void setInputBirthday(String inputBirthday) {
+    public void setInputBirthday(LocalDate inputBirthday) {
         this.inputBirthday = inputBirthday;
     }
 
