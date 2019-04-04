@@ -115,7 +115,7 @@
                 <th>Телефон</th>
                 <th>Email</th>
                 <th>Социальная сеть</th>
-                <th>Возраст</th>
+                <th>Дата рождения</th>
                 <th>Пол</th>
                 <th>Город</th>
                 <th>Страна</th>
@@ -150,7 +150,8 @@
                         </span>
                     </th:block>
                 </td>
-                <td th:text="${client.age}"></td>
+                <td th:if="${client.birthDate!=null}" th:text="${#strings.arraySplit(client.birthDate, '-')[2]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[1]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[0]}"></td>
+                <td th:if="${client.birthDate==null}" th:text="'-'"></td>
                 <td th:text="${client.sex}"></td>
                 <td th:text="${client.city}"></td>
                 <td th:text="${client.country}"></td>

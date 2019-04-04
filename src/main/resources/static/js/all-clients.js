@@ -169,7 +169,14 @@ function drawClients(table, res) {
                     '</div>'
             }
         }
-
+        let bDate = res[i].birthDate;
+        let birthDate;
+        if (bDate === null) {
+            birthDate = '-';
+        } else {
+            let bDateValues = bDate.split('-');
+            birthDate = bDateValues[2] + '.' + bDateValues[1] + '.' + bDateValues[0];
+        }
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
@@ -178,7 +185,7 @@ function drawClients(table, res) {
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +
             '        <td>' + socLink + '</td>' +
-            '        <td>' + res[i].age + ' </td>' +
+            '        <td>' + birthDate + ' </td>' +
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
