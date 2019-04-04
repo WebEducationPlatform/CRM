@@ -1933,7 +1933,7 @@ $(function () {
                 // здесь вставка ссылок в кнопки вк, фб и слак
                 $('#vk-href').hide();
                 $('#vk-im-button').hide();
-
+                $('#slack-href').hide();
                 $('#fb-href').hide();
 
                 document.getElementById("profilePhoto").removeAttribute("src");
