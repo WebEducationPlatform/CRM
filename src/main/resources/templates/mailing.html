@@ -238,20 +238,25 @@
                 </div>
 
                 <div class="modal-footer">
-                <div class="form-group">
-                    <button class="btn btn-primary" id="slackIdAllImportButton">
-                        Все id из Slack
-                    </button>
-                    <button class="btn btn-primary" id="slackIdStudentsImportButton">
-                        Только id студентов из Slack
-                    </button>
-                    <button class="btn btn-primary" id="slackImportButton">
-                        Все e-mail из Slack
-                    </button><br /><br />
-                    <button class="btn btn-success" onclick="addToListMailing()">
-                        Создать
-                    </button>
-                </div>
+                    <div class="form-group" id="list-statuses">
+                        <label class="checkbox-inline">
+                            <input class="status-checkboxes" type="checkbox" id="status_checkbox_1" value="1"/> Статус 1
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="slackIdAllImportButton">
+                            Все id из Slack
+                        </button>
+                        <button class="btn btn-primary" id="slackIdStudentsImportButton">
+                            Только id студентов из Slack
+                        </button>
+                        <button class="btn btn-primary" id="slackImportButton">
+                            Все e-mail из Slack
+                        </button><br /><br />
+                        <button class="btn btn-success" onclick="addToListMailing()">
+                            Создать
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -301,6 +306,11 @@
                 </div>
 
                 <div class="modal-footer">
+                    <div class="form-group" id="update-list-statuses">
+                        <label class="checkbox-inline">
+                            <input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_1" value="1"/> Статус 1
+                        </label>
+                    </div>
                     <div class="form-group">
                         <button class="btn btn-primary" id="slackUpdateIdAllImportButton">
                             Все id из Slack
