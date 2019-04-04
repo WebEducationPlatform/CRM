@@ -157,7 +157,7 @@ public class ContractServiceImpl implements ContractService {
             map.put("passportIssued", data.getPassportData().getIssuedBy());
             map.put("passportDate", data.getPassportData().getDateOfIssue().format(formatter));
             map.put("passportRegistration", data.getPassportData().getRegistration());
-            map.put("birthday", data.getInputBirthday());
+            map.put("birthday", data.getInputBirthday().format(formatter));
             map.put("email", data.getInputEmail());
             map.put("phoneNumber", data.getInputPhoneNumber());
             //Месячная опл

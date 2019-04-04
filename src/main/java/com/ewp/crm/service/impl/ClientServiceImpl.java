@@ -12,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -312,10 +311,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
+    @Transactional
     @Override
     public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
-        Client client = createUpdateClient(clientOld, contractForm);
-        clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
+        Client client = createUpdateClient(user, clientOld, contractForm);
+        Optional<ClientHistory> optionalHistory = clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE);
+        if (optionalHistory.isPresent()) {
+            ClientHistory history = optionalHistory.get();
+            if (history.getTitle() != null && !history.getTitle().isEmpty()) {
+                client.addHistory(history);
+            }
+        }
         clientRepository.saveAndFlush(client);
         logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
     }
@@ -330,14 +336,23 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.saveAndFlush(client);
     }
 
-    private Client createUpdateClient(Client old, ContractDataForm contractForm) {
+    private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
         Client client = new Client();
         client.setName(contractForm.getInputFirstName());
         client.setMiddleName(contractForm.getInputMiddleName());
         client.setLastName(contractForm.getInputLastName());
-        client.setBirthDate(LocalDate.parse(contractForm.getInputBirthday(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-        if (!contractForm.getInputEmail().isEmpty()) {
-            client.setEmail(contractForm.getInputEmail());
+        client.setBirthDate(contractForm.getInputBirthday());
+        String email = contractForm.getInputEmail();
+        if (!email.isEmpty()) {
+            Optional<Client> checkEmailClient = getClientByEmail(email);
+            if (checkEmailClient.isPresent()) {
+                Client clientDelEmail = checkEmailClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelEmail::addHistory);
+                clientDelEmail.setEmail(null);
+                update(clientDelEmail);
+            }
+            client.setEmail(email);
         }
         if (!contractForm.getInputPhoneNumber().isEmpty()) {
             client.setPhoneNumber(contractForm.getInputPhoneNumber());
