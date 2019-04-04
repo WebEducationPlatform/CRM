@@ -1905,7 +1905,7 @@ $(function () {
                     $('#client-age').text('');
                 }
                 $('#client-sex').text(client.sex);
-                if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
+                if (client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
                     $('#client-label').text(client.clientDescriptionComment);
                 } else {
                     $('#client-label').text('');
@@ -1950,8 +1950,8 @@ $(function () {
                             async: true,
                             type: 'GET',
                             data: {vkref: vkref},
-                            dataType:'json',
-                            complete: function(data) {
+                            dataType: 'json',
+                            complete: function (data) {
                                 document.getElementById("profilePhoto").setAttribute("src", data.responseText);
                             }
                         });
@@ -1963,7 +1963,7 @@ $(function () {
                     }
 
                     $('#chat-button').attr("clientID", client.id);
-                    $('#chat-im-count').text($('#chat-notification'+clientId).text());
+                    $('#chat-im-count').text($('#chat-notification' + clientId).text());
                     $('#chat-button').show();
 
 
@@ -2004,10 +2004,17 @@ $(function () {
                 btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
                     '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
 
+                $('#contract-btn').empty();
+
+                if (client.contractLinkData != null) {
+                    $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#contract-client-link-modal" >Договор</button>');
+                    $('#contract-client-link-modal-link').empty().val(client.contractLinkData.contractLink);
+                } else {
                     $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
                         'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
                     $('#contract-client-setting-contract-link').empty();
-
+                }
 
                 console.log('Point #8: ' + (performance.now() - t0));
                 $('.send-all-custom-message').attr('clientId', clientId);
