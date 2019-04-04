@@ -392,8 +392,6 @@ public class ScheduleTasks {
             for (int i = 0; i < chats.chatIds.length; i++) {
                 telegramService.getUnreadMessagesFromChat(chats.chatIds[i], 1);
             }
-        } else {
-            logger.info("TDLib not installed or telegram client not authenticated!");
         }
     }
 
