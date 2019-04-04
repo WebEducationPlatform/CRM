@@ -110,7 +110,6 @@ function changeClient(id) {
     } catch (e) {
         return;
     }
-    console.log(Job);
     let url = '/admin/rest/client/update';
     let wrap = {
         id: id,
@@ -133,7 +132,6 @@ function changeClient(id) {
     };
     var current = document.getElementById("message");
     let data = JSON.stringify(wrap);
-    console.log('wrap = ' + data);
     $.ajax({
         type: "POST",
         url: url,

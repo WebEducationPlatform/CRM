@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rest/emailextra")
-//@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 public class EmailExtraRestController {
 
     private static Logger logger = LoggerFactory.getLogger(EmailExtraRestController.class);
@@ -35,7 +35,7 @@ public class EmailExtraRestController {
     public ResponseEntity<List<EmailExtra>> getEmailExtrasByClient(@PathVariable Long clientId) {
         List<EmailExtra> emailExtras = emailExtraService.getAllEmailsExtraByClient(clientService.get(clientId));
         return ResponseEntity.ok(emailExtras);
-    } // http://localhost:9999/rest/emailextra/getByClient/2
+    }
 
     @GetMapping(value = "/delete/{emailExtraId}")
     public ResponseEntity delEmailExtras(@PathVariable Long emailExtraId) {
@@ -45,7 +45,7 @@ public class EmailExtraRestController {
             emailExtraService.delete(emailExtraId);
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    } //  http://localhost:9999/rest/emailextra/delete/1
+    }
 
     @PostMapping(value = "/add")
     public ResponseEntity<EmailExtra> addEmailExtra(@RequestParam(name = "clientId") Long clientId,
@@ -58,8 +58,7 @@ public class EmailExtraRestController {
         EmailExtra emailExtra = new EmailExtra(mail, client);
         emailExtraService.add(emailExtra);
         return ResponseEntity.status(HttpStatus.CREATED).body(emailExtra);
-    } // http://localhost:9999/rest/emailextra/add [{"id":2,"emailExtra":"gribok@gmail.com"},{"id":3,"emailExtra":"elk@gmail.com"},{"id":4,"emailExtra":"parrot@gmail.com"}]
-      // {"id":5,"emailExtra":"elk23@gmail.com"}
+    }
 
     @PostMapping(value = "/edit")
     public ResponseEntity<EmailExtra> editEmailExtra(@RequestParam(name = "id") Long emailExtraId,
@@ -72,8 +71,7 @@ public class EmailExtraRestController {
             emailExtra.setEmailExtra(mail);
             emailExtraService.update(emailExtra);
             return ResponseEntity.status(HttpStatus.OK).body(emailExtra);
-        } // http://localhost:9999/rest/emailextra/edit { "id": 2, "emailExtra": "badabagaba@gmail.com"   }
-
+        }
     }
 
 }
