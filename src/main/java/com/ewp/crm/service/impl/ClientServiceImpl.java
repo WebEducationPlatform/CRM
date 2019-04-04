@@ -14,9 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -349,7 +347,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             Optional<Client> checkEmailClient = getClientByEmail(email);
             if (checkEmailClient.isPresent()) {
                 Client clientDelEmail = checkEmailClient.get();
-                Optional<ClientHistory> optionalClientHistory = clientHistoryService.clientHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelEmail::addHistory);
                 clientDelEmail.setEmail(null);
                 update(clientDelEmail);

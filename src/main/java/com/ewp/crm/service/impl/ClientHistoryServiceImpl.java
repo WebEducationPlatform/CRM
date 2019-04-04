@@ -213,7 +213,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public Optional<ClientHistory> clientHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type) {
+	public Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type) {
 		logger.info("creation of history...");
 		ClientHistory history = new ClientHistory(type);
 		history.setTitle(user.getFullName() + " " + type.getInfo());
