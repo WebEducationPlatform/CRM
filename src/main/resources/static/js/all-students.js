@@ -389,7 +389,7 @@ $("input[type='date']").on('change', function() {
 });
 
 //change status in table field from select input
-$('select').on('change', function () {
+$('.student-changing').on('change', function () {
     var optionSelected = $("option:selected", this).text();
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     $('#statusValue_' + id).text(optionSelected);

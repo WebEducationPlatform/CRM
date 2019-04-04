@@ -81,12 +81,31 @@ function setMailingLists() {
     });
 }
 
+function fillStatuses() {
+    let updateSelector = $('#update-list-statuses');
+    let createSelector = $('#list-statuses');
+    $.ajax({
+        url: '/rest/status',
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            updateSelector.empty();
+            createSelector.empty();
+            for (var i = 0; i < data.length; i++) {
+                createSelector.append('<label class="checkbox-inline"><input class="status-checkboxes" type="checkbox" id="status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+                updateSelector.append('<label class="checkbox-inline"><input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+            }
+        }
+    });
+}
+
 /**
  * Функция, переключающая состояние кнопок режима рассылки и перенастраивающая интерфейс редактора.
  * Для функции отправки сообщений посредством СМС, в CKEditor отключаются все плагины форматирования
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    fillStatuses();
     setMailingLists();
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
@@ -162,13 +181,22 @@ $(document).ready(function () {
     })( jQuery );
 
     (function( $ ){
-        $.fn.fillWithStudentsIds = function() {
+        $.fn.fillWithStudentsIds = function(selector) {
             var field = this;
+            let selectedStatuses = [];
+            $('.' + selector + ':checked').each(function(){
+                selectedStatuses.push($(this).val());
+            });
+            let wrap = {
+                "statuses" : selectedStatuses
+            };
             $.ajax({
                 url: '/slack/get/ids/students',
                 contentType: "text/plain;charset=UTF-8",
                 type: 'GET',
                 dataType: 'text',
+                data: wrap,
+                traditional: true,
                 async: true,
                 success: function (data) {
                     field.val(data);
@@ -186,7 +214,7 @@ $(document).ready(function () {
     });
 
     $("#slackIdStudentsImportButton").click(function () {
-        $("#listRecipients").fillWithStudentsIds();
+        $("#listRecipients").fillWithStudentsIds('status-checkboxes');
     });
 
     $("#slackUpdateImportButton").click(function () {
@@ -198,7 +226,7 @@ $(document).ready(function () {
     });
 
     $("#slackUpdateIdStudentsImportButton").click(function () {
-        $("#editListRecipients").fillWithStudentsIds();
+        $("#editListRecipients").fillWithStudentsIds('update-status-checkboxes');
     });
 
     $.ajax({
@@ -555,21 +583,21 @@ function showHistory() {
                 }
                 if (data[i].type === "vk" && data[i].notSendId.length > 0) {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button> \
                             <br/> \
-                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
+                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Не доставл.</button></td> \
                         </tr>");
                 } else {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button></td> \
                         </tr>");
                 }
 

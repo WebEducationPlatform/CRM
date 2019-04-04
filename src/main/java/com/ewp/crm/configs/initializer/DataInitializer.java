@@ -65,6 +65,9 @@ public class DataInitializer {
     private VkAttemptResponseRepository vkAttemptResponseRepository;
 
     @Autowired
+    private ListMailingTypeService listMailingTypeService;
+
+    @Autowired
     private JMConversationHelper jmConversationHelper;
 
     private void init() {
@@ -82,6 +85,15 @@ public class DataInitializer {
         roleService.add(roleOwner);
         roleService.add(roleMentor);
 
+        ListMailingType vkList = new ListMailingType("vk");
+        ListMailingType emailList = new ListMailingType("email");
+        ListMailingType slackList = new ListMailingType("slack");
+        ListMailingType smsList = new ListMailingType("sms");
+        listMailingTypeService.add(vkList);
+        listMailingTypeService.add(emailList);
+        listMailingTypeService.add(slackList);
+        listMailingTypeService.add(smsList);
+
         SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
         SocialProfileType FACEBOOK = new SocialProfileType("facebook");
         SocialProfileType UNKNOWN = new SocialProfileType("unknown");
@@ -98,6 +110,7 @@ public class DataInitializer {
         User admin = new User(
                 "Stanislav",
                 "Sorokin",
+                LocalDate.of(1975, 12, 12),
                 "88062334088",
                 "admin@mail.ru",
                 "admin",
@@ -110,23 +123,23 @@ public class DataInitializer {
                 true);
         userService.add(admin);
 
-        User user1 = new User("Ivan", "Ivanov", "79123456789", "user1@mail.ru",
+        User user1 = new User("Ivan", "Ivanov", LocalDate.of(1992, 9, 24), "79123456789", "user1@mail.ru",
                 "user", null, Client.Sex.MALE.toString(), "Minsk", "Belarus", Collections.singletonList(roleService.getRoleByName("USER")), true, false);
         userService.add(user1);
 
-        User user2 = new User("Petr", "Petrov", "89118465234", "user2@mail.ru",
+        User user2 = new User("Petr", "Petrov", LocalDate.of(1984, 4, 22), "89118465234", "user2@mail.ru",
                 "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("MENTOR")), true, true);
         userService.add(user2);
 
-        User user3 = new User("Vlad", "Mentor", "89118465234", "photolife9112@gmail.com",
+        User user3 = new User("Vlad", "Mentor", LocalDate.of(1990, 11, 12), "89118465234", "photolife9112@gmail.com",
                 "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("MENTOR")), true, true);
         userService.add(user3);
 
-        User user4 = new User("Nikita", "Mentor", "89118465234", "ccfilcc@gmail.com",
+        User user4 = new User("Nikita", "Mentor", LocalDate.of(1994, 2, 5), "89118465234", "ccfilcc@gmail.com",
                 "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Collections.singletonList(roleService.getRoleByName("MENTOR")), true, true);
         userService.add(user4);
 
-        User user5 = new User("Benedikt", "Manager", "9999999999", "qqfilqq@gmail.com",
+        User user5 = new User("Benedikt", "Manager", LocalDate.of(1988, 7, 19), "9999999999", "qqfilqq@gmail.com",
                 "user", null, Client.Sex.MALE.toString(), "Tver", "Russia", Arrays.asList(roleService.getRoleByName("USER"), roleService.getRoleByName("ADMIN"),
                 roleService.getRoleByName("OWNER")), true, true);
         userService.add(user5);

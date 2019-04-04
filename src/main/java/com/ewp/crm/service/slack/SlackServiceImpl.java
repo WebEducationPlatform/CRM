@@ -40,18 +40,30 @@ public class SlackServiceImpl implements SlackService {
     private final SocialProfileTypeService socialProfileTypeService;
     private final SocialProfileService socialProfileService;
     private final ClientService clientService;
+    private final String slackWorkspaceUrl;
     private final String inviteToken;
 
     @Autowired
     public SlackServiceImpl(Environment environment, StudentService studentService, SocialProfileTypeService socialProfileTypeService, ClientService clientService, SocialProfileService socialProfileService) {
-        this.inviteToken = environment.getProperty("slack.legacyToken");
-        if (inviteToken == null || inviteToken.isEmpty()) {
-            logger.warn("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens");
-        }
+        this.inviteToken = assignPropertyToString(environment,
+                "slack.legacyToken",
+                    "Can't get 'slack.legacyToken' get it from https://api.slack.com/custom-integrations/legacy-tokens");
+        this.slackWorkspaceUrl = assignPropertyToString(environment,
+                "slack.workspace.url",
+                    "Can't get 'slack.workspace.url' please check slack.properties file");
         this.studentService = studentService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
+    }
+
+    private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
+        String result = environment.getProperty(propertyName);
+        if (result == null || result.isEmpty()) {
+            logger.warn(errorText);
+            return "";
+        }
+        return result;
     }
 
     @Override
@@ -291,6 +303,10 @@ public class SlackServiceImpl implements SlackService {
             logger.error("Can't parse users from slack", e);
         }
         return result;
+    }
+
+    public String getSlackWorkspaceUrl() {
+        return slackWorkspaceUrl;
     }
 
     private class SlackProfile {

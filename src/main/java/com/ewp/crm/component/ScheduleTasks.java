@@ -194,7 +194,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 5_000)
 	private void handleRequestsFromVk() {
 		if (vkService.hasTechnicalAccountToken()) {
 			try {
@@ -239,7 +239,7 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 6_000)
+	@Scheduled(fixedRate = 5_000)
 	private void handleRequestsFromVkCommunityMessages() {
 		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
 		if (newUsers.isPresent()) {

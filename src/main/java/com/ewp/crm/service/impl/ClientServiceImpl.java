@@ -122,6 +122,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType) {
+        return clientRepository.getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(statuses, socialProfileType);
+    }
+
+    @Override
     public void addClient(Client client) {
         if (client.getLastName() == null) {
             client.setLastName("");
