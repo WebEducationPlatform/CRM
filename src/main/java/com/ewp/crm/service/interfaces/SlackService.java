@@ -12,4 +12,5 @@ public interface SlackService {
     boolean trySendMessageToAllSlackUsers(String text);
     boolean trySendSlackMessageToStudent(long studentId, String text);
     boolean trySendMessageToAllStudents(String text);
+    String getSlackWorkspaceUrl();
 }

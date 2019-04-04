@@ -37,7 +37,7 @@ public class ClientController {
     private final MailingMessageRepository messageService;
     private final StudentStatusService studentStatus;
     private final ListMailingTypeService listMailingTypeService;
-
+    private final SlackService slackService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -54,7 +54,9 @@ public class ClientController {
                             ListMailingService listMailingService,
                             MailingMessageRepository messageService,
                             StudentStatusService studentStatus,
-                            ListMailingTypeService listMailingTypeService) {
+                            ListMailingTypeService listMailingTypeService,
+                            SlackService slackService) {
+        this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -119,6 +121,7 @@ public class ClientController {
         modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
         modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;
     }
 
