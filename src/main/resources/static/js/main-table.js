@@ -1765,14 +1765,19 @@ function set_send_selector(clientId) {
         url: "/rest/client/" + clientId,
         success: function (client) {
             for (let i = 0; i < client.socialProfiles.length; i++) {
-                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
-                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
-                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                switch (client.socialProfiles[i].socialProfileType.name) {
+                    case 'vk':
+                        selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                        break;
+                    case 'telegram':
+                        selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                        break;
+                    case 'whatsapp':
+                        selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                        break;
+                    case 'slack':
+                        selector.append("<option id='send-slack' value='slack'>Отправить в Slack</option>");
+                        break;
                 }
             }
         }
@@ -1839,7 +1844,6 @@ function reloadClientStatus(clientId) {
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
-        var t0 = performance.now();
 
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
@@ -1857,14 +1861,12 @@ $(function () {
                 });
             }
         });
-        console.log('Point #1: ' + (performance.now() - t0));
         $.ajax({
             async: false,
             type: 'GET',
             url: '/rest/client/' + clientId,
             success: function (client) {
 
-                console.log('Point #2: ' + (performance.now() - t0));
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
                 }
@@ -1875,7 +1877,6 @@ $(function () {
                 }
 
                 let user = userLoggedIn;
-                console.log('Point #3: ' + (performance.now() - t0));
                 if (client.ownerUser != null) {
                     var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
 
@@ -1886,7 +1887,6 @@ $(function () {
 
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
-                console.log('Point #4: ' + (performance.now() - t0));
                 $('#client-email').text(client.email);
                 $('#client-phone').text(client.phoneNumber);
                 if (client.canCall && user.ipTelephony) {
@@ -1898,7 +1898,6 @@ $(function () {
                     $('#btn-mic-off').hide();
                     $('#btn-call-off').hide();
                 }
-                console.log('Point #5: ' + (performance.now() - t0));
                 if (client.age > 0) {
                     $('#client-age').text(client.age);
                 } else {
@@ -1931,7 +1930,6 @@ $(function () {
                     $('#client-request-button').hide();
                     $('#client-request').empty();
                 }
-                console.log('Point #6: ' + (performance.now() - t0));
                 // здесь вставка ссылок в кнопки вк, фб и слак
                 $('#vk-href').hide();
                 $('#vk-im-button').hide();
@@ -1971,9 +1969,13 @@ $(function () {
                         $('#fb-href').attr('href', client.socialProfiles[i].socialId);
                         $('#fb-href').show();
                     }
+
+                    if (client.socialProfiles[i].socialProfileType.name === 'slack') {
+                        $('#slack-href').attr('href', slack_url + '/team/' + client.socialProfiles[i].socialId);
+                        $('#slack-href').show();
+                    }
                     get_interlocutors(clientId);
                 }
-                console.log('Point #7: ' + (performance.now() - t0));
 
                 var btnBlock = $('div#assign-unassign-btns');
 
@@ -2016,7 +2018,6 @@ $(function () {
                     $('#contract-client-setting-contract-link').empty();
                 }
 
-                console.log('Point #8: ' + (performance.now() - t0));
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
@@ -2040,8 +2041,6 @@ $(function () {
                 }
             }
         });
-        var tEnd = performance.now();
-        console.log('Point #9: ' + (performance.now() - t0));
     });
 });
 

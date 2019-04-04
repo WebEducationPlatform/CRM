@@ -1,10 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +23,12 @@ public class StudentController {
     private final StatusService statusService;
     private final MessageTemplateService messageTemplateService;
     private final ProjectPropertiesService projectPropertiesService;
+    private final SlackService slackService;
 
     @Autowired
-    public StudentController(StudentService studentService, StatusService statusService,
+    public StudentController(StudentService studentService, StatusService statusService, SlackService slackService,
                              MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService) {
+        this.slackService = slackService;
         this.studentService = studentService;
         this.statusService = statusService;
         this.messageTemplateService = messageTemplateService;
@@ -49,6 +48,7 @@ public class StudentController {
         modelAndView.addObject("students", studentService.getAll());
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;
     }
 }

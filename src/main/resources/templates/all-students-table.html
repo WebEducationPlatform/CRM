@@ -174,7 +174,7 @@
                 </td>
                 <td th:id="${'status_' + student.id}">
                     <span th:id="${'statusValue_' + student.id}" th:text="${student.status.status}"></span>
-                    <select th:id="${'student-status_' + student.id}" class="form-control hidden"></select>
+                    <select th:id="${'student-status_' + student.id}" class="form-control hidden student-changing"></select>
                 </td>
                 <td th:id="${'notes_' + student.id}" th:text="${student.notes}" data-toggle="tooltip" th:title="${student.notes}"></td>
                 <td>
@@ -202,6 +202,13 @@
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
 <div th:replace="fragments/conversations::conversationsModal"></div>
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
+
+    /*]]>*/
+</script>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>

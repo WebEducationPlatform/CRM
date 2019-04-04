@@ -1,8 +1,10 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,12 +38,15 @@ public class SlackRestController {
     private final SlackService slackService;
     private final ClientService clientService;
     private final StudentService studentService;
+    private final StatusService statusService;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService, StudentService studentService) {
+    public SlackRestController(ClientService clientService, SlackService slackService,
+                               StudentService studentService, StatusService statusService) {
         this.slackService = slackService;
         this.clientService = clientService;
         this.studentService = studentService;
+        this.statusService = statusService;
     }
 
     @GetMapping("/find/client/{clientId}")
@@ -94,10 +100,21 @@ public class SlackRestController {
 
     @GetMapping("/get/ids/students")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<String> getAllStudentsIdsFromSlack() {
-        List<String> slackIdsForAllStudents = clientService.getSocialIdsForStudentsBySocialProfileType("slack");
+    public ResponseEntity<String> getAllStudentsIdsFromSlack(@RequestParam(name = "statuses", required = false) List<Long> statuses) {
+        List<Status> requiredStatuses = new ArrayList<>();
+        List<String> slackIdsForStudents;
+        if (statuses != null) {
+            for (Long id :statuses) {
+                statusService.get(id).ifPresent(requiredStatuses::add);
+            }
+        }
+        if (requiredStatuses.isEmpty()) {
+            slackIdsForStudents = clientService.getSocialIdsForStudentsBySocialProfileType("slack");
+        } else {
+            slackIdsForStudents = clientService.getSocialIdsForStudentsByStatusAndSocialProfileType(requiredStatuses, "slack");
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
-        return new ResponseEntity<>(String.join("\n", slackIdsForAllStudents), headers, HttpStatus.OK);
+        return new ResponseEntity<>(String.join("\n", slackIdsForStudents), headers, HttpStatus.OK);
     }
 }
