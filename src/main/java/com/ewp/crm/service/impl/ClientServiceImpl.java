@@ -315,7 +315,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
         Client client = createUpdateClient(clientOld, contractForm);
-        clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE).ifPresent(client::addHistory);
+        Optional<ClientHistory> optionalHistory = clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE);
+        if (optionalHistory.isPresent()) {
+            ClientHistory history = optionalHistory.get();
+            if (history.getTitle() != null && !history.getTitle().isEmpty()) {
+                client.addHistory(history);
+            }
+        }
         clientRepository.saveAndFlush(client);
         logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
     }
@@ -335,7 +341,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setName(contractForm.getInputFirstName());
         client.setMiddleName(contractForm.getInputMiddleName());
         client.setLastName(contractForm.getInputLastName());
-        client.setBirthDate(LocalDate.parse(contractForm.getInputBirthday(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        client.setBirthDate(contractForm.getInputBirthday());
         if (!contractForm.getInputEmail().isEmpty()) {
             client.setEmail(contractForm.getInputEmail());
         }
