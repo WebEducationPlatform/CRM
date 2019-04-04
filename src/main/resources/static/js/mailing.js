@@ -555,21 +555,21 @@ function showHistory() {
                 }
                 if (data[i].type === "vk" && data[i].notSendId.length > 0) {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button> \
                             <br/> \
-                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
+                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Не доставл.</button></td> \
                         </tr>");
                 } else {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button></td> \
                         </tr>");
                 }
 
