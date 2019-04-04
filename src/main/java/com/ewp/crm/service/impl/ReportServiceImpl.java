@@ -2,8 +2,10 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientRepository;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.ReportService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.ListIterator;
@@ -27,11 +30,18 @@ public class ReportServiceImpl implements ReportService {
 
     private static Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
 
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+    private final StatusService statusService;
+    private final ProjectPropertiesService projectPropertiesService;
+
+    private long newClientStatus;
 
     @Autowired
-    private StatusService statusService;
+    public ReportServiceImpl(ClientRepository clientRepository, StatusService statusService, ProjectPropertiesService projectPropertiesService) {
+        this.clientRepository = clientRepository;
+        this.statusService = statusService;
+        this.projectPropertiesService = projectPropertiesService;
+    }
 
     /**
      * Подсчитывает количество клиентов в статусе "новые" за период
@@ -75,23 +85,42 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public int countChangedStatusClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, Status from, Status to, Set<Status> exclude) {
+        if (from == null || to == null || to.equals(from) || firstReportDate == null || lastReportDate == null) {
+            return -1;
+        }
+        if (lastReportDate.isBefore(firstReportDate) || ChronoUnit.DAYS.between(lastReportDate, lastReportDate) != 0) {
+            return -1;
+        }
+        // статус from для новых клиентов?
+        boolean isNewClient = false;
+        ProjectProperties pp = projectPropertiesService.getOrCreate();
+        newClientStatus = pp.getNewClientStatus();
+        if (newClientStatus == from.getId()) {
+            isNewClient = true;
+        }
         int result = 0;
         // выбираем клиентов, которые на изменили стутус на заданный в выбранном периоде
         List<Long> clientIds = clientRepository.getChangedStatusClientIdsInPeriod(firstReportDate, lastReportDate,
                 new ClientHistory.Type[]{ClientHistory.Type.STATUS}, to.getName());
-        List<Client> clients = clientRepository.getById(clientIds).stream().filter(x -> !exclude.contains(x.getStatus())).collect(Collectors.toList());
+        List<Client> clients = clientRepository.getAllByIdIn(clientIds);
+        clients = clients.stream().filter(x -> !exclude.contains(x.getStatus())).collect(Collectors.toList());
         for (Client client : clients) {
-            ListIterator li = client.getHistory().listIterator(client.getHistory().size());
+            ListIterator li = client.getHistory().listIterator();
             boolean needTo = true;
-            while (li.hasPrevious()) {
-                ClientHistory history = (ClientHistory) li.previous();
+            while (li.hasNext()) {
+                ClientHistory history = (ClientHistory) li.next();
                 // ищем первое вхождение с конца в истории клиента (to)
                 if (needTo && history.getType().equals(ClientHistory.Type.STATUS) && history.getTitle().contains(to.getName())) {
                     needTo = false;
                     continue;
                 }
-                // анализируем, является ли предыдущий статус клиента заданным (from)
-                if (!needTo && history.getType().equals(ClientHistory.Type.STATUS)) {
+                // анализируем, является ли предыдущий статус - статусом нового клиента
+                if (isNewClient && !needTo && (history.getType().equals(ClientHistory.Type.ADD) || history.getType().equals(ClientHistory.Type.SOCIAL_REQUEST))) {
+                    result++;
+                    break;
+                }
+                // анализируем, является ли предыдущий статус клиента заданным (для старых клиентов)
+                if (!isNewClient && !needTo && history.getType().equals(ClientHistory.Type.STATUS)) {
                     if (history.getTitle().contains(from.getName())) {
                         result++;
                     }
