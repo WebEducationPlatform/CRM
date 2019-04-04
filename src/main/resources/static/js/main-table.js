@@ -1765,14 +1765,19 @@ function set_send_selector(clientId) {
         url: "/rest/client/" + clientId,
         success: function (client) {
             for (let i = 0; i < client.socialProfiles.length; i++) {
-                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
-                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
-                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                switch (client.socialProfiles[i].socialProfileType.name) {
+                    case 'vk':
+                        selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                        break;
+                    case 'telegram':
+                        selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                        break;
+                    case 'whatsapp':
+                        selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                        break;
+                    case 'slack':
+                        selector.append("<option id='send-slack' value='slack'>Отправить в Slack</option>");
+                        break;
                 }
             }
         }
