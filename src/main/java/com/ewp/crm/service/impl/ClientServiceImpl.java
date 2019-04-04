@@ -104,7 +104,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     @Override
     public List<Client> getClientsByManyIds(List<Long> ids) {
-        return clientRepository.getById(ids);
+        return clientRepository.getAllByIdIn(ids);
     }
 
     @Override
