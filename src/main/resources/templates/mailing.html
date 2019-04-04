@@ -149,7 +149,7 @@
 </div>
 
 <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" id="historyModalHeader">
                 <h4 class="modal-title" id="historyModalLabel">История рассылок</h4>
@@ -157,7 +157,7 @@
                     x
                 </button>
             </div>
-            <div class="modal-body" id="historyModalBody">
+            <div class="modal-body modal-with-overflow" id="historyModalBody">
 
                 <div class="form-group" sec:authorize="hasAnyAuthority('OWNER')">
                     <div class="row">
@@ -185,12 +185,11 @@
                 <table class="table table-striped" id="historyMailingTable">
                     <thead>
                     <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Дата расслыки</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Дата</th>
                         <th scope="col">Текст</th>
-                        <th scope="col">Тип отправки</th>
-                        <th scope="col">Получатель</th>
-                        <th scope="col"></th>
+                        <th scope="col">Тип</th>
+                        <th scope="col">Действия</th>
                     </tr>
                     </thead>
                     <tbody id="historyBodyMailing">
