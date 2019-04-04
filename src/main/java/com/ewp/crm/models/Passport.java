@@ -25,7 +25,7 @@ public class Passport implements Serializable {
     @Column(name = "number")
     private String number;
 
-    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date_of_issue")
     private LocalDate dateOfIssue;
 
