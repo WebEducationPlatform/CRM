@@ -4,6 +4,7 @@ import com.ewp.crm.configs.GoogleAPIConfigImpl;
 import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.repository.interfaces.GoogleTokenRepository;
 import com.ewp.crm.service.interfaces.GoogleAuthorizationService;
+import com.ewp.crm.service.interfaces.GoogleTokenService;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
@@ -28,7 +29,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
 
     private static Logger logger = LoggerFactory.getLogger(GoogleAuthorizationServiceImpl.class);
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private final GoogleTokenRepository tokenRepository;
+    private final GoogleTokenService googleTokenService;
 
     private final String clientId;
     private final String clientSecret;
@@ -40,12 +41,12 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
     private HttpTransport httpTransport;
 
     @Autowired
-    public GoogleAuthorizationServiceImpl(GoogleAPIConfigImpl config, GoogleTokenRepository tokenRepository) {
+    public GoogleAuthorizationServiceImpl(GoogleAPIConfigImpl config, GoogleTokenService googleTokenService) {
         this.clientId = config.getClientId();
         this.clientSecret = config.getClientSecret();
         this.redirectURI = config.getRedirectURI();
         this.scope = config.getScope();
-        this.tokenRepository = tokenRepository;
+        this.googleTokenService = googleTokenService;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
     public Credential tokenResponse(String code) {
         try {
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            tokenRepository.saveAndFlush(new GoogleToken(response.getAccessToken(),response.getRefreshToken()));
+            googleTokenService.createOrUpdate(new GoogleToken(response.getAccessToken(),response.getRefreshToken()));
             credential = flow.createAndStoreCredential(response, "userID");
             return credential;
         } catch (IOException e) {
