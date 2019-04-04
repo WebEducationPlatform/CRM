@@ -75,6 +75,7 @@ public class JMSlackConversation implements JMConversation {
 
     @Override
     public Optional<Interlocutor> getMe() {
+        // Просто заглушка, т.к. сообщения Slack только отправляются, но не принимаются
         return Optional.of(new Interlocutor("11111", "#", "#", "USERNAME", ChatType.slack));
     }
 }
