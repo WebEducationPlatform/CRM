@@ -81,12 +81,31 @@ function setMailingLists() {
     });
 }
 
+function fillStatuses() {
+    let updateSelector = $('#update-list-statuses');
+    let createSelector = $('#list-statuses');
+    $.ajax({
+        url: '/rest/status',
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            updateSelector.empty();
+            createSelector.empty();
+            for (var i = 0; i < data.length; i++) {
+                createSelector.append('<label class="checkbox-inline"><input class="status-checkboxes" type="checkbox" id="status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+                updateSelector.append('<label class="checkbox-inline"><input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+            }
+        }
+    });
+}
+
 /**
  * Функция, переключающая состояние кнопок режима рассылки и перенастраивающая интерфейс редактора.
  * Для функции отправки сообщений посредством СМС, в CKEditor отключаются все плагины форматирования
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    fillStatuses();
     setMailingLists();
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
@@ -162,13 +181,22 @@ $(document).ready(function () {
     })( jQuery );
 
     (function( $ ){
-        $.fn.fillWithStudentsIds = function() {
+        $.fn.fillWithStudentsIds = function(selector) {
             var field = this;
+            let selectedStatuses = [];
+            $('.' + selector + ':checked').each(function(){
+                selectedStatuses.push($(this).val());
+            });
+            let wrap = {
+                "statuses" : selectedStatuses
+            };
             $.ajax({
                 url: '/slack/get/ids/students',
                 contentType: "text/plain;charset=UTF-8",
                 type: 'GET',
                 dataType: 'text',
+                data: wrap,
+                traditional: true,
                 async: true,
                 success: function (data) {
                     field.val(data);
@@ -186,7 +214,7 @@ $(document).ready(function () {
     });
 
     $("#slackIdStudentsImportButton").click(function () {
-        $("#listRecipients").fillWithStudentsIds();
+        $("#listRecipients").fillWithStudentsIds('status-checkboxes');
     });
 
     $("#slackUpdateImportButton").click(function () {
@@ -198,7 +226,7 @@ $(document).ready(function () {
     });
 
     $("#slackUpdateIdStudentsImportButton").click(function () {
-        $("#editListRecipients").fillWithStudentsIds();
+        $("#editListRecipients").fillWithStudentsIds('update-status-checkboxes');
     });
 
     $.ajax({
