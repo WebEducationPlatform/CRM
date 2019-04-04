@@ -102,20 +102,47 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Доп. Email адреса</label>
-                        <table class="table table-hover" th:id="AdditionalEmails">
+                    <label>Доп. Email адреса</label>
+                    <table class="table table-hover" th:id="AdditionalEmails">
+                        <thead class="thead-inverse">
+                        <tr>
+                            <th hidden="hidden" abbr="id">id</th>
+                            <th abbr="emailExtra"></th>
+                        </tr>
+                        </thead>
+                        <tbody id="emails-table-body">
+                        <tr th:each="emails:${client.emailsExtra}">
+                            <td hidden="hidden" th:value="${emails.id}" th:text="${emails.id}"></td>
+                            <td th:value="${emails.emailExtra}" th:text="${emails.emailExtra}"></td>
+                            <td>
+                                <button disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
+                                        class="glyphicon glyphicon-remove"></button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                    <div>
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить
+                            доп. Email
+                        </button>
+                    </div>
+                    <p></p>
+                    <div class="form-group">
+                        <label>Доп. номера телефонов</label>
+                        <table class="table table-hover" th:id="AdditionalPhones">
                             <thead class="thead-inverse">
                             <tr>
                                 <th hidden="hidden" abbr="id">id</th>
-                                <th abbr="emailExtra"></th>
+                                <th abbr="phoneExtra"></th>
                             </tr>
                             </thead>
-                            <tbody id="emails-table-body">
-                            <tr th:each="emails:${client.emailsExtra}">
-                                <td hidden="hidden" th:value="${emails.id}" th:text="${emails.id}"></td>
-                                <td th:value="${emails.emailExtra}" th:text="${emails.emailExtra}"></td>
+                            <tbody id="phones-table-body">
+                            <tr th:each="phones:${client.phonesExtra}">
+                                <td hidden="hidden" th:value="${phones.id}" th:text="${phones.id}"></td>
+                                <td th:value="${phones.phoneExtra}" th:text="${phones.phoneExtra}"></td>
                                 <td>
-                                    <button disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
+                                    <button disabled="disabled" type="button" th:onclick="'deletePhone('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
                                 </td>
                             </tr>
@@ -123,8 +150,8 @@
                         </table>
                     </div>
                     <div>
-                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить
-                            доп. Email
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewPhone" th:onclick="'addNewPhoneExtra()'">Добавить
+                            доп. телефон
                         </button>
                     </div>
                     <p></p>

@@ -129,14 +129,13 @@ public class Client implements Serializable, Diffable<Client> {
     private List<Comment> comments = new ArrayList<>();
 
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "client_email_extra",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "email_extra_id", foreignKey = @ForeignKey(name = "FK_EMAIL_EXTRA"))})
     private List<EmailExtra> emailsExtra = new ArrayList<>();
 
-    @JsonIgnore
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "client_phone_extra",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_PHONE_EXTRA_CLIENT"))},

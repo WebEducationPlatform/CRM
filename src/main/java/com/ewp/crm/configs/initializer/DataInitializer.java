@@ -374,8 +374,19 @@ public class DataInitializer {
 
 
         PhoneExtra elkphone = new PhoneExtra("111222333");
+        PhoneExtra cowphone = new PhoneExtra("953372123");
+        PhoneExtra kolobokphone = new PhoneExtra("222222222");
+        PhoneExtra gamadrilphone = new PhoneExtra("222222333");
         elkphone.setClient(clientN2);
+        cowphone.setClient(clientN2);
+        kolobokphone.setClient(clientN2);
+        gamadrilphone.setClient(clientN2);
         phoneExtraService.add(elkphone);
+        phoneExtraService.add(cowphone);
+        phoneExtraService.add(kolobokphone);
+        phoneExtraService.add(gamadrilphone);
+        phoneExtraService.delete(gamadrilphone);
+
         clientService.updateClient(clientN2);
         List<EmailExtra> emailExtras = new ArrayList<>();
         emailExtras.add(parrot);
