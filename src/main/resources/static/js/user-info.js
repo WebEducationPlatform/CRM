@@ -65,6 +65,7 @@ function changeUser(id, authId) {
         id: id,
         firstName: $('#edit-user-first-name').val(),
         lastName: $('#edit-user-last-name').val(),
+        birthDate: $('#edit-user-birth-date').val(),
         phoneNumber: $('#edit-user-phone-number').val(),
         ipTelephony: $("#ipTel").is(":checked") ? true : false,
         email: $('#edit-user-email').val(),
@@ -242,6 +243,7 @@ function addUser() {
     let wrap = {
         firstName: $('#add-user-first-name').val(),
         lastName: $('#add-user-last-name').val(),
+        birthDate: $('#add-user-birth-date').val(),
         phoneNumber: $('#add-user-phone-number').val(),
         ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#add-user-email').val(),
@@ -296,6 +298,7 @@ function registerUser() {
     let wrap = {
         firstName: $('#add-user-first-name').val(),
         lastName: $('#add-user-last-name').val(),
+        birthDate: $('#add-user-birth-date').val(),
         phoneNumber: $('#add-user-phone-number').val(),
         ipTelephony: $("#ipTel").is(":checked") ? "true" : "false",
         email: $('#add-user-email').val(),
