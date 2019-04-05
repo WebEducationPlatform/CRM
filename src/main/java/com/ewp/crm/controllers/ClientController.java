@@ -12,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
@@ -139,12 +138,13 @@ public class ClientController {
 
     @GetMapping(value = "/client/mailing")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public String mailingPage(Model model) {
-        model.addAttribute("listMailing", listMailingService.getAll());
-        model.addAttribute("chooseUser", userService.getAll());
-        model.addAttribute("mailingMessage", messageService.findAll());
-        model.addAttribute("listMailingTypes", listMailingTypeService.getAll());
-        return "mailing";
+    public ModelAndView mailingPage() {
+        ModelAndView modelAndView = new ModelAndView("mailing");
+        modelAndView.addObject("listMailing", listMailingService.getAll());
+        modelAndView.addObject("chooseUser", userService.getAll());
+        modelAndView.addObject("mailingMessage", messageService.findAll());
+        modelAndView.addObject("listMailingTypes", listMailingTypeService.getAll());
+        return modelAndView;
     }
 
     @GetMapping(value = "/client/clientInfo/{id}")
