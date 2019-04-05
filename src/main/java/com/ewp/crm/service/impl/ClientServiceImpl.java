@@ -138,13 +138,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
-            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(client.getPhoneNumber()));
-
+            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
+            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(validatePhone));
         }
 
         if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
-
         }
 
         checkSocialIds(client);
