@@ -235,7 +235,8 @@ public class SlackServiceImpl implements SlackService {
         return chatId.filter(s -> trySendMessageToSlackChannel(s, text)).isPresent();
     }
 
-    private Optional<String> getChatIdForSlackUser(String slackUserId) {
+    @Override
+    public Optional<String> getChatIdForSlackUser(String slackUserId) {
         String url = SLACK_API_URL + "im.open" +
                 "?token=" + inviteToken +
                 "&user=" + slackUserId +

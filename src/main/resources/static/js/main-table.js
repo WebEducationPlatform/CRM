@@ -1976,8 +1976,24 @@ $(function () {
                     }
 
                     if (client.socialProfiles[i].socialProfileType.name === 'slack') {
-                        $('#slack-href').attr('href', slack_url + '/team/' + client.socialProfiles[i].socialId);
-                        $('#slack-href').show();
+
+                        let clientSlackId = client.socialProfiles[i].socialId;
+
+                        $.ajax({
+                            url: '/slack/get/chat/by/client/' + clientSlackId,
+                            async: true,
+                            type: 'GET',
+                            success: function (data) {
+                                $('#slack-href').attr('href', slack_url + '/messages/' + data);
+                            },
+                            error: function () {
+                                $('#slack-href').attr('href', slack_url + '/team/' + clientSlackId);
+                            },
+                            complete: function () {
+                                $('#slack-href').show();
+                            }
+                        });
+
                     }
                     get_interlocutors(clientId);
                 }

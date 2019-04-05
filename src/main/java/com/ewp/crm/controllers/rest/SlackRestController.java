@@ -98,6 +98,15 @@ public class SlackRestController {
         return new ResponseEntity<>(slackService.getAllIdsFromSlack().orElse("Error"), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/get/chat/by/client/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        Optional<String> chatId = slackService.getChatIdForSlackUser(id);
+        return chatId.map(s -> new ResponseEntity<>(s, headers, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @GetMapping("/get/ids/students")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<String> getAllStudentsIdsFromSlack(@RequestParam(name = "statuses", required = false) List<Long> statuses) {
