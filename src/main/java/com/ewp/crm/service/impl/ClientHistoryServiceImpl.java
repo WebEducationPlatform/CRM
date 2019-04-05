@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -219,6 +219,20 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		history.setTitle(user.getFullName() + " " + type.getInfo());
 
 		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
+	}
+
+	@Override
+	public Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Phone: " + client.getPhoneNumber() + " -> null");
 		if (message.isPresent()) {
 			history.setMessage(message.get());
 			history.setLink(message.get().getId().toString());
