@@ -16,7 +16,7 @@ public class SocialProfile implements Serializable {
 	@Column(name = "id")
 	private long id;
 
-	@Column(name = "social_id")
+	@Column(name = "social_id", unique = true)
 	private String socialId;
 
     /**
