@@ -99,7 +99,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/chat/by/client/{id}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER')")
     public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
