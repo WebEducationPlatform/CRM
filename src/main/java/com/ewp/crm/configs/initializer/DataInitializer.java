@@ -255,7 +255,7 @@ public class DataInitializer {
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-     /*   vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
+        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
                 vkConfig.getCommunityToken(),
                 "JavaMentorTest",
                 Long.parseLong(vkConfig.getApplicationId())));
@@ -264,7 +264,7 @@ public class DataInitializer {
             List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
                     .orElseThrow(NotFoundMemberList::new);
             vkMemberService.addAllMembers(memberList);
-        }*/
+        }
 
         SlackProfile slackProfile = new SlackProfile();
         slackProfile.setName("Вадим");
@@ -359,24 +359,20 @@ public class DataInitializer {
         EmailExtra gribok = new EmailExtra("gribok@gmail.com");
         EmailExtra elk = new EmailExtra("elk@gmail.com", clientN2);
         EmailExtra parrot = new EmailExtra("parrot@gmail.com", clientN2);
-
         kolobok.setClient(clientN2);
         elk.setClient(clientN2);
         parrot.setClient(clientN2);
         gribok.setClient(clientN2);
-
         emailExtraService.add(kolobok);
         emailExtraService.add(gribok);
         emailExtraService.add(elk);
         emailExtraService.add(parrot);
         clientService.updateClient(clientN2);
 
-
-
-        PhoneExtra elkphone = new PhoneExtra("111222333");
-        PhoneExtra cowphone = new PhoneExtra("953372123");
-        PhoneExtra kolobokphone = new PhoneExtra("222222222");
-        PhoneExtra gamadrilphone = new PhoneExtra("222222333");
+        PhoneExtra elkphone = new PhoneExtra("71234567891");
+        PhoneExtra cowphone = new PhoneExtra("79533721231");
+        PhoneExtra kolobokphone = new PhoneExtra("79222222222");
+        PhoneExtra gamadrilphone = new PhoneExtra("79522222233");
         elkphone.setClient(clientN2);
         cowphone.setClient(clientN2);
         kolobokphone.setClient(clientN2);
@@ -386,16 +382,7 @@ public class DataInitializer {
         phoneExtraService.add(kolobokphone);
         phoneExtraService.add(gamadrilphone);
         phoneExtraService.delete(gamadrilphone);
-
         clientService.updateClient(clientN2);
-        List<EmailExtra> emailExtras = new ArrayList<>();
-        emailExtras.add(parrot);
 
-        emailExtraService.update(gribok);
-        List<EmailExtra> emailExtras1 = clientN2.getEmailsExtra();
-        List<PhoneExtra> phoneExtras = clientN2.getPhonesExtra();
-        List<Notification> notifications = clientN2.getNotifications();
-     //   emailExtraService.delete(1L);
-        System.out.println("вот такая лабуда!");
     }
 }

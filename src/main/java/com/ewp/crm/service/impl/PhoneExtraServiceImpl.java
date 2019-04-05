@@ -15,7 +15,7 @@ public class PhoneExtraServiceImpl extends CommonServiceImpl<PhoneExtra> impleme
     private PhoneExtraDAO phoneExtraDAO;
 
     @Autowired
-    public PhoneExtraServiceImpl(PhoneExtraDAO PhoneExtraDAO) {
+    public PhoneExtraServiceImpl(PhoneExtraDAO phoneExtraDAO) {
         this.phoneExtraDAO = phoneExtraDAO;
     }
 

@@ -2,16 +2,11 @@ package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -25,7 +20,7 @@ public class EmailExtra  implements Serializable {
     @NotNull
     @Size(max = 50)
     @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email_extra", length = 50)
+    @Column(name = "email_extra", length = 50, unique = true)
     private String emailExtra;
 
     @ManyToOne(targetEntity = Client.class)

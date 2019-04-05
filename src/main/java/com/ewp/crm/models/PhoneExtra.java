@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -19,7 +17,7 @@ public class PhoneExtra implements Serializable {
     private Long id;
 
     @Basic
-    @Column(name = "phone_extra")
+    @Column(name = "phone_extra", unique = true)
     private String phoneExtra;
 
     @ManyToOne(targetEntity = Client.class)
