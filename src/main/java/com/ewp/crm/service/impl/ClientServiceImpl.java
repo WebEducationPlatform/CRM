@@ -360,7 +360,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setEmail(email);
         }
         if (!contractForm.getInputPhoneNumber().isEmpty()) {
-            client.setPhoneNumber(contractForm.getInputPhoneNumber().replaceAll("\\+",""));
+            client.setPhoneNumber(phoneValidator.phoneRestore(contractForm.getInputPhoneNumber()));
         }
         Passport passport = contractForm.getPassportData();
         if (passportService.encode(passport).isPresent()) {
