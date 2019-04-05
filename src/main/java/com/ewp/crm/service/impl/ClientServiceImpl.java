@@ -359,8 +359,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             }
             client.setEmail(email);
         }
-        if (!contractForm.getInputPhoneNumber().isEmpty()) {
-            client.setPhoneNumber(phoneValidator.phoneRestore(contractForm.getInputPhoneNumber()));
+        String phone = contractForm.getInputPhoneNumber();
+        if (!phone.isEmpty()) {
+            String validatedPhone = phoneValidator.phoneRestore(phone);
+            Optional<Client> checkPhoneClient = getClientByPhoneNumber(validatedPhone);
+            if (checkPhoneClient.isPresent()) {
+                Client clientDelPhone = checkPhoneClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelPhone::addHistory);
+                clientDelPhone.setPhoneNumber(null);
+                update(clientDelPhone);
+            }
+            client.setPhoneNumber(validatedPhone);
         }
         Passport passport = contractForm.getPassportData();
         if (passportService.encode(passport).isPresent()) {
