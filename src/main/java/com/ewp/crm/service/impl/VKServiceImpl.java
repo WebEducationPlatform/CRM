@@ -1276,14 +1276,24 @@ public class VKServiceImpl implements VKService {
         try {
             balanceFromYandexDirect = yandexDirectAdReportService.getBalance();
         } catch (Exception e) {
-            balanceFromYandexDirect = GETTING_REPORT_ERROR;
-            logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
+            logger.error("Can't receive balance from Yandex Direct. Trying again", e);
+            try {
+                balanceFromYandexDirect = yandexDirectAdReportService.getBalance();
+            } catch (Exception e1) {
+                balanceFromYandexDirect = GETTING_REPORT_ERROR;
+                logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e1);
+            }
         }
         try {
             spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney();
         } catch (Exception e) {
-            spentFromYandexDirect = GETTING_REPORT_ERROR;
-            logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
+            logger.error("Can't receive campaign report from Yandex Direct. Trying again", e);
+            try {
+                spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney();
+            } catch (Exception e1) {
+                spentFromYandexDirect = GETTING_REPORT_ERROR;
+                logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e1);
+            }
         }
         // Получение отчёта со ВКонтакте.
         try {
