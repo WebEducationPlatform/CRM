@@ -3,12 +3,19 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.configs.inteface.YandexDirectConfig;
 import com.ewp.crm.service.interfaces.AdReportService;
 import com.squareup.okhttp.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -37,6 +44,7 @@ public class YandexDirectAdReportService implements AdReportService {
     }
 
     // Получение баланса обращением к API v4 Live
+    @Override
     public String getBalance() throws JSONException, IOException {
         MediaType typeJson = MediaType.parse("application/json; charset=utf-8");
 
@@ -73,12 +81,10 @@ public class YandexDirectAdReportService implements AdReportService {
         return responseData.getJSONObject(0).getString("Amount");
     }
 
-    // Получение отчёта обращением к API v5, сервису Reports, и расчёт потраченных средств.
-    public String getSpentMoney() throws JSONException, IOException {
-        MediaType typeJson = MediaType.parse("application/json; charset=utf-8");
-
+    @Override
+    public String getSpentMoney() throws IOException {
         // Тело запроса к методу get сервиса Campaigns API v5.
-        RequestBody bodyForReport = RequestBody.create(typeJson, new JSONObject(new StringBuilder()
+         String bodyForReport = new StringBuilder()
                 .append("{\n")
                 .append(  "\"params\": {\n")
                 .append("        \"SelectionCriteria\": {},\n")
@@ -93,26 +99,22 @@ public class YandexDirectAdReportService implements AdReportService {
                 .append("        \"IncludeDiscount\": \"YES\"\n")
                 .append("    }\n")
                 .append("}")
-                .toString())
-                .toString());
-
-        // Задание заголовков, URL, метода обращения. Используя сформированное выше тело, формируем запрос.
-        Request requestForReport = new Request.Builder()
-                .addHeader("Authorization", API_V5_AUTHORIZATION_TOKEN_PREFIX + authorizationToken)
-                .addHeader("Accept-Language", acceptLanguage)
-                .addHeader("Client-Login", clientLogin)
-                .addHeader("processingMode", "online")
-                .addHeader("returnMoneyInMicros", "false")
-                .url(apiV5Url + API_V5_REPORT_SERVICE_URL_SUFFIX)
-                .post(bodyForReport)
-                .build();
-        // Исполняем запрос
-        OkHttpClient requestClient = getCustomizedClient();
-        Response response = requestClient.newCall(requestForReport).execute();
-
-        // Обрабатываем и возвращаем ответ
-        String reportAsString = response.body().string();
-        return summaryOfSpentMoney(reportAsString);
+                .toString();
+         // Создание клиентов, обращающихся к API
+         HttpClient httpClient = getHttpClient();
+         HttpPost httpPostMoney = new HttpPost(apiV5Url + API_V5_REPORT_SERVICE_URL_SUFFIX);
+         // Настройка: задание заголовков и тела запроса
+         httpPostMoney.setHeader("Content-type", "application/json; charset=utf-8");
+         httpPostMoney.setHeader("Authorization", API_V5_AUTHORIZATION_TOKEN_PREFIX + authorizationToken);
+         httpPostMoney.setHeader("Accept-Language", acceptLanguage);
+         httpPostMoney.setHeader("Client-Login", clientLogin);
+         httpPostMoney.setHeader("processingMode", "online");
+         httpPostMoney.setHeader("returnMoneyInMicros", "false");
+         httpPostMoney.setEntity(new StringEntity(bodyForReport));
+         // Исполнение запроса и обработка ответа
+         HttpResponse response = httpClient.execute(httpPostMoney);
+         String reportAsString = EntityUtils.toString(response.getEntity());
+         return summaryOfSpentMoney(reportAsString);
     }
 
     // Парсинг и суммирование потраченных денег по всем кампаниям
@@ -133,4 +135,13 @@ public class YandexDirectAdReportService implements AdReportService {
         requestClient.setWriteTimeout(30, TimeUnit.SECONDS);
         return requestClient;
     }
+
+    private HttpClient getHttpClient() {
+        return HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD)
+                        .build())
+                .build();
+    }
+
 }
