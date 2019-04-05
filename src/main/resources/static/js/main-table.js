@@ -2326,10 +2326,10 @@ $('#client-request-button').click( () => {
 });
 
 function createContractSetting() {
-    var baseUrl = window.location.href;
+    var baseUrl = window.location.host;
     var url = '/client/contract/rest/create';
 
-    var clientId = baseUrl.substring(baseUrl.lastIndexOf('=') + 1);
+    var clientId = getAllUrlParams(window.location.href).id;
     var hash = (+new Date).toString(36);
     var setting = {
         hash: hash,
@@ -2346,7 +2346,7 @@ function createContractSetting() {
         url: url,
         data: JSON.stringify(setting),
         success: function () {
-            var contractLink = baseUrl.substr(0,baseUrl.indexOf("/client",0)) + '/contract/' + hash;
+            var contractLink = baseUrl + '/contract/' + hash;
             $('#contract-client-setting-contract-link').val(contractLink);
             navigator.clipboard.writeText(contractLink);
             $('#contract-copy-modal').modal('show');
@@ -2356,7 +2356,7 @@ function createContractSetting() {
         },
         error: function () {
             console.log('error save contract setting');
-            alert('Нужна авторизация в Google!')
+            alert('Ошибка создания ссылки!')
         }
     });
 }
