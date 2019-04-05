@@ -161,7 +161,7 @@ $(document).ready(function () {
                     field.val(data);
                 }
             });
-        };addToListMailing
+        };
     })( jQuery );
 
     (function( $ ){
@@ -243,7 +243,8 @@ $(document).ready(function () {
         }
     });
 
-    $("#historyMailingTable").on('click', 'button[id="getRecipient"]', function(e) {
+    $('#historyMailingTable').delegate('.recipient-modal', 'click', function() {
+        $('#recipientModal').modal('show');
         var id = $(this).closest('tr').children('td:first').text();
         $.ajax({
             type: "POST",
@@ -252,6 +253,7 @@ $(document).ready(function () {
                 mailId: id
             },
             success: function (data) {
+                $("#recipientBodyMailing").empty();
                 for (var j = 0; j < data.length; j++) {
                     $("#recipientBodyMailing").append("<tr> \
                             <td>" + data[j].info + "</td> \
@@ -259,7 +261,7 @@ $(document).ready(function () {
                 }
             }
         });
-    })
+    });
 
     $("#historyMailingTable").on('click', 'button[id="getNoSend"]', function(e) {
         var id = $(this).closest('tr').children('td:first').text();
@@ -284,7 +286,7 @@ $(document).ready(function () {
  * Функция, настраивающая datarangepicker
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
@@ -308,7 +310,7 @@ $(document).ready(function () {
             "firstDay": 0
         },
         "linkedCalendars": false,
-        "startDate": startDate,
+        "startDate": startDate
     }, function (start, end, label) {
         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
             end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -326,7 +328,7 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
  * Заполнение блока адресов
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     $("#addresses-area").on("drop", function (event) {
@@ -388,11 +390,9 @@ function ckeditorAddAllToolbars() {
     CKEDITOR.instances[EDITOR].destroy(true);
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js'
-
-
     });
-    $("#imgSelectBtn").show()
-    $("#vkTokenSelect").hide()
+    $("#imgSelectBtn").show();
+    $("#vkTokenSelect").hide();
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -400,11 +400,11 @@ function ckeditorRemoveAllToolbars() {
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
-    $("#imgSelectBtn").hide()
+    $("#imgSelectBtn").hide();
     if(messageType === "vk") {
-        $("#vkTokenSelect").show()
+        $("#vkTokenSelect").show();
     } else {
-        $("#vkTokenSelect").hide()
+        $("#vkTokenSelect").hide();
     }
 
 }
@@ -413,7 +413,7 @@ function ckeditorRemoveAllToolbars() {
  * Визуализация событий dragover, dragleave, dragend, drop поля адресов
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     $("#addresses-area")
@@ -451,7 +451,7 @@ function sendImg(input) {
         success: function (userId) {
             insertNewPicture(userId,templateID,input);
         },
-        error: function (data) {client_social_network
+        error: function (data) {
             if (typeof data.responseJSON === 'undefined') {
                 setErrorMessage('undefined', 'red');
             }
@@ -465,17 +465,16 @@ function setErrorMessage(message, color) {
     label.prop('innerHTML', message)
     label.css('color', color);
 
-
     $.ajax({
         type: "GET",
         url: "/get/no/send",
         success: function (data) {
             var i = data.length - 1;
-                if (data[i].notSendId.length > 0 && messageType == "vk") {
-                    $("#noSendButton").show()
-                        $("#noSend-area").each(function() {
-                            $(this).val(data[i].notSendId.join("\n"));
-                        });
+                if (data[i].notSendId.length > 0 && messageType === "vk") {
+                    $("#noSendButton").show();
+                    $("#noSend-area").each(function() {
+                        $(this).val(data[i].notSendId.join("\n"));
+                    });
                 }
             }
     });
@@ -587,7 +586,7 @@ function showHistory() {
                             <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td class='history-table-td-text'>" + data[i].text + "</td> \
                             <td class='history-table-td-type'>" + data[i].type + "</td> \
-                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button> \
+                            <td class='history-table-td-buttons'><button class='btn btn-success recipient-modal'>Получатели</button> \
                             <br/> \
                             <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Не доставл.</button></td> \
                         </tr>");
@@ -597,7 +596,7 @@ function showHistory() {
                             <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td class='history-table-td-text'>" + data[i].text + "</td> \
                             <td class='history-table-td-type'>" + data[i].type + "</td> \
-                            <td class='history-table-td-buttons'><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Получатели</button></td> \
+                            <td class='history-table-td-buttons'><button class='btn btn-success recipient-modal'>Получатели</button></td> \
                         </tr>");
                 }
 
@@ -606,6 +605,14 @@ function showHistory() {
         }
     });
 }
+
+$('#noSendModal').on('hidden.bs.modal', function () {
+    $('#historyModal').css('overflow-y', 'auto');
+});
+
+$('#recipientModal').on('hidden.bs.modal', function () {
+    $('#historyModal').css('overflow-y', 'auto');
+});
 
 function removeHistory() {
     $('#managerSelect').val('');
@@ -684,7 +691,7 @@ function showManagerHistory() {
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <td><button class='btn btn-success recipient-modal'>Показать всех получателей</button> \
                             <br/> \
                             <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
                         </tr>");
@@ -694,7 +701,7 @@ function showManagerHistory() {
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                            <td><button class='btn btn-success recipient-modal'>Показать всех получателей</button></td> \
                         </tr>");
                 }
 
