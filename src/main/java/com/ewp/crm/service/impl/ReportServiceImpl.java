@@ -34,8 +34,6 @@ public class ReportServiceImpl implements ReportService {
     private final StatusService statusService;
     private final ProjectPropertiesService projectPropertiesService;
 
-    private long newClientStatus;
-
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository, StatusService statusService, ProjectPropertiesService projectPropertiesService) {
         this.clientRepository = clientRepository;
@@ -51,25 +49,12 @@ public class ReportServiceImpl implements ReportService {
      * @return количество найденных клиентов
      */
     @Override
-    public int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
-        return clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, lastReportDate,
-                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST}).size();
-    }
-
-    private ZonedDateTime[] parseTwoDate(String date) {
-        String date1 = date.substring(0, 10);
-        String date2 = date.substring(13, 23);
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        TemporalAccessor parse1 = format.parse(date1);
-        TemporalAccessor parse2 = format.parse(date2);
-        try {
-            ZonedDateTime localDate1 = LocalDate.from(parse1).atStartOfDay(ZoneId.systemDefault());
-            ZonedDateTime localDate2 = LocalDate.from(parse2).atStartOfDay(ZoneId.systemDefault()).plusHours(23).plusMinutes(59).plusSeconds(59);
-            return new ZonedDateTime[]{localDate1, localDate2};
-        } catch (DateTimeParseException e) {
-            logger.error("String \"" + date + "\" hasn't parsed");
-            return null;
-        }
+    public long countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate) {
+        List<Client> clients= clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, getEndOfDay(lastReportDate),
+                new ClientHistory.Type[]{ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST});
+       return clients.stream()
+               .filter(x->!x.getStatus().getName().toLowerCase().contains("тест") && !x.getStatus().getName().toLowerCase().contains("test"))
+               .count();
     }
 
     /**
@@ -88,13 +73,14 @@ public class ReportServiceImpl implements ReportService {
         if (from == null || to == null || to.equals(from) || firstReportDate == null || lastReportDate == null) {
             return -1;
         }
+        lastReportDate = getEndOfDay(lastReportDate);
         if (lastReportDate.isBefore(firstReportDate) || ChronoUnit.DAYS.between(lastReportDate, lastReportDate) != 0) {
             return -1;
         }
-        // статус from для новых клиентов?
+        // статус from соответствует статусу нового клиента?
         boolean isNewClient = false;
         ProjectProperties pp = projectPropertiesService.getOrCreate();
-        newClientStatus = pp.getNewClientStatus();
+        long newClientStatus = pp.getNewClientStatus();
         if (newClientStatus == from.getId()) {
             isNewClient = true;
         }
@@ -106,21 +92,22 @@ public class ReportServiceImpl implements ReportService {
         clients = clients.stream().filter(x -> !exclude.contains(x.getStatus())).collect(Collectors.toList());
         for (Client client : clients) {
             ListIterator li = client.getHistory().listIterator();
-            boolean needTo = true;
+            // Показывает, найден ли в истории стутус to
+            boolean needFindToStatus = true;
             while (li.hasNext()) {
                 ClientHistory history = (ClientHistory) li.next();
                 // ищем первое вхождение с конца в истории клиента (to)
-                if (needTo && history.getType().equals(ClientHistory.Type.STATUS) && history.getTitle().contains(to.getName())) {
-                    needTo = false;
+                if (needFindToStatus && history.getType().equals(ClientHistory.Type.STATUS) && history.getTitle().contains(to.getName())) {
+                    needFindToStatus = false;
                     continue;
                 }
                 // анализируем, является ли предыдущий статус - статусом нового клиента
-                if (isNewClient && !needTo && (history.getType().equals(ClientHistory.Type.ADD) || history.getType().equals(ClientHistory.Type.SOCIAL_REQUEST))) {
+                if (isNewClient && !needFindToStatus && (history.getType().equals(ClientHistory.Type.ADD) || history.getType().equals(ClientHistory.Type.SOCIAL_REQUEST))) {
                     result++;
                     break;
                 }
                 // анализируем, является ли предыдущий статус клиента заданным (для старых клиентов)
-                if (!isNewClient && !needTo && history.getType().equals(ClientHistory.Type.STATUS)) {
+                if (!isNewClient && !needFindToStatus && history.getType().equals(ClientHistory.Type.STATUS)) {
                     if (history.getTitle().contains(from.getName())) {
                         result++;
                     }
@@ -160,6 +147,31 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return result;
+    }
+
+    /**
+     * Устанавливаем время окончаниедня дня в lastReportDate
+     * @param lastReportDate исходная дата (начало дня)
+     * @return дата с временем в конце дня
+     */
+    private ZonedDateTime getEndOfDay(ZonedDateTime lastReportDate) {
+        return lastReportDate.plusDays(1).minusSeconds(1);
+    }
+
+    private ZonedDateTime[] parseTwoDate(String date) {
+        String date1 = date.substring(0, 10);
+        String date2 = date.substring(13, 23);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        TemporalAccessor parse1 = format.parse(date1);
+        TemporalAccessor parse2 = format.parse(date2);
+        try {
+            ZonedDateTime localDate1 = LocalDate.from(parse1).atStartOfDay(ZoneId.systemDefault());
+            ZonedDateTime localDate2 = LocalDate.from(parse2).atStartOfDay(ZoneId.systemDefault()).plusHours(23).plusMinutes(59).plusSeconds(59);
+            return new ZonedDateTime[]{localDate1, localDate2};
+        } catch (DateTimeParseException e) {
+            logger.error("String \"" + date + "\" hasn't parsed");
+            return null;
+        }
     }
 
 }
