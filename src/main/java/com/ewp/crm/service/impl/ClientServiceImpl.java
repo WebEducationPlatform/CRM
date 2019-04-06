@@ -138,13 +138,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
-            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(client.getPhoneNumber()));
-
+            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
+            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(validatePhone));
         }
 
         if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
-
         }
 
         checkSocialIds(client);
@@ -359,8 +358,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             }
             client.setEmail(email);
         }
-        if (!contractForm.getInputPhoneNumber().isEmpty()) {
-            client.setPhoneNumber(contractForm.getInputPhoneNumber().replaceAll("\\+",""));
+        String phone = contractForm.getInputPhoneNumber();
+        if (!phone.isEmpty()) {
+            String validatedPhone = phoneValidator.phoneRestore(phone);
+            Optional<Client> checkPhoneClient = getClientByPhoneNumber(validatedPhone);
+            if (checkPhoneClient.isPresent()) {
+                Client clientDelPhone = checkPhoneClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelPhone::addHistory);
+                clientDelPhone.setPhoneNumber(null);
+                update(clientDelPhone);
+            }
+            client.setPhoneNumber(validatedPhone);
         }
         Passport passport = contractForm.getPassportData();
         if (passportService.encode(passport).isPresent()) {

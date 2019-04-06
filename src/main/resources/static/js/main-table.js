@@ -217,6 +217,7 @@ $(document).ready(function () {
     })
 
     $("#sms_error_modal").on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         let modal = $(this);
         modal.find("tbody").empty();
     })
@@ -713,6 +714,7 @@ $(function () {
 });
 $(function () {
     $('#customVKMessageTemplate').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentStatus = $(this).find('.send-custom-vk-status');
         currentStatus.empty();
     });
@@ -761,6 +763,7 @@ $(function () {
 });
 $(function () {
     $('#customEmailMessageTemplate').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentStatus = $(this).find('.send-email-err-status');
         currentStatus.empty();
     });
@@ -918,6 +921,7 @@ $(function () {
 
 $(function () {
     $('.fix-modal').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
@@ -1792,13 +1796,14 @@ $('#conversations-modal').on('show.bs.modal', function () {
 });
 
 $('#conversations-modal').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
     let clientId = $("#main-modal-window").data('clientId');
     $("#chat-messages").empty();
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/close',
         data: {clientId: clientId}
-    })
+    });
 });
 
 function client_has_telegram(client) {
@@ -1933,7 +1938,7 @@ $(function () {
                 // здесь вставка ссылок в кнопки вк, фб и слак
                 $('#vk-href').hide();
                 $('#vk-im-button').hide();
-
+                $('#slack-href').hide();
                 $('#fb-href').hide();
 
                 document.getElementById("profilePhoto").removeAttribute("src");
@@ -1971,8 +1976,24 @@ $(function () {
                     }
 
                     if (client.socialProfiles[i].socialProfileType.name === 'slack') {
-                        $('#slack-href').attr('href', slack_url + '/team/' + client.socialProfiles[i].socialId);
-                        $('#slack-href').show();
+
+                        let clientSlackId = client.socialProfiles[i].socialId;
+
+                        $.ajax({
+                            url: '/slack/get/chat/by/client/' + clientSlackId,
+                            async: true,
+                            type: 'GET',
+                            success: function (data) {
+                                $('#slack-href').attr('href', slack_url + '/messages/' + data);
+                            },
+                            error: function () {
+                                $('#slack-href').attr('href', slack_url + '/team/' + clientSlackId);
+                            },
+                            complete: function () {
+                                $('#slack-href').show();
+                            }
+                        });
+
                     }
                     get_interlocutors(clientId);
                 }
