@@ -253,6 +253,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
+        if (client.getPhoneNumber().equals("")) {
+            client.setPhoneNumber(null);
+        }
+        if (client.getEmail().equals("")) {
+            client.setEmail(null);
+        }
         //checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
