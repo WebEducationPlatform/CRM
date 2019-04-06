@@ -61,12 +61,12 @@ $('#load-data-button').on('click', function () {
         selectedDateStart = start[2] + '-' + start[1] + '-' + start[0];
         selectedDateEnd = end[2] + '-' + end[1] + '-' + end[0];
     } else {
+        let selectedExcludes = [];
+        $('.exclude-status-checkboxes:checked').each(function(){
+            selectedExcludes.push($(this).val());
+        });
         switch (selectedReport) {
             case 1:
-                let selectedExcludes = [];
-                $('.exclude-status-checkboxes:checked').each(function(){
-                    selectedExcludes.push($(this).val());
-                });
                 wrap = {
                     "firstReportDate" : selectedDateStart,
                     "lastReportDate" : selectedDateEnd,
@@ -88,7 +88,8 @@ $('#load-data-button').on('click', function () {
             case 2:
                 wrap = {
                     "firstReportDate" : selectedDateStart,
-                    "lastReportDate" : selectedDateEnd
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes
                 };
                 $.ajax({
                     url: '/rest/report/countNew',
@@ -104,7 +105,8 @@ $('#load-data-button').on('click', function () {
             case 3:
                 wrap = {
                     "firstReportDate" : selectedDateStart,
-                    "lastReportDate" : selectedDateEnd
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes
                 };
                 $.ajax({
                     url: '/rest/report/countFirstPayments',
