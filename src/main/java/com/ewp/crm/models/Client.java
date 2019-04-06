@@ -42,12 +42,12 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "last_name")
 	private String lastName;
 
-    @Column(name = "phoneNumber")
+    @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
     @Size(max = 50)
     @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, unique = true)
     private String email;
 
     @Column(name = "skype")
