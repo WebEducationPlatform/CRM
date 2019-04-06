@@ -549,7 +549,7 @@ public class VKServiceImpl implements VKService {
                 String sendMsgWithCaptcha = vkApi + "messages.send";
 
                 HttpPost newRequest = new HttpPost(sendMsgWithCaptcha);
-                List<NameValuePair> newParams = new ArrayList<>(4);
+                List<NameValuePair> newParams = new ArrayList<>(6);
                 newParams.add(new BasicNameValuePair("user_id", String.valueOf(id)));
                 newParams.add(new BasicNameValuePair("v", version));
                 newParams.add(new BasicNameValuePair("message", msg));
