@@ -16,10 +16,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 @RestController
@@ -48,22 +46,13 @@ public class ReportRestController {
                                 @RequestParam Long fromId,
                                 @RequestParam Long toId,
                                 @RequestParam(required = false) List<Long> excludeIds) {
-        Optional<Status> from = statusService.get(fromId);
-        Optional<Status> to = statusService.get(toId);
-        Set<Status> excludeStatuses = new HashSet<>();
-        if (excludeIds != null) {
-            for (Long id : excludeIds) {
-                statusService.get(id).ifPresent(excludeStatuses::add);
-            }
-        }
-        if (from.isPresent() && to.isPresent()) {
-            int result = reportService.countChangedStatusClients(
-                    getZonedDateTimeFromString(firstReportDate),
-                    getZonedDateTimeFromString(lastReportDate),
-                    from.get(),
-                    to.get(),
-                    excludeStatuses
-            );
+        int result = reportService.countChangedStatusClients(
+                getZonedDateTimeFromString(firstReportDate),
+                getZonedDateTimeFromString(lastReportDate),
+                fromId,
+                toId,
+                excludeIds);
+        if (result >= 0) {
             return ResponseEntity.ok(result);
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -71,16 +60,19 @@ public class ReportRestController {
 
     @GetMapping(value = "/countNew")
     public ResponseEntity countNew(@RequestParam String firstReportDate,
-                                   @RequestParam String lastReportDate) {
+                                   @RequestParam String lastReportDate,
+                                   @RequestParam(required = false) List<Long> excludeIds) {
         return ResponseEntity.ok(reportService.countNewClients(
                 getZonedDateTimeFromString(firstReportDate),
-                getZonedDateTimeFromString(lastReportDate)));
+                getZonedDateTimeFromString(lastReportDate), excludeIds)
+        );
     }
 
     @GetMapping(value = "/countFirstPayments")
     public ResponseEntity countFirstPayments(@RequestParam String firstReportDate,
-                                             @RequestParam String lastReportDate) {
-        Optional<Status> status = statusService.get(1L);
+                                             @RequestParam String lastReportDate,
+                                             @RequestParam(required = false) List<Long> excludeIds) {
+        Optional<Status> status = statusService.get(4L);
         if (status.isPresent()) {
             return ResponseEntity.ok(reportService.countFirstPaymentClients(
                     status.get(),
@@ -92,10 +84,10 @@ public class ReportRestController {
 
     @PostMapping(value = "/sendReportToEmail")
     public ResponseEntity sendReportToEmail(@Valid @RequestParam String report,
-                                            @Valid @RequestParam String email){
+                                            @Valid @RequestParam String email) {
         User user = new User();
         user.setEmail(email);
         mailSendService.sendNotificationMessage(user, report);
-        return  ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }
