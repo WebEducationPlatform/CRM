@@ -472,6 +472,17 @@ public class VKServiceImpl implements VKService {
         return sendMessageById(id, msg, communityToken);
     }
 
+    private Optional<String> checkJsonResponseForErrors(JSONObject json) throws JSONException {
+        if (json.toString().contains("Permission to perform this action is denied") | json.toString().contains("Can't send messages to this user due to their privacy settings")) {
+            JSONArray jsonArray = json.getJSONObject("error").getJSONArray("request_params");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
+                    return Optional.ofNullable(jsonArray.getJSONObject(i).getString("value"));
+                }
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public String sendMessageById(Long id, String msg, String token) {
@@ -494,13 +505,9 @@ public class VKServiceImpl implements VKService {
             JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
             JsonObject convertedJsonEntity = new Gson().fromJson(jsonEntity.toString(), JsonObject.class);
 
-            if (jsonEntity.toString().contains("Permission to perform this action is denied") | jsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                JSONArray jsonArray = jsonEntity.getJSONObject("error").getJSONArray("request_params");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                        return jsonArray.getJSONObject(i).getString("value");
-                    }
-                }
+            Optional<String> errorString = checkJsonResponseForErrors(jsonEntity);
+            if (errorString.isPresent()) {
+                return errorString.get();
             }
 
             if (jsonEntity.toString().contains("Captcha needed")) {
@@ -563,13 +570,9 @@ public class VKServiceImpl implements VKService {
                 }
                 HttpResponse newResponse = httpClient.execute(newRequest);
                 JSONObject newJsonEntity = new JSONObject(EntityUtils.toString(newResponse.getEntity()));
-                if (newJsonEntity.toString().contains("Permission to perform this action is denied") | newJsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                    JSONArray newJsonArray = newJsonEntity.getJSONObject("error").getJSONArray("request_params");
-                    for (int i = 0; i < newJsonArray.length(); i++) {
-                        if (newJsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                            return newJsonArray.getJSONObject(i).getString("value");
-                        }
-                    }
+                Optional<String> newErrorString = checkJsonResponseForErrors(newJsonEntity);
+                if (newErrorString.isPresent()) {
+                    return newErrorString.get();
                 }
                 return determineResponse(newJsonEntity);
             }
