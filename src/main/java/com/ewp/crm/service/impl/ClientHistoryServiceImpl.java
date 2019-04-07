@@ -118,15 +118,13 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return Optional.of(clientHistory);
 	}
 
-	//worker change status on [last_status] -> [status]
+	//worker change status on [status] from [last_status]
     @Override
 	public Optional<ClientHistory> createHistoryOfChangingStatus(User user, Client client, Status lastStatus) {
         logger.info("creation of client history...");
         ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS);
         String action = user.getFullName() + " " + ClientHistory.Type.STATUS.getInfo();
-        StringBuilder title = new StringBuilder(action);
-        title.append(" ").append(lastStatus).append(" -> ").append(client.getStatus());
-        clientHistory.setTitle(title.toString());
+        clientHistory.setTitle(action + " " + client.getStatus() + " из " + lastStatus);
         return Optional.of(clientHistory);
     }
 
