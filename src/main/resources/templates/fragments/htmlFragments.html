@@ -35,6 +35,7 @@
                     <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Рассылка</a></li>
                     <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Шаблоны</a></li>
                     <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>
+                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Звонки</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">

@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface ClientRepositoryCustom {
 
+	List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType);
+
+	List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType);
+
 	List filteringClient(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
@@ -27,6 +31,8 @@ public interface ClientRepositoryCustom {
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
 	List<ClientHistory> getClientByTimeInterval(int days);
+
+	List<Long> getChangedStatusClientIdsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types, String title);
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
 

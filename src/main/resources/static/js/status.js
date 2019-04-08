@@ -66,7 +66,9 @@ function senReqOnChangeStatus(clientId, statusId) {
                     );
                 });
         },
-        error: function (error) {
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+            location.reload();
         }
     });
 }
@@ -119,7 +121,8 @@ function invisible() {
             console.log(clientid);
             $('.portlet[value="' + clientid + '"]').remove();
         },
-        error: function (error) {
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 
@@ -275,7 +278,8 @@ $(document).ready(function () {
             success: function () {
                 button.parents(".dropdown").children("button").removeClass().addClass("btn btn-secondary").attr("disabled", "disabled").text("Выполнено");
             },
-            error: function (error) {
+            error: function () {
+                alert('Не задан статус по-умолчанию для нового студента!');
             }
         });
     });

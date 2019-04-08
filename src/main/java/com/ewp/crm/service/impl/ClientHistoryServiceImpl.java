@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
@@ -12,11 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientHistoryServiceImpl implements ClientHistoryService {
@@ -48,7 +50,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 
 	@Override
 	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
-		return clientHistoryRepository.getAllByClientId(id, pageable);
+		return clientHistoryRepository.getAllByClientId(id, pageable).stream().peek((h) -> {
+			if (h.getType().equals(ClientHistory.Type.CALL) && (h.getLink() == null || IPTelephonyRestController.INIT_RECORD_LINK.equals(h.getLink()))) {
+				h.setTitle(h.getTitle() + ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo());
+			}
+		}).collect(Collectors.toList());
 	}
 
 	@Override
@@ -204,6 +210,34 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			clientHistory.setLink(message.get().getId().toString());
 		}
 		return Optional.of(clientHistory);
+	}
+
+	@Override
+	public Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
+	}
+
+	@Override
+	public Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Phone: " + client.getPhoneNumber() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
 	}
 
 	/**

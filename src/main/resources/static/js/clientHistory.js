@@ -71,21 +71,26 @@ function drawClientHistory(list, history_table) {
                 "<button class=\"btn btn-default glyphicon glyphicon-paperclip open-window-btn h-link\" onclick = 'viewClientHistoryMessage(" + list[i].link + ")'>" +
                 "</button>" +
                 "<div id=\"modalClientHistoryMessageHolder\">" +
-                "</div>"
-            "</td>"
+                "</div>" +
+                "</td>";
         }
-        if (list[i].recordLink != null) {
+        if (list[i].recordLink != null && list[i].recordLink !== "http://www.google.com") {
             $tdLink = "<td style='width: 10%'>" +
                 "<div class=\"dropdown\">\n" +
                 "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-play\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                 "</button>" +
                 "<div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">" +
-                "<audio controls>" +
+                "<audio controls preload='auto'>" +
                 "<source type=\"audio/wav\" src=\"" + list[i].recordLink + "\">" +
                 "</audio>" +
                 "</div>" +
                 "</div>" +
-                "</td>"
+                "</td>";
+        } else {
+            if (list[i].recordLink != null) {
+                $tdLink = "<td style='width: 10%'>" +
+                    "</td>";
+            }
         }
         let d = new Date(list[i].date);
         let date = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +

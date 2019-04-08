@@ -1,6 +1,9 @@
 package com.ewp.crm.repository.interfaces;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,7 +23,7 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	Client getClientByPhoneNumber(String phoneNumber);
 
-	List<Client> getById(List<Long> ids);
+	List<Client> getAllByIdIn(List<Long> ids);
 
 	Page<Client> findAll(Pageable pageable);
 

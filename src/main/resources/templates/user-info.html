@@ -33,6 +33,11 @@
                         <input class="form-control" data-error="Фамилия должна начинаться с заглавной буквы, минимум из 2-х символов и только буквы" pattern="^[A-ZА-Я][a-zа-я]+$"  required="required" id="edit-user-last-name" disabled="disabled" th:value="${user.lastName}"/>
                         <div class="help-block with-errors"></div>
                     </div>
+                    <div class="form-group">
+                        <label for="edit-user-birth-date">Фамилия</label>
+                        <input class="form-control" required="required" id="edit-user-birth-date" disabled="disabled" type="date" th:value="${user.birthDate}"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
                     <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="edit-user-password">Пароль</label>
                         <input type="password" class="form-control" required="required" disabled="disabled" id="edit-user-password" th:value="${user.password}"/>
@@ -90,6 +95,29 @@
                         <div class="checkbox" th:each="role : ${roles}">
                             <input type="checkbox" disabled="disabled" th:id="'checkbox-user-' + ${role.id}" th:value="${role.id}" name = "roleCheckBx" title=""/>
                             <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
+                        </div>
+                    </div>
+                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                        <label for="edit-user-notifications-settings">Настройки оповещений</label>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-email-notify'" name = "emailNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-email-notify'" th:text="'E-mail оповещения'"></label>
+                            </th:block>
+                        </div>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableSmsNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title=""/>
+                                <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
                         </div>
                     </div>
                 </form>

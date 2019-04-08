@@ -40,6 +40,13 @@ public class ProjectProperties {
     private MessageTemplate paymentMessageTemplate;
 
     /**
+     * Message template for scheduled payment notification.
+     */
+    @OneToOne
+    @JoinColumn(name = "new_client_message_template")
+    private MessageTemplate newClientMessageTemplate;
+
+    /**
      * Time of the day payment notification invoked in.
      */
     @Column(name = "payment_notification_time")
@@ -79,6 +86,34 @@ public class ProjectProperties {
     @OneToOne
     @JoinColumn(name = "default_student_status")
     private StudentStatus defaultStudentStatus;
+
+    /**
+     * Номер последнего договора об оплате
+     */
+    @Column(name = "contract_last_id")
+    private Long contractLastId;
+
+    /**
+     * Шаблон отправки сообщения договора
+     */
+    @OneToOne
+    @JoinColumn(name = "contract_template")
+    private MessageTemplate contractTemplate;
+
+    /**
+     * Банковские реквизиты
+     */
+    @Column(name = "inn")
+    private String inn;
+
+    @Column(name = "bank_checking_account")
+    private String checkingAccount;
+
+    @Column(name = "bank_correspondent_account")
+    private String correspondentAccount;
+
+    @Column(name = "bank_identification_code")
+    private String bankIdentificationCode;
 
     public ProjectProperties() {
     }
@@ -200,8 +235,64 @@ public class ProjectProperties {
         return autoAnswerTemplate;
     }
 
+    public Long getContractLastId() {
+        return contractLastId;
+    }
+
+    public void setContractLastId(Long contractLastId) {
+        this.contractLastId = contractLastId;
+    }
+
+    public MessageTemplate getContractTemplate() {
+        return contractTemplate;
+    }
+
+    public void setContractTemplate(MessageTemplate contractTemplate) {
+        this.contractTemplate = contractTemplate;
+    }
+
     public void setAutoAnswerTemplate(MessageTemplate autoAnswerTemplate) {
         this.autoAnswerTemplate = autoAnswerTemplate;
+    }
+
+    public String getInn() {
+        return inn;
+    }
+
+    public void setInn(String inn) {
+        this.inn = inn;
+    }
+
+    public String getCheckingAccount() {
+        return checkingAccount;
+    }
+
+    public void setCheckingAccount(String checkingAccount) {
+        this.checkingAccount = checkingAccount;
+    }
+
+    public String getCorrespondentAccount() {
+        return correspondentAccount;
+    }
+
+    public void setCorrespondentAccount(String correspondentAccount) {
+        this.correspondentAccount = correspondentAccount;
+    }
+
+    public String getBankIdentificationCode() {
+        return bankIdentificationCode;
+    }
+
+    public void setBankIdentificationCode(String bankIdentificationCode) {
+        this.bankIdentificationCode = bankIdentificationCode;
+    }
+
+    public MessageTemplate getNewClientMessageTemplate() {
+        return newClientMessageTemplate;
+    }
+
+    public void setNewClientMessageTemplate(MessageTemplate newClientMessageTemplate) {
+        this.newClientMessageTemplate = newClientMessageTemplate;
     }
 
     @Override

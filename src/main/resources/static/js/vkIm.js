@@ -3,8 +3,16 @@ $(document).ready(function () {
 });
 
 function getUnreadMessages() {
-    $.when($.get('/rest/conversation/all-byClient')).done(function (dataParam) {
-        getUnreadMessages_CallBack(dataParam);
+    $.ajax({
+        url: '/rest/conversation/all-byClient',
+        async: true,
+        type: 'GET',
+        xhrFields: {
+            withCredentials: true
+        },
+        success: function (dataParam) {
+            getUnreadMessages_CallBack(dataParam);
+        }
     });
 }
 

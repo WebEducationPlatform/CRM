@@ -30,6 +30,10 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type);
 
+	Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type);
+
+	Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type);
+
 	List<ClientHistory> getClientById(long id);
 
 	List<ClientHistory> getAllClientById(long id, Pageable pageable);

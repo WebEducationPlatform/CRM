@@ -10,6 +10,10 @@ import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
 
+	List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType);
+
+	List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType);
+
 	List<Client> getAllClientsByStatus(Status status);
 
 	List<Client> getAllClients();
@@ -57,5 +61,8 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
-	
+  
+	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
+
+	void setContractLink(Long clientId, String contractLink);
 }
