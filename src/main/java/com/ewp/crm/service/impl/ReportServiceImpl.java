@@ -36,17 +36,17 @@ public class ReportServiceImpl implements ReportService {
     /**
      * Подсчитывает количество клиентов в статусе "новые" за период
      *
-     * @param firstReportDate дата начала отчетного периода
-     * @param lastReportDate  дата окончания отчетного периода
+     * @param reportStartDate дата начала отчетного периода
+     * @param reportEndDate  дата окончания отчетного периода
      * @return количество найденных клиентов
      */
     @Override
-    public int countNewClients(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds) {
+    public int countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
-        firstReportDate = ZonedDateTime.of(firstReportDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
-        lastReportDate = ZonedDateTime.of(lastReportDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
+        reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
+        reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
-        List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(firstReportDate, lastReportDate, historyTypes, excludeStatuses);
+        List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
         return clients.size();
     }
 
