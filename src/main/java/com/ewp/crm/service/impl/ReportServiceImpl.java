@@ -67,13 +67,16 @@ public class ReportServiceImpl implements ReportService {
      * @return название статуса
      */
     private Optional<String> parseStatusNameFromHistoryTitle(String title) {
-        String[] parse1 = title.split(": ");
-        if (parse1.length == 2) {
-            String[] parse2 = parse1[1].split(" из ");
-            if (parse2.length == 2) {
-                return Optional.of(parse2[0].trim());
+        // После двоеточия и пробела начинается название статуса, в который перемещен клиент
+        String[] strings1 = title.split(": ");
+        if (strings1.length == 2) {
+            // Бывает 2 варианта - когда просто указан статус, в который переместили клиента,
+            // а бывает после указан статус, из которого клиент был перемещен
+            String[] strings2 = strings1[1].split(" из ");
+            if (strings2.length == 2) {
+                return Optional.of(strings2[0].trim());
             } else {
-                return Optional.of(parse1[1].trim());
+                return Optional.of(strings1[1].trim());
             }
         }
         return Optional.empty();
