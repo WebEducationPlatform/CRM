@@ -24,13 +24,13 @@ public class ReportServiceImpl implements ReportService {
 
     private final ClientRepository clientRepository;
     private final StatusService statusService;
-    private final ProjectPropertiesService projectPropertiesService;
+    private final ProjectProperties projectProperties;
 
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository, StatusService statusService, ProjectPropertiesService projectPropertiesService) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
-        this.projectPropertiesService = projectPropertiesService;
+        this.projectProperties = projectPropertiesService.getOrCreate();
     }
 
     /**
@@ -103,8 +103,7 @@ public class ReportServiceImpl implements ReportService {
             reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
             reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
             // статус fromStatus для новых клиентов?
-            ProjectProperties pp = projectPropertiesService.getOrCreate();
-            long newClientStatus = pp.getNewClientStatus();
+            long newClientStatus = projectProperties.getNewClientStatus();
             boolean isNewClient = newClientStatus == fromStatus.get().getId();
             // Выбираем клиентов, которые изменили статус на заданный в выбранном периоде
             List<Client> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, toStatus.get().getName());
@@ -154,7 +153,8 @@ public class ReportServiceImpl implements ReportService {
     public long countFirstPaymentClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         long result = 0;
         // Получаем статус, в который переходит клиент после первой оплаты
-        Optional<Status> inProgressStatus = statusService.get(4L);
+        long defaultFirstPayStatusId = projectProperties.getClientFirstPayStatus();
+        Optional<Status> inProgressStatus = statusService.get(defaultFirstPayStatusId);
         if (inProgressStatus.isPresent()) {
             List<ClientHistory.Type> historyTypes = Collections.singletonList(ClientHistory.Type.STATUS);
             List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
