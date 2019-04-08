@@ -41,6 +41,21 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType) {
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType")
+                .setParameter("socialProfileType", socialProfileType)
+                .getResultList();
+    }
+
+    @Override
+    public List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType) {
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType AND c.status IN (:statuses)")
+                .setParameter("socialProfileType", socialProfileType)
+                .setParameter("statuses", statuses)
+                .getResultList();
+    }
+
+    @Override
     public List<ClientHistory> getClientByTimeInterval(int days) {
         return entityManager.createQuery("SELECT cl FROM ClientHistory cl where cl.date > (current_date() - (:days))")
                 .setParameter("days", days)
@@ -58,10 +73,19 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types) {
-        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types")
+        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDay AND p.date <= :lastDay AND p.type IN :types")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
                 .setParameter("types", Arrays.asList(types))
+                .getResultList();
+    }
+
+    public List<Long> getChangedStatusClientIdsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types, String title) {
+        return entityManager.createQuery("SELECT DISTINCT c.id FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+                .setParameter("firstDate", firstDate)
+                .setParameter("lastDate", lastDate)
+                .setParameter("types", Arrays.asList(types))
+                .setParameter("title", title)
                 .getResultList();
     }
 

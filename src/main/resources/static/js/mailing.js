@@ -8,45 +8,43 @@ const URL_POST_DATA = "/client/mailing/send";
 const SEND_EMAILS = "Укажите список email получателей (каждый с новой строки):";
 const SEND_SMSS = "Укажите список телефонов получателей (каждый с новой строки):";
 const SEND_TO_VK = "Укажите список id или ссылок профилей ВК получателей (не более 20 человек в день, которые не в друзьях и каждый с новой строки):";
+const SEND_TO_SLACK = "Укажите список id Slack получателей (каждый с новой строки):";
 
 var messageType = 'email';
 var vkPage;
 var listMailing;
 
 function sendMessages(sendnow) {
-    let date = $('#messageSendingTime').val();
-    let text = CKEDITOR.instances.editor.getData();
+    let date;
+    let msgFeedBack;
     let recipients = $('#addresses-area').val();
-    console.warn(recipients);
     if (recipients === '') {alert("Введите получателей!"); return}
-    let x;
+    let text;
     if (messageType !== "email") {
-        x = CKEDITOR.instances.editor.document.getBody().getText();
+        text = CKEDITOR.instances.editor.document.getBody().getText();
     } else {
-        x = "";
+        text = CKEDITOR.instances.editor.getData();
     }
 
-    let mesfeedback;
-    if (sendnow==1) {
-        mesfeedback = "Сообщение отправлено";
+    if (sendnow===1) {
+        date = $.date(new Date(), 'format', 'd.m.Y H:i МСК');
+        msgFeedBack = "Сообщение отправлено";
     } else {
-        mesfeedback = "Отправка запланирована на " + date;
+        date = $('#messageSendingTime').val();
+        msgFeedBack = "Отправка запланирована на " + date;
     }
 
     let wrap = {
-        sendnow: sendnow,
         type: messageType,
-        templateText: text,
-        text: x,
+        text: text,
         date: date,
         recipients: recipients,
         vkType: vkPage = $("#vkTokenSelect").val(),
         listMailing: listMailing
-
     };
 
     let label = $("#message");
-    label.prop('innerHTML', "Идет отправка соощения")
+    label.prop('innerHTML', "Идет отправка сообщения")
     label.css('color', 'blue');
 
     $.ajax({
@@ -57,12 +55,45 @@ function sendMessages(sendnow) {
             if (xhr.status === 204) {
                 setErrorMessage("Ошибка отправки сообщения! Файл вложения не загружен на сервер.", 'red');
             } else {
-                setErrorMessage(mesfeedback, 'green')
+                setErrorMessage(msgFeedBack, 'green')
             }
         },
         error: function (xhr) {
             if (xhr.status === 500) {
                 setErrorMessage("Что-то пошло не так, необходимо повторить отправку сообщений", "red");
+            }
+        }
+    });
+}
+
+function setMailingLists() {
+    let selector = $('#listMailingSelect');
+    $.ajax({
+        url: '/get/listMailing/' + messageType,
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            selector.empty().append('<option value="null">Выберите список рассылки</option>');
+            for (var i = 0; i < data.length; i++) {
+                selector.append('<option value="' + data[i].id+'">'+data[i].listName+'</option>');
+            }
+        }
+    });
+}
+
+function fillStatuses() {
+    let updateSelector = $('#update-list-statuses');
+    let createSelector = $('#list-statuses');
+    $.ajax({
+        url: '/rest/status',
+        type: 'GET',
+        async: true,
+        success: function (data) {
+            updateSelector.empty();
+            createSelector.empty();
+            for (var i = 0; i < data.length; i++) {
+                createSelector.append('<label class="checkbox-inline"><input class="status-checkboxes" type="checkbox" id="status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
+                updateSelector.append('<label class="checkbox-inline"><input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_' + data[i].id + '" value="' + data[i].id + '"/>' + data[i].name + '</label>');
             }
         }
     });
@@ -74,6 +105,8 @@ function sendMessages(sendnow) {
  * текста, так же, как и для отправки сообщений в Вк. Плюс меняется тип сообщения, messageType.
  */
 $(document).ready(function () {
+    fillStatuses();
+    setMailingLists();
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
@@ -83,16 +116,27 @@ $(document).ready(function () {
         }
         messageType = $(this).attr("id");
 
+        setMailingLists();
+
+        switch (messageType) {
+            case 'sms':
+                $("#addresses-label").text(SEND_SMSS);
+                break;
+            case 'vk':
+                $("#addresses-label").text(SEND_TO_VK);
+                break;
+            case 'slack':
+                $("#addresses-label").text(SEND_TO_SLACK);
+                break;
+            case 'email':
+                $("#addresses-label").text(SEND_EMAILS);
+                break;
+        }
+
         if (messageType !== 'email') {
             ckeditorRemoveAllToolbars();
-            if (messageType === 'sms') {
-                $("#addresses-label").text(SEND_SMSS);
-            } else {
-                $("#addresses-label").text(SEND_TO_VK);
-            }
         } else {
             ckeditorAddAllToolbars();
-            $("#addresses-label").text(SEND_EMAILS);
         }
 
         $("#message-type-button-group > button").each(function (index, element) {
@@ -120,12 +164,69 @@ $(document).ready(function () {
         };
     })( jQuery );
 
+    (function( $ ){
+        $.fn.fillWithIds = function() {
+            var field = this;
+            $.ajax({
+                url: '/slack/get/ids/all',
+                contentType: "text/plain;charset=UTF-8",
+                type: 'GET',
+                dataType: 'text',
+                async: true,
+                success: function (data) {
+                    field.val(data);
+                }
+            });
+        };
+    })( jQuery );
+
+    (function( $ ){
+        $.fn.fillWithStudentsIds = function(selector) {
+            var field = this;
+            let selectedStatuses = [];
+            $('.' + selector + ':checked').each(function(){
+                selectedStatuses.push($(this).val());
+            });
+            let wrap = {
+                "statuses" : selectedStatuses
+            };
+            $.ajax({
+                url: '/slack/get/ids/students',
+                contentType: "text/plain;charset=UTF-8",
+                type: 'GET',
+                dataType: 'text',
+                data: wrap,
+                traditional: true,
+                async: true,
+                success: function (data) {
+                    field.val(data);
+                }
+            });
+        };
+    })( jQuery );
+
     $("#slackImportButton").click(function () {
-        $("#listEmail").fillWithEmails();
+        $("#listRecipients").fillWithEmails();
+    });
+
+    $("#slackIdAllImportButton").click(function () {
+        $("#listRecipients").fillWithIds();
+    });
+
+    $("#slackIdStudentsImportButton").click(function () {
+        $("#listRecipients").fillWithStudentsIds('status-checkboxes');
     });
 
     $("#slackUpdateImportButton").click(function () {
-        $("#editListEmail").fillWithEmails();
+        $("#editListRecipients").fillWithEmails();
+    });
+
+    $("#slackUpdateIdAllImportButton").click(function () {
+        $("#editListRecipients").fillWithIds();
+    });
+
+    $("#slackUpdateIdStudentsImportButton").click(function () {
+        $("#editListRecipients").fillWithStudentsIds('update-status-checkboxes');
     });
 
     $.ajax({
@@ -142,7 +243,8 @@ $(document).ready(function () {
         }
     });
 
-    $("#historyMailingTable").on('click', 'button[id="getRecipient"]', function(e) {
+    $('#historyMailingTable').delegate('.recipient-modal', 'click', function() {
+        $('#recipientModal').modal('show');
         var id = $(this).closest('tr').children('td:first').text();
         $.ajax({
             type: "POST",
@@ -151,6 +253,7 @@ $(document).ready(function () {
                 mailId: id
             },
             success: function (data) {
+                $("#recipientBodyMailing").empty();
                 for (var j = 0; j < data.length; j++) {
                     $("#recipientBodyMailing").append("<tr> \
                             <td>" + data[j].info + "</td> \
@@ -158,7 +261,7 @@ $(document).ready(function () {
                 }
             }
         });
-    })
+    });
 
     $("#historyMailingTable").on('click', 'button[id="getNoSend"]', function(e) {
         var id = $(this).closest('tr').children('td:first').text();
@@ -183,7 +286,7 @@ $(document).ready(function () {
  * Функция, настраивающая datarangepicker
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
@@ -207,7 +310,7 @@ $(document).ready(function () {
             "firstDay": 0
         },
         "linkedCalendars": false,
-        "startDate": startDate,
+        "startDate": startDate
     }, function (start, end, label) {
         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' +
             end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -225,7 +328,7 @@ $("#messageSendingTime").on('show.daterangepicker', function (event, picker) {
  * Заполнение блока адресов
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     $("#addresses-area").on("drop", function (event) {
@@ -287,11 +390,9 @@ function ckeditorAddAllToolbars() {
     CKEDITOR.instances[EDITOR].destroy(true);
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js'
-
-
     });
-    $("#imgSelectBtn").show()
-    $("#vkTokenSelect").hide()
+    $("#imgSelectBtn").show();
+    $("#vkTokenSelect").hide();
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -299,11 +400,11 @@ function ckeditorRemoveAllToolbars() {
     CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/remove-all-toolbars.js'
     });
-    $("#imgSelectBtn").hide()
+    $("#imgSelectBtn").hide();
     if(messageType === "vk") {
-        $("#vkTokenSelect").show()
+        $("#vkTokenSelect").show();
     } else {
-        $("#vkTokenSelect").hide()
+        $("#vkTokenSelect").hide();
     }
 
 }
@@ -312,7 +413,7 @@ function ckeditorRemoveAllToolbars() {
  * Визуализация событий dragover, dragleave, dragend, drop поля адресов
  */
 $(document).ready(function () {
-    $("#vkTokenSelect").hide()
+    $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
     $("#addresses-area")
@@ -350,7 +451,7 @@ function sendImg(input) {
         success: function (userId) {
             insertNewPicture(userId,templateID,input);
         },
-        error: function (data) {client_social_network
+        error: function (data) {
             if (typeof data.responseJSON === 'undefined') {
                 setErrorMessage('undefined', 'red');
             }
@@ -364,17 +465,16 @@ function setErrorMessage(message, color) {
     label.prop('innerHTML', message)
     label.css('color', color);
 
-
     $.ajax({
         type: "GET",
         url: "/get/no/send",
         success: function (data) {
             var i = data.length - 1;
-                if (data[i].notSendId.length > 0 && messageType == "vk") {
-                    $("#noSendButton").show()
-                        $("#noSend-area").each(function() {
-                            $(this).val(data[i].notSendId.join("\n"));
-                        });
+                if (data[i].notSendId.length > 0 && messageType === "vk") {
+                    $("#noSendButton").show();
+                    $("#noSend-area").each(function() {
+                        $(this).val(data[i].notSendId.join("\n"));
+                    });
                 }
             }
     });
@@ -482,21 +582,21 @@ function showHistory() {
                 }
                 if (data[i].type === "vk" && data[i].notSendId.length > 0) {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button class='btn btn-success recipient-modal'>Получатели</button> \
                             <br/> \
-                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
+                            <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Не доставл.</button></td> \
                         </tr>");
                 } else {
                     $("#historyBodyMailing").append("<tr> \
-                            <td>" + data[i].id + " </td> \
-                            <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
-                            <td>" + data[i].text + "</td> \
-                            <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                            <td class='history-table-td-id'>" + data[i].id + " </td> \
+                            <td class='history-table-td-date'>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
+                            <td class='history-table-td-text'>" + data[i].text + "</td> \
+                            <td class='history-table-td-type'>" + data[i].type + "</td> \
+                            <td class='history-table-td-buttons'><button class='btn btn-success recipient-modal'>Получатели</button></td> \
                         </tr>");
                 }
 
@@ -506,6 +606,14 @@ function showHistory() {
     });
 }
 
+$('#noSendModal').on('hidden.bs.modal', function () {
+    $('#historyModal').css('overflow-y', 'auto');
+});
+
+$('#recipientModal').on('hidden.bs.modal', function () {
+    $('#historyModal').css('overflow-y', 'auto');
+});
+
 function removeHistory() {
     $('#managerSelect').val('');
     $('#historyBodyMailing').empty();
@@ -513,23 +621,16 @@ function removeHistory() {
     $('#recipientBodyMailing').empty();
 };
 
-
-
-
 function addToListMailing() {
-    let recipientsEmail = $('#listEmail').val();
-    let recipientsSms = $('#listSms').val();
-    let recipientsVk = $('#listVk').val();
+    let recipients = $('#listRecipients').val();
     let listName = $('#listName').val();
-
-    if(listName != '') {
+    let typeId = $('#mailing-list-type').val();
+    if (listName !== '' && typeId !== null && typeId !== '') {
         let wrap = {
-            recipientsEmail: recipientsEmail,
-            recipientsSms: recipientsSms,
-            recipientsVk: recipientsVk,
+            recipients: recipients,
+            typeId: typeId,
             listName: listName
-        }
-
+        };
         $.ajax({
             type: "POST",
             url: '/list-mailing',
@@ -539,7 +640,7 @@ function addToListMailing() {
             }
         });
     } else {
-       $('#errorListName').html('<p style="color: red">Введите название списка</p>')
+       $('#errorListName').html('<p style="color: red">Введите название списка</p>');
     }
 }
 
@@ -590,7 +691,7 @@ function showManagerHistory() {
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button> \
+                            <td><button class='btn btn-success recipient-modal'>Показать всех получателей</button> \
                             <br/> \
                             <button id ='getNoSend' data-toggle='modal' data-target='#noSendModal' class='btn btn-danger'>Недоставлено</button></td> \
                         </tr>");
@@ -600,7 +701,7 @@ function showManagerHistory() {
                             <td>" + dt + '.' + month + '.' + year + " <br/> " + hour + ':' + minutes + " </td> \
                             <td>" + data[i].text + "</td> \
                             <td>" + data[i].type + "</td> \
-                            <td><button id ='getRecipient' data-toggle='modal' data-target='#recipientModal' class='btn btn-success'>Показать всех получателей</button></td> \
+                            <td><button class='btn btn-success recipient-modal'>Показать всех получателей</button></td> \
                         </tr>");
                 }
 
@@ -623,38 +724,21 @@ function showListMailing() {
                 listGroupId: listGroupName
             },
             success: function (data) {
-
-                    if (messageType == "email") {
-                        for(var i = 0; i < data.recipientsEmail.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsEmail.join("\n"));
-                            });
-                        }
-                    } else if (messageType == 'sms') {
-                        for(var i = 0; i < data.recipientsSms.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsSms.join("\n"));
-                            });
-                        }
-                    } else if (messageType == "vk") {
-                        for(var i = 0; i < data.recipientsVk.length; i++) {
-                            $("#addresses-area").each(function() {
-                                $(this).val(data.recipientsVk.join("\n"));
-                            });
-                        }
-                    }
+                for(var i = 0; i < data.recipients.length; i++) {
+                    $("#addresses-area").each(function() {
+                        $(this).val(data.recipients.join("\n"));
+                    });
                 }
-
-
+            }
         });
 }
 
 
 function openEditShowListMailing() {
 
-    listGroupName = $('#listMailingSelect').val()
+    listGroupName = $('#listMailingSelect').val();
 
-    if(listGroupName != "null") {
+    if(listGroupName !== "null") {
         $("#deleteListMaling").removeAttr("disabled");
         $("#editButton").removeAttr("disabled");
     }
@@ -665,50 +749,33 @@ function openEditShowListMailing() {
         data: { listGroupId: listGroupName
         },
         success: function (data) {
-
-            $("#editListName").val(data.listName)
-
-            $("#editListEmail").each(function () {
-                $(this).val(data.recipientsEmail.join("\n"));
+            $("#editListName").val(data.listName);
+            $("#editListRecipients").each(function () {
+                $(this).val(data.recipients.join("\n"));
             });
-
-            $("#editListSms").each(function () {
-                $(this).val(data.recipientsSms.join("\n"));
-            });
-
-            $("#editListVk").each(function () {
-                $(this).val(data.recipientsVk.join("\n"));
-            });
+            $("#edit-mailing-list-type").val(data.type.id);
         }
-
     });
 }
 
 
 function editListMailing() {
-
-    var listName = $("#listMailingSelect").val()
-
-    var editListName = $("#editListName").val()
-
-    var editListEmail = $("#editListEmail").val()
-
-    var editListSms = $("#editListSms").val()
-
-    var editListVk = $("#editListVk").val()
-
+    let listName = $("#listMailingSelect").val();
+    let editListName = $("#editListName").val();
+    let editListRecipients = $("#editListRecipients").val();
+    let editTypeId = $("#edit-mailing-list-type").val();
     $.ajax({
         url: '/edit/list-mailing',
         type: 'POST',
-        data: { listId: listName,
-                editListName: editListName,
-                editRecipientsEmail: editListEmail,
-                editRecipientsSms: editListSms,
-                editRecipientsVk: editListVk
-        }, success: function () {
+        data: {
+            listId: listName,
+            editListName: editListName,
+            editRecipients: editListRecipients,
+            typeId: editTypeId
+        },
+        success: function () {
             location.reload();
         }
-
     });
 }
 
@@ -719,11 +786,12 @@ function deleteListMailing() {
     $.ajax({
         url: '/remove/list-mailing',
         type: 'POST',
-        data: { listId: listName
-        }, success: function () {
+        data: {
+            listId: listName
+        },
+        success: function () {
             location.reload();
         }
-
     });
 
 }

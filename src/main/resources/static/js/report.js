@@ -1,3 +1,7 @@
+var selectedDateStart;
+var selectedDateEnd;
+var selectedReport = 1;
+
 $('#mailingDate').daterangepicker({
     locale: {
         format: 'DD.MM.YYYY'
@@ -13,26 +17,9 @@ $('#mailingDate').daterangepicker({
     "startDate": moment().startOf('month'),
     "endDate": moment()
 }, function (start, end, label) {
+    selectedDateStart = start.format('YYYY-MM-DD');
+    selectedDateEnd = end.format('YYYY-MM-DD');
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-});
-
-$('#mailingDate').on('apply.daterangepicker', function () {
-    var date = document.getElementById("mailingDate").value;
-
-    $.ajax({
-        url: "/rest/report/last-days",
-        type: "POST",
-        data: date,
-        success: function (response) {
-            var formCreate = document.getElementById('formToSend');
-            formCreate.style.visibility = "visible";
-            var reportArea = document.getElementById('reportArea');
-            reportArea.value = response;
-        },
-        error: function (response) {
-            alert('error ' + response);
-        }
-    });
 });
 
 $('textarea').each(function () {
@@ -42,26 +29,118 @@ $('textarea').each(function () {
     this.style.height = (this.scrollHeight) + 'px';
 });
 
+function hideElements() {
+    $('.hideable').hide();
+}
+
+function showElements() {
+    $('.hideable').show();
+}
+
+$('#report-type-1').on('click', function () {
+    showElements();
+    selectedReport = 1;
+});
+
+$('#report-type-2').on('click', function () {
+    hideElements();
+    selectedReport = 2;
+});
+
+$('#report-type-3').on('click', function () {
+    hideElements();
+    selectedReport = 3;
+});
+
+$('#load-data-button').on('click', function () {
+    let wrap;
+    if (selectedDateStart === undefined || selectedDateEnd === undefined) {
+        let dates = $('#mailingDate').val().split(' - ');
+        let start = dates[0].split('.');
+        let end = dates[1].split('.');
+        selectedDateStart = start[2] + '-' + start[1] + '-' + start[0];
+        selectedDateEnd = end[2] + '-' + end[1] + '-' + end[0];
+    } else {
+        let selectedExcludes = [];
+        $('.exclude-status-checkboxes:checked').each(function(){
+            selectedExcludes.push($(this).val());
+        });
+        switch (selectedReport) {
+            case 1:
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "fromId" : $('#statusFromSelect').val(),
+                    "toId" : $('#statusToSelect').val(),
+                    "excludeIds" : selectedExcludes
+                };
+                $.ajax({
+                    url: '/rest/report/count',
+                    type: 'GET',
+                    async: true,
+                    data: wrap,
+                    traditional: true,
+                    success: function (response) {
+                        $('#reportArea').val(response);
+                    }
+                });
+                break;
+            case 2:
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes
+                };
+                $.ajax({
+                    url: '/rest/report/countNew',
+                    type: 'GET',
+                    async: true,
+                    data: wrap,
+                    traditional: true,
+                    success: function (response) {
+                        $('#reportArea').val(response);
+                    }
+                });
+                break;
+            case 3:
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes
+                };
+                $.ajax({
+                    url: '/rest/report/countFirstPayments',
+                    type: 'GET',
+                    async: true,
+                    data: wrap,
+                    traditional: true,
+                    success: function (response) {
+                        $('#reportArea').val(response);
+                    }
+                });
+                break;
+        }
+    }
+});
+
 $(document).ready(function () {
+    let statusFromSelector = $('#statusFromSelect');
+    let statusToSelector = $('#statusToSelect');
+    let statusExcludeSelector = $('#statusExcludeSelect');
+
     $.ajax({
-        url: "/rest/report/getReportsStatus",
-        type: "POST",
+        url: "/rest/status",
+        type: "GET",
+        async: true,
         success: function (response) {
-            if (response != null) {
-                var field = [response.inLearningStatus, response.endLearningStatus, response.dropOutStatus, response.pauseLearnStatus, response.trialLearnStatus];
-                for (var i = 0; i < field.length; i++) {
-                    var select = $(document.getElementById("select" + i));
-                    select.find('option').each(function () {
-                        var val = $(this).attr('value');
-                        if (val == field[i]) {
-                            $(this).attr("selected", "selected");
-                        }
-                    });
-                }
+            statusFromSelector.empty();
+            statusToSelector.empty();
+            statusExcludeSelector.empty();
+            for (var i = 0; i < response.length; i++) {
+                statusFromSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+                statusToSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+                statusExcludeSelector.append('<label><input type="checkbox" class="exclude-status-checkboxes" value="' + response[i].id + '" aria-label="' + response[i].name + '"/>' + response[i].name + '</label><br />');
             }
-        },
-        error: function (response) {
-            alert('error ' + response);
         }
     });
 });

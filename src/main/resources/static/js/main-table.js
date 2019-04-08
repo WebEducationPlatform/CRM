@@ -1,17 +1,5 @@
-var initialized = false; // SDK загружено
-
-const sdk = VoxImplant.getInstance();
-sdk.on(VoxImplant.Events.SDKReady, onSdkReady);
-sdk.on(VoxImplant.Events.ConnectionEstablished, onConnectionEstablished);
-sdk.on(VoxImplant.Events.AuthResult, onAuthResult);
-
-var currentCall;
-var voxLogin;
-var voxPassword;
-var callerId;
-var callToPhone;
-var micMuted;
 var backFromModalUrl;
+var userLoggedIn;
 
 $('.fix-modal').on('show.bs.modal', function () {
     var currentForm = $(this).find('.box-modal');
@@ -137,16 +125,34 @@ let logged_in_profiles;
 
 function get_us() {
     $.ajax({
+        async: true,
         type: "GET",
         url: "/rest/conversation/us",
         success: function (response) {
             logged_in_profiles = response;
         }
-    })
+    });
+}
+
+function getUserLoggedIn(asyncr) {
+    $.ajax({
+        async: asyncr,
+        type: "GET",
+        url: "/rest/client/getPrincipal",
+        success: function (user) {
+            userLoggedIn = user;
+        }
+    });
 }
 
 //func responsible for the client's cards motion
 $(document).ready(function () {
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+    getUserLoggedIn(true);
     get_us();
     $(".column").sortable({
         delay: 100,
@@ -211,6 +217,7 @@ $(document).ready(function () {
     })
 
     $("#sms_error_modal").on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         let modal = $(this);
         modal.find("tbody").empty();
     })
@@ -707,6 +714,7 @@ $(function () {
 });
 $(function () {
     $('#customVKMessageTemplate').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentStatus = $(this).find('.send-custom-vk-status');
         currentStatus.empty();
     });
@@ -755,6 +763,7 @@ $(function () {
 });
 $(function () {
     $('#customEmailMessageTemplate').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentStatus = $(this).find('.send-email-err-status');
         currentStatus.empty();
     });
@@ -892,7 +901,7 @@ $(function () {
                     },
                     success: function (result) {
                         if (err.length === 0) {
-                            $(".modal").modal('hide');
+                            currentStatus.text("Отправлено!");
                             current.text("Отправить");
                             current.removeAttr("disabled");
                         }
@@ -912,6 +921,7 @@ $(function () {
 
 $(function () {
     $('.fix-modal').on('hidden.bs.modal', function () {
+        $('#main-modal-window').css('overflow-y', 'auto');
         var currentForm = $(this).find('.send-fixed-template');
         currentForm.empty();
         $("input[type=checkbox]").prop('checked', false);
@@ -1759,14 +1769,19 @@ function set_send_selector(clientId) {
         url: "/rest/client/" + clientId,
         success: function (client) {
             for (let i = 0; i < client.socialProfiles.length; i++) {
-                if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                    selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
-                    selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
-                }
-                if (client.socialProfiles[i].socialProfileType.name === 'whatsapp') {
-                    selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                switch (client.socialProfiles[i].socialProfileType.name) {
+                    case 'vk':
+                        selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                        break;
+                    case 'telegram':
+                        selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                        break;
+                    case 'whatsapp':
+                        selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                        break;
+                    case 'slack':
+                        selector.append("<option id='send-slack' value='slack'>Отправить в Slack</option>");
+                        break;
                 }
             }
         }
@@ -1781,13 +1796,14 @@ $('#conversations-modal').on('show.bs.modal', function () {
 });
 
 $('#conversations-modal').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
     let clientId = $("#main-modal-window").data('clientId');
     $("#chat-messages").empty();
     $.ajax({
         type: 'GET',
         url: '/rest/telegram/messages/chat/close',
         data: {clientId: clientId}
-    })
+    });
 });
 
 function client_has_telegram(client) {
@@ -1810,7 +1826,12 @@ function changeStatus(clientId, statusId) {
             "statusId" : statusId,
             "clientId" : clientId
         },
-        success: reloadClientStatus(clientId)
+        success: function () {
+            reloadClientStatus(clientId);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
+        }
     });
 }
 
@@ -1828,12 +1849,12 @@ function reloadClientStatus(clientId) {
 
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
+
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
-        let formData = {clientId: clientId};
 
         $.ajax({
-            async: false,
+            async: true,
             type: 'GET',
             url: '/rest/status',
             success: function (status) {
@@ -1845,150 +1866,178 @@ $(function () {
                 });
             }
         });
-
         $.ajax({
             async: false,
             type: 'GET',
             url: '/rest/client/' + clientId,
-            data: formData,
             success: function (client) {
+
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
                 }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
-                $.get('/rest/client/getPrincipal', function (user) {
-                }).done(function (user) {
-                    if (client.ownerUser != null) {
-                        var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                if (userLoggedIn === undefined) {
+                    getUserLoggedIn(false);
+                }
+
+                let user = userLoggedIn;
+                if (client.ownerUser != null) {
+                    var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+                var adminName = user.firstName + ' ' + user.lastName;
+
+                $('#main-modal-window').data('userId', user.id);
+
+                currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
+                currentModal.find('#client-set-status-button').text(client.status.name);
+                $('#client-email').text(client.email);
+                $('#client-phone').text(client.phoneNumber);
+                if (client.canCall && user.ipTelephony) {
+                    $('#client-phone')
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                    $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                    $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                    $('#btn-mic-off').hide();
+                    $('#btn-call-off').hide();
+                }
+                if (client.age > 0) {
+                    $('#client-age').text(client.age);
+                } else {
+                    $('#client-age').text('');
+                }
+                $('#client-sex').text(client.sex);
+                if (client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
+                    $('#client-label').text(client.clientDescriptionComment);
+                } else {
+                    $('#client-label').text('');
+                }
+                if (client.email == null) {
+                    $('#email-href').hide();
+                } else {
+                    $('#email-href').show();
+                }
+                if (client.birthDate) {
+                    let bDate = client.birthDate.split('-');
+                    $('#client-date-of-birth').text(bDate[2] + '.' + bDate[1] + '.' + bDate[0]);
+                } else {
+                    $('#client-date-of-birth').text('');
+                }
+                $('#client-country').text(client.country);
+                $('#client-city').text(client.city);
+                $('#client-university').text(client.university);
+                if (client.requestFrom !== null) {
+                    $('#client-request-button').show();
+                    $('#client-request').text(client.requestFrom);
+                } else {
+                    $('#client-request-button').hide();
+                    $('#client-request').empty();
+                }
+                // здесь вставка ссылок в кнопки вк, фб и слак
+                $('#vk-href').hide();
+                $('#vk-im-button').hide();
+                $('#slack-href').hide();
+                $('#fb-href').hide();
+
+                document.getElementById("profilePhoto").removeAttribute("src");
+                for (var i = 0; i < client.socialProfiles.length; i++) {
+                    if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                        //ajax call for profile photo
+                        let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
+                        let url = '/rest/vkontakte/getProfilePhotoById';
+
+                        $.ajax({
+                            url: url,
+                            async: true,
+                            type: 'GET',
+                            data: {vkref: vkref},
+                            dataType: 'json',
+                            complete: function (data) {
+                                document.getElementById("profilePhoto").setAttribute("src", data.responseText);
+                            }
+                        });
+
+                        $('#vk-href').attr('href', vkref);
+                        $('#vk-href').show();
+
 
                     }
-                    var adminName = user.firstName + ' ' + user.lastName;
 
-                    $('#main-modal-window').data('userId', user.id);
+                    $('#chat-button').attr("clientID", client.id);
+                    $('#chat-im-count').text($('#chat-notification' + clientId).text());
+                    $('#chat-button').show();
 
-                    currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
-                    currentModal.find('#client-set-status-button').text(client.status.name);
 
-                    $('#client-email').text(client.email);
-                    $('#client-phone').text(client.phoneNumber);
-                    if (client.canCall && user.ipTelephony) {
-                        $('#client-phone')
-                            .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                            .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-                        $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
-                        $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
-                        $('#btn-call-off').css("background", "red");
-                        $('#btn-call-off').css("color", "white");
-                        $('#btn-mic-off').hide();
-                        $('#btn-call-off').hide();
+                    if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
+                        $('#fb-href').attr('href', client.socialProfiles[i].socialId);
+                        $('#fb-href').show();
                     }
 
-                    if (client.age > 0) {
-                        $('#client-age').text(client.age);
-                    } else {
-                        $('#client-age').text('');
+                    if (client.socialProfiles[i].socialProfileType.name === 'slack') {
+
+                        let clientSlackId = client.socialProfiles[i].socialId;
+
+                        $.ajax({
+                            url: '/slack/get/chat/by/client/' + clientSlackId,
+                            async: true,
+                            type: 'GET',
+                            success: function (data) {
+                                $('#slack-href').attr('href', slack_url + '/messages/' + data);
+                            },
+                            error: function () {
+                                $('#slack-href').attr('href', slack_url + '/team/' + clientSlackId);
+                            },
+                            complete: function () {
+                                $('#slack-href').show();
+                            }
+                        });
+
                     }
-                    $('#client-sex').text(client.sex);
-                    if(client.clientDescriptionComment != null && client.clientDescriptionComment.length > 0) {
-                        $('#client-label').text(client.clientDescriptionComment);
-                    } else {
-                        $('#client-label').text('');
-                    }
-                    if (client.email == null) {
-                        $('#email-href').hide();
-                    } else {
-                        $('#email-href').show();
-                    }
-                    $('#client-date-of-birth').text(client.birthDate);
-                    $('#client-country').text(client.country);
-                    $('#client-city').text(client.city);
-                    $('#client-university').text(client.university);
-                    if (client.requestFrom !== null) {
-                        $('#client-request-button').show();
-                        $('#client-request').text(client.requestFrom);
-                    } else {
-                        $('#client-request-button').hide();
-                        $('#client-request').empty();
-                    }
+                    get_interlocutors(clientId);
+                }
 
-                    // здесь вставка ссылок в кнопки вк, фб и слак
-                    $('#vk-href').hide();
-                    $('#vk-im-button').hide();
+                var btnBlock = $('div#assign-unassign-btns');
 
-                    $('#fb-href').hide();
-                    $('#slack-href').hide();
+                if (client.liveSkypeCall) {
+                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
+                        '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
+                        '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
+                        '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
+                        '    <li><a href="#">Отмена</a></li>\n' +
+                        '    </ul>' +
+                        '</div>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                } else {
+                    btnBlock.after(
+                        '<div class="remove-tag confirm-skype-interceptor">' +
+                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                        '<div class="skype-notification"></div>' +
+                        '</div>')
+                }
 
-                    $('#slack-invite-href').attr('onclick', 'slackInvite(' + '\"' + client.email + '\"' + ')');
+                if (client.ownerUser === null) {
+                    btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                }
+                if (client.ownerUser !== null && owenerName === adminName) {
+                    btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                }
+                btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
+                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
 
-                    document.getElementById("profilePhoto").removeAttribute("src");
-                    for (var i = 0; i < client.socialProfiles.length; i++) {
-                        if (client.socialProfiles[i].socialProfileType.name === 'vk') {
-                            //ajax call for profile photo
-                            let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
-                            let url = '/rest/vkontakte/getProfilePhotoById';
+                $('#contract-btn').empty();
 
-                            $.ajax({
-                                url: url,
-                                type: 'GET',
-                                data: {vkref: vkref},
-                                dataType:'json',
-                                complete: function(data) {
-                                    document.getElementById("profilePhoto").setAttribute("src", data.responseText);
-                                }
-                            });
-
-                            $('#vk-href').attr('href', vkref);
-                            $('#vk-href').show();
-
-
-                        }
-
-                        $('#chat-button').attr("clientID", client.id);
-                        $('#chat-im-count').text($('#chat-notification'+clientId).text());
-                        $('#chat-button').show();
-
-
-                        if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
-                            $('#fb-href').attr('href', client.socialProfiles[i].socialId);
-                            $('#fb-href').show();
-                        }
-                        get_interlocutors(clientId);
-                    }
-
-                    if (client.slackProfile != undefined) {
-                        $('#slack-href').attr('href', "https://javamentor.slack.com/messages/C2AEE8T9B/team/" + client.slackProfile.hashName);
-                        $('#slack-href').show();
-                    }
-
-                    var btnBlock = $('div#assign-unassign-btns');
-
-                    if (client.liveSkypeCall) {
-                        btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
-                            '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
-                            '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
-                            '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
-                            '    <li><a href="#">Отмена</a></li>\n' +
-                            '    </ul>' +
-                            '</div>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    } else {
-                        btnBlock.after(
-                            '<div class="remove-tag confirm-skype-interceptor">' +
-                            '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
-                            '<div class="skype-notification"></div>' +
-                            '</div>')
-                    }
-
-                    if (client.ownerUser === null) {
-                        btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
-                    }
-                    if (client.ownerUser !== null && owenerName === adminName) {
-                        btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
-                    }
-                    btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-                        '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
-                });
+                if (client.contractLinkData != null) {
+                    $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#contract-client-link-modal" >Договор</button>');
+                    $('#contract-client-link-modal-link').empty().val(client.contractLinkData.contractLink);
+                } else {
+                    $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
+                        'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
+                    $('#contract-client-setting-contract-link').empty();
+                }
 
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
@@ -2013,7 +2062,7 @@ $(function () {
                 }
             }
         });
-    })
+    });
 });
 
 function dropRepeatedFlag(clientId, repeated) {
@@ -2117,192 +2166,6 @@ $('#postponeCommentModal').on('hidden.bs.modal', function () {
     currentModal.css("overflow-y","auto");
 })
 
-function callToClient(userPhone, clientPhone) {
-    console.log("TRY TO CALL");
-    var url = "/user/rest/call/voximplant";
-    var formData = {
-        from: userPhone,
-        to: clientPhone
-    };
-    let icon = $(".callback-call");
-    $.ajax({
-        type: 'post',
-        url: url,
-        data: formData,
-        success: function () {
-            console.log("PROCESS CALL");
-            icon.css("background", "green");
-            icon.css("color", "white");
-            icon.attr("disabled", "true");
-        },
-        error: function (error) {
-            console.log("ERROR CALL");
-            console.log(error);
-        }
-    });
-}
-
-//web call to client by using Voximplant SDK
-function webCallToClient(clientPhone) {
-    console.log("Trying to call by using Voximplant SDK");
-    var url = "/user/rest/call/sendData";
-    var credentialsUrl = "/user/rest/call/voximplantCredentials";
-    var formData = {
-        to: clientPhone
-    };
-    // var incr = 0;
-    var icon = $(".call-to-client");
-    micMuted = false;
-    callToPhone = clientPhone;
-
-    $.ajax({
-        async: false,
-        type: 'post',
-        url: url,
-        data: formData,
-        success: function(callRecordId) {
-            console.log("PROCESS WEBCALL");
-            callerId = callRecordId.id;
-            icon.css("background", "green");
-            icon.css("color", "white");
-            icon.attr("disabled", "true");
-
-            callToolControl('showWebCallClientTools');
-        },
-        error: function (error) {
-            console.log("ERROR WEBCALL");
-            console.log(error);
-        }
-    });
-
-    $.ajax({
-        async: false,
-        type: 'get',
-        url: credentialsUrl,
-        success: function (credensials) {
-            var arr = credensials.split(",");
-            voxLogin = arr[0];
-            voxPassword = arr[1];
-        },
-        error: function (error) {
-            console.log(error);
-        }
-    });
-
-    if (!initialized) {
-        sdk.init({
-            micRequired: true,
-            videoSupport: false,
-            progressTone: true
-        });
-    } else {
-        startCall();
-    };
-}
-
-function callToolControl(operation) {
-    let iconCallBackCall = $(".callback-call");
-    let iconWebCallToClint = $(".call-to-client");
-
-    if (operation == 'showWebCallClientTools') {
-        $('#callback-call-voximplant').hide();
-
-        $('#btn-call-off').show();
-        $('#btn-mic-off').show();
-    } else if (operation == 'default') {
-        $('#callback-call-voximplant').show();
-
-        $('#btn-call-off').hide();
-        $('#btn-mic-off').hide();
-
-        $(".call-to-client").css("background", "");
-        $(".call-to-client").css("color", "");
-        $(".call-to-client").removeAttr("disabled");
-    }
-}
-
-//voximplant handlers
-function onSdkReady() {
-    sdk.connect(false);
-    console.log('sdk is initialized');
-}
-
-
-function onConnectionEstablished() {
-    console.log('It is connected to vox cloud');
-    if (sdk.getClientState() !== "LOGGED_SUCCESS") {
-        // sdk.login(voxLogin, voxPassword);
-        sdk.requestOneTimeLoginKey(voxLogin)
-        console.log('request for authentication');
-    } else {
-        console.log('already authorize.');
-        startCall();
-    }
-}
-
-function onAuthResult(eAuth) {
-    if (eAuth.result) {
-        initialized = true;
-        console.log('Athentication successfull');
-        startCall();// авторизовались - теперь можно звонить или принимать звонки
-    } else {
-        if (eAuth.code == 302) {
-            console.log("generating token ... ");
-            $.post('/user/rest/call/calcKey', {
-                key: eAuth.key
-            }, token => {
-                sdk.loginWithOneTimeKey(voxLogin, token);
-            }, 'text');
-        } else {
-            console.log("Athentication is unsuccessful with code " + eAuth.code);
-        }
-    }
-}
-
-function startCall() {
-    console.log('Starting call .... ');
-    currentCall = sdk.call({number: callToPhone, customData: callerId});
-    currentCall.on(VoxImplant.CallEvents.Connected, () => {
-        // console.log('You can hear audio from the cloud')
-    });
-    currentCall.on(VoxImplant.CallEvents.Failed, (e) => {
-        console.log(`Call failed with the ${e.code} error`);
-        callToolControl('default');
-    });
-    currentCall.on(VoxImplant.CallEvents.Disconnected, () => {
-        console.log('The call has ended');
-        callToolControl('default');
-    } );
-}
-
-//call hangup voximplant
-$(document).on('click','#btn-call-off',function(){
-    console.log("Client-state: " + sdk.getClientState());
-    if (currentCall && currentCall.state() != "ENDED") {
-        currentCall.hangup();
-    }
-    callToolControl('default');
-});
-
-//mute microphone voximplant
-$(document).on('click','#btn-mic-off',function(){
-    if (currentCall && currentCall.active()) {
-        let elBtnMic = $('#btn-mic-off');
-        if (micMuted) {
-            currentCall.unmuteMicrophone();
-            elBtnMic.css("background", "");
-            elBtnMic.css("color", "");
-            // console.log("mic is unmuted");
-        } else {
-            currentCall.muteMicrophone();
-            elBtnMic.css("background", "red");
-            elBtnMic.css("color", "white");
-            // console.log("mic is muted");
-        };
-        micMuted = !micMuted;
-    };
-});
-
 $(".change-student-status").on('click', function () {
     let clientId = $(this).attr("id");
     let statusId = $(this).attr("value");
@@ -2320,6 +2183,9 @@ $(".change-student-status").on('click', function () {
         success: function () {
             let x = document.getElementById(clientId);
             $('#status-column'+statusId).append(x);
+        },
+        error: function () {
+            alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
 });
@@ -2471,24 +2337,6 @@ $(function () {
     });
 });*/
 
-function slackInvite(email) {
-    $.ajax({
-        type: "GET",
-        url: "/slack/" + email,
-        dataType: "json",
-
-        success: function (data) {
-            var ok = data.ok;
-            if (ok) {
-                alert('User is invited');
-            } else alert('already_invited');
-        },
-        error: function (e) {
-            alert('The user is not invited')
-        }
-    })
-}
-
 $('#client-request-button').click( () => {
     var x = document.getElementById("client-request");
     if (x.style.display === "none") {
@@ -2497,3 +2345,39 @@ $('#client-request-button').click( () => {
         x.style.display = "none";
     }
 });
+
+function createContractSetting() {
+    var baseUrl = window.location.host;
+    var url = '/client/contract/rest/create';
+
+    var clientId = getAllUrlParams(window.location.href).id;
+    var hash = (+new Date).toString(36);
+    var setting = {
+        hash: hash,
+        clientId: clientId,
+        oneTimePayment: !!$('#contract-client-setting-one-time-payment-radio').prop("checked"),
+        monthPayment: !!$('#contract-client-setting-month-payment-radio').prop("checked"),
+        diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        paymentAmount: $('#contract-client-setting-payment-amount-form').val()
+    };
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        url: url,
+        data: JSON.stringify(setting),
+        success: function () {
+            var contractLink = baseUrl + '/contract/' + hash;
+            $('#contract-client-setting-contract-link').val(contractLink);
+            navigator.clipboard.writeText(contractLink);
+            $('#contract-copy-modal').modal('show');
+            setTimeout(function(){
+                $('#contract-copy-modal').modal('hide');
+            }, 1500);
+        },
+        error: function () {
+            console.log('error save contract setting');
+            alert('Ошибка создания ссылки!')
+        }
+    });
+}

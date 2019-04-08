@@ -13,19 +13,13 @@ import org.springframework.stereotype.Component;
 @PropertySource("file:./ip.properties")
 public class IPConfigImpl implements IPConfig {
 
-	private String voximplantApiKey;
-
-	private String voximplantAccountId;
-
-	private String voximplantRuleId;
-
-	private String voximplantLoginForWebCall;
-
-	private String voximplantPasswordForWebCall;
-
-	private String voximplantCodeToSetRecord;
-
 	private static Logger logger = LoggerFactory.getLogger(IPConfigImpl.class);
+	private String voximplantApiKey;
+	private String voximplantAccountId;
+	private String voximplantRuleId;
+	private String voximplantLoginForWebCall;
+	private String voximplantPasswordForWebCall;
+	private String voximplantCodeToSetRecord;
 
 	@Autowired
 	public IPConfigImpl(Environment environment) {
@@ -39,11 +33,11 @@ public class IPConfigImpl implements IPConfig {
 			if (voximplantApiKey.isEmpty() || voximplantAccountId.isEmpty() || voximplantRuleId.isEmpty()
 					|| voximplantLoginForWebCall.isEmpty() || voximplantPasswordForWebCall.isEmpty()
 					|| voximplantCodeToSetRecord.isEmpty()) {
-				throw new NullPointerException();
+				throw new NoSuchFieldException();
 			}
-		} catch (IllegalStateException | NullPointerException e) {
-			logger.error("IP configs have not initialized. Check ip.properties file");
-			System.exit(-1);
+		} catch (IllegalStateException | NoSuchFieldException e) {
+			logger.error("IP config has not been initialized. Check ip.properties file", e);
+			System.exit(1);
 		}
 	}
 
@@ -62,10 +56,12 @@ public class IPConfigImpl implements IPConfig {
 		return voximplantRuleId;
 	}
 
+	@Override
 	public String getVoximplantLoginForWebCall() {
 		return voximplantLoginForWebCall;
 	}
 
+	@Override
 	public String getVoximplantPasswordForWebCall() {
 		return voximplantPasswordForWebCall;
 	}

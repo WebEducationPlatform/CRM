@@ -70,6 +70,7 @@ public class StudentRestController {
         Student previous = studentService.get(student.getId());
         Client updatedClient = student.getClient();
         Client client = previous.getClient();
+        student.setColor(previous.getColor());
         Optional<ClientHistory> history = clientHistoryService.createStudentUpdateHistory(userFromSession, previous, student, ClientHistory.Type.UPDATE_STUDENT);
         if (history.isPresent()) {
             if (history.get().getLink() != null && !history.get().getLink().isEmpty()) {

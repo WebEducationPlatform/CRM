@@ -1,37 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <meta charset="UTF-8"/>
     <title>CRM - рассылка</title>
-
     <div th:replace="fragments/htmlFragments::header"></div>
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangeipicker/2/daterangepicker.css" />
     <div th:replace="fragments/htmlFragments::custom-style"></div>
-
-    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
-    <!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-    <!--crossorigin="anonymous"/>-->
-
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!--из локальной коппии, так как конфигурация редактора кастомная-->
-    <script src="/ckeditor/ckeditor.js"/>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"/>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-
-    <script type="text/javascript" th:src="@{/js/mailing.js}"></script>
-    <script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>
     <link rel="stylesheet" type="text/css" href="/css/mailing.css"/>
 </head>
 <body>
-
-<header>
-
-</header>
 
 <div style="margin: 4%">
     <div class="container-fluid" id="header">
@@ -46,6 +27,7 @@
                         <button type="button" class="btn btn-secondary btn-info" id="email">e-mail</button>
                         <button type="button" class="btn btn-secondary" id="sms">sms</button>
                         <button type="button" class="btn btn-secondary" id="vk">VK</button>
+                        <button type="button" class="btn btn-secondary" id="slack">Slack</button>
                     </div>
                 </div>
             </div>
@@ -147,7 +129,7 @@
 </div>
 
 <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" id="historyModalHeader">
                 <h4 class="modal-title" id="historyModalLabel">История рассылок</h4>
@@ -155,7 +137,7 @@
                     x
                 </button>
             </div>
-            <div class="modal-body" id="historyModalBody">
+            <div class="modal-body modal-with-overflow" id="historyModalBody">
 
                 <div class="form-group" sec:authorize="hasAnyAuthority('OWNER')">
                     <div class="row">
@@ -183,12 +165,11 @@
                 <table class="table table-striped" id="historyMailingTable">
                     <thead>
                     <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Дата расслыки</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Дата</th>
                         <th scope="col">Текст</th>
-                        <th scope="col">Тип отправки</th>
-                        <th scope="col">Получатель</th>
-                        <th scope="col"></th>
+                        <th scope="col">Тип</th>
+                        <th scope="col">Действия</th>
                     </tr>
                     </thead>
                     <tbody id="historyBodyMailing">
@@ -222,32 +203,40 @@
                 <div class="form-group">
                 <div class="row">
                     <div class="col">
-                        <label for="listEmail" >Укажите список email получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="listEmail" rows="14"
+                        <label for="listRecipients">Укажите список получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="listRecipients" rows="20"
                                 style="font-size: 8pt"></textarea>
-                    </div>
-                    <div class="col">
-                        <label for="listSms" >Укажите список телефонов получателей (каждый с новой строки):</label>
-                        <textarea class="form-control text-lowercase" id="listSms" rows="14"
-                          style="font-size: 8pt"></textarea>
-                    </div>
-                    <div class="col">
-                        <label for="listVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
-                        <textarea class="form-control text-lowercase" id="listVk" rows="14"
-                          style="font-size: 8pt"></textarea>
                     </div>
                 </div>
                 </div>
 
-                <div class="modal-footer">
                 <div class="form-group">
-                    <button class="btn btn-primary" id="slackImportButton">
-                        Загрузить email из Slack
-                    </button>
-                <button class="btn btn-success" onclick="addToListMailing()">
-                    Создать
-                </button>
+                    <label for="mailing-list-type">Тип списка:</label>
+                    <select id="mailing-list-type" class="form-control">
+                        <option th:each="listType:${listMailingTypes}" th:value="${listType.id}" th:text="${listType.name}">Тип рассылки</option>
+                    </select>
                 </div>
+
+                <div class="modal-footer">
+                    <div class="form-group" id="list-statuses">
+                        <label class="checkbox-inline">
+                            <input class="status-checkboxes" type="checkbox" id="status_checkbox_1" value="1"/> Статус 1
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="slackIdAllImportButton">
+                            Все id из Slack
+                        </button>
+                        <button class="btn btn-primary" id="slackIdStudentsImportButton">
+                            Только id студентов из Slack
+                        </button>
+                        <button class="btn btn-primary" id="slackImportButton">
+                            Все e-mail из Slack
+                        </button><br /><br />
+                        <button class="btn btn-success" onclick="addToListMailing()">
+                            Создать
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -265,7 +254,6 @@
             </div>
             <div class="modal-body" id="editListMailingModalBody">
 
-
                 <div class="form-group">
                     <label for="editListName">Название списка: </label>
                     <div class="row">
@@ -280,32 +268,39 @@
                     </div>
                 </div>
 
-
                 <div class="form-group">
                     <div class="row">
                         <div class="col">
-                            <label for="editListEmail" >Укажите список email получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListEmail" rows="14"
-                                      style="font-size: 8pt"></textarea>
-                        </div>
-                        <div class="col">
-                            <label for="editListSms" >Укажите список телефонов получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListSms" rows="14"
-                                      style="font-size: 8pt"></textarea>
-                        </div>
-                        <div class="col">
-                            <label for="editListVk" >Укажите список id или ссылок профилей ВК получателей (каждый с новой строки):</label>
-                            <textarea class="form-control text-lowercase" id="editListVk" rows="14"
+                            <label for="editListRecipients">Укажите список получателей (каждый с новой строки):</label>
+                            <textarea class="form-control text-lowercase" id="editListRecipients" rows="20"
                                       style="font-size: 8pt"></textarea>
                         </div>
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="edit-mailing-list-type">Тип списка:</label>
+                    <select id="edit-mailing-list-type" class="form-control">
+                        <option th:each="listType:${listMailingTypes}" th:value="${listType.id}" th:text="${listType.name}">Тип рассылки</option>
+                    </select>
+                </div>
+
                 <div class="modal-footer">
+                    <div class="form-group" id="update-list-statuses">
+                        <label class="checkbox-inline">
+                            <input class="update-status-checkboxes" type="checkbox" id="update_status_checkbox_1" value="1"/> Статус 1
+                        </label>
+                    </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" id="slackUpdateImportButton">
-                            Загрузить email из Slack
+                        <button class="btn btn-primary" id="slackUpdateIdAllImportButton">
+                            Все id из Slack
                         </button>
+                        <button class="btn btn-primary" id="slackUpdateIdStudentsImportButton">
+                            Только id студентов из Slack
+                        </button>
+                        <button class="btn btn-primary" id="slackUpdateImportButton">
+                            Все e-mail из Slack
+                        </button><br /><br />
                         <button id= "editButton" class="btn btn-success" onclick="editListMailing()" disabled="disabled">
                             Редактировать
                         </button>
@@ -364,5 +359,16 @@
     </div>
 </footer>
 
+<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
+<!--integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
+<!--crossorigin="anonymous"/>-->
+<!--<script th:src="@{/webjars/bootstrap/4.1.2/js/bootstrap.bundle.js}"></script>-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+<!--из локальной коппии, так как конфигурация редактора кастомная-->
+<script th:src="@{/ckeditor/ckeditor.js}"/>
+<script type="text/javascript" src="https://cdn.rawgit.com/JDMcKinstry/jQuery-Date/master/jQuery.date.min.js"/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"/>
+<script type="text/javascript" th:src="@{/js/mailing.js}"></script>
 </body>
 </html>

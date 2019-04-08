@@ -141,6 +141,11 @@ function select_interlocutor(profiles) {
                     result.set(3, profiles[i]);
                 }
                 break;
+            case "slack":
+                if (profiles[i].profileUrl !== "" && profiles[i].avatarUrl !== "") {
+                    result.set(4, profiles[i]);
+                }
+                break;
         }
     }
     let mapAsc = new Map([...result.entries()].sort());
@@ -158,6 +163,9 @@ function get_sn_picture(sn_type) {
             break;
         case "telegram":
             icon += "telegram.png";
+            break;
+        case "slack":
+            icon += "slack_on.png";
             break;
     }
     return "<img class='sn-icon img-circle' src='" + icon + "' alt='?' style='height: 15px; width: 15px'/>";
@@ -236,6 +244,7 @@ function set_telegram_id_by_phone(phone) {
     if (phone === undefined || phone === '' || phone === null) {return;}
     $.ajax({
         type: 'GET',
+        async: true,
         url: '/rest/telegram/id-by-phone',
         data: {phone: phone},
         success: function (response) {

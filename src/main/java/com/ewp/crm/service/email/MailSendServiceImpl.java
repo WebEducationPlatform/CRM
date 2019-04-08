@@ -81,11 +81,11 @@ public class MailSendServiceImpl implements MailSendService {
             this.emailLogin = environment.getRequiredProperty("spring.mail.username");
             String password = environment.getRequiredProperty("spring.mail.password");
             if (emailLogin.isEmpty() || password.isEmpty()) {
-                throw new NullPointerException();
+                throw new NoSuchFieldException();
             }
-        } catch (IllegalStateException | NullPointerException e) {
-            logger.error("Mail configs have not initialized. Check application.properties file");
-            System.exit(-1);
+        } catch (IllegalStateException | NoSuchFieldException e) {
+            logger.error("Mail configs have not initialized. Check application.properties file", e);
+            System.exit(1);
         }
     }
 
@@ -220,6 +220,10 @@ public class MailSendServiceImpl implements MailSendService {
             String recipient = client.get().getEmail();
             String fullName = client.get().getName() + " " + client.get().getLastName();
             Map<String, String> params = new HashMap<>();
+            if (client.get().getContractLinkData() != null) {
+            String link = client.get().getContractLinkData().getContractLink();
+                params.put("%contractLink%", link);
+            }
             //TODO в конфиг
             params.put("%fullName%", fullName);
             params.put("%bodyText%", body);

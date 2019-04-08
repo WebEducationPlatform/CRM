@@ -1,6 +1,5 @@
 package com.ewp.crm.service.impl;
 
-
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
@@ -13,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,24 +30,23 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	private final ClientRepository clientRepository;
 
     private StatusService statusService;
-
     private SendNotificationService sendNotificationService;
-
     private final SocialProfileService socialProfileService;
-  
+    private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
-
     private final VKService vkService;
-
     private final PhoneValidator phoneValidator;
+    private final PassportService passportService;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportService passportService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
+        this.clientHistoryService = clientHistoryService;
         this.vkService = vkService;
         this.roleService = roleService;
         this.phoneValidator = phoneValidator;
+        this.passportService = passportService;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     @Override
     public List<Client> getClientsByManyIds(List<Long> ids) {
-        return clientRepository.getById(ids);
+        return clientRepository.getAllByIdIn(ids);
     }
 
     @Override
@@ -114,6 +114,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void addBatchClients(List<Client> clients) {
         clientRepository.addBatchClients(clients);
+    }
+
+    @Override
+    public List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType) {
+        return clientRepository.getSocialIdsBySocialProfileTypeAndStudentExists(socialProfileType);
+    }
+
+    @Override
+    public List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType) {
+        return clientRepository.getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(statuses, socialProfileType);
     }
 
     @Override
@@ -128,25 +138,27 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
-            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(client.getPhoneNumber()));
-
+            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
+            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(validatePhone));
         }
 
         if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
-
         }
 
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (!existClient.isPresent()) {
-                socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
-                if (socialProfile != null) {
-                    existClient = getClientBySocialProfile(socialProfile);
+            if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
+                if (!existClient.isPresent()) {
+                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
+                    if (profile.isPresent()) {
+                        socialProfile = profile.get();
+                        existClient = getClientBySocialProfile(socialProfile);
+                    }
+                } else {
+                    break;
                 }
-            } else {
-                break;
             }
         }
 
@@ -164,8 +176,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
             statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            client.setId(existClient.get().getId());
             clientRepository.saveAndFlush(existClient.get());
-
             return;
         }
 
@@ -303,4 +315,90 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));
     }
 
+    @Transactional
+    @Override
+    public void updateClientFromContractForm(Client clientOld, ContractDataForm contractForm, User user) {
+        Client client = createUpdateClient(user, clientOld, contractForm);
+        Optional<ClientHistory> optionalHistory = clientHistoryService.createHistory(user, clientOld, client, ClientHistory.Type.UPDATE);
+        if (optionalHistory.isPresent()) {
+            ClientHistory history = optionalHistory.get();
+            if (history.getTitle() != null && !history.getTitle().isEmpty()) {
+                client.addHistory(history);
+            }
+        }
+        clientRepository.saveAndFlush(client);
+        logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
+    }
+
+    @Override
+    public void setContractLink(Long clientId, String contractLink) {
+        Client client = clientRepository.getOne(clientId);
+        ContractLinkData contractLinkData = new ContractLinkData();
+        contractLinkData.setContractLink(contractLink);
+        contractLinkData.setClient(client);
+        client.setContractLinkData(contractLinkData);
+        clientRepository.saveAndFlush(client);
+    }
+
+    private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
+        Client client = new Client();
+        client.setName(contractForm.getInputFirstName());
+        client.setMiddleName(contractForm.getInputMiddleName());
+        client.setLastName(contractForm.getInputLastName());
+        client.setBirthDate(contractForm.getInputBirthday());
+        String email = contractForm.getInputEmail();
+        if (!email.isEmpty()) {
+            Optional<Client> checkEmailClient = getClientByEmail(email);
+            if (checkEmailClient.isPresent()) {
+                Client clientDelEmail = checkEmailClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelEmail::addHistory);
+                clientDelEmail.setEmail(null);
+                update(clientDelEmail);
+            }
+            client.setEmail(email);
+        }
+        String phone = contractForm.getInputPhoneNumber();
+        if (!phone.isEmpty()) {
+            String validatedPhone = phoneValidator.phoneRestore(phone);
+            Optional<Client> checkPhoneClient = getClientByPhoneNumber(validatedPhone);
+            if (checkPhoneClient.isPresent()) {
+                Client clientDelPhone = checkPhoneClient.get();
+                Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
+                optionalClientHistory.ifPresent(clientDelPhone::addHistory);
+                clientDelPhone.setPhoneNumber(null);
+                update(clientDelPhone);
+            }
+            client.setPhoneNumber(validatedPhone);
+        }
+        Passport passport = contractForm.getPassportData();
+        if (passportService.encode(passport).isPresent()) {
+            passport = passportService.encode(passport).get();
+            passport.setClient(client);
+            client.setPassport(passport);
+        }
+        client.setId(old.getId());
+        client.setStatus(old.getStatus());
+        client.setSocialProfiles(old.getSocialProfiles());
+        client.setCountry(old.getCountry());
+        client.setCity(old.getCity());
+        client.setAge((byte) old.getAge());
+        client.setSex(old.getSex());
+        client.setState(old.getState());
+        client.setSkype(old.getSkype());
+        client.setJobs(old.getJobs());
+        client.setWhatsappMessages(old.getWhatsappMessages());
+        client.setHistory(old.getHistory());
+        client.setComments(old.getComments());
+        client.setOwnerUser(old.getOwnerUser());
+        client.setStatus(old.getStatus());
+        client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
+        client.setSmsInfo(old.getSmsInfo());
+        client.setNotifications(old.getNotifications());
+        client.setCanCall(old.isCanCall());
+        client.setCallRecords(old.getCallRecords());
+        client.setClientDescriptionComment(old.getClientDescriptionComment());
+        client.setLiveSkypeCall(old.isLiveSkypeCall());
+        return client;
+    }
 }

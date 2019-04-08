@@ -3,14 +3,12 @@ package com.ewp.crm.models;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-
 import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.Email;
 
@@ -38,21 +36,24 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "first_name", nullable = false)
 	private String name;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
 	@Column(name = "last_name")
 	private String lastName;
 
-    @Column(name = "phoneNumber")
+    @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
     @Size(max = 50)
     @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, unique = true)
     private String email;
 
     @Column(name = "skype")
     private String skype = "";
 
-    @Column(name = "birthDate")
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Formula("(if(birth_date is null,0,YEAR(CURDATE()) - YEAR(birth_date)))")
@@ -131,16 +132,14 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
     private List<Notification> notifications = new ArrayList<>();
 
-    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(value = FetchMode.JOIN)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
     @OrderBy("id DESC")
     private List<ClientHistory> history = new ArrayList<>();
 
-    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "feedback_client",
@@ -184,12 +183,14 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
-    @JoinColumn(name = "slack_profile_id")
-    private SlackProfile slackProfile;
-
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Passport passport;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ContractLinkData contractLinkData;
 
     public Client() {
         this.state = State.NEW;
@@ -306,6 +307,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
     public String getPhoneNumber() {
@@ -480,14 +489,6 @@ public class Client implements Serializable, Diffable<Client> {
         this.student = student;
     }
 
-    public SlackProfile getSlackProfile() {
-        return slackProfile;
-    }
-
-    public void setSlackProfile(SlackProfile slackProfile) {
-        this.slackProfile = slackProfile;
-    }
-
     public boolean isRepeated() {
         return isRepeated;
     }
@@ -510,6 +511,22 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setPostponeComment(String postponeComment) {
         this.postponeComment = postponeComment;
+    }
+
+    public Passport getPassport() {
+        return passport;
+    }
+
+    public void setPassport(Passport passport) {
+        this.passport = passport;
+    }
+
+    public ContractLinkData getContractLinkData() {
+        return contractLinkData;
+    }
+
+    public void setContractLinkData(ContractLinkData contractLinkData) {
+        this.contractLinkData = contractLinkData;
     }
 
     @Override

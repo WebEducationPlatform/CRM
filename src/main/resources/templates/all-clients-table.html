@@ -20,7 +20,7 @@
     <div class="container-fluid">
         <div><h1>Таблица всех клиентов</h1></div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <a href="/admin/client/add" class="btn btn-info" th:id="addClient"
                    sec:authorize="hasAnyAuthority('OWNER','ADMIN','MENTOR')">Добавить Клиента</a>
                 <button type="button" id="open-filter" class="btn btn-info" data-toggle="collapse"
@@ -29,6 +29,9 @@
                 <button class="btn btn-danger" data-toggle="modal" data-target="#massInputModal">
                     Массовый ввод
                 </button>
+            </div>
+            <div class="col-md-1">
+                <div style="float: right;" id="loaderImage"></div>
             </div>
             <div class="col-md-4"><input class="form-control clearable" id="searchInput"
                                          placeholder="Поиск клиентов..."/>
@@ -112,7 +115,7 @@
                 <th>Телефон</th>
                 <th>Email</th>
                 <th>Социальная сеть</th>
-                <th>Возраст</th>
+                <th>Дата рождения</th>
                 <th>Пол</th>
                 <th>Город</th>
                 <th>Страна</th>
@@ -147,7 +150,8 @@
                         </span>
                     </th:block>
                 </td>
-                <td th:text="${client.age}"></td>
+                <td th:if="${client.birthDate!=null}" th:text="${#strings.arraySplit(client.birthDate, '-')[2]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[1]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[0]}"></td>
+                <td th:if="${client.birthDate==null}" th:text="'-'"></td>
                 <td th:text="${client.sex}"></td>
                 <td th:text="${client.city}"></td>
                 <td th:text="${client.country}"></td>
@@ -258,6 +262,7 @@
 </div>
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+<script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 </body>
 </html>

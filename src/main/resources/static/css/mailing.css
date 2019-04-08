@@ -20,3 +20,19 @@
     border: 3px dotted darkorange;
 }
 
+.table {
+    width: 100%;
+}
+
+.modal-with-overflow {
+    overflow-x: auto;
+}
+
+.modal-lg {
+    width: 80% !important;
+}
+
+.history-table-td-text img {
+    width: 75% !important;
+    height: 75% !important;
+}

@@ -2,13 +2,16 @@ package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,12 +37,16 @@ public class User implements UserDetails {
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
 
+	@Column(name = "birth_date")
+	private LocalDate birthDate;
+
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
 
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "password", nullable = false)
 	private String password;
 
@@ -80,7 +87,7 @@ public class User implements UserDetails {
 	private boolean isEnabled;
 
 	@Column(name = "new_client_notify_is_enabled")
-	private boolean newClienNotifyIsEnabled = true; //ошибка в названии поля
+	private boolean newClientNotifyIsEnabled = true;
 
 	/**
 	 * ????????
@@ -119,9 +126,14 @@ public class User implements UserDetails {
 	/**
 	 * Присылать ли уведомления на электронную почту
 	 */
-	@JsonIgnore
 	@Column(name = "enable_mail_notifications")
-	private boolean enableMailNotifications = true;
+	private boolean enableMailNotifications;
+
+	/**
+	 * Присылать ли уведомления в sms
+	 */
+	@Column(name = "enable_sms_notifications")
+	private boolean enableSmsNotifications;
 
 	/**
 	 * Закреплен за клиентами (студентами)
@@ -135,6 +147,7 @@ public class User implements UserDetails {
 	 */
 	@NotNull
 	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
@@ -157,9 +170,10 @@ public class User implements UserDetails {
 		this.isVerified = false;
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony, boolean isVerified) {
+	public User(String firstName, String lastName, LocalDate birthDate, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony, boolean isVerified) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.birthDate = birthDate;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.password = password;
@@ -327,7 +341,7 @@ public class User implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return firstName + " " + lastName;
+		return email;
 	}
 
 	@Override
@@ -358,12 +372,12 @@ public class User implements UserDetails {
 		this.ownedClients = ownedClients;
 	}
 
-	public boolean isNewClienNotifyIsEnabled() {
-		return newClienNotifyIsEnabled;
+	public boolean isNewClientNotifyIsEnabled() {
+		return newClientNotifyIsEnabled;
 	}
 
-	public void setNewClienNotifyIsEnabled(boolean newClienNotifyIsEnabled) {
-		this.newClienNotifyIsEnabled = newClienNotifyIsEnabled;
+	public void setNewClientNotifyIsEnabled(boolean newClientNotifyIsEnabled) {
+		this.newClientNotifyIsEnabled = newClientNotifyIsEnabled;
 	}
 
 	public String getStudentPageFilters() {
@@ -433,5 +447,21 @@ public class User implements UserDetails {
 
 	public void setIsVerified(boolean verified) {
 		isVerified = verified;
+	}
+
+	public boolean isEnableSmsNotifications() {
+		return enableSmsNotifications;
+	}
+
+	public void setEnableSmsNotifications(boolean enableSmsNotifications) {
+		this.enableSmsNotifications = enableSmsNotifications;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
 	}
 }

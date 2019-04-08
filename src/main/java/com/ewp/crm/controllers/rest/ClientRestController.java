@@ -126,21 +126,24 @@ public class ClientRestController {
 
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String userID,
+	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
 																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
-        SocialProfile socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(userID, socialProfileType);
-        Optional<Client> client = clientService.getClientBySocialProfile(socialProfile);
-
-        Map<String, String> returnMap = new HashMap<>();
-        if (!client.isPresent()) {
-            returnMap.put("clientID", "0");
-        } else {
-            returnMap.put("clientID", Long.toString(client.get().getId()));
+		Map<String, String> clientInfoMap = new HashMap<>();
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialProfileType);
+        if (socialProfile.isPresent()) {
+			Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
+			if (!client.isPresent()) {
+				clientInfoMap.put("clientID", "0");
+			} else {
+				clientInfoMap.put("clientID", Long.toString(client.get().getId()));
+			}
+		} else {
+            clientInfoMap.put("clientID", "0");
         }
-        returnMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
-        returnMap.put("userID", userID);
-        return ResponseEntity.ok(returnMap);
+        clientInfoMap.put("unreadCount", unreadCount.isEmpty() ? "" : unreadCount);
+        clientInfoMap.put("userID", socialId);
+        return ResponseEntity.ok(clientInfoMap);
 	}
 
 	@PostMapping(value = "/assign")
