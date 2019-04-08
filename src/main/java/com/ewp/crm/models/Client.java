@@ -329,29 +329,37 @@ public class Client implements Serializable, Diffable<Client> {
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        if (clientPhones.isEmpty()) {
+            return phoneNumber;
+        }
+            return clientPhones.get(0);
+     //return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
-    /*    if (clientPhones.isEmpty()) {
+        if (clientPhones.isEmpty()) {
             clientPhones.add(phoneNumber);
         } else {
             clientPhones.set(0, phoneNumber);
-        }*/
-        this.phoneNumber = phoneNumber;
+        }
+       this.phoneNumber = phoneNumber;
     }
 
     public String getEmail() {
-        return email;
+        if (!clientEmails.isEmpty()) {
+            return clientEmails.get(0);
+        }
+            return null;
+   //  return email;
     }
 
     public void setEmail(String email) {
-/*        if (clientEmails.isEmpty()) {
-            clientEmails.add(email);
+        List<String> mails = new ArrayList<>();
+        if (getClientEmails().isEmpty()) {
+            mails.add(email);
         } else {
-            clientEmails.set(0, email);
-        }*/
-        this.email = email;
+            this.clientEmails = mails;
+        }
     }
 
     public ZonedDateTime getPostponeDate() {
@@ -586,13 +594,15 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(postponeDate, client.postponeDate)&&
                 Objects.equals(birthDate, client.birthDate) &&
                 Objects.equals(university, client.university) &&
-                Objects.equals(requestFrom, client.requestFrom);
+                Objects.equals(requestFrom, client.requestFrom) &&
+                Objects.equals(clientEmails, client.clientEmails) &&
+                Objects.equals(clientPhones, client.clientPhones);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, lastName, phoneNumber, email, skype, sex, city, country,
-                state, jobs, socialProfiles, postponeDate, birthDate, university,requestFrom);
+                state, jobs, socialProfiles, postponeDate, birthDate, university, requestFrom, clientEmails, clientPhones);
     }
 
     @Override
