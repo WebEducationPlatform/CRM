@@ -340,12 +340,19 @@ public class DataInitializer {
 
 
         Client clientN2 = clientService.get(2L);
-      //  clientN2.setEmail("kolobok@mail.ru");
-     //   clientN2.setPhoneNumber("123129999");
+    //    clientN2.setEmail("kolobok@mail.ru");
+    //    clientService.updateClient(clientN2);
+    //    clientN2.setPhoneNumber("123129999");
+    //    clientService.updateClient(clientN2);
+    //    clientN2.getClientEmails().size();
+    //    clientService.update(clientN2);
         List<String> emails = new ArrayList<>();
         emails.add("kilkibos@mail.ru");
         emails.add("gribok@mail.ru");
-        clientN2.setClientEmails(emails);
+ //       clientN2.setClientEmails(emails);
         clientService.update(clientN2);
+        clientN2.getClientEmails();
+        String mainmail = clientN2.getEmail();
+        clientN2.getPhoneNumber();
     }
 }
