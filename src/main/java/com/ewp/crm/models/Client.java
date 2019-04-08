@@ -45,10 +45,21 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
+    @ElementCollection
+    @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="phone", unique = true)
+    private List<String> clientPhones = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="email", unique = true)
+    private List<String> clientEmails = new ArrayList<>();
+
     @Size(max = 50)
     @Email(regexp = ValidationPattern.EMAIL_PATTERN)
     @Column(name = "email", length = 50, unique = true)
     private String email;
+
 
     @Column(name = "skype")
     private String skype = "";
@@ -322,6 +333,11 @@ public class Client implements Serializable, Diffable<Client> {
     }
 
     public void setPhoneNumber(String phoneNumber) {
+    /*    if (clientPhones.isEmpty()) {
+            clientPhones.add(phoneNumber);
+        } else {
+            clientPhones.set(0, phoneNumber);
+        }*/
         this.phoneNumber = phoneNumber;
     }
 
@@ -330,6 +346,11 @@ public class Client implements Serializable, Diffable<Client> {
     }
 
     public void setEmail(String email) {
+/*        if (clientEmails.isEmpty()) {
+            clientEmails.add(email);
+        } else {
+            clientEmails.set(0, email);
+        }*/
         this.email = email;
     }
 
@@ -529,6 +550,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.contractLinkData = contractLinkData;
     }
 
+    public List<String> getClientPhones() {
+        return clientPhones;
+    }
+
+    public void setClientPhones(List<String> clientPhones) {
+        this.clientPhones = clientPhones;
+    }
+
+    public List<String> getClientEmails() {
+        return clientEmails;
+    }
+
+    public void setClientEmails(List<String> clientEmails) {
+        this.clientEmails = clientEmails;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -647,5 +684,4 @@ public class Client implements Serializable, Diffable<Client> {
         FINISHED,
         REFUSED
     }
-
 }
