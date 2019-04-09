@@ -24,11 +24,15 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.json.JSONArray;
@@ -49,6 +53,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.MessageFormat;
@@ -467,36 +472,42 @@ public class VKServiceImpl implements VKService {
         return sendMessageById(id, msg, communityToken);
     }
 
+    private Optional<String> checkJsonResponseForErrors(JSONObject json) throws JSONException {
+        if (json.toString().contains("Permission to perform this action is denied") | json.toString().contains("Can't send messages to this user due to their privacy settings")) {
+            JSONArray jsonArray = json.getJSONObject("error").getJSONArray("request_params");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
+                    return Optional.ofNullable(jsonArray.getJSONObject(i).getString("value"));
+                }
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public String sendMessageById(Long id, String msg, String token) {
-
         logger.info("VKService: sending message to client with id {}...", id);
-
-        String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
-                .replaceAll("\"|\'", "%22");
-        String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
-
-        String sendMsgRequest = vkApi + "messages.send" +
-                "?user_id=" + id +
-                "&v=" + version +
-                "&message=" + uriMsg +
-                "&access_token=" + token;
-
-        HttpGet request = new HttpGet(sendMsgRequest);
+        String sendMsgRequest = vkApi + "messages.send";
+        HttpPost request = new HttpPost(sendMsgRequest);
+        List<NameValuePair> params = new ArrayList<>(4);
+        params.add(new BasicNameValuePair("user_id", String.valueOf(id)));
+        params.add(new BasicNameValuePair("v", version));
+        params.add(new BasicNameValuePair("message", msg));
+        params.add(new BasicNameValuePair("access_token", token));
+        try {
+            request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode VK request", e);
+        }
         HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(request);
             JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
             JsonObject convertedJsonEntity = new Gson().fromJson(jsonEntity.toString(), JsonObject.class);
 
-            if (jsonEntity.toString().contains("Permission to perform this action is denied") | jsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                JSONArray jsonArray = jsonEntity.getJSONObject("error").getJSONArray("request_params");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                        return jsonArray.getJSONObject(i).getString("value");
-                    }
-                }
+            Optional<String> errorString = checkJsonResponseForErrors(jsonEntity);
+            if (errorString.isPresent()) {
+                return errorString.get();
             }
 
             if (jsonEntity.toString().contains("Captcha needed")) {
@@ -542,24 +553,26 @@ public class VKServiceImpl implements VKService {
                     text = getResultCaptcha(taskId);
                 }
 
-                String sendMsgWithCaptcha = vkApi + "messages.send" +
-                        "?user_id=" + id +
-                        "&v=" + version +
-                        "&message=" + uriMsg +
-                        "&access_token=" + token +
-                        "&captcha_sid=" + captchaSid +
-                        "&captcha_key=" + text;
+                String sendMsgWithCaptcha = vkApi + "messages.send";
 
-                HttpGet newRequest = new HttpGet(sendMsgWithCaptcha);
+                HttpPost newRequest = new HttpPost(sendMsgWithCaptcha);
+                List<NameValuePair> newParams = new ArrayList<>(6);
+                newParams.add(new BasicNameValuePair("user_id", String.valueOf(id)));
+                newParams.add(new BasicNameValuePair("v", version));
+                newParams.add(new BasicNameValuePair("message", msg));
+                newParams.add(new BasicNameValuePair("access_token", token));
+                newParams.add(new BasicNameValuePair("captcha_sid", captchaSid));
+                newParams.add(new BasicNameValuePair("captcha_key", text));
+                try {
+                    newRequest.setEntity(new UrlEncodedFormEntity(newParams, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    logger.error("Failed to encode VK request", e);
+                }
                 HttpResponse newResponse = httpClient.execute(newRequest);
                 JSONObject newJsonEntity = new JSONObject(EntityUtils.toString(newResponse.getEntity()));
-                if (newJsonEntity.toString().contains("Permission to perform this action is denied") | newJsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                    JSONArray newJsonArray = newJsonEntity.getJSONObject("error").getJSONArray("request_params");
-                    for (int i = 0; i < newJsonArray.length(); i++) {
-                        if (newJsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                            return newJsonArray.getJSONObject(i).getString("value");
-                        }
-                    }
+                Optional<String> newErrorString = checkJsonResponseForErrors(newJsonEntity);
+                if (newErrorString.isPresent()) {
+                    return newErrorString.get();
                 }
                 return determineResponse(newJsonEntity);
             }
