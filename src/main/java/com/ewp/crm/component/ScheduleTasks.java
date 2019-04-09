@@ -363,12 +363,12 @@ public class ScheduleTasks {
 	/**
 	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(fixedDelay = 60_000)
+	@Scheduled(fixedDelay = 3600000)
 	private void sendPaymentNotifications() {
 		ProjectProperties properties = projectPropertiesService.getOrCreate();
 		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
-			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.MINUTES);
-			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.HOURS);
+			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
 			if (properties.isPaymentNotificationEnabled() && now.equals(time)) {
 				for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
 					MessageTemplate template = properties.getPaymentMessageTemplate();
