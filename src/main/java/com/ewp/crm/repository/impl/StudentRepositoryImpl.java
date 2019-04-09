@@ -26,7 +26,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         LocalDateTime today = LocalDate.now().atStartOfDay();
         LocalDateTime tomorrow = LocalDate.now().plusDays(1).atStartOfDay();
         return entityManager.createQuery("SELECT s FROM Student s WHERE (((s.notifyEmail = TRUE)" +
-                " OR (s.notifySMS = TRUE) OR (s.notifyVK = TRUE))" +
+                " OR (s.notifySMS = TRUE) OR (s.notifyVK = TRUE) OR (s.notifySlack = TRUE))" +
                 " AND (s.nextPaymentDate >= :today AND s.nextPaymentDate < :tomorrow))")
                 .setParameter("today", today)
                 .setParameter("tomorrow", tomorrow)
