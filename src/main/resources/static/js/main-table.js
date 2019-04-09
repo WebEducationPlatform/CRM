@@ -2367,7 +2367,7 @@ function createContractSetting() {
         url: url,
         data: JSON.stringify(setting),
         success: function () {
-            var contractLink = baseUrl + '/contract/' + hash;
+            var contractLink = 'https://' + baseUrl + '/contract/' + hash;
             $('#contract-client-setting-contract-link').val(contractLink);
             navigator.clipboard.writeText(contractLink);
             $('#contract-copy-modal').modal('show');
