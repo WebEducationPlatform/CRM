@@ -146,6 +146,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
         }
 
+        if ("".equals(client.getPhoneNumber())) {
+            client.setPhoneNumber(null);
+        }
+        if ("".equals(client.getEmail())) {
+            client.setEmail(null);
+        }
+
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
