@@ -7,12 +7,15 @@ import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -48,11 +51,13 @@ public class Client implements Serializable, Diffable<Client> {
     @ElementCollection
     @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="phone", unique = true)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> clientPhones = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="email", unique = true)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> clientEmails = new ArrayList<>();
 
     @Size(max = 50)
@@ -217,7 +222,8 @@ public class Client implements Serializable, Diffable<Client> {
     public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
-        this.phoneNumber = phoneNumber;
+       // this.phoneNumber = phoneNumber;
+        setPhoneNumber(phoneNumber);
         this.dateOfRegistration = dateOfRegistration;
     }
 
@@ -225,8 +231,10 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+       // this.phoneNumber = phoneNumber;
+        setPhoneNumber(phoneNumber);
+       // this.email = email;
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
         this.status = status;
@@ -236,8 +244,10 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+       // this.phoneNumber = phoneNumber;
+        setPhoneNumber(phoneNumber);
+        // this.email = email;
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
     }
@@ -246,8 +256,10 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+      //  this.phoneNumber = phoneNumber;
+        setPhoneNumber(phoneNumber);
+        // this.email = email;
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
         this.city = city;
@@ -330,7 +342,7 @@ public class Client implements Serializable, Diffable<Client> {
 
     public String getPhoneNumber() {
         if (clientPhones.isEmpty()) {
-            return phoneNumber;
+            return null;
         }
             return clientPhones.get(0);
      //return phoneNumber;
@@ -342,23 +354,21 @@ public class Client implements Serializable, Diffable<Client> {
         } else {
             clientPhones.set(0, phoneNumber);
         }
-       this.phoneNumber = phoneNumber;
     }
 
     public String getEmail() {
-        if (!clientEmails.isEmpty()) {
-            return clientEmails.get(0);
-        }
+        if (clientEmails.isEmpty()) {
             return null;
+        }
+        return clientEmails.get(0);
    //  return email;
     }
 
     public void setEmail(String email) {
-        List<String> mails = new ArrayList<>();
-        if (getClientEmails().isEmpty()) {
-            mails.add(email);
+        if (clientEmails.isEmpty()) {
+            clientEmails.add(email);
         } else {
-            this.clientEmails = mails;
+            clientEmails.set(0, email);
         }
     }
 
