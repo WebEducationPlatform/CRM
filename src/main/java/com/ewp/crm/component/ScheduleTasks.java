@@ -85,6 +85,8 @@ public class ScheduleTasks {
 
     private final TelegramService telegramService;
 
+    private final SlackService slackService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	private String adReportTemplate;
@@ -101,7 +103,8 @@ public class ScheduleTasks {
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 VkCampaignService vkCampaignService, TelegramService telegramService) {
+						 VkCampaignService vkCampaignService, TelegramService telegramService,
+						 SlackService slackService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -128,6 +131,7 @@ public class ScheduleTasks {
 		this.vkCampaignService = vkCampaignService;
 		this.adReportTemplate = env.getProperty("template.daily.report");
 		this.telegramService = telegramService;
+		this.slackService = slackService;
 	}
 
 	private void addClient(Client newClient) {
@@ -359,12 +363,12 @@ public class ScheduleTasks {
 	/**
 	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(fixedRate = 3600000)
+	@Scheduled(fixedDelay = 60_000)
 	private void sendPaymentNotifications() {
 		ProjectProperties properties = projectPropertiesService.getOrCreate();
 		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
-			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.HOURS);
-			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
+			LocalTime time = properties.getPaymentNotificationTime().truncatedTo(ChronoUnit.MINUTES);
+			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
 			if (properties.isPaymentNotificationEnabled() && now.equals(time)) {
 				for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
 					MessageTemplate template = properties.getPaymentMessageTemplate();
@@ -377,6 +381,9 @@ public class ScheduleTasks {
 					}
 					if (student.isNotifyVK()) {
 						vkService.simpleVKNotification(clientId, template.getOtherText());
+					}
+					if (student.isNotifySlack()) {
+						slackService.trySendSlackMessageToStudent(student.getId(), template.getOtherText());
 					}
 				}
 			}

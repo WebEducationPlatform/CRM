@@ -17,7 +17,6 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -72,28 +71,99 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types) {
-        return entityManager.createQuery("SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDay AND p.date <= :lastDay AND p.type IN :types")
+    public ClientHistory getNearestClientHistoryBeforeDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types) {
+        List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE h.date < :dateTime AND c.id = :clientId AND h.type IN :types ORDER BY h.date DESC")
+                .setParameter("dateTime", dateTime)
+                .setParameter("clientId", client.getId())
+                .setParameter("types", types)
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public ClientHistory getNearestClientHistoryAfterDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types) {
+        List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE h.date > :dateTime AND c.id = :clientId AND h.type IN :types ORDER BY h.date ASC")
+                .setParameter("dateTime", dateTime)
+                .setParameter("clientId", client.getId())
+                .setParameter("types", types)
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public ClientHistory getHistoryByClientAndHistoryTimeIntervalAndHistoryType(Client client, ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title) {
+        List<ClientHistory> result = entityManager.createQuery("SELECT DISTINCT h FROM Client c JOIN c.history AS h WHERE h.date >= :firstDay AND h.date <= :lastDay AND h.type IN :types AND c.id = :clientId AND h.title LIKE CONCAT('%: ',:title,'%')")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
-                .setParameter("types", Arrays.asList(types))
+                .setParameter("types", types)
+                .setParameter("clientId", client.getId())
+                .setParameter("title", title)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public boolean hasClientBeenInStatusBefore(long clientId, ZonedDateTime date, String statusName) {
+        return !entityManager.createQuery("SELECT c FROM Client c JOIN c.history AS h WHERE c.id = :clientId AND h.date < :date AND h.title LIKE CONCAT('%: ',:title,'%')")
+                .setParameter("clientId", clientId)
+                .setParameter("date", date)
+                .setParameter("title", statusName)
+                .setMaxResults(1)
+                .getResultList()
+                .isEmpty();
+    }
+
+    @Override
+    public List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, List<Status> excludeStatuses) {
+        String query = "SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDay AND p.date <= :lastDay AND p.type IN :types";
+        if (excludeStatuses != null && !excludeStatuses.isEmpty()) {
+            query += " AND c.status NOT IN :excludes";
+            return entityManager.createQuery(query)
+                    .setParameter("firstDay", firstDay)
+                    .setParameter("lastDay", lastDay)
+                    .setParameter("types", types)
+                    .setParameter("excludes", excludeStatuses)
+                    .getResultList();
+        }
+        return entityManager.createQuery(query)
+                .setParameter("firstDay", firstDay)
+                .setParameter("lastDay", lastDay)
+                .setParameter("types", types)
                 .getResultList();
     }
 
-    public List<Long> getChangedStatusClientIdsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, ClientHistory.Type[] types, String title) {
-        return entityManager.createQuery("SELECT DISTINCT c.id FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+    @Override
+    public List<Client> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title) {
+        String query = "SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%: ',:title,'%')";
+        if (excludeStatuses != null && !excludeStatuses.isEmpty()) {
+            query += " AND c.status NOT IN :excludes";
+            return entityManager.createQuery(query)
+                    .setParameter("firstDate", firstDate)
+                    .setParameter("lastDate", lastDate)
+                    .setParameter("types", types)
+                    .setParameter("title", title)
+                    .setParameter("excludes", excludeStatuses)
+                    .getResultList();
+        }
+        return entityManager.createQuery(query)
                 .setParameter("firstDate", firstDate)
                 .setParameter("lastDate", lastDate)
-                .setParameter("types", Arrays.asList(types))
+                .setParameter("types", types)
                 .setParameter("title", title)
                 .getResultList();
     }
 
-    public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title) {
-        return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%',:title,'%')")
+    @Override
+    public long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title) {
+        return (Long) entityManager.createQuery("SELECT DISTINCT COUNT(c) FROM Client c JOIN c.history p WHERE p.date > :firstDay AND p.date < :lastDay AND p.type IN :types AND p.title LIKE CONCAT('%: ',:title,'%')")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
-                .setParameter("types", Arrays.asList(types))
+                .setParameter("types", types)
                 .setParameter("title", title)
                 .getSingleResult();
     }
