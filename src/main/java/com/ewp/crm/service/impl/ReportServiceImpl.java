@@ -114,24 +114,33 @@ public class ReportServiceImpl implements ReportService {
                 // Получаем запись истории клиента по тем же параметрам, по которым выше был отобран клиент
                 ClientHistory clientHistory = clientRepository.getHistoryByClientAndHistoryTimeIntervalAndHistoryType(client, reportStartDate, reportEndDate, historyTypes, toStatus.get().getName());
                 if (clientHistory != null) {
-                    // Получаем записи из истории клиента, предшествующую и последующую записи выше
+                    boolean goodResult = true;
+                    // Получаем из истории клиента запись, предшествующую записи выше, чтобы определить
+                    // исходный статус, из которого клиент перешел в искомый статус
                     ClientHistory beforeHistory = clientRepository.getNearestClientHistoryBeforeDate(client, clientHistory.getDate(), historyTypes);
-                    ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
-                    // Если записи с переходами в истории есть, получаем из них статусы -
-                    // в каком статусе был клиент ранее и в какой статус перешел после.
-                    // Если статусы совпадают, проверяем дату возврата в исходный статус.
-                    // Если возврат в исходный статус произошел в течение 24 часов, то это считается ошибочным переносом
-                    // и исключается из результатов отчета.
                     if (beforeHistory != null) {
                         Optional<String> beforeStatus = parseStatusNameFromHistoryTitle(beforeHistory.getTitle());
                         if (beforeStatus.isPresent() && beforeStatus.get().equals(fromStatus.get().getName())) {
-                            result++;
-                            if (afterHistory != null) {
-                                Optional<String> afterStatus = parseStatusNameFromHistoryTitle(afterHistory.getTitle());
-                                if (afterStatus.isPresent() && beforeStatus.get().equals(afterStatus.get()) && clientHistory.getDate().plusDays(1L).isAfter(afterHistory.getDate())) {
-                                    result--;
+                            // Получаем историю клиента, в которой он возвращается в исходный статус и проверяем,
+                            // если возврат произошел в течение 24 часов, то этот результат исключается из отчета
+                            ClientHistory returnHistory = clientRepository.getNearestClientHistoryAfterDateByHistoryType(client, clientHistory.getDate(), historyTypes, beforeStatus.get());
+                            if (returnHistory != null) {
+                                Optional<String> returnStatus = parseStatusNameFromHistoryTitle(returnHistory.getTitle());
+                                if (returnStatus.isPresent() && beforeStatus.get().equals(returnStatus.get()) && clientHistory.getDate().plusDays(1L).isAfter(returnHistory.getDate())) {
+                                    goodResult = false;
                                 }
                             }
+                            // Получаем ближайший следующий переход клиента в другой статус, если такой переход случился
+                            // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
+                            ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
+                            if (afterHistory != null) {
+                                if (clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate())) {
+                                    goodResult = false;
+                                }
+                            }
+                        }
+                        if (goodResult) {
+                            result++;
                         }
                     } else {
                         // Если ищем переходы из статуса для Новых клиентов, то удостоверяемся, что ранее переходов в другие статусы не было

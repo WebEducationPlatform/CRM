@@ -95,13 +95,27 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public ClientHistory getNearestClientHistoryAfterDateByHistoryType(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types, String title) {
+        List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE h.date > :dateTime AND c.id = :clientId AND h.type IN :types AND h.title LIKE CONCAT('%: ',:title,'%') ORDER BY h.date ASC")
+                .setParameter("dateTime", dateTime)
+                .setParameter("clientId", client.getId())
+                .setParameter("types", types)
+                .setParameter("title", title)
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
     public ClientHistory getHistoryByClientAndHistoryTimeIntervalAndHistoryType(Client client, ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title) {
-        List<ClientHistory> result = entityManager.createQuery("SELECT DISTINCT h FROM Client c JOIN c.history AS h WHERE h.date >= :firstDay AND h.date <= :lastDay AND h.type IN :types AND c.id = :clientId AND h.title LIKE CONCAT('%: ',:title,'%')")
+        List<ClientHistory> result = entityManager.createQuery("SELECT DISTINCT h FROM Client c JOIN c.history AS h WHERE h.date >= :firstDay AND h.date <= :lastDay AND h.type IN :types AND c.id = :clientId AND h.title LIKE CONCAT('%: ',:title,'%') ORDER BY h.date DESC")
                 .setParameter("firstDay", firstDay)
                 .setParameter("lastDay", lastDay)
                 .setParameter("types", types)
                 .setParameter("clientId", client.getId())
                 .setParameter("title", title)
+                .setFirstResult(0)
                 .setMaxResults(1)
                 .getResultList();
         return result.isEmpty() ? null : result.get(0);
