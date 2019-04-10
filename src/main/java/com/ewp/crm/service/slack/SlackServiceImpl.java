@@ -74,21 +74,14 @@ public class SlackServiceImpl implements SlackService {
 
     @Override
     public void tryLinkSlackAccountToAllStudents() {
-        Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
-        List<Client> clients = clientService.getAllClients();
-        if (allWorkspaceUsersData.isPresent()) {
-            for (Client client : clients) {
-                if (client.getStudent() != null) {
-                    boolean hasSlackId = false;
-                    for (SocialProfile profile : client.getSocialProfiles()) {
-                        if ("slack".equals(profile.getSocialProfileType().getName())) {
-                            hasSlackId = true;
-                            break;
-                        }
-                    }
-                    if (!hasSlackId) {
-                        tryLinkSlackAccountToStudent(client.getStudent().getId(), allWorkspaceUsersData.get());
-                    }
+        Optional<SocialProfileType> slackType = socialProfileTypeService.getByTypeName("slack");
+        if (slackType.isPresent()) {
+            Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
+            if (allWorkspaceUsersData.isPresent()) {
+                List<SocialProfileType> excludeSocialProfileTypes = Arrays.asList(slackType.get());
+                List<Student> students = studentService.getStudentsWithoutSocialProfileByType(excludeSocialProfileTypes);
+                for (Student student : students) {
+                    tryLinkSlackAccountToStudent(student.getId(), allWorkspaceUsersData.get());
                 }
             }
         }
