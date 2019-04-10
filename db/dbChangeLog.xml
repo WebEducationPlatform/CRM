@@ -1,0 +1,17 @@
+<databasechangelog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemalocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeset author="shpi0@yandex.ru" id="2">
+        <sql>
+            CREATE TABLE `test` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `text` VARCHAR(45) NULL,
+                PRIMARY KEY (`id`));
+        </sql>
+        <rollback>
+            DROP TABLE `test`;
+        </rollback>
+    </changeset>
+
+</databasechangelog>
