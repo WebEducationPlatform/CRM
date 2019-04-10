@@ -32,6 +32,25 @@
                     <input th:id="${status.name}" class="checkbox" type="checkbox" th:checked="${#strings.contains(filters,status.name)}"/>
                 </div>
             </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-1">
+                    <label class="control-label" for="filter-has-no-slack">Без Slack</label>
+                    <input id="filter-has-no-slack" class="checkbox" type="checkbox"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="filter-has-no-vk">Без VK</label>
+                    <input id="filter-has-no-vk" class="checkbox" type="checkbox"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="filter-has-no-email">Без E-mail</label>
+                    <input id="filter-has-no-email" class="checkbox" type="checkbox"/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label" for="filter-has-no-phone">Без телефона</label>
+                    <input id="filter-has-no-phone" class="checkbox" type="checkbox"/>
+                </div>
+            </div>
         </div>
         <br />
 
