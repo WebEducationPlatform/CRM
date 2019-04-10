@@ -349,9 +349,11 @@ public class DataInitializer {
         List<String> emails = new ArrayList<>();
         emails.add("kilkibos@mail.ru");
         emails.add("gribok@mail.ru");
+        emails.add("koshkama@mail.ru");
         clientN2.setClientEmails(emails);
         clientService.update(clientN2);
         clientN2.setEmail("miqolay@gmail.com");
+        clientN2.setEmail("ziqolay@gmail.com");
         List<String> mails = clientN2.getClientEmails();
         String mainMail = clientN2.getEmail();
         String mainNumber = clientN2.getPhoneNumber();

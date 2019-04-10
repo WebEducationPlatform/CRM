@@ -69,7 +69,7 @@
                         <label for="edit-client-email">Email</label>
                         <input type="email" class="form-control" data-error="Неверный формат Email"
                                pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]*(\.[A-Za-z]{2,})$"
-                               disabled="disabled" id="edit-client-email" th:value="${client.email}"/>
+                               disabled="disabled" id="edit-client-email"  th:value="${client.clientEmails[0]}" />
                         <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group">
