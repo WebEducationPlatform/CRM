@@ -52,12 +52,14 @@ public class Client implements Serializable, Diffable<Client> {
     @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="phone", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name = "idInList")
     private List<String> clientPhones = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="email", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name = "idInList")
     private List<String> clientEmails = new ArrayList<>();
 
     @Size(max = 50)
@@ -222,7 +224,7 @@ public class Client implements Serializable, Diffable<Client> {
     public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
-       // this.phoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
         this.dateOfRegistration = dateOfRegistration;
     }
@@ -231,9 +233,9 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-       // this.phoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-       // this.email = email;
+        this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
@@ -244,9 +246,9 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-       // this.phoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-        // this.email = email;
+        this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
@@ -256,9 +258,9 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-      //  this.phoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-        // this.email = email;
+        this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
