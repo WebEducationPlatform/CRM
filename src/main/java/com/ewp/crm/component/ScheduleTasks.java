@@ -274,7 +274,7 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-	@Scheduled(cron = "*/15 * * * * *")
+	@Scheduled(cron = "* */15 * * * *")
 	private void getSlackProfiles() {
 		slackService.tryLinkSlackAccountToAllStudents();
 	}
