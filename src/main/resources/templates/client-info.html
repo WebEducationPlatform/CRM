@@ -100,6 +100,36 @@
                         <input type="text" class="form-control" disabled="disabled" id="edit-client-city"
                                th:value="${client.city}"/>
                     </div>
+
+                    <div class="form-group">
+                        <label>Email адреса</label>
+                        <table class="table table-hover" th:id="AdditionalEmails">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th hidden="hidden" abbr="id">id</th>
+                                <th abbr="email"></th>
+                            </tr>
+                            </thead>
+                            <tbody id="emails-table-body">
+                            <tr th:each="emails, iterStat : ${client.clientEmails}">
+
+                                <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
+                                <td th:value="${emails}" th:text="${emails}"></td>
+                                <td>
+                                    <button  th:if="${iterStat.count > 1}" disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
+                                            class="glyphicon glyphicon-remove"></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить
+                            доп. Email
+                        </button>
+                    </div>
+                    <p></p>
+
                     <div class="form-group">
                         <label>Социальные сети</label>
                         <table class="table table-hover" th:id="SocialNetworks">
