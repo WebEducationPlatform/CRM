@@ -17,6 +17,8 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.api.ads.adwords.lib.utils.ReportDownloadResponseException;
+import com.google.api.ads.adwords.lib.utils.ReportException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.squareup.okhttp.MediaType;
@@ -56,6 +58,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -83,6 +86,7 @@ public class VKServiceImpl implements VKService {
     private final RestTemplate restTemplate;
     private final AdReportService yandexDirectAdReportService;
     private final AdReportService vkAdsReportService;
+    private final GoogleAdsService googleAdsService;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
@@ -131,6 +135,7 @@ public class VKServiceImpl implements VKService {
                          VkMemberService vkMemberService,
                          PhoneValidator phoneValidator,
                          RestTemplate restTemplate,
+                         GoogleAdsService googleAdsService,
                          @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService,
                          @Qualifier("VkAds")AdReportService vkAdsReportService) {
         this.vkConfig = vkConfig;
@@ -160,6 +165,7 @@ public class VKServiceImpl implements VKService {
         this.restTemplate = restTemplate;
         this.yandexDirectAdReportService = yandexDirectAdReportService;
         this.vkAdsReportService = vkAdsReportService;
+        this.googleAdsService = googleAdsService;
     }
 
 
@@ -1284,6 +1290,8 @@ public class VKServiceImpl implements VKService {
         String spentFromYandexDirect;
         String balanceFromVk;
         String spentFromVk;
+        String balanceFromGoogle;
+        String spentFromGoogle;
 
         // Получение отчёта с Yandex Direct
         try {
@@ -1322,8 +1330,46 @@ public class VKServiceImpl implements VKService {
            logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
+        //Получение отчета Google Ads
+        try {
+            balanceFromGoogle = googleAdsService.getAccountBalance();
+        } catch (RemoteException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get BOS from Google ads API", e);
+        } catch (ReportException | ReportDownloadResponseException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get report from Google ads API", e);
+        } catch (IOException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't download report from Google ads API", e);
+        } catch (NumberFormatException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't parse amount value from Google ads API report", e);
+        } catch (Exception e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Unknown exception in Google ads API report", e);
+        }
+        try {
+            spentFromGoogle = googleAdsService.getYesterdaySpentAmount();
+        } catch (ReportException | ReportDownloadResponseException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get report from Google ads API", e);
+        } catch (IOException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't download report from Google ads API", e);
+        } catch (NumberFormatException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't parse amount value from Google ads API report", e);
+        } catch (Exception e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Unknown exception in Google ads API report", e);
+        }
+
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
-        Object[] params = {balanceFromYandexDirect, spentFromYandexDirect, balanceFromVk, spentFromVk};
+        Object[] params = {
+                balanceFromYandexDirect, spentFromYandexDirect,
+                balanceFromVk, spentFromVk,
+                balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
 
         //Отправка в диалог
