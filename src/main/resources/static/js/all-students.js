@@ -2,10 +2,39 @@ $('.checkbox').click(function() {
     var table, rows, i, status, json;
     table = document.getElementById("students-table");
     rows = table.rows;
-    for (i = 1; i < rows.length; i++) {
-        status = rows[i].getElementsByTagName("TD")[0];
-        if (this.id == status.innerHTML) {
-            rows[i].style.display = this.checked ? '' : 'none';
+    if (this.id === 'filter-has-no-email' || this.id === 'filter-has-no-phone' ||
+        this.id === 'filter-has-no-vk' || this.id === 'filter-has-no-slack') {
+        renderStudentsTable();
+        for (i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== 'none') {
+                if ($('#filter-has-no-slack').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_slack') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-vk').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_vk') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-phone').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_sms') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-email').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_email') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    } else {
+        for (i = 1; i < rows.length; i++) {
+            status = rows[i].getElementsByTagName("TD")[0];
+            if (this.id === status.innerHTML) {
+                rows[i].style.display = this.checked ? '' : 'none';
+            }
         }
     }
     json = '{';

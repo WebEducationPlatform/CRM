@@ -274,6 +274,11 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
+	@Scheduled(cron = "* */15 * * * *")
+	private void getSlackProfiles() {
+		slackService.tryLinkSlackAccountToAllStudents();
+	}
+
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {
 		try {

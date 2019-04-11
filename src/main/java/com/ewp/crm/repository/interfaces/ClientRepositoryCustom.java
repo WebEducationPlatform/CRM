@@ -12,6 +12,8 @@ public interface ClientRepositoryCustom {
 
     ClientHistory getNearestClientHistoryAfterDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
 
+	ClientHistory getNearestClientHistoryAfterDateByHistoryType(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types, String title);
+
 	ClientHistory getHistoryByClientAndHistoryTimeIntervalAndHistoryType(Client client, ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title);
 
     boolean hasClientBeenInStatusBefore(long clientId, ZonedDateTime date, String statusName);

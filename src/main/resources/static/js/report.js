@@ -60,66 +60,65 @@ $('#load-data-button').on('click', function () {
         let end = dates[1].split('.');
         selectedDateStart = start[2] + '-' + start[1] + '-' + start[0];
         selectedDateEnd = end[2] + '-' + end[1] + '-' + end[0];
-    } else {
-        let selectedExcludes = [];
-        $('.exclude-status-checkboxes:checked').each(function(){
-            selectedExcludes.push($(this).val());
-        });
-        switch (selectedReport) {
-            case 1:
-                wrap = {
-                    "firstReportDate" : selectedDateStart,
-                    "lastReportDate" : selectedDateEnd,
-                    "fromId" : $('#statusFromSelect').val(),
-                    "toId" : $('#statusToSelect').val(),
-                    "excludeIds" : selectedExcludes
-                };
-                $.ajax({
-                    url: '/rest/report/count',
-                    type: 'GET',
-                    async: true,
-                    data: wrap,
-                    traditional: true,
-                    success: function (response) {
-                        $('#reportArea').val(response);
-                    }
-                });
-                break;
-            case 2:
-                wrap = {
-                    "firstReportDate" : selectedDateStart,
-                    "lastReportDate" : selectedDateEnd,
-                    "excludeIds" : selectedExcludes
-                };
-                $.ajax({
-                    url: '/rest/report/countNew',
-                    type: 'GET',
-                    async: true,
-                    data: wrap,
-                    traditional: true,
-                    success: function (response) {
-                        $('#reportArea').val(response);
-                    }
-                });
-                break;
-            case 3:
-                wrap = {
-                    "firstReportDate" : selectedDateStart,
-                    "lastReportDate" : selectedDateEnd,
-                    "excludeIds" : selectedExcludes
-                };
-                $.ajax({
-                    url: '/rest/report/countFirstPayments',
-                    type: 'GET',
-                    async: true,
-                    data: wrap,
-                    traditional: true,
-                    success: function (response) {
-                        $('#reportArea').val(response);
-                    }
-                });
-                break;
-        }
+    }
+    let selectedExcludes = [];
+    $('.exclude-status-checkboxes:checked').each(function(){
+        selectedExcludes.push($(this).val());
+    });
+    switch (selectedReport) {
+        case 1:
+            wrap = {
+                "firstReportDate" : selectedDateStart,
+                "lastReportDate" : selectedDateEnd,
+                "fromId" : $('#statusFromSelect').val(),
+                "toId" : $('#statusToSelect').val(),
+                "excludeIds" : selectedExcludes
+            };
+            $.ajax({
+                url: '/rest/report/count',
+                type: 'GET',
+                async: true,
+                data: wrap,
+                traditional: true,
+                success: function (response) {
+                    $('#reportArea').val(response);
+                }
+            });
+            break;
+        case 2:
+            wrap = {
+                "firstReportDate" : selectedDateStart,
+                "lastReportDate" : selectedDateEnd,
+                "excludeIds" : selectedExcludes
+            };
+            $.ajax({
+                url: '/rest/report/countNew',
+                type: 'GET',
+                async: true,
+                data: wrap,
+                traditional: true,
+                success: function (response) {
+                    $('#reportArea').val(response);
+                }
+            });
+            break;
+        case 3:
+            wrap = {
+                "firstReportDate" : selectedDateStart,
+                "lastReportDate" : selectedDateEnd,
+                "excludeIds" : selectedExcludes
+            };
+            $.ajax({
+                url: '/rest/report/countFirstPayments',
+                type: 'GET',
+                async: true,
+                data: wrap,
+                traditional: true,
+                success: function (response) {
+                    $('#reportArea').val(response);
+                }
+            });
+            break;
     }
 });
 
