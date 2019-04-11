@@ -11,14 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -94,6 +92,70 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> filteringClient(FilteringCondition filteringCondition) {
         return clientRepository.filteringClient(filteringCondition);
+    }
+
+    @Override
+    public List<Client> getAllClientsSortingByLastChange() {
+        List<Client> list = clientRepository.findAll();
+        list.sort(getCompareLastChange());
+        return list;
+    }
+
+    private Comparator<Client> getCompareLastChange() {
+       return new Comparator<Client>() {
+            @Override
+            public int compare(Client o1, Client o2) {
+                ZonedDateTime lastChangeFirstClient = getLastChange(o1);
+                ZonedDateTime lastChangeSecondClient = getLastChange(o2);
+                if (lastChangeFirstClient.isAfter(lastChangeSecondClient)) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+            private ZonedDateTime getLastChange(Client client) {
+                if (client.getComments().size() > 1 && client.getComments().get(0).getDateFormat().isAfter(client.getHistory().get(0).getDate())) {
+                    return client.getComments().get(0).getDateFormat();
+                } else {
+                    return client.getHistory().get(0).getDate();
+                }
+            }
+        };
+    }
+
+    @Override
+    public List<Client> getFilteringAndSortClients(FilteringCondition filteringCondition, String sortColumn) {
+        List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+        switch (sortColumn) {
+            case "name":
+                clients.sort(Comparator.comparing(client -> client.getName().toLowerCase()));
+                break;
+            case "lastName":
+                clients.sort(Comparator.comparing(Client::getLastName));
+                break;
+            case "phoneNumber":
+                clients.sort(Comparator.comparing(client -> client.getPhoneNumber() != null ? client.getPhoneNumber() : ""));
+                break;
+            case "email":
+                clients.sort(Comparator.comparing(client -> client.getEmail() != null ? client.getEmail() : ""));
+                break;
+            case "city":
+                clients.sort(Comparator.comparing(Client::getCity));
+                break;
+            case "country":
+                clients.sort(Comparator.comparing(Client::getCountry));
+                break;
+            case "status":
+                clients.sort(Comparator.comparing(client -> client.getStatus().getName()));
+                break;
+            case "dateOfRegistration":
+                clients.sort(Comparator.comparing(Client::getDateOfRegistration));
+                break;
+            case "dateOfLastChange":
+                clients.sort(getCompareLastChange());
+                break;
+        }
+        return clients;
     }
 
     @Override
