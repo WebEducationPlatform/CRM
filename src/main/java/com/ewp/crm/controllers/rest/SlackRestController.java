@@ -49,6 +49,13 @@ public class SlackRestController {
         this.statusService = statusService;
     }
 
+    @PostMapping("/registration")
+    public ResponseEntity registerUser(@RequestParam("name") String name, @RequestParam("lastName") String lastName,
+                                       @RequestParam("email") String email) {
+        boolean result = slackService.inviteToWorkspace(name, lastName, email);
+        return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
+    }
+
     @GetMapping("/find/client/{clientId}")
     public ResponseEntity<String> findClientSlackProfile(@PathVariable long clientId) {
         Optional<Client> client = clientService.getClientByID(clientId);

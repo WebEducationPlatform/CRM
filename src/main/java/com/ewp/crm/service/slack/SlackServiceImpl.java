@@ -1,9 +1,6 @@
 package com.ewp.crm.service.slack;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.SocialProfileType;
-import com.ewp.crm.models.Student;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,24 +34,36 @@ public class SlackServiceImpl implements SlackService {
     private static final String SLACK_API_URL = "https://slack.com/api/";
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
     private final StudentService studentService;
+    private final ProjectProperties projectProperties;
     private final SocialProfileTypeService socialProfileTypeService;
     private final SocialProfileService socialProfileService;
     private final ClientService clientService;
     private final String slackWorkspaceUrl;
-    private final String inviteToken;
+    private final String appToken;
+    private final String legacyToken;
+    private final String generalChannelId;
 
     @Autowired
-    public SlackServiceImpl(Environment environment, StudentService studentService, SocialProfileTypeService socialProfileTypeService, ClientService clientService, SocialProfileService socialProfileService) {
-        this.inviteToken = assignPropertyToString(environment,
+    public SlackServiceImpl(Environment environment, StudentService studentService,
+                            SocialProfileTypeService socialProfileTypeService, ClientService clientService,
+                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService) {
+        this.appToken = assignPropertyToString(environment,
+                "slack.appToken",
+                    "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
+        this.legacyToken = assignPropertyToString(environment,
                 "slack.legacyToken",
                     "Can't get 'slack.legacyToken' get it from https://api.slack.com/custom-integrations/legacy-tokens");
         this.slackWorkspaceUrl = assignPropertyToString(environment,
                 "slack.workspace.url",
                     "Can't get 'slack.workspace.url' please check slack.properties file");
+        this.generalChannelId = assignPropertyToString(environment,
+                "slack.workspace.generalChannelId",
+                    "Can't get 'slack.workspace.generalChannelId' please check slack.properties file");
         this.studentService = studentService;
         this.socialProfileTypeService = socialProfileTypeService;
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
+        this.projectProperties = projectPropertiesService.getOrCreate();
     }
 
     private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
@@ -211,7 +220,7 @@ public class SlackServiceImpl implements SlackService {
 
     private Optional<String> receiveAllClientsFromWorkspace() {
         String url = SLACK_API_URL + "users.list" +
-                "?token=" + inviteToken;
+                "?token=" + appToken;
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             HttpEntity entity = response.getEntity();
@@ -228,10 +237,77 @@ public class SlackServiceImpl implements SlackService {
         return chatId.filter(s -> trySendMessageToSlackChannel(s, text)).isPresent();
     }
 
+    private Optional<String> createPrivateChannel(String name, String lastName) {
+        String channelName = "t_" + name + "_" + lastName;
+        String url = SLACK_API_URL + "groups.create" +
+                "?token=" + appToken +
+                "&name=" + channelName;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            JSONObject jsonObj = new JSONObject(EntityUtils.toString(entity));
+            JSONObject groupData = jsonObj.optJSONObject("group");
+            if (groupData != null) {
+                return Optional.ofNullable(groupData.optString("id"));
+            }
+        } catch (IOException e) {
+            logger.error("Can't get slack group id", e);
+        } catch (JSONException e) {
+            logger.error("Can't parse slack group id", e);
+        }
+        return Optional.empty();
+    }
+
+    private void inviteDefaultUsersToChannel(String channelId) {
+        String defaultUsers = projectProperties.getSlackDefaultUsers();
+        if (defaultUsers != null && !defaultUsers.isEmpty()) {
+            String[] users = defaultUsers.split(" ");
+            for (String userId :users) {
+                String url = SLACK_API_URL + "groups.invite" +
+                        "?token=" + appToken +
+                        "&channel=" + channelId +
+                        "&user=" + userId;
+                try (CloseableHttpClient client = HttpClients.createDefault();
+                     CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+                    HttpEntity entity = response.getEntity();
+                } catch (IOException e) {
+                    logger.error(String.format("Can't invite default user %s to channel %s", userId, channelId), e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean inviteToWorkspace(String name, String lastName, String email) {
+        String channels = generalChannelId;
+        Optional<String> privateChannelId = createPrivateChannel(name, lastName);
+        if (privateChannelId.isPresent()) {
+            channels += "," + privateChannelId.get();
+            inviteDefaultUsersToChannel(privateChannelId.get());
+        }
+        String url = SLACK_API_URL + "users.admin.invite" +
+                "?token=" + legacyToken +
+                "&email=" + email +
+                "&first_name=" + name +
+                "&last_name=" + lastName +
+                "&channels=" + channels;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            JSONObject jsonObj = new JSONObject(EntityUtils.toString(entity));
+            return jsonObj.optBoolean("ok");
+        } catch (IOException e) {
+            logger.error("Can't get response when inviting user to Slack", e);
+        } catch (JSONException e) {
+            logger.error("Can't parse response when inviting user to Slack", e);
+        }
+        return false;
+    }
+
     @Override
     public Optional<String> getChatIdForSlackUser(String slackUserId) {
         String url = SLACK_API_URL + "im.open" +
-                "?token=" + inviteToken +
+                "?token=" + appToken +
                 "&user=" + slackUserId +
                 "&return_im=true";
         try (CloseableHttpClient client = HttpClients.createDefault();
@@ -254,7 +330,7 @@ public class SlackServiceImpl implements SlackService {
         String url;
         try {
             url = SLACK_API_URL + "chat.postMessage" +
-                    "?token=" + inviteToken +
+                    "?token=" + appToken +
                     "&channel=" + channelId +
                     "&text=" + URLEncoder.encode(text, "UTF-8") +
                     "&as_user=true";

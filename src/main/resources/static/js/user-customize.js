@@ -1,3 +1,24 @@
+$('#slack-settings-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/properties/get-slack-users',
+        success: function (response) {
+            $('#slack-users').val(response);
+        }
+    });
+});
+
+$('#update-slack').on('click', function () {
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/slack-users',
+        data: {'users': $('#slack-users').val()},
+        success: function (response) {
+            $('#slack-settings-modal').hide();
+        }
+    });
+});
+
 //Fill values on notification status configuration modal show up.
 $('#payment-notification-modal').on('show.bs.modal', function () {
     $.ajax({

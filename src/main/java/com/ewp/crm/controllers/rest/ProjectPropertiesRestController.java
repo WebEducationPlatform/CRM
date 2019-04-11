@@ -57,7 +57,24 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
-    
+
+    @GetMapping("/get-slack-users")
+    public ResponseEntity getSlackDefaultUsers() {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        return ResponseEntity.ok(current.getSlackDefaultUsers());
+    }
+
+    @PostMapping("/slack-users")
+    public ResponseEntity setSlackDefaultUsers(@RequestParam(name = "users") String users) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (users == null) {
+            users = "";
+        }
+        current.setSlackDefaultUsers(users);
+        projectPropertiesService.saveAndFlash(current);
+        return ResponseEntity.ok("");
+    }
+
     @PostMapping("/auto-answer")
     public HttpStatus setAutoResponseSettings(@RequestParam(name = "autoAnswerTemplate") Long templateId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
