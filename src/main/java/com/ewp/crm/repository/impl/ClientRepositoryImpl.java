@@ -71,6 +71,16 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public String getSlackLinkHashForClient(Client client) {
+        List<String> result = entityManager.createQuery("SELECT s.hash FROM Client c JOIN c.slackInviteLink AS s WHERE c.id = :clientId")
+                .setParameter("clientId", client.getId())
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
     public ClientHistory getNearestClientHistoryBeforeDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types) {
         List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE h.date < :dateTime AND c.id = :clientId AND h.type IN :types ORDER BY h.date DESC")
                 .setParameter("dateTime", dateTime)

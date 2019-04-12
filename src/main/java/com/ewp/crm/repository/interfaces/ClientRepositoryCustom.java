@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ClientRepositoryCustom {
 
+	String getSlackLinkHashForClient(Client client);
+
     ClientHistory getNearestClientHistoryBeforeDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
 
     ClientHistory getNearestClientHistoryAfterDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);

@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
 
+	Optional<String> generateSlackInviteLink(Long clientId);
+
 	List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType);
 
 	List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType);
