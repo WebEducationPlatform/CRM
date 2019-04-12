@@ -352,12 +352,22 @@ public class DataInitializer {
         emails.add("gribok@mail.ru");
         emails.add("zibra@mail.ru");
         emails.add("cemel@mail.ru");
+        List<String> phones = new ArrayList<>();
+        phones.add("7123123123");
+        phones.add("7345345345");
+        phones.add("7567567567");
+        phones.add("7789789789");
         clientN2.setClientEmails(emails);
+        clientN2.setClientPhones(phones);
         clientService.update(clientN2);
         clientN2.setEmail("ziqolay@gmail.com");
         clientN2.setEmail("miqolay@gmail.com");
+        clientN2.setPhoneNumber("79080584002");
+
+
 
         List<String> mails = clientN2.getClientEmails();
+        List<String> phonList = clientN2.getClientPhones();
         String mainMail = clientN2.getEmail();
         String mainNumber = clientN2.getPhoneNumber();
         clientService.update(clientN2);
