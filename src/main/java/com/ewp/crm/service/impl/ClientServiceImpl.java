@@ -37,12 +37,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PhoneValidator phoneValidator;
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
+    private final SlackService slackService;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
-                             ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository) {
+                             ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
+                             @Lazy SlackService slackService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -52,6 +54,39 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.passportService = passportService;
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
+        this.slackService = slackService;
+    }
+
+    @Override
+    public Optional<Client> getClientBySlackInviteHash(String hash) {
+        if (slackInviteLinkRepository.existsByHash(hash)) {
+            SlackInviteLink slackInviteLink = slackInviteLinkRepository.getByHash(hash);
+            if (slackInviteLink != null) {
+                return Optional.ofNullable(slackInviteLink.getClient());
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean inviteToSlack(Client client, String name, String lastName, String email) {
+        if (!clientRepository.hasClientSocialProfileByType(client, "slack")) {
+            if (name != null && lastName != null && email != null && !name.isEmpty() && !lastName.isEmpty() && !email.isEmpty()) {
+                Client newClient = new Client();
+                newClient.setName(name);
+                newClient.setLastName(lastName);
+                newClient.setEmail(email);
+                Optional<ClientHistory> history = clientHistoryService.createUpdateFromSlackRegFormHistory(client, newClient, ClientHistory.Type.SLACK_UPDATE);
+                history.ifPresent(client::addHistory);
+                client.setName(name);
+                client.setLastName(lastName);
+                client.setEmail(email);
+                clientRepository.saveAndFlush(client);
+                slackInviteLinkRepository.deleteByClient(client);
+                return slackService.inviteToWorkspace(name, lastName, email);
+            }
+        }
+        return false;
     }
 
     @Override

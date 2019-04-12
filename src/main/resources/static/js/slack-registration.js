@@ -1,5 +1,14 @@
 const SUCCESS_MESSAGE = 'Успешно! Вам на почту придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать пароль и получить доступ к Slack.';
 const ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору.';
+const CRM_URL = 'http://localhost:9999';
+
+function getHash() {
+    let urlParams = window.location.href.split("?");
+    if (urlParams.length > 1) {
+        return urlParams[1];
+    }
+    return null;
+}
 
 $('#reg-button').on('click', function () {
     let name = $('#name');
@@ -8,10 +17,11 @@ $('#reg-button').on('click', function () {
     let message = $('#message');
 
     $.ajax({
-        url: '/slack/registration',
+        url: CRM_URL + '/slack/registration',
         async: true,
         type: 'POST',
         data: {
+            'hash': getHash(),
             'name' : name.val(),
             'lastName' : lastName.val(),
             'email': email.val()},
