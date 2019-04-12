@@ -599,9 +599,7 @@ public class VKServiceImpl implements VKService {
                 client.getLastName(),
                 client.getId(),
                 date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        System.out.println(firstSkypeNotifyChatId);
-        System.out.println(message);
-//        sendMessageByChatId(firstSkypeNotifyChatId, message);
+        sendMessageByChatId(firstSkypeNotifyChatId, message);
     }
 
     @Override
