@@ -47,6 +47,15 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
+        return !entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt WHERE c.id = :clientId AND spt.name = :socialProfileType")
+                .setParameter("socialProfileType", socialProfileType)
+                .setParameter("clientId", client.getId())
+                .getResultList()
+                .isEmpty();
+    }
+
+    @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType) {
         return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType AND c.status IN (:statuses)")
                 .setParameter("socialProfileType", socialProfileType)

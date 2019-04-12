@@ -642,7 +642,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .build();
     }
 
-    public DiffResult diffOnStudentEdit(Client client) {
+    public DiffResult diffByNameAndLastNameAndEmail(Client client) {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)
