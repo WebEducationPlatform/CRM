@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -111,6 +112,8 @@ public class VKServiceImpl implements VKService {
     private String managerToken;
     //ID чата, в который посылается отчёт
     private final String vkReportChatId;
+    private final String firstSkypeNotifyChatId;
+    private final String firstSkypeMessageTemplate;
 
     @Value("${userKey}")
     private String userKey;
@@ -144,6 +147,8 @@ public class VKServiceImpl implements VKService {
         vkApi = vkConfig.getVkApiUrl();
         managerToken = vkConfig.getManagerToken();
         vkReportChatId = vkConfig.getVkReportChatId();
+        firstSkypeNotifyChatId = vkConfig.getFirstSkypeNotifyChatId();
+        firstSkypeMessageTemplate = vkConfig.getFirstSkypeMessageTemplate();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -588,7 +593,24 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
+    public void sendFirstSkypeNotification(Client client, ZonedDateTime date) {
+        String message = String.format(firstSkypeMessageTemplate,
+                client.getName(),
+                client.getLastName(),
+                client.getId(),
+                date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        System.out.println(firstSkypeNotifyChatId);
+        System.out.println(message);
+//        sendMessageByChatId(firstSkypeNotifyChatId, message);
+    }
+
+    @Override
     public void sendMessageByChatId(String id, String message) {
+        try {
+            message = URLEncoder.encode(message, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode message " + message, e);
+        }
         String url = vkApi + "messages.send" +
                 "?random_id=" + new Random().nextInt(32) +
                 "&chat_id=" + id +
