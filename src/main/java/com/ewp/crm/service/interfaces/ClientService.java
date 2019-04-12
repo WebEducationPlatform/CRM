@@ -70,4 +70,8 @@ public interface ClientService extends CommonService<Client> {
 	List<Client> getAllClientsSortingByLastChange();
 
 	List<Client> getFilteringAndSortClients(FilteringCondition filteringCondition, String sortColumn);
+
+	Optional<Comment> getLastComment(Client client);
+
+	Optional<ClientHistory> getLastHistory(Client client);
 }
