@@ -1170,54 +1170,13 @@ function assignSkype(id) {
                 currentStatus.after('<input class="enter-skype-login form-control"> </input>');
                 $('.enter-skype-login').after('<br/>' + '<button onclick="confirmSkype(' + id + ')" type="button" class="btn btn-primary btn-sm confirm-skype-login">Подтвердить</button>');
             } else {
-                // Get the list of mentors
-                $.ajax({
-                    type: 'GET',
-                    url: '/rest/skype/allMentors',
-                    dataType: 'json',
-                    success: function (mentors) {
-                        currentStatus.css('color', '#333');
-                        currentStatus.text("Выбирете ментора из списка");
-                        currentStatus.after(
-                            '<p><select id="mentor" class="remove-element enter-mentor-list form-control"></select></p>' +
-                            '<button class="btn btn-info btn-sm confirm-skype-btn">Подтвердить</button>');
-                        if (mentors === null || mentors.length === 0) {
-                            currentStatus.css('color', '#229922');
-                            currentStatus.text("Менторы не найдены");
-                        } else {
-                            $.each(mentors, function(key, value) {
-                                $('.enter-mentor-list')
-                                    .append($("<option></option>")
-                                        .attr("value",value.id)
-                                        .text(value.firstName + " " + value.lastName));
-                            });
-                        }
-                    },
-
-                    error: function (error) {
-                        console.log(error);
-                        currentStatus.css('color','#229922');
-                        currentStatus.text(error);
-                    }
-
-                });
-
-
+                currentStatus.empty();
+                currentStatus.after('<button class="btn btn-info btn-sm confirm-skype-btn">Подтвердить</button>');
                 currentBtn.attr("disabled", "true");
                 currentBtn.after(
                     '<div class="panel-group skype-panel"><div class="panel panel-default"><div class="panel-heading skype-panel-head">Укажите дату и время созвона</div>' +
                     '<div class="panel-body">' + '<input readonly="false" type="text" class="form-control skype-postpone-date" name="skypePostponeDateOld" id="skypePostpone' + client.id +'"> </input>' +
                     ' <form class="box-window"></form>' +'</div></div>');
-                $('.skype-panel').after(
-                    '<div class="panel-group skype-panel">' +
-                        '<div class="panel panel-default"><div class="panel-heading skype-panel-head">Напомнить клиенту за час до созвона</div>' +
-                        '<div class="panel-body">' +
-                            '<form class="add-box-window">' +
-                                // '<button type="button" class="btn btn-success btn-xs select_all_skype_boxes" data-toggle="button">Выбрать все</button>' +
-                            '</form>' +
-                        '</div>' +
-                        '</div>' +
-                    '</div>');
                 $(drawCheckbox($(".add-box-window"), clientId));
                 // drawCheckbox($(".add-box-window"), clientId);
                 $('input[name="skypePostponeDateOld"]').daterangepicker({
@@ -1328,7 +1287,6 @@ function confirmSkype(id) {
 
 $(document).on('click','.confirm-skype-btn', function (e) {
     skypeCallDateOld = $('input[name="skypePostponeDateOld"]').data('daterangepicker').startDate._d;
-    idMentor = document.getElementsByTagName("option")[document.getElementById("mentor").selectedIndex].value;
     var clientId = $(this).parents('#main-modal-window').data('clientId');
     var currentBtn = $(document).find('.assign-skype-call-btn');
     var currentStatus = $('.skype-notification');
@@ -1339,13 +1297,11 @@ $(document).on('click','.confirm-skype-btn', function (e) {
     var boxList = sel.get();
 
     let checkCallSkype = {
-        idMentor: idMentor,
         startDate: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes() , 0, 0),
         clientId: clientId
     };
 
     let addCallSkype = {
-        idMentor: idMentor,
         startDate: Date.UTC(skypeCallDateOld.getFullYear(), skypeCallDateOld.getMonth(), skypeCallDateOld.getDate(), skypeCallDateOld.getHours(), skypeCallDateOld.getMinutes() , 0, 0),
         clientId: clientId,
         selectNetwork: JSON.stringify(boxList)
@@ -1847,11 +1803,26 @@ function reloadClientStatus(clientId) {
     });
 }
 
+$('#slackLinkModal').on('show.bs.modal', function () {
+    let field = $('#slack-invite-link-text');
+    let clientId = $(this).data('clientId');
+    field.val('');
+    $.ajax({
+        async: true,
+        type: 'GET',
+        url: '/rest/client/slack-invite-link/' + clientId,
+        success: function (response) {
+            field.val(response);
+        }
+    });
+});
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
 
         var currentModal = $(this);
         var clientId = $(this).data('clientId');
+        $('#slackLinkModal').data('clientId', clientId);
 
         $.ajax({
             async: true,
@@ -2018,6 +1989,8 @@ $(function () {
                         '</div>')
                 }
 
+                btnBlock.append('<button class="btn btn-info btn-sm" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
+
                 if (client.ownerUser === null) {
                     btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                 }
@@ -2025,7 +1998,7 @@ $(function () {
                     btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                 }
                 btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a');
+                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a>');
 
                 $('#contract-btn').empty();
 

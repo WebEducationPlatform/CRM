@@ -6,14 +6,22 @@ $('#slack-settings-modal').on('show.bs.modal', function () {
             $('#slack-users').val(response);
         }
     });
+    $.ajax({
+        type: 'GET',
+        url: '/rest/properties/get-slack-link',
+        success: function (response) {
+            $('#slack-invite-link').val(response);
+        }
+    });
 });
 
 $('#update-slack').on('click', function () {
     $.ajax({
         type: 'POST',
-        url: '/rest/properties/slack-users',
-        data: {'users': $('#slack-users').val()},
-        success: function (response) {
+        url: '/rest/properties/slack-set',
+        data: {'users': $('#slack-users').val(),
+               'slack-invite-link': $('#slack-invite-link').val()},
+        success: function () {
             $('#slack-settings-modal').hide();
         }
     });

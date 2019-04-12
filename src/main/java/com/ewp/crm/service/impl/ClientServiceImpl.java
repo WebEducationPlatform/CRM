@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
@@ -28,6 +26,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
 	private final ClientRepository clientRepository;
+	private final SlackInviteLinkRepository slackInviteLinkRepository;
 
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
@@ -37,9 +36,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final VKService vkService;
     private final PhoneValidator phoneValidator;
     private final PassportService passportService;
+    private final ProjectPropertiesService projectPropertiesService;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportService passportService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
+                             ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
+                             RoleService roleService, @Lazy VKService vkService, PassportService passportService,
+                             ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -47,6 +50,30 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.roleService = roleService;
         this.phoneValidator = phoneValidator;
         this.passportService = passportService;
+        this.slackInviteLinkRepository = slackInviteLinkRepository;
+        this.projectPropertiesService = projectPropertiesService;
+    }
+
+    @Override
+    public Optional<String> generateSlackInviteLink(Long clientId) {
+        String slackInviteLink = projectPropertiesService.getOrCreate().getSlackInviteLink();
+        Optional<Client> clientOpt = getClientByID(clientId);
+        if (clientOpt.isPresent()) {
+            Client client = clientOpt.get();
+            String hash = clientRepository.getSlackLinkHashForClient(client);
+            if (hash == null) {
+                SlackInviteLink newLink = new SlackInviteLink();
+                newLink.setClient(client);
+                String newHash = UUID.randomUUID().toString();
+                newLink.setHash(newHash);
+                client.setSlackInviteLink(newLink);
+                slackInviteLinkRepository.saveAndFlush(newLink);
+                clientRepository.saveAndFlush(client);
+                return Optional.of(slackInviteLink + newHash);
+            }
+            return Optional.of(slackInviteLink + hash);
+        }
+        return Optional.empty();
     }
 
     @Override

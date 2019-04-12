@@ -70,6 +70,12 @@ public class ClientRestController {
 		this.studentStatusService = studentStatusService;
 	}
 
+	@GetMapping(value = "/slack-invite-link/{clientId}")
+	public ResponseEntity<String> generateSlackInviteLink(@PathVariable("clientId") Long clientId) {
+	    Optional<String> inviteLink = clientService.generateSlackInviteLink(clientId);
+        return inviteLink.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(""));
+    }
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<List<Client>> getAll() {

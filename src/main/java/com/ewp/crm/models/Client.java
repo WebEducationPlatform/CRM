@@ -183,6 +183,11 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "slack_invite_link_id")
+    private SlackInviteLink slackInviteLink;
+
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
@@ -527,6 +532,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setContractLinkData(ContractLinkData contractLinkData) {
         this.contractLinkData = contractLinkData;
+    }
+
+    public SlackInviteLink getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(SlackInviteLink slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
     }
 
     @Override

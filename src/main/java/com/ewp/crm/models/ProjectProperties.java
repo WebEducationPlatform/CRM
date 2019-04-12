@@ -103,6 +103,9 @@ public class ProjectProperties {
     @Column(name = "slack_default_users")
     private String slackDefaultUsers;
 
+    @Column(name = "slack_invite_link")
+    private String slackInviteLink;
+
     /**
      * Банковские реквизиты
      */
@@ -304,6 +307,14 @@ public class ProjectProperties {
 
     public void setSlackDefaultUsers(String slackDefaultUsers) {
         this.slackDefaultUsers = slackDefaultUsers;
+    }
+
+    public String getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(String slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
     }
 
     @Override
