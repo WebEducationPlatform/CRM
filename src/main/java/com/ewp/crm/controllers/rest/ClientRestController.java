@@ -110,7 +110,7 @@ public class ClientRestController {
 			return ResponseEntity.ok(listClientsOnPage);
 		} else {
 			List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(sortType ? Sort.Direction.ASC : Sort.Direction.DESC, columnName)));
-			if (clients == null || clients.isEmpty()) {
+			if (clients.isEmpty()) {
 				logger.info("No more clients");
 			}
 			return ResponseEntity.ok(clients);
@@ -123,11 +123,12 @@ public class ClientRestController {
 			sizeOnePage = allClients.size();
 		}
 		int clientsOnPage = page * sizeOnePage;
+		List<Client> listClientsOnPage = new ArrayList<>();
+
 		int i = 0;
 		if (page > 1) {
 			i = (page -1) * sizeOnePage;
 		}
-		List<Client> listClientsOnPage = new ArrayList<>();
 		for (; i < clientsOnPage; i++) {
 			if(allClients.get(i) != null) {
 				listClientsOnPage.add(allClients.get(i));

@@ -6,6 +6,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,25 +103,24 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private Comparator<Client> getCompareLastChange() {
-       return new Comparator<Client>() {
-            @Override
-            public int compare(Client o1, Client o2) {
-                ZonedDateTime lastChangeFirstClient = getLastChange(o1);
-                ZonedDateTime lastChangeSecondClient = getLastChange(o2);
-                if (lastChangeFirstClient.isAfter(lastChangeSecondClient)) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+       return (o1, o2) -> {
+           if (getLastChange(o1).isAfter(getLastChange(o2))) {
+               return 1;
+           } else {
+               return -1;
+           }
+       };
+    }
+
+    private ZonedDateTime getLastChange(Client client) {
+        Optional<Comment> lastComment = getLastComment(client);
+        Optional<ClientHistory> lastHistory = getLastHistory(client);
+            if (lastComment.isPresent()) {
+                 if (lastComment.get().getDateFormat().isAfter(lastHistory.get().getDate())) {
+                     return lastComment.get().getDateFormat();
+                 }
             }
-            private ZonedDateTime getLastChange(Client client) {
-                if (client.getComments().size() > 1 && client.getComments().get(0).getDateFormat().isAfter(client.getHistory().get(0).getDate())) {
-                    return client.getComments().get(0).getDateFormat();
-                } else {
-                    return client.getHistory().get(0).getDate();
-                }
-            }
-        };
+            return lastHistory.get().getDate();
     }
 
     @Override
@@ -134,10 +134,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 clients.sort(Comparator.comparing(Client::getLastName));
                 break;
             case "phoneNumber":
-                clients.sort(Comparator.comparing(client -> client.getPhoneNumber() != null ? client.getPhoneNumber() : ""));
+                clients.sort(Comparator.comparing(client -> client.getPhoneNumber() != null ? client.getPhoneNumber() : StringUtils.EMPTY));
                 break;
             case "email":
-                clients.sort(Comparator.comparing(client -> client.getEmail() != null ? client.getEmail() : ""));
+                clients.sort(Comparator.comparing(client -> client.getEmail() != null ? client.getEmail() : StringUtils.EMPTY));
                 break;
             case "city":
                 clients.sort(Comparator.comparing(Client::getCity));
@@ -156,6 +156,22 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 break;
         }
         return clients;
+    }
+
+    @Override
+    public Optional<Comment> getLastComment(Client client) {
+        if (!client.getComments().isEmpty()) {
+            return Optional.of(client.getComments().get(0));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ClientHistory> getLastHistory(Client client) {
+        if (!client.getHistory().isEmpty()) {
+            return Optional.of(client.getHistory().get(0));
+        }
+        return Optional.empty();
     }
 
     @Override
