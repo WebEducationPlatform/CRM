@@ -89,6 +89,34 @@ function changeClient(id) {
         return;
     }
 
+
+    var Phones = [];
+    $th = $('#AdditionalEmails').find('th');
+    try {
+        $('#AdditionalEmails').find('tbody tr').each(function (i, tr) {
+            var obj = {}, $tds = $(tr).find('td');
+            $th.each(function (index, th) {
+                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
+                    var current = document.getElementById("message");
+                    current.textContent = "Заполните пустые поля в таблице 'Доп. Email адреса'";
+                    current.style.color = "red";
+                    throw new Error("Пустые поля в таблице 'Доп. Email адреса'")
+                }
+                if ($(th).attr('abbr') !== "") {
+                    obj = $tds.eq(index).text();
+                }
+            });
+            Emails.push(obj);
+        });
+    } catch (e) {
+        return;
+    }
+
+    console.log(Emails);
+    console.log(Phones);
+
+
+
     console.log(Emails);
 
 
@@ -109,7 +137,8 @@ function changeClient(id) {
         socialProfiles: SN,
         status: {},
         jobs: Job,
-        clientEmails: Emails
+        clientEmails: Emails,
+        clientPhones: Phones
     };
     var current = document.getElementById("message");
     let data = JSON.stringify(wrap);
@@ -144,7 +173,7 @@ function disableInputE() {
 }
 
 $(document).on('click', 'td', (function (e) {
-    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job" && e.target.offsetParent.id !== "AdditionalEmails") || $('#edit-client-first-name')[0].disabled) {
+    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job" && e.target.offsetParent.id !== "AdditionalEmails" && e.target.offsetParent.id !== "AdditionalPhones") || $('#edit-client-first-name')[0].disabled) {
         return;
     }
     var t = e.target || e.srcElement;
@@ -189,6 +218,11 @@ function deleteEmail(element) {
     $(element).parent().parent().remove();
 }
 
+function deletePhone(element) {
+    $(element).parent().parent().remove();
+}
+
+
 var SNs = "";
 
 function addNewSN() {
@@ -208,6 +242,11 @@ function addNewJob() {
 function addNewEmailExtra() {
     var size = ($("#emails-table-body")[0]).rows.length;
     $("#emails-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteEmail(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+}
+
+function addNewPhoneExtra() {
+    var size = ($("#phones-table-body")[0]).rows.length;
+    $("#phones-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td><button type=\"button\" onclick=\"deletePhone(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function revertUnable() {
@@ -233,6 +272,7 @@ function revertUnable() {
     $("#addNewSN")[0].disabled = $("#addNewSN")[0].disabled !== true;
     $("#addNewJob")[0].disabled = $("#addNewJob")[0].disabled !== true;
     $("#addNewEmail")[0].disabled = $("#addNewEmail")[0].disabled !== true;
+    $("#addNewPhone")[0].disabled = $("#addNewPhone")[0].disabled !== true;
 }
 
 $(function () {
