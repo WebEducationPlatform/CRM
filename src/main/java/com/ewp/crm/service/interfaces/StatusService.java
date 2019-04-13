@@ -1,5 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
@@ -13,6 +14,8 @@ public interface StatusService {
     List<Status> getAll();
 
     List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession);
+
+    List<Status> getAllByRole(Role role);
 
     Optional<Status> get(Long id);
 
