@@ -193,6 +193,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public List<Client> filteringClientWithoutPaginator(FilteringCondition filteringCondition) {
+        return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
+    }
+
+    @Override
     public List<Client> getChangeActiveClients() {
         return entityManager.createQuery("SELECT cl FROM Client cl WHERE  cl.postponeDate IS NOT NULL AND cl.postponeDate<=now()").getResultList();
     }
