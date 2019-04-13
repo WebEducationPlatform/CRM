@@ -14,6 +14,8 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type);
 
+	Optional<ClientHistory> createHistoryOfChangingStatus(User user, Client client, Status lastStatus);
+
 	Optional<ClientHistory> createHistory(User admin, User worker, Client client, ClientHistory.Type type);
 
 	Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type, String link);
@@ -28,9 +30,13 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> creteStudentHistory(User user, ClientHistory.Type type);
 
+	Optional<ClientHistory> createUpdateFromSlackRegFormHistory(Client prev, Client current, ClientHistory.Type type);
+
 	Optional<ClientHistory> createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type);
 
 	Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type);
+
+	Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type);
 
 	List<ClientHistory> getClientById(long id);
 

@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import java.util.Optional;
 
 public interface SlackService {
+    boolean inviteToWorkspace(String name, String lastName, String email);
     Optional<String> getAllEmailsFromSlack();
     Optional<String> getAllIdsFromSlack();
     boolean tryLinkSlackAccountToStudent(long studentId);
@@ -13,4 +14,5 @@ public interface SlackService {
     boolean trySendSlackMessageToStudent(long studentId, String text);
     boolean trySendMessageToAllStudents(String text);
     String getSlackWorkspaceUrl();
+    Optional<String> getChatIdForSlackUser(String slackUserId);
 }

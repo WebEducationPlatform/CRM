@@ -37,16 +37,24 @@ public class SlackRestController {
 
     private final SlackService slackService;
     private final ClientService clientService;
-    private final StudentService studentService;
     private final StatusService statusService;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService,
-                               StudentService studentService, StatusService statusService) {
+    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService) {
         this.slackService = slackService;
         this.clientService = clientService;
-        this.studentService = studentService;
         this.statusService = statusService;
+    }
+
+    @PostMapping("/registration")
+    public ResponseEntity registerUser(@RequestParam("hash") String hash, @RequestParam("name") String name,
+                                       @RequestParam("lastName") String lastName, @RequestParam("email") String email) {
+        Optional<Client> client = clientService.getClientBySlackInviteHash(hash);
+        if (client.isPresent()) {
+            boolean result = clientService.inviteToSlack(client.get(), name, lastName, email);
+            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
+        }
+        return ResponseEntity.badRequest().body("");
     }
 
     @GetMapping("/find/client/{clientId}")
@@ -96,6 +104,15 @@ public class SlackRestController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
         return new ResponseEntity<>(slackService.getAllIdsFromSlack().orElse("Error"), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/chat/by/client/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER')")
+    public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        Optional<String> chatId = slackService.getChatIdForSlackUser(id);
+        return chatId.map(s -> new ResponseEntity<>(s, headers, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/get/ids/students")
