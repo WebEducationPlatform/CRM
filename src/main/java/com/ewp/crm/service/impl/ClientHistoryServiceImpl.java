@@ -264,6 +264,31 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return Optional.of(clientHistory);
 	}
 
+	@Override
+	public Optional<ClientHistory> createUpdateFromSlackRegFormHistory(Client prev, Client current, ClientHistory.Type type) {
+        ClientHistory clientHistory = new ClientHistory(type);
+        clientHistory.setTitle(type.getInfo());
+        if (current.equals(prev)) {
+            logger.info("Can't find changes");
+            return Optional.of(clientHistory);
+        }
+        StringBuilder content = new StringBuilder();
+        DiffResult diffsClients = prev.diffByNameAndLastNameAndEmail(current);
+        diffsClients.getDiffs().stream().map(
+                d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
+                .forEach(str -> content.append(str).append("\n"));
+        if (content.toString().isEmpty()) {
+            logger.info("Can't find changes");
+            return Optional.of(clientHistory);
+        }
+        Optional<Message> message = messageService.addMessage(Message.Type.DATA, content.toString());
+        if (message.isPresent()) {
+            clientHistory.setMessage(message.get());
+            clientHistory.setLink(message.get().getId().toString());
+        }
+        return Optional.of(clientHistory);
+    }
+
 	/**
 	 * Create client history when student modified.
 	 * @param user change author.
@@ -282,7 +307,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return Optional.of(clientHistory);
 		}
 		DiffResult diffs = prev.diff(current);
-		DiffResult diffsClients = prev.getClient().diffOnStudentEdit(current.getClient());
+		DiffResult diffsClients = prev.getClient().diffByNameAndLastNameAndEmail(current.getClient());
 		StringBuilder content = new StringBuilder();
 		diffs.getDiffs().stream().map(
 				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
