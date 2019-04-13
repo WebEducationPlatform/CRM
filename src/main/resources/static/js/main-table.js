@@ -289,27 +289,51 @@ function createNewStatus() {
     }
 }
 
+function currentStatus (id) {
+var spans = $("#current_status_roles_" + id ).find("span");
+var currRoles = [];
+spans.each(function () {
+    currRoles.push($(this)[0].getAttribute("value"))
+});
+$("#checkbox_status_roles_" + id ).find('input').each(function () {
+    if (currRoles.indexOf($(this)[0].value) !== -1) {
+        $(this).attr("checked", "checked");
+    }
+})
+}
 //Change status button
 function changeStatusName(id) {
+
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = parseInt($("#trial_offset_" + id).val());
     let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
+
+    var $sel = $("#checkbox_status_roles_" + id ).find("input[type=checkbox]:checked");
+    var stRoles = [];
+    $sel.each(function (index, sel) {
+        var obj = {};
+        obj["id"] = sel.value;
+        obj["roleName"] = sel.innerText;
+        stRoles.push(obj);
+    });
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
     ;
     let formData = {
-        statusName: statusName,
-        oldStatusId: id,
+        id: id,
+        name: statusName,
         trialOffset: trial_offset,
-        nextPaymentOffset: next_payment_offset
+        nextPaymentOffset: next_payment_offset,
+        role: stRoles
     };
 
     $.ajax({
         type: "POST",
         url: url,
-        data: formData,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(formData),
         success: function (result) {
             window.location.reload();
         },

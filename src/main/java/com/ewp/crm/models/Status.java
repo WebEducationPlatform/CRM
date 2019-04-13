@@ -1,8 +1,11 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.*;
 
@@ -48,6 +51,21 @@ public class Status implements Serializable {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "status_roles",
+			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
+			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
+	private List<Role> role;
+
+	public List<Role> getRole() {
+		return role;
+	}
+
+	public void setRole(List<Role> role) {
+		this.role = role;
+	}
+
 	/**
 	 * Становится ли клиент студентом при присвении ему данного статуса
 	 */
@@ -78,6 +96,13 @@ public class Status implements Serializable {
 		this.createStudent = createStudent;
 		this.trialOffset = trialOffset;
 		this.nextPaymentOffset = nextPaymentOffset;
+	}
+
+	public Status(String name, Integer trialOffset, Integer nextPaymentOffset, List<Role> role) {
+		this.name = name;
+		this.trialOffset = trialOffset;
+		this.nextPaymentOffset = nextPaymentOffset;
+		this.role = role;
 	}
 
 	public Status(String name) {
