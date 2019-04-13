@@ -71,9 +71,9 @@ public class VKConfigImpl implements VKConfig {
             vkAdsClientId = env.getRequiredProperty("vk.ads.client.id");
             vkAppAccessToken = env.getRequiredProperty("vk.robot.app.accesstoken");
             firstSkypeNotifyChatId = env.getRequiredProperty("vk.firstSkypeNotify.chatId");
-            firstSkypeMessageTemplate = env.getProperty("vk.firstSkypeNotify.template");
-            firstSkypeUpdateMessageTemplate = env.getProperty("vk.firstSkypeNotify.updateTemplate");
-            firstSkypeDeleteMessageTemplate = env.getProperty("vk.firstSkypeNotify.deleteTemplate");
+            firstSkypeMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.template");
+            firstSkypeUpdateMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.updateTemplate");
+            firstSkypeDeleteMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.deleteTemplate");
         } catch (IllegalStateException e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
             System.exit(1);
