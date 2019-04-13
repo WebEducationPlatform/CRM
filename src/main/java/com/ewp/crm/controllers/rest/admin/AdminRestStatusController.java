@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.NotificationService;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,18 +37,17 @@ public class AdminRestStatusController {
 	}
 
 	@PostMapping(value = "/edit")
-	public ResponseEntity editStatus(@RequestParam(name = "statusName") String statusName,
-									 @RequestParam(name = "oldStatusId") Long oldStatusId,
-									 @RequestParam(name = "trialOffset") Integer trialOffset,
-									 @RequestParam(name = "nextPaymentOffset") Integer nextPaymentOffset,
+	public ResponseEntity editStatus(@Valid @RequestBody Status newStatus,
 									 @AuthenticationPrincipal User currentAdmin) {
-		Optional<Status> status = statusService.get(oldStatusId);
+
+		Optional<Status> status = statusService.get(newStatus.getId());
 		if (status.isPresent()) {
-			status.get().setName(statusName);
-			status.get().setTrialOffset(trialOffset);
-			status.get().setNextPaymentOffset(nextPaymentOffset);
+			status.get().setName(newStatus.getName());
+			status.get().setTrialOffset(newStatus.getTrialOffset());
+			status.get().setNextPaymentOffset(newStatus.getNextPaymentOffset());
+			status.get().setRole(newStatus.getRole());
 			statusService.update(status.get());
-			logger.info("{} has updated status {}", currentAdmin.getFullName(), statusName);
+			logger.info("{} has updated status {}", currentAdmin.getFullName(), newStatus.getName());
 			return ResponseEntity.ok().build();
 		}
 		return new ResponseEntity(HttpStatus.NOT_FOUND);
