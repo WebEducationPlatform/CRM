@@ -46,6 +46,10 @@ public class VKConfigImpl implements VKConfig {
 
     private String firstSkypeMessageTemplate;
 
+    private String firstSkypeUpdateMessageTemplate;
+
+    private String firstSkypeDeleteMessageTemplate;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -68,6 +72,8 @@ public class VKConfigImpl implements VKConfig {
             vkAppAccessToken = env.getRequiredProperty("vk.robot.app.accesstoken");
             firstSkypeNotifyChatId = env.getRequiredProperty("vk.firstSkypeNotify.chatId");
             firstSkypeMessageTemplate = env.getProperty("vk.firstSkypeNotify.template");
+            firstSkypeUpdateMessageTemplate = env.getProperty("vk.firstSkypeNotify.updateTemplate");
+            firstSkypeDeleteMessageTemplate = env.getProperty("vk.firstSkypeNotify.deleteTemplate");
         } catch (IllegalStateException e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
             System.exit(1);
@@ -137,6 +143,16 @@ public class VKConfigImpl implements VKConfig {
     }
 
     @Override
+    public String getFirstSkypeUpdateMessageTemplate() {
+        return firstSkypeUpdateMessageTemplate;
+    }
+
+    @Override
+    public String getFirstSkypeDeleteMessageTemplate() {
+        return firstSkypeDeleteMessageTemplate;
+    }
+
+    @Override
     public String getFirstSkypeNotifyChatId() {
         return firstSkypeNotifyChatId;
     }
@@ -145,4 +161,11 @@ public class VKConfigImpl implements VKConfig {
     public String getFirstSkypeMessageTemplate() {
         return firstSkypeMessageTemplate;
     }
+
+    public enum firstSkypeNotificationType {
+        CREATE,
+        UPDATE,
+        DELETE
+    }
+
 }

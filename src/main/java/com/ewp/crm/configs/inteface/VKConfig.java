@@ -19,4 +19,6 @@ public interface VKConfig {
     String getVkAppAccessToken();
     String getFirstSkypeNotifyChatId();
     String getFirstSkypeMessageTemplate();
+    String getFirstSkypeUpdateMessageTemplate();
+    String getFirstSkypeDeleteMessageTemplate();
 }

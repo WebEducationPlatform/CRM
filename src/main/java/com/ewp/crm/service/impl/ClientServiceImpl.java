@@ -69,8 +69,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
+        return clientRepository.hasClientSocialProfileByType(client, socialProfileType);
+    }
+
+    @Override
     public boolean inviteToSlack(Client client, String name, String lastName, String email) {
-        if (!clientRepository.hasClientSocialProfileByType(client, "slack")) {
+        if (!hasClientSocialProfileByType(client, "slack")) {
             if (name != null && lastName != null && email != null && !name.isEmpty() && !lastName.isEmpty() && !email.isEmpty()) {
                 Client newClient = new Client();
                 newClient.setName(name);

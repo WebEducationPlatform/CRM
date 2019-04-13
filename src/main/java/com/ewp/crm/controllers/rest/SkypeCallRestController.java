@@ -105,26 +105,23 @@ public class SkypeCallRestController {
 	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity addSkypeCallAndNotification(@AuthenticationPrincipal User userFromSession,
-													  @RequestParam(name = "idMentor") Long mentorId,
 													  @RequestParam Long startDate,
-													  @RequestParam Long clientId,
-													  @RequestParam String selectNetwork) {
+													  @RequestParam Long clientId) {
 		Optional<Client> client = clientService.getClientByID(clientId);
 		if (client.isPresent()) {
-			User mentor = userService.get(mentorId);
 			ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 			ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 			try {
-				calendarService.addEvent(mentor.getEmail(), startDate, client.get());
-				AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, mentor, client.get(), ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall, selectNetwork);
+				AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client.get(), ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall);
 				assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
 				client.get().setLiveSkypeCall(true);
 				clientHistoryService.createHistory(userFromSession, client.get(), ClientHistory.Type.SKYPE).ifPresent(client.get()::addHistory);
 				clientService.update(client.get());
 				logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.get().getId(), dateSkypeCall);
+
 				return ResponseEntity.ok(HttpStatus.OK);
 			} catch (Exception e) {
-				logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.get().getId(), startDate, e);
+				logger.error("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.get().getId(), startDate, e);
 				return ResponseEntity.badRequest().body("Произошла ошибка.");
 			}
 		}
@@ -136,24 +133,19 @@ public class SkypeCallRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity updateEvent(@AuthenticationPrincipal User userFromSession,
 									  @RequestParam(name = "clientId") Long clientId,
-									  @RequestParam(name = "idMentor") Long mentorId,
 									  @RequestParam Long skypeCallDateNew,
-									  @RequestParam Long skypeCallDateOld,
-									  @RequestParam String selectNetwork) {
+									  @RequestParam Long skypeCallDateOld) {
 		Client client = clientService.get(clientId);
-		User mentor = userService.get(mentorId);
 		try {
 			Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
 			if (assignSkypeCall.isPresent()) {
 				assignSkypeCall.get().setCreatedTime(ZonedDateTime.now());
 				ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
-				assignSkypeCall.get().setSelectNetworkForNotifications(selectNetwork);
 				assignSkypeCall.get().setWhoCreatedTheSkypeCall(userFromSession);
 				assignSkypeCall.get().setTheNotificationWasIsSent(false);
-				if (!(Objects.equals(skypeCallDateNew, skypeCallDateOld) && assignSkypeCall.get().getFromAssignSkypeCall().getId().equals(mentorId))) {
+				if (!Objects.equals(skypeCallDateNew, skypeCallDateOld)) {
 					assignSkypeCall.get().setSkypeCallDate(dateSkypeCall);
 					assignSkypeCall.get().setNotificationBeforeOfSkypeCall(Instant.ofEpochMilli(skypeCallDateNew).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1));
-					calendarService.update(skypeCallDateNew, skypeCallDateOld, mentor.getEmail(), client);
 					clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE_UPDATE).ifPresent(client::addHistory);
 				}
 				assignSkypeCallService.update(assignSkypeCall.get());
@@ -174,22 +166,17 @@ public class SkypeCallRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity deleteEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
-									  @RequestParam(name = "idMentor") Long mentorId,
 									  @RequestParam Long skypeCallDateOld) {
-		if (calendarService.googleAuthorizationIsNotNull()){
-			User mentor = userService.get(mentorId);
-			Client client = clientService.get(clientId);
-			client.setLiveSkypeCall(false);
-			calendarService.delete(skypeCallDateOld, mentor.getEmail());
-			clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE).ifPresent(client::addHistory);
-			clientService.updateClient(client);
-			Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
-			if (assignSkypeCall.isPresent()) {
-				assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCall.get().getId());
-				logger.info("{} удалил клиенту id:{} звонок по скайпу на {}", principal.getFullName(), client.getId(), skypeCallDateOld);
-				return ResponseEntity.ok(HttpStatus.OK);
-			}
-		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    Client client = clientService.get(clientId);
+	    client.setLiveSkypeCall(false);
+	    clientHistoryService.createHistory(principal, client, ClientHistory.Type.SKYPE_DELETE).ifPresent(client::addHistory);
+	    clientService.updateClient(client);
+	    Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(client.getId());
+	    if (assignSkypeCall.isPresent()) {
+	        assignSkypeCallService.deleteByIdSkypeCall(assignSkypeCall.get().getId());
+	        logger.info("{} удалил клиенту id:{} звонок по скайпу на {}", principal.getFullName(), client.getId(), skypeCallDateOld);
+	        return ResponseEntity.ok(HttpStatus.OK);
+	    }
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 }
