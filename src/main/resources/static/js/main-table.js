@@ -1572,6 +1572,10 @@ function reloadClientStatus(clientId) {
     });
 }
 
+$('#slackLinkModal').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
+});
+
 $('#slackLinkModal').on('show.bs.modal', function () {
     let field = $('#slack-invite-link-text');
     let clientId = $(this).data('clientId');
@@ -1582,6 +1586,7 @@ $('#slackLinkModal').on('show.bs.modal', function () {
         url: '/rest/client/slack-invite-link/' + clientId,
         success: function (response) {
             field.val(response);
+            navigator.clipboard.writeText(response);
         }
     });
 });

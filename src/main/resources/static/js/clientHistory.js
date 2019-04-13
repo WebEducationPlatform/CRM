@@ -142,6 +142,10 @@ function viewClientHistoryMessage(id) {
     currentModal.modal('show');
 }
 
+$('#modalClientHistoryMessage').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
+});
+
 //Fill values on client history message modal show up.
 $(function () {
     $('#modalClientHistoryMessage').on('show.bs.modal', function () {
