@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
 
+    boolean hasClientSocialProfileByType(Client client, String socialProfileType);
+
     boolean inviteToSlack(Client client, String name, String lastName, String email);
 
     Optional<Client> getClientBySlackInviteHash(String hash);
