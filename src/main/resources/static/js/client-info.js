@@ -75,9 +75,9 @@ function changeClient(id) {
             $th.each(function (index, th) {
                 if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
                     var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Доп. Email адреса'";
+                    current.textContent = "Заполните пустые поля в таблице 'Email адреса'";
                     current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Доп. Email адреса'")
+                    throw new Error("Пустые поля в таблице 'Email адреса'")
                 }
                 if ($(th).attr('abbr') !== "") {
                     obj = $tds.eq(index).text();
@@ -93,20 +93,20 @@ function changeClient(id) {
     var Phones = [];
     $th = $('#AdditionalEmails').find('th');
     try {
-        $('#AdditionalEmails').find('tbody tr').each(function (i, tr) {
+        $('#AdditionalPhones').find('tbody tr').each(function (i, tr) {
             var obj = {}, $tds = $(tr).find('td');
             $th.each(function (index, th) {
                 if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
                     var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Доп. Email адреса'";
+                    current.textContent = "Заполните пустые поля в таблице 'Номера телефонов'";
                     current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Доп. Email адреса'")
+                    throw new Error("Пустые поля в таблице 'Номера телефонов'")
                 }
                 if ($(th).attr('abbr') !== "") {
                     obj = $tds.eq(index).text();
                 }
             });
-            Emails.push(obj);
+            Phones.push(obj);
         });
     } catch (e) {
         return;
@@ -126,8 +126,8 @@ function changeClient(id) {
         name: $('#edit-client-first-name').val(),
         lastName: $('#edit-client-last-name').val(),
         middleName: $('#edit-client-middle-name').val(),
-        phoneNumber: $('#edit-client-phone-number').val(),
-        email: $('#edit-client-email').val(),
+  //      phoneNumber: $('#edit-client-phone-number').val(),
+  //      email: $('#edit-client-email').val(),
         birthDate: $('#edit-client-birthday').val(),
         sex: $('#edit-client-sex').find('option:selected').text(),
         state: $('#edit-client-state').val(),
