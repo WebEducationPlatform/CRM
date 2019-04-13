@@ -100,6 +100,12 @@ public class ProjectProperties {
     @JoinColumn(name = "contract_template")
     private MessageTemplate contractTemplate;
 
+    @Column(name = "slack_default_users")
+    private String slackDefaultUsers;
+
+    @Column(name = "slack_invite_link")
+    private String slackInviteLink;
+
     /**
      * Банковские реквизиты
      */
@@ -293,6 +299,22 @@ public class ProjectProperties {
 
     public void setClientFirstPayStatus(Long clientFirstPayStatus) {
         this.clientFirstPayStatus = clientFirstPayStatus;
+    }
+
+    public String getSlackDefaultUsers() {
+        return slackDefaultUsers;
+    }
+
+    public void setSlackDefaultUsers(String slackDefaultUsers) {
+        this.slackDefaultUsers = slackDefaultUsers;
+    }
+
+    public String getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(String slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
     }
 
     @Override

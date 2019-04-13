@@ -11,6 +11,14 @@ import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
 
+    boolean hasClientSocialProfileByType(Client client, String socialProfileType);
+
+    boolean inviteToSlack(Client client, String name, String lastName, String email);
+
+    Optional<Client> getClientBySlackInviteHash(String hash);
+
+	Optional<String> generateSlackInviteLink(Long clientId);
+
 	List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType);
 
 	List<String> getSocialIdsForStudentsBySocialProfileType(String socialProfileType);

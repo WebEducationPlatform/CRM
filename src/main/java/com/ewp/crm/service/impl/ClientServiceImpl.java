@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.client.ClientExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
@@ -27,6 +28,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
 	private final ClientRepository clientRepository;
+	private final SlackInviteLinkRepository slackInviteLinkRepository;
 
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
@@ -36,9 +38,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final VKService vkService;
     private final PhoneValidator phoneValidator;
     private final PassportService passportService;
+    private final ProjectPropertiesService projectPropertiesService;
+    private final SlackService slackService;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, PhoneValidator phoneValidator, RoleService roleService, @Lazy VKService vkService, PassportService passportService) {
+    public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
+                             ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
+                             RoleService roleService, @Lazy VKService vkService, PassportService passportService,
+                             ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
+                             @Lazy SlackService slackService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -46,6 +54,68 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.roleService = roleService;
         this.phoneValidator = phoneValidator;
         this.passportService = passportService;
+        this.slackInviteLinkRepository = slackInviteLinkRepository;
+        this.projectPropertiesService = projectPropertiesService;
+        this.slackService = slackService;
+    }
+
+    @Override
+    public Optional<Client> getClientBySlackInviteHash(String hash) {
+        if (slackInviteLinkRepository.existsByHash(hash)) {
+            SlackInviteLink slackInviteLink = slackInviteLinkRepository.getByHash(hash);
+            if (slackInviteLink != null) {
+                return Optional.ofNullable(slackInviteLink.getClient());
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
+        return clientRepository.hasClientSocialProfileByType(client, socialProfileType);
+    }
+
+    @Override
+    public boolean inviteToSlack(Client client, String name, String lastName, String email) {
+        if (!hasClientSocialProfileByType(client, "slack")) {
+            if (name != null && lastName != null && email != null && !name.isEmpty() && !lastName.isEmpty() && !email.isEmpty()) {
+                Client newClient = new Client();
+                newClient.setName(name);
+                newClient.setLastName(lastName);
+                newClient.setEmail(email);
+                Optional<ClientHistory> history = clientHistoryService.createUpdateFromSlackRegFormHistory(client, newClient, ClientHistory.Type.SLACK_UPDATE);
+                history.ifPresent(client::addHistory);
+                client.setName(name);
+                client.setLastName(lastName);
+                client.setEmail(email);
+                clientRepository.saveAndFlush(client);
+                slackInviteLinkRepository.deleteByClient(client);
+                return slackService.inviteToWorkspace(name, lastName, email);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<String> generateSlackInviteLink(Long clientId) {
+        String slackInviteLink = projectPropertiesService.getOrCreate().getSlackInviteLink();
+        Optional<Client> clientOpt = getClientByID(clientId);
+        if (clientOpt.isPresent()) {
+            Client client = clientOpt.get();
+            String hash = clientRepository.getSlackLinkHashForClient(client);
+            if (hash == null) {
+                SlackInviteLink newLink = new SlackInviteLink();
+                newLink.setClient(client);
+                String newHash = UUID.randomUUID().toString();
+                newLink.setHash(newHash);
+                client.setSlackInviteLink(newLink);
+                slackInviteLinkRepository.saveAndFlush(newLink);
+                clientRepository.saveAndFlush(client);
+                return Optional.of(slackInviteLink + newHash);
+            }
+            return Optional.of(slackInviteLink + hash);
+        }
+        return Optional.empty();
     }
 
     @Override

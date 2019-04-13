@@ -167,26 +167,25 @@ public class ScheduleTasks {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
 			String skypeTemplate = env.getRequiredProperty("skype.template");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
-			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
 			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
 					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-			if (selectNetworks.contains("vk")) {
+			if (clientService.hasClientSocialProfileByType(client, "vk")) {
 				try {
 					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("VK message not sent", e);
 				}
 			}
-			if (selectNetworks.contains("sms")) {
+			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 				try {
 					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("SMS message not sent", e);
 				}
 			}
-			if (selectNetworks.contains("email")) {
+			if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 				try {
 					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
 				} catch (Exception e) {
