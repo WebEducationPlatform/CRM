@@ -4,6 +4,7 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,5 +65,5 @@ public interface ClientService extends CommonService<Client> {
   
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
-	void setContractLink(Long clientId, String contractLink);
+	void setContractLink(Long clientId, String contractLink, String contractName);
 }
