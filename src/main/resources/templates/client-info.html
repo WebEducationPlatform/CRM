@@ -116,7 +116,7 @@
                                 <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
                                 <td th:value="${emails}" th:text="${emails}"></td>
                                 <td>
-                                    <button  th:if="${iterStat.count > 1}" disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
+                                    <button disabled="disabled"  th:if="${iterStat.count > 1}"  type="button" th:onclick="'deleteEmail('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
                                 </td>
                             </tr>
@@ -130,7 +130,7 @@
                     </div>
                     <p></p>
                     <div class="form-group">
-                        <label>Доп. номера телефонов</label>
+                        <label>Номера телефонов</label>
                         <table class="table table-hover" th:id="AdditionalPhones">
                             <thead class="thead-inverse">
                             <tr>

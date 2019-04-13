@@ -258,7 +258,7 @@ public class DataInitializer {
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
+ /*       vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
                 vkConfig.getCommunityToken(),
                 "JavaMentorTest",
                 Long.parseLong(vkConfig.getApplicationId())));
@@ -268,7 +268,7 @@ public class DataInitializer {
                     .orElseThrow(NotFoundMemberList::new);
             vkMemberService.addAllMembers(memberList);
         }
-
+*/
 
 
         clientService.addClient(client1);
@@ -353,14 +353,13 @@ public class DataInitializer {
         emails.add("zibra@mail.ru");
         emails.add("cemel@mail.ru");
         List<String> phones = new ArrayList<>();
-        phones.add("7123123123");
-        phones.add("7345345345");
-        phones.add("7567567567");
-        phones.add("7789789789");
+        phones.add("7-123123123");
+        phones.add("7-345345345");
+        phones.add("7-567567567");
+        phones.add("7-789789789");
         clientN2.setClientEmails(emails);
         clientN2.setClientPhones(phones);
         clientService.update(clientN2);
-        clientN2.setEmail("ziqolay@gmail.com");
         clientN2.setEmail("miqolay@gmail.com");
         clientN2.setPhoneNumber("79080584002");
 
