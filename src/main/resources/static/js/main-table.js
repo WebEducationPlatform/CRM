@@ -1417,22 +1417,6 @@ function deleteCallDate(id) {
                         $('.assign-skype-call-btn').show().removeAttr("disabled");
                     }
                 },
-                401: function () {
-                    $('.skype-panel').hide();
-                    $('.skype-notification').hide();
-                    $('.enter-mentor-list').hide();
-                    $('.confirm-skype-btn').hide();
-                    $('.assign-skype-call-btn').after(
-                        '<p> ' +
-                        '<div class="skype-notification" style="color:#d01717">Авторизируйтесь в Google аккаунте.</div>' +
-                        '<div class="inline">' +
-                        '    <form class="form" method="get" action="/login/google">' +
-                        '        <input type="submit" class="btn btn btn-success pul" value="Авторизация Google">' +
-                        '    </form>' +
-                        '</div>' +
-                        '</p>');
-                    console.log("Авторизируйтесь в Google аккаунте");
-                },
                 error: function (error) {
                     console.log(error);
                     currentStatus.css('color','#229922');
@@ -1764,16 +1748,15 @@ $(function () {
                         '</div>')
                 }
 
-                btnBlock.append('<button class="btn btn-info btn-sm" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
+                btnBlock.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
                 if (client.ownerUser === null) {
                     btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
                 }
                 if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock.prepend('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                    btnBlock.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
                 }
-                btnBlock.prepend('<a href="/client/clientInfo/' + client.id + '">' +
-                    '<button class="btn btn-info btn-sm" id="client-info"  rel="clientInfo" "> расширенная информация </button>' + '</a>');
+                btnBlock.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm" id="client-info" rel="clientInfo"> расширенная информация </button></a>');
 
                 $('#contract-btn').empty();
 

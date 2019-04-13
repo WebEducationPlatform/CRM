@@ -57,8 +57,8 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
             vkService.sendFirstSkypeNotification(assignSkypeCall.getToAssignSkypeCall(),
                     assignSkypeCall.getSkypeCallDate(),
                     VKConfigImpl.firstSkypeNotificationType.DELETE);
+            assignSkypeCallRepository.delete(assignSkypeCall);
         }
-        assignSkypeCallRepository.deleteById(id);
     }
 
 	@Override
