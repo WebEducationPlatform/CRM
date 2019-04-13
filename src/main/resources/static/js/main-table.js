@@ -1214,6 +1214,7 @@ function confirmSkype(id) {
         url: '/rest/client/setSkypeLogin',
         data: formData,
         success: function (client) {
+            $('#client-skype').text(skypeLogin);
             currentStatus.css('color', '#229922');
             currentStatus.text("Логин Skype успешно добавлен");
             $('.confirm-skype-login').remove();
@@ -1633,6 +1634,7 @@ $(function () {
                 currentModal.find('#client-set-status-button').text(client.status.name);
                 $('#client-email').text(client.email);
                 $('#client-phone').text(client.phoneNumber);
+                $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
                         .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
