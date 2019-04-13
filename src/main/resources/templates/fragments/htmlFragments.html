@@ -189,6 +189,35 @@
     </style>
 </th:block>
 
+<th:block th:fragment="slackLinkModal">
+    <div th:id="slackLinkModal" class="modal fade client-contract-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Ссылка:</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="form-group" >
+                            <div class="row">
+                                <div class="col-sm">
+                                    <input class="form-control" type="text" id="slack-invite-link-text"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
 <th:block th:fragment="comments">
     <div class="modal-footer modal-comments">
         <div class="comments">

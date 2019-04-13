@@ -215,11 +215,6 @@
 		<dependency>
 			<groupId>com.github.javafaker</groupId>
 			<artifactId>javafaker</artifactId>
-			<version>0.15</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.javafaker</groupId>
-			<artifactId>javafaker</artifactId>
 			<version>${javafaker.version}</version>
 		</dependency>
 		<dependency>
@@ -267,6 +262,17 @@
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>61.1</version>
+        </dependency>
+        <!-- Ads client library dependencies -->
+        <dependency>
+            <groupId>com.google.api-ads</groupId>
+            <artifactId>ads-lib</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-ads</groupId>
+            <artifactId>adwords-axis</artifactId>
+            <version>4.5.0</version>
         </dependency>
 	</dependencies>
 

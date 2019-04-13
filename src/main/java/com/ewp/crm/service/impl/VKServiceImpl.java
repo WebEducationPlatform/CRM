@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
@@ -17,6 +18,8 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.api.ads.adwords.lib.utils.ReportDownloadResponseException;
+import com.google.api.ads.adwords.lib.utils.ReportException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.squareup.okhttp.MediaType;
@@ -24,11 +27,15 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.json.JSONArray;
@@ -49,8 +56,11 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -78,6 +88,7 @@ public class VKServiceImpl implements VKService {
     private final RestTemplate restTemplate;
     private final AdReportService yandexDirectAdReportService;
     private final AdReportService vkAdsReportService;
+    private final GoogleAdsService googleAdsService;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
@@ -106,6 +117,7 @@ public class VKServiceImpl implements VKService {
     private String managerToken;
     //ID чата, в который посылается отчёт
     private final String vkReportChatId;
+    private final String firstSkypeNotifyChatId;
 
     @Value("${userKey}")
     private String userKey;
@@ -126,6 +138,7 @@ public class VKServiceImpl implements VKService {
                          VkMemberService vkMemberService,
                          PhoneValidator phoneValidator,
                          RestTemplate restTemplate,
+                         GoogleAdsService googleAdsService,
                          @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService,
                          @Qualifier("VkAds")AdReportService vkAdsReportService) {
         this.vkConfig = vkConfig;
@@ -139,6 +152,7 @@ public class VKServiceImpl implements VKService {
         vkApi = vkConfig.getVkApiUrl();
         managerToken = vkConfig.getManagerToken();
         vkReportChatId = vkConfig.getVkReportChatId();
+        firstSkypeNotifyChatId = vkConfig.getFirstSkypeNotifyChatId();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -155,6 +169,7 @@ public class VKServiceImpl implements VKService {
         this.restTemplate = restTemplate;
         this.yandexDirectAdReportService = yandexDirectAdReportService;
         this.vkAdsReportService = vkAdsReportService;
+        this.googleAdsService = googleAdsService;
     }
 
 
@@ -467,36 +482,42 @@ public class VKServiceImpl implements VKService {
         return sendMessageById(id, msg, communityToken);
     }
 
+    private Optional<String> checkJsonResponseForErrors(JSONObject json) throws JSONException {
+        if (json.toString().contains("Permission to perform this action is denied") | json.toString().contains("Can't send messages to this user due to their privacy settings")) {
+            JSONArray jsonArray = json.getJSONObject("error").getJSONArray("request_params");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
+                    return Optional.ofNullable(jsonArray.getJSONObject(i).getString("value"));
+                }
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public String sendMessageById(Long id, String msg, String token) {
-
         logger.info("VKService: sending message to client with id {}...", id);
-
-        String replaceCarriage = msg.replaceAll("(\r\n|\n)", "%0A")
-                .replaceAll("\"|\'", "%22");
-        String uriMsg = replaceCarriage.replaceAll("\\s", "%20");
-
-        String sendMsgRequest = vkApi + "messages.send" +
-                "?user_id=" + id +
-                "&v=" + version +
-                "&message=" + uriMsg +
-                "&access_token=" + token;
-
-        HttpGet request = new HttpGet(sendMsgRequest);
+        String sendMsgRequest = vkApi + "messages.send";
+        HttpPost request = new HttpPost(sendMsgRequest);
+        List<NameValuePair> params = new ArrayList<>(4);
+        params.add(new BasicNameValuePair("user_id", String.valueOf(id)));
+        params.add(new BasicNameValuePair("v", version));
+        params.add(new BasicNameValuePair("message", msg));
+        params.add(new BasicNameValuePair("access_token", token));
+        try {
+            request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode VK request", e);
+        }
         HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(request);
             JSONObject jsonEntity = new JSONObject(EntityUtils.toString(response.getEntity()));
             JsonObject convertedJsonEntity = new Gson().fromJson(jsonEntity.toString(), JsonObject.class);
 
-            if (jsonEntity.toString().contains("Permission to perform this action is denied") | jsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                JSONArray jsonArray = jsonEntity.getJSONObject("error").getJSONArray("request_params");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    if (jsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                        return jsonArray.getJSONObject(i).getString("value");
-                    }
-                }
+            Optional<String> errorString = checkJsonResponseForErrors(jsonEntity);
+            if (errorString.isPresent()) {
+                return errorString.get();
             }
 
             if (jsonEntity.toString().contains("Captcha needed")) {
@@ -542,24 +563,26 @@ public class VKServiceImpl implements VKService {
                     text = getResultCaptcha(taskId);
                 }
 
-                String sendMsgWithCaptcha = vkApi + "messages.send" +
-                        "?user_id=" + id +
-                        "&v=" + version +
-                        "&message=" + uriMsg +
-                        "&access_token=" + token +
-                        "&captcha_sid=" + captchaSid +
-                        "&captcha_key=" + text;
+                String sendMsgWithCaptcha = vkApi + "messages.send";
 
-                HttpGet newRequest = new HttpGet(sendMsgWithCaptcha);
+                HttpPost newRequest = new HttpPost(sendMsgWithCaptcha);
+                List<NameValuePair> newParams = new ArrayList<>(6);
+                newParams.add(new BasicNameValuePair("user_id", String.valueOf(id)));
+                newParams.add(new BasicNameValuePair("v", version));
+                newParams.add(new BasicNameValuePair("message", msg));
+                newParams.add(new BasicNameValuePair("access_token", token));
+                newParams.add(new BasicNameValuePair("captcha_sid", captchaSid));
+                newParams.add(new BasicNameValuePair("captcha_key", text));
+                try {
+                    newRequest.setEntity(new UrlEncodedFormEntity(newParams, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    logger.error("Failed to encode VK request", e);
+                }
                 HttpResponse newResponse = httpClient.execute(newRequest);
                 JSONObject newJsonEntity = new JSONObject(EntityUtils.toString(newResponse.getEntity()));
-                if (newJsonEntity.toString().contains("Permission to perform this action is denied") | newJsonEntity.toString().contains("Can't send messages to this user due to their privacy settings")) {
-                    JSONArray newJsonArray = newJsonEntity.getJSONObject("error").getJSONArray("request_params");
-                    for (int i = 0; i < newJsonArray.length(); i++) {
-                        if (newJsonArray.getJSONObject(i).getString("key").equalsIgnoreCase("user_id")) {
-                            return newJsonArray.getJSONObject(i).getString("value");
-                        }
-                    }
+                Optional<String> newErrorString = checkJsonResponseForErrors(newJsonEntity);
+                if (newErrorString.isPresent()) {
+                    return newErrorString.get();
                 }
                 return determineResponse(newJsonEntity);
             }
@@ -575,7 +598,36 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
+    public void sendFirstSkypeNotification(Client client, ZonedDateTime date, VKConfigImpl.firstSkypeNotificationType type) {
+        String template;
+        switch (type) {
+            case UPDATE:
+                template = vkConfig.getFirstSkypeUpdateMessageTemplate();
+                break;
+            case DELETE:
+                template = vkConfig.getFirstSkypeDeleteMessageTemplate();
+                break;
+            case CREATE:
+            default:
+                template = vkConfig.getFirstSkypeMessageTemplate();
+                break;
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String message = String.format(template,
+                client.getName(),
+                client.getLastName(),
+                client.getId(),
+                date.format(dateTimeFormatter));
+        sendMessageByChatId(firstSkypeNotifyChatId, message);
+    }
+
+    @Override
     public void sendMessageByChatId(String id, String message) {
+        try {
+            message = URLEncoder.encode(message, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode message " + message, e);
+        }
         String url = vkApi + "messages.send" +
                 "?random_id=" + new Random().nextInt(32) +
                 "&chat_id=" + id +
@@ -583,12 +635,11 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + communityToken +
                 "&v=" + version;
         ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-
         HttpStatus responseStatusCode = response.getStatusCode();
         if (responseStatusCode.equals(HttpStatus.OK)) {
             logger.info("Message successfully has been sent to the dialogue");
         } else {
-            logger.error("Can't send message. Check if the request to the VK API is correct");
+            logger.warn("Can't send message. Check if the request to the VK API is correct: " + url);
         }
     }
 
@@ -1271,19 +1322,31 @@ public class VKServiceImpl implements VKService {
         String spentFromYandexDirect;
         String balanceFromVk;
         String spentFromVk;
+        String balanceFromGoogle;
+        String spentFromGoogle;
 
         // Получение отчёта с Yandex Direct
         try {
             balanceFromYandexDirect = yandexDirectAdReportService.getBalance();
         } catch (Exception e) {
-            balanceFromYandexDirect = GETTING_REPORT_ERROR;
-            logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
+            logger.error("Can't receive balance from Yandex Direct. Trying again", e);
+            try {
+                balanceFromYandexDirect = yandexDirectAdReportService.getBalance();
+            } catch (Exception e1) {
+                balanceFromYandexDirect = GETTING_REPORT_ERROR;
+                logger.error("Can't receive balance from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e1);
+            }
         }
         try {
             spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney();
         } catch (Exception e) {
-            spentFromYandexDirect = GETTING_REPORT_ERROR;
-            logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e);
+            logger.error("Can't receive campaign report from Yandex Direct. Trying again", e);
+            try {
+                spentFromYandexDirect = yandexDirectAdReportService.getSpentMoney();
+            } catch (Exception e1) {
+                spentFromYandexDirect = GETTING_REPORT_ERROR;
+                logger.error("Can't receive campaign report from Yandex Direct. Check if request to YaD API, service response or response parsing are correct", e1);
+            }
         }
         // Получение отчёта со ВКонтакте.
         try {
@@ -1299,8 +1362,46 @@ public class VKServiceImpl implements VKService {
            logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
+        //Получение отчета Google Ads
+        try {
+            balanceFromGoogle = googleAdsService.getAccountBalance();
+        } catch (RemoteException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get BOS from Google ads API", e);
+        } catch (ReportException | ReportDownloadResponseException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get report from Google ads API", e);
+        } catch (IOException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't download report from Google ads API", e);
+        } catch (NumberFormatException e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't parse amount value from Google ads API report", e);
+        } catch (Exception e) {
+            balanceFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Unknown exception in Google ads API report", e);
+        }
+        try {
+            spentFromGoogle = googleAdsService.getYesterdaySpentAmount();
+        } catch (ReportException | ReportDownloadResponseException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't get report from Google ads API", e);
+        } catch (IOException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't download report from Google ads API", e);
+        } catch (NumberFormatException e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Can't parse amount value from Google ads API report", e);
+        } catch (Exception e) {
+            spentFromGoogle = GETTING_REPORT_ERROR;
+            logger.error("Unknown exception in Google ads API report", e);
+        }
+
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
-        Object[] params = {balanceFromYandexDirect, spentFromYandexDirect, balanceFromVk, spentFromVk};
+        Object[] params = {
+                balanceFromYandexDirect, spentFromYandexDirect,
+                balanceFromVk, spentFromVk,
+                balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
 
         //Отправка в диалог

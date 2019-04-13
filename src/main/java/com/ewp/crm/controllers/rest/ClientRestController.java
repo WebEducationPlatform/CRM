@@ -70,6 +70,12 @@ public class ClientRestController {
 		this.studentStatusService = studentStatusService;
 	}
 
+	@GetMapping(value = "/slack-invite-link/{clientId}")
+	public ResponseEntity<String> generateSlackInviteLink(@PathVariable("clientId") Long clientId) {
+	    Optional<String> inviteLink = clientService.generateSlackInviteLink(clientId);
+        return inviteLink.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(""));
+    }
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<List<Client>> getAll() {
@@ -96,6 +102,59 @@ public class ClientRestController {
 			logger.info("No more clients");
 		}
 		return ResponseEntity.ok(clients);
+	}
+
+	@GetMapping(value = "/sort")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity getClientsSort(@RequestParam int page, @RequestParam String columnName, @RequestParam boolean sortType) {
+		if (columnName.equals("dateOfLastChange")) {
+			List<Client> clients = clientService.getAllClientsSortingByLastChange();
+			if (sortType) {
+				Collections.reverse(clients);
+			}
+			List<Client> listClientsOnPage = getClientsOnPage(clients, page);
+			return ResponseEntity.ok(listClientsOnPage);
+		} else {
+			List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(sortType ? Sort.Direction.ASC : Sort.Direction.DESC, columnName)));
+			if (clients.isEmpty()) {
+				logger.info("No more clients");
+			}
+			return ResponseEntity.ok(clients);
+		}
+	}
+
+	private List<Client> getClientsOnPage(List<Client> allClients, int page) {
+		int sizeOnePage = allClients.size() / (pageSize / 2);
+		if (sizeOnePage < 15) {
+			sizeOnePage = allClients.size();
+		}
+		int clientsOnPage = page * sizeOnePage;
+		List<Client> listClientsOnPage = new ArrayList<>();
+
+		int i = 0;
+		if (page > 1) {
+			i = (page -1) * sizeOnePage;
+		}
+		for (; i < clientsOnPage; i++) {
+			if(allClients.get(i) != null) {
+				listClientsOnPage.add(allClients.get(i));
+			}
+		}
+		return listClientsOnPage;
+	}
+
+	@PostMapping(value = "/filtration/sort", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity getAllWithConditionsAndSort(@RequestParam String columnName, @RequestParam boolean sortType, @RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientService.getFilteringAndSortClients(filteringCondition, columnName);
+		if (sortType) {
+			Collections.reverse(clients);
+		}
+		List<Client> listClientsOnPage = getClientsOnPage(clients, filteringCondition.getPageNumber());
+		if (listClientsOnPage.isEmpty()) {
+			logger.info("No more clients");
+		}
+		return ResponseEntity.ok(listClientsOnPage);
 	}
 
 	@GetMapping(value = "/getClientsData")

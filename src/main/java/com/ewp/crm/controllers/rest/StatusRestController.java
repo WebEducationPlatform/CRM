@@ -67,14 +67,13 @@ public class StatusRestController {
 		if (currentClient.getStatus().getId().equals(statusId)) {
 			return ResponseEntity.ok().build();
 		}
+		Status lastStatus = currentClient.getStatus();
 		statusService.get(statusId).ifPresent(currentClient::setStatus);
-		clientHistoryService.createHistory(userFromSession, currentClient, ClientHistory.Type.STATUS).ifPresent(currentClient::addHistory);
-		if (currentClient.getStudent() == null) {
-			clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
-		}
-		if (currentClient.getStatus().isCreateStudent()) {
+		clientHistoryService.createHistoryOfChangingStatus(userFromSession, currentClient, lastStatus).ifPresent(currentClient::addHistory);
+		if (!lastStatus.isCreateStudent() && currentClient.getStatus().isCreateStudent()) {
 			Optional<Student> newStudent = studentService.addStudentForClient(currentClient);
 			if (newStudent.isPresent()) {
+                clientHistoryService.creteStudentHistory(userFromSession, ClientHistory.Type.ADD_STUDENT).ifPresent(currentClient::addHistory);
 				clientService.updateClient(currentClient);
 				notificationService.deleteNotificationsByClient(currentClient);
 				logger.info("{} has changed status of client with id: {} to status id: {}", userFromSession.getFullName(), clientId, statusId);
@@ -97,12 +96,12 @@ public class StatusRestController {
 			logger.error("Can`t delete client status, client with id = {} not found", clientId);
 			return ResponseEntity.notFound().build();
 		}
-		Status status = client.getStatus();
+		Status lastStatus = client.getStatus();
 		statusService.get("deleted").ifPresent(client::setStatus);
-		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.STATUS).ifPresent(client::addHistory);
+		clientHistoryService.createHistoryOfChangingStatus(userFromSession, client, lastStatus).ifPresent(client::addHistory);
 		clientService.updateClient(client);
 		notificationService.deleteNotificationsByClient(client);
-		logger.info("{} delete client with id = {} in status {}", userFromSession.getFullName(), client.getId(), status.getName());
+		logger.info("{} delete client with id = {} in status {}", userFromSession.getFullName(), client.getId(), lastStatus.getName());
 		return ResponseEntity.ok().build();
 	}
 

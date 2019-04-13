@@ -1,5 +1,6 @@
 package com.ewp.crm.repository.impl;
 
+import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,18 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         this.entityManager = entityManager;
     }
 
+    public List<Student> getStudentsWithoutSocialProfileByType(List<SocialProfileType> excludeSocialProfiles) {
+        return entityManager.createQuery("SELECT s FROM Student s JOIN s.client AS c JOIN c.socialProfiles AS sp JOIN sp.socialProfileType AS spt WHERE spt NOT IN :excludes")
+                .setParameter("excludes", excludeSocialProfiles)
+                .getResultList();
+    }
+
     @Override
     public List<Student> getStudentsWithTodayNotificationsEnabled() {
         LocalDateTime today = LocalDate.now().atStartOfDay();
         LocalDateTime tomorrow = LocalDate.now().plusDays(1).atStartOfDay();
         return entityManager.createQuery("SELECT s FROM Student s WHERE (((s.notifyEmail = TRUE)" +
-                " OR (s.notifySMS = TRUE) OR (s.notifyVK = TRUE))" +
+                " OR (s.notifySMS = TRUE) OR (s.notifyVK = TRUE) OR (s.notifySlack = TRUE))" +
                 " AND (s.nextPaymentDate >= :today AND s.nextPaymentDate < :tomorrow))")
                 .setParameter("today", today)
                 .setParameter("tomorrow", tomorrow)
