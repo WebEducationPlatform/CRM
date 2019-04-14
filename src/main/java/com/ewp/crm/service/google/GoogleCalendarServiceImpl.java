@@ -38,6 +38,7 @@ import java.util.Optional;
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
     private final static String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
+    private static final String GOOGLE_API_URL = "https://www.googleapis.com/calendar/v3";
 	private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
 
 	private final GoogleTokenService tokenService;
@@ -63,7 +64,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
         Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
         if (tokenOpt.isPresent()) {
             String token = tokenOpt.get().getAccessToken();
-            String uri = "https://www.googleapis.com/calendar/v3/users/me/calendarList"
+            String uri = GOOGLE_API_URL + "/users/me/calendarList"
                     + "?access_token=" + token;
             try {
                 HttpGet httpGet = new HttpGet(uri);
@@ -131,7 +132,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
-                String uri = String.format("https://www.googleapis.com/calendar/v3/calendars/%s/events", calendarId.get())
+                String uri = GOOGLE_API_URL + String.format("/calendars/%s/events", calendarId.get())
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpPost request = new HttpPost(uri);
@@ -166,7 +167,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
-                String uri = String.format("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s", calendarId.get(), eventId)
+                String uri = GOOGLE_API_URL + String.format("/calendars/%s/events/%s", calendarId.get(), eventId)
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpPut request = new HttpPut(uri);
@@ -194,7 +195,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
             Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
-                String uri = String.format("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s", calendarId.get(), eventId)
+                String uri = GOOGLE_API_URL + String.format("/calendars/%s/events/%s", calendarId.get(), eventId)
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpDelete request = new HttpDelete(uri);
