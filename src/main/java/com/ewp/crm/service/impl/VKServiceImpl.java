@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
@@ -58,6 +59,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -115,6 +117,7 @@ public class VKServiceImpl implements VKService {
     private String managerToken;
     //ID чата, в который посылается отчёт
     private final String vkReportChatId;
+    private final String firstSkypeNotifyChatId;
 
     @Value("${userKey}")
     private String userKey;
@@ -149,6 +152,7 @@ public class VKServiceImpl implements VKService {
         vkApi = vkConfig.getVkApiUrl();
         managerToken = vkConfig.getManagerToken();
         vkReportChatId = vkConfig.getVkReportChatId();
+        firstSkypeNotifyChatId = vkConfig.getFirstSkypeNotifyChatId();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -594,7 +598,36 @@ public class VKServiceImpl implements VKService {
     }
 
     @Override
+    public void sendFirstSkypeNotification(Client client, ZonedDateTime date, VKConfigImpl.firstSkypeNotificationType type) {
+        String template;
+        switch (type) {
+            case UPDATE:
+                template = vkConfig.getFirstSkypeUpdateMessageTemplate();
+                break;
+            case DELETE:
+                template = vkConfig.getFirstSkypeDeleteMessageTemplate();
+                break;
+            case CREATE:
+            default:
+                template = vkConfig.getFirstSkypeMessageTemplate();
+                break;
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String message = String.format(template,
+                client.getName(),
+                client.getLastName(),
+                client.getId(),
+                date.format(dateTimeFormatter));
+        sendMessageByChatId(firstSkypeNotifyChatId, message);
+    }
+
+    @Override
     public void sendMessageByChatId(String id, String message) {
+        try {
+            message = URLEncoder.encode(message, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Failed to encode message " + message, e);
+        }
         String url = vkApi + "messages.send" +
                 "?random_id=" + new Random().nextInt(32) +
                 "&chat_id=" + id +
@@ -602,12 +635,11 @@ public class VKServiceImpl implements VKService {
                 "&access_token=" + communityToken +
                 "&v=" + version;
         ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-
         HttpStatus responseStatusCode = response.getStatusCode();
         if (responseStatusCode.equals(HttpStatus.OK)) {
             logger.info("Message successfully has been sent to the dialogue");
         } else {
-            logger.error("Can't send message. Check if the request to the VK API is correct");
+            logger.warn("Can't send message. Check if the request to the VK API is correct: " + url);
         }
     }
 

@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface ClientRepositoryCustom {
 
+    boolean hasClientSocialProfileByType(Client client, String socialProfileType);
+
+	String getSlackLinkHashForClient(Client client);
+
     ClientHistory getNearestClientHistoryBeforeDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
 
     ClientHistory getNearestClientHistoryAfterDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
@@ -23,6 +27,8 @@ public interface ClientRepositoryCustom {
 	List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType);
 
 	List filteringClient(FilteringCondition filteringCondition);
+
+	List<Client> filteringClientWithoutPaginator(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
 

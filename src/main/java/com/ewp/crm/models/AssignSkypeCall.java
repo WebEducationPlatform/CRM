@@ -54,19 +54,17 @@ public class AssignSkypeCall {
 	}
 
 	public AssignSkypeCall(User whoCreatedTheSkypeCall,
-						   User fromAssignSkypeCall,
 						   Client toAssignSkypeCall,
 						   ZonedDateTime createdTime,
 						   ZonedDateTime skypeCallDate,
-						   ZonedDateTime notificationBeforeOfSkypeCall,
-						   String selectNetworkForNotifications) {
+						   ZonedDateTime notificationBeforeOfSkypeCall) {
 		this.whoCreatedTheSkypeCall = whoCreatedTheSkypeCall;
-		this.fromAssignSkypeCall = fromAssignSkypeCall;
+		this.fromAssignSkypeCall = whoCreatedTheSkypeCall;
 		this.toAssignSkypeCall = toAssignSkypeCall;
 		this.createdTime = createdTime;
 		this.skypeCallDate = skypeCallDate;
 		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
-		this.selectNetworkForNotifications = selectNetworkForNotifications;
+		this.selectNetworkForNotifications = null;
 	}
 
 	public Long getId() {
