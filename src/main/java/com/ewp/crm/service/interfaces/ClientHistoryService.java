@@ -30,6 +30,8 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> creteStudentHistory(User user, ClientHistory.Type type);
 
+	Optional<ClientHistory> createUpdateFromSlackRegFormHistory(Client prev, Client current, ClientHistory.Type type);
+
 	Optional<ClientHistory> createStudentUpdateHistory(User user, Student prev, Student current, ClientHistory.Type type);
 
 	Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type);

@@ -47,6 +47,15 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
+        return !entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt WHERE c.id = :clientId AND spt.name = :socialProfileType")
+                .setParameter("socialProfileType", socialProfileType)
+                .setParameter("clientId", client.getId())
+                .getResultList()
+                .isEmpty();
+    }
+
+    @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType) {
         return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType AND c.status IN (:statuses)")
                 .setParameter("socialProfileType", socialProfileType)
@@ -68,6 +77,16 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         Query query = entityManager.createNativeQuery(queryString0);
         BigInteger count = new BigInteger(query.getSingleResult().toString());
         return count.longValue();
+    }
+
+    @Override
+    public String getSlackLinkHashForClient(Client client) {
+        List<String> result = entityManager.createQuery("SELECT s.hash FROM Client c JOIN c.slackInviteLink AS s WHERE c.id = :clientId")
+                .setParameter("clientId", client.getId())
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
+        return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
@@ -190,6 +209,12 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         query.setMaxResults(pageSize);
         List<Client> fooList = query.getResultList();
         return fooList;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Client> filteringClientWithoutPaginator(FilteringCondition filteringCondition) {
+        return entityManager.createQuery(createQuery(filteringCondition)).getResultList();
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StudentStatusService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,35 @@ public class ProjectPropertiesRestController {
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
-    
+
+    @GetMapping("/get-slack-users")
+    public ResponseEntity getSlackDefaultUsers() {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        return ResponseEntity.ok(current.getSlackDefaultUsers());
+    }
+
+    @GetMapping("/get-slack-link")
+    public ResponseEntity getSlackInviteLink() {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        return ResponseEntity.ok(current.getSlackInviteLink());
+    }
+
+    @PostMapping("/slack-set")
+    public ResponseEntity setSlackDefaultUsers(@RequestParam(name = "users") String users,
+                                               @RequestParam(name = "slack-invite-link") String link) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (users == null) {
+            users = StringUtils.EMPTY;
+        }
+        current.setSlackDefaultUsers(users);
+        if (link == null) {
+            link = StringUtils.EMPTY;
+        }
+        current.setSlackInviteLink(link);
+        projectPropertiesService.saveAndFlash(current);
+        return ResponseEntity.ok("");
+    }
+
     @PostMapping("/auto-answer")
     public HttpStatus setAutoResponseSettings(@RequestParam(name = "autoAnswerTemplate") Long templateId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
