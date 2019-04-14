@@ -4,8 +4,16 @@ import com.ewp.crm.models.Client;
 import com.google.api.services.calendar.Calendar;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 public interface GoogleCalendarService {
+
+    Optional<String> addCalendarEvent(ZonedDateTime eventStart, Client client);
+
+    void updateCalendarEvent(String eventId, ZonedDateTime eventStart, Client client);
+
+    void deleteCalendarEvent(String eventId);
 
     Calendar calendarBuilder();
 

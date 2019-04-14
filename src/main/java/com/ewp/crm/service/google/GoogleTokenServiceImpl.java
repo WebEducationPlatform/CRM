@@ -4,6 +4,7 @@ import com.ewp.crm.configs.GoogleAPIConfigImpl;
 import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.repository.interfaces.GoogleTokenRepository;
 import com.ewp.crm.service.interfaces.GoogleTokenService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -37,15 +38,21 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
     }
 
     @Override
-    public Optional<GoogleToken> getToken() {
-        return tokenRepository.findById(1L);
+    public Optional<GoogleToken> getToken(TokenType tokenType) {
+        switch (tokenType) {
+            case DRIVE:
+                return tokenRepository.findById(1L);
+            case CALENDAR:
+                return tokenRepository.findById(2L);
+        }
+        return Optional.empty();
     }
 
     @Override
-    public void createOrUpdate(GoogleToken accessToken) {
+    public void createOrUpdate(GoogleToken accessToken, TokenType tokenType) {
         GoogleToken token = accessToken;
-        if (getToken().isPresent()) {
-            token = getToken().get();
+        if (getToken(tokenType).isPresent()) {
+            token = getToken(tokenType).get();
             token.setAccessToken(accessToken.getAccessToken());
             token.setRefreshToken(accessToken.getRefreshToken());
         }
@@ -53,19 +60,30 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
     }
 
     @Override
-    public Optional<GoogleToken> getRefreshedToken() {
+    public Optional<GoogleToken> getRefreshedToken(TokenType tokenType) {
         try {
-            if (getToken().isPresent()) {
-                GoogleToken googleToken = getToken().get();
+            if (getToken(tokenType).isPresent()) {
+                GoogleToken googleToken = getToken(tokenType).get();
                 String uri = googleAPIConfig.getAccessTokenUri();
 
                 HttpPost httpPostMessages = new HttpPost(uri);
                 httpPostMessages.setHeader("Content-type", "application/json");
-
+                String clientId = StringUtils.EMPTY;
+                String clientSecret = StringUtils.EMPTY;
+                switch (tokenType) {
+                    case CALENDAR:
+                        clientId = googleAPIConfig.getDriveClientId();
+                        clientSecret = googleAPIConfig.getDriveClientSecret();
+                        break;
+                    case DRIVE:
+                        clientId = googleAPIConfig.getCalendarClientId();
+                        clientSecret = googleAPIConfig.getCalendarClientSecret();
+                        break;
+                }
                 String refreshParam = "{" +
                         "  \"refresh_token\": \"" + googleToken.getRefreshToken() + "\"," +
-                        "  \"client_id\": \"" + googleAPIConfig.getClientId() + "\", " +
-                        "  \"client_secret\": \"" + googleAPIConfig.getClientSecret() + "\", " +
+                        "  \"client_id\": \"" + clientId + "\", " +
+                        "  \"client_secret\": \"" + clientSecret + "\", " +
                         "  \"grant_type\": \"refresh_token\" " +
                         "}";
 
@@ -76,7 +94,7 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                 JSONObject json = new JSONObject(res);
                 String accessToken = json.getString("access_token");
                 googleToken.setAccessToken(accessToken);
-                createOrUpdate(googleToken);
+                createOrUpdate(googleToken, tokenType);
                 return Optional.of(googleToken);
             }
         } catch (IOException e) {

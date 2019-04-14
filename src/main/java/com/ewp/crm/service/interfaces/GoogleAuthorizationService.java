@@ -4,9 +4,9 @@ import com.google.api.client.auth.oauth2.Credential;
 
 public interface GoogleAuthorizationService {
 
-    String authorize();
+    String authorize(GoogleTokenService.TokenType tokenType);
 
-    Credential tokenResponse(String code);
+    Credential tokenResponse(String code, GoogleTokenService.TokenType tokenType);
 
-    Credential getCredential();
+    Credential getCredential(GoogleTokenService.TokenType tokenType);
 }
