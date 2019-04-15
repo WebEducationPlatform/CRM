@@ -61,7 +61,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     }
 
 	private Optional<String> getAllCalendarsResponse() {
-        Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
+        Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleToken.TokenType.CALENDAR);
         if (tokenOpt.isPresent()) {
             String token = tokenOpt.get().getAccessToken();
             String uri = GOOGLE_API_URL + "/users/me/calendarList"
@@ -129,7 +129,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     public Optional<String> addCalendarEvent(ZonedDateTime eventStart, Client client) {
 	    Optional<String> calendarId = getCalendarIdByName(calendarName);
 	    if (calendarId.isPresent()) {
-            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
+            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleToken.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
                 String uri = GOOGLE_API_URL + String.format("/calendars/%s/events", calendarId.get())
@@ -164,7 +164,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     public void updateCalendarEvent(String eventId, ZonedDateTime eventStart, Client client) {
         Optional<String> calendarId = getCalendarIdByName(calendarName);
         if (calendarId.isPresent()) {
-            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
+            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleToken.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
                 String uri = GOOGLE_API_URL + String.format("/calendars/%s/events/%s", calendarId.get(), eventId)
@@ -192,7 +192,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     public void deleteCalendarEvent(String eventId) {
         Optional<String> calendarId = getCalendarIdByName(calendarName);
         if (calendarId.isPresent()) {
-            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleTokenService.TokenType.CALENDAR);
+            Optional<GoogleToken> tokenOpt = tokenService.getRefreshedToken(GoogleToken.TokenType.CALENDAR);
             if (tokenOpt.isPresent()) {
                 String token = tokenOpt.get().getAccessToken();
                 String uri = GOOGLE_API_URL + String.format("/calendars/%s/events/%s", calendarId.get(), eventId)

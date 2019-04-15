@@ -1,7 +1,7 @@
 package com.ewp.crm.controllers;
 
+import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.service.interfaces.GoogleAuthorizationService;
-import com.ewp.crm.service.interfaces.GoogleTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,23 +21,23 @@ public class GoogleAuthorizationController {
 
 	@RequestMapping(value = "/login/google/drive", method = RequestMethod.GET, params = "code")
 	public RedirectView oauth2CallbackForDrive(@RequestParam(value = "code") String code) {
-		authorizationService.tokenResponse(code, GoogleTokenService.TokenType.DRIVE);
+		authorizationService.tokenResponse(code, GoogleToken.TokenType.DRIVE);
 		return new RedirectView("/");
 	}
 
 	@RequestMapping(value = "/login/google/drive", method = RequestMethod.GET)
 	public RedirectView googleConnectionStatusForDrive() {
-		return new RedirectView(authorizationService.authorize(GoogleTokenService.TokenType.DRIVE));
+		return new RedirectView(authorizationService.authorize(GoogleToken.TokenType.DRIVE));
 	}
 
 	@RequestMapping(value = "/login/google/calendar", method = RequestMethod.GET, params = "code")
 	public RedirectView oauth2CallbackForCalendar(@RequestParam(value = "code") String code) {
-		authorizationService.tokenResponse(code, GoogleTokenService.TokenType.CALENDAR);
+		authorizationService.tokenResponse(code, GoogleToken.TokenType.CALENDAR);
 		return new RedirectView("/");
 	}
 
 	@RequestMapping(value = "/login/google/calendar", method = RequestMethod.GET)
 	public RedirectView googleConnectionStatusForCalendar() {
-		return new RedirectView(authorizationService.authorize(GoogleTokenService.TokenType.CALENDAR));
+		return new RedirectView(authorizationService.authorize(GoogleToken.TokenType.CALENDAR));
 	}
 }

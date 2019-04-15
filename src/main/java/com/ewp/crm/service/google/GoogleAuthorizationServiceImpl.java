@@ -59,7 +59,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
     }
 
     @Override
-    public String authorize(GoogleTokenService.TokenType tokenType) {
+    public String authorize(GoogleToken.TokenType tokenType) {
         String clientId = StringUtils.EMPTY;
         String clientSecret = StringUtils.EMPTY;
         List<String> scopes = new ArrayList<>();
@@ -79,37 +79,35 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
                 break;
         }
         AuthorizationCodeRequestUrl authorizationUrl;
-        if (flow == null) {
-            GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
-            web.setClientId(clientId);
-            web.setClientSecret(clientSecret);
-            GoogleClientSecrets clientSecrets = new GoogleClientSecrets().setWeb(web);
-            try {
-                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            } catch (GeneralSecurityException | IOException e) {
-                logger.error("Error to send message ", e);
-            }
-            flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
-                    scopes).setAccessType("offline").setApprovalPrompt("force").build();
+        GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+        web.setClientId(clientId);
+        web.setClientSecret(clientSecret);
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets().setWeb(web);
+        try {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        } catch (GeneralSecurityException | IOException e) {
+            logger.error("Error to send message ", e);
         }
+        flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
+                scopes).setAccessType("offline").setApprovalPrompt("force").build();
         authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectUri);
         return authorizationUrl.build();
     }
 
     @Override
-    public Credential tokenResponse(String code, GoogleTokenService.TokenType tokenType) {
+    public Credential tokenResponse(String code, GoogleToken.TokenType tokenType) {
         TokenResponse response;
         try {
             switch (tokenType) {
                 case DRIVE:
                     response = flow.newTokenRequest(code).setRedirectUri(driveRedirectUri).execute();
                     driveCredential = flow.createAndStoreCredential(response, "userID");
-                    googleTokenService.createOrUpdate(new GoogleToken(response.getAccessToken(), response.getRefreshToken()), tokenType);
+                    googleTokenService.createOrUpdate(new GoogleToken(response.getAccessToken(), response.getRefreshToken(), tokenType), tokenType);
                     return driveCredential;
                 case CALENDAR:
                     response = flow.newTokenRequest(code).setRedirectUri(calendarRedirectUri).execute();
                     calendarCredential = flow.createAndStoreCredential(response, "userID");
-                    googleTokenService.createOrUpdate(new GoogleToken(response.getAccessToken(), response.getRefreshToken()), tokenType);
+                    googleTokenService.createOrUpdate(new GoogleToken(response.getAccessToken(), response.getRefreshToken(), tokenType), tokenType);
                     return calendarCredential;
             }
         } catch (IOException e) {
@@ -121,7 +119,7 @@ public class GoogleAuthorizationServiceImpl implements GoogleAuthorizationServic
     }
 
     @Override
-    public Credential getCredential(GoogleTokenService.TokenType tokenType) {
+    public Credential getCredential(GoogleToken.TokenType tokenType) {
         switch (tokenType) {
             case CALENDAR:
                 return calendarCredential;
