@@ -108,7 +108,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Optional<Map<String,String>> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting) {
+    public Map<String,String> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting) {
         Optional<File> fileOptional = createFileWithDataAndSetting(data, setting);
         if (fileOptional.isPresent()) {
             Optional<GoogleToken> googleTokenOptional = googleTokenService.getRefreshedToken();
@@ -116,25 +116,24 @@ public class ContractServiceImpl implements ContractService {
                 File file = fileOptional.get();
                 String token = googleTokenOptional.get().getAccessToken();
                 HttpClient httpClient = getHttpClient();
-                Optional<Map<String,String>> optionalMap = Optional.empty();
+                Map<String,String> contractDataMap = new HashMap<>();
 
                 String id = uploadFileAndGetFileId(file, token, httpClient);
                 if (!id.isEmpty()) {
                     String fileName = file.getName().replaceAll("\\.docx","") + projectPropertiesService.getOrCreate().getContractLastId();
                     updateFileNameAndFolderOnGoogleDrive(id, fileName, token, httpClient);
                     uploadFileAccessOnGoogleDrive(id, token, httpClient);
-                    Map<String,String> map = new HashMap<>();
-                    map.put("contractName", fileName);
-                    map.put("contractId", id);
-                    optionalMap = Optional.of(map);
+                    //Map<String,String> map = new HashMap<>();
+                    contractDataMap.put("contractName", fileName);
+                    contractDataMap.put("contractId", id);
                 }
                 if (file.delete()) {
                     logger.info("File deleting " + file.getName());
                 }
-                return optionalMap;
+                return contractDataMap;
             }
         }
-        return Optional.empty();
+        return new HashMap<>();
     }
 
     private String uploadFileAndGetFileId(File file, String token, HttpClient httpClient) {

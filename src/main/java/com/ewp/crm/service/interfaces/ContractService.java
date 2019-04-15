@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ContractService {
 
-    Optional<Map<String,String>> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting);
+    Map<String,String> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting);
 
     boolean updateContractLink(ContractLinkData contractLinkData);
 }
