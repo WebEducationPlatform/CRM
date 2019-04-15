@@ -1301,7 +1301,6 @@ function updateCallDate(id) {
             var minutes =  Math.ceil((date.getMinutes() +1)/10)*10;
             var startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), minutes , 0, 0);
             btnBlockTask.attr('id', 'assign-skype' + clientId);
-            var socialNetworks = assignSkypeCall.selectNetworkForNotifications;
             currentStatus.after('<button class="btn btn-info btn-sm update-skype-call">Подтвердить</button>');
             currentBtn.attr("disabled", "true");
             currentBtn.after(

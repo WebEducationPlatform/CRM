@@ -83,7 +83,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 newClient.setName(name);
                 newClient.setLastName(lastName);
                 newClient.setEmail(email);
-                Optional<ClientHistory> history = clientHistoryService.createUpdateFromSlackRegFormHistory(client, newClient, ClientHistory.Type.SLACK_UPDATE);
+                Optional<ClientHistory> history = clientHistoryService.createHistoryFromSlackRegForm(client, newClient, ClientHistory.Type.SLACK_UPDATE);
                 history.ifPresent(client::addHistory);
                 client.setName(name);
                 client.setLastName(lastName);
