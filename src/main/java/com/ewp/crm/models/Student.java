@@ -83,6 +83,9 @@ public class Student implements Diffable<Student> {
     @Column (name = "notify_vk")
     private boolean notifyVK = false;
 
+    @Column (name = "notify_slack")
+    private boolean notifySlack = false;
+
     @Column (name = "color")
     private String color;
 
@@ -202,6 +205,14 @@ public class Student implements Diffable<Student> {
 
     public void setNotifyVK(boolean notifyVK) {
         this.notifyVK = notifyVK;
+    }
+
+    public boolean isNotifySlack() {
+        return notifySlack;
+    }
+
+    public void setNotifySlack(boolean notifySlack) {
+        this.notifySlack = notifySlack;
     }
 
     @Override

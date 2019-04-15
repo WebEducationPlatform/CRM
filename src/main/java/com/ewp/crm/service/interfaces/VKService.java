@@ -1,11 +1,13 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.VkProfileInfo;
 import com.ewp.crm.service.conversation.ChatMessage;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +36,8 @@ public interface VKService {
     String sendMessageById(Long id, String msg);
 
     String sendMessageById(Long id, String msg, String token);
+
+    void sendFirstSkypeNotification(Client client, ZonedDateTime date, VKConfigImpl.firstSkypeNotificationType type);
 
     void sendMessageByChatId(String id, String message);
 

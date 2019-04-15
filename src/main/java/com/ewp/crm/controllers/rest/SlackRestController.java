@@ -1,28 +1,21 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.SlackProfile;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * TODO before start.
@@ -42,84 +35,103 @@ import java.io.IOException;
 @RequestMapping("/slack")
 public class SlackRestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlackRestController.class);
-
     private final SlackService slackService;
-    private String inviteToken;
+    private final ClientService clientService;
+    private final StatusService statusService;
 
     @Autowired
-    public SlackRestController(Environment environment,
-                               SlackService slackService,
-                               StatusService statusService,
-                               ProjectPropertiesService propertiesService) {
-        try {
-            this.inviteToken = environment.getRequiredProperty("slack.legacyToken");
-            if (inviteToken.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (NullPointerException npe) {
-            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
-        }
+    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService) {
         this.slackService = slackService;
+        this.clientService = clientService;
+        this.statusService = statusService;
     }
 
-    @PostMapping
-    public ResponseEntity<String> interactionsWithSlack(@RequestBody String body) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(body);
-
-            //валидация ссылки куда Слак будет слать запросы. Выполняется 1 раз при смене ссылки в Слак
-            JsonNode challenge = jsonNode.get("challenge");
-            if (challenge != null) {
-                logger.info("Slack url_verification done");
-                return new ResponseEntity<>(challenge.asText(), HttpStatus.OK);
-            }
-
-            //обрабатываем событие на вход юзера на канал.
-            JsonNode event = jsonNode.get("event").get("type");
-            if ("member_joined_channel".equals(event.asText())) {
-                String slackHashName = jsonNode.get("event").get("user").asText();
-                SlackProfile slackProfile = slackService.receiveClientSlackProfileBySlackHashName(slackHashName);
-                slackService.memberJoinSlack(slackProfile);
-            }
-        } catch (IOException e) {
-            logger.warn("Cant read json form Slack", e);
+    @PostMapping("/registration")
+    public ResponseEntity registerUser(@RequestParam("hash") String hash, @RequestParam("name") String name,
+                                       @RequestParam("lastName") String lastName, @RequestParam("email") String email) {
+        Optional<Client> client = clientService.getClientBySlackInviteHash(hash);
+        if (client.isPresent()) {
+            boolean result = clientService.inviteToSlack(client.get(), name, lastName, email);
+            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.badRequest().body("");
+    }
+
+    @GetMapping("/find/client/{clientId}")
+    public ResponseEntity<String> findClientSlackProfile(@PathVariable long clientId) {
+        Optional<Client> client = clientService.getClientByID(clientId);
+        if (client.isPresent() && client.get().getStudent() != null) {
+            return findStudentSlackProfile(client.get().getStudent().getId());
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/find/student/{studentId}")
+    public ResponseEntity<String> findStudentSlackProfile(@PathVariable long studentId) {
+        if (slackService.tryLinkSlackAccountToStudent(studentId)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/send/student/{studentId}")
+    public ResponseEntity sendMessageToStudent(@PathVariable long studentId, @RequestParam("text") String text) {
+        if (slackService.trySendSlackMessageToStudent(studentId, text)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/send/all")
+    public ResponseEntity sendMessageToAllSlackUsers(@RequestParam("text") String text) {
+        if (slackService.trySendMessageToAllSlackUsers(text)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/get/emails")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
     public ResponseEntity<String> getAllEmailsFromSlack() {
-        String url = "https://slack.com/api/users.list?token=" + inviteToken;
-        String result = "Error";
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
-            HttpEntity entity = response.getEntity();
-            result = slackService.getEmailListFromJson(EntityUtils.toString(entity));
-        } catch (Throwable e) {
-            logger.warn("Can't parse emails from Slack", e);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        return new ResponseEntity<>(slackService.getAllEmailsFromSlack().orElse("Error"), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/ids/all")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getAllIdsFromSlack() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        return new ResponseEntity<>(slackService.getAllIdsFromSlack().orElse("Error"), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/chat/by/client/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER')")
+    public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "text/plain;charset=UTF-8");
+        Optional<String> chatId = slackService.getChatIdForSlackUser(id);
+        return chatId.map(s -> new ResponseEntity<>(s, headers, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/get/ids/students")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    public ResponseEntity<String> getAllStudentsIdsFromSlack(@RequestParam(name = "statuses", required = false) List<Long> statuses) {
+        List<Status> requiredStatuses = new ArrayList<>();
+        List<String> slackIdsForStudents;
+        if (statuses != null) {
+            for (Long id :statuses) {
+                statusService.get(id).ifPresent(requiredStatuses::add);
+            }
+        }
+        if (requiredStatuses.isEmpty()) {
+            slackIdsForStudents = clientService.getSocialIdsForStudentsBySocialProfileType("slack");
+        } else {
+            slackIdsForStudents = clientService.getSocialIdsForStudentsByStatusAndSocialProfileType(requiredStatuses, "slack");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
-        return new ResponseEntity<>(result, headers, HttpStatus.OK);
-    }
-
-    @GetMapping("{email}")
-    public ResponseEntity<String> slackInvite(@PathVariable String email) {
-
-        String url = "https://slack.com/api/users.admin.invite?" +
-                "email=" + email +
-                "&token=" + inviteToken;
-        String json = null;
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
-            HttpEntity entity = response.getEntity();
-            json = EntityUtils.toString(entity);
-        } catch (Throwable e) {
-            logger.warn("Can't invite Client Slack profile", e);
-        }
-        return new ResponseEntity<>(json, HttpStatus.OK);
+        return new ResponseEntity<>(String.join("\n", slackIdsForStudents), headers, HttpStatus.OK);
     }
 }

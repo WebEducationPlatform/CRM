@@ -2,10 +2,39 @@ $('.checkbox').click(function() {
     var table, rows, i, status, json;
     table = document.getElementById("students-table");
     rows = table.rows;
-    for (i = 1; i < rows.length; i++) {
-        status = rows[i].getElementsByTagName("TD")[0];
-        if (this.id == status.innerHTML) {
-            rows[i].style.display = this.checked ? '' : 'none';
+    if (this.id === 'filter-has-no-email' || this.id === 'filter-has-no-phone' ||
+        this.id === 'filter-has-no-vk' || this.id === 'filter-has-no-slack') {
+        renderStudentsTable();
+        for (i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== 'none') {
+                if ($('#filter-has-no-slack').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_slack') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-vk').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_vk') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-phone').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_sms') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                if ($('#filter-has-no-email').is(':checked')) {
+                    if (rows[i].innerHTML.indexOf('_notify_email') !== -1) {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    } else {
+        for (i = 1; i < rows.length; i++) {
+            status = rows[i].getElementsByTagName("TD")[0];
+            if (this.id === status.innerHTML) {
+                rows[i].style.display = this.checked ? '' : 'none';
+            }
         }
     }
     json = '{';
@@ -29,8 +58,34 @@ $(document).ready(function() {
     if (document.URL.indexOf("student/all") !== -1) {
         renderStudentsTable();
         calc_info_values();
-    }
+    };
+    $('figure').imgCheckbox({
+        width: 'auto',
+        height: 'auto',
+        textColor: 'white',
+        overlayBgColor: 'black',
+        overlayOpacity: '0',
+        round: false,
+        animation: false,
+        animationDuration: 300,
+        animationArray: ['scale']
+    });
 });
+
+function reInitCheckboxes() {
+    // Configure checkboxes animation
+    $('figure[class="single"]').imgCheckbox({
+        width: 'auto',
+        height: 'auto',
+        textColor: 'white',
+        overlayBgColor: 'black',
+        overlayOpacity: '0',
+        round: false,
+        animation: false,
+        animationDuration: 300,
+        animationArray: ['scale']
+    });
+}
 
 function renderStudentsTable() {
     var table, rows, i, status;
@@ -363,7 +418,7 @@ $("input[type='date']").on('change', function() {
 });
 
 //change status in table field from select input
-$('select').on('change', function () {
+$('.student-changing').on('change', function () {
     var optionSelected = $("option:selected", this).text();
     var id = this.id.substring(this.id.lastIndexOf("_") + 1, this.id.length);
     $('#statusValue_' + id).text(optionSelected);
@@ -387,9 +442,11 @@ function updateStudent(id) {
             let email_selector = '#' + id + '_notify_email';
             let sms_selector = '#' + id + '_notify_sms';
             let vk_selector = '#' + id + '_notify_vk';
+            let slack_selector = '#' + id + '_notify_slack';
             let email_notify = $(email_selector).prop('checked');
             let sms_notify = $(sms_selector).prop('checked');
             let vk_notify = $(vk_selector).prop('checked');
+            let slack_notify = $(slack_selector).prop('checked');
             let data = {
                 id : id,
                 client : {id : client.id, name : $("#name_"+id).text(), lastName : $("#lastName_"+id).text(), email : $("#email_"+id).text()},
@@ -402,7 +459,8 @@ function updateStudent(id) {
                 notes : $("#notes_"+id).text(),
                 notifyEmail: email_notify,
                 notifySMS: sms_notify,
-                notifyVK: vk_notify
+                notifyVK: vk_notify,
+                notifySlack: slack_notify
             };
 
             $.ajax({
@@ -496,7 +554,7 @@ function validate_prices(id) {
 }
 
 //All available notification checkbox id patterns
-const notifications = ['_notify_email','_notify_sms','_notify_vk'];
+const notifications = ['_notify_email','_notify_sms','_notify_vk','_notify_slack'];
 
 //Check/uncheck all notifications
 $('.notifier_all').click(function() {
@@ -510,6 +568,34 @@ $('.notifier_all').click(function() {
         }
     }
     $(this.id).prop('checked', checked);
+});
+
+$('.notifier_img').on('click', function () {
+    let id = this.id.split("_")[0];
+    updateStudent(id);
+});
+
+$('.notifier_all_img').on('click', function () {
+    let id = this.id.split("_")[0];
+    let selector_all = $('#' + id + '_notify_all');
+    let checked = selector_all.prop('checked');
+    if (checked) {
+        for (let prefix of notifications) {
+            let selector = '#' + id + prefix;
+            if(!$(selector).prop('disabled')) {
+                $(selector).prop('checked', false);
+            }
+        }
+    } else {
+        for (let prefix of notifications) {
+            let selector = '#' + id + prefix;
+            if(!$(selector).prop('disabled')) {
+                $(selector).prop('checked', true);
+            }
+        }
+    }
+    reInitCheckboxes();
+    updateStudent(id);
 });
 
 //Notification checkbox change action

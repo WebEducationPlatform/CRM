@@ -80,7 +80,7 @@ function drawClientHistory(list, history_table) {
                 "<button class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-play\" type=\"button\" id=\"dropdownMenuCallRecord\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                 "</button>" +
                 "<div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownMenuCallRecord\">" +
-                "<audio controls>" +
+                "<audio controls preload='auto'>" +
                 "<source type=\"audio/wav\" src=\"" + list[i].recordLink + "\">" +
                 "</audio>" +
                 "</div>" +
@@ -141,6 +141,10 @@ function viewClientHistoryMessage(id) {
     currentModal.data('message_id', id);
     currentModal.modal('show');
 }
+
+$('#modalClientHistoryMessage').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
+});
 
 //Fill values on client history message modal show up.
 $(function () {

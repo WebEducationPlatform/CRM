@@ -122,12 +122,10 @@ public class GoogleEmail {
                     if (parser.getHtmlContent().contains("Java Test")) {
                         prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
-                    if (!clientService.getClientByEmail(client.getEmail()).isPresent()) {
-                        clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
-                        statusService.getFirstStatusForClient().ifPresent(client::setStatus);
-                        clientService.addClient(client);
-                        sendNotificationService.sendNewClientNotification(client, "gmail");
-                    }
+                    clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+                    statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                    clientService.addClient(client);
+                    sendNotificationService.sendNewClientNotification(client, "gmail");
                     if (template != null) {
                         prepareAndSend.sendEmailInAllCases(client);
                     } else {

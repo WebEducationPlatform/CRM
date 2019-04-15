@@ -42,18 +42,18 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "last_name")
 	private String lastName;
 
-    @Column(name = "phoneNumber")
+    @Column(name = "phoneNumber", unique = true)
     private String phoneNumber;
 
     @Size(max = 50)
     @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, unique = true)
     private String email;
 
     @Column(name = "skype")
     private String skype = "";
 
-    @Column(name = "birthDate")
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Formula("(if(birth_date is null,0,YEAR(CURDATE()) - YEAR(birth_date)))")
@@ -183,9 +183,10 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
-    @JoinColumn(name = "slack_profile_id")
-    private SlackProfile slackProfile;
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "slack_invite_link_id")
+    private SlackInviteLink slackInviteLink;
 
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
@@ -493,14 +494,6 @@ public class Client implements Serializable, Diffable<Client> {
         this.student = student;
     }
 
-    public SlackProfile getSlackProfile() {
-        return slackProfile;
-    }
-
-    public void setSlackProfile(SlackProfile slackProfile) {
-        this.slackProfile = slackProfile;
-    }
-
     public boolean isRepeated() {
         return isRepeated;
     }
@@ -539,6 +532,14 @@ public class Client implements Serializable, Diffable<Client> {
 
     public void setContractLinkData(ContractLinkData contractLinkData) {
         this.contractLinkData = contractLinkData;
+    }
+
+    public SlackInviteLink getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(SlackInviteLink slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
     }
 
     @Override
@@ -641,7 +642,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .build();
     }
 
-    public DiffResult diffOnStudentEdit(Client client) {
+    public DiffResult diffByNameAndLastNameAndEmail(Client client) {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)

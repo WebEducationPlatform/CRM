@@ -23,8 +23,8 @@ public class SocialProfileServiceImpl implements SocialProfileService {
 	}
 
 	@Override
-	public SocialProfile getSocialProfileBySocialIdAndSocialType(String id, String socialType) {
-		return socialProfileRepository.getBySocialIdAndSocialProfileType_Name(id, socialType);
+	public Optional<SocialProfile> getSocialProfileBySocialIdAndSocialType(String id, String socialType) {
+		return Optional.ofNullable(socialProfileRepository.getBySocialIdAndSocialProfileType_Name(id, socialType));
 	}
 
 	@Override

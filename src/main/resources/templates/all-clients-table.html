@@ -110,16 +110,16 @@
             <thead id="thead-table-clients">
             <tr class="head-table">
                 <th>#</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Телефон</th>
-                <th>Email</th>
+                <th onclick="sort_table('name')">Имя</th>
+                <th onclick="sort_table('lastName')">Фамилия</th>
+                <th onclick="sort_table('phoneNumber')">Телефон</th>
+                <th onclick="sort_table('email')">Email</th>
                 <th>Социальная сеть</th>
-                <th>Возраст</th>
+                <th>Дата рождения</th>
                 <th>Пол</th>
-                <th>Город</th>
-                <th>Страна</th>
-                <th>
+                <th onclick="sort_table('city')">Город</th>
+                <th onclick="sort_table('country')">Страна</th>
+                <th onclick="sort_table('status')">
                     Статус
                     <div class="btn-group">
                         <button type="button" name="editStatusColor"
@@ -128,7 +128,8 @@
                         </button>
                     </div>
                 </th>
-                <th>Дата регистрации</th>
+                <th onclick="sort_table('dateOfRegistration')">Дата регистрации</th>
+                <th onclick="sort_table('dateOfLastChange')">Последнее изменение</th>
                 <th>Скрыт?</th>
             </tr>
             </thead>
@@ -150,7 +151,8 @@
                         </span>
                     </th:block>
                 </td>
-                <td th:text="${client.age}"></td>
+                <td th:if="${client.birthDate!=null}" th:text="${#strings.arraySplit(client.birthDate, '-')[2]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[1]} + '.' + ${#strings.arraySplit(client.birthDate, '-')[0]}"></td>
+                <td th:if="${client.birthDate==null}" th:text="'-'"></td>
                 <td th:text="${client.sex}"></td>
                 <td th:text="${client.city}"></td>
                 <td th:text="${client.country}"></td>
@@ -158,6 +160,16 @@
 
                 <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
                 <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
+
+                <td><div th:switch="${client.comments.size() > 0 }">
+                    <span th:case="true">
+                        <div th:switch="${client.comments.get(client.comments.size() - 1).getDateFormat().isAfter(client.history.get(0).getDate())}">
+                            <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                            <span th:case="true" th:text="${#temporals.format(client.comments.get(client.comments.size() - 1).getDateFormat().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                        </div>
+                    </span>
+                    <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                </div></td>
                 <!--<td th:text="${client.dateOfRegistration}"></td>-->
                 <td class="no-fix">
                     <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"

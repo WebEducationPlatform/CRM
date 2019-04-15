@@ -17,12 +17,17 @@ public class GoogleToken {
     @Column(name = "refresh_token")
     private String refreshToken;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "token_type", unique = true, nullable = false)
+    private TokenType tokenType;
+
     public GoogleToken() {
     }
 
-    public GoogleToken(String accessToken, String refreshToken) {
+    public GoogleToken(String accessToken, String refreshToken, TokenType tokenType) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+        this.tokenType = tokenType;
     }
 
     public String getAccessToken() {
@@ -43,5 +48,22 @@ public class GoogleToken {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(TokenType tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public enum TokenType {
+        CALENDAR,
+        DRIVE
     }
 }

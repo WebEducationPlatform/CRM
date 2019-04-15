@@ -146,6 +146,34 @@ function drawClients(table, res) {
         var dateOfRegistration = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
             d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
+        //Вывод даты последнего изменения клиентов по мск времени
+        var lastHistory = new Date(res[i].history[0].date);
+        var lastComment = null;
+        var lastChange;
+
+        $.ajax({
+            type: 'GET',
+            url: '/rest/comment/getComments/' + res[i].id,
+            contentType: "application/json",
+            dataType: 'json',
+            async: false,
+            success: function (comments) {
+                if (comments.length > 0) {
+                    lastComment = new Date(comments[comments.length - 1].dateFormat);
+                } else {
+                    lastComment = 'undefined';
+                }
+            }
+        });
+
+        if (lastComment != 'undefined' && lastHistory < lastComment) {
+            lastChange = new Date(lastComment.toLocaleString('en-US', {timeZone: 'Europe/Moscow'}));
+        } else {
+            lastChange = new Date(lastHistory.toLocaleString('en-US', {timeZone: 'Europe/Moscow'}));
+        }
+        var dateOfLastChange = ("0" + lastChange.getDate()).slice(-2) + "." + ("0" + (lastChange.getMonth() + 1)).slice(-2) + "." +
+            lastChange.getFullYear() + " " + ("0" + lastChange.getHours()).slice(-2) + ":" + ("0" + lastChange.getMinutes()).slice(-2);
+
         let email = res[i].email === null ? '' : res[i].email,
             phoneNumber = res[i].phoneNumber === null ? '' : res[i].phoneNumber,
             city = res[i].city === null ? '' : res[i].city,
@@ -169,7 +197,14 @@ function drawClients(table, res) {
                     '</div>'
             }
         }
-
+        let bDate = res[i].birthDate;
+        let birthDate;
+        if (bDate === null) {
+            birthDate = '-';
+        } else {
+            let bDateValues = bDate.split('-');
+            birthDate = bDateValues[2] + '.' + bDateValues[1] + '.' + bDateValues[0];
+        }
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
@@ -178,12 +213,13 @@ function drawClients(table, res) {
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +
             '        <td>' + socLink + '</td>' +
-            '        <td>' + res[i].age + ' </td>' +
+            '        <td>' + birthDate + ' </td>' +
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
             '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
             '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
+            '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
             '    </tr>'
         );
@@ -239,19 +275,65 @@ $(document).ready(function () {
             //пагинация при фильтрации
             if ($("#filter").hasClass('in')) {
                 data['pageNumber']++;
-                var url = "../rest/client/filtration";
-                $.ajax({
-                    type: 'POST',
-                    contentType: "application/json",
-                    dataType: 'json',
-                    url: url,
-                    data: JSON.stringify(data),
-                    success: function (clients) {
-                        drawClients(body, clients);
-                    }
-                });
-                //пагинация при обычном просмотре страницы
-            } else {
+                //если есть сортировка
+                if (body.hasClass('name') ||
+                    body.hasClass('lastName') ||
+                    body.hasClass('phoneNumber') ||
+                    body.hasClass('email') ||
+                    body.hasClass('city') ||
+                    body.hasClass('country') ||
+                    body.hasClass('status') ||
+                    body.hasClass('dateOfRegistration') ||
+                    body.hasClass('dateOfLastChange')) {
+                    var url = "/rest/client/filtration/sort?columnName=" + name + "&sortType=" + sort_type_asc;
+
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json",
+                        dataType: 'json',
+                        url: url,
+                        data: JSON.stringify(data),
+                        success: function (clients) {
+                            sort_type_asc = !sort_type_asc;
+                            body.empty();
+                            drawClients(body, clients);
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    })
+                } else {
+                    var url = "../rest/client/filtration";
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json",
+                        dataType: 'json',
+                        url: url,
+                        data: JSON.stringify(data),
+                        success: function (clients) {
+                            drawClients(body, clients);
+                        }
+                    });
+                }
+            } // пагинация при сортировке
+            else if (body.hasClass('name') ||
+                body.hasClass('lastName') ||
+                body.hasClass('phoneNumber') ||
+                body.hasClass('email') ||
+                body.hasClass('city') ||
+                body.hasClass('country') ||
+                body.hasClass('status') ||
+                body.hasClass('dateOfRegistration') ||
+                body.hasClass('dateOfLastChange')) {
+                $.get('/rest/client/sort',
+                    {page: page, columnName: document.getElementById('table-body').className, sortType: !sort_type_asc},
+                    function upload(clients) {
+                        drawClients(body, clients, page);
+                        page++;
+                    });
+            }
+            //пагинация при обычном просмотре страницы
+            else {
                 $.get('/rest/client/pagination/new/first', {page: page}, function upload(clients) {
                     drawClients(body, clients, page);
                     page++;
@@ -395,7 +477,7 @@ function massClientInputSend() {
             priceList: priceList,
             paymentSumList: paymentSumList,
             studentStatus: studentStatus
-        }
+        };
 
         $.ajax({
             type: "POST",
@@ -407,5 +489,56 @@ function massClientInputSend() {
         });
     } else {
         console.log("Ошибка при сохранении пользователей");
+    }
+}
+
+let sort_type_asc = true; // asc - от а до я, 10 до 0 Date последнее 2019-2000
+function sort_table(name) {
+    page = 1;
+    var table_body = $('#table-body');
+    table_body.removeClass();
+    table_body.addClass(name);
+
+    if ($("#filter").hasClass('in')) {
+        data = {};
+        var url = "/rest/client/filtration/sort?columnName=" + name + "&sortType=" + sort_type_asc;
+
+        if ($('#sex').val() !== "") {
+            data['sex'] = $('#sex').val();
+        }
+        data['ageTo'] = $('#ageTo').val();
+        data['ageFrom'] = $('#ageFrom').val();
+        data['city'] = $('#city').val();
+        data['country'] = $('#country').val();
+        data['dateFrom'] = $('#dateFrom').val();
+        data['dateTo'] = $('#dateTo').val();
+        data['pageNumber'] = page;
+        if ($('#status').val() !== "") {
+            data['status'] = $('#status').val();
+        }
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json",
+            dataType: 'json',
+            url: url,
+            data: JSON.stringify(data),
+            success: function (clients) {
+                sort_type_asc = !sort_type_asc;
+                table_body.empty();
+                drawClients(table_body, clients);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    } else {
+        $.get('/rest/client/sort',
+            {page: page, columnName: name, sortType: sort_type_asc},
+            function upload(clients) {
+                sort_type_asc = !sort_type_asc;
+                table_body.empty();
+                drawClients(table_body, clients);
+                page++;
+            });
     }
 }

@@ -171,13 +171,15 @@ public class IncomeStringToClient {
     private void checkSocialNetworks(Client client, Map<String, String> clientData) {
         if (clientData.containsKey("Social")) {
             String link = clientData.get("Social").replace("~", "");
-            SocialProfile currentSocialProfile = getSocialNetwork(link);
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + link +
-                        " недействительна");
-                logger.warn("Unknown social network");
+            if (link != null && !link.isEmpty()) {
+                SocialProfile currentSocialProfile = getSocialNetwork(link);
+                if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                    client.setComment(String.format("Ссылка на социальную сеть %s недействительна", link));
+                    logger.warn("Unknown social network '" + link + "'");
+                } else {
+                    client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
+                }
             }
-            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
         }
     }
 

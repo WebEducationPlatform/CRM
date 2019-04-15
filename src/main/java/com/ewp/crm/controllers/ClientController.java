@@ -12,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,7 +35,8 @@ public class ClientController {
     private final ListMailingService listMailingService;
     private final MailingMessageRepository messageService;
     private final StudentStatusService studentStatus;
-
+    private final ListMailingTypeService listMailingTypeService;
+    private final SlackService slackService;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -52,7 +52,10 @@ public class ClientController {
                             ProjectPropertiesService propertiesService,
                             ListMailingService listMailingService,
                             MailingMessageRepository messageService,
-                            StudentStatusService studentStatus) {
+                            StudentStatusService studentStatus,
+                            ListMailingTypeService listMailingTypeService,
+                            SlackService slackService) {
+        this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -64,6 +67,7 @@ public class ClientController {
         this.listMailingService = listMailingService;
         this.messageService = messageService;
         this.studentStatus = studentStatus;
+        this.listMailingTypeService = listMailingTypeService;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -116,6 +120,7 @@ public class ClientController {
         modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
         modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;
     }
 
@@ -133,11 +138,13 @@ public class ClientController {
 
     @GetMapping(value = "/client/mailing")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public String mailingPage(Model model) {
-        model.addAttribute("listMailing", listMailingService.getAll());
-        model.addAttribute("chooseUser", userService.getAll());
-        model.addAttribute("mailingMessage", messageService.findAll());
-        return "mailing";
+    public ModelAndView mailingPage() {
+        ModelAndView modelAndView = new ModelAndView("mailing");
+        modelAndView.addObject("listMailing", listMailingService.getAll());
+        modelAndView.addObject("chooseUser", userService.getAll());
+        modelAndView.addObject("mailingMessage", messageService.findAll());
+        modelAndView.addObject("listMailingTypes", listMailingTypeService.getAll());
+        return modelAndView;
     }
 
     @GetMapping(value = "/client/clientInfo/{id}")
