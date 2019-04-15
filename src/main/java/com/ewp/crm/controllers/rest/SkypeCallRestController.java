@@ -31,21 +31,18 @@ public class SkypeCallRestController {
 	private final ClientService clientService;
 	private final UserService userService;
 	private final RoleService roleService;
-	private final GoogleCalendarService calendarService;
 
 	@Autowired
 	public SkypeCallRestController(AssignSkypeCallService assignSkypeCallService,
 								   ClientHistoryService clientHistoryService,
 								   ClientService clientService,
 								   UserService userService,
-								   RoleService roleService,
-								   GoogleCalendarService calendarService) {
+								   RoleService roleService) {
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.roleService = roleService;
-		this.calendarService = calendarService;
 	}
 
 	@GetMapping(value = "rest/skype/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,46 +57,6 @@ public class SkypeCallRestController {
 	public ResponseEntity<List<User>> getAllMentors() {
 		List<User> users = userService.getByRole(roleService.getRoleByName("MENTOR"));
 		return ResponseEntity.ok(users);
-	}
-
-	@GetMapping(value = "rest/skype/checkFreeDateAndCorrectEmail", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity<Object> checkFreeDateAndCorrectEmail(@RequestParam Long clientId,
-												@RequestParam(name = "idMentor") Long idMentor,
-												@RequestParam Long startDate) {
-		// Проверка менеджера на авторизацию в гугл аккаунте, чтоб можно было в будущем назначить звонок
-		if (calendarService.googleAuthorizationIsNotNull()){
-			User mentor = userService.get(idMentor);
-			Optional<Client> client = clientService.getClientByID(clientId);
-			if (client.isPresent()) {
-				if (!(mentor.getEmail().toLowerCase().contains("@gmail.com")) || mentor.getEmail() == null) {
-					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("У этого ментора неверный формат почты. (Нужен ...@gmail.com)");
-				} else {
-					try {
-						calendarService.getCalendarBuilder().calendars().get(mentor.getEmail()).execute();
-					} catch (Exception e) {
-						return ResponseEntity.badRequest().body("Календарь ментора не привязан к календарю администратора.");
-					}
-				}
-				Optional<AssignSkypeCall> assignSkypeCallBySkypeLogin = assignSkypeCallService.getAssignSkypeCallByClientId(client.get().getId());
-				//Возможность менеджеру изменить только уведомления и оставить время
-				//    чтобы не было ошибки(Текущая дата занята) у одного и того же клиента.
-				if (assignSkypeCallBySkypeLogin.isPresent() && idMentor.equals(assignSkypeCallBySkypeLogin.get().getFromAssignSkypeCall().getId())) {
-					ZonedDateTime skypeCallDate = Instant.ofEpochMilli(startDate)
-							.atZone(ZoneId.of("+00:00"))
-							.withZoneSameLocal(ZoneId.of("Europe/Moscow"))
-							.withZoneSameInstant(ZoneId.systemDefault());
-					if (assignSkypeCallBySkypeLogin.get().getSkypeCallDate().equals(skypeCallDate)) {
-						return ResponseEntity.status(HttpStatus.OK).build();
-					}
-				}
-				if (calendarService.checkFreeDateAndCorrectEmail(startDate, mentor.getEmail())) {
-					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Текущая дата уже занята, выберите другую.");
-				}
-				return ResponseEntity.status(HttpStatus.OK).build();
-			}
-		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
 	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")

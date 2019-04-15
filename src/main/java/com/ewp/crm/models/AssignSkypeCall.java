@@ -47,6 +47,9 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_USER"))})
 	private User whoCreatedTheSkypeCall;
 
+	@Column(name = "google_calendar_event_id")
+	private String googleCalendarEventId;
+
 	public AssignSkypeCall() {
 	}
 
@@ -133,5 +136,13 @@ public class AssignSkypeCall {
 
 	public void setSkypeCallDateCompleted(boolean skypeCallDateCompleted) {
 		this.skypeCallDateCompleted = skypeCallDateCompleted;
+	}
+
+	public String getGoogleCalendarEventId() {
+		return googleCalendarEventId;
+	}
+
+	public void setGoogleCalendarEventId(String googleCalendarEventId) {
+		this.googleCalendarEventId = googleCalendarEventId;
 	}
 }

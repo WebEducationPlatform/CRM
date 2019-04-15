@@ -4,6 +4,7 @@ import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.models.AssignSkypeCall;
 import com.ewp.crm.repository.interfaces.AssignSkypeCallRepository;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
+import com.ewp.crm.service.interfaces.GoogleCalendarService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -17,11 +18,14 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 
 	private final AssignSkypeCallRepository assignSkypeCallRepository;
 	private final VKService vkService;
+	private final GoogleCalendarService calendarService;
 
 	@Autowired
-	public AssignSkypeCallServiceImpl(AssignSkypeCallRepository assignSkypeCallRepository, @Lazy VKService vkService) {
+	public AssignSkypeCallServiceImpl(AssignSkypeCallRepository assignSkypeCallRepository, @Lazy VKService vkService,
+                                      GoogleCalendarService calendarService) {
 		this.assignSkypeCallRepository = assignSkypeCallRepository;
 		this.vkService = vkService;
+		this.calendarService = calendarService;
 	}
 
     @Override
@@ -30,12 +34,19 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
         vkService.sendFirstSkypeNotification(assignSkypeCall.getToAssignSkypeCall(),
                 assignSkypeCall.getSkypeCallDate(),
                 VKConfigImpl.firstSkypeNotificationType.UPDATE);
+        String eventId = assignSkypeCall.getGoogleCalendarEventId();
+        if (eventId != null && !eventId.isEmpty()) {
+            calendarService.updateCalendarEvent(eventId, assignSkypeCall.getSkypeCallDate(), assignSkypeCall.getToAssignSkypeCall());
+        }
     }
 
     @Override
 	public void addSkypeCall(AssignSkypeCall assignSkypeCall) {
-		assignSkypeCallRepository.saveAndFlush(assignSkypeCall);
-		vkService.sendFirstSkypeNotification(assignSkypeCall.getToAssignSkypeCall(),
+        Optional<String> eventId =
+                calendarService.addCalendarEvent(assignSkypeCall.getSkypeCallDate(), assignSkypeCall.getToAssignSkypeCall());
+        eventId.ifPresent(assignSkypeCall::setGoogleCalendarEventId);
+        assignSkypeCallRepository.saveAndFlush(assignSkypeCall);
+        vkService.sendFirstSkypeNotification(assignSkypeCall.getToAssignSkypeCall(),
                 assignSkypeCall.getSkypeCallDate(),
                 VKConfigImpl.firstSkypeNotificationType.CREATE);
 	}
@@ -54,6 +65,10 @@ public class AssignSkypeCallServiceImpl extends CommonServiceImpl<AssignSkypeCal
 	public void deleteByIdSkypeCall(Long id) {
         AssignSkypeCall assignSkypeCall = get(id);
         if (assignSkypeCall != null) {
+            String eventId = assignSkypeCall.getGoogleCalendarEventId();
+            if (eventId != null && !eventId.isEmpty()) {
+                calendarService.deleteCalendarEvent(eventId);
+            }
             vkService.sendFirstSkypeNotification(assignSkypeCall.getToAssignSkypeCall(),
                     assignSkypeCall.getSkypeCallDate(),
                     VKConfigImpl.firstSkypeNotificationType.DELETE);
