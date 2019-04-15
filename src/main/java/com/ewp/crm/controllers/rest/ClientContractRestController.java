@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ContractSetting;
+import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ContractSettingService;
@@ -33,7 +34,7 @@ public class ClientContractRestController {
     @PostMapping("/create")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity createContractSetting(@RequestBody ContractSetting setting, @AuthenticationPrincipal User userFromSession) {
-        if (googleTokenService.getToken(GoogleTokenService.TokenType.DRIVE).isPresent()) {
+        if (googleTokenService.getToken(GoogleToken.TokenType.DRIVE).isPresent()) {
             Long clientId = setting.getClientId();
             Client client = clientService.get(clientId);
             if (client.getContractLinkData() == null) {

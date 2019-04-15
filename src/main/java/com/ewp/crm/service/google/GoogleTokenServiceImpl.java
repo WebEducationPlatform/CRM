@@ -38,18 +38,12 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
     }
 
     @Override
-    public Optional<GoogleToken> getToken(TokenType tokenType) {
-        switch (tokenType) {
-            case DRIVE:
-                return tokenRepository.findById(1L);
-            case CALENDAR:
-                return tokenRepository.findById(2L);
-        }
-        return Optional.empty();
+    public Optional<GoogleToken> getToken(GoogleToken.TokenType tokenType) {
+        return Optional.ofNullable(tokenRepository.getByTokenType(tokenType));
     }
 
     @Override
-    public void createOrUpdate(GoogleToken accessToken, TokenType tokenType) {
+    public void createOrUpdate(GoogleToken accessToken, GoogleToken.TokenType tokenType) {
         GoogleToken token = accessToken;
         if (getToken(tokenType).isPresent()) {
             token = getToken(tokenType).get();
@@ -60,7 +54,8 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
     }
 
     @Override
-    public Optional<GoogleToken> getRefreshedToken(TokenType tokenType) {
+    public Optional<GoogleToken> getRefreshedToken(GoogleToken.TokenType tokenType) {
+        String res = StringUtils.EMPTY;
         try {
             if (getToken(tokenType).isPresent()) {
                 GoogleToken googleToken = getToken(tokenType).get();
@@ -71,11 +66,11 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                 String clientId = StringUtils.EMPTY;
                 String clientSecret = StringUtils.EMPTY;
                 switch (tokenType) {
-                    case CALENDAR:
+                    case DRIVE:
                         clientId = googleAPIConfig.getDriveClientId();
                         clientSecret = googleAPIConfig.getDriveClientSecret();
                         break;
-                    case DRIVE:
+                    case CALENDAR:
                         clientId = googleAPIConfig.getCalendarClientId();
                         clientSecret = googleAPIConfig.getCalendarClientSecret();
                         break;
@@ -90,7 +85,7 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                 httpPostMessages.setEntity(new StringEntity(refreshParam));
                 HttpClient httpClient = getHttpClient();
                 HttpResponse response = httpClient.execute(httpPostMessages);
-                String res = EntityUtils.toString(response.getEntity());
+                res = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(res);
                 String accessToken = json.getString("access_token");
                 googleToken.setAccessToken(accessToken);
@@ -100,7 +95,7 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
         } catch (IOException e) {
             logger.error("Error with upload json for refreshing token", e);
         } catch (JSONException e) {
-            logger.error("Error with parsing json", e);
+            logger.error("Error with parsing json " + res, e);
         }
         return Optional.empty();
     }

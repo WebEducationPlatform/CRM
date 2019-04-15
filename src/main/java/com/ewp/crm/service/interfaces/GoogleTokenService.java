@@ -6,15 +6,10 @@ import java.util.Optional;
 
 public interface GoogleTokenService {
 
-    Optional<GoogleToken> getToken(TokenType tokenType);
+    Optional<GoogleToken> getToken(GoogleToken.TokenType tokenType);
 
-    void createOrUpdate(GoogleToken accessToken, TokenType tokenType);
+    void createOrUpdate(GoogleToken accessToken, GoogleToken.TokenType tokenType);
 
-    Optional<GoogleToken> getRefreshedToken(TokenType tokenType);
-
-    enum TokenType {
-        CALENDAR,
-        DRIVE
-    }
+    Optional<GoogleToken> getRefreshedToken(GoogleToken.TokenType tokenType);
 
 }
