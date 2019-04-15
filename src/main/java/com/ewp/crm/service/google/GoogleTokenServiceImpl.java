@@ -4,6 +4,7 @@ import com.ewp.crm.configs.GoogleAPIConfigImpl;
 import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.repository.interfaces.GoogleTokenRepository;
 import com.ewp.crm.service.interfaces.GoogleTokenService;
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -75,12 +76,13 @@ public class GoogleTokenServiceImpl implements GoogleTokenService {
                         clientSecret = googleAPIConfig.getCalendarClientSecret();
                         break;
                 }
-                String refreshParam = "{" +
-                        "  \"refresh_token\": \"" + googleToken.getRefreshToken() + "\"," +
-                        "  \"client_id\": \"" + clientId + "\", " +
-                        "  \"client_secret\": \"" + clientSecret + "\", " +
-                        "  \"grant_type\": \"refresh_token\" " +
-                        "}";
+                
+                JsonObject root = new JsonObject();
+                root.addProperty("refresh_token", googleToken.getRefreshToken());
+                root.addProperty("client_id", clientId);
+                root.addProperty("client_secret", clientSecret);
+                root.addProperty("grant_type", "refresh_token");
+                String refreshParam = root.toString();
 
                 httpPostMessages.setEntity(new StringEntity(refreshParam));
                 HttpClient httpClient = getHttpClient();
