@@ -265,7 +265,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public Optional<ClientHistory> createUpdateFromSlackRegFormHistory(Client prev, Client current, ClientHistory.Type type) {
+	public Optional<ClientHistory> createHistoryFromSlackRegForm(Client prev, Client current, ClientHistory.Type type) {
         ClientHistory clientHistory = new ClientHistory(type);
         clientHistory.setTitle(type.getInfo());
         if (current.equals(prev)) {
