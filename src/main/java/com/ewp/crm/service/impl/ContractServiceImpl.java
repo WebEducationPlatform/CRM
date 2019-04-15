@@ -72,8 +72,8 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public boolean updateContractLink(ContractLinkData contractLinkData) {
-        if (googleTokenService.getRefreshedToken().isPresent()) {
-            String token = googleTokenService.getRefreshedToken().get().getAccessToken();
+        if (googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE).isPresent()) {
+            String token = googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE).get().getAccessToken();
             String url = updateUri +
                     "?q='" + folderId + "'+in+parents" +
                     "&access_token=" + token;
