@@ -1763,7 +1763,13 @@ $(function () {
                 if (client.contractLinkData != null) {
                     $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
                         'data-toggle="modal" data-target="#contract-client-link-modal" >Договор</button>');
-                    $('#contract-client-link-modal-link').empty().val(client.contractLinkData.contractLink);
+                    $.ajax({
+                        type: 'GET',
+                        url: "/contract/updateLink?id=" + client.id,
+                        success: function (newLink) {
+                            $('#contract-client-link-modal-link').empty().val(newLink);
+                        }
+                    });
                 } else {
                     $('#contract-btn').empty().append('<button class="btn btn-info btn-sm" id="get-contract-button" ' +
                         'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');

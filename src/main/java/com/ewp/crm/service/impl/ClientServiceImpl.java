@@ -492,10 +492,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public void setContractLink(Long clientId, String contractLink) {
+    public void setContractLink(Long clientId, String contractLink, String contractName) {
         Client client = clientRepository.getOne(clientId);
         ContractLinkData contractLinkData = new ContractLinkData();
         contractLinkData.setContractLink(contractLink);
+        contractLinkData.setContractName(contractName);
         contractLinkData.setClient(client);
         client.setContractLinkData(contractLinkData);
         clientRepository.saveAndFlush(client);
