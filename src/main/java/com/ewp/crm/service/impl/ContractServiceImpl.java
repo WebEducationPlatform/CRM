@@ -111,7 +111,7 @@ public class ContractServiceImpl implements ContractService {
     public Optional<Map<String,String>> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting) {
         Optional<File> fileOptional = createFileWithDataAndSetting(data, setting);
         if (fileOptional.isPresent()) {
-            Optional<GoogleToken> googleTokenOptional = googleTokenService.getRefreshedToken();
+            Optional<GoogleToken> googleTokenOptional = googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE);
             if (googleTokenOptional.isPresent()) {
                 File file = fileOptional.get();
                 String token = googleTokenOptional.get().getAccessToken();
