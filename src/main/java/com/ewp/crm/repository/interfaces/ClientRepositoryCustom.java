@@ -8,7 +8,27 @@ import java.util.List;
 
 public interface ClientRepositoryCustom {
 
+    boolean hasClientSocialProfileByType(Client client, String socialProfileType);
+
+	String getSlackLinkHashForClient(Client client);
+
+    ClientHistory getNearestClientHistoryBeforeDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
+
+    ClientHistory getNearestClientHistoryAfterDate(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types);
+
+	ClientHistory getNearestClientHistoryAfterDateByHistoryType(Client client, ZonedDateTime dateTime, List<ClientHistory.Type> types, String title);
+
+	ClientHistory getHistoryByClientAndHistoryTimeIntervalAndHistoryType(Client client, ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title);
+
+    boolean hasClientBeenInStatusBefore(long clientId, ZonedDateTime date, String statusName);
+
+	List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType);
+
+	List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType);
+
 	List filteringClient(FilteringCondition filteringCondition);
+
+	List<Client> filteringClientWithoutPaginator(FilteringCondition filteringCondition);
 
 	List<Client> getChangeActiveClients();
 
@@ -28,9 +48,11 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 
-	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types);
+	List<Client> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
 
-	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, ClientHistory.Type[] types, String title);
+	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, List<Status> excludeStatuses);
+
+	long getCountClientByHistoryTimeIntervalAndHistoryTypeAndTitle(ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, String title);
 
 	Long countByDate(String date);
 

@@ -1,7 +1,6 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -153,7 +152,8 @@ public class ClientHistory {
 		ADD_LOGIN("установил клиенту логин в skype - "),
         ADD_STUDENT("сделал клиента студентом"),
         UPDATE_STUDENT("обновил информацию студента"),
-        DELETE_STUDENT("удалил студента");
+        DELETE_STUDENT("удалил студента"),
+		SLACK_UPDATE("обновил данные из формы регистрации в Slack");
 
         private String info;
 

@@ -42,6 +42,14 @@ public class VKConfigImpl implements VKConfig {
 
     private String vkAppAccessToken;
 
+    private String firstSkypeNotifyChatId;
+
+    private String firstSkypeMessageTemplate;
+
+    private String firstSkypeUpdateMessageTemplate;
+
+    private String firstSkypeDeleteMessageTemplate;
+
     private static Logger logger = LoggerFactory.getLogger(VKConfigImpl.class);
 
     @Autowired
@@ -56,14 +64,19 @@ public class VKConfigImpl implements VKConfig {
             scope = env.getRequiredProperty("vk.app.scope");
             robotClientId = env.getRequiredProperty("vk.robot.app.clientId");
             robotClientSecret = env.getRequiredProperty("vk.robot.app.clientSecret");
-            firstContactMessage = env.getProperty("vk.robot.message.firstContact");
-            apiUrl  = env.getProperty("vk.apiUrl");
-            managerToken = env.getProperty("vk.manager.token");
-            vkReportChatId = env.getProperty("vk.app.reports.service.chat.id");
-            vkAdsClientId = env.getProperty("vk.ads.client.id");
-            vkAppAccessToken = env.getProperty("vk.robot.app.accesstoken");
-        } catch (Exception e) {
+            firstContactMessage = env.getRequiredProperty("vk.robot.message.firstContact");
+            apiUrl  = env.getRequiredProperty("vk.apiUrl");
+            managerToken = env.getRequiredProperty("vk.manager.token");
+            vkReportChatId = env.getRequiredProperty("vk.app.reports.service.chat.id");
+            vkAdsClientId = env.getRequiredProperty("vk.ads.client.id");
+            vkAppAccessToken = env.getRequiredProperty("vk.robot.app.accesstoken");
+            firstSkypeNotifyChatId = env.getRequiredProperty("vk.firstSkypeNotify.chatId");
+            firstSkypeMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.template");
+            firstSkypeUpdateMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.updateTemplate");
+            firstSkypeDeleteMessageTemplate = env.getRequiredProperty("vk.firstSkypeNotify.deleteTemplate");
+        } catch (IllegalStateException e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
+            System.exit(1);
         }
     }
 
@@ -128,4 +141,31 @@ public class VKConfigImpl implements VKConfig {
     public String getVkAppAccessToken() {
         return vkAppAccessToken;
     }
+
+    @Override
+    public String getFirstSkypeUpdateMessageTemplate() {
+        return firstSkypeUpdateMessageTemplate;
+    }
+
+    @Override
+    public String getFirstSkypeDeleteMessageTemplate() {
+        return firstSkypeDeleteMessageTemplate;
+    }
+
+    @Override
+    public String getFirstSkypeNotifyChatId() {
+        return firstSkypeNotifyChatId;
+    }
+
+    @Override
+    public String getFirstSkypeMessageTemplate() {
+        return firstSkypeMessageTemplate;
+    }
+
+    public enum firstSkypeNotificationType {
+        CREATE,
+        UPDATE,
+        DELETE
+    }
+
 }

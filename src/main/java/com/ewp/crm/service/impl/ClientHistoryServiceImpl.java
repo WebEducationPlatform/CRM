@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -118,6 +118,16 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return Optional.of(clientHistory);
 	}
 
+	//worker change status on [status] from [last_status]
+    @Override
+	public Optional<ClientHistory> createHistoryOfChangingStatus(User user, Client client, Status lastStatus) {
+        logger.info("creation of client history...");
+        ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS);
+        String action = user.getFullName() + " " + ClientHistory.Type.STATUS.getInfo();
+        clientHistory.setTitle(action + " " + client.getStatus() + " из " + lastStatus);
+        return Optional.of(clientHistory);
+    }
+
 	/*
 		admin assigned worker to client
 		admin unassigned worker on client
@@ -212,6 +222,34 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		return Optional.of(clientHistory);
 	}
 
+	@Override
+	public Optional<ClientHistory> createHistoryOfDeletingEmail(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
+	}
+
+	@Override
+	public Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type) {
+		logger.info("creation of history...");
+		ClientHistory history = new ClientHistory(type);
+		history.setTitle(user.getFullName() + " " + type.getInfo());
+
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Phone: " + client.getPhoneNumber() + " -> null");
+		if (message.isPresent()) {
+			history.setMessage(message.get());
+			history.setLink(message.get().getId().toString());
+		}
+		return Optional.of(history);
+	}
+
 	/**
 	 * Create client history when student .
 	 * @param user change author.
@@ -225,6 +263,31 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		clientHistory.setTitle(user.getFullName() + " " + type.getInfo());
 		return Optional.of(clientHistory);
 	}
+
+	@Override
+	public Optional<ClientHistory> createHistoryFromSlackRegForm(Client prev, Client current, ClientHistory.Type type) {
+        ClientHistory clientHistory = new ClientHistory(type);
+        clientHistory.setTitle(type.getInfo());
+        if (current.equals(prev)) {
+            logger.info("Can't find changes");
+            return Optional.of(clientHistory);
+        }
+        StringBuilder content = new StringBuilder();
+        DiffResult diffsClients = prev.diffByNameAndLastNameAndEmail(current);
+        diffsClients.getDiffs().stream().map(
+                d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())
+                .forEach(str -> content.append(str).append("\n"));
+        if (content.toString().isEmpty()) {
+            logger.info("Can't find changes");
+            return Optional.of(clientHistory);
+        }
+        Optional<Message> message = messageService.addMessage(Message.Type.DATA, content.toString());
+        if (message.isPresent()) {
+            clientHistory.setMessage(message.get());
+            clientHistory.setLink(message.get().getId().toString());
+        }
+        return Optional.of(clientHistory);
+    }
 
 	/**
 	 * Create client history when student modified.
@@ -244,7 +307,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 			return Optional.of(clientHistory);
 		}
 		DiffResult diffs = prev.diff(current);
-		DiffResult diffsClients = prev.getClient().diffOnStudentEdit(current.getClient());
+		DiffResult diffsClients = prev.getClient().diffByNameAndLastNameAndEmail(current.getClient());
 		StringBuilder content = new StringBuilder();
 		diffs.getDiffs().stream().map(
 				d -> d.getFieldName() + ": " + d.getLeft() + " -> " + d.getRight())

@@ -5,7 +5,7 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>1.2-CRM</version>
+	<version>release</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>
@@ -42,6 +42,7 @@
 		<logback.version>1.2.3</logback.version>
 		<fasterxml.jackson.version>2.9.6</fasterxml.jackson.version>
 		<jadira.usertype.version>6.0.1.GA</jadira.usertype.version>
+		<lombok.version>1.18.6</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -214,11 +215,6 @@
 		<dependency>
 			<groupId>com.github.javafaker</groupId>
 			<artifactId>javafaker</artifactId>
-			<version>0.15</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.javafaker</groupId>
-			<artifactId>javafaker</artifactId>
 			<version>${javafaker.version}</version>
 		</dependency>
 		<dependency>
@@ -242,6 +238,12 @@
 			<version>0.5.12</version>
 		</dependency>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j</artifactId>
 			<version>6.0.1</version>
@@ -260,6 +262,17 @@
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>61.1</version>
+        </dependency>
+        <!-- Ads client library dependencies -->
+        <dependency>
+            <groupId>com.google.api-ads</groupId>
+            <artifactId>ads-lib</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-ads</groupId>
+            <artifactId>adwords-axis</artifactId>
+            <version>4.5.0</version>
         </dependency>
 	</dependencies>
 

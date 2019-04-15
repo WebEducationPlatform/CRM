@@ -1,8 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.ContractSetting;
+import com.ewp.crm.models.GoogleToken;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ContractSettingService;
@@ -13,10 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/client/contract/rest")
@@ -36,12 +34,12 @@ public class ClientContractRestController {
     @PostMapping("/create")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity createContractSetting(@RequestBody ContractSetting setting, @AuthenticationPrincipal User userFromSession) {
-        if (googleTokenService.getToken().isPresent()) {
+        if (googleTokenService.getToken(GoogleToken.TokenType.DRIVE).isPresent()) {
             Long clientId = setting.getClientId();
             Client client = clientService.get(clientId);
             if (client.getContractLinkData() == null) {
                 client.setOwnerUser(userFromSession);
-                clientService.updateClient(client);
+                clientService.update(client);
                 logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
                 setting.setUser(userFromSession);
                 settingService.save(setting);
@@ -54,5 +52,4 @@ public class ClientContractRestController {
         }
         return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
-
 }

@@ -4,6 +4,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.UserService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -28,14 +31,17 @@ public class InitRestController {
 
     private final ClientService clientService;
 
+    private final SlackService slackService;
+
     private final static Logger logger = LoggerFactory.getLogger(InitRestController.class);
 
     @Autowired
-    public InitRestController(UserService userService, PasswordEncoder passwordEncoder, VKService vkService, ClientService clientService) {
+    public InitRestController(UserService userService, PasswordEncoder passwordEncoder, VKService vkService, ClientService clientService, SlackService slackService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.vkService = vkService;
         this.clientService = clientService;
+        this.slackService = slackService;
     }
     @GetMapping(value = "/updatepassword")
     public ResponseEntity updateVkTrackedClub() {
@@ -59,5 +65,11 @@ public class InitRestController {
             logger.info("Update client id={} from profile vk", client.getId());
         }
         return ResponseEntity.ok("clients have updated");
+    }
+
+    @GetMapping(value = "/updateSlackProfiles")
+    public ResponseEntity updateSlackProfiles() {
+        slackService.tryLinkSlackAccountToAllStudents();
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

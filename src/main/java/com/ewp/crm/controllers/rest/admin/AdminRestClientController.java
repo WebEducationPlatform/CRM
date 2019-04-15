@@ -84,6 +84,7 @@ public class AdminRestClientController {
         currentClient.setCallRecords(clientFromDB.getCallRecords());
         currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
         currentClient.setLiveSkypeCall(clientFromDB.isLiveSkypeCall());
+        currentClient.setState(clientFromDB.getState());
         if (currentClient.equals(clientFromDB)) {
             return ResponseEntity.noContent().build();
         }

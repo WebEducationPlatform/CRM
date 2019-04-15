@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,9 @@ public class User implements UserDetails {
 	@Pattern(regexp = ValidationPattern.USER_FIRSTNAME_LASTNAME_PATTERN)
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
+
+	@Column(name = "birth_date")
+	private LocalDate birthDate;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
@@ -166,9 +170,10 @@ public class User implements UserDetails {
 		this.isVerified = false;
 	}
 
-	public User(String firstName, String lastName, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony, boolean isVerified) {
+	public User(String firstName, String lastName, LocalDate birthDate, String phoneNumber, String email, String password, String vk, String sex,  String city, String country,  List<Role> role, boolean ipTelephony, boolean isVerified) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.birthDate = birthDate;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.password = password;
@@ -450,5 +455,13 @@ public class User implements UserDetails {
 
 	public void setEnableSmsNotifications(boolean enableSmsNotifications) {
 		this.enableSmsNotifications = enableSmsNotifications;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
 	}
 }

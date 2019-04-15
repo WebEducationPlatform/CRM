@@ -1,10 +1,18 @@
 $(document).ready(function () {
-    setInterval(getUnreadMessages, 9000);
+    setInterval(getUnreadMessages, 5000);
 });
 
 function getUnreadMessages() {
-    $.when($.get('/rest/conversation/all-byClient')).done(function (dataParam) {
-        getUnreadMessages_CallBack(dataParam);
+    $.ajax({
+        url: '/rest/conversation/all-byClient',
+        async: true,
+        type: 'GET',
+        xhrFields: {
+            withCredentials: true
+        },
+        success: function (dataParam) {
+            getUnreadMessages_CallBack(dataParam);
+        }
     });
 }
 

@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.SocialProfileType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
@@ -64,6 +65,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
             result = client.getStudent();
         }
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<Student> getStudentsWithoutSocialProfileByType(List<SocialProfileType> excludeSocialProfiles) {
+        return studentRepositoryCustom.getStudentsWithoutSocialProfileByType(excludeSocialProfiles);
     }
 
     @Override

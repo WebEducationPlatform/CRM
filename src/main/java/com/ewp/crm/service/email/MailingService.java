@@ -6,8 +6,9 @@ import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.service.interfaces.SMSService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +37,25 @@ public class MailingService {
     private static LocalDateTime vkMessageNextSendTime = LocalDateTime.now();
     private static final String EMAIL_PATTERN = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
     private static final String SMS_PATTERN = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
+    private static final String SLACK_PATTERN = ".+";
 
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
     private final VKService vkService;
+    private final SlackService slackService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
-                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine) {
+                          MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine,
+                          SlackService slackService) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
+        this.slackService = slackService;
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -80,14 +85,23 @@ public class MailingService {
 
     public boolean sendMessage(MailingMessage message) {
         boolean result = true;
-        if (message.getType().equals("email")) {
-            result = sendingMailingsEmails(message);
-        } else if (message.getType().equals("sms")) {
-            sendingMailingSMS(message);
-        } else if (message.getType().equals("vk") && message.getVkType().equals("managerPage")) {
-            sendingMailingVkWithManagerAccount(message);
-        } else {
-            sendingMailingVk(message);
+        switch (message.getType()) {
+            case "email":
+                result = sendingMailingsEmails(message);
+                break;
+            case "sms":
+                sendingMailingSMS(message);
+                break;
+            case "vk":
+                if (message.getVkType().equals("managerPage")) {
+                    sendingMailingVkWithManagerAccount(message);
+                } else {
+                    sendingMailingVk(message);
+                }
+                break;
+            case "slack":
+                sendingMailingSlack(message);
+                break;
         }
         return result;
     }
@@ -137,6 +151,24 @@ public class MailingService {
     private void sendingMailingSMS(MailingMessage message) {
         smsService.sendSMS(message.getClientsData(), message.getText());
         message.setReadedMessage(true);
+        mailingMessageRepository.save(message);
+    }
+
+    private void sendingMailingSlack(MailingMessage message) {
+        List<String> notSendList = new ArrayList<>();
+        message.getClientsData().forEach(c -> {
+            try {
+                boolean sendResult = slackService.trySendMessageToSlackUser(c.getInfo(), message.getText());
+                if (!sendResult) {
+                    notSendList.add(c.getInfo());
+                }
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.error("a lot of requests", e);
+            }
+        });
+        message.setReadedMessage(true);
+        message.setNotSendId(notSendList);
         mailingMessageRepository.save(message);
     }
 
@@ -212,6 +244,9 @@ public class MailingService {
             case "vk":
                 addVkMailingToSendQueue(recipients, text, destinationDate, vkType, user);
                 return;
+            case "slack":
+                pattern = SLACK_PATTERN;
+                break;
             case "sms":
                 pattern = SMS_PATTERN;
                 break;

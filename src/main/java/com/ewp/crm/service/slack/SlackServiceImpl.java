@@ -1,14 +1,14 @@
 package com.ewp.crm.service.slack;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.SlackProfile;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.service.impl.StudentServiceImpl;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,12 +20,10 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Optional;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
 
 @Service
 @PropertySources(value = {
@@ -34,120 +32,402 @@ import java.util.Optional;
 })
 public class SlackServiceImpl implements SlackService {
 
+    private static final String SLACK_API_URL = "https://slack.com/api/";
+    private static final String URL_ENCODING_CHARSET = "UTF-8";
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
-
+    private final StudentService studentService;
+    private final ProjectProperties projectProperties;
+    private final SocialProfileTypeService socialProfileTypeService;
+    private final SocialProfileService socialProfileService;
     private final ClientService clientService;
-    private final StudentServiceImpl studentService;
-    private final StatusService statusService;
-    private final ClientHistoryService clientHistoryService;
-    private final ProjectPropertiesService propertiesService;
-
-    // get it for you Workspace from
-    // https://api.slack.com/custom-integrations/legacy-tokens
-    // and put in to slack.properties
-    private String LEGACY_TOKEN;
+    private final String slackWorkspaceUrl;
+    private final String appToken;
+    private final String legacyToken;
+    private final String generalChannelId;
+    private final String defaultPrivateGroupNameTemplate;
 
     @Autowired
-    public SlackServiceImpl(Environment environment,
-                            ClientService clientService,
-                            StudentServiceImpl studentService,
-                            StatusService statusService,
-                            ClientHistoryService clientHistoryService,
-                            ProjectPropertiesService propertiesService) {
-        try {
-            this.LEGACY_TOKEN = environment.getRequiredProperty("slack.legacyToken");
-            if (LEGACY_TOKEN.isEmpty()) {
-                throw new NullPointerException();
-            }
-        } catch (NullPointerException npe) {
-            logger.error("Can't get slack.legacyToken get it from https://api.slack.com/custom-integrations/legacy-tokens", npe);
-        }
-        this.clientService = clientService;
+    public SlackServiceImpl(Environment environment, StudentService studentService,
+                            SocialProfileTypeService socialProfileTypeService, ClientService clientService,
+                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService) {
+        this.appToken = assignPropertyToString(environment,
+                "slack.appToken",
+                    "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
+        this.legacyToken = assignPropertyToString(environment,
+                "slack.legacyToken",
+                    "Can't get 'slack.legacyToken' get it from https://api.slack.com/custom-integrations/legacy-tokens");
+        this.slackWorkspaceUrl = assignPropertyToString(environment,
+                "slack.workspace.url",
+                    "Can't get 'slack.workspace.url' please check slack.properties file");
+        this.generalChannelId = assignPropertyToString(environment,
+                "slack.workspace.generalChannelId",
+                    "Can't get 'slack.workspace.generalChannelId' please check slack.properties file");
+        this.defaultPrivateGroupNameTemplate = assignPropertyToString(environment,
+                "slack.group.default.name.template",
+                    "Can't get 'slack.group.default.name.template' please check slack.properties file");
         this.studentService = studentService;
-        this.statusService = statusService;
-        this.clientHistoryService = clientHistoryService;
-        this.propertiesService = propertiesService;
+        this.socialProfileTypeService = socialProfileTypeService;
+        this.clientService = clientService;
+        this.socialProfileService = socialProfileService;
+        this.projectProperties = projectPropertiesService.getOrCreate();
     }
 
-    @Override
-    public SlackProfile receiveClientSlackProfileBySlackHashName(String slackHashName) {
-        try {
-            String url = "https://slack.com/api/users.info?token=" + LEGACY_TOKEN + "&user=" + slackHashName;
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            JsonNode actualObj = objectMapper.readTree(response.toString()).get("user").get("profile");
-            SlackProfile clientSlackProfile = objectMapper.treeToValue(actualObj, SlackProfile.class);
-            clientSlackProfile.setHashName(slackHashName);
-            return clientSlackProfile;
-        } catch (IOException | RuntimeException e) {
-            logger.warn("Can't receive Client Slack profile", e);
+    private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
+        String result = environment.getProperty(propertyName);
+        if (result == null || result.isEmpty()) {
+            logger.warn(errorText);
+            return StringUtils.EMPTY;
         }
-        return new SlackProfile();
+        return result;
     }
 
     @Override
-    public String getEmailListFromJson(String json) {
+    public boolean tryLinkSlackAccountToStudent(long studentId) {
+        Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
+        return allWorkspaceUsersData.filter(s -> tryLinkSlackAccountToStudent(studentId, s)).isPresent();
+    }
+
+    @Override
+    public void tryLinkSlackAccountToAllStudents() {
+        Optional<SocialProfileType> slackType = socialProfileTypeService.getByTypeName("slack");
+        if (slackType.isPresent()) {
+            Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
+            if (allWorkspaceUsersData.isPresent()) {
+                List<SocialProfileType> excludeSocialProfileTypes = Arrays.asList(slackType.get());
+                List<Student> students = studentService.getStudentsWithoutSocialProfileByType(excludeSocialProfileTypes);
+                for (Student student : students) {
+                    tryLinkSlackAccountToStudent(student.getId(), allWorkspaceUsersData.get());
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean tryLinkSlackAccountToStudent(long studentId, String slackAllUsersJsonResponse) {
+        // Weights for matches
+        double emailWeight = 1.0d;
+        double nameWeight = 0.25d;
+        double lastNameWeight = 0.25d;
+        // Key = slack user id, Value = match weight
+        Map<String, Double> matchesWithWeight = new HashMap<>();
+        Student student = studentService.get(studentId);
+        Client client = student.getClient();
+        List<SlackProfile> profiles = parseSlackUsersFromJson(slackAllUsersJsonResponse);
+        for (SlackProfile profile :profiles) {
+            double currentWeight = 0d;
+            String id = profile.id;
+            String name = profile.name;
+            String email = profile.mail;
+            if (email != null && !email.isEmpty() && email.equals(client.getEmail())) {
+                currentWeight += emailWeight;
+            }
+            if (name != null) {
+                if (name.contains(client.getName())) {
+                    currentWeight += nameWeight;
+                }
+                if (name.contains(client.getLastName())) {
+                    currentWeight += lastNameWeight;
+                }
+            }
+            if (currentWeight >= nameWeight + lastNameWeight) {
+                matchesWithWeight.put(id, currentWeight);
+            }
+        }
+        if (!matchesWithWeight.isEmpty()) {
+            Optional<Map.Entry<String, Double>> maximumMatch = matchesWithWeight.entrySet().stream().max(Map.Entry.comparingByValue());
+            if (maximumMatch.isPresent()) {
+                Optional<SocialProfileType> slackSocialProfileTypeOpt = socialProfileTypeService.getByTypeName("slack");
+                if (slackSocialProfileTypeOpt.isPresent()) {
+                    String slackId = maximumMatch.get().getKey();
+                    SocialProfileType slackSocialProfileType = slackSocialProfileTypeOpt.get();
+                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(slackId, slackSocialProfileType.getName()).isPresent()) {
+                        client.addSocialProfile(new SocialProfile(slackId, slackSocialProfileType));
+                        clientService.updateClient(client);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean trySendSlackMessageToStudent(long studentId, String text) {
+        Student student = studentService.get(studentId);
+        if (student != null) {
+            Client client = student.getClient();
+            List<SocialProfile> profiles = client.getSocialProfiles();
+            for (SocialProfile socialProfile :profiles) {
+                if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
+                    return trySendMessageToSlackUser(socialProfile.getSocialId(), text);
+                }
+            }
+            if (tryLinkSlackAccountToStudent(studentId)) {
+                return trySendSlackMessageToStudent(studentId, text);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<String> getAllEmailsFromSlack() {
+        Optional<String> json = receiveAllClientsFromWorkspace();
+        StringBuilder result = new StringBuilder();
+        if (json.isPresent()) {
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            for (SlackProfile profile : slackProfiles) {
+                String email = profile.mail;
+                if (email != null && !email.isEmpty()) {
+                    result.append(email).append("\n");
+                }
+            }
+        }
+        return result.toString().isEmpty() ? Optional.empty() : Optional.of(result.toString());
+    }
+
+    @Override
+    public Optional<String> getAllIdsFromSlack() {
+        Optional<String> json = receiveAllClientsFromWorkspace();
+        StringBuilder result = new StringBuilder();
+        if (json.isPresent()) {
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            for (SlackProfile profile : slackProfiles) {
+                if (profile.id != null && !profile.id.isEmpty()) {
+                    result.append(profile.id).append("\n");
+                }
+            }
+        }
+        return result.toString().isEmpty() ? Optional.empty() : Optional.of(result.toString());
+    }
+
+    @Override
+    public boolean trySendMessageToAllSlackUsers(String text) {
+        Optional<String> json = receiveAllClientsFromWorkspace();
+        boolean result = false;
+        if (json.isPresent()) {
+            List<SlackProfile> slackProfiles = parseSlackUsersFromJson(json.get());
+            result = !slackProfiles.isEmpty();
+            for (SlackProfile profile : slackProfiles) {
+                result &= trySendMessageToSlackUser(profile.id, text);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean trySendMessageToAllStudents(String text) {
+        List<Student> students = studentService.getAll();
+        boolean result = !students.isEmpty();
+        for (Student student :students) {
+            result &= trySendSlackMessageToStudent(student.getId(), text);
+        }
+        return result;
+    }
+
+    private Optional<String> receiveAllClientsFromWorkspace() {
+        String url = SLACK_API_URL + "users.list" +
+                "?token=" + appToken;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            return Optional.ofNullable(EntityUtils.toString(entity));
+        } catch (IOException e) {
+            logger.error("Can't get data from Slack server", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean trySendMessageToSlackUser(String slackUserId, String text) {
+        Optional<String> chatId = getChatIdForSlackUser(slackUserId);
+        return chatId.filter(s -> trySendMessageToSlackChannel(s, text)).isPresent();
+    }
+
+    private String trimStringToLength(String input) {
+        String output = input.trim().replaceAll(" ", "");
+        if (output.length() > 9) {
+            output = output.substring(0, 9);
+        }
+        return output;
+    }
+
+    private Optional<String> createPrivateChannel(String name, String lastName, boolean firstAttempt) {
+        String json = StringUtils.EMPTY;
+        String channelName = String.format(defaultPrivateGroupNameTemplate, trimStringToLength(name), trimStringToLength(lastName));
         try {
-            StringBuilder result = new StringBuilder();
+            channelName = URLEncoder.encode(channelName, URL_ENCODING_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Can't encode Slack channel name " + channelName, e);
+        }
+        String url = SLACK_API_URL + "groups.create" +
+                "?token=" + appToken +
+                "&name=" + channelName;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            json = EntityUtils.toString(entity);
+            JSONObject jsonObj = new JSONObject(json);
+            JSONObject groupData = jsonObj.optJSONObject("group");
+            if (groupData != null) {
+                return Optional.ofNullable(groupData.optString("id"));
+            }
+        } catch (IOException e) {
+            logger.error("Can't get slack group id", e);
+        } catch (JSONException e) {
+            logger.error(String.format("Can't parse slack group id json = %s", json), e);
+        }
+        if (firstAttempt) {
+            return createPrivateChannel(lastName, name, false);
+        }
+        return Optional.empty();
+    }
+
+    private void inviteDefaultUsersToChannel(String channelId) {
+        String defaultUsers = projectProperties.getSlackDefaultUsers();
+        if (defaultUsers != null && !defaultUsers.isEmpty()) {
+            String[] users = defaultUsers.split(" ");
+            for (String userId :users) {
+                String url = SLACK_API_URL + "groups.invite" +
+                        "?token=" + appToken +
+                        "&channel=" + channelId +
+                        "&user=" + userId;
+                try (CloseableHttpClient client = HttpClients.createDefault();
+                     CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+                    HttpEntity entity = response.getEntity();
+                    logger.debug(String.format("Default Slack user %s has been invited to channel with response %s", userId, EntityUtils.toString(entity)));
+                } catch (IOException e) {
+                    logger.error(String.format("Can't invite default user %s to channel %s", userId, channelId), e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean inviteToWorkspace(String name, String lastName, String email) {
+        String json = StringUtils.EMPTY;
+        String channels = generalChannelId;
+        Optional<String> privateChannelId = createPrivateChannel(name, lastName, true);
+        if (privateChannelId.isPresent()) {
+            channels += "," + privateChannelId.get();
+            inviteDefaultUsersToChannel(privateChannelId.get());
+        }
+        name = name.trim().replaceAll(" ", "");
+        lastName = lastName.trim().replaceAll(" ", "");
+        try {
+            name = URLEncoder.encode(name, URL_ENCODING_CHARSET);
+            lastName = URLEncoder.encode(lastName, URL_ENCODING_CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(String.format("Can't encode Slack name = %s lastName = %s ", name, lastName), e);
+        }
+        String url = SLACK_API_URL + "users.admin.invite" +
+                "?token=" + legacyToken +
+                "&email=" + email +
+                "&first_name=" + name +
+                "&last_name=" + lastName +
+                "&channels=" + channels;
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            json = EntityUtils.toString(entity);
+            JSONObject jsonObj = new JSONObject(json);
+            return jsonObj.optBoolean("ok");
+        } catch (IOException e) {
+            logger.error("Can't get response when inviting user to Slack", e);
+        } catch (JSONException e) {
+            logger.error(String.format("Can't parse response when inviting user to Slack, json = %s", json), e);
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<String> getChatIdForSlackUser(String slackUserId) {
+        String json = StringUtils.EMPTY;
+        String url = SLACK_API_URL + "im.open" +
+                "?token=" + appToken +
+                "&user=" + slackUserId +
+                "&return_im=true";
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            json = EntityUtils.toString(entity);
+            JSONObject jsonObj = new JSONObject(json);
+            JSONObject chatData = jsonObj.optJSONObject("channel");
+            if (chatData != null) {
+                return Optional.ofNullable(chatData.optString("id"));
+            }
+        } catch (IOException e) {
+            logger.error("Can't get slack chat id for user id " + slackUserId, e);
+        } catch (JSONException e) {
+            logger.error(String.format("Can't parse slack chat id for user id %s json = %s", slackUserId, json), e);
+        }
+        return Optional.empty();
+    }
+
+    private boolean trySendMessageToSlackChannel(String channelId, String text) {
+        String url;
+        String json = StringUtils.EMPTY;
+        try {
+            url = SLACK_API_URL + "chat.postMessage" +
+                    "?token=" + appToken +
+                    "&channel=" + channelId +
+                    "&text=" + URLEncoder.encode(text, URL_ENCODING_CHARSET) +
+                    "&as_user=true";
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Can't format URL for Slack post message request", e);
+            return false;
+        }
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            HttpEntity entity = response.getEntity();
+            json = EntityUtils.toString(entity);
+            JSONObject jsonObj = new JSONObject(json);
+            String sendResult = jsonObj.optString("ok");
+            if ("true".equals(sendResult)) {
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("Can't post message to Slack channel " + channelId, e);
+        } catch (JSONException e) {
+            logger.error(String.format("Can't parse result of sending message to Slack channel %s json = %s", channelId, json), e);
+        }
+        return false;
+    }
+
+    private List<SlackProfile> parseSlackUsersFromJson(String json) {
+        List<SlackProfile> result = new ArrayList<>();
+        try {
             JSONObject jsonObj = new JSONObject(json);
             JSONArray jsonData = jsonObj.getJSONArray("members");
             for (int i = 0; i < jsonData.length(); i++) {
-                JSONObject userProfile = jsonData.getJSONObject(i).optJSONObject("profile");
-                if (userProfile == null) {
-                    continue;
-                }
-                String mail = userProfile.optString("email");
-                if (mail != null && !mail.isEmpty()) {
-                    result.append(mail);
-                    if (i != jsonData.length() - 1) {
-                        result.append("\n");
-                    }
+                JSONObject current = jsonData.getJSONObject(i);
+                JSONObject userProfile = current.optJSONObject("profile");
+                if (userProfile != null) {
+                    String id = current.optString("id");
+                    String mail = userProfile.optString("email");
+                    String name = userProfile.optString("real_name");
+                    result.add(new SlackProfile(id, mail, name));
                 }
             }
-            return result.toString();
         } catch (JSONException e) {
-            logger.warn("Can't parse emails from slack", e);
+            logger.error("Can't parse users from slack json = " + json, e);
         }
-        return "Error";
+        return result;
     }
 
-    @Override
-    public void memberJoinSlack(SlackProfile slackProfile) {
-        Optional<Client> client = clientService.getClientByEmail(slackProfile.getEmail());
-        if (client.isPresent()) {
-            client.get().setSlackProfile(slackProfile);
-            slackProfile.setClient(client.get());
-            ProjectProperties projectProperties = propertiesService.get();
-            if (projectProperties == null || projectProperties.getDefaultStatusId() == null) {
-                logger.warn("Don't have projectProperties yet! Create it.");
-            } else {
-                if (statusService.get(projectProperties.getDefaultStatusId()).isPresent()) {
-                    Status newClientStatus = statusService.get(projectProperties.getDefaultStatusId()).get();
-                    client.get().setStatus(newClientStatus);
-                    newClientStatus.addClient(client.get());
-                    statusService.update(newClientStatus);
-                }
-            }
-            if (client.get().getStudent() == null) {
-                studentService.addStudentForClient(client.get());
-            }
-            clientHistoryService.createHistory("Slack, nickname: " + slackProfile.getDisplayName()
-                    + ". " + client.get().getName() + " " + client.get().getLastName() + " теперь студент").ifPresent(client.get()::addHistory);
-            clientService.updateClient(client.get());
-            logger.info("New member " + slackProfile.getDisplayName() + " "
-                    + slackProfile.getEmail() + " joined to general channel");
-        } else {
-            logger.info(slackProfile.getDisplayName() + " not a client joined to Slack general channel!");
+    public String getSlackWorkspaceUrl() {
+        return slackWorkspaceUrl;
+    }
+
+    private class SlackProfile {
+        private String id;
+        private String mail;
+        private String name;
+
+        private SlackProfile(String id, String mail, String name) {
+            this.id = id;
+            this.mail = mail;
+            this.name = name;
         }
     }
+
 }

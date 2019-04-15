@@ -6,11 +6,15 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -58,21 +62,31 @@ public class ContractController {
                 ContractSetting setting = contractSettingService.getByHash(hash).get();
                 Long clientId = setting.getClientId();
                 //Работа с договором и получение ссылки на него
-                Optional<String> contractId = contractService.getContractIdByFormDataWithSetting(data, setting);
-                if (contractId.isPresent()) {
+                Optional<Map<String,String>> optionalMap = contractService.getContractIdByFormDataWithSetting(data, setting);
+                if (optionalMap.isPresent()) {
                     clientService.updateClientFromContractForm(clientService.get(clientId), data, setting.getUser());
-                    String docLink = googleAPIConfig.getDocsUri() + contractId.get() + "/edit?usp=sharing";
-                    clientService.setContractLink(clientId, docLink);
+                    String docLink = googleAPIConfig.getDocsUri() + optionalMap.get().get("contractId") + "/edit?usp=sharing";
+                    clientService.setContractLink(clientId, docLink, optionalMap.get().get("contractName"));
                     ProjectProperties current = projectPropertiesService.get();
                     if (current.getContractTemplate() != null) {
-                        mailSendService.prepareAndSend(clientId, current.getContractTemplate().getTemplateText(), "", null);
+                        mailSendService.prepareAndSend(clientId, current.getContractTemplate().getTemplateText(), StringUtils.EMPTY, null);
                     }
                     contractSettingService.deleteByHash(hash);
                     return "redirect:" + docLink;
                 }
-                logger.error("Error with getting contract id for client_id = " + clientId);
+                logger.error("Error with getting contract id for client with id {}", clientId);
             }
         }
         return "404";
+    }
+
+    @GetMapping("/updateLink")
+    public ResponseEntity<String> updateContractLink(@RequestParam Long id) {
+        Client client = clientService.get(id);
+        //если обновилась отправить письмо
+        if (contractService.updateContractLink(client.getContractLinkData())) {
+            mailSendService.prepareAndSend(id, projectPropertiesService.getOrCreate().getContractTemplate().getTemplateText(), StringUtils.EMPTY, null);
+        }
+        return new ResponseEntity<>(client.getContractLinkData().getContractLink(), HttpStatus.OK);
     }
 }
