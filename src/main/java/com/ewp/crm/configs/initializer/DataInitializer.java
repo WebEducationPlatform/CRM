@@ -373,6 +373,12 @@ public class DataInitializer {
         System.out.println(clientN2.getName() + " " + mainMail + "  " + mainNumber);
         //"clientEmails":["miqolay@gmail.com","apricot@mail.ru","gribok@mail.ru","zibra@mail.ru","cemel@mail.ru"]
 
+        Optional<Client> clientOpt = clientService.getClientByPhoneNumber("79080584002");
+        Optional<Client> clientOpt1 = clientService.getClientByClientPhonesLike("79080584002");
+ //       Client clientN3 = clientOpt.get();
+ //       System.out.println(clientN3);
+        System.out.println("thats all");
+
 
     }
 }

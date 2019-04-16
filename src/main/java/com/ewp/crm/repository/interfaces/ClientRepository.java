@@ -32,4 +32,6 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	Client getClientByNameAndLastNameIgnoreCase(String name, String lastName);
 
 	Client getClientById(Long id);
+
+	Client getClientByClientPhonesLike(String phoneNumber);
 }
