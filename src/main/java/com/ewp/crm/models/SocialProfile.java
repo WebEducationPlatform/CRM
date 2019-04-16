@@ -2,7 +2,6 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.Objects;
 
 /**
