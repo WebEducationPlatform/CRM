@@ -5,7 +5,7 @@
 
 	<groupId>com.ewp</groupId>
 	<artifactId>crm</artifactId>
-	<version>1.2-CRM</version>
+	<version>release</version>
 	<packaging>jar</packaging>
 
 	<name>crm</name>

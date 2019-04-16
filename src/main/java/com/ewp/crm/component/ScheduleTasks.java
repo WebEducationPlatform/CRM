@@ -165,7 +165,8 @@ public class ScheduleTasks {
 	private void checkCallInSkypeToSendTheNotification() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
-			String skypeTemplate = env.getRequiredProperty("skype.template");
+			String skypeTemplateHtml = env.getRequiredProperty("skype.template");
+			String skypeTemplateText = env.getRequiredProperty("skype.textTemplate");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			Long clientId = client.getId();
 			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
@@ -173,21 +174,21 @@ public class ScheduleTasks {
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
 			if (clientService.hasClientSocialProfileByType(client, "vk")) {
 				try {
-					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					vkService.sendMessageToClient(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("VK message not sent", e);
 				}
 			}
 			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 				try {
-					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					smsService.sendSMS(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("SMS message not sent", e);
 				}
 			}
 			if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 				try {
-					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("E-mail message not sent");
 				}

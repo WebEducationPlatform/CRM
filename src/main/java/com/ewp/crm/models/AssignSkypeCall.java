@@ -23,9 +23,6 @@ public class AssignSkypeCall {
 	@Column(name = "notification_before_of_skype_call")
 	private ZonedDateTime notificationBeforeOfSkypeCall;
 
-	@Column(name = "select_network_for_notifications")
-	private String selectNetworkForNotifications;
-
 	@Column(name = "the_notification_was_is_sent")
 	private boolean theNotificationWasIsSent;
 
@@ -50,6 +47,9 @@ public class AssignSkypeCall {
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_ASSIGN_SKYPE_CALL_USER"))})
 	private User whoCreatedTheSkypeCall;
 
+	@Column(name = "google_calendar_event_id")
+	private String googleCalendarEventId;
+
 	public AssignSkypeCall() {
 	}
 
@@ -64,7 +64,6 @@ public class AssignSkypeCall {
 		this.createdTime = createdTime;
 		this.skypeCallDate = skypeCallDate;
 		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
-		this.selectNetworkForNotifications = null;
 	}
 
 	public Long getId() {
@@ -97,14 +96,6 @@ public class AssignSkypeCall {
 
 	public void setNotificationBeforeOfSkypeCall(ZonedDateTime notificationBeforeOfSkypeCall) {
 		this.notificationBeforeOfSkypeCall = notificationBeforeOfSkypeCall;
-	}
-
-	public String getSelectNetworkForNotifications() {
-		return selectNetworkForNotifications;
-	}
-
-	public void setSelectNetworkForNotifications(String selectNetworkForNotifications) {
-		this.selectNetworkForNotifications = selectNetworkForNotifications;
 	}
 
 	public User getFromAssignSkypeCall() {
@@ -145,5 +136,13 @@ public class AssignSkypeCall {
 
 	public void setSkypeCallDateCompleted(boolean skypeCallDateCompleted) {
 		this.skypeCallDateCompleted = skypeCallDateCompleted;
+	}
+
+	public String getGoogleCalendarEventId() {
+		return googleCalendarEventId;
+	}
+
+	public void setGoogleCalendarEventId(String googleCalendarEventId) {
+		this.googleCalendarEventId = googleCalendarEventId;
 	}
 }
