@@ -28,6 +28,12 @@ public interface ClientService extends CommonService<Client> {
 
 	Optional<Client> getClientByClientPhonesLike(String phoneNumber);
 
+    Optional<Client> getClientByClientPhonesEquals(String phoneNumber);
+
+    Optional<Client> getClientByClientPhonesIn(String phoneNumber);
+
+	Optional<Client> getClientByClientEmailsEquals(String email);
+
 	Optional<Client> getClientByID(Long id);
 
 	Optional<Client> getClientBySocialProfile(SocialProfile socialProfile);

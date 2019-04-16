@@ -618,7 +618,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
             TdApi.User user = (TdApi.User) object;
             if (user.type.getConstructor() == TdApi.UserTypeRegular.CONSTRUCTOR && !clientRepository.isTelegramClientPresent(user.id)) {
                 if (user.phoneNumber != null && !user.phoneNumber.isEmpty()) {
-                    com.ewp.crm.models.Client clientByPhone = clientRepository.getClientByPhoneNumber(user.phoneNumber);
+                    com.ewp.crm.models.Client clientByPhone = clientRepository.getClientByClientPhonesEquals(user.phoneNumber);
                     if (clientByPhone != null) {
                         if (socialProfileTypeService.getByTypeName("telegram").isPresent()) {
                             clientByPhone.addSocialProfile(new SocialProfile(String.valueOf(user.id), socialProfileTypeService.getByTypeName("telegram").get()));

@@ -375,6 +375,21 @@ public class DataInitializer {
 
         Optional<Client> clientOpt = clientService.getClientByPhoneNumber("79080584002");
         Optional<Client> clientOpt1 = clientService.getClientByClientPhonesLike("79080584002");
+        Optional<Client> clientOpt2 = clientService.getClientByClientPhonesLike("7-567567567");
+        Optional<Client> clientOpt3 = clientService.getClientByClientPhonesLike("7-345345345");
+        Optional<Client> clientOpt4 = clientService.getClientByClientPhonesLike("79999992288");
+        Optional<Client> clientOpt5 = clientService.getClientByClientPhonesLike("78300029530");
+        Optional<Client> clientOpt6 = clientService.getClientByClientPhonesEquals("7-345345345");
+        Optional<Client> clientOpt7 = clientService.getClientByClientPhonesIn("7-345345345");
+
+        Optional<Client> clientOpt8 = clientService.getClientByClientEmailsEquals("miqolay@gmail.com");
+        Optional<Client> clientOpt9 = clientService.getClientByClientEmailsEquals("apricot@mail.ru");
+        Optional<Client> clientOpt10 = clientService.getClientByClientEmailsEquals("zibra@mail.ru");
+        Optional<Client> clientOpt11 = clientService.getClientByClientEmailsEquals("cemel@mail.ru");
+        Optional<Client> clientOpt12 = clientService.getClientByClientEmailsEquals("a.solo@mail.ru");
+
+
+
  //       Client clientN3 = clientOpt.get();
  //       System.out.println(clientN3);
         System.out.println("thats all");
