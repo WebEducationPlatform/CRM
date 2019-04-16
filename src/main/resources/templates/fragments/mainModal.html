@@ -46,9 +46,10 @@
                                     <td>
                                         <div class="btn-group">
                                             <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
-                                            <a name="emailTmplList" data-toggle="dropdown"
-                                               class="btn-default btn btn-light btn-xs"><span
-                                                    class="glyphicon glyphicon-envelope"></span></a>
+                                            <a th:name="emailTmplList" data-toggle="dropdown" class="btn-default btn btn-light btn-xs">
+                                                <span class="glyphicon glyphicon-envelope">
+                                                </span>
+                                            </a>
                                             <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
                                                 <li th:id="'eTemplate' + ${template.id}"
                                                     th:each="template : ${emailTmpl}">
@@ -155,7 +156,6 @@
                                                    class="btn btn-social-сustom-vk-btnicon btn-vk btn-sm">
                                                     <span class="fa fa-vk"></span>
                                                 </a>
-
                                             </div>
                                             <div>
                                                 <a id="fb-href" target="_blank"
@@ -172,8 +172,7 @@
                                     <td>
                                         <button id="chat-button" type="button" class="btn btn-primary btn-sm"
                                                 data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
-                                            <a href="#" style="color: white;"> Чаты <span id="chat-im-count"
-                                                                                            class="badge"></span></a>
+                                            <a href="#" style="color: white;"> Чаты <span id="chat-im-count" class="badge"></span></a>
                                         </button>
                                     </td>
                                     <td>
@@ -182,10 +181,21 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            <div id="assign-unassign-btns">
+
+                            <div class="row">
+                                    <div class="col-lg-4" id="assign-unassign-btns1" style="text-align: left"></div>
+                                    <div class="col-lg-4" id="assign-unassign-btns2" style="text-align: center"></div>
+                                    <div class="col-lg-4" id="assign-unassign-btns3" style="text-align: right"></div>
                             </div>
-                            <div id="contract-btn">
+                            <div class="row" style="margin-top: 10px;">
+                                <div id="assign-unassign-btns-skype">
+                                </div>
                             </div>
+                            <div class="row" style="text-align: center; margin-top: 10px;">
+                                    <div id="contract-btn">
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

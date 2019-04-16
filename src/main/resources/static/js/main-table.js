@@ -1375,7 +1375,7 @@ function deleteCallDate(id) {
     var formDataId = {clientId: clientId};
     var currentBtn = $(document).find('.update .btn-group');
     var currentStatus = $('.skype-notification');
-    var btnBlockShow = $('div#assign-unassign-btns');
+    var btnBlockShow = $('div#assign-unassign-btns-skype');
 
     $.ajax({
         type: 'GET',
@@ -1611,8 +1611,7 @@ $(function () {
 
                 let user = userLoggedIn;
                 if (client.ownerUser != null) {
-                    var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
-
+                    var ownerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
                 }
                 var adminName = user.firstName + ' ' + user.lastName;
 
@@ -1727,10 +1726,17 @@ $(function () {
                     get_interlocutors(clientId);
                 }
 
-                var btnBlock = $('div#assign-unassign-btns');
+
+
+                var btnBlock = $('div#assign-unassign-btns-skype');
+                var btnBlock1 = $('div#assign-unassign-btns1');
+                var btnBlock2 = $('div#assign-unassign-btns2');
+                var btnBlock3 = $('div#assign-unassign-btns3');
 
                 if (client.liveSkypeCall) {
-                    btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
+
+                    btnBlock.after(
+                        '<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
                         '<button id="deleteDate" type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <span class="glyphicon glyphicon-remove"></span></button>' +
                         '<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="deleteDate">\n' +
                         '    <li><a onclick="deleteCallDate(' + client.id + ')" href="#">Удалить беседу</a></li>\n' +
@@ -1747,15 +1753,15 @@ $(function () {
                         '</div>')
                 }
 
-                btnBlock.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
+                btnBlock1.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
                 if (client.ownerUser === null) {
-                    btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                    btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
                 }
-                if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                if (client.ownerUser !== null && ownerName === adminName) {
+                    btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
                 }
-                btnBlock.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm" id="client-info" rel="clientInfo"> расширенная информация </button></a>');
+                btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
                 $('#contract-btn').empty();
 
