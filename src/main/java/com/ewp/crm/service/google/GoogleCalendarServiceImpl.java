@@ -101,10 +101,10 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
     private Optional<String> createCalendarEventRequestBody(ZonedDateTime eventStart, Client client) {
 	    JsonObject root = new JsonObject();
 
-        String summary = String.format("%s %s", client.getLastName(), client.getName());
+        String description = String.format("%s %s", client.getLastName(), client.getName());
 
         root.addProperty("summary", eventName);
-        root.addProperty("description", summary);
+        root.addProperty("description", description);
 
 	    JsonArray attendees = new JsonArray();
 	    JsonObject clientAttendee = new JsonObject();
