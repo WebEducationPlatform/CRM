@@ -21,6 +21,9 @@ public class ContractLinkData {
     @Column(name = "contract_link")
     private String contractLink;
 
+    @Column(name = "contract_name")
+    private String contractName;
+
     public ContractLinkData() {
     }
 
@@ -42,5 +45,13 @@ public class ContractLinkData {
 
     public void setContractLink(String contractLink) {
         this.contractLink = contractLink;
+    }
+
+    public String getContractName() {
+        return contractName;
+    }
+
+    public void setContractName(String contractName) {
+        this.contractName = contractName;
     }
 }

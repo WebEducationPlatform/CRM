@@ -73,7 +73,7 @@ public interface ClientService extends CommonService<Client> {
   
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
-	void setContractLink(Long clientId, String contractLink);
+	void setContractLink(Long clientId, String contractLink, String contractName);
 
 	List<Client> getAllClientsSortingByLastChange();
 
