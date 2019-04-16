@@ -46,6 +46,7 @@ public class SlackRestController {
         this.statusService = statusService;
     }
 
+    @CrossOrigin(origins = "https://java-mentor.com")
     @PostMapping("/registration")
     public ResponseEntity registerUser(@RequestParam("hash") String hash, @RequestParam("name") String name,
                                        @RequestParam("lastName") String lastName, @RequestParam("email") String email) {
