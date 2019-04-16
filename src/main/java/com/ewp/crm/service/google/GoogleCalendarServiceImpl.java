@@ -102,8 +102,8 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	    JsonObject root = new JsonObject();
         Transliterator toLatinTrans = Transliterator.getInstance(CYRILLIC_TO_LATIN);
         String summary = toLatinTrans.transliterate(String.format("%s %s", client.getLastName(), client.getName()));
-        root.addProperty("summary", summary);
-        root.addProperty("description", eventName);
+        root.addProperty("summary", eventName);
+        root.addProperty("description", summary);
 
 	    JsonArray attendees = new JsonArray();
 	    JsonObject clientAttendee = new JsonObject();
