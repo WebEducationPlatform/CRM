@@ -90,7 +90,7 @@ public class JMWhatsappConversation implements JMConversation {
 
         WhatsappMessage whatsappMessage =
                 new WhatsappMessage(message.getText(), true, ZonedDateTime.now(ZoneId.systemDefault()), message.getChatId(), lastMessageNumber,
-                        SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByPhoneNumber(message.getChatId()));
+                        SecurityContextHolder.getContext().getAuthentication().getName(), clientRepository.getClientByClientPhonesEquals(message.getChatId()));
 
 
         whatsappMessage.setId(id);

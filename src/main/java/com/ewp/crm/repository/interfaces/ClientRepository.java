@@ -19,9 +19,9 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	Client getClientBySkype(String skypeLogin);
 
-	Client getClientByEmail(String Email);
+//	Client getClientByEmail(String Email);
 
-	Client getClientByPhoneNumber(String phoneNumber);
+//	Client getClientByPhoneNumber(String phoneNumber);
 
 	List<Client> getAllByIdIn(List<Long> ids);
 
@@ -34,4 +34,10 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	Client getClientById(Long id);
 
 	Client getClientByClientPhonesLike(String phoneNumber);
+
+	Client getClientByClientPhonesEquals(String phoneNumber);
+
+	Client getClientByClientPhonesIn(String phoneNumber);
+
+	Client getClientByClientEmailsEquals(String Email);
 }

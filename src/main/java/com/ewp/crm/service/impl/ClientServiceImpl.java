@@ -71,17 +71,32 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     @Override
     public Optional<Client> getClientByEmail(String email) {
-        return Optional.ofNullable(clientRepository.getClientByEmail(email));
+        return Optional.ofNullable(clientRepository.getClientByClientEmailsEquals(email));
     }
 
     @Override
     public Optional<Client> getClientByPhoneNumber(String phoneNumber) {
-        return Optional.ofNullable(clientRepository.getClientByPhoneNumber(phoneNumber));
+        return Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(phoneNumber));
     }
 
     @Override
     public Optional<Client> getClientByClientPhonesLike(String phoneNumber) {
         return Optional.ofNullable(clientRepository.getClientByClientPhonesLike(phoneNumber));
+    }
+
+    @Override
+    public Optional<Client> getClientByClientPhonesEquals(String phoneNumber) {
+        return Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(phoneNumber));
+    }
+
+    @Override
+    public Optional<Client> getClientByClientPhonesIn(String phoneNumber) {
+        return Optional.ofNullable(clientRepository.getClientByClientPhonesIn(phoneNumber));
+    }
+
+    @Override
+    public Optional<Client> getClientByClientEmailsEquals(String email) {
+        return Optional.ofNullable(clientRepository.getClientByClientEmailsEquals(email));
     }
 
     @Override
@@ -144,11 +159,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
             String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
-            existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(validatePhone));
+            existClient = Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(validatePhone));
         }
 
         if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
-            existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
+            existClient = Optional.ofNullable(clientRepository.getClientByClientEmailsEquals(client.getEmail()));
         }
 
         checkSocialIds(client);
@@ -238,7 +253,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public void updateClient(Client client) {
         if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-            Client clientByMail = clientRepository.getClientByEmail(client.getEmail());
+            Client clientByMail = clientRepository.getClientByClientEmailsEquals(client.getEmail());
             if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
@@ -250,7 +265,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
             client.setCanCall(true);
-            Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
+            Client clientByPhone = clientRepository.getClientByClientPhonesEquals(client.getPhoneNumber());
             if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
