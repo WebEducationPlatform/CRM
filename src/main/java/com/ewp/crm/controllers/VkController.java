@@ -30,9 +30,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
@@ -82,9 +81,11 @@ public class VkController {
     @PostMapping(value = "/vk-auth")
     public String vkGetAccessToken(@RequestParam("token") String token, @AuthenticationPrincipal User userFromSession) {
         String applicationToken = vkService.replaceApplicationTokenFromUri(token);
-        projectProperties = projectPropertiesService.getOrCreate();
+        if ((projectProperties = projectPropertiesService.get()) == null) {
+            projectProperties = new ProjectProperties();
+        }
         projectProperties.setTechnicalAccountToken(applicationToken);
-        projectPropertiesService.update(projectProperties);
+        projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
         userFromSession.setVkToken(applicationToken);
         userService.update(userFromSession);
         return "redirect:/client";
@@ -195,15 +196,23 @@ public class VkController {
     }
 
     private Set<VkUser> processUploadedFile(MultipartFile file) {
-        try (InputStream inputStream = file.getInputStream()) {
-            Stream<String> stream =
-                    new BufferedReader(new InputStreamReader(inputStream)).lines();
-            return stream
-                    .flatMap(line -> Stream.of(line.split("[\\p{Blank}]+")))
-                    .filter(c -> c.matches("[0-9]*"))
-                    .mapToLong(Long::parseLong).boxed()
-                    .map(c -> new VkUser(c, new HashMap<>()))
-                    .collect(Collectors.toSet());
+        Set<VkUser> users = new HashSet<>();
+        try(InputStream inputStream = file.getInputStream()) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                if (line.startsWith("\uFEFF")) {
+                    line = line.substring(1);
+                }
+                String[] lines = line.split("[\\p{Blank}]");
+                for (String u: lines) {
+                    if (u.matches("[0-9]*")) {
+                        users.add(new VkUser(Long.parseLong(u), new HashMap<>()));
+                    }
+                }
+            }
+            return users;
+
         } catch (IOException e) {
             logger.error("Ошибка с файлом {}", file.getName());
             return Collections.emptySet();
