@@ -80,6 +80,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public Optional<Client> getClientByClientPhonesLike(String phoneNumber) {
+        return Optional.ofNullable(clientRepository.getClientByClientPhonesLike(phoneNumber));
+    }
+
+    @Override
     public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {
         List<SocialProfile> socialProfiles = new ArrayList<>();
         socialProfiles.add(socialProfile);
