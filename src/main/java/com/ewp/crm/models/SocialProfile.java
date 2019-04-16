@@ -2,13 +2,14 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.Objects;
 
 /**
  * Ссылка на профиль соцсети клиента (студента)
  */
 @Entity
-@Table(name = "social_network")
+@Table(name = "social_network", uniqueConstraints = {@UniqueConstraint(columnNames = {"social_id", "social_type_id"}, name = "uk_social_network")})
 public class SocialProfile implements Serializable {
 
 	@Id
@@ -23,9 +24,7 @@ public class SocialProfile implements Serializable {
      * Тип соцсети
      */
 	@ManyToOne
-	@JoinTable(name = "social_network_social_network_type",
-			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
-			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+	@JoinColumn(name = "social_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_TYPE_ID"))
 	private SocialProfileType socialProfileType;
 
 	public SocialProfile() {
