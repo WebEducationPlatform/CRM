@@ -68,7 +68,6 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     @Override
     public void sendNewClientNotification(Client client, String from) {
-        projectProperties.setNewClientMessageTemplate(messageTemplateService.get(6L));
         MessageTemplate template = projectProperties.getNewClientMessageTemplate();
         if (template != null) {
             String vkId;
