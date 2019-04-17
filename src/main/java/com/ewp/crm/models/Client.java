@@ -269,6 +269,12 @@ public class Client implements Serializable, Diffable<Client> {
         this.dateOfRegistration = dateOfRegistration;
     }
 
+    public Client(@NotNull String name, List<String> clientPhones, List<String> clientEmails) {
+        this.name = name;
+        this.clientPhones = clientPhones;
+        this.clientEmails = clientEmails;
+    }
+
     public List<ClientHistory> getHistory() {
         return history;
     }

@@ -33,11 +33,7 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	Client getClientById(Long id);
 
-	Client getClientByClientPhonesLike(String phoneNumber);
-
 	Client getClientByClientPhonesEquals(String phoneNumber);
-
-	Client getClientByClientPhonesIn(String phoneNumber);
 
 	Client getClientByClientEmailsEquals(String Email);
 }
