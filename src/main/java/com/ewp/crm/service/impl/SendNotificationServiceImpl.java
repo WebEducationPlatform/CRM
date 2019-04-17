@@ -1,5 +1,6 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -37,10 +38,12 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private final VKService vkService;
 
+    private final String chatToNewClient;
+
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
     @Autowired
-    public SendNotificationServiceImpl(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, Environment env, UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService) {
+    public SendNotificationServiceImpl(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, Environment env, UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService, VKConfigImpl vkConfig) {
         this.userService = userService;
         this.mailSendService = mailSendService;
         this.notificationService = notificationService;
@@ -49,6 +52,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         this.messageTemplateService = messageTemplateService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.serverUrl = env.getProperty("server.url");
+        this.chatToNewClient = vkConfig.getChatToSendNewClient();
     }
 
     @Override
@@ -64,12 +68,19 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     @Override
     public void sendNewClientNotification(Client client, String from) {
+        projectProperties.setNewClientMessageTemplate(messageTemplateService.get(6L));
         MessageTemplate template = projectProperties.getNewClientMessageTemplate();
         if (template != null) {
+            String vkId;
             String newClientUrl = serverUrl + "/client?id=" + client.getId();
             Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
             Map<String, String> params = new HashMap<>();
-            params.put("%from%", from);
+            if (from.equals("vk")) {
+                vkId = client.getSocialProfiles().get(0).getSocialId();
+                params.put("%from%", from + " c id=" + vkId);
+            } else{
+                params.put("%from%", from + " c id=" + client.getId());
+            }
             params.put("%link%", shortUrl.orElse(newClientUrl));
             String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
             List<User> usersToNotify = userService.getAll();
@@ -81,6 +92,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
                     smsService.sendSimpleSmsToUser(userToNotify, notificationMessage.replace("https://", ""));
                 }
             }
+            vkService.sendMessageByChatId(chatToNewClient, notificationMessage);
         }
     }
 

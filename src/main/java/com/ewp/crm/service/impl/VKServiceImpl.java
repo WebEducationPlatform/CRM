@@ -624,7 +624,9 @@ public class VKServiceImpl implements VKService {
     @Override
     public void sendMessageByChatId(String id, String message) {
         try {
-            message = URLEncoder.encode(message, "UTF-8");
+            if (!message.contains("vk")) {
+                message = URLEncoder.encode(message, "UTF-8");
+            }
         } catch (UnsupportedEncodingException e) {
             logger.error("Failed to encode message " + message, e);
         }
