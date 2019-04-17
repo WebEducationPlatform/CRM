@@ -87,7 +87,7 @@ public class VkController {
             projectProperties = new ProjectProperties();
         }
         projectProperties.setTechnicalAccountToken(applicationToken);
-        projectPropertiesService.saveAndFlash(new ProjectProperties(applicationToken));
+        projectPropertiesService.update(projectProperties);
         userFromSession.setVkToken(applicationToken);
         userService.update(userFromSession);
         return "redirect:/client";
