@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
+    <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
 <th:block th:fragment="left-panel">
@@ -187,6 +188,35 @@
             border-color: [[${#authentication.getPrincipal().colorBackground}]];
         }
     </style>
+</th:block>
+
+<th:block th:fragment="slackLinkModal">
+    <div th:id="slackLinkModal" class="modal fade client-contract-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Ссылка:</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="form-group" >
+                            <div class="row">
+                                <div class="col-sm">
+                                    <input class="form-control" type="text" id="slack-invite-link-text"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 </th:block>
 
 <th:block th:fragment="comments">
@@ -499,6 +529,16 @@
                                            th:value="${status.nextPaymentOffset} - ${status.trialOffset}"/></td>
                             </tr>
                         </table>
+                        <div class="form-group" th:id ="'checkbox_status_roles_' + ${status.id} " sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                            <label th:for="'checkbox_status_roles_' + ${status.id} ">Роли</label>
+                            <div th:id="'current_status_roles_' + ${status.id} ">
+                                <span th:each="role : ${status.role}" th:value="${role.id}"></span>
+                            </div>
+                            <div class="checkbox" th:each="role : ${roles}">
+                                <input type="checkbox" th:id="'checkbox-role-' + ${role.id} + ${status.id}" th:value="${role.id}"/>
+                                <label th:for="'checkbox-role-' + ${role.id} + ${status.id}" th:text="${role.roleName}"></label>
+                            </div>
+                        </div>
                     </div>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
                     <button type="button" class="btn btn-primary"

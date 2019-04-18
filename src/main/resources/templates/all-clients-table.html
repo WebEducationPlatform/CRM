@@ -110,16 +110,16 @@
             <thead id="thead-table-clients">
             <tr class="head-table">
                 <th>#</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Телефон</th>
-                <th>Email</th>
+                <th onclick="sort_table('name')">Имя</th>
+                <th onclick="sort_table('lastName')">Фамилия</th>
+                <th onclick="sort_table('phoneNumber')">Телефон</th>
+                <th onclick="sort_table('email')">Email</th>
                 <th>Социальная сеть</th>
                 <th>Дата рождения</th>
                 <th>Пол</th>
-                <th>Город</th>
-                <th>Страна</th>
-                <th>
+                <th onclick="sort_table('city')">Город</th>
+                <th onclick="sort_table('country')">Страна</th>
+                <th onclick="sort_table('status')">
                     Статус
                     <div class="btn-group">
                         <button type="button" name="editStatusColor"
@@ -128,7 +128,8 @@
                         </button>
                     </div>
                 </th>
-                <th>Дата регистрации</th>
+                <th onclick="sort_table('dateOfRegistration')">Дата регистрации</th>
+                <th onclick="sort_table('dateOfLastChange')">Последнее изменение</th>
                 <th>Скрыт?</th>
             </tr>
             </thead>
@@ -136,8 +137,7 @@
             <tbody id="table-body">
             <tr th:each="client : ${allClients}">
                 <td th:text="${client.id}"></td>
-                <td class="line-decoration"><a th:text="${client.name}"
-                                               th:href="@{'/client/clientInfo/' + ${client.id}}"></a></td>
+                <td class="line-decoration"><a th:text="${client.name}" href="#" th:onclick="'clientModal('+ ${client.id} +')'" ></a></td>
                 <td th:text="${client.lastName}"></td>
                 <td th:text="${client.phoneNumber}"></td>
                 <td th:text="${client.email}"></td>
@@ -159,6 +159,16 @@
 
                 <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
                 <td th:text="${#temporals.format(client.dateOfRegistration.withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></td>
+
+                <td><div th:switch="${client.comments.size() > 0 }">
+                    <span th:case="true">
+                        <div th:switch="${client.comments.get(client.comments.size() - 1).getDateFormat().isAfter(client.history.get(0).getDate())}">
+                            <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                            <span th:case="true" th:text="${#temporals.format(client.comments.get(client.comments.size() - 1).getDateFormat().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                        </div>
+                    </span>
+                    <span th:case="false" th:text="${#temporals.format(client.history.get(0).getDate().withZoneSameInstant('Europe/Moscow'), 'dd.MM.yyyy HH:mm МСК')}"></span>
+                </div></td>
                 <!--<td th:text="${client.dateOfRegistration}"></td>-->
                 <td class="no-fix">
                     <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
@@ -261,8 +271,27 @@
     </div>
 </div>
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
+<div th:replace="fragments/mainModal::mainModalWindow"></div>
+<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+<div th:replace="fragments/htmlFragments::client_description_modal"></div>
+<div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
+<div th:replace="fragments/htmlFragments::customMessageTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
+<div th:replace="fragments/htmlFragments::sms_error_modal"></div>
+<div th:replace="fragments/conversations::conversationsModal"></div>
+<div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
+
 <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
 <script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
+<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
+<script type="text/javascript" th:src="@{/js/comments.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.interfaces;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,8 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
     List<Status> getStatusesByClientsOwnerUser(User ownerUser);
 
 	List<Status> getAllByOrderByIdAsc();
+
+	List<Status> getAllByRole(Role role);
 
 	@Query("SELECT MAX(s.position) from Status s")
 	Long findMaxPosition();

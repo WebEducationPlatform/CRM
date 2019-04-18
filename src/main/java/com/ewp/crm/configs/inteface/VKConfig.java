@@ -17,4 +17,8 @@ public interface VKConfig {
     String getVkAdsClientId();
     String getRobotClientId();
     String getVkAppAccessToken();
+    String getFirstSkypeNotifyChatId();
+    String getFirstSkypeMessageTemplate();
+    String getFirstSkypeUpdateMessageTemplate();
+    String getFirstSkypeDeleteMessageTemplate();
 }
