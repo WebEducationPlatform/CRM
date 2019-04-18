@@ -12,8 +12,6 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -24,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Enumeration;
 
 @Service
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -56,21 +53,23 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     protected String determineTargetUrl(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authorities.contains(new Role("OWNER"))) {
+            logger.info(user.getEmail() + " has been logged in like OWNER");
+            return "/client";
+        }
         if (authorities.contains(new Role("ADMIN"))) {
             logger.info(user.getEmail() + " has been logged in like ADMIN");
             return "/client";
-        } else if (authorities.contains(new Role("USER"))) {
+        }
+        if (authorities.contains(new Role("USER"))) {
             logger.info(user.getEmail() + " has been logged in like USER");
             return "/client";
-        } else if (authorities.contains(new Role("OWNER"))) {
-            logger.info(user.getEmail() + " has been logged in like OWNER");
-            return "/client";
-        } else if (authorities.contains(new Role("MENTOR"))) {
-            logger.info(user.getEmail() + "  access denied");
-            throw new IllegalStateException();
-        } else {
-            throw new IllegalStateException();
         }
+        if (authorities.contains(new Role("MENTOR"))) {
+            logger.info(user.getEmail() + " has been logged in like MENTOR");
+            return "/client";
+        }
+        throw new IllegalStateException();
     }
     protected void clearAuthenticationAttributes(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

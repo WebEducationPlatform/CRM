@@ -4,11 +4,20 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 
 public interface ClientService extends CommonService<Client> {
+
+    boolean hasClientSocialProfileByType(Client client, String socialProfileType);
+
+    boolean inviteToSlack(Client client, String name, String lastName, String email);
+
+    Optional<Client> getClientBySlackInviteHash(String hash);
+
+	Optional<String> generateSlackInviteLink(Long clientId);
 
 	List<String> getSocialIdsForStudentsByStatusAndSocialProfileType(List<Status> statuses, String socialProfileType);
 
@@ -64,5 +73,13 @@ public interface ClientService extends CommonService<Client> {
   
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
-	void setContractLink(Long clientId, String contractLink);
+	void setContractLink(Long clientId, String contractLink, String contractName);
+
+	List<Client> getAllClientsSortingByLastChange();
+
+	List<Client> getFilteringAndSortClients(FilteringCondition filteringCondition, String sortColumn);
+
+	Optional<Comment> getLastComment(Client client);
+
+	Optional<ClientHistory> getLastHistory(Client client);
 }

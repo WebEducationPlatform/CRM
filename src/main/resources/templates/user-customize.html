@@ -40,8 +40,15 @@
         </div>
         <br/>
         <div class="inline">
-            <form class="form" method="get" action="/login/google">
-                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google"/>
+            <form class="form" method="get" action="/login/google/drive">
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Drive"/>
+            </form>
+        </div>
+        <br/>
+        <br/>
+        <div class="inline">
+            <form class="form" method="get" action="/login/google/calendar">
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Calendar"/>
             </form>
         </div>
         <br/>
@@ -57,6 +64,13 @@
             <button class="btn btn-primary pull" data-toggle="modal" data-target="#contract-user-setting-modal"
                     sec:authorize="hasAnyAuthority('OWNER')">
                 Настройки договора
+            </button>
+        </div>
+        <br/>
+        <div id="slack-settings-button">
+            <button class="btn btn-primary pull" data-toggle="modal" data-target="#slack-settings-modal"
+                    sec:authorize="hasAnyAuthority('OWNER')">
+                Настройки Slack
             </button>
         </div>
         <br/>
@@ -197,10 +211,41 @@
                         <label for="reject-student-status-column">Выберите статус клиента студента-отказника</label>
                         <select id="reject-student-status-column" class="form-control"> </select>
                     </div>
+                    <div class="row">
+                        <label for="first-pay-status-column">Выберите статус клиента после первой оплаты</label>
+                        <select id="first-pay-status-column" class="form-control"> </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button id="update-status" class="btn btn-default" data-dismiss="modal">Применить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Модалка для настройки Slack-->
+<div class="modal fade" id="slack-settings-modal" tabindex="-1" role="dialog" aria-hidden="true"
+     sec:authorize="hasAnyAuthority('OWNER')">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Настройка Slack</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <label for="slack-users">Введите id пользователей Slack через пробел</label>
+                        <input type="text" class="form-control" id="slack-users" />
+                    </div>
+                    <div class="row">
+                        <label for="slack-invite-link">Введите ссылку на первый урок</label>
+                        <input type="text" class="form-control" id="slack-invite-link" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="update-slack" class="btn btn-default" data-dismiss="modal">Применить</button>
             </div>
         </div>
     </div>

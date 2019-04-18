@@ -85,6 +85,8 @@ public class ScheduleTasks {
 
     private final TelegramService telegramService;
 
+    private final SlackService slackService;
+
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTasks.class);
 
 	private String adReportTemplate;
@@ -101,7 +103,8 @@ public class ScheduleTasks {
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
-						 VkCampaignService vkCampaignService, TelegramService telegramService) {
+						 VkCampaignService vkCampaignService, TelegramService telegramService,
+						 SlackService slackService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -128,6 +131,7 @@ public class ScheduleTasks {
 		this.vkCampaignService = vkCampaignService;
 		this.adReportTemplate = env.getProperty("template.daily.report");
 		this.telegramService = telegramService;
+		this.slackService = slackService;
 	}
 
 	private void addClient(Client newClient) {
@@ -161,30 +165,30 @@ public class ScheduleTasks {
 	private void checkCallInSkypeToSendTheNotification() {
 		for (AssignSkypeCall assignSkypeCall : assignSkypeCallService.getAssignSkypeCallIfNotificationWasNoSent()) {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
-			String skypeTemplate = env.getRequiredProperty("skype.template");
+			String skypeTemplateHtml = env.getRequiredProperty("skype.template");
+			String skypeTemplateText = env.getRequiredProperty("skype.textTemplate");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
-			String selectNetworks = assignSkypeCall.getSelectNetworkForNotifications();
 			Long clientId = client.getId();
 			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
 					.plusHours(1).format(DateTimeFormatter.ofPattern("dd MMMM в HH:mm по МСК"));
 			sendNotificationService.sendNotificationType(dateOfSkypeCall, client, principal, Notification.Type.ASSIGN_SKYPE);
-			if (selectNetworks.contains("vk")) {
+			if (clientService.hasClientSocialProfileByType(client, "vk")) {
 				try {
-					vkService.sendMessageToClient(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					vkService.sendMessageToClient(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("VK message not sent", e);
 				}
 			}
-			if (selectNetworks.contains("sms")) {
+			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 				try {
-					smsService.sendSMS(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					smsService.sendSMS(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("SMS message not sent", e);
 				}
 			}
-			if (selectNetworks.contains("email")) {
+			if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 				try {
-					mailSendService.prepareAndSend(clientId, skypeTemplate, dateOfSkypeCall, principal);
+					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("E-mail message not sent");
 				}
@@ -268,6 +272,11 @@ public class ScheduleTasks {
 	@Scheduled(fixedDelay = 6_000)
 	private void sendMailing() {
         mailingService.sendMessages();
+	}
+
+	@Scheduled(cron = "* */15 * * * *")
+	private void getSlackProfiles() {
+		slackService.tryLinkSlackAccountToAllStudents();
 	}
 
 	@Scheduled(fixedRate = 600_000)
@@ -359,7 +368,7 @@ public class ScheduleTasks {
 	/**
 	 * Sends payment notification to student's contacts.
 	 */
-	@Scheduled(fixedRate = 3600000)
+	@Scheduled(fixedDelay = 3600000)
 	private void sendPaymentNotifications() {
 		ProjectProperties properties = projectPropertiesService.getOrCreate();
 		if (properties.isPaymentNotificationEnabled() && properties.getPaymentMessageTemplate() != null && properties.getPaymentNotificationTime() != null) {
@@ -377,6 +386,9 @@ public class ScheduleTasks {
 					}
 					if (student.isNotifyVK()) {
 						vkService.simpleVKNotification(clientId, template.getOtherText());
+					}
+					if (student.isNotifySlack()) {
+						slackService.trySendSlackMessageToStudent(student.getId(), template.getOtherText());
 					}
 				}
 			}
