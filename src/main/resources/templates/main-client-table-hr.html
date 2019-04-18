@@ -17,6 +17,14 @@
     <div name="statuses">
     </div>
 
-    <script type="text/javascript" src="/js/main-hr-table.js"></script>
+<div th:replace="fragments/modal-client-for-hr::clientsModal"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+<script th:src="@{/js/hr/main-client-table-hr.js}"></script>
+<script th:src="@{/js/hr/modal-client-for-hr.js}"></script>
+<script th:src="@{/js/ip-telephony.js}"></script>
+
 </body>
 </html>
