@@ -1858,6 +1858,7 @@ $(function () {
                     $('#contract-client-setting-contract-link').empty();
                 }
 
+
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
