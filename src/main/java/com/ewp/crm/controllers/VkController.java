@@ -200,6 +200,7 @@ public class VkController {
                     new BufferedReader(new InputStreamReader(inputStream)).lines();
             return stream
                     .flatMap(line -> Stream.of(line.split("[\\p{Blank}]+")))
+                    .map(s -> (s.replaceAll("\uFEFF", "")))
                     .filter(c -> c.matches("[0-9]*"))
                     .mapToLong(Long::parseLong).boxed()
                     .map(c -> new VkUser(c, new HashMap<>()))

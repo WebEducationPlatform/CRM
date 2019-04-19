@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="Vladimir Yarovoy" id="0">
+        <sql>
+            CREATE TABLE `test` (
+                `id` INT NOT NULL,
+                `name` VARCHAR(255) NOT NULL,
+                `last_name` VARCHAR(255) NOT NULL,
+                `email` VARCHAR(255) NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE INDEX `email_UNIQUE` (`email` ASC));
+        </sql>
+        <rollback>
+            DROP TABLE `test`;
+        </rollback>
+    </changeSet>
+
+    <changeSet author="Vladimir Yarovoy" id="1">
+        <sql>
+            ALTER TABLE `test`
+                ADD COLUMN `password` VARCHAR(255) NOT NULL AFTER `email`,
+                ADD COLUMN `birthday` DATETIME NULL AFTER `password`;
+        </sql>
+        <rollback>
+            ALTER TABLE `test`
+                DROP COLUMN `birthday`,
+                DROP COLUMN `password`;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
