@@ -111,7 +111,7 @@
                             </tr>
                             </thead>
                             <tbody id="emails-table-body">
-                            <tr th:each="emails, iterStat : ${client.clientEmails}">
+                            <tr th:if="${client.clientEmails.isEmpty()}"  th:each="emails, iterStat : ${client.clientEmails}">
 
                                 <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
                                 <td th:value="${emails}" th:text="${emails}"></td>
@@ -124,8 +124,7 @@
                         </table>
                     </div>
                     <div>
-                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить
-                            доп. Email
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewEmail" th:onclick="'addNewEmailExtra()'">Добавить Email
                         </button>
                     </div>
                     <p></p>
@@ -139,8 +138,8 @@
                             </tr>
                             </thead>
                             <tbody id="phones-table-body">
-                            <tr th:each="phones, iterStat : ${client.clientPhones}">
-                                <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
+                            <tr th:if="${client.clientPhones.isEmpty()}" th:each="phones, iterStat : ${client.clientPhones}">
+                                <td th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
                                 <td th:value="${phones}" th:text="${phones}"></td>
                                 <td>
                                     <button th:if="${iterStat.count > 1}" disabled="disabled" type="button" th:onclick="'deletePhone('+ this + ')'"
@@ -151,8 +150,7 @@
                         </table>
                     </div>
                     <div>
-                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewPhone" th:onclick="'addNewPhoneExtra()'">Добавить
-                            доп. телефон
+                        <button class="btn btn-md btn-info" disabled="disabled" id="addNewPhone" th:onclick="'addNewPhoneExtra()'">Добавить телефон
                         </button>
                     </div>
                     <p></p>

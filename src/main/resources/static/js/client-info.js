@@ -91,7 +91,7 @@ function changeClient(id) {
 
 
     var Phones = [];
-    $th = $('#AdditionalEmails').find('th');
+    $th = $('#AdditionalPhones').find('th');
     try {
         $('#AdditionalPhones').find('tbody tr').each(function (i, tr) {
             var obj = {}, $tds = $(tr).find('td');
