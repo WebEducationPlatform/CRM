@@ -5,7 +5,6 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -55,6 +54,12 @@ public class SlackRestController {
             return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
         }
         return ResponseEntity.badRequest().body("");
+    }
+
+    @PostMapping("/invitelink")
+    public ResponseEntity inviteSlack(@RequestParam("email") String email) {
+            boolean result = slackService.inviteToWorkspace(email);
+            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
     }
 
     @GetMapping("/find/client/{clientId}")

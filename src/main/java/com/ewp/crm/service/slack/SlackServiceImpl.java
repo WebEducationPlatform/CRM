@@ -340,6 +340,11 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
+    public boolean inviteToWorkspace(String email) {
+        return inviteToWorkspace("", "", email);
+    }
+
+    @Override
     public Optional<String> getChatIdForSlackUser(String slackUserId) {
         String json = StringUtils.EMPTY;
         String url = SLACK_API_URL + "im.open" +
