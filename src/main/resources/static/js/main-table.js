@@ -381,7 +381,7 @@ function getHash() {
 function inviteSlack(clientEmail) {
     let SUCCESS_MESSAGE = 'Успешно! Вам на почту придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать пароль и получить доступ к Slack.';
     let ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору.';
-    let url = '/slack/registration';
+    let url = '/slack/invitelink';
     let email = clientEmail;
     let message = $('#message');
 
@@ -1805,6 +1805,7 @@ $(function () {
                 var btnBlock2 = $('div#assign-unassign-btns2');
                 var btnBlock3 = $('div#assign-unassign-btns3');
                 var btnBlock4 = $('div#slack-invite');
+                var message = $('div#message');
 
 
 
@@ -1836,7 +1837,8 @@ $(function () {
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
-                btnBlock4.append('<button class="btn btn-info btn-sm remove-tag" id="slack-inv" onclick="inviteSlack(' + client.email + ')">Пригласить в Slack</button>');
+                btnBlock4.append('<button class="btn btn-info btn-sm remove-tag" id="slack-inv" onclick="inviteSlack(' + '\'' + client.email + '\'' + ')">Пригласить в Slack</button>');
+                message.text("");
 
                 $('#contract-btn').empty();
 
