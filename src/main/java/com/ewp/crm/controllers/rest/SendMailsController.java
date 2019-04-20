@@ -3,7 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.MailingMessageService;
@@ -30,8 +30,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
