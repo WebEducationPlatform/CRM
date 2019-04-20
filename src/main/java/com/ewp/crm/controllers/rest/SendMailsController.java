@@ -3,10 +3,11 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.MailingMessageService;
+import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +30,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
@@ -39,13 +42,17 @@ public class SendMailsController {
     private final MailingMessageService mailingMessageSendService;
     private final MailingService mailingService;
     private final UserService userService;
+    private final SlackService slackService;
+    private Environment environment;
 
     @Autowired
     public SendMailsController(MailingMessageService mailingMessageSendService, MailingService mailingService,
-                               UserService userService) {
+                               UserService userService, Environment environment, SlackService slackService) {
         this.mailingMessageSendService = mailingMessageSendService;
         this.mailingService = mailingService;
         this.userService = userService;
+        this.slackService = slackService;
+        this.environment = environment;
     }
 
     @PostMapping(value = "/client/mailing/send")
@@ -54,10 +61,12 @@ public class SendMailsController {
                                             @RequestParam("text") String text,
                                             @RequestParam("date") String date,
                                             @RequestParam("vkType") String vkType,
+                                            @RequestParam("selectValueAppNumberToken") String selectAppNumberToToken,
                                             @AuthenticationPrincipal User userFromSession) {
         Optional<User> user = userService.getUserByEmail(userFromSession.getEmail());
         if (user.isPresent()) {
             try {
+                slackService.setAppToken(selectAppNumberToToken, environment);
                 mailingService.prepareAndSendMailingMessages(type, recipients, text, date, vkType, user.get());
             } catch (ParseMailingDataException e) {
                 logger.error("Incorrect data at send mailing request", e);
