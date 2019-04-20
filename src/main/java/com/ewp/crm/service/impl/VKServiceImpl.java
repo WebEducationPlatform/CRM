@@ -1,3 +1,5 @@
+package com.ewp.crm.service.impl;
+
 import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
@@ -1398,8 +1400,7 @@ public class VKServiceImpl implements VKService {
         }
 
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
-        Object[] params = {
-                balanceFromYandexDirect, spentFromYandexDirect,
+        Object[] params = {balanceFromYandexDirect, spentFromYandexDirect,
                 balanceFromVk, spentFromVk,
                 balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
