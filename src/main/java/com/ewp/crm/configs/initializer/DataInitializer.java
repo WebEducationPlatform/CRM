@@ -356,35 +356,8 @@ public class DataInitializer {
         clientService.update(clientN2);
         clientN2.setEmail("miqolay@gmail.com");
         clientN2.setPhoneNumber("79080584002");
-
-
-
-        List<String> mails = clientN2.getClientEmails();
-        List<String> phonList = clientN2.getClientPhones();
-        String mainMail = clientN2.getEmail();
-        String mainNumber = clientN2.getPhoneNumber();
         clientService.update(clientN2);
-        System.out.println(clientN2.getName() + " " + mainMail + "  " + mainNumber);
-        //"clientEmails":["miqolay@gmail.com","apricot@mail.ru","gribok@mail.ru","zibra@mail.ru","cemel@mail.ru"]
 
-        Optional<Client> clientOpt = clientService.getClientByPhoneNumber("79080584002");
-
-        Optional<Client> clientOpt6 = clientService.getClientByClientPhonesEquals("7-345345345");
-
-        Optional<Client> clientOpt8 = clientService.getClientByClientEmailsEquals("miqolay@gmail.com");
-        Optional<Client> clientOpt9 = clientService.getClientByClientEmailsEquals("apricot@mail.ru");
-        Optional<Client> clientOpt10 = clientService.getClientByClientEmailsEquals("zibra@mail.ru");
-        Optional<Client> clientOpt11 = clientService.getClientByClientEmailsEquals("cemel@mail.ru");
-        Optional<Client> clientOpt12 = clientService.getClientByClientEmailsEquals("a.solo@mail.ru");
-
-        Client clientN57 = new Client("Robin", "Good" );
-  //      clientService.addClient(clientN57);
-
-
-
- //       Client clientN3 = clientOpt.get();
- //       System.out.println(clientN3);
-        System.out.println("thats all");
 
 
     }
