@@ -24,6 +24,13 @@ $.get('/rest/status', function getStatuses(studentStuses) {
 
 });
 
+function clientModal (id) {
+    changeUrl('/client/allClients', id);
+    var currentModal = $('#main-modal-window');
+    currentModal.data('clientId', id);
+    currentModal.modal('show');
+}
+
 
 function clearClientsTable() {
     $("#table-body").remove();

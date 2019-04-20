@@ -289,27 +289,51 @@ function createNewStatus() {
     }
 }
 
+function currentStatus (id) {
+var spans = $("#current_status_roles_" + id ).find("span");
+var currRoles = [];
+spans.each(function () {
+    currRoles.push($(this)[0].getAttribute("value"))
+});
+$("#checkbox_status_roles_" + id ).find('input').each(function () {
+    if (currRoles.indexOf($(this)[0].value) !== -1) {
+        $(this).attr("checked", "checked");
+    }
+})
+}
 //Change status button
 function changeStatusName(id) {
+
     let url = '/admin/rest/status/edit';
     let statusName = $("#change-status-name" + id).val();
     let trial_offset = parseInt($("#trial_offset_" + id).val());
     let next_payment_offset = trial_offset +  parseInt($("#next_payment_offset_" + id).val());
+
+    var $sel = $("#checkbox_status_roles_" + id ).find("input[type=checkbox]:checked");
+    var stRoles = [];
+    $sel.each(function (index, sel) {
+        var obj = {};
+        obj["id"] = sel.value;
+        obj["roleName"] = sel.innerText;
+        stRoles.push(obj);
+    });
     if (!validate_status_input(trial_offset, next_payment_offset)) {
         return
     }
     ;
     let formData = {
-        statusName: statusName,
-        oldStatusId: id,
+        id: id,
+        name: statusName,
         trialOffset: trial_offset,
-        nextPaymentOffset: next_payment_offset
+        nextPaymentOffset: next_payment_offset,
+        role: stRoles
     };
 
     $.ajax({
         type: "POST",
         url: url,
-        data: formData,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(formData),
         success: function (result) {
             window.location.reload();
         },
@@ -1375,7 +1399,7 @@ function deleteCallDate(id) {
     var formDataId = {clientId: clientId};
     var currentBtn = $(document).find('.update .btn-group');
     var currentStatus = $('.skype-notification');
-    var btnBlockShow = $('div#assign-unassign-btns');
+    var btnBlockShow = $('div#assign-unassign-btns-skype');
 
     $.ajax({
         type: 'GET',
@@ -1727,7 +1751,10 @@ $(function () {
                     get_interlocutors(clientId);
                 }
 
-                var btnBlock = $('div#assign-unassign-btns');
+                var btnBlock = $('div#assign-unassign-btns-skype');
+                var btnBlock1 = $('div#assign-unassign-btns1');
+                var btnBlock2 = $('div#assign-unassign-btns2');
+                var btnBlock3 = $('div#assign-unassign-btns3');
 
                 if (client.liveSkypeCall) {
                     btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
@@ -1747,15 +1774,15 @@ $(function () {
                         '</div>')
                 }
 
-                btnBlock.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
+                btnBlock1.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
                 if (client.ownerUser === null) {
-                    btnBlock.append('<button class="btn btn-sm btn-info remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> взять себе карточку </button>');
+                    btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
                 }
                 if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> отказаться от карточки </button>');
+                    btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
                 }
-                btnBlock.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm" id="client-info" rel="clientInfo"> расширенная информация </button></a>');
+                btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
                 $('#contract-btn').empty();
 
