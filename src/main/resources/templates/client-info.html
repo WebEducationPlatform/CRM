@@ -111,12 +111,12 @@
                             </tr>
                             </thead>
                             <tbody id="emails-table-body">
-                            <tr th:if="${client.clientEmails.isEmpty()}"  th:each="emails, iterStat : ${client.clientEmails}">
+                            <tr th:each="emails, iterStat : ${client.clientEmails}" th:if="${emails != ''}">
 
                                 <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
                                 <td th:value="${emails}" th:text="${emails}"></td>
                                 <td>
-                                    <button disabled="disabled"  th:if="${iterStat.count > 1}"  type="button" th:onclick="'deleteEmail('+ this + ')'"
+                                    <button disabled="disabled" type="button" th:onclick="'deleteEmail('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
                                 </td>
                             </tr>
@@ -138,11 +138,11 @@
                             </tr>
                             </thead>
                             <tbody id="phones-table-body">
-                            <tr th:if="${client.clientPhones.isEmpty()}" th:each="phones, iterStat : ${client.clientPhones}">
-                                <td th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
+                            <tr th:each="phones, iterStat : ${client.clientPhones}" th:if="${phones != ''}">
+                                <td hidden="hidden" th:value="${iterStat.count} - 1" th:text="${iterStat.count} - 1"></td>
                                 <td th:value="${phones}" th:text="${phones}"></td>
                                 <td>
-                                    <button th:if="${iterStat.count > 1}" disabled="disabled" type="button" th:onclick="'deletePhone('+ this + ')'"
+                                    <button disabled="disabled" type="button" th:onclick="'deletePhone('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
                                 </td>
                             </tr>

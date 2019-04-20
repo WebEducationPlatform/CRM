@@ -79,15 +79,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(phoneNumber));
     }
 
-    @Override
-    public Optional<Client> getClientByClientPhonesEquals(String phoneNumber) {
-        return Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(phoneNumber));
-    }
-
-    @Override
-    public Optional<Client> getClientByClientEmailsEquals(String email) {
-        return Optional.ofNullable(clientRepository.getClientByClientEmailsEquals(email));
-    }
 
     @Override
     public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {

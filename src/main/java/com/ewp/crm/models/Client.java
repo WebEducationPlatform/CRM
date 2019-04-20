@@ -44,10 +44,7 @@ public class Client implements Serializable, Diffable<Client> {
 
 	@Column(name = "last_name")
 	private String lastName;
-/*
-    @Column(name = "phoneNumber", unique = true)
-    private String phoneNumber;
-*/
+
     @ElementCollection
     @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="phone", unique = true)
@@ -61,12 +58,7 @@ public class Client implements Serializable, Diffable<Client> {
     @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn(name = "idInList")
     private List<String> clientEmails = new ArrayList<>();
-/*
-    @Size(max = 50)
-    @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email", length = 50, unique = true)
-    private String email;
-*/
+
     @Column(name = "skype")
     private String skype = "";
 
@@ -223,7 +215,6 @@ public class Client implements Serializable, Diffable<Client> {
     public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
-     //   this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
         this.dateOfRegistration = dateOfRegistration;
     }
@@ -232,9 +223,7 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-     //   this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-     //   this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
@@ -245,9 +234,7 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-     //   this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-     //  this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
@@ -257,9 +244,7 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-      //  this.phoneNumber = phoneNumber;
         setPhoneNumber(phoneNumber);
-      //  this.email = email;
         setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
@@ -352,7 +337,6 @@ public class Client implements Serializable, Diffable<Client> {
             return null;
         }
             return clientPhones.get(0);
-     //return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -368,7 +352,6 @@ public class Client implements Serializable, Diffable<Client> {
             return null;
         }
         return clientEmails.get(0);
-   //  return email;
     }
 
     public void setEmail(String email) {
@@ -599,8 +582,6 @@ public class Client implements Serializable, Diffable<Client> {
         return  Objects.equals(id, client.id) &&
                 Objects.equals(name, client.name) &&
                 Objects.equals(lastName, client.lastName) &&
-          //      Objects.equals(phoneNumber, client.phoneNumber) &&
-          //      Objects.equals(email, client.email) &&
                 sex == client.sex &&
                 Objects.equals(city, client.city) &&
                 Objects.equals(country, client.country) &&
@@ -618,13 +599,13 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastName,/* phoneNumber, email,*/ skype, sex, city, country,
+        return Objects.hash(id, name, lastName, skype, sex, city, country,
                 state, jobs, socialProfiles, postponeDate, birthDate, university, requestFrom, clientEmails, clientPhones);
     }
 
     @Override
     public String toString() {
-        return "Client: id: " + id + "; email: " + /*email*/ getEmail() + "; number: " + getPhoneNumber()/*+ phoneNumber*/;
+        return "Client: id: " + id + "; email: " +  getEmail() + "; number: " + getPhoneNumber();
     }
 
     public List<Notification> getNotifications() {
@@ -680,8 +661,6 @@ public class Client implements Serializable, Diffable<Client> {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)
-             //   .append("Номер телефона", this.phoneNumber, client.phoneNumber)
-             //   .append("E-mail", this.email, client.email)
                 .append("Skype", this.skype, client.skype)
                 .append("Дата рождения", this.birthDate, client.birthDate)
                 .append("Пол", this.sex, client.sex)
@@ -697,7 +676,6 @@ public class Client implements Serializable, Diffable<Client> {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)
-             //   .append("E-mail", this.email, client.email)
                 .build();
     }
 

@@ -112,22 +112,13 @@ function changeClient(id) {
         return;
     }
 
-    console.log(Emails);
-    console.log(Phones);
 
-
-
-    console.log(Emails);
-
-
-    let url = '/admin/rest/client/update';
+  let url = '/admin/rest/client/update';
     let wrap = {
         id: id,
         name: $('#edit-client-first-name').val(),
         lastName: $('#edit-client-last-name').val(),
         middleName: $('#edit-client-middle-name').val(),
-  //      phoneNumber: $('#edit-client-phone-number').val(),
-  //      email: $('#edit-client-email').val(),
         birthDate: $('#edit-client-birthday').val(),
         sex: $('#edit-client-sex').find('option:selected').text(),
         state: $('#edit-client-state').val(),
