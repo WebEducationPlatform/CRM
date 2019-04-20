@@ -77,14 +77,14 @@ public class ClientRestController {
     }
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<List<Client>> getAll() {
 		return ResponseEntity.ok(clientService.getAll());
 	}
 
     //запрос для вывода клиентов постранично - порядок из базы
     @GetMapping(value = "/pagination/get")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
     public ResponseEntity getClients(@RequestParam int page) {
         List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
         if (clients == null || clients.isEmpty()) {
@@ -95,7 +95,7 @@ public class ClientRestController {
 
 	//запрос для вывода клиентов постранично - новые выше (16.10.18 установлен по дефолту для all-clients-table)
  	@GetMapping(value = "/pagination/new/first")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity getClientsNewFirst(@RequestParam int page) {
 		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration")));
 		if (clients == null || clients.isEmpty()) {
@@ -158,7 +158,7 @@ public class ClientRestController {
 	}
 
 	@GetMapping(value = "/getClientsData")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<InputStreamResource> getClientsData() {
         //TODO test cross-platform separator
 		String path = "DownloadData" + File.separator;
@@ -178,13 +178,13 @@ public class ClientRestController {
 	}
 
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
 		return ResponseEntity.ok(clientService.get(id));
 	}
 
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
 																	   @RequestParam(name = "socialProfileType") String socialProfileType,
 																	   @RequestParam(name = "unread") String unreadCount) {
@@ -206,7 +206,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/assign")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId,
 									   @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
@@ -222,7 +222,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/assign/user")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
 									 @RequestParam(name = "userForAssign") Long userId,
 									 @AuthenticationPrincipal User userFromSession) {
@@ -244,7 +244,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/unassign")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId,
 								   @AuthenticationPrincipal User userFromSession) {
 		Client client = clientService.get(clientId);
@@ -271,7 +271,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/createFile")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFile(@RequestParam(name = "selected") String selected) {
 
 		String path = "DownloadData";
@@ -327,7 +327,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
 		String separator = "\r\n";
 		String path = "DownloadData";
@@ -383,7 +383,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/postpone")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity postponeClient(@RequestParam Long clientId,
 										 @RequestParam String date,
 										 @RequestParam Boolean isPostponeFlag,
@@ -413,7 +413,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/remove/postpone")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity removePostpone(@RequestParam Long clientId,
 										 @AuthenticationPrincipal User userFromSession) {
 		try {
@@ -430,7 +430,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/addDescription")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
 												 @RequestParam(name = "clientDescription") String clientDescription,
 												 @AuthenticationPrincipal User userFromSession) {
@@ -450,7 +450,7 @@ public class ClientRestController {
 	}
 
 	@PostMapping(value = "/setSkypeLogin")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<String> setClientSkypeLogin(@RequestParam(name = "clientId") Long clientId,
 													  @RequestParam(name = "skypeLogin") String skypeLogin,
 													  @AuthenticationPrincipal User userFromSession) {
@@ -471,7 +471,7 @@ public class ClientRestController {
 	}
 
 	@GetMapping(value = "/message/info/{id}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
 		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
 	}

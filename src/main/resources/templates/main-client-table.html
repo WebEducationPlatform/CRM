@@ -21,7 +21,7 @@
              th:if="${!status.invisible}">
             <div id="column-header">
                 <div class="btn-group">
-                    <button type="button" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog"
+                    <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog"
                             data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu">
