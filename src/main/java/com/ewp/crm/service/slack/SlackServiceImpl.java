@@ -338,6 +338,9 @@ public class SlackServiceImpl implements SlackService {
             HttpEntity entity = response.getEntity();
             json = EntityUtils.toString(entity);
             JSONObject jsonObj = new JSONObject(json);
+            if (!jsonObj.optBoolean("ok")) {
+                logger.error(jsonObj.getString("error"));
+            }
             return jsonObj.optBoolean("ok");
         } catch (IOException e) {
             logger.error("Can't get response when inviting user to Slack", e);
