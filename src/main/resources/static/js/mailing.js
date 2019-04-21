@@ -26,6 +26,8 @@ function sendMessages(sendnow) {
         text = CKEDITOR.instances.editor.getData();
     }
 
+    let selectAppTokenNumber = $("#selectAppToken").val();
+
     if (sendnow===1) {
         date = $.date(new Date(), 'format', 'd.m.Y H:i МСК');
         msgFeedBack = "Сообщение отправлено";
@@ -40,6 +42,7 @@ function sendMessages(sendnow) {
         date: date,
         recipients: recipients,
         vkType: vkPage = $("#vkTokenSelect").val(),
+        selectValueAppNumberToken: selectAppTokenNumber,
         listMailing: listMailing
     };
 
@@ -110,6 +113,7 @@ $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
+    $('#selectAppToken').hide();
     $("#message-type-button-group > button").click(function () {
         if (messageType === $(this).attr("id")) {
             return;
@@ -289,6 +293,7 @@ $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
+    $('#selectAppToken').hide();
     let startDate = moment(new Date()).utcOffset(180); //устанавливаем минимальную дату и время по МСК (UTC + 3 часа )
     $('#messageSendingTime').daterangepicker({
         "singleDatePicker": true, //отключаем выбор диапазона дат (range)
@@ -331,6 +336,7 @@ $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
+    $('#selectAppToken').hide();
     $("#addresses-area").on("drop", function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -361,6 +367,7 @@ $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
+    $('#selectAppToken').hide();
     CKEDITOR.addCss('.cke_editable p { margin: 0 !important; }');
     let rep = CKEDITOR.replace(EDITOR, {
         customConfig: '/ckeditor/add-all-toolbars.js',
@@ -393,6 +400,7 @@ function ckeditorAddAllToolbars() {
     });
     $("#imgSelectBtn").show();
     $("#vkTokenSelect").hide();
+    $('#selectAppToken').hide();
 }
 
 function ckeditorRemoveAllToolbars() {
@@ -407,6 +415,11 @@ function ckeditorRemoveAllToolbars() {
         $("#vkTokenSelect").hide();
     }
 
+    if(messageType === "slack") {
+        $("#selectAppToken").show();
+    } else {
+        $("#selectAppToken").hide();
+    }
 }
 
 /**
@@ -416,6 +429,7 @@ $(document).ready(function () {
     $("#vkTokenSelect").hide();
     $("#falseHistory").hide();
     $("#noSendButton").hide();
+    $("#selectAppToken").hide();
     $("#addresses-area")
         .on("dragover", function (event) {
             $(this).addClass(DROP_ZONE_IS_DRAGOVER_CLASS);
