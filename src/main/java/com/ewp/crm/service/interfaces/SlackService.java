@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface SlackService {
     boolean inviteToWorkspace(String name, String lastName, String email);
+    boolean inviteToWorkspace(String email);
     Optional<String> getAllEmailsFromSlack();
     Optional<String> getAllIdsFromSlack();
     boolean tryLinkSlackAccountToStudent(long studentId);

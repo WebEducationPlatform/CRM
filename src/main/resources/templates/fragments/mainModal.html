@@ -183,17 +183,21 @@
                                 </tbody>
                             </table>
                             <div class="row">
+                                <div id="slack-invite" style="text-align: center"></div>
+                                <h5>
+                                    <div id="message" style="text-align: center"></div>
+                                </h5>
+                            </div>
+                            <div class="row" style="margin-top: 10px;">
                                 <div class="col-lg-4" id="assign-unassign-btns1" style="text-align: left"></div>
                                 <div class="col-lg-4" id="assign-unassign-btns2" style="text-align: center"></div>
                                 <div class="col-lg-4" id="assign-unassign-btns3" style="text-align: right"></div>
                             </div>
                             <div class="row" style="margin-top: 10px;">
-                                <div id="assign-unassign-btns-skype">
-                                </div>
+                                <div id="assign-unassign-btns-skype"></div>
                             </div>
                             <div class="row" style="text-align: center; margin-top: 10px;">
-                                <div id="contract-btn">
-                                </div>
+                                <div id="contract-btn"></div>
                             </div>
                         </div>
                     </div>
@@ -229,6 +233,7 @@
         </div>
     </div>
 </th:block>
+<script type="text/javascript" th:src="@{/js/slack-registration.js}"></script>
 <script th:src="@{/js/user-info.js}"></script>
 </body>
 </html>

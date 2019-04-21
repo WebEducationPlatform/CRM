@@ -259,6 +259,8 @@ function createNewUser() {
     });
 }
 
+
+
 function createNewStatus() {
     let url = '/rest/status/add';
     let statusName = $('#new-status-name').val() || $('#default-status-name').val();
@@ -367,6 +369,40 @@ function tilt_direction(item) {
     $("html").bind("mousemove", move_handler);
     item.data("move_handler", move_handler);
 }
+
+function getHash() {
+    let urlParams = window.location.href.split("?");
+    if (urlParams.length > 1) {
+        return urlParams[1];
+    }
+    return null;
+}
+
+function inviteSlack(clientEmail) {
+    let SUCCESS_MESSAGE = 'Успешно! Вам на почту придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать пароль и получить доступ к Slack.';
+    let ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору.';
+    let url = '/slack/invitelink';
+    let email = clientEmail;
+    let message = $('#message');
+
+    $.ajax({
+        url: url,
+        async: true,
+        type: 'POST',
+        data: {
+            'hash': getHash(),
+            'name' : '',
+            'lastName' : '',
+            'email': email},
+        success: function () {
+            message.text(SUCCESS_MESSAGE);
+        },
+        error: function () {
+            message.text(ERROR_MESSAGE);
+        }
+    });
+}
+
 
 function assign(id) {
     let
@@ -1598,6 +1634,12 @@ $('#slackLinkModal').on('show.bs.modal', function () {
     });
 });
 
+
+
+
+
+
+
 $(function () {
     $('#main-modal-window').on('show.bs.modal', function () {
 
@@ -1618,6 +1660,11 @@ $(function () {
                 });
             }
         });
+
+
+
+
+
         $.ajax({
             async: false,
             type: 'GET',
@@ -1723,6 +1770,8 @@ $(function () {
                     $('#chat-button').show();
 
 
+
+
                     if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
                         $('#fb-href').attr('href', client.socialProfiles[i].socialId);
                         $('#fb-href').show();
@@ -1746,15 +1795,19 @@ $(function () {
                                 $('#slack-href').show();
                             }
                         });
-
                     }
                     get_interlocutors(clientId);
                 }
+
 
                 var btnBlock = $('div#assign-unassign-btns-skype');
                 var btnBlock1 = $('div#assign-unassign-btns1');
                 var btnBlock2 = $('div#assign-unassign-btns2');
                 var btnBlock3 = $('div#assign-unassign-btns3');
+                var btnBlock4 = $('div#slack-invite');
+                var message = $('div#message');
+
+
 
                 if (client.liveSkypeCall) {
                     btnBlock.after('<div class="remove-tag confirm-skype-interceptor"><div class="update btn-group"><button id="assign-skype' + client.id + '" type="button" onclick="updateCallDate(' + client.id + ')" class="btn btn-default update-date-btn btn-sm"><span class="glyphicon glyphicon-pencil"></span> Изменить время беседы</button>\n' +
@@ -1784,6 +1837,9 @@ $(function () {
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
+                btnBlock4.append('<button class="btn btn-info btn-sm remove-tag" id="slack-inv" onclick="inviteSlack(' + '\'' + client.email + '\'' + ')">Пригласить в Slack</button>');
+                message.text("");
+
                 $('#contract-btn').empty();
 
                 if (client.contractLinkData != null) {
@@ -1801,6 +1857,7 @@ $(function () {
                         'data-toggle="modal" data-target="#contract-client-setting-modal" >Договор</button>');
                     $('#contract-client-setting-contract-link').empty();
                 }
+
 
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
@@ -1827,6 +1884,8 @@ $(function () {
         });
     });
 });
+
+
 
 function dropRepeatedFlag(clientId, repeated) {
     var url = '/rest/client/setRepeated';
