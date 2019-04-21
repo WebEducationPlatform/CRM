@@ -1360,8 +1360,8 @@ public class VKServiceImpl implements VKService {
         try {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
-           spentFromVk =  GETTING_REPORT_ERROR;
-           logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
+            spentFromVk =  GETTING_REPORT_ERROR;
+            logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
         //Получение отчета Google Ads
@@ -1400,8 +1400,7 @@ public class VKServiceImpl implements VKService {
         }
 
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
-        Object[] params = {
-                balanceFromYandexDirect, spentFromYandexDirect,
+        Object[] params = {balanceFromYandexDirect, spentFromYandexDirect,
                 balanceFromVk, spentFromVk,
                 balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
