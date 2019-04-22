@@ -41,7 +41,7 @@ public class SlackServiceImpl implements SlackService {
     private final SocialProfileService socialProfileService;
     private final ClientService clientService;
     private final String slackWorkspaceUrl;
-    private final String appToken;
+    private String appToken;
     private final String legacyToken;
     private final String generalChannelId;
     private final String defaultPrivateGroupNameTemplate;
@@ -51,7 +51,7 @@ public class SlackServiceImpl implements SlackService {
                             SocialProfileTypeService socialProfileTypeService, ClientService clientService,
                             SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService) {
         this.appToken = assignPropertyToString(environment,
-                "slack.appToken",
+                "slack.appToken1",
                     "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
         this.legacyToken = assignPropertyToString(environment,
                 "slack.legacyToken",
@@ -79,6 +79,14 @@ public class SlackServiceImpl implements SlackService {
             return StringUtils.EMPTY;
         }
         return result;
+    }
+
+    public void setAppToken(String number, Environment environment){
+
+        this.appToken = assignPropertyToString(environment,
+                "slack.appToken" + number,
+                "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
+        System.out.println(appToken);
     }
 
     @Override
@@ -337,6 +345,11 @@ public class SlackServiceImpl implements SlackService {
             logger.error(String.format("Can't parse response when inviting user to Slack, json = %s", json), e);
         }
         return false;
+    }
+
+    @Override
+    public boolean inviteToWorkspace(String email) {
+        return inviteToWorkspace("", "", email);
     }
 
     @Override
