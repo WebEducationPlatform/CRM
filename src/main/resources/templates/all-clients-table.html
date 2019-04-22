@@ -139,7 +139,7 @@
                 <td class="line-decoration"><a th:text="${client.name}"
                                                th:href="@{'/client/clientInfo/' + ${client.id}}"></a></td>
                 <td th:text="${client.lastName}"></td>
-                <td th:text="${client.phoneNumber}"></td>
+                <td th:text="${client.clientPhones[0]}"></td>
                 <td th:text="${client.email}"></td>
                 <td>
                     <th:block th:each="soc : ${client.socialProfiles}">

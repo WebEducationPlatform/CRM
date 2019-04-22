@@ -135,11 +135,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         Optional<Client> existClient = Optional.empty();
 
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+        if (client.getPhoneNumber().isPresent()) {
+            client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
+        }
 
-        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+        if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
             client.setCanCall(true);
-            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
+            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber().get());
             existClient = Optional.ofNullable(clientRepository.getClientByClientPhonesEquals(validatePhone));
         }
 
@@ -242,12 +244,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         checkSocialIds(client);
 
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
 
-        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+        if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
             client.setCanCall(true);
-            Client clientByPhone = clientRepository.getClientByClientPhonesEquals(client.getPhoneNumber());
-            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
+            Client clientByPhone = clientRepository.getClientByClientPhonesEquals(client.getPhoneNumber().get());
+            if (clientByPhone != null && !client.getPhoneNumber().get().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
         } else {
