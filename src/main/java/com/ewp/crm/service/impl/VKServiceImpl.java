@@ -1253,7 +1253,7 @@ public class VKServiceImpl implements VKService {
             if (client.getSex() == null) {
                 client.setSex(vkInfo.getSex());
             }
-            if (client.getPhoneNumber() == null || client.getPhoneNumber().isEmpty()) {
+            if (!client.getPhoneNumber().isPresent() || client.getPhoneNumber().get().isEmpty()) {
                 client.setPhoneNumber(vkInfo.getPhone());
             }
             if (client.getCountry() == null || client.getCountry().isEmpty()) {

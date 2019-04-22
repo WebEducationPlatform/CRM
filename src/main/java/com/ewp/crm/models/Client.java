@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 @Entity
@@ -49,14 +50,14 @@ public class Client implements Serializable, Diffable<Client> {
     @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="phone", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
-    @OrderColumn(name = "idInList")
+    @OrderColumn(name = "numberInList")
     private List<String> clientPhones = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="email", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
-    @OrderColumn(name = "idInList")
+    @OrderColumn(name = "numberInList")
     private List<String> clientEmails = new ArrayList<>();
 
     @Column(name = "skype")
@@ -332,11 +333,8 @@ public class Client implements Serializable, Diffable<Client> {
         this.middleName = middleName;
     }
 
-    public String getPhoneNumber() {
-        if (clientPhones.isEmpty()) {
-            return null;
-        }
-            return clientPhones.get(0);
+    public Optional<String> getPhoneNumber() {
+        return clientPhones.isEmpty() ? Optional.empty() : Optional.ofNullable(clientPhones.get(0));
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -605,7 +603,7 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Override
     public String toString() {
-        return "Client: id: " + id + "; email: " +  getEmail() + "; number: " + getPhoneNumber();
+        return "Client: id: " + id + "; email: "/* +  getEmail() + "; number: " + getPhoneNumber().orElse("not found")*/;
     }
 
     public List<Notification> getNotifications() {
