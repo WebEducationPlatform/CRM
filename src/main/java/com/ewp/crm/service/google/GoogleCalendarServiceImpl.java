@@ -8,17 +8,17 @@ import com.ewp.crm.service.interfaces.GoogleTokenService;
 import com.google.api.client.util.DateTime;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ibm.icu.text.Transliterator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -37,7 +37,6 @@ import java.util.Optional;
 @Service
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
-    private final static String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
     private static final String GOOGLE_API_URL = "https://www.googleapis.com/calendar/v3";
 	private static Logger logger = LoggerFactory.getLogger(GoogleCalendarServiceImpl.class);
 
@@ -68,6 +67,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                     + "?access_token=" + token;
             try {
                 HttpGet httpGet = new HttpGet(uri);
+                httpGet.addHeader("Content-Type", "application/json; charset=UTF-8");
                 HttpClient httpClient = getHttpClient();
                 HttpResponse response = httpClient.execute(httpGet);
                 String result = EntityUtils.toString(response.getEntity());
@@ -100,10 +100,11 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
     private Optional<String> createCalendarEventRequestBody(ZonedDateTime eventStart, Client client) {
 	    JsonObject root = new JsonObject();
-        Transliterator toLatinTrans = Transliterator.getInstance(CYRILLIC_TO_LATIN);
-        String summary = toLatinTrans.transliterate(String.format("%s %s", client.getLastName(), client.getName()));
-        root.addProperty("summary", summary);
-        root.addProperty("description", eventName);
+
+        String description = String.format("%s %s", client.getLastName(), client.getName());
+
+        root.addProperty("summary", eventName);
+        root.addProperty("description", description);
 
 	    JsonArray attendees = new JsonArray();
 	    JsonObject clientAttendee = new JsonObject();
@@ -136,12 +137,11 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpPost request = new HttpPost(uri);
-                request.addHeader("Content-Type", "application/json");
-                EntityBuilder params = EntityBuilder.create();
+                request.addHeader("Content-Type", "application/json; charset=UTF-8");
                 Optional<String> eventJson = createCalendarEventRequestBody(eventStart, client);
                 if (eventJson.isPresent()) {
-                    params.setText(eventJson.get());
-                    request.setEntity(params.build());
+                    HttpEntity entity = new StringEntity(eventJson.get(), "UTF-8");
+                    request.setEntity(entity);
                     HttpClient httpClient = getHttpClient();
                     String result = StringUtils.EMPTY;
                     try {
@@ -171,12 +171,11 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpPut request = new HttpPut(uri);
-                request.addHeader("Content-Type", "application/json");
-                EntityBuilder params = EntityBuilder.create();
+                request.addHeader("Content-Type", "application/json; charset=UTF-8");
                 Optional<String> eventJson = createCalendarEventRequestBody(eventStart, client);
                 if (eventJson.isPresent()) {
-                    params.setText(eventJson.get());
-                    request.setEntity(params.build());
+                    HttpEntity entity = new StringEntity(eventJson.get(), "UTF-8");
+                    request.setEntity(entity);
                     HttpClient httpClient = getHttpClient();
                     try {
                         HttpResponse response = httpClient.execute(request);
@@ -199,6 +198,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
                         + "?access_token=" + token +
                         "&sendUpdates=all";
                 HttpDelete request = new HttpDelete(uri);
+                request.addHeader("Content-Type", "application/json; charset=UTF-8");
                 HttpClient httpClient = getHttpClient();
                 try {
                     HttpResponse response = httpClient.execute(request);
