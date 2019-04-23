@@ -7,12 +7,15 @@ import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -21,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 @Entity
@@ -42,13 +46,19 @@ public class Client implements Serializable, Diffable<Client> {
 	@Column(name = "last_name")
 	private String lastName;
 
-    @Column(name = "phoneNumber", unique = true)
-    private String phoneNumber;
+    @ElementCollection
+    @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="phone", unique = true)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name = "numberInList")
+    private List<String> clientPhones = new ArrayList<>();
 
-    @Size(max = 50)
-    @Email(regexp = ValidationPattern.EMAIL_PATTERN)
-    @Column(name = "email", length = 50, unique = true)
-    private String email;
+    @ElementCollection
+    @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="email", unique = true)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderColumn(name = "numberInList")
+    private List<String> clientEmails = new ArrayList<>();
 
     @Column(name = "skype")
     private String skype = "";
@@ -211,7 +221,7 @@ public class Client implements Serializable, Diffable<Client> {
     public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
         this();
         this.name = name;
-        this.phoneNumber = phoneNumber;
+        setPhoneNumber(phoneNumber);
         this.dateOfRegistration = dateOfRegistration;
     }
 
@@ -219,8 +229,8 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+        setPhoneNumber(phoneNumber);
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
         this.status = status;
@@ -230,8 +240,8 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+        setPhoneNumber(phoneNumber);
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
     }
@@ -240,14 +250,20 @@ public class Client implements Serializable, Diffable<Client> {
         this();
         this.name = name;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
+        setPhoneNumber(phoneNumber);
+        setEmail(email);
         this.birthDate = birthDate;
         this.sex = sex;
         this.city = city;
         this.country = country;
         this.state = state;
         this.dateOfRegistration = dateOfRegistration;
+    }
+
+    public Client(@NotNull String name, List<String> clientPhones, List<String> clientEmails) {
+        this.name = name;
+        this.clientPhones = clientPhones;
+        this.clientEmails = clientEmails;
     }
 
     public List<ClientHistory> getHistory() {
@@ -322,20 +338,28 @@ public class Client implements Serializable, Diffable<Client> {
         this.middleName = middleName;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public Optional<String> getPhoneNumber() {
+        return clientPhones.isEmpty() ? Optional.empty() : Optional.ofNullable(clientPhones.get(0));
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        if (clientPhones.isEmpty()) {
+            clientPhones.add(phoneNumber);
+        } else {
+            clientPhones.set(0, phoneNumber);
+        }
     }
 
-    public String getEmail() {
-        return email;
+    public Optional<String> getEmail() {
+        return clientEmails.isEmpty() ? Optional.empty() : Optional.ofNullable(clientEmails.get(0));
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (clientEmails.isEmpty()) {
+            clientEmails.add(email);
+        } else {
+            clientEmails.set(0, email);
+        }
     }
 
     public ZonedDateTime getPostponeDate() {
@@ -534,6 +558,22 @@ public class Client implements Serializable, Diffable<Client> {
         this.contractLinkData = contractLinkData;
     }
 
+    public List<String> getClientPhones() {
+        return clientPhones;
+    }
+
+    public void setClientPhones(List<String> clientPhones) {
+        this.clientPhones = clientPhones;
+    }
+
+    public List<String> getClientEmails() {
+        return clientEmails;
+    }
+
+    public void setClientEmails(List<String> clientEmails) {
+        this.clientEmails = clientEmails;
+    }
+
     public SlackInviteLink getSlackInviteLink() {
         return slackInviteLink;
     }
@@ -550,8 +590,6 @@ public class Client implements Serializable, Diffable<Client> {
         return  Objects.equals(id, client.id) &&
                 Objects.equals(name, client.name) &&
                 Objects.equals(lastName, client.lastName) &&
-                Objects.equals(phoneNumber, client.phoneNumber) &&
-                Objects.equals(email, client.email) &&
                 sex == client.sex &&
                 Objects.equals(city, client.city) &&
                 Objects.equals(country, client.country) &&
@@ -562,18 +600,20 @@ public class Client implements Serializable, Diffable<Client> {
                 Objects.equals(postponeDate, client.postponeDate)&&
                 Objects.equals(birthDate, client.birthDate) &&
                 Objects.equals(university, client.university) &&
-                Objects.equals(requestFrom, client.requestFrom);
+                Objects.equals(requestFrom, client.requestFrom) &&
+                Objects.equals(clientEmails, client.clientEmails) &&
+                Objects.equals(clientPhones, client.clientPhones);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastName, phoneNumber, email, skype, sex, city, country,
-                state, jobs, socialProfiles, postponeDate, birthDate, university,requestFrom);
+        return Objects.hash(id, name, lastName, skype, sex, city, country,
+                state, jobs, socialProfiles, postponeDate, birthDate, university, requestFrom, clientEmails, clientPhones);
     }
 
     @Override
     public String toString() {
-        return "Client: id: " + id + "; email: " + email + "; number: " + phoneNumber;
+        return "Client: id: " + id + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found");
     }
 
     public List<Notification> getNotifications() {
@@ -629,8 +669,6 @@ public class Client implements Serializable, Diffable<Client> {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)
-                .append("Номер телефона", this.phoneNumber, client.phoneNumber)
-                .append("E-mail", this.email, client.email)
                 .append("Skype", this.skype, client.skype)
                 .append("Дата рождения", this.birthDate, client.birthDate)
                 .append("Пол", this.sex, client.sex)
@@ -646,7 +684,6 @@ public class Client implements Serializable, Diffable<Client> {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)
-                .append("E-mail", this.email, client.email)
                 .build();
     }
 
@@ -660,5 +697,4 @@ public class Client implements Serializable, Diffable<Client> {
         FINISHED,
         REFUSED
     }
-
 }

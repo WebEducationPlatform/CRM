@@ -138,8 +138,8 @@ public class TelegramRestController {
             result = new ResponseEntity(telegramService.sendChatMessage(Long.parseLong(profile.get().getSocialId()), text), HttpStatus.OK);
         } else {
             Optional<Client> client = clientService.getClientByID(clientId);
-            if (client.isPresent() && client.get().getEmail() != null) {
-                int telegramId = telegramService.getClientIdByPhone(client.get().getPhoneNumber());
+            if (client.isPresent() && client.get().getEmail().isPresent()) {
+                int telegramId = telegramService.getClientIdByPhone(client.get().getPhoneNumber().get());
                 socialProfileTypeService.getByTypeName("telegram").ifPresent(s -> client.get().getSocialProfiles().add(new SocialProfile(String.valueOf(telegramId), s)));
                 clientService.update(client.get());
                 result = new ResponseEntity(telegramService.sendChatMessage((long) telegramId, text), HttpStatus.OK);
