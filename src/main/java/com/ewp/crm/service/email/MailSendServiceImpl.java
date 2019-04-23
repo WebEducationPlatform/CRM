@@ -97,7 +97,7 @@ public class MailSendServiceImpl implements MailSendService {
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom("Java-Mentor.ru");
-            mimeMessageHelper.setTo(client.getEmail().get());
+            mimeMessageHelper.setTo(client.getEmail());
             mimeMessageHelper.setSubject("Ваш личный Java наставник");
             mimeMessageHelper.setText(template.getTemplateText(), true);
         } catch (MessagingException e) {
@@ -206,7 +206,7 @@ public class MailSendServiceImpl implements MailSendService {
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         mimeMessageHelper.setFrom("Java-Mentor.ru");
-        mimeMessageHelper.setTo(client.getEmail().get());
+        mimeMessageHelper.setTo(client.getEmail());
         mimeMessageHelper.setSubject("Ваш личный Java наставник");
         mimeMessageHelper.setText(htmlContent, true);
 
@@ -217,7 +217,7 @@ public class MailSendServiceImpl implements MailSendService {
         String templateFile = "emailStringTemplate";
         Optional<Client> client = clientService.getClientByID(clientId);
         if (client.isPresent()) {
-            String recipient = client.get().getEmail().get();
+            String recipient = client.get().getEmail();
             String fullName = client.get().getName() + " " + client.get().getLastName();
             Map<String, String> params = new HashMap<>();
             if (client.get().getContractLinkData() != null) {
