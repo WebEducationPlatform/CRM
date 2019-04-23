@@ -114,7 +114,7 @@
                 <td th:id="${'status_' + student.id}" hidden="hidden" th:text="${student.client.status.name}"></td>
                 <td th:id="${'name_' + student.id}" th:text="${student.client.name}"></td>
                 <td th:id="${'lastName_' + student.id}" th:text="${student.client.lastName}"></td>
-                <td th:id="${'email_' + student.id}" th:text="${student.client.email.get()}"></td>
+                <td th:id="${'email_' + student.id}" th:text="${student.client.email}"></td>
                 <td th:id="${'trialEndDate_' + student.id}">
                     <span th:id="${'trialEndDateValue_' + student.id}" th:text="${#temporals.format(student.trialEndDate, 'dd.MM.yyyy')}"></span>
                     <input th:id="${'trial-end-date_' + student.id}" class="form-control hidden input-sm" type="date"/><br/>

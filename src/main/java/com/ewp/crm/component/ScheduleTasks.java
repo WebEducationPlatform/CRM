@@ -141,9 +141,9 @@ public class ScheduleTasks {
 		socialProfileTypeService.getByTypeName("vk").ifPresent(newClient.getSocialProfiles().get(0)::setSocialProfileType);
 		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
 		vkService.fillClientFromProfileVK(newClient);
-		Optional<String> optionalEmail = newClient.getEmail();
-		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)){
-			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
+		String email = newClient.getEmail();
+		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: "+email);
 			newClient.setEmail(null);
 		}
 		clientService.addClient(newClient);
@@ -164,12 +164,13 @@ public class ScheduleTasks {
 
         List<Client> clients = clientService.getAll();
         for (Client currentClient : clients) {
+            System.out.println(currentClient.getId() + currentClient.getEmail() + currentClient.getBirthDate());
             LocalDate birthDate = currentClient.getBirthDate();
             int clientDayOfBirth = birthDate.getDayOfMonth();
             int monthOfBirth = birthDate.getMonthValue();
 
             if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
-                if (currentClient.getEmail() != null && !currentClient.getEmail().isPresent()) {
+                if (currentClient.getEmail() != null && !currentClient.getEmail().isEmpty()) {
                     mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
                 }
 
@@ -222,14 +223,14 @@ public class ScheduleTasks {
 					logger.warn("VK message not sent", e);
 				}
 			}
-			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isPresent()) {
+			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
 				try {
 					smsService.sendSMS(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("SMS message not sent", e);
 				}
 			}
-			if (client.getEmail() != null && !client.getEmail().isPresent()) {
+			if (client.getEmail() != null && !client.getEmail().isEmpty()) {
 				try {
 					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal);
 				} catch (Exception e) {
