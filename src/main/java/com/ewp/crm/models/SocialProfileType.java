@@ -27,10 +27,7 @@ public class SocialProfileType implements Serializable {
 	 * Соцсеть клиента (студента)
 	 */
 	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "social_network_social_network_type",
-			inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
-			joinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "socialProfileType")
 	private List<SocialProfile> socialProfileList;
 
 	public Long getId() {

@@ -1,6 +1,7 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
+import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
@@ -62,6 +63,11 @@ public class StatusServiceImpl implements StatusService {
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
+
+    @Override
+    public List<Status> getAllByRole(Role role) {
+        return statusDAO.getAllByRole(role);
+    }
 
 	@Override
 	public Optional<Status> get(Long id) {
