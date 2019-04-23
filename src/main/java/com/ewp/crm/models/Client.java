@@ -345,11 +345,8 @@ public class Client implements Serializable, Diffable<Client> {
         }
     }
 
-    public String getEmail() {
-        if (clientEmails.isEmpty()) {
-            return null;
-        }
-        return clientEmails.get(0);
+    public Optional<String> getEmail() {
+        return clientEmails.isEmpty() ? Optional.empty() : Optional.ofNullable(clientEmails.get(0));
     }
 
     public void setEmail(String email) {
@@ -603,7 +600,7 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Override
     public String toString() {
-        return "Client: id: " + id + "; email: "/* +  getEmail() + "; number: " + getPhoneNumber().orElse("not found")*/;
+        return "Client: id: " + id + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found");
     }
 
     public List<Notification> getNotifications() {
