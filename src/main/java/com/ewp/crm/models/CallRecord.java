@@ -30,6 +30,10 @@ public class CallRecord {
 	@Column(name = "date")
 	private String date;
 
+	@ManyToOne
+	@JoinColumn(name = "calling_user_id")
+	private User callingUser;
+
 	public CallRecord() {}
 
 	public Long getId() {
@@ -78,6 +82,14 @@ public class CallRecord {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public User getCallingUser() {
+		return callingUser;
+	}
+
+	public void setCallingUser(User callingUser) {
+		this.callingUser = callingUser;
 	}
 
 	@Override

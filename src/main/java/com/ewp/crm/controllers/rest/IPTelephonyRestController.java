@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +20,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,10 +135,17 @@ public class IPTelephonyRestController {
 	public ResponseEntity getAllCommonRecords(@RequestParam("page") int page) {
 		Pageable pageable = PageRequest.of(page, pageSize);
 		List<CallRecord> callRecords = callRecordService.getAllCommonRecords(pageable);
-		if (callRecords == null || callRecords.isEmpty()) {
+		if (callRecords.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(callRecords);
+	}
+
+	@GetMapping("/records/filter")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity getFilteredRecords(@RequestParam("page") int page) {
+		Pageable pageable = PageRequest.of(page, pageSize);
+		List<CallRecord> callRecords = callRecordService.getAllCommonRecords(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, "")))
 	}
 
 	@PostMapping(value = "/voximplant")
@@ -176,21 +180,26 @@ public class IPTelephonyRestController {
 	public ResponseEntity getCallRecordToClientCredentials(@RequestParam String to, @AuthenticationPrincipal User userFromSession) {
 		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
-			CallRecord callRecord = new CallRecord();
-			Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, INIT_RECORD_LINK);
-			if (clientHistory.isPresent()) {
-				Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
-				if (historyFromDB.isPresent()) {
-					client.get().addHistory(historyFromDB.get());
-					callRecord.setClientHistory(historyFromDB.get());
-					Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
-					if (callRecordFromDB.isPresent()) {
-						client.get().addCallRecord(callRecordFromDB.get());
-						clientService.updateClient(client.get());
-						callRecordFromDB.get().setClient(client.get());
-						callRecordService.update(callRecordFromDB.get());
-						return ResponseEntity.ok(callRecordFromDB.get());
-					}
+			return addCallRecordToClient(new CallRecord(), client.get(), userFromSession);
+		}
+		return ResponseEntity.badRequest().build();
+	}
+
+	private ResponseEntity<CallRecord> addCallRecordToClient(CallRecord callRecord, Client client, User userFromSession) {
+		Optional<ClientHistory> clientHistory = clientHistoryService.createHistory(userFromSession, INIT_RECORD_LINK);
+		if (clientHistory.isPresent()) {
+			Optional<ClientHistory> historyFromDB = clientHistoryService.addHistory(clientHistory.get());
+			if (historyFromDB.isPresent()) {
+				client.addHistory(historyFromDB.get());
+				callRecord.setClientHistory(historyFromDB.get());
+				callRecord.setCallingUser(userFromSession);
+				Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord);
+				if (callRecordFromDB.isPresent()) {
+					client.addCallRecord(callRecordFromDB.get());
+					clientService.updateClient(client);
+					callRecordFromDB.get().setClient(client);
+					callRecordService.update(callRecordFromDB.get());
+					return ResponseEntity.ok(callRecordFromDB.get());
 				}
 			}
 		}
@@ -200,11 +209,16 @@ public class IPTelephonyRestController {
 	@PostMapping(value = "/common")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity getCallRecordsCredentials(@RequestParam String to, @AuthenticationPrincipal User userFromSession) {
+		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (userFromSession.isIpTelephony()) {
 			CallRecord callRecord = new CallRecord();
-			Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecord(callRecord, userFromSession, to);
-			if (callRecordFromDB.isPresent()) {
-				return ResponseEntity.ok(callRecordFromDB.get());
+			if (client.isPresent() && client.get().isCanCall()) {
+				return addCallRecordToClient(callRecord, client.get(), userFromSession);
+			} else {
+				Optional<CallRecord> callRecordFromDB = callRecordService.addCallRecordTo(callRecord, userFromSession, to);
+				if (callRecordFromDB.isPresent()) {
+					return ResponseEntity.ok(callRecordFromDB.get());
+				}
 			}
 		}
 		return ResponseEntity.badRequest().build();
