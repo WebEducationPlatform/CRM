@@ -12,6 +12,6 @@ public interface CallRecordService extends CommonService<CallRecord> {
 
 	Optional<CallRecord> addCallRecord(CallRecord callRecord);
 
-	Optional<CallRecord> addCallRecord(CallRecord callRecord, User user, String to);
+	Optional<CallRecord> addCallRecordTo(CallRecord callRecord, User user, String to);
 
 }
