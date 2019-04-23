@@ -193,6 +193,11 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "slack_invite_link_id")
+    private SlackInviteLink slackInviteLink;
+
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
@@ -569,6 +574,14 @@ public class Client implements Serializable, Diffable<Client> {
         this.clientEmails = clientEmails;
     }
 
+    public SlackInviteLink getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(SlackInviteLink slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -667,7 +680,7 @@ public class Client implements Serializable, Diffable<Client> {
                 .build();
     }
 
-    public DiffResult diffOnStudentEdit(Client client) {
+    public DiffResult diffByNameAndLastNameAndEmail(Client client) {
         return new DiffBuilder(this, client, ToStringStyle.JSON_STYLE)
                 .append("Имя", this.name, client.name)
                 .append("Фамилия", this.lastName, client.lastName)

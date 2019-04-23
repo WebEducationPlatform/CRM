@@ -5,7 +5,6 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.SlackService;
 import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,16 +36,31 @@ public class SlackRestController {
 
     private final SlackService slackService;
     private final ClientService clientService;
-    private final StudentService studentService;
     private final StatusService statusService;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService,
-                               StudentService studentService, StatusService statusService) {
+    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService) {
         this.slackService = slackService;
         this.clientService = clientService;
-        this.studentService = studentService;
         this.statusService = statusService;
+    }
+
+    @CrossOrigin(origins = "https://java-mentor.com")
+    @PostMapping("/registration")
+    public ResponseEntity registerUser(@RequestParam("hash") String hash, @RequestParam("name") String name,
+                                       @RequestParam("lastName") String lastName, @RequestParam("email") String email) {
+        Optional<Client> client = clientService.getClientBySlackInviteHash(hash);
+        if (client.isPresent()) {
+            boolean result = clientService.inviteToSlack(client.get(), name, lastName, email);
+            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
+        }
+        return ResponseEntity.badRequest().body("");
+    }
+
+    @PostMapping("/invitelink")
+    public ResponseEntity inviteSlack(@RequestParam("email") String email) {
+            boolean result = slackService.inviteToWorkspace(email);
+            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
     }
 
     @GetMapping("/find/client/{clientId}")

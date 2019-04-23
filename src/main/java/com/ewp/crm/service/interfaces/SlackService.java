@@ -1,8 +1,12 @@
 package com.ewp.crm.service.interfaces;
 
+import org.springframework.core.env.Environment;
+
 import java.util.Optional;
 
 public interface SlackService {
+    boolean inviteToWorkspace(String name, String lastName, String email);
+    boolean inviteToWorkspace(String email);
     Optional<String> getAllEmailsFromSlack();
     Optional<String> getAllIdsFromSlack();
     boolean tryLinkSlackAccountToStudent(long studentId);
@@ -14,4 +18,5 @@ public interface SlackService {
     boolean trySendMessageToAllStudents(String text);
     String getSlackWorkspaceUrl();
     Optional<String> getChatIdForSlackUser(String slackUserId);
+    void setAppToken(String number, Environment environment);
 }

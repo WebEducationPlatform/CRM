@@ -442,7 +442,7 @@ ul.nav a:hover {
 	height: 30px;
 }
 
-
+input[id^="checkbox-role"] { display: none; }
 input[id^="checkbox-user"] { display: none; }
 input[id^="ipTel"] { display: none; }
 input[id^="client_filter"] { display: none; }

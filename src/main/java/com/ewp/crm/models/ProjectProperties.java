@@ -17,10 +17,6 @@ public class ProjectProperties {
     @Column(name = "technical_account_token")
     private String technicalAccountToken;
 
-    //ID статуса по умолчанию для клиентов (еще не студентов) вошедших в слак
-    @Column(name = "default_status")
-    private Long defaultStatusId = -1L;
-
     //ID статуса по умолчанию для повторно обративщихся клиентов
     @Column(name = "repeated_default_status")
     private Long repeatedDefaultStatusId = 1L;
@@ -31,6 +27,10 @@ public class ProjectProperties {
     // ID статуса по-умолчанию для клиентов студентов-отказников
     @Column(name = "client_reject_student_status")
     private Long clientRejectStudentStatus = -1L;
+
+    // ID статуса по-умолчанию для впервые оплативших клиентов
+    @Column(name = "client_first_pay_status")
+    private Long clientFirstPayStatus = -1L;
 
     /**
      * Message template for scheduled payment notification.
@@ -45,6 +45,13 @@ public class ProjectProperties {
     @OneToOne
     @JoinColumn(name = "new_client_message_template")
     private MessageTemplate newClientMessageTemplate;
+
+    /**
+     * Message template for birth day notification.
+     */
+    @OneToOne
+    @JoinColumn(name = "birth_day_message_template")
+    private MessageTemplate birthDayMessageTemplate;
 
     /**
      * Time of the day payment notification invoked in.
@@ -99,6 +106,12 @@ public class ProjectProperties {
     @OneToOne
     @JoinColumn(name = "contract_template")
     private MessageTemplate contractTemplate;
+
+    @Column(name = "slack_default_users")
+    private String slackDefaultUsers;
+
+    @Column(name = "slack_invite_link")
+    private String slackInviteLink;
 
     /**
      * Банковские реквизиты
@@ -157,14 +170,6 @@ public class ProjectProperties {
 
     public void setClientRejectStudentStatus(Long clientRejectStudentStatus) {
         this.clientRejectStudentStatus = clientRejectStudentStatus;
-    }
-
-    public Long getDefaultStatusId() {
-        return defaultStatusId;
-    }
-
-    public void setDefaultStatusId(Long defaultStatusId) {
-        this.defaultStatusId = defaultStatusId;
     }
 
     public MessageTemplate getPaymentMessageTemplate() {
@@ -295,12 +300,43 @@ public class ProjectProperties {
         this.newClientMessageTemplate = newClientMessageTemplate;
     }
 
+    public Long getClientFirstPayStatus() {
+        return clientFirstPayStatus;
+    }
+
+    public void setClientFirstPayStatus(Long clientFirstPayStatus) {
+        this.clientFirstPayStatus = clientFirstPayStatus;
+    }
+
+    public String getSlackDefaultUsers() {
+        return slackDefaultUsers;
+    }
+
+    public void setSlackDefaultUsers(String slackDefaultUsers) {
+        this.slackDefaultUsers = slackDefaultUsers;
+    }
+
+    public String getSlackInviteLink() {
+        return slackInviteLink;
+    }
+
+    public void setSlackInviteLink(String slackInviteLink) {
+        this.slackInviteLink = slackInviteLink;
+    }
+
+    public MessageTemplate getBirthDayMessageTemplate() {
+        return birthDayMessageTemplate;
+    }
+
+    public void setBirthDayMessageTemplate(MessageTemplate birthDayMessageTemplate) {
+        this.birthDayMessageTemplate = birthDayMessageTemplate;
+    }
+
     @Override
     public String toString() {
         return "ProjectProperties{" +
                 "id=" + id +
                 ", technicalAccountToken='" + technicalAccountToken + '\'' +
-                ", defaultStatusId=" + defaultStatusId +
                 ", paymentMessageTemplate=" + paymentMessageTemplate +
                 ", paymentNotificationTime=" + paymentNotificationTime +
                 ", paymentNotificationEnabled=" + paymentNotificationEnabled +
