@@ -164,13 +164,12 @@ public class ScheduleTasks {
 
         List<Client> clients = clientService.getAll();
         for (Client currentClient : clients) {
-            System.out.println(currentClient.getId() + currentClient.getEmail() + currentClient.getBirthDate());
             LocalDate birthDate = currentClient.getBirthDate();
             int clientDayOfBirth = birthDate.getDayOfMonth();
             int monthOfBirth = birthDate.getMonthValue();
 
             if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
-                if (currentClient.getEmail() != null && !currentClient.getEmail().isEmpty()) {
+                if (currentClient.getEmail() != null && !currentClient.getEmail().isPresent()) {
                     mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
                 }
 
@@ -223,14 +222,14 @@ public class ScheduleTasks {
 					logger.warn("VK message not sent", e);
 				}
 			}
-			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+			if (client.getPhoneNumber() != null && !client.getPhoneNumber().isPresent()) {
 				try {
 					smsService.sendSMS(clientId, skypeTemplateText, dateOfSkypeCall, principal);
 				} catch (Exception e) {
 					logger.warn("SMS message not sent", e);
 				}
 			}
-			if (client.getEmail() != null && !client.getEmail().isEmpty()) {
+			if (client.getEmail() != null && !client.getEmail().isPresent()) {
 				try {
 					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal);
 				} catch (Exception e) {
