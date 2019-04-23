@@ -339,7 +339,7 @@ public class SlackServiceImpl implements SlackService {
             json = EntityUtils.toString(entity);
             JSONObject jsonObj = new JSONObject(json);
             if (!jsonObj.optBoolean("ok")) {
-                logger.error(jsonObj.getString("error"));
+                logger.error(jsonObj);
             }
             return jsonObj.optBoolean("ok");
         } catch (IOException e) {
