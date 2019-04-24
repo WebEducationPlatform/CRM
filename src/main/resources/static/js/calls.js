@@ -1,3 +1,5 @@
+let fileterBtn = $('#filtration-calls');
+
 $(document).ready(function () {
     $('.web-call-mic-off').hide();
     $('.web-call-off').hide();
@@ -16,29 +18,52 @@ $(document).ready(function () {
             page: page
         };
         let history_table = $('.calls-history-line > tBody');
-        $.get(url, params, function takeHistoryList(list) {
-            if (list.length < 10) {
-                current.hide();
-            }
-            drawClientHistory(list, history_table);
-        }).fail(function () {
-            current.hide();
-        });
 
-        let data_page = +current.attr("data-page");
-        data_page = data_page + 1;
-        current.attr("data-page", data_page);
+        if (fileterBtn.hasClass("filtered-calls")) {
+            loadFilteredHistoryCalls(history_table, current, page);
+        } else {
+            $.get(url, params, function takeHistoryList(list) {
+                if (list.length < 10) {
+                    current.hide();
+                }
+                drawClientHistory(list, history_table);
+            }).fail(function () {
+                current.hide();
+            });
+
+            let data_page = +current.attr("data-page");
+            data_page = data_page + 1;
+            current.attr("data-page", data_page);
+        }
     });
 });
 
-function loadHistory() {
-    let current = $(document.getElementsByClassName("upload-calls-history"));
-    let url = "/user/rest/call/records/all";
-    let history_table = $('.calls-history-line > tBody');
-    let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-calls-history");
+function loadFilteredHistoryCalls(history_table, upload_more_btn, page) {
+    let selectedUserId = $('#calls-select-user').val();
+    let dateFrom = new Date($('#callsDateFrom').val()).toLocaleDateString();
+    let dateTo = new Date($('#callsDateTo').val()).toLocaleDateString();
+
+    if (dateFrom == "") {
+        dateFrom = new Date(2000, 1, 1).toLocaleString();
+    } else {
+        dateFrom = dateFrom + ', 00:00:00';
+    }
+    if (dateTo == "") {
+        dateTo = new Date(2100, 1, 1).toLocaleString();
+    } else {
+        dateTo = dateTo + ', 00:00:00';
+    }
+
+    let url = "/user/rest/call/records/filter";
     let params = {
-        page: "0"
+        page: page,
+        userId: selectedUserId,
+        from: dateFrom,
+        to:dateTo
     };
+    if (page < 1) {
+        history_table.empty();
+    }
     $.get(url, params, function get(list) {
     }).done(function (list) {
         console.log(list);
@@ -50,7 +75,40 @@ function loadHistory() {
         drawClientHistory(list, history_table);
     }).fail(function () {
         upload_more_btn.hide();
-    })
+    });
+    if (page > 1) {
+        let data_page = +upload_more_btn.attr("data-page");
+        data_page = data_page + 1;
+        upload_more_btn.attr("data-page", data_page);
+    }
+}
+
+function loadHistory() {
+    let current = $(document.getElementsByClassName("upload-calls-history"));
+    let url = "/user/rest/call/records/all";
+    let history_table = $('.calls-history-line > tBody');
+    let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-calls-history");
+    let params = {
+        page: "0"
+    };
+    if (fileterBtn.hasClass("filtered-calls")) {
+        upload_more_btn.attr("data-page", 1);
+        let page = 0;
+        loadFilteredHistoryCalls(history_table, upload_more_btn, page);
+    } else {
+        $.get(url, params, function get(list) {
+        }).done(function (list) {
+            console.log(list);
+            if (list.length < 10) {
+                upload_more_btn.hide();
+            } else {
+                upload_more_btn.show();
+            }
+            drawClientHistory(list, history_table);
+        }).fail(function () {
+            upload_more_btn.hide();
+        })
+    }
 }
 
 function drawClientHistory(list, history_table) {
@@ -60,6 +118,7 @@ function drawClientHistory(list, history_table) {
         let tdLink = "";
         let tdClient = "";
         let clientId;
+        let d;
 
         if (list[i].comment !== null) {
             comment = list[i].comment;
@@ -67,12 +126,12 @@ function drawClientHistory(list, history_table) {
             comment = list[i].clientHistory.title;
         }
         if (list[i].date !== null) {
-            date = list[i].date;
+            d = new Date(list[i].date);
         } else if (list[i].clientHistory.date !== null) {
-            let d = new Date(list[i].clientHistory.date);
-            date = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
-                d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+            d = new Date(list[i].clientHistory.date);
         }
+        date = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." +
+            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
 
         if (list[i].link !== null) {
             tdLink = "<td style='width: 10%'>" +
@@ -122,11 +181,7 @@ function makeCall() {
 }
 
 function filterForCalls() {
-    let selectedUserId = $('#calls-select-user').val();
-    let dateFrom = new Date($('#callsDateFrom').val());
-    let dateTo = new Date($('#callsDateTo').val());
-
-    console.log('dateFrom: ' + dateFrom);
-    console.log('dateTo: ' + dateTo);
-    console.log($('#callsDateFrom').val());
+    fileterBtn.addClass("filtered-calls");
+    loadHistory();
 }
+
