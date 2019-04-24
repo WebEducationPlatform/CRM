@@ -15,9 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
-
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,13 +126,7 @@ public class ClientController {
         }
         List<User> userList = userService.getAll();
         List<Role> roles = roleService.getAll();
-        Iterator<Role> roleIterator = roles.iterator();
-            while(roleIterator.hasNext()){
-                Role nextRole = roleIterator.next();
-                if(nextRole.getRoleName().equals("OWNER")){
-                    roleIterator.remove();
-                }
-            }
+        roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(Status::getPosition));
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("roles", roles);

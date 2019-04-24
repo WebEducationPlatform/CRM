@@ -623,23 +623,25 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public void sendMessageByChatId(String id, String message) {
+        String sendMsgRequest = vkApi + "messages.send";
+        HttpPost request = new HttpPost(sendMsgRequest);
+        List<NameValuePair> params = new ArrayList<>(4);
+        params.add(new BasicNameValuePair("random_id", String.valueOf(new Random().nextInt(32))));
+        params.add(new BasicNameValuePair("chat_id", id));
+        params.add(new BasicNameValuePair("message", message));
+        params.add(new BasicNameValuePair("access_token", communityToken));
+        params.add(new BasicNameValuePair("v", version));
         try {
-            message = URLEncoder.encode(message, "UTF-8");
+            request.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            logger.error("Failed to encode message " + message, e);
+            logger.error("Failed to encode VK request", e);
         }
-        String url = vkApi + "messages.send" +
-                "?random_id=" + new Random().nextInt(32) +
-                "&chat_id=" + id +
-                "&message=" + message +
-                "&access_token=" + communityToken +
-                "&v=" + version;
-        ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-        HttpStatus responseStatusCode = response.getStatusCode();
-        if (responseStatusCode.equals(HttpStatus.OK)) {
+        HttpClient httpClient = getHttpClient();
+        try {
+            HttpResponse response = httpClient.execute(request);
             logger.info("Message successfully has been sent to the dialogue");
-        } else {
-            logger.warn("Can't send message. Check if the request to the VK API is correct: " + url);
+        } catch (IOException e) {
+            logger.error("Can't send message to vk chat by id " + id, e);
         }
     }
 
@@ -1358,8 +1360,8 @@ public class VKServiceImpl implements VKService {
         try {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
-           spentFromVk =  GETTING_REPORT_ERROR;
-           logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
+            spentFromVk =  GETTING_REPORT_ERROR;
+            logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
         //Получение отчета Google Ads
@@ -1398,8 +1400,7 @@ public class VKServiceImpl implements VKService {
         }
 
         //Формирование окончательного вида сообщения, заполнение параметров шаблона
-        Object[] params = {
-                balanceFromYandexDirect, spentFromYandexDirect,
+        Object[] params = {balanceFromYandexDirect, spentFromYandexDirect,
                 balanceFromVk, spentFromVk,
                 balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
