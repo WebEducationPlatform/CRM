@@ -58,7 +58,7 @@ function webCallToClient(clientPhone) {
             console.log("PROCESS WEBCALL");
             webCallToClientId = callRecord.id;
             commonWebCallId = 0;
-            allowed = false;
+            allowed = true;
             callToolControl('showWebCallClientTools');
         },
         error: function (error) {
@@ -91,7 +91,7 @@ function commonWebCall(phoneNumber) {
             console.log("PROCESS WEBCALL");
             webCallToClientId = 0;
             commonWebCallId = callRecord.id;
-            allowed = false;
+            allowed = true;
             callToolControl('showWebCallClientTools');
         },
         error: function (error) {
