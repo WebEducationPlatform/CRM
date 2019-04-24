@@ -20,6 +20,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import java.io.File;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,8 @@ public class IPTelephonyRestController {
 	private final CallRecordService callRecordService;
 	private final DownloadCallRecordService downloadCallRecordService;
 	private final String voximplantHash;
+	private final UserService userService;
+
 	@Value("${project.pagination.page-size.client-history}")
 	private int pageSize;
 
@@ -43,12 +48,13 @@ public class IPTelephonyRestController {
 									 ClientService clientService,
 									 ClientHistoryService clientHistoryService,
 									 CallRecordService callRecordService,
-									 DownloadCallRecordService downloadCallRecordService) {
+									 DownloadCallRecordService downloadCallRecordService, UserService userService) {
 		this.ipService = ipService;
 		this.clientService = clientService;
 		this.clientHistoryService = clientHistoryService;
 		this.callRecordService = callRecordService;
 		this.downloadCallRecordService = downloadCallRecordService;
+		this.userService = userService;
 		String loginForWebCall = ipService.getVoximplantLoginForWebCall().isPresent() ? ipService.getVoximplantLoginForWebCall().get() : "";
 		String userLogin = ipService.getVoximplantUserLogin(loginForWebCall).isPresent() ? ipService.getVoximplantUserLogin(loginForWebCall).get() : "";
 		String pass = ipService.getVoximplantPasswordForWebCall().isPresent() ? ipService.getVoximplantPasswordForWebCall().get() : "";
@@ -143,9 +149,26 @@ public class IPTelephonyRestController {
 
 	@GetMapping("/records/filter")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-	public ResponseEntity getFilteredRecords(@RequestParam("page") int page) {
+	public ResponseEntity getFilteredRecords(@RequestParam("page") int page, @RequestParam("userId") Long userId,
+											 @RequestParam("from") String from, @RequestParam("to") String to) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss").withZone(ZoneId.of("UTC"));
+		ZonedDateTime dateFrom = ZonedDateTime.parse(from, formatter);
+		ZonedDateTime dateTo = ZonedDateTime.parse(to, formatter);
+
 		Pageable pageable = PageRequest.of(page, pageSize);
-		List<CallRecord> callRecords = callRecordService.getAllCommonRecords(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, "")))
+		List<CallRecord> callRecords;
+		if (userId > 0) {
+			User user = userService.get(userId);
+			// User and Date
+			callRecords = callRecordService.findAllByCallingUserAndDateBetween(user, dateFrom, dateTo, pageable);
+
+		} else {
+			callRecords = callRecordService.findAllByDateBetween(dateFrom, dateTo, pageable);
+		}
+		if (callRecords.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(callRecords);
 	}
 
 	@PostMapping(value = "/voximplant")
