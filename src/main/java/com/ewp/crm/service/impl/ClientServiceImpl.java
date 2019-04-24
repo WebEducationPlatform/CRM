@@ -205,10 +205,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 clients.sort(Comparator.comparing(Client::getLastName));
                 break;
             case "phoneNumber":
-                clients.sort(Comparator.comparing(client -> client.getPhoneNumber() != null ? client.getPhoneNumber() : StringUtils.EMPTY));
+                clients.sort(Comparator.comparing(client -> client.getPhoneNumber().orElse(StringUtils.EMPTY)));
                 break;
             case "email":
-                clients.sort(Comparator.comparing(client -> client.getEmail() != null ? client.getEmail() : StringUtils.EMPTY));
+                clients.sort(Comparator.comparing(client -> client.getEmail().orElse(StringUtils.EMPTY)));
                 break;
             case "city":
                 clients.sort(Comparator.comparing(Client::getCity));
@@ -297,10 +297,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail().get()));
         }
 
-        if ("".equals(client.getPhoneNumber())) {
+        if ((client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty())) {
             client.setPhoneNumber(null);
         }
-        if ("".equals(client.getEmail())) {
+        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
             client.setEmail(null);
         }
 
@@ -410,10 +410,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
-        if ("".equals(client.getPhoneNumber())) {
+        if (client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty()) {
             client.setPhoneNumber(null);
         }
-        if ("".equals(client.getEmail())) {
+        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
             client.setEmail(null);
         }
         //checkSocialLinks(client);
@@ -491,7 +491,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             }
         }
         clientRepository.saveAndFlush(client);
-        logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail());
+        logger.info("{} has updated client: id {}, email {}", user.getFullName(), client.getId(), client.getEmail().orElse("not found"));
     }
 
     @Override
