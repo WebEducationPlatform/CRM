@@ -18,14 +18,14 @@ $('a#FIND_MISSING').on('click', function () {
             $(".portlet.common-modal.panel.panel-default").remove();
             $.each(statuses, function (i, status) {
                 if (status.createStudent === true) {
-                    drawMissingStudents(status)
+                    drawMissingStudents(status);
                 }
             })
         })
 });
 
 function drawMissingStudents(status) {
-    let students = null;
+    let students;
     $.get("/rest/status/" + status.id)
         .done(function (studentsInStatus) {
             students = studentsInStatus;
@@ -41,5 +41,48 @@ function drawMissingStudents(status) {
 }
 
 function drawClientsPortlet(student, status) {
+    $('<div></div>', {
+        class: 'portlet common-modal panel panel-default',
+        id: student.id,
+        onmouseover: 'displayOption(' + student.id + ')',
+        value: student.id,
+        'data-card-id': student.id,
+    }).appendTo('#status-column' + status.id);
+
+    // $('<div></div>', {
+    //     class: 'portlet-title portlet-title-groups ui-sortable-handle',
+    //     id: student.id
+    // }).appendTo('div#' + student.id + '.portlet');
+    // $('<div></div>', {
+    //     class: 'portlet-title__group-left'
+    // }).appendTo('div#' + student.id + '.portlet-title.portlet-title-groups');
+    // $('<div></div>', {
+    //     class: 'portlet-title__group-right',
+    //     id: student.id
+    // }).appendTo('div#' + student.id + '.portlet-title.portlet-title-groups')
+    // /*добавить сюда конверик если понадобится*/
+    //
+    // $('<div></div>', {
+    //     class: 'portlet-header ui-sortable-handle panel-heading',
+    //     'client-id': student.id,
+    //     name: 'client-' + student.id + '-modal',
+    //     //onclick: "changeUrl('/client', '" + student.id + "')",
+    // }).appendTo('div#' + student.id + '.portlet');
+
+    $('<div></div>', {
+        class: 'portlet-body',
+        'client-id': student.id,
+        name: 'client-' + student.id + '-modal',
+        onclick: 'showCurrentModal(' + student.id + ')',
+        text: student.name + " " + student.lastName
+    }).appendTo('div#' + student.id + '.portlet');
 
 }
+
+function showCurrentModal(studentId) {
+    var clientId = studentId;
+    var currentModal = $('#main-modal-window');
+    currentModal.data('clientId', clientId);
+    currentModal.modal('show');
+}
+
