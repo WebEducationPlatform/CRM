@@ -63,8 +63,8 @@
                         <label class="col-xs-12">Пользователь: </label>
                     </div>
                     <div class="row">
-                        <select class="form-control" th:object="${allUsers}">
-                            <option value="">Открыть список</option>
+                        <select class="form-control" th:object="${allUsers}" id="calls-select-user">
+                            <option value="0">Открыть список</option>
                             <option th:each="user : ${allUsers}"
                                     th:value="${user.id}"
                                     th:text="${user.fullName}">
