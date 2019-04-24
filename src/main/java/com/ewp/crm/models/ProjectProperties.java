@@ -47,6 +47,13 @@ public class ProjectProperties {
     private MessageTemplate newClientMessageTemplate;
 
     /**
+     * Message template for birth day notification.
+     */
+    @OneToOne
+    @JoinColumn(name = "birth_day_message_template")
+    private MessageTemplate birthDayMessageTemplate;
+
+    /**
      * Time of the day payment notification invoked in.
      */
     @Column(name = "payment_notification_time")
@@ -315,6 +322,14 @@ public class ProjectProperties {
 
     public void setSlackInviteLink(String slackInviteLink) {
         this.slackInviteLink = slackInviteLink;
+    }
+
+    public MessageTemplate getBirthDayMessageTemplate() {
+        return birthDayMessageTemplate;
+    }
+
+    public void setBirthDayMessageTemplate(MessageTemplate birthDayMessageTemplate) {
+        this.birthDayMessageTemplate = birthDayMessageTemplate;
     }
 
     @Override
