@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -45,11 +47,12 @@ public class SlackServiceImpl implements SlackService {
     private final String legacyToken;
     private final String generalChannelId;
     private final String defaultPrivateGroupNameTemplate;
+    private final AssignSkypeCallService assignSkypeCallService;
 
     @Autowired
     public SlackServiceImpl(Environment environment, StudentService studentService,
                             SocialProfileTypeService socialProfileTypeService, ClientService clientService,
-                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService) {
+                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService, AssignSkypeCallService assignSkypeCallService) {
         this.appToken = assignPropertyToString(environment,
                 "slack.appToken1",
                     "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
@@ -70,6 +73,7 @@ public class SlackServiceImpl implements SlackService {
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
         this.projectProperties = projectPropertiesService.getOrCreate();
+        this.assignSkypeCallService = assignSkypeCallService;
     }
 
     private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
@@ -160,18 +164,25 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
-    public boolean trySendSlackMessageToStudent(long studentId, String text) {
-        Student student = studentService.get(studentId);
-        if (student != null) {
-            Client client = student.getClient();
+    public boolean trySendSlackMessageToStudent(long clienttId, String text) {
+        Optional<Client> clientOptional = clientService.getClientByID(clienttId);
+        Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(clienttId);
+        Client client;
+        AssignSkypeCall skypeCall;
+        ZonedDateTime zonedDateTime;
+        String body = "";
+        if (clientOptional.isPresent()) {
+            client = clientOptional.get();
+            if (assignSkypeCall.isPresent()) {
+                skypeCall = assignSkypeCall.get();
+                zonedDateTime = skypeCall.getSkypeCallDate();
+                body = zonedDateTime.format(DateTimeFormatter.ofPattern("dd.MM.YY в HH-mm"));
+            }
             List<SocialProfile> profiles = client.getSocialProfiles();
             for (SocialProfile socialProfile :profiles) {
                 if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
-                    return trySendMessageToSlackUser(socialProfile.getSocialId(), text);
+                    return trySendMessageToSlackUser(socialProfile.getSocialId(), prepareText(client, text, body));
                 }
-            }
-            if (tryLinkSlackAccountToStudent(studentId)) {
-                return trySendSlackMessageToStudent(studentId, text);
             }
         }
         return false;
@@ -446,4 +457,32 @@ public class SlackServiceImpl implements SlackService {
         }
     }
 
+    private String prepareText(Client client, String templateText, String body) {
+        String fullName = client.getName() + " " + client.getLastName();
+        Map<String, String> params = new HashMap<>();
+        params.put("%fullName%", fullName);
+        params.put("%bodyText%", templateText);
+        params.put("%dateOfSkypeCall%", body);
+        params.put("<!DOCTYPE html>", "");
+        params.put("</html>", "");
+        params.put("<p>", "");
+        params.put("</p>", "");
+        params.put("<head>", "");
+        params.put("</head>", "");
+        params.put("<body>", "");
+        params.put("</body>", "");
+        params.put("<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>", "");
+        params.put("<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">", "");
+
+        return replaceName(templateText, params);
+
+    }
+
+    private String replaceName(String msg, Map<String, String> params) {
+        String clackText = msg;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            clackText = clackText.replaceAll(entry.getKey(), entry.getValue());
+        }
+        return clackText;
+    }
 }
