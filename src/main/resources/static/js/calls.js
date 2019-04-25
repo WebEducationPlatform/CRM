@@ -66,7 +66,6 @@ function loadFilteredHistoryCalls(history_table, upload_more_btn, page) {
     }
     $.get(url, params, function get(list) {
     }).done(function (list) {
-        console.log(list);
         if (list.length < 10) {
             upload_more_btn.hide();
         } else {
