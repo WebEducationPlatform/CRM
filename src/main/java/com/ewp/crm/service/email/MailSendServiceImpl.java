@@ -94,16 +94,21 @@ public class MailSendServiceImpl implements MailSendService {
         final MimeMessageHelper mimeMessageHelper;
         ProjectProperties properties = projectPropertiesService.getOrCreate();
         MessageTemplate template = properties.getAutoAnswerTemplate();
-        try {
-            mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setFrom("Java-Mentor.ru");
-            mimeMessageHelper.setTo(client.getEmail().get());
-            mimeMessageHelper.setSubject("Ваш личный Java наставник");
-            mimeMessageHelper.setText(template.getTemplateText(), true);
-        } catch (MessagingException e) {
-            e.printStackTrace();
+        Optional<String> emailOptional = client.getEmail();
+        if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
+            try {
+                mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                mimeMessageHelper.setFrom("Java-Mentor.ru");
+                mimeMessageHelper.setTo(emailOptional.get());
+                mimeMessageHelper.setSubject("Ваш личный Java наставник");
+                mimeMessageHelper.setText(template.getTemplateText(), true);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            javaMailSender.send(mimeMessage);
+        } else {
+            logger.error("Can not send message! client id {} email not found or empty", client.getId());
         }
-        javaMailSender.send(mimeMessage);
     }
 
     public void validatorTestResult(String parseContent, Client client) throws MessagingException {
@@ -204,74 +209,83 @@ public class MailSendServiceImpl implements MailSendService {
 
         final String htmlContent = htmlTemplateEngine.process("check-test-email-template2", ctx);
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-        mimeMessageHelper.setFrom("Java-Mentor.ru");
-        mimeMessageHelper.setTo(client.getEmail().get());
-        mimeMessageHelper.setSubject("Ваш личный Java наставник");
-        mimeMessageHelper.setText(htmlContent, true);
-
-        javaMailSender.send(mimeMessage);
+        Optional<String> emailOptional = client.getEmail();
+        if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
+            final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            mimeMessageHelper.setFrom("Java-Mentor.ru");
+            mimeMessageHelper.setTo(emailOptional.get());
+            mimeMessageHelper.setSubject("Ваш личный Java наставник");
+            mimeMessageHelper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+        } else {
+            logger.warn("Can not send message! client id {} email not found or empty", client.getId());
+        }
     }
 
     public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
         String templateFile = "emailStringTemplate";
         Optional<Client> client = clientService.getClientByID(clientId);
         if (client.isPresent()) {
-            String recipient = client.get().getEmail().get();
-            String fullName = client.get().getName() + " " + client.get().getLastName();
-            Map<String, String> params = new HashMap<>();
-            if (client.get().getContractLinkData() != null) {
-            String link = client.get().getContractLinkData().getContractLink();
-                params.put("%contractLink%", link);
-            }
-            //TODO в конфиг
-            params.put("%fullName%", fullName);
-            params.put("%bodyText%", body);
-            params.put("%dateOfSkypeCall%", body);
-            final Context ctx = new Context();
-            templateText = templateText.replaceAll("\n", "");
-            ctx.setVariable("templateText", templateText);
-            final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            try {
-                final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                mimeMessageHelper.setSubject("Java Mentor");
-                mimeMessageHelper.setTo(recipient);
-                mimeMessageHelper.setFrom(emailLogin);
-                StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
+            Optional<String> emailOptional = client.get().getEmail();
+            if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
+                String recipient = client.get().getEmail().get();
+                String fullName = client.get().getName() + " " + client.get().getLastName();
+                Map<String, String> params = new HashMap<>();
+                if (client.get().getContractLinkData() != null) {
+                    String link = client.get().getContractLinkData().getContractLink();
+                    params.put("%contractLink%", link);
                 }
-                mimeMessageHelper.setText(htmlContent.toString(), true);
-                Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
-                //inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
-                //Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
-                //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
-                Matcher matcher = pattern.matcher(templateText);
-                while (matcher.find()) {
-                    String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
-                    File file = new File(path);
-                    if (file.exists()) {
-                        InputStreamSource inputStreamSource = new FileSystemResource(file);
-                        mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
-                    } else {
-                        logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
-                        return;
+                //TODO в конфиг
+                params.put("%fullName%", fullName);
+                params.put("%bodyText%", body);
+                params.put("%dateOfSkypeCall%", body);
+                final Context ctx = new Context();
+                templateText = templateText.replaceAll("\n", "");
+                ctx.setVariable("templateText", templateText);
+                final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+                try {
+                    final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                    mimeMessageHelper.setSubject("Java Mentor");
+                    mimeMessageHelper.setTo(recipient);
+                    mimeMessageHelper.setFrom(emailLogin);
+                    StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
+                    for (Map.Entry<String, String> entry : params.entrySet()) {
+                        htmlContent = new StringBuilder(htmlContent.toString().replaceAll(entry.getKey(), entry.getValue()));
                     }
-                }
-                javaMailSender.send(mimeMessage);
-                if (principal != null) {
-                    Optional<Client> clientEmail = clientService.getClientByEmail(recipient);
-                    Optional<Message> message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
-                    if (clientEmail.isPresent() && message.isPresent()) {
-                        clientHistoryService.createHistory(principal, clientEmail.get(), message.get()).ifPresent(client.get()::addHistory);
-                        clientService.updateClient(client.get());
-                    } else {
-                        logger.error("Can't send mail to {}", recipient);
+                    mimeMessageHelper.setText(htmlContent.toString(), true);
+                    Pattern pattern = Pattern.compile("(?<=cid:)\\S*(?=\\|)");
+                    //inline картинки присоединяются к тексту сообщения с помочью метода addInline(в какое место вставлять, что вставлять).
+                    //Добавлять нужно в тег data-th-src="|cid:XXX|" где XXX - имя загружаемого файла
+                    //Регулярка находит все нужные теги, а потом циклом добавляем туда нужные файлы.
+                    Matcher matcher = pattern.matcher(templateText);
+                    while (matcher.find()) {
+                        String path = (matcher.group()).replaceAll("/", "\\" + File.separator);
+                        File file = new File(path);
+                        if (file.exists()) {
+                            InputStreamSource inputStreamSource = new FileSystemResource(file);
+                            mimeMessageHelper.addInline(matcher.group(), inputStreamSource, "image/jpeg");
+                        } else {
+                            logger.error("Can not send message! Template attachment file {} not found. Fix email template.", file.getCanonicalPath());
+                            return;
+                        }
                     }
+                    javaMailSender.send(mimeMessage);
+                    if (principal != null) {
+                        Optional<Client> clientEmail = clientService.getClientByEmail(recipient);
+                        Optional<Message> message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+                        if (clientEmail.isPresent() && message.isPresent()) {
+                            clientHistoryService.createHistory(principal, clientEmail.get(), message.get()).ifPresent(client.get()::addHistory);
+                            clientService.updateClient(client.get());
+                        } else {
+                            logger.error("Can't send mail to {}", recipient);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Can't send mail to {}", recipient, e);
                 }
-            } catch (Exception e) {
-                logger.error("Can't send mail to {}", recipient, e);
             }
+        } else {
+            logger.error("Can not send message! client id {} email not found or empty", client.get().getId());
         }
     }
 
