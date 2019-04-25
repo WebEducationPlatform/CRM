@@ -357,5 +357,8 @@ public class DataInitializer {
         clientN2.setEmail("miqolay@gmail.com");
         clientN2.setPhoneNumber("79080584002");
         clientService.update(clientN2);
+        Client nulli = new Client("Nulli", "Nullov" );
+        System.out.println(nulli.getEmail().orElse("no Email"));
+        System.out.println(clientN2.getEmail().orElse("not found"));
     }
 }

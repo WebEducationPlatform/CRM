@@ -399,7 +399,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         checkSocialIds(client);
 
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
+        if (client.getPhoneNumber().isPresent()) {
+            client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
+        }
 
         if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
             client.setCanCall(true);

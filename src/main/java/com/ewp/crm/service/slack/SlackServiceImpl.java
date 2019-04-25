@@ -126,7 +126,7 @@ public class SlackServiceImpl implements SlackService {
             String id = profile.id;
             String name = profile.name;
             String email = profile.mail;
-            if (email != null && !email.isEmpty() && email.equals(client.getEmail())) {
+            if (email != null && !email.isEmpty() && client.getEmail().isPresent() && email.equals(client.getEmail().get())) {
                 currentWeight += emailWeight;
             }
             if (name != null) {
