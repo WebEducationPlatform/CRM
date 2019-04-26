@@ -258,7 +258,7 @@ public class DataInitializer {
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
- /*       vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
+        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
                 vkConfig.getCommunityToken(),
                 "JavaMentorTest",
                 Long.parseLong(vkConfig.getApplicationId())));
@@ -268,7 +268,7 @@ public class DataInitializer {
                     .orElseThrow(NotFoundMemberList::new);
             vkMemberService.addAllMembers(memberList);
         }
-*/
+
 
 
         clientService.addClient(client1);
@@ -339,6 +339,7 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
 
 
+
         Client clientN2 = clientService.get(2L);
         List<String> emails = new ArrayList<>();
         emails.add("yabloko@mail.ru");
@@ -360,5 +361,6 @@ public class DataInitializer {
         Client nulli = new Client("Nulli", "Nullov" );
         System.out.println(nulli.getEmail().orElse("no Email"));
         System.out.println(clientN2.getEmail().orElse("not found"));
+
     }
 }

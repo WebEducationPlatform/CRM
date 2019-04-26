@@ -29,7 +29,7 @@
         <br/>
         <br/>
         <button type="button" class="btn btn-primary pull" data-toggle="modal"
-                data-target="#vkAuthModal">
+                data-target="#vkAuthModal" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
             Авторизация Вконтакте
         </button>
         <br/>
@@ -41,14 +41,14 @@
         <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google/drive">
-                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Drive"/>
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Drive" sec:authorize="hasAnyAuthority('OWNER','ADMIN')"/>
             </form>
         </div>
         <br/>
         <br/>
         <div class="inline">
             <form class="form" method="get" action="/login/google/calendar">
-                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Calendar"/>
+                <input type="submit" class="btn btn btn-success pull" value="Авторизация Google Calendar" sec:authorize="hasAnyAuthority('OWNER','ADMIN')"/>
             </form>
         </div>
         <br/>
@@ -104,7 +104,7 @@
                 </th:block>
                 <th:block th:if="!${isTelegramAuthenticated}">
                     <button id="telegram-auth-button" class="btn btn-primary pull" data-toggle="modal"
-                            data-target="#telegram-auth-modal">
+                            data-target="#telegram-auth-modal" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
                         Авторизация в Telegram
                     </button>
                 </th:block>

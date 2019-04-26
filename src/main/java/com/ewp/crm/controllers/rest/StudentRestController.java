@@ -83,8 +83,8 @@ public class StudentRestController {
         if (updatedClient.getLastName() != null && !updatedClient.getLastName().isEmpty()) {
             client.setLastName(updatedClient.getLastName());
         }
-        if (updatedClient.getEmail().isPresent() && !updatedClient.getEmail().get().isEmpty()) {
-            client.setEmail(updatedClient.getEmail().get());
+        if (updatedClient.getEmail() != null && !updatedClient.getEmail().isEmpty()) {
+            client.setEmail(updatedClient.getEmail());
         }
         studentService.update(student);
         clientService.updateClient(client);

@@ -66,59 +66,14 @@ function changeClient(id) {
     } catch (e) {
         return;
     }
-
-    var Emails = [];
-    $th = $('#AdditionalEmails').find('th');
-    try {
-        $('#AdditionalEmails').find('tbody tr').each(function (i, tr) {
-            var obj = {}, $tds = $(tr).find('td');
-            $th.each(function (index, th) {
-                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
-                    var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Email адреса'";
-                    current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Email адреса'")
-                }
-                if ($(th).attr('abbr') !== "") {
-                    obj = $tds.eq(index).text();
-                }
-            });
-            Emails.push(obj);
-        });
-    } catch (e) {
-        return;
-    }
-
-
-    var Phones = [];
-    $th = $('#AdditionalPhones').find('th');
-    try {
-        $('#AdditionalPhones').find('tbody tr').each(function (i, tr) {
-            var obj = {}, $tds = $(tr).find('td');
-            $th.each(function (index, th) {
-                if ($(th)[0].innerText !== "id" && $tds.eq(index).text() === "") {
-                    var current = document.getElementById("message");
-                    current.textContent = "Заполните пустые поля в таблице 'Номера телефонов'";
-                    current.style.color = "red";
-                    throw new Error("Пустые поля в таблице 'Номера телефонов'")
-                }
-                if ($(th).attr('abbr') !== "") {
-                    obj = $tds.eq(index).text();
-                }
-            });
-            Phones.push(obj);
-        });
-    } catch (e) {
-        return;
-    }
-
-
-  let url = '/admin/rest/client/update';
+    let url = '/admin/rest/client/update';
     let wrap = {
         id: id,
         name: $('#edit-client-first-name').val(),
         lastName: $('#edit-client-last-name').val(),
         middleName: $('#edit-client-middle-name').val(),
+        phoneNumber: $('#edit-client-phone-number').val(),
+        email: $('#edit-client-email').val(),
         birthDate: $('#edit-client-birthday').val(),
         sex: $('#edit-client-sex').find('option:selected').text(),
         state: $('#edit-client-state').val(),
@@ -127,13 +82,10 @@ function changeClient(id) {
         skype: $('#edit-client-skype').val(),
         socialProfiles: SN,
         status: {},
-        jobs: Job,
-        clientEmails: Emails,
-        clientPhones: Phones
+        jobs: Job
     };
     var current = document.getElementById("message");
     let data = JSON.stringify(wrap);
-    console.log('wrap = ' + data);
     $.ajax({
         type: "POST",
         url: url,
@@ -164,7 +116,7 @@ function disableInputE() {
 }
 
 $(document).on('click', 'td', (function (e) {
-    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job" && e.target.offsetParent.id !== "AdditionalEmails" && e.target.offsetParent.id !== "AdditionalPhones") || $('#edit-client-first-name')[0].disabled) {
+    if (e.target.localName !== "td" || e.target.firstElementChild !== null || (e.target.offsetParent.id !== "SocialNetworks" && e.target.offsetParent.id !== "Job") || $('#edit-client-first-name')[0].disabled) {
         return;
     }
     var t = e.target || e.srcElement;
@@ -204,15 +156,6 @@ function deleteSocial(element) {
 function deleteJob(element) {
     $(element).parent().parent().remove();
 }
-
-function deleteEmail(element) {
-    $(element).parent().parent().remove();
-}
-
-function deletePhone(element) {
-    $(element).parent().parent().remove();
-}
-
 
 var SNs = "";
 
@@ -262,8 +205,6 @@ function revertUnable() {
     });
     $("#addNewSN")[0].disabled = $("#addNewSN")[0].disabled !== true;
     $("#addNewJob")[0].disabled = $("#addNewJob")[0].disabled !== true;
-    $("#addNewEmail")[0].disabled = $("#addNewEmail")[0].disabled !== true;
-    $("#addNewPhone")[0].disabled = $("#addNewPhone")[0].disabled !== true;
 }
 
 $(function () {
