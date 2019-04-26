@@ -4,13 +4,12 @@ $(document).ready(function () {
     $('.web-call-mic-off').hide();
     $('.web-call-off').hide();
     $('.upload-calls-history').attr('href', '#calls-collapse');
-    /*$('#actionsAccordion').hide();*/
 
     let current = $(document.getElementsByClassName("all-calls panel-collapse collapse"));
     current.collapse('show');
     loadHistory();
 
-    $('.upload-more-calls-history').on("click", function uploadMoreHistory() {
+    $('.upload-more-calls-history').on("click", function uploadMoreCallsHistory() {
         let current = $(this);
         let page = current.attr("data-page");
         let url = "/user/rest/call/records/all";
@@ -26,7 +25,7 @@ $(document).ready(function () {
                 if (list.length < 10) {
                     current.hide();
                 }
-                drawClientHistory(list, history_table);
+                drawClientCallsHistory(list, history_table);
             }).fail(function () {
                 current.hide();
             });
@@ -71,7 +70,7 @@ function loadFilteredHistoryCalls(history_table, upload_more_btn, page) {
         } else {
             upload_more_btn.show();
         }
-        drawClientHistory(list, history_table);
+        drawClientCallsHistory(list, history_table);
     }).fail(function () {
         upload_more_btn.hide();
     });
@@ -103,14 +102,14 @@ function loadHistory() {
             } else {
                 upload_more_btn.show();
             }
-            drawClientHistory(list, history_table);
+            drawClientCallsHistory(list, history_table);
         }).fail(function () {
             upload_more_btn.hide();
         })
     }
 }
 
-function drawClientHistory(list, history_table) {
+function drawClientCallsHistory(list, history_table) {
     for (let i = 0; i < list.length; i++) {
         let comment;
         let date;
