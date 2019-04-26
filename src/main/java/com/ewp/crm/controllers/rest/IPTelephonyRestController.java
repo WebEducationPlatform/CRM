@@ -12,7 +12,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -159,16 +158,14 @@ public class IPTelephonyRestController {
 		List<CallRecord> callRecords;
 		if (userId > 0) {
 			User user = userService.get(userId);
-			// User and Date
 			callRecords = callRecordService.findAllByCallingUserAndDateBetween(user, dateFrom, dateTo, pageable);
-
 		} else {
 			callRecords = callRecordService.findAllByDateBetween(dateFrom, dateTo, pageable);
 		}
-		if (callRecords.isEmpty()) {
-			return ResponseEntity.notFound().build();
+		if (!callRecords.isEmpty()) {
+			return ResponseEntity.ok(callRecords);
 		}
-		return ResponseEntity.ok(callRecords);
+		return ResponseEntity.notFound().build();
 	}
 
 	@PostMapping(value = "/voximplant")
