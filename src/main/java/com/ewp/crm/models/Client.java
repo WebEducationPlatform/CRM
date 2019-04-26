@@ -47,15 +47,15 @@ public class Client implements Serializable, Diffable<Client> {
 	private String lastName;
 
     @ElementCollection
-    @CollectionTable(name="phones", joinColumns = @JoinColumn(name="client_id"))
-    @Column(name="phone", unique = true)
+    @CollectionTable(name="client_phones", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="client_phone", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn(name = "numberInList")
     private List<String> clientPhones = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name="emails", joinColumns = @JoinColumn(name="client_id"))
-    @Column(name="email", unique = true)
+    @CollectionTable(name="client_emails", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="client_email", unique = true)
     @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn(name = "numberInList")
     private List<String> clientEmails = new ArrayList<>();
