@@ -232,7 +232,7 @@ function addNewJob() {
 
 function addNewEmailExtra() {
     var size = ($("#emails-table-body")[0]).rows.length;
-    $("#emails-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td></td><td><button type=\"button\" onclick=\"deleteEmail(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
+    $("#emails-table-body").append("<tr><td hidden=\"hidden\"></td><td></td><td><button type=\"button\" onclick=\"deleteEmail(this)\" class=\"glyphicon glyphicon-remove\"></button></td></tr>")
 }
 
 function addNewPhoneExtra() {
