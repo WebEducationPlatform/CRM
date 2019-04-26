@@ -48,11 +48,12 @@ public class SlackServiceImpl implements SlackService {
     private final String generalChannelId;
     private final String defaultPrivateGroupNameTemplate;
     private final AssignSkypeCallService assignSkypeCallService;
+    private final MessageTemplateService messageTemplateService;
 
     @Autowired
     public SlackServiceImpl(Environment environment, StudentService studentService,
                             SocialProfileTypeService socialProfileTypeService, ClientService clientService,
-                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService, AssignSkypeCallService assignSkypeCallService) {
+                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService, AssignSkypeCallService assignSkypeCallService, MessageTemplateService messageTemplateService) {
         this.appToken = assignPropertyToString(environment,
                 "slack.appToken1",
                     "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
@@ -74,6 +75,7 @@ public class SlackServiceImpl implements SlackService {
         this.socialProfileService = socialProfileService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.assignSkypeCallService = assignSkypeCallService;
+        this.messageTemplateService = messageTemplateService;
     }
 
     private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
@@ -181,7 +183,7 @@ public class SlackServiceImpl implements SlackService {
             List<SocialProfile> profiles = client.getSocialProfiles();
             for (SocialProfile socialProfile :profiles) {
                 if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
-                    return trySendMessageToSlackUser(socialProfile.getSocialId(), prepareText(client, text, body));
+                    return trySendMessageToSlackUser(socialProfile.getSocialId(), messageTemplateService.prepareText(client, text, body));
                 }
             }
         }
@@ -410,7 +412,10 @@ public class SlackServiceImpl implements SlackService {
             JSONObject jsonObj = new JSONObject(json);
             String sendResult = jsonObj.optString("ok");
             if ("true".equals(sendResult)) {
+                logger.debug("Message to Slack channel "+channelId+" sending!");
                 return true;
+            } else if ("false".equals(sendResult)) {
+                logger.error("Message to Slack channel "+channelId+" don't sending because " + jsonObj.toString());
             }
         } catch (IOException e) {
             logger.error("Can't post message to Slack channel " + channelId, e);
@@ -455,22 +460,5 @@ public class SlackServiceImpl implements SlackService {
             this.mail = mail;
             this.name = name;
         }
-    }
-
-    private String prepareText(Client client, String templateText, String body) {
-        String fullName = client.getName() + " " + client.getLastName();
-        Map<String, String> params = new HashMap<>();
-        params.put("%fullName%", fullName);
-        params.put("%bodyText%", templateText);
-        params.put("%dateOfSkypeCall%", body);
-        return replaceName(templateText, params);
-    }
-
-    private String replaceName(String msg, Map<String, String> params) {
-        String clackText = msg;
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            clackText = clackText.replaceAll(entry.getKey(), entry.getValue());
-        }
-        return clackText;
     }
 }
