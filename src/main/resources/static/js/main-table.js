@@ -379,8 +379,8 @@ function getHash() {
 }
 
 function inviteSlack(clientEmail) {
-    let SUCCESS_MESSAGE = 'Успешно! Вам на почту придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать пароль и получить доступ к Slack.';
-    let ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору.';
+    let SUCCESS_MESSAGE = 'Успешно! На почту клиента придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать имя и пароль и получить доступ к Slack.';
+    let ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору. Возможно приглашение было отправлено раньше';
     let url = '/slack/invitelink';
     let email = clientEmail;
     let message = $('#message');
@@ -1691,15 +1691,17 @@ $(function () {
 
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
+
                 $('#client-email').text(client.clientEmails[0]);
                 $('#client-phone').text(client.clientPhones[0]);
+
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
-                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
                         .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-                    $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
-                    $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                    $(".call-to-client.main-modal").after('<button id="btn-call-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                    $('.call-to-client.main-modal').after('<button id="btn-mic-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
                     $('#btn-mic-off').hide();
                     $('#btn-call-off').hide();
                 }
