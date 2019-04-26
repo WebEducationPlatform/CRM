@@ -82,13 +82,15 @@ public class SlackRestController {
     }
 
     @PostMapping("/send/client")
-    public ResponseEntity sendMessageToStudent(@RequestParam Long clientId, @RequestParam Long templateId, @RequestParam String body) {
+    public ResponseEntity sendMessageToStudent(@RequestParam Long clientId,
+                                               @RequestParam Long templateId,
+                                               @RequestParam (value = "body", required = false) String body) {
 
         String templateText;
         if (templateId == 1) {
             templateText = body;
         }
-        else templateText = messageTemplateService.get(templateId).getTemplateText();
+        else templateText = messageTemplateService.get(templateId).getOtherText();
 
         if (slackService.trySendSlackMessageToStudent(clientId, templateText)) {
             return new ResponseEntity<>(HttpStatus.OK);

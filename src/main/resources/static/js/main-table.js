@@ -933,8 +933,8 @@ $(function () {
         var currentStatus = $(this).prev('.send-fixed-template');
         var formData = {
             clientId : clientId,
-            templateId : templateId,
-            body : 'template'
+            templateId : templateId
+
         };
         var url = [];
         var err = [];
