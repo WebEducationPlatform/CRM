@@ -164,9 +164,9 @@ public class SlackServiceImpl implements SlackService {
     }
 
     @Override
-    public boolean trySendSlackMessageToStudent(long clienttId, String text) {
-        Optional<Client> clientOptional = clientService.getClientByID(clienttId);
-        Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(clienttId);
+    public boolean trySendSlackMessageToStudent(long clientId, String text) {
+        Optional<Client> clientOptional = clientService.getClientByID(clientId);
+        Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(clientId);
         Client client;
         AssignSkypeCall skypeCall;
         ZonedDateTime zonedDateTime;
@@ -463,19 +463,7 @@ public class SlackServiceImpl implements SlackService {
         params.put("%fullName%", fullName);
         params.put("%bodyText%", templateText);
         params.put("%dateOfSkypeCall%", body);
-        params.put("<!DOCTYPE html>", "");
-        params.put("</html>", "");
-        params.put("<p>", "");
-        params.put("</p>", "");
-        params.put("<head>", "");
-        params.put("</head>", "");
-        params.put("<body>", "");
-        params.put("</body>", "");
-        params.put("<img src=\"https://sun9-9.userapi.com/c841334/v841334855/6acfb/_syiwM0RH0I.jpg\"/>", "");
-        params.put("<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">", "");
-
         return replaceName(templateText, params);
-
     }
 
     private String replaceName(String msg, Map<String, String> params) {
