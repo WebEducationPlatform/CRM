@@ -432,7 +432,7 @@ public class ScheduleTasks {
 						vkService.simpleVKNotification(clientId, template.getOtherText());
 					}
 					if (student.isNotifySlack()) {
-						slackService.trySendSlackMessageToStudent(student.getId(), template.getOtherText());
+						slackService.trySendSlackMessageToStudent(clientId, template.getOtherText());
 					}
 				}
 			}
