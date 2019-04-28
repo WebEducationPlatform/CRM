@@ -56,7 +56,7 @@ public class JMVkConversation implements JMConversation {
 
         String id = null;
         for (SocialProfile sp : profiles) {
-            if ("vk".equals(sp.getSocialProfileType().getName())) {
+            if ("vk".equals(sp.getSocialNetworkType().getName())) {
                 id = sp.getSocialId();
             }
         }

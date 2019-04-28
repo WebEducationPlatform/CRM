@@ -2,6 +2,9 @@ package com.ewp.crm.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -19,21 +22,16 @@ public class SocialProfile implements Serializable {
 	@Column(name = "social_id")
 	private String socialId;
 
-    /**
-     * Тип соцсети
-     */
-	@ManyToOne
-	@JoinTable(name = "social_network_social_network_type",
-			joinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK_SOCIAL_NETWORK_TYPE"))},
-			inverseJoinColumns = {@JoinColumn(name = "social_network_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
-	private SocialProfileType socialProfileType;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "social_network_type")
+	private SocialNetworkType socialNetworkType;
 
 	public SocialProfile() {
 	}
 
-	public SocialProfile(String socialId, SocialProfileType socialProfileType) {
-        this.socialId = socialId;
-		this.socialProfileType = socialProfileType;
+	public SocialProfile(String socialId, SocialNetworkType socialNetworkType) {
+		this.socialId = socialId;
+		this.socialNetworkType = socialNetworkType;
 	}
 
 	public SocialProfile(String socialId) {
@@ -47,17 +45,17 @@ public class SocialProfile implements Serializable {
 		SocialProfile that = (SocialProfile) o;
 		return id == that.id &&
 				Objects.equals(socialId, that.socialId) &&
-				Objects.equals(socialProfileType, that.socialProfileType);
+				Objects.equals(socialNetworkType, that.socialNetworkType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, socialId, socialProfileType);
+		return Objects.hash(id, socialId, socialNetworkType);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("{type = '%s', socialId = '%s'}", socialProfileType, socialId);
+		return String.format("{type = '%s', socialId = '%s'}", socialNetworkType.getName(), socialId);
 	}
 
 	public long getId() {
@@ -76,11 +74,61 @@ public class SocialProfile implements Serializable {
         this.socialId = socialId;
     }
 
-    public SocialProfileType getSocialProfileType() {
-		return socialProfileType;
+	public SocialNetworkType getSocialNetworkType() {
+		return socialNetworkType;
 	}
 
-	public void setSocialProfileType(SocialProfileType socialProfileType) {
-		this.socialProfileType = socialProfileType;
+	public void setSocialNetworkType(SocialNetworkType socialNetworkType) {
+		this.socialNetworkType = socialNetworkType;
+	}
+
+	public List<SocialNetworkType> getAllSocialNetworkTypes(){
+		return new ArrayList<SocialNetworkType>(EnumSet.allOf(SocialNetworkType.class));
+	}
+
+	public enum SocialNetworkType {
+
+		VK(1L,"vk","https://vk.com/id"),
+		FACEBOOK(2L,"facebook",""),
+		UNKNOWN(3L,"unknown", "https://fb.com/id"),
+		TELEGRAM(4L,"telegram", ""),
+		WHATSAPP(5L,"whatsapp", ""),
+		SLACK(6L,"slack", "");
+
+		private String name;
+		private Long id;
+		private String link;
+
+		SocialNetworkType(){
+		}
+
+		SocialNetworkType(Long id, String name, String link) {
+			this.id = id;
+			this.name = name;
+			this.link = link;
+		}
+		public Long getId() {
+			return id;
+		}
+
+		public void setId(Long id) {
+			this.id = id;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getLink() {
+			return link;
+		}
+
+		public void setLink(String link) {
+			this.link = link;
+		}
 	}
 }

@@ -6,6 +6,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.Client.Sex;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.dto.VkProfileInfo;
 import com.ewp.crm.service.conversation.ChatMessage;
 import com.ewp.crm.service.conversation.ChatType;
@@ -79,7 +80,6 @@ public class VKServiceImpl implements VKService {
     private final ClientHistoryService clientHistoryService;
     private final ClientService clientService;
     private final MessageService messageService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final ProjectPropertiesService projectPropertiesService;
     private final VkRequestFormService vkRequestFormService;
@@ -130,7 +130,6 @@ public class VKServiceImpl implements VKService {
                          ClientHistoryService clientHistoryService,
                          ClientService clientService,
                          MessageService messageService,
-                         SocialProfileTypeService socialProfileTypeService,
                          UserService userService,
                          MessageTemplateService messageTemplateService,
                          ProjectPropertiesService projectPropertiesService,
@@ -158,7 +157,6 @@ public class VKServiceImpl implements VKService {
         this.clientHistoryService = clientHistoryService;
         this.clientService = clientService;
         this.messageService = messageService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.projectPropertiesService = projectPropertiesService;
         this.vkRequestFormService = vkRequestFormService;
@@ -374,7 +372,7 @@ public class VKServiceImpl implements VKService {
             params.put("%dateOfSkypeCall%", body);
             List<SocialProfile> socialProfiles = client.get().getSocialProfiles();
             for (SocialProfile socialProfile : socialProfiles) {
-                if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+                if (socialProfile.getSocialNetworkType().getName().equals("vk")) {
                     Long id = Long.parseLong(socialProfile.getSocialId());
                     String vkText = replaceName(templateText, params);
                     String token = communityToken;
@@ -893,11 +891,10 @@ public class VKServiceImpl implements VKService {
             }
 
             newClient.setClientDescriptionComment(description.toString());
-            Optional<SocialProfileType> socialProfileType = socialProfileTypeService.getByTypeName("vk");
             String social = fields[0];
             Optional<String> socialId = getIdFromLink("https://" + social.substring(social.indexOf("vk.com/id"), social.indexOf("Диалог")));
-            if (socialProfileType.isPresent() && socialId.isPresent()) {
-                SocialProfile socialProfile = new SocialProfile(socialId.get(), socialProfileType.get());
+            if (socialId.isPresent()) {
+                SocialProfile socialProfile = new SocialProfile(socialId.get(), SocialNetworkType.VK);
                 newClient.setSocialProfiles(Collections.singletonList(socialProfile));
             }
         } catch (Exception e) {
@@ -1088,7 +1085,7 @@ public class VKServiceImpl implements VKService {
                     String vkLink = "https://vk.com/id" + id;
                     PotentialClient potentialClient = new PotentialClient(firstName, lastName);
                     SocialProfile socialProfile = new SocialProfile(vkLink);
-                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                    socialProfile.setSocialNetworkType(SocialNetworkType.VK);
                     List<SocialProfile> socialProfiles = new ArrayList<>();
                     socialProfiles.add(socialProfile);
                     potentialClient.setSocialProfiles(socialProfiles);
@@ -1283,7 +1280,7 @@ public class VKServiceImpl implements VKService {
 
         Optional<SocialProfile> socialProfile = Optional.empty();
         for (SocialProfile socialProfileElement : client.getSocialProfiles()) {
-            if ("vk".equals(socialProfileElement.getSocialProfileType().getName())) {
+            if ("vk".equals(socialProfileElement.getSocialNetworkType().getName())) {
                 socialProfile = Optional.of(socialProfileElement);
                 break;
             }

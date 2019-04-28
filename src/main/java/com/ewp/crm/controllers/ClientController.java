@@ -29,7 +29,6 @@ public class ClientController {
     private final ClientService clientService;
     private final UserService userService;
     private final MessageTemplateService messageTemplateService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final NotificationService notificationService;
     private final RoleService roleService;
     private final ProjectPropertiesService propertiesService;
@@ -47,7 +46,6 @@ public class ClientController {
                             ClientService clientService,
                             UserService userService,
                             MessageTemplateService MessageTemplateService,
-                            SocialProfileTypeService socialProfileTypeService,
                             NotificationService notificationService,
                             RoleService roleService,
                             ProjectPropertiesService propertiesService,
@@ -61,7 +59,6 @@ public class ClientController {
         this.clientService = clientService;
         this.userService = userService;
         this.messageTemplateService = MessageTemplateService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.notificationService = notificationService;
         this.roleService = roleService;
         this.propertiesService = propertiesService;
@@ -77,8 +74,9 @@ public class ClientController {
                                   @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
         statusService.get(statusName).ifPresent(s -> modelAndView.addObject("status", s));
+        SocialProfile socialProfile = new SocialProfile();
         modelAndView.addObject("states", Client.State.values());
-        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("socialMarkers", socialProfile.getAllSocialNetworkTypes());
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
         return modelAndView;
@@ -88,9 +86,10 @@ public class ClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ModelAndView addClient(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
+        SocialProfile socialProfile = new SocialProfile();
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
-        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("socialMarkers", socialProfile.getAllSocialNetworkTypes());
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
         return modelAndView;
@@ -154,9 +153,10 @@ public class ClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
     public ModelAndView allClientsPage() {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
+        SocialProfile socialProfile = new SocialProfile();
         modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("statuses", statusService.getAll());
-        modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
+        modelAndView.addObject("socialProfileTypes", socialProfile.getAllSocialNetworkTypes());
         modelAndView.addObject("projectProperties", propertiesService.get());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("studentStatuses", studentStatus.getAll());
@@ -179,10 +179,11 @@ public class ClientController {
     public ModelAndView clientInfo(@PathVariable Long id,
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
+        SocialProfile socialProfile = new SocialProfile();
         modelAndView.addObject("client", clientService.get(id));
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("states", Client.State.values());
-        modelAndView.addObject("socialMarkers", socialProfileTypeService.getAll());
+        modelAndView.addObject("socialMarkers", socialProfile.getAllSocialNetworkTypes());
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
         return modelAndView;

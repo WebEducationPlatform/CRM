@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
@@ -49,8 +50,6 @@ public class ScheduleTasks {
 	private final StatusService statusService;
 
 	private final SocialProfileService socialProfileService;
-
-	private final SocialProfileTypeService socialProfileTypeService;
 
 	private final SMSService smsService;
 
@@ -97,8 +96,7 @@ public class ScheduleTasks {
 						 YouTubeTrackingCardService youTubeTrackingCardService,
 						 ClientService clientService, StudentService studentService,
 						 StatusService statusService, ProjectPropertiesService projectPropertiesService,
-						 MailingService mailingService, SocialProfileService socialProfileService,
-						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 MailingService mailingService, SocialProfileService socialProfileService, SMSService smsService,
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
 						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
@@ -113,7 +111,6 @@ public class ScheduleTasks {
 		this.studentService = studentService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
-		this.socialProfileTypeService = socialProfileTypeService;
 		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.mailSendService = mailSendService;
@@ -138,7 +135,7 @@ public class ScheduleTasks {
 	private void addClient(Client newClient) {
 		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
 		newClient.setState(Client.State.NEW);
-		socialProfileTypeService.getByTypeName("vk").ifPresent(newClient.getSocialProfiles().get(0)::setSocialProfileType);
+		newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
 		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
 		vkService.fillClientFromProfileVK(newClient);
 		String email = newClient.getEmail();
@@ -176,12 +173,12 @@ public class ScheduleTasks {
 
                 List<SocialProfile> socialProfiles = currentClient.getSocialProfiles();
                 for (SocialProfile socialProfile : socialProfiles) {
-                    if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+                    if (socialProfile.getSocialNetworkType().getName().equals("vk")) {
                         vk = socialProfile.getSocialId();
                         vkService.sendMessageById(Long.valueOf(vk), messageBirthDay);
                         continue;
                     }
-                    if (socialProfile.getSocialProfileType().getName().equals("slack")) {
+                    if (socialProfile.getSocialNetworkType().getName().equals("slack")) {
                         slack = socialProfile.getSocialId();
                         slackService.trySendMessageToSlackUser(slack, messageBirthDay);
                     }
