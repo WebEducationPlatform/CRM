@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+</head>
+<body>
+
+<th:block th:fragment="birthDayModal">
+    <div th:id="birthday-modal" class="modal fade birthday-modal" role="dialog" data-keyboard="false"
+         sec:authorize="hasAnyAuthority('OWNER')">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 id="modal-header" class="modal-title">Настройка шаблона для рассылки в день рождения клиента</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <table class="table table-condensed font-size">
+                                <tr>
+                                    <td><label for="birthday-template">Выберите шаблон для поздравления с днем рождения</label>
+                                    </td>
+                                    <td><select id="birthday-template" class="form-control"></select></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="update-birthday-modal" type="button" class="btn btn-default" data-dismiss="modal">
+                        Применить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

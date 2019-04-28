@@ -99,6 +99,18 @@ public class ProjectPropertiesRestController {
         return HttpStatus.OK;
     }
 
+    @PostMapping("/birthday")
+    public HttpStatus setBirthdayResponseSettings(@RequestParam(name = "birthdayTemplate") Long templateId) {
+        ProjectProperties current = projectPropertiesService.getOrCreate();
+        if (templateId == null) {
+            current.setBirthDayMessageTemplate(null);
+        } else {
+            current.setBirthDayMessageTemplate(messageTemplateService.get(templateId));
+        }
+        projectPropertiesService.update(current);
+        return HttpStatus.OK;
+    }
+
     @PostMapping("/contractUserSetting")
     public HttpStatus setContractUserSettings(@RequestParam(name = "contractTemplateId") Long templateId,
                                               @RequestParam(name = "contractLastId") Long lastId,

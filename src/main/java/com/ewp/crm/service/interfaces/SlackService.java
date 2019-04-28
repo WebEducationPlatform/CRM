@@ -14,7 +14,7 @@ public interface SlackService {
     void tryLinkSlackAccountToAllStudents();
     boolean trySendMessageToSlackUser(String slackUserId, String text);
     boolean trySendMessageToAllSlackUsers(String text);
-    boolean trySendSlackMessageToStudent(long studentId, String text);
+    boolean trySendSlackMessageToStudent(long clientId, String text);
     boolean trySendMessageToAllStudents(String text);
     String getSlackWorkspaceUrl();
     Optional<String> getChatIdForSlackUser(String slackUserId);
