@@ -32,6 +32,8 @@ public class GoogleAdsServiceImpl implements GoogleAdsService {
 
     private static Logger logger = LoggerFactory.getLogger(GoogleAdsServiceImpl.class);
     public static final String ERROR_MESSAGE = "Ошибка";
+    private static final double VAT_VALUE = 1.2;
+    private static final double MONEY_TO_ROUBLES_RATIO = 1_000_000;
 
     private AdWordsSession session;
     private final AdWordsServicesInterface adWordsServices;
@@ -99,7 +101,8 @@ public class GoogleAdsServiceImpl implements GoogleAdsService {
             String s = response.getAsString();
             long reportCost = Long.parseLong(s.split("\n")[0]);
             // Вычитаем Cost из SpendingLimit - получаем текущий баланс аккаунта без НДС
-            return String.format("%.2f", (((bosTotal - reportCost) / 1_000_000d) * 1.2));
+            double accountBalance = ((bosTotal - reportCost) / MONEY_TO_ROUBLES_RATIO) * VAT_VALUE;
+            return String.format("%.2f", accountBalance);
         }
         return ERROR_MESSAGE;
     }
@@ -131,7 +134,7 @@ public class GoogleAdsServiceImpl implements GoogleAdsService {
             ReportDownloadResponse response = reportDownloader.downloadReport(reportDefinition);
             String s = response.getAsString();
             long reportCost = Long.parseLong(s.split("\n")[0]);
-            return String.format("%.2f", (reportCost / 1_000_000d));
+            return String.format("%.2f", (reportCost / MONEY_TO_ROUBLES_RATIO));
         }
         return ERROR_MESSAGE;
     }
