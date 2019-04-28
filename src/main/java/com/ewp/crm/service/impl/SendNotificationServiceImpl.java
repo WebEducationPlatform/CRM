@@ -70,16 +70,10 @@ public class SendNotificationServiceImpl implements SendNotificationService {
     public void sendNewClientNotification(Client client, String from) {
         MessageTemplate template = projectProperties.getNewClientMessageTemplate();
         if (template != null) {
-            String vkId;
             String newClientUrl = serverUrl + "/client?id=" + client.getId();
             Optional<String> shortUrl = vkService.getShortLinkForUrl(newClientUrl);
             Map<String, String> params = new HashMap<>();
-            if (from.equals("vk")) {
-                vkId = client.getSocialProfiles().get(0).getSocialId();
-                params.put("%from%", from + " c id=" + vkId);
-            } else{
-                params.put("%from%", from + " c id=" + client.getId());
-            }
+            params.put("%from%", from + " c id=" + client.getId() + " ");
             params.put("%link%", shortUrl.orElse(newClientUrl));
             String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
             List<User> usersToNotify = userService.getAll();
