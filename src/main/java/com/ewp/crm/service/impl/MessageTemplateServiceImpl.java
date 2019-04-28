@@ -1,11 +1,13 @@
 package com.ewp.crm.service.impl;
 
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.repository.interfaces.MessageTemplateDAO;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,5 +32,22 @@ public class MessageTemplateServiceImpl extends CommonServiceImpl<MessageTemplat
 			replaceText = String.valueOf(new StringBuilder(replaceText.replaceAll(entry.getKey(), entry.getValue())));
 		}
 		return replaceText;
+	}
+
+	public String prepareText(Client client, String templateText, String body) {
+		String fullName = client.getName() + " " + client.getLastName();
+		Map<String, String> params = new HashMap<>();
+		params.put("%fullName%", fullName);
+		params.put("%bodyText%", templateText);
+		params.put("%dateOfSkypeCall%", body);
+		return replaceText(templateText, params);
+	}
+
+	private String replaceText(String msg, Map<String, String> params) {
+		String text = msg;
+		for (Map.Entry<String, String> entry : params.entrySet()) {
+			text = text.replaceAll(entry.getKey(), entry.getValue());
+		}
+		return text;
 	}
 }
