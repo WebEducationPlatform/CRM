@@ -25,10 +25,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
 
-	private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
+    private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
 
-	private final ClientRepository clientRepository;
-	private final SlackInviteLinkRepository slackInviteLinkRepository;
+    private final ClientRepository clientRepository;
+    private final SlackInviteLinkRepository slackInviteLinkRepository;
 
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
@@ -148,6 +148,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByPhoneNumber(phoneNumber));
     }
 
+
     @Override
     public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {
         List<SocialProfile> socialProfiles = new ArrayList<>();
@@ -173,24 +174,24 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private Comparator<Client> getCompareLastChange() {
-       return (o1, o2) -> {
-           if (getLastChange(o1).isAfter(getLastChange(o2))) {
-               return 1;
-           } else {
-               return -1;
-           }
-       };
+        return (o1, o2) -> {
+            if (getLastChange(o1).isAfter(getLastChange(o2))) {
+                return 1;
+            } else {
+                return -1;
+            }
+        };
     }
 
     private ZonedDateTime getLastChange(Client client) {
         Optional<Comment> lastComment = getLastComment(client);
         Optional<ClientHistory> lastHistory = getLastHistory(client);
-            if (lastComment.isPresent()) {
-                 if (lastComment.get().getDateFormat().isAfter(lastHistory.get().getDate())) {
-                     return lastComment.get().getDateFormat();
-                 }
+        if (lastComment.isPresent()) {
+            if (lastComment.get().getDateFormat().isAfter(lastHistory.get().getDate())) {
+                return lastComment.get().getDateFormat();
             }
-            return lastHistory.get().getDate();
+        }
+        return lastHistory.get().getDate();
     }
 
     @Override
@@ -282,16 +283,18 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         Optional<Client> existClient = Optional.empty();
 
-        client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber()));
+        if (client.getPhoneNumber().isPresent()) {
+            client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
+        }
 
-        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+        if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
             client.setCanCall(true);
-            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber());
+            String validatePhone = phoneValidator.phoneRestore(client.getPhoneNumber().get());
             existClient = Optional.ofNullable(clientRepository.getClientByPhoneNumber(validatePhone));
         }
 
-        if (!existClient.isPresent() && client.getEmail() != null && !client.getEmail().isEmpty()) {
-            existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail()));
+        if (!existClient.isPresent() && client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
+            existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail().get()));
         }
 
         if ((client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty())) {
@@ -387,8 +390,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
     @Override
     public void updateClient(Client client) {
-        if (client.getEmail() != null && !client.getEmail().isEmpty()) {
-            Client clientByMail = clientRepository.getClientByEmail(client.getEmail());
+        if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
+            Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
             if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
@@ -399,10 +402,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getPhoneNumber().isPresent()) {
             client.setPhoneNumber(phoneValidator.phoneRestore(client.getPhoneNumber().get()));
         }
-        if (client.getPhoneNumber() != null && !client.getPhoneNumber().isEmpty()) {
+
+        if (client.getPhoneNumber().isPresent() && !client.getPhoneNumber().get().isEmpty()) {
             client.setCanCall(true);
-            Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber());
-            if (clientByPhone != null && !client.getPhoneNumber().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
+            Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber().get());
+            if (clientByPhone != null && !client.getPhoneNumber().get().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
                 throw new ClientExistsException();
             }
         } else {
@@ -456,21 +460,21 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.statusService = statusService;
     }
 
-	@Override
-	public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+    @Override
+    public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
         List<Client> orderedClients;
         boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
-		if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
-			return orderedClients;
-		}
-		if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-			orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
-			return orderedClients;
-		}
-		logger.error("Error with sorting clients");
-		return new ArrayList<>();
-	}
+        if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
+            return orderedClients;
+        }
+        if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
+            return orderedClients;
+        }
+        logger.error("Error with sorting clients");
+        return new ArrayList<>();
+    }
 
     @Override
     public Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName) {

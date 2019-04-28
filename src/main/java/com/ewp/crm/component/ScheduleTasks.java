@@ -141,9 +141,9 @@ public class ScheduleTasks {
 		socialProfileTypeService.getByTypeName("vk").ifPresent(newClient.getSocialProfiles().get(0)::setSocialProfileType);
 		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
 		vkService.fillClientFromProfileVK(newClient);
-		String email = newClient.getEmail();
-		if (email!=null&&!email.matches(ValidationPattern.EMAIL_PATTERN)){
-			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: "+email);
+		Optional<String> optionalEmail = newClient.getEmail();
+		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)){
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment()+System.lineSeparator()+"Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
 			newClient.setEmail(null);
 		}
 		clientService.addClient(newClient);
