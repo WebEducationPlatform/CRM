@@ -151,48 +151,31 @@ public class ScheduleTasks {
 		logger.info("New client with id{} has added from VK", newClient.getId());
 	}
 
-    @Scheduled(cron = "0 0 7 * * *")
-    private void sendBirthdayMails() {
-        String vk;
-        String slack;
+	@Scheduled(cron = "0 0 7 * * *")
+	private void sendBirthdayMails() {
 		MessageTemplate messageTemplateBirthDay = projectProperties.getBirthDayMessageTemplate();
-		String messageBirthDay = messageTemplateBirthDay.getTemplateText();
+		if(messageTemplateBirthDay == null){
+			logger.error("Нe установлен шаблон для поздравления с днем рождения");
+			return;
+		}
+		String messageBirthDay = messageTemplateBirthDay.getOtherText();
+		LocalDate today = LocalDate.now();
+		int dayOfMonthToday = today.getDayOfMonth();
+		int monthToday = today.getMonthValue();
 
-        LocalDate today = LocalDate.now();
-        int dayOfMonthToday = today.getDayOfMonth();
-        int monthToday = today.getMonthValue();
+		List<Client> clients = clientService.getAll();
+		for (Client currentClient : clients) {
+			LocalDate birthDate = currentClient.getBirthDate();
+			int clientDayOfBirth = birthDate.getDayOfMonth();
+			int monthOfBirth = birthDate.getMonthValue();
 
-        List<Client> clients = clientService.getAll();
-        for (Client currentClient : clients) {
-            System.out.println(currentClient.getId() + currentClient.getEmail() + currentClient.getBirthDate());
-            LocalDate birthDate = currentClient.getBirthDate();
-            int clientDayOfBirth = birthDate.getDayOfMonth();
-            int monthOfBirth = birthDate.getMonthValue();
-
-            if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
-                if (currentClient.getEmail() != null && !currentClient.getEmail().isEmpty()) {
-                    mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
-                }
-
-                List<SocialProfile> socialProfiles = currentClient.getSocialProfiles();
-                for (SocialProfile socialProfile : socialProfiles) {
-                    if (socialProfile.getSocialProfileType().getName().equals("vk")) {
-                        vk = socialProfile.getSocialId();
-                        vkService.sendMessageById(Long.valueOf(vk), messageBirthDay);
-                        continue;
-                    }
-                    if (socialProfile.getSocialProfileType().getName().equals("slack")) {
-                        slack = socialProfile.getSocialId();
-                        slackService.trySendMessageToSlackUser(slack, messageBirthDay);
-                    }
-                }
-
-//                if (currentClient.getPhoneNumber() != null && !currentClient.getPhoneNumber().isEmpty()) {
-//                    smsService.sendSimpleSMS(currentClient.getId(), messageBirthDay);
-//                }
-            }
-        }
-    }
+			if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
+				if (currentClient.getEmail() != null && !currentClient.getEmail().isEmpty()) {
+					mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
+				}
+			}
+		}
+	}
 
 	@Scheduled(fixedRate = 15_000)
 	private void checkCallInSkype() {
