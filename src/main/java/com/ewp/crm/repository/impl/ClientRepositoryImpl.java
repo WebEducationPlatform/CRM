@@ -41,14 +41,19 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType) {
-        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType")
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "LEFT JOIN c.student AS s " +
+                "WHERE s IS NOT NULL AND sp.socialNetworkType.name = :socialProfileType")
                 .setParameter("socialProfileType", socialProfileType)
                 .getResultList();
     }
 
     @Override
     public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
-        return !entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt WHERE c.id = :clientId AND spt.name = :socialProfileType")
+        return !entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "WHERE c.id = :clientId AND sp.socialNetworkType.name = :socialProfileType")
                 .setParameter("socialProfileType", socialProfileType)
                 .setParameter("clientId", client.getId())
                 .getResultList()
@@ -57,7 +62,10 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType) {
-        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType AND c.status IN (:statuses)")
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "LEFT JOIN c.student AS s " +
+                "WHERE s IS NOT NULL AND sp.socialNetworkType.name = :socialProfileType AND c.status IN (:statuses)")
                 .setParameter("socialProfileType", socialProfileType)
                 .setParameter("statuses", statuses)
                 .getResultList();
@@ -277,7 +285,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public boolean isTelegramClientPresent(Integer id) {
-        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialNetworkType.name = 'telegram'", SocialProfile.class)
                 .setParameter("telegramId", id.toString())
                 .getResultList();
         return !result.isEmpty();
@@ -287,7 +295,9 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     public Client getClientBySocialProfile(String id, String socialProfileType) {
         Client result = null;
         try {
-            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN c.socialProfiles s WHERE s.socialId = :sid AND s.socialProfileType.name = :type", Client.class)
+            result = entityManager.createQuery("SELECT c FROM Client c " +
+                    "LEFT JOIN c.socialProfiles s " +
+                    "WHERE s.socialId = :sid AND s.socialNetworkType.name = :type", Client.class)
                     .setParameter("sid", id)
                     .setParameter("type", socialProfileType)
                     .getSingleResult();

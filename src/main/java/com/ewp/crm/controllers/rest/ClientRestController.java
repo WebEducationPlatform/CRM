@@ -34,7 +34,6 @@ public class ClientRestController {
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final ClientService clientService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
@@ -49,7 +48,6 @@ public class ClientRestController {
 
 	@Autowired
     public ClientRestController(ClientService clientService,
-                                SocialProfileTypeService socialProfileTypeService,
                                 UserService userService,
                                 SocialProfileService socialProfileService,
                                 ClientHistoryService clientHistoryService,
@@ -59,7 +57,6 @@ public class ClientRestController {
                                 StudentService studentService,
                                 StudentStatusService studentStatusService) {
         this.clientService = clientService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
@@ -186,10 +183,10 @@ public class ClientRestController {
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
-																	   @RequestParam(name = "socialProfileType") String socialProfileType,
+																	   @RequestParam(name = "socialNetworkType") String socialNetworkType,
 																	   @RequestParam(name = "unread") String unreadCount) {
 		Map<String, String> clientInfoMap = new HashMap<>();
-        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialProfileType);
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialNetworkType);
         if (socialProfile.isPresent()) {
 			Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
 			if (!client.isPresent()) {
@@ -295,12 +292,9 @@ public class ClientRestController {
 
 		try(FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
-
-			if (socialProfileTypeService.getByTypeName(selected).isPresent()) {
-				List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(selected).get().getSocialProfileList();
+				List<SocialProfile> socialProfiles = socialProfileService.getAllByTypeName(selected).get();
 				for (SocialProfile socialProfile : socialProfiles) {
 					bufferedWriter.write(socialProfile.getSocialId() + "\r\n");
-				}
 			}
 			if (selected.equals("email")) {
 				List<String> emails = clientService.getClientsEmails();
@@ -351,15 +345,12 @@ public class ClientRestController {
 
 		try(FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
-
-			if (socialProfileTypeService.getByTypeName(filteringCondition.getSelected()).isPresent()) {
 				List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
 				for (String socialNetworkLink : socialNetworkLinks) {
 				    if (socialNetworkLink != null && !socialNetworkLink.isEmpty()) {
                         bufferedWriter.write(socialNetworkLink + System.lineSeparator());
                     }
 				}
-			}
 			if (filteringCondition.getSelected().equals("email")) {
 				List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
 				for (String email : emails) {

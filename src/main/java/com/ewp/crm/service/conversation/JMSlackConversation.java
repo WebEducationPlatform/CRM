@@ -63,7 +63,7 @@ public class JMSlackConversation implements JMConversation {
         Optional<SocialProfile> clientSlackProfile = client
                 .getSocialProfiles()
                 .stream()
-                .filter(profile -> "slack".equals(profile.getSocialProfileType().getName()))
+                .filter(profile -> "slack".equals(profile.getSocialNetworkType().getName()))
                 .findFirst();
         return clientSlackProfile.map(socialProfile -> new Interlocutor(
                 socialProfile.getSocialId(),

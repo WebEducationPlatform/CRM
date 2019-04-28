@@ -304,9 +304,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
+            if (!socialProfile.getSocialNetworkType().getName().equals("unknown")) {
                 if (!existClient.isPresent()) {
-                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
+                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialNetworkType().getName());
                     if (profile.isPresent()) {
                         socialProfile = profile.get();
                         existClient = getClientBySocialProfile(socialProfile);
@@ -343,7 +343,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private void checkSocialIds(Client client) {
         for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
             SocialProfile socialProfile = iterator.next();
-            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+            if ("vk".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
                 if (id.isPresent()) {
                     socialProfile.setSocialId(String.valueOf(id.get()));

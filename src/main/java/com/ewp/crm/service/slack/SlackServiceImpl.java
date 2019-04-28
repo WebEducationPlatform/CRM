@@ -1,6 +1,7 @@
 package com.ewp.crm.service.slack;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.interfaces.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -37,7 +38,6 @@ public class SlackServiceImpl implements SlackService {
     private static Logger logger = LoggerFactory.getLogger(SlackServiceImpl.class);
     private final StudentService studentService;
     private final ProjectProperties projectProperties;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final SocialProfileService socialProfileService;
     private final ClientService clientService;
     private final String slackWorkspaceUrl;
@@ -48,7 +48,7 @@ public class SlackServiceImpl implements SlackService {
 
     @Autowired
     public SlackServiceImpl(Environment environment, StudentService studentService,
-                            SocialProfileTypeService socialProfileTypeService, ClientService clientService,
+                            ClientService clientService,
                             SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService) {
         this.appToken = assignPropertyToString(environment,
                 "slack.appToken1",
@@ -66,7 +66,6 @@ public class SlackServiceImpl implements SlackService {
                 "slack.group.default.name.template",
                     "Can't get 'slack.group.default.name.template' please check slack.properties file");
         this.studentService = studentService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.clientService = clientService;
         this.socialProfileService = socialProfileService;
         this.projectProperties = projectPropertiesService.getOrCreate();
@@ -97,18 +96,15 @@ public class SlackServiceImpl implements SlackService {
 
     @Override
     public void tryLinkSlackAccountToAllStudents() {
-        Optional<SocialProfileType> slackType = socialProfileTypeService.getByTypeName("slack");
-        if (slackType.isPresent()) {
             Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
             if (allWorkspaceUsersData.isPresent()) {
-                List<SocialProfileType> excludeSocialProfileTypes = Arrays.asList(slackType.get());
+                List<SocialNetworkType> excludeSocialProfileTypes = Arrays.asList(SocialNetworkType.SLACK);
                 List<Student> students = studentService.getStudentsWithoutSocialProfileByType(excludeSocialProfileTypes);
                 for (Student student : students) {
                     tryLinkSlackAccountToStudent(student.getId(), allWorkspaceUsersData.get());
                 }
             }
         }
-    }
 
     @Override
     public boolean tryLinkSlackAccountToStudent(long studentId, String slackAllUsersJsonResponse) {
@@ -144,16 +140,15 @@ public class SlackServiceImpl implements SlackService {
         if (!matchesWithWeight.isEmpty()) {
             Optional<Map.Entry<String, Double>> maximumMatch = matchesWithWeight.entrySet().stream().max(Map.Entry.comparingByValue());
             if (maximumMatch.isPresent()) {
-                Optional<SocialProfileType> slackSocialProfileTypeOpt = socialProfileTypeService.getByTypeName("slack");
-                if (slackSocialProfileTypeOpt.isPresent()) {
-                    String slackId = maximumMatch.get().getKey();
-                    SocialProfileType slackSocialProfileType = slackSocialProfileTypeOpt.get();
-                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(slackId, slackSocialProfileType.getName()).isPresent()) {
-                        client.addSocialProfile(new SocialProfile(slackId, slackSocialProfileType));
+
+                String slackId = maximumMatch.get().getKey();
+
+                    if (!socialProfileService.getSocialProfileBySocialIdAndSocialType(slackId, SocialNetworkType.SLACK.getName()).isPresent()) {
+                        client.addSocialProfile(new SocialProfile(slackId, SocialNetworkType.SLACK));
                         clientService.updateClient(client);
                     }
                     return true;
-                }
+
             }
         }
         return false;
@@ -166,7 +161,7 @@ public class SlackServiceImpl implements SlackService {
             Client client = student.getClient();
             List<SocialProfile> profiles = client.getSocialProfiles();
             for (SocialProfile socialProfile :profiles) {
-                if ("slack".equals(socialProfile.getSocialProfileType().getName())) {
+                if ("slack".equals(socialProfile.getSocialNetworkType().getName())) {
                     return trySendMessageToSlackUser(socialProfile.getSocialId(), text);
                 }
             }
