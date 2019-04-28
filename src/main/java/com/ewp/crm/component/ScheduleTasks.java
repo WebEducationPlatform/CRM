@@ -301,10 +301,10 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-//	@Scheduled(cron = "* */15 * * * *")
-//	private void getSlackProfiles() {
-//		slackService.tryLinkSlackAccountToAllStudents();
-//	}
+	@Scheduled(cron = "* */15 * * * *")
+	private void getSlackProfiles() {
+		slackService.tryLinkSlackAccountToAllStudents();
+	}
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {
@@ -329,30 +329,30 @@ public class ScheduleTasks {
 		// ToDo рассылка отчета
 	}
 
-//	@Scheduled(fixedRate = 600_000)
-//	private void checkSMSMessages() {
-//		logger.info("start checking sms statuses");
-//		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
-//		for (SMSInfo sms : queueSMS) {
-//			Optional<String> status = smsService.getStatusMessage(sms.getSmsId());
-//			if (status.isPresent()) {
-//				if (!status.get().equals("queued")) {
-//					if (status.get().equals("delivered")) {
-//						sms.setDeliveryStatus("доставлено");
-//					} else if (sms.getClient() == null) {
-//						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-//						sms.setDeliveryStatus("Клиент не найден");
-//					} else {
-//						String deliveryStatus = determineStatusOfResponse(status.get());
-//						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
-//						sms.setDeliveryStatus(deliveryStatus);
-//					}
-//					sms.setChecked(true);
-//					smsInfoService.update(sms);
-//				}
-//			}
-//		}
-//	}
+	@Scheduled(fixedRate = 600_000)
+	private void checkSMSMessages() {
+		logger.info("start checking sms statuses");
+		List<SMSInfo> queueSMS = smsInfoService.getSMSByIsChecked(false);
+		for (SMSInfo sms : queueSMS) {
+			Optional<String> status = smsService.getStatusMessage(sms.getSmsId());
+			if (status.isPresent()) {
+				if (!status.get().equals("queued")) {
+					if (status.get().equals("delivered")) {
+						sms.setDeliveryStatus("доставлено");
+					} else if (sms.getClient() == null) {
+						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
+						sms.setDeliveryStatus("Клиент не найден");
+					} else {
+						String deliveryStatus = determineStatusOfResponse(status.get());
+						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
+						sms.setDeliveryStatus(deliveryStatus);
+					}
+					sms.setChecked(true);
+					smsInfoService.update(sms);
+				}
+			}
+		}
+	}
 
 	private String determineStatusOfResponse(String status) {
 		String info;
