@@ -228,7 +228,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		ClientHistory history = new ClientHistory(type);
 		history.setTitle(user.getFullName() + " " + type.getInfo());
 
-		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail() + " -> null");
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Email: " + client.getEmail().orElse("not found") + " -> null");
 		if (message.isPresent()) {
 			history.setMessage(message.get());
 			history.setLink(message.get().getId().toString());
@@ -242,7 +242,7 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 		ClientHistory history = new ClientHistory(type);
 		history.setTitle(user.getFullName() + " " + type.getInfo());
 
-		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Phone: " + client.getPhoneNumber() + " -> null");
+		Optional<Message> message = messageService.addMessage(Message.Type.DATA, "Phone: " + client.getPhoneNumber().orElse("not found") + " -> null");
 		if (message.isPresent()) {
 			history.setMessage(message.get());
 			history.setLink(message.get().getId().toString());
