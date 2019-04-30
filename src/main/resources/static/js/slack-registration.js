@@ -1,6 +1,6 @@
 const SUCCESS_MESSAGE = 'Успешно! Вам на почту придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать пароль и получить доступ к Slack.';
 const ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору.';
-const CRM_URL = 'http://localhost:9999';
+const CRM_URL = 'https://crm.java-mentor.com';
 
 function getHash() {
     let urlParams = window.location.href.split("?");
