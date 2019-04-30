@@ -1704,8 +1704,10 @@ $(function () {
 
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
-                $('#client-email').text(client.email);
-                $('#client-phone').text(client.phoneNumber);
+
+                $('#client-email').text(client.clientEmails[0]);
+                $('#client-phone').text(client.clientPhones[0]);
+
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')

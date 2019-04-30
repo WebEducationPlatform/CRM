@@ -19,10 +19,6 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	Client getClientBySkype(String skypeLogin);
 
-	Client getClientByEmail(String Email);
-
-	Client getClientByPhoneNumber(String phoneNumber);
-
 	List<Client> getAllByIdIn(List<Long> ids);
 
 	Page<Client> findAll(Pageable pageable);
@@ -32,4 +28,16 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	Client getClientByNameAndLastNameIgnoreCase(String name, String lastName);
 
 	Client getClientById(Long id);
+
+	Client getClientByClientPhonesEquals(String phoneNumber);
+
+	default Client getClientByPhoneNumber(String phoneNumber) {
+		return getClientByClientPhonesEquals(phoneNumber);
+	}
+
+	Client getClientByClientEmailsEquals(String Email);
+
+	default Client getClientByEmail(String Email) {
+		return getClientByClientEmailsEquals(Email);
+	}
 }
