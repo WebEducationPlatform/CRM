@@ -10,6 +10,7 @@ import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +28,17 @@ public class StatusServiceImpl implements StatusService {
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
+	private final RoleService roleService;
 
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService, SortedStatusesRepository sortedStatusesRepository) {
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService, SortedStatusesRepository sortedStatusesRepository, RoleService roleService) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
+		this.roleService = roleService;
 	}
 
 	@Autowired
@@ -45,8 +48,13 @@ public class StatusServiceImpl implements StatusService {
 
 	//Для юзера из сессии смотрим для какого статуса какая нужна сортировка (и нужна ли)
 	@Override
-	public List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession) {
-		List<Status> statuses = getAll();
+	public List<Status> getStatusesWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role) {
+		List<Status> statuses;
+		if(role.equals(roleService.getRoleByName("OWNER"))) {
+			statuses = getAll();
+		} else{
+			statuses = getAllByRole(role);
+		}
 		SortedStatuses sorted;
 		for (Status status : statuses) {
 			sorted = new SortedStatuses(status, userFromSession);
