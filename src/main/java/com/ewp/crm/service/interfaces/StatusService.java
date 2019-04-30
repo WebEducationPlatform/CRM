@@ -13,7 +13,7 @@ public interface StatusService {
 
     List<Status> getAll();
 
-    List<Status> getStatusesWithSortedClients(@AuthenticationPrincipal User userFromSession);
+    List<Status> getStatusesWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role);
 
     List<Status> getAllByRole(Role role);
 

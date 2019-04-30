@@ -56,7 +56,7 @@
                         </div>
                     </li>
 
-                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
+                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <a class="glyphicon glyphicon-bell redBell"
                            th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown" id="bell"></a>
                         <ul class="dropdown-menu notification-dropdown" id = "Notify">
