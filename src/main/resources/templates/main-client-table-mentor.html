@@ -57,70 +57,17 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}"
                  th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
-
                  th:attrprepend="data-card-id=${client.id}">
-                <!--th:onmouseout="'hideOption('+${client.id}+')'" -->
 
                 <div class="portlet-title portlet-title-groups">
-
                     <div class="portlet-title__group-left">
-
-
                         <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
                              style="margin-left: 2px;display: inline-block;height: 12px;">
-
-
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
-                            <span th:id="'chat-notification'+${client.id}"
-                                  class="chat-notification glyphicon glyphicon-send pull-right"
-                                  style="color: darkblue;display: none;"></span>
-
-                            <th:block th:each="notification_comment:${notifications_type_comment}">
-                                <th:block th:if="${notification_comment.client == client}">
-                                   <span id="notification"
-
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                                </th:block>
-
-                            </th:block>
-
-
-                            <th:block th:each="notification_new_user:${notifications_type_new_user}">
-                                <th:block th:if="${notification_new_user.client == client}">
-                                   <span id="2у notification-new"
-
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                                </th:block>
-
-                            </th:block>
-
-
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
-                                   <span id="notification-new"
-
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                                </th:block>
-
-                            </th:block>
-
-
-                            <th:block th:each="notification_postpone:${notifications_type_postpone}">
-                                <th:block th:if="${notification_postpone.client == client}">
-                                   <span th:id="'notification-postpone'+${client.id}"
-                                         class="glyphicon glyphicon-time"
-                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
-                                </th:block>
-
-                            </th:block>
                             <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                   th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
@@ -162,19 +109,6 @@
                                        th:attrprepend="data-template-id=${template.id}"></a>
                                 </li>
                             </ul>
-                            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
-
-                            <!-- SMS ERROR INFO BTN -->
-                            <th:block th:each="notification_sms:${notifications_type_sms}">
-                                <th:block th:if="${notification_sms.client == client}">
-                                    <button type="button"
-                                            style="color:red"
-                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
-                                            th:attrappend="data-id=${client.id}"></button>
-                                </th:block>
-                            </th:block>
-                            <!--/ SMS ERROR INFO BTN -->
-
                         </span>
 
 
@@ -229,11 +163,13 @@
 <div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
 <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
 <div th:replace="fragments/conversations::conversationsModal"></div>
+<div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
+<div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
+<div th:replace="fragments/htmlFragments::slackLinkModal"></div>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
-<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
 <script type="text/javascript" th:src="@{/js/conversations.js}"></script>
@@ -245,6 +181,8 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/moment-timezone.js}"></script>
+<script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 </body>
