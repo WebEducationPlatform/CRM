@@ -243,16 +243,16 @@ public class DataInitializer {
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
-//        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
-//                vkConfig.getCommunityToken(),
-//                "JavaMentorTest",
-//                Long.parseLong(vkConfig.getApplicationId())));
-//        List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
-//        for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
-//            List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-//                    .orElseThrow(NotFoundMemberList::new);
-//            vkMemberService.addAllMembers(memberList);
-//        }
+        vkTrackedClubService.add(new VkTrackedClub(Long.parseLong(vkConfig.getClubId()),
+                vkConfig.getCommunityToken(),
+                "JavaMentorTest",
+                Long.parseLong(vkConfig.getApplicationId())));
+        List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
+        for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
+            List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
+                    .orElseThrow(NotFoundMemberList::new);
+            vkMemberService.addAllMembers(memberList);
+        }
 
 
 

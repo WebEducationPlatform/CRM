@@ -36,9 +36,4 @@ public class SocialProfileTypeController {
 		return modelAndView;
 	}
 
-//	@PostMapping(value = "/admin/user/addSocialProfileType")
-//	public ModelAndView addSocialProfileType(@ModelAttribute SocialProfileType socialProfileType) {
-//		socialProfileTypeService.add(socialProfileType);
-//		return new ModelAndView("redirect:/admin/user/socialProfileTypes");
-//	}
 }

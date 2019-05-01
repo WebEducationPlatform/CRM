@@ -1,5 +1,9 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -86,6 +90,7 @@ public class SocialProfile implements Serializable {
 		return new ArrayList<SocialNetworkType>(EnumSet.allOf(SocialNetworkType.class));
 	}
 
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 	public enum SocialNetworkType {
 
 		VK(1L,"vk","https://vk.com/id"),
@@ -107,6 +112,7 @@ public class SocialProfile implements Serializable {
 			this.name = name;
 			this.link = link;
 		}
+        @JsonProperty("id")
 		public Long getId() {
 			return id;
 		}
@@ -114,7 +120,7 @@ public class SocialProfile implements Serializable {
 		public void setId(Long id) {
 			this.id = id;
 		}
-
+        @JsonProperty("name")
 		public String getName() {
 			return name;
 		}
@@ -122,7 +128,7 @@ public class SocialProfile implements Serializable {
 		public void setName(String name) {
 			this.name = name;
 		}
-
+        @JsonProperty("link")
 		public String getLink() {
 			return link;
 		}
