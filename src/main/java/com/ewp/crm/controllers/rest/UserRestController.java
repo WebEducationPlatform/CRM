@@ -39,7 +39,7 @@ public class UserRestController {
 		List<SocialNetworkType> socialNetworkTypes = socialProfile.getAllSocialNetworkTypes();
 		Map<Long, String> socialTypeNames = new HashMap<>();
 		for (SocialNetworkType socialNetworkType : socialNetworkTypes) {
-			socialTypeNames.put(socialNetworkType.getId(), socialNetworkType.getName());
+			socialTypeNames.put(socialNetworkType.getId(), socialNetworkType.getName().toUpperCase());
 		}
 		return ResponseEntity.ok(socialTypeNames);
 	}

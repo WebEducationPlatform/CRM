@@ -42,12 +42,6 @@ public class AdminRestClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity addClient(@RequestBody Client client,
                                     @AuthenticationPrincipal User userFromSession) {
-//        if (!"deleted".equals(client.getStatus().getName())) {
-//            for (SocialProfile socialProfile : client.getSocialProfiles()) {
-//                Optional<SocialProfileType> socialProfileTypeOptional = socialProfileTypeService.getByTypeName(
-//                        socialProfile.getSocialProfileType().getName());
-//                socialProfileTypeOptional.ifPresent(s -> socialProfile.getSocialProfileType().setId(s.getId()));
-//            }
             Optional<Status> status = statusService.get(client.getStatus().getName());
             status.ifPresent(client::setStatus);
             clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
@@ -62,12 +56,6 @@ public class AdminRestClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
-//        for (SocialProfile socialProfile : currentClient.getSocialProfiles()) {
-//            Optional<SocialProfileType> socialProfileTypeOptional = socialProfileTypeService.getByTypeName(
-//                    socialProfile.getSocialProfileType().getName());
-//            socialProfileTypeOptional.ifPresent(s -> socialProfile.getSocialProfileType().setId(s.getId()));
-//        }
-
         Client clientFromDB = clientService.get(currentClient.getId());
         currentClient.setWhatsappMessages(clientFromDB.getWhatsappMessages());
         currentClient.setHistory(clientFromDB.getHistory());

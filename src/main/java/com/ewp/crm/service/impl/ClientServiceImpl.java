@@ -417,29 +417,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.saveAndFlush(client);
     }
 
-//    private void checkSocialLinks(Client client) {
-//        for (int i = 0; i < client.getSocialProfiles().size(); i++) {
-//            String link = client.getSocialProfiles().get(i).getSocialId();
-//            SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
-//            if (type.getName().equals("unknown")) {
-//                if (!link.startsWith("https")) {
-//                    if (link.startsWith("http")) {
-//                        link = link.replaceFirst("http", "https");
-//                    } else {
-//                        link = "https://" + link;
-//                    }
-//                }
-//            } else {
-//                int indexOfLastSlash = link.lastIndexOf("/");
-//                if (indexOfLastSlash != -1) {
-//                    link = link.substring(indexOfLastSlash + 1);
-//                }
-//                link = "https://" + type.getName() + ".com/" + link;
-//            }
-//            client.getSocialProfiles().get(i).setSocialId(link);
-//        }
-//    }
-
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
         return clientRepository.getClientsBySearchPhrase(search);
