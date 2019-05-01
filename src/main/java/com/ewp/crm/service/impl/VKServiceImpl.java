@@ -48,8 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -60,7 +58,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -89,6 +86,7 @@ public class VKServiceImpl implements VKService {
     private final AdReportService yandexDirectAdReportService;
     private final AdReportService vkAdsReportService;
     private final GoogleAdsService googleAdsService;
+    private final MessageTemplateService messageTemplateService;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
@@ -138,8 +136,8 @@ public class VKServiceImpl implements VKService {
                          PhoneValidator phoneValidator,
                          RestTemplate restTemplate,
                          GoogleAdsService googleAdsService,
-                         @Qualifier("YandexDirect")AdReportService yandexDirectAdReportService,
-                         @Qualifier("VkAds")AdReportService vkAdsReportService) {
+                         @Qualifier("YandexDirect") AdReportService yandexDirectAdReportService,
+                         @Qualifier("VkAds") AdReportService vkAdsReportService, MessageTemplateService messageTemplateService1) {
         this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
@@ -161,6 +159,7 @@ public class VKServiceImpl implements VKService {
         this.projectPropertiesService = projectPropertiesService;
         this.vkRequestFormService = vkRequestFormService;
         this.vkMemberService = vkMemberService;
+        this.messageTemplateService = messageTemplateService1;
         this.service = new ServiceBuilder(clubId).build(VkontakteApi.instance());
         this.firstContactMessage = vkConfig.getFirstContactMessage();
         this.phoneValidator = phoneValidator;
@@ -365,16 +364,11 @@ public class VKServiceImpl implements VKService {
     public void sendMessageToClient(Long clientId, String templateText, String body, User principal) {
         Optional<Client> client = clientService.getClientByID(clientId);
         if (client.isPresent()) {
-            String fullName = client.get().getName() + " " + client.get().getLastName();
-            Map<String, String> params = new HashMap<>();
-            params.put("%fullName%", fullName);
-            params.put("%bodyText%", body);
-            params.put("%dateOfSkypeCall%", body);
             List<SocialProfile> socialProfiles = client.get().getSocialProfiles();
             for (SocialProfile socialProfile : socialProfiles) {
                 if (socialProfile.getSocialNetworkType().getName().equals("vk")) {
                     Long id = Long.parseLong(socialProfile.getSocialId());
-                    String vkText = replaceName(templateText, params);
+                    String vkText = messageTemplateService.prepareText(client.get(), templateText, body);
                     String token = communityToken;
                     if (principal != null) {
                         User user = userService.get(principal.getId());
@@ -1303,7 +1297,7 @@ public class VKServiceImpl implements VKService {
             if (client.getSex() == null) {
                 client.setSex(vkInfo.getSex());
             }
-            if (client.getPhoneNumber() == null || client.getPhoneNumber().isEmpty()) {
+            if (!client.getPhoneNumber().isPresent() || client.getPhoneNumber().get().isEmpty()) {
                 client.setPhoneNumber(vkInfo.getPhone());
             }
             if (client.getCountry() == null || client.getCountry().isEmpty()) {

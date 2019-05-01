@@ -166,7 +166,10 @@ public class JMWhatsappConversation implements JMConversation {
 
     @Override
     public Optional<Interlocutor> getInterlocutor(Client client) {
-        return Optional.of(new Interlocutor(client.getPhoneNumber(), "#", "#", client.getName(), ChatType.whatsapp));
+        Optional<String> phoneOptional = client.getPhoneNumber();
+        if (phoneOptional.isPresent() && !phoneOptional.get().isEmpty()) {
+            return Optional.of(new Interlocutor(client.getPhoneNumber().get(), "#", "#", client.getName(), ChatType.whatsapp));
+        } else return Optional.empty();
     }
 
     @Override

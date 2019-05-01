@@ -18,8 +18,7 @@ import java.util.Optional;
 public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> implements CallRecordService {
 
     private final CallRecordRepository callRecordRepository;
-    private static final String CALLED_TO = "позвонил по номеру";
-    private static final String UNKNOWN_USER = "Звонок не из CRM";
+    private static final String UNKNOWN_USER = "Звонок не из CRM. Номер: ";
 
     @Autowired
     public CallRecordServiceImpl(CallRecordRepository callRecordRepository) {
@@ -34,18 +33,28 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     @Override
     public Optional<CallRecord> addCallRecord(CallRecord callRecord) {
         Optional<ClientHistory> clientHistory = Optional.ofNullable(callRecord.getClientHistory());
+        callRecord.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
         if (clientHistory.isPresent()) {
             return Optional.of(callRecordRepository.saveAndFlush(callRecord));
         }
-        callRecord.setDate(ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-        callRecord.setComment(UNKNOWN_USER);
         return Optional.of(callRecordRepository.saveAndFlush(callRecord));
     }
 
     @Override
-    public Optional<CallRecord> addCallRecord(CallRecord callRecord, User user, String to) {
-        callRecord.setDate(ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-        callRecord.setComment(user.getFullName() + " " + CALLED_TO + " " + to);
+    public Optional<CallRecord> addCallRecordTo(CallRecord callRecord, User user, String to) {
+        callRecord.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
+        callRecord.setComment(UNKNOWN_USER + to);
+        callRecord.setCallingUser(user);
         return Optional.of(callRecordRepository.saveAndFlush(callRecord));
+    }
+
+    @Override
+    public List<CallRecord> findAllByCallingUserAndDateBetween(User user, ZonedDateTime from, ZonedDateTime to, Pageable pageable) {
+        return callRecordRepository.findAllByCallingUserAndDateBetweenOrderByDateDesc(user, from, to, pageable);
+    }
+
+    @Override
+    public List<CallRecord> findAllByDateBetween(ZonedDateTime from, ZonedDateTime to, Pageable pageable) {
+        return callRecordRepository.findAllByDateBetweenOrderByDateDesc(from, to, pageable);
     }
 }

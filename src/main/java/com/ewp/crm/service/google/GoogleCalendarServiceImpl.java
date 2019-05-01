@@ -108,9 +108,13 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
 	    JsonArray attendees = new JsonArray();
 	    JsonObject clientAttendee = new JsonObject();
-	    clientAttendee.addProperty("email", client.getEmail());
+	    Optional<String> optionalEmail = client.getEmail();
+	    if (optionalEmail.isPresent()) {
+            clientAttendee.addProperty("email", optionalEmail.get());
+        } else {
+            logger.warn("email not found", client.getId());
+        }
 	    attendees.add(clientAttendee);
-
         JsonObject start = new JsonObject();
         start.addProperty("dateTime", new DateTime(eventStart.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)).toString());
         start.addProperty("timeZone","Europe/Moscow");

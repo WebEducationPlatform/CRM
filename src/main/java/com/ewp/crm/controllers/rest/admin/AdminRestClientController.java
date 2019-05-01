@@ -47,8 +47,7 @@ public class AdminRestClientController {
             clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
             clientService.addClient(client);
             studentService.addStudentForClient(client);
-            logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail());
-
+            logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -75,7 +74,7 @@ public class AdminRestClientController {
         }
         clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
         clientService.updateClient(currentClient);
-        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail());
+        logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
