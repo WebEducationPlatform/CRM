@@ -56,7 +56,7 @@
                         </div>
                     </li>
 
-                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}">
+                    <li class="dropdown" th:if="${#httpServletRequest.getRequestURI() == '/client'}" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <a class="glyphicon glyphicon-bell redBell"
                            th:style="${notifications.size() > 0} ? 'color:red' : ''" data-toggle="dropdown" id="bell"></a>
                         <ul class="dropdown-menu notification-dropdown" id = "Notify">
@@ -787,12 +787,34 @@
                         <a data-toggle="collapse" data-parent="#actionsAccordion" class="upload-history collapsed">Действия</a>
                     </h4>
                 </div>
-                <div th:id="'collapse'" class="panel-collapse collapse client-collapse">
+                <div th:id="'collapse'" class="panel-collapse collapse client-collapse history">
                     <div class="panel-body">
                         <table class="table table-bordered history-line" th:id="'client-string-history'">
                             <tbody></tbody>
                         </table>
                         <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="historyAllCalls">
+    <div class="modal-header">
+        <div class="panel-group" id="actionCallsModal">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#actionCallsModal" class="upload-calls-history collapsed">Действия</a>
+                    </h4>
+                </div>
+                <div th:id="'calls-collapse'" class="all-calls panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-bordered calls-history-line" th:id="'calls-history-all-client'">
+                            <tbody></tbody>
+                        </table>
+                        <button type="button" data-page="1" class="btn upload-more-calls-history" style="width: 100%">Загрузить ещё</button>
                     </div>
                 </div>
             </div>

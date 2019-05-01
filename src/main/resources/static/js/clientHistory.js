@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('#main-modal-window').on('show.bs.modal', function ShowContent() {
-        let current = $(document.getElementsByClassName("panel-collapse client-collapse collapse"));
+        let current = $(document.getElementsByClassName("panel-collapse client-collapse collapse history"));
         current.collapse('show');
     });
 
