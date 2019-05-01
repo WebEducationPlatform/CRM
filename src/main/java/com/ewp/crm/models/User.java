@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Fetch;
@@ -138,7 +139,7 @@ public class User implements UserDetails {
 	/**
 	 * Закреплен за клиентами (студентами)
 	 */
-	@JsonIgnore
+	@JsonBackReference
 	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
 
