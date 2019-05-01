@@ -3,7 +3,6 @@ package com.ewp.crm.models;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.utils.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
@@ -115,7 +114,6 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
     private Status status;
 
-    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "owner_user_id")
     private User ownerUser;
@@ -135,7 +133,7 @@ public class Client implements Serializable, Diffable<Client> {
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(value = FetchMode.JOIN)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
@@ -193,11 +191,9 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Passport passport;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
