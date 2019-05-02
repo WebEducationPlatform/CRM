@@ -14,6 +14,6 @@ public interface SlackInviteLinkRepository extends CommonGenericRepository<Slack
     SlackInviteLink getByHash(String hash);
 
     @Transactional
-    SlackInviteLink deleteByClient(Client client);
+    void deleteByClient(Client client);
 
 }

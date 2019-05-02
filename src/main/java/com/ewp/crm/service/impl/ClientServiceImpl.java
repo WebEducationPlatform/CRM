@@ -88,6 +88,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 client.setName(name);
                 client.setLastName(lastName);
                 client.setEmail(email);
+                client.setSlackInviteLink(null);
                 clientRepository.saveAndFlush(client);
                 slackInviteLinkRepository.deleteByClient(client);
                 return slackService.inviteToWorkspace(name, lastName, email);
