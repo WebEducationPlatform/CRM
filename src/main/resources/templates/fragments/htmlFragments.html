@@ -277,29 +277,27 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div id="modal-body">
+                <div id="modal-body" >
                     <div id="checkboxes">
                         <th:block th:each="socialProfileType : ${socialProfileTypes}">
-                            <div class="col-xs-12">
-                                <label class="checkbox" th:for="${socialProfileType.id}"
-                                       th:text="${socialProfileType.name}"></label>
-                                <input class="checkbox" type="checkbox" th:value="${socialProfileType.name}"
-                                       th:id="${socialProfileType.id}"/>
+                            <div class="container">
+                                <label class="checkbox" th:for="${socialProfileType.id}" th:text="${socialProfileType.name}"></label>
+                                <input  type="checkbox" th:value="${socialProfileType.name}" th:id="${socialProfileType.id}"/>
                             </div>
                         </th:block>
-                        <div class="col-xs-12">
-                            <label class="checkbox" th:for="email" th:value="email" th:text="Email"></label>
-                            <input type="checkbox" class="checkbox" th:value="email" th:id="email"/>
+                        <div class="container">
+                            <label class="checkbox"  th:for="email" th:value="email" th:text="Email"></label>
+                            <input type="checkbox" th:value="email" th:id="email"/>
                         </div>
 
-                        <div class="col-xs-12">
-                            <label class="checkbox" th:for="phoneNumber">Номер телефона</label>
-                            <input type="checkbox" class="checkbox" th:value="phoneNumber" th:id="phoneNumber"/>
+                        <div class="container">
+                            <label class="checkbox" th:for="phoneNumber" >Номер телефона</label>
+                            <input type="checkbox" th:value="phoneNumber" th:id="phoneNumber"/>
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <input type="form" th:id="delimeter"/>
-                        <label th:for="delimeter">Разделитель</label>
+                        <input type="form" th:id="delimeter"  />
+                        <label th:for="delimeter" >Разделитель</label>
                     </div>
                 </div>
                 <div class="modal-footer">
