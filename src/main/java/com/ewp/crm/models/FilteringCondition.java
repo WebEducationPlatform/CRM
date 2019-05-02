@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class FilteringCondition {
 
@@ -22,7 +23,11 @@ public class FilteringCondition {
 
     private Status status;
 
-    private String selected;
+    private ArrayList<String> selectedCheckbox;
+
+    private String checked;
+
+    private String delimeter;
 
     private int pageNumber;
 
@@ -101,19 +106,35 @@ public class FilteringCondition {
         this.country = country;
     }
 
-    public String getSelected() {
-        return selected;
-    }
-
-    public void setSelected(String selected) {
-        this.selected = selected;
-    }
-
     public int getPageNumber() {
         return pageNumber;
     }
 
     public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+    }
+
+    public String getDelimeter() {
+        return delimeter;
+    }
+
+    public void setDelimeter(String delimeter) {
+        this.delimeter = delimeter;
+    }
+
+    public ArrayList<String> getSelectedCheckbox() {
+        return selectedCheckbox;
+    }
+
+    public void setSelectedCheckbox(ArrayList<String> selectedCheckbox) {
+        this.selectedCheckbox = selectedCheckbox;
+    }
+
+    public String getChecked() {
+        return checked;
+    }
+
+    public void setChecked(String checked) {
+        this.checked = checked;
     }
 }
