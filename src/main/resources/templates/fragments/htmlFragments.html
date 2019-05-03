@@ -277,15 +277,28 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <select class="form-control" id="selectType" name="selectType">
+                <div id="modal-body" >
+                    <div id="checkboxes">
                         <th:block th:each="socialProfileType : ${socialProfileTypes}">
-                            <option th:value="${socialProfileType.name}" th:text="${socialProfileType.name}"></option>
+                            <div class="container">
+                                <label class="checkbox" th:for="${socialProfileType.id}" th:text="${socialProfileType.name}"></label>
+                                <input  type="checkbox" th:value="${socialProfileType.name}" th:id="${socialProfileType.id}"/>
+                            </div>
                         </th:block>
-                        <option id="email" name="email" th:value="email">Email</option>
-                        <option id="phoneNumber" name="phoneNumber" th:value="phoneNumber">Номер телефона</option>
-                    </select>
+                        <div class="container">
+                            <label class="checkbox"  th:for="email" th:value="email" th:text="Email"></label>
+                            <input type="checkbox" th:value="email" th:id="email"/>
+                        </div>
 
+                        <div class="container">
+                            <label class="checkbox" th:for="phoneNumber" >Номер телефона</label>
+                            <input type="checkbox" th:value="phoneNumber" th:id="phoneNumber"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="form" th:id="delimeter"  />
+                        <label th:for="delimeter" >Разделитель</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
