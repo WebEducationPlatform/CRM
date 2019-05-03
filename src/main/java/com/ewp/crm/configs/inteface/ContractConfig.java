@@ -25,4 +25,6 @@ public interface ContractConfig {
     String getDiploma();
 
     String getFormat();
+
+    String getFileNameWithStamp();
 }

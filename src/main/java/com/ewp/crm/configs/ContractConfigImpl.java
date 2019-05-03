@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class ContractConfigImpl implements ContractConfig {
 
     private final String fileName;
+    private final String fileNameWithStamp;
     private final String filePath;
     private final String monthPointThreeTwoPeriod;
     private final String monthPointThreeThree;
@@ -26,6 +27,7 @@ public class ContractConfigImpl implements ContractConfig {
     @Autowired
     public ContractConfigImpl(Environment env) {
         fileName = env.getProperty("contract.name");
+        fileNameWithStamp = env.getProperty("contract.name.with.stamp");
         filePath = env.getProperty("contract.path");
         monthPointThreeTwoPeriod = env.getProperty("contract.doc.part.month.point-3.2.period");
         monthPointThreeThree = env.getProperty("contract.doc.part.month.point-3.3");
@@ -98,5 +100,10 @@ public class ContractConfigImpl implements ContractConfig {
     @Override
     public String getFormat() {
         return format;
+    }
+
+    @Override
+    public String getFileNameWithStamp() {
+        return fileNameWithStamp;
     }
 }
