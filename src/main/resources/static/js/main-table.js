@@ -762,6 +762,7 @@ $(function () {
         });
     });
 });
+
 $(function () {
     $('.сustom-vk-btn').on('click', function () {
         var clientId = $(this).parents('.main-modal').data('clientId');
@@ -930,7 +931,11 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-fixed-template');
-        var formData = {clientId: clientId, templateId: templateId};
+        var formData = {
+            clientId : clientId,
+            templateId : templateId
+
+        };
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
@@ -945,10 +950,14 @@ $(function () {
                 case ('sms'):
                     url = '/user/sms/send/now/client';
                     break;
+                case ('slack'):
+                    url = '/slack/send/client';
+                    break;
                 //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
                 case ('facebook'):
                     url = '/temporary blank';
                     break;
+
             }
             if (url.length > 0) {
                 $.ajax({
@@ -1047,8 +1056,9 @@ $(function () {
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
         var formData = {
-            clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()
+            clientId : clientId,
+            templateId : templateId,
+            body : $('#custom-eTemplate-body').val()
         };
         var url = [];
         var err = [];
@@ -1063,6 +1073,9 @@ $(function () {
                     break;
                 case ('sms'):
                     url = '/user/sms/send/now/client';
+                    break;
+                case ('slack'):
+                    url = '/slack/send/client';
                     break;
                 //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
                 case ('facebook'):
@@ -1691,8 +1704,10 @@ $(function () {
 
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
-                $('#client-email').text(client.email);
-                $('#client-phone').text(client.phoneNumber);
+
+                $('#client-email').text(client.clientEmails[0]);
+                $('#client-phone').text(client.clientPhones[0]);
+
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
