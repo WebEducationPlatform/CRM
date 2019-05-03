@@ -276,7 +276,7 @@ public class ClientRestController {
     @PostMapping(value = "/createFile")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
     public ResponseEntity createFile(@RequestBody ConditionToDowbload conditionToDowbload) {
-        ArrayList<String> arr = conditionToDowbload.getSelected();
+        List<String> arr = conditionToDowbload.getSelected();
         String separator = "\r\n";
         fileName = new StringBuilder();
 
@@ -312,7 +312,7 @@ public class ClientRestController {
             e.printStackTrace();
         }
 
-        HashSet<String> checkedData = new HashSet<>(arr);
+        Set<String> checkedData = new HashSet<>(arr);
         try (FileWriter fileWriter = new FileWriter(file);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             for (String checkedSocialType : checkedData) {
@@ -353,8 +353,8 @@ public class ClientRestController {
     @PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
     public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-        ArrayList<String> arr = filteringCondition.getSelectedCheckbox();
-        HashSet<String> checkedData = new HashSet<>(arr);
+        List<String> arr = filteringCondition.getSelectedCheckbox();
+        Set<String> checkedData = new HashSet<>(arr);
         String separator = "\r\n";
         String path = "DownloadData";
         fileName = new StringBuilder();

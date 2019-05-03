@@ -1,17 +1,17 @@
 package com.ewp.crm.models;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ConditionToDowbload {
-    private ArrayList<String> selected;
+    private List<String> selected;
 
     private String delimeter;
 
-    public ArrayList<String> getSelected() {
+    public List<String> getSelected() {
         return selected;
     }
 
-    public void setSelected(ArrayList<String> selected) {
+    public void setSelected(List<String> selected) {
         this.selected = selected;
     }
 
