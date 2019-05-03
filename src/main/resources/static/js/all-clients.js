@@ -79,28 +79,18 @@ $('#clientData').click(function (event) {
     event.preventDefault();
     var url = "../rest/client/createFile";
     var urlFiltration = "../rest/client/createFileFilter";
-    let selected = [];
-    $('#checkboxes input:checked').each(function () {
-        selected.push($(this).attr('value'));
-    });
-    let delimeter = $('#delimeter').val();
-    let arr = {};
-    arr['selected'] = selected;
-    arr['delimeter'] = delimeter;
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
             url: url,
-            contentType: "application/json",
-            data: JSON.stringify(arr),
+            data: {selected: $("#selectType").val()},
             success: function () {
                 window.location.replace("/rest/client/getClientsData")
             }
         });
     }
     if (!(jQuery.isEmptyObject(data))) {
-        data['selectedCheckbox'] = selected;
-        data['delimeter'] = delimeter;
+        data['selected'] = $("#selectType").val();
         $.ajax({
             type: 'POST',
             url: urlFiltration,
@@ -225,7 +215,7 @@ function drawClients(table, res) {
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
-            '        <td class="line-decoration"><a href="#" onclick="clientModal(' + res[i].id + ')" >' + res[i].name + '</a></td>' +
+            '        <td class="line-decoration"><a href="#" onclick="clientModal('+ res[i].id +')" >' + res[i].name + '</a></td>' +
             '        <td>' + res[i].lastName + '</td>' +
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +
@@ -234,7 +224,7 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
-            '        <td class="colorTd" id="td_' + res[i].id + '">' + res[i].status.name + '</td>' +
+            '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
             '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
             '        <td class="no-fix">' + returnBtn + ' </td>' +
@@ -406,7 +396,8 @@ $('.selectColorBtn').click(function () {
                 });
             }
         }
-    } else {
+    }
+    else {
         for (let i = 0; i < statuses.length; i++) {
             var node = document.createElement('div');
             node.className = "input-group colorpicker-component";
@@ -425,17 +416,17 @@ $('.selectColorBtn').click(function () {
 /*
 Отправка данных с выбранными цветами, формирование json
  */
-$(document).on('submit', 'form.color_form', function (e) {
+$(document).on('submit','form.color_form',function(e){
     e.preventDefault();
     let url = '/rest/properties/saveColorByStatus';
     let tmpData = {};
 
-    for (let i = 0; i < statuses.length; i++) {
+    for(let i = 0; i < statuses.length; i++) {
         tmpData[statuses[i]] = document.getElementById(statuses[i]).value;
     }
 
     let data = {
-        colors: JSON.stringify(tmpData)
+        colors : JSON.stringify(tmpData)
     };
 
     $.ajax({
@@ -484,7 +475,7 @@ function massClientInputSend() {
     let studentStatus = $('#studentStatus').val();
     let url = "../rest/client/massInputSend";
 
-    if (fioList && emailList) {
+    if(fioList&&emailList) {
         let wrap = {
             fioList: fioList,
             emailList: emailList,
