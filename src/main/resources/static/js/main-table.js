@@ -2193,6 +2193,7 @@ function createContractSetting() {
         oneTimePayment: !!$('#contract-client-setting-one-time-payment-radio').prop("checked"),
         monthPayment: !!$('#contract-client-setting-month-payment-radio').prop("checked"),
         diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        stamp: !!$('#contract-client-setting-stamp-checkbox').prop("checked"),
         paymentAmount: $('#contract-client-setting-payment-amount-form').val()
     };
 
