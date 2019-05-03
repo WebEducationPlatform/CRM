@@ -26,6 +26,8 @@ public class ContractSetting {
 
     private boolean diploma;
 
+    private boolean stamp;
+
     @Column(name = "payment_amount")
     private String paymentAmount;
 
@@ -104,6 +106,14 @@ public class ContractSetting {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isStamp() {
+        return stamp;
+    }
+
+    public void setStamp(boolean stamp) {
+        this.stamp = stamp;
     }
 
     @Override
