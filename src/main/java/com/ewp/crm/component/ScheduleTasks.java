@@ -153,12 +153,12 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 7 * * *")
 	private void sendBirthdayMails() {
-		MessageTemplate messageTemplateBirthDay = projectProperties.getBirthDayMessageTemplate();
-		if(messageTemplateBirthDay == null){
+		Optional<MessageTemplate> messageTemplateBirthDay = new Optional<>(projectProperties.getBirthDayMessageTemplate());
+		if(!messageTemplateBirthDay.isPresent()){
 			logger.error("Нe установлен шаблон для поздравления с днем рождения");
 			return;
 		}
-		String messageBirthDay = messageTemplateBirthDay.getOtherText();
+		String messageBirthDay = messageTemplateBirthDay.get().getOtherText();
 		LocalDate today = LocalDate.now();
 		int dayOfMonthToday = today.getDayOfMonth();
 		int monthToday = today.getMonthValue();
