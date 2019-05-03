@@ -26,6 +26,8 @@ public class GoogleAPIConfigImpl {
     private final String folderId;
     private final String calendarName;
     private final String eventName;
+    private final String viewUri;
+    private final String driveUploadUriOld;
     private final static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
@@ -45,6 +47,8 @@ public class GoogleAPIConfigImpl {
         calendarRedirectUri = env.getProperty("google.client.calendar.redirectUri");
         calendarName = env.getProperty("google.client.calendar.name");
         eventName = env.getProperty("google.client.calendar.eventName");
+        viewUri = env.getProperty("google.docs.view.url");
+        driveUploadUriOld = env.getProperty("google.drive.upload-uri-old");
         if (!configIsValid()) {
             logger.error("Google configs have not initialized. Check google-api.properties file");
             System.exit(-1);
@@ -114,5 +118,13 @@ public class GoogleAPIConfigImpl {
 
     public String getEventName() {
         return eventName;
+    }
+
+    public String getViewUri() {
+        return viewUri;
+    }
+
+    public String getDriveUploadUriOld() {
+        return driveUploadUriOld;
     }
 }
