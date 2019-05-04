@@ -4,7 +4,6 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,4 +81,10 @@ public interface ClientService extends CommonService<Client> {
 	Optional<Comment> getLastComment(Client client);
 
 	Optional<ClientHistory> getLastHistory(Client client);
+
+	Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status);
+
+	void writeToFileWithConditionToDonwload(ConditionToDowbload conditionToDowbload, String fileName);
+
+	void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
 }

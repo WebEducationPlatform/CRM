@@ -43,8 +43,7 @@ public class ClientRestController {
 	private final StatusService statusService;
 	private final StudentService studentService;
 	private final StudentStatusService studentStatusService;
-	private StringBuilder fileName;
-	private String delimeter;
+	private String fileName;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -70,7 +69,7 @@ public class ClientRestController {
         this.statusService = statusService;
 		this.studentService = studentService;
 		this.studentStatusService = studentStatusService;
-		this.fileName = new StringBuilder();
+		this.fileName = new String();
 	}
 
 	@GetMapping(value = "/slack-invite-link/{clientId}")
@@ -163,9 +162,8 @@ public class ClientRestController {
 	@GetMapping(value = "/getClientsData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<InputStreamResource> getClientsData() {
-        //TODO test cross-platform separator
 		String path = "DownloadData" + File.separator;
-		File file = new File(path + fileName.toString());
+		File file = new File(path + fileName);
 
 		InputStreamResource resource = null;
 		try {
@@ -273,165 +271,23 @@ public class ClientRestController {
 		return ResponseEntity.ok(clients);
 	}
 
-    @PostMapping(value = "/createFile")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity createFile(@RequestBody ConditionToDowbload conditionToDowbload) {
-        List<String> arr = conditionToDowbload.getSelected();
-        String separator = "\r\n";
-        fileName = new StringBuilder();
+	@PostMapping(value = "/createFile")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+	public ResponseEntity createFile(@RequestBody ConditionToDowbload conditionToDowbload) {
+		fileName = clientService.getFileName(conditionToDowbload.getSelected(),
+				conditionToDowbload.getDelimeter(), null).get();
+		clientService.writeToFileWithConditionToDonwload(conditionToDowbload, fileName);
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
 
-        if (conditionToDowbload.getDelimeter().equals("")) {
-            delimeter = separator;
-        } else {
-            delimeter = conditionToDowbload.getDelimeter();
-        }
-
-        for (String s : arr) {
-            fileName.append(s).append("_");
-        }
-        fileName
-                .append("with_delimeter_")
-                .append(conditionToDowbload.getDelimeter())
-                .append(".txt");
-        String path = "DownloadData";
-        File dir = new File(path);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                logger.error("Could not create folder for text files");
-            }
-        }
-
-        File file = new File(dir, fileName.toString());
-        try {
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    logger.error("File for clients not created!");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Set<String> checkedData = new HashSet<>(arr);
-        try (FileWriter fileWriter = new FileWriter(file);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
-            for (String checkedSocialType : checkedData) {
-                if (socialProfileTypeService.getByTypeName(checkedSocialType).isPresent()) {
-                    List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(checkedSocialType).get().getSocialProfileList();
-                    for (SocialProfile socialProfile : socialProfiles) {
-                        bufferedWriter.write(socialProfile.getSocialId() + separator);
-                    }
-                    bufferedWriter.write(delimeter + separator);
-                }
-            }
-
-            if (checkedData.contains("email")) {
-                List<String> emails = clientService.getClientsEmails();
-                for (String email : emails) {
-                    if (email == null) {
-                        email = "";
-                    }
-                    bufferedWriter.write(email + separator);
-                }
-                bufferedWriter.write(delimeter + separator);
-            }
-            if (checkedData.contains("phoneNumber")) {
-                List<String> phoneNumbers = clientService.getClientsPhoneNumbers();
-                for (String phoneNumber : phoneNumbers) {
-                    if (phoneNumber == null) {
-                        phoneNumber = "";
-                    }
-                    bufferedWriter.write(phoneNumber + separator);
-                }
-            }
-        } catch (IOException e) {
-            logger.error("File not created! ", e);
-        }
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-        List<String> arr = filteringCondition.getSelectedCheckbox();
-        Set<String> checkedData = new HashSet<>(arr);
-        String separator = "\r\n";
-        String path = "DownloadData";
-        fileName = new StringBuilder();
-
-        if (filteringCondition.getDelimeter().equals("")) {
-            delimeter = separator;
-        } else {
-            delimeter = filteringCondition.getDelimeter();
-        }
-
-        fileName
-                .append(filteringCondition.getStatus())
-                .append("_");
-        for (String s : arr) {
-            fileName.append(s).append("_");
-        }
-        fileName
-                .append("with_delimeter_")
-                .append(filteringCondition.getDelimeter())
-                .append(".txt");
-
-        File dir = new File(path);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                logger.error("Could not create folder for text files");
-            }
-        }
-
-        File file = new File(dir, fileName.toString());
-        try {
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    logger.error("Text file for filtered clients not created!");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try (FileWriter fileWriter = new FileWriter(file);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
-            for (String checkedSocialNetwork : checkedData) {
-                if (socialProfileTypeService.getByTypeName(checkedSocialNetwork).isPresent()) {
-                    filteringCondition.setChecked(checkedSocialNetwork);
-                    List<String> socialNetworkLinks = clientService.getFilteredClientsSNLinks(filteringCondition);
-                    for (String socialNetworkLink : socialNetworkLinks) {
-                        if (socialNetworkLink != null && !socialNetworkLink.isEmpty()) {
-                            bufferedWriter.write(socialNetworkLink + separator);
-                        }
-                    }
-                    bufferedWriter.write(delimeter + separator);
-                }
-
-            }
-
-            if (checkedData.contains("email")) {
-                List<String> emails = clientService.getFilteredClientsEmail(filteringCondition);
-                for (String email : emails) {
-                    if (email != null && !email.isEmpty()) {
-                        bufferedWriter.write(email + separator);
-                    }
-                }
-                bufferedWriter.write(delimeter + separator);
-            }
-            if (checkedData.contains("phoneNumber")) {
-                List<String> phoneNumbers = clientService.getFilteredClientsPhoneNumber(filteringCondition);
-                for (String phoneNumber : phoneNumbers) {
-                    if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                        bufferedWriter.write(phoneNumber + separator);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            logger.error("File not created! ", e);
-        }
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
+	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
+		fileName = clientService.getFileName(filteringCondition.getSelectedCheckbox(),
+				filteringCondition.getDelimeter(), filteringCondition.getStatus()).get();
+		clientService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
 
 	@PostMapping(value = "/postpone")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")

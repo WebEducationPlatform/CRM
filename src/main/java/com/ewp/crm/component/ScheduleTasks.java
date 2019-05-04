@@ -153,25 +153,23 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 7 * * *")
 	private void sendBirthdayMails() {
-		Optional<MessageTemplate> messageTemplateBirthDay = new Optional<>(projectProperties.getBirthDayMessageTemplate());
-		if(!messageTemplateBirthDay.isPresent()){
-			logger.error("Нe установлен шаблон для поздравления с днем рождения");
-			return;
-		}
-		String messageBirthDay = messageTemplateBirthDay.get().getOtherText();
-		LocalDate today = LocalDate.now();
-		int dayOfMonthToday = today.getDayOfMonth();
-		int monthToday = today.getMonthValue();
+		Optional<MessageTemplate> messageTemplateBirthDay = Optional.ofNullable(projectProperties.getBirthDayMessageTemplate());
+		if (messageTemplateBirthDay.isPresent()) {
+			String messageBirthDay = messageTemplateBirthDay.get().getOtherText();
+			LocalDate today = LocalDate.now();
+			int dayOfMonthToday = today.getDayOfMonth();
+			int monthToday = today.getMonthValue();
 
-		List<Client> clients = clientService.getAll();
-		for (Client currentClient : clients) {
-			LocalDate birthDate = currentClient.getBirthDate();
-			int clientDayOfBirth = birthDate.getDayOfMonth();
-			int monthOfBirth = birthDate.getMonthValue();
+			List<Client> clients = clientService.getAll();
+			for (Client currentClient : clients) {
+				LocalDate birthDate = currentClient.getBirthDate();
+				int clientDayOfBirth = birthDate.getDayOfMonth();
+				int monthOfBirth = birthDate.getMonthValue();
 
-			if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
-				if (currentClient.getEmail().isPresent() && !currentClient.getEmail().get().isEmpty()) {
-					mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
+				if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
+					if (currentClient.getEmail().isPresent() && !currentClient.getEmail().get().isEmpty()) {
+						mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
+					}
 				}
 			}
 		}
