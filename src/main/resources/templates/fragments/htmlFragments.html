@@ -282,7 +282,7 @@
                         <th:block th:each="socialProfileType : ${socialProfileTypes}">
                             <div class="container">
                                 <label class="checkbox" th:for="${socialProfileType.id}" th:text="${socialProfileType.name}"></label>
-                                <input  type="checkbox" th:value="${socialProfileType.name}" th:id="${socialProfileType.id}"/>
+                                <input type="checkbox" th:value="${socialProfileType.name}" th:id="${socialProfileType.id}"/>
                             </div>
                         </th:block>
                         <div class="container">

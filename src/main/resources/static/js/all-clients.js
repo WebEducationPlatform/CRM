@@ -98,6 +98,7 @@ $('#clientData').click(function (event) {
             }
         });
     }
+
     if (!(jQuery.isEmptyObject(data))) {
         data['selectedCheckbox'] = selected;
         data['delimeter'] = delimeter;

@@ -252,22 +252,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getClientsEmail() {
-        return entityManager.createNativeQuery("SELECT client_email FROM client_emails").getResultList();
+        return  entityManager.createNativeQuery("SELECT client_email FROM client_emails").getResultList();
     }
 
     @Override
     public List<String> getClientsPhoneNumber() {
-        return entityManager.createNativeQuery("SELECT client_phone FROM client_phones").getResultList();
+        return  entityManager.createNativeQuery("SELECT client_phone FROM client_phones").getResultList();
     }
 
     @Override
     public List<String> getFilteredClientsEmail(FilteringCondition filteringCondition) {
-        return entityManager.createNativeQuery(createQueryForGetEmails(filteringCondition)).getResultList();
+        return  entityManager.createNativeQuery(createQueryForGetEmails(filteringCondition)).getResultList();
     }
 
     @Override
     public List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition) {
-        return entityManager.createNativeQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
+        return  entityManager.createNativeQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
     }
 
     @Override
@@ -302,18 +302,18 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     private String createQueryForGetEmails(FilteringCondition filteringCondition) {
-        return "SELECT client_email FROM client_emails ce JOIN client cl ON ce.client_id = cl.client_id" +
+        return  "SELECT client_email FROM client_emails ce JOIN client cl ON ce.client_id = cl.client_id" +
                 " JOIN status_clients sc ON cl.client_id = sc.user_id" +
                 " where 1 = 1" + filterQueryForPhonesAndEmails(filteringCondition);
     }
 
     private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
-        return "SELECT client_phone FROM client_phones cp JOIN client cl ON cp.client_id = cl.client_id" +
+        return  "SELECT client_phone FROM client_phones cp JOIN client cl ON cp.client_id = cl.client_id" +
                 " JOIN status_clients sc ON cl.client_id = sc.user_id" +
                 " where 1 = 1" + filterQueryForPhonesAndEmails(filteringCondition);
     }
 
-    private String filterQueryForPhonesAndEmails(FilteringCondition filteringCondition) {
+    private String  filterQueryForPhonesAndEmails(FilteringCondition filteringCondition) {
         StringBuilder query = new StringBuilder();
 
         if (filteringCondition.getSex() != null) {
@@ -357,7 +357,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         return query.toString();
     }
 
-    private String filterQuery(FilteringCondition filteringCondition) {
+    private String  filterQuery(FilteringCondition filteringCondition) {
         StringBuilder query = new StringBuilder();
 
         if (filteringCondition.getSex() != null) {
