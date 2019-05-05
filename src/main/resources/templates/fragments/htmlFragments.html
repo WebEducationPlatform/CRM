@@ -321,22 +321,29 @@
 </th:block>
 
 <th:block th:fragment="deleteUser">
-    <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Подтвердите свое действие</h5>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">
-                            Да
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
-                    </div>
+    <div class="modal fade" id="deleteUserModal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Перед удалением выберите пользователя для передачи клиентов</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteUserForm">
+                        <div class="custom-control custom-radio">
+                            <table id="usersTable" class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Пользователи</th>
+                                </tr>
+                                </thead>
+                            </table>
+                            <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                            <button type="submit" class="btn btn-primary">Да</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
                 </div>
             </div>
         </div>

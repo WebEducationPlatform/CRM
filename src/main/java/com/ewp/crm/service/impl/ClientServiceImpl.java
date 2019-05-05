@@ -569,4 +569,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setLiveSkypeCall(old.isLiveSkypeCall());
         return client;
     }
+
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        clientRepository.transferClientsBetweenOwners(sender, receiver);
+        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
 }
