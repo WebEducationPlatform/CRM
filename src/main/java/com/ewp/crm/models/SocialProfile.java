@@ -94,8 +94,8 @@ public class SocialProfile implements Serializable {
 	public enum SocialNetworkType {
 
 		VK(1L,"vk","https://vk.com/id"),
-		FACEBOOK(2L,"facebook",""),
-		UNKNOWN(3L,"unknown", "https://fb.com/id"),
+		FACEBOOK(2L,"facebook","https://fb.com/id"),
+		UNKNOWN(3L,"unknown", ""),
 		TELEGRAM(4L,"telegram", ""),
 		WHATSAPP(5L,"whatsapp", ""),
 		SLACK(6L,"slack", "");
