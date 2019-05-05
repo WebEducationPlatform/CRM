@@ -1,5 +1,6 @@
 package com.ewp.crm.component;
 
+import com.ewp.crm.configs.MessagesSource;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
@@ -92,6 +93,8 @@ public class ScheduleTasks {
 
 	private String adReportTemplate;
 
+	private final MessagesSource messagesSource;
+
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
@@ -105,7 +108,7 @@ public class ScheduleTasks {
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
-						 SlackService slackService) {
+						 SlackService slackService, MessagesSource messagesSource) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -134,6 +137,7 @@ public class ScheduleTasks {
 		this.telegramService = telegramService;
 		this.slackService = slackService;
 		this.projectProperties = projectPropertiesService.getOrCreate();
+        this.messagesSource = messagesSource;
 	}
 	private void addClient(Client newClient) {
 		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
@@ -358,16 +362,16 @@ public class ScheduleTasks {
 		String info;
 		switch (status) {
 			case "delivery error":
-				info = "Номер заблокирован или вне зоны";
+				info = messagesSource.getDeliveryError();
 				break;
 			case "invalid mobile phone":
-				info = "Неправильный формат номера";
+				info = messagesSource.getInvalidMobilePhone();
 				break;
 			case "incorrect id":
-				info = "Неверный id сообщения";
+				info = messagesSource.getIncorrectId();
 				break;
 			default:
-				info = "Неизвестная ошибка";
+				info = messagesSource.getUnknownError();
 		}
 		return info;
 	}
@@ -442,5 +446,15 @@ public class ScheduleTasks {
 	private void addOneFriendForEachCampaign() {
 		logger.info("Scheduled task to add next VK friend for all campaigns been fired");
 		vkCampaignService.nextAttemptCycle();
+	}
+
+	@Scheduled(fixedDelay = 60000)
+	private void testMessages() {
+
+		String s1 = messagesSource.getDeliveryError();
+		String s2 = messagesSource.getInvalidMobilePhone();
+		String s3 = messagesSource.getIncorrectId();
+		String s4 = messagesSource.getUnknownError();
+
 	}
 }

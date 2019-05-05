@@ -1,0 +1,7 @@
+messaging:
+  phone:
+    calls:
+      delivery-error: Номер заблокирован или вне зоны
+      invalid-mobile-phone: Неправильный формат номера
+      incorrect-id: Неверный id сообщения
+      unknown-error: Неизвестная ошибка
