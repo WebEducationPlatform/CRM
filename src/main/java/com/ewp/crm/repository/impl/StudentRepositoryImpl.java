@@ -24,7 +24,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     }
 
     public List<Student> getStudentsWithoutSocialProfileByType(List<SocialNetworkType> excludeSocialProfiles) {
-        return entityManager.createQuery("SELECT s FROM Student s JOIN s.client AS c JOIN c.socialProfiles AS sp JOIN sp.socialNetworkType AS spt WHERE spt NOT IN :excludes")
+        return entityManager.createQuery("SELECT s FROM Student s JOIN s.client AS c JOIN c.socialProfiles AS sp  WHERE sp.socialNetworkType NOT IN :excludes")
                 .setParameter("excludes", excludeSocialProfiles)
                 .getResultList();
     }
