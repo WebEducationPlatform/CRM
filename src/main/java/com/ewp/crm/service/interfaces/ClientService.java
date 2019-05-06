@@ -88,4 +88,6 @@ public interface ClientService extends CommonService<Client> {
 	void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDowbload, String fileName);
 
 	void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
+
+	void transferClientsBetweenOwners(User sender, User receiver);
 }

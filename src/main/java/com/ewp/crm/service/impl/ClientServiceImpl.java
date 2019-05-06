@@ -726,4 +726,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             logger.error("File not created! ", e);
         }
     }
+
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        clientRepository.transferClientsBetweenOwners(sender, receiver);
+        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
 }

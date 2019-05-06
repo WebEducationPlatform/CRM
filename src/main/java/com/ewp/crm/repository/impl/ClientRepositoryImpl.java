@@ -497,4 +497,13 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                         .getResultList();
         return orderedClients;
     }
+
+    @Transactional
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        entityManager.createQuery("UPDATE Client c SET c.ownerUser = :receiver WHERE c.ownerUser = :sender")
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+    }
 }
