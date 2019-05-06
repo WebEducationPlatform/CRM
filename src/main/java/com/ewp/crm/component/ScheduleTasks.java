@@ -134,7 +134,6 @@ public class ScheduleTasks {
 	}
 
 	private void addClientFromVk(Client newClient) {
-//		if (vkSocialType.isPresent()) {
             statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
             newClient.setState(Client.State.NEW);
             if (!newClient.getSocialProfiles().isEmpty()) {
@@ -150,9 +149,6 @@ public class ScheduleTasks {
             clientService.addClient(newClient);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
-//        } else {
-//		    logger.warn("Failed to add client from vk with id {}! Can't find social profile type by name 'vk'", newClient.getSocialProfiles().get(0).getSocialId());
-//        }
 	}
 
     @Scheduled(cron = "0 0 7 * * *")
