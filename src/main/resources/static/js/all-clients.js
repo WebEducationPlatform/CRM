@@ -79,18 +79,28 @@ $('#clientData').click(function (event) {
     event.preventDefault();
     var url = "../rest/client/createFile";
     var urlFiltration = "../rest/client/createFileFilter";
+    let selected = [];
+    $('#checkboxes input:checked').each(function () {
+        selected.push($(this).attr('value'));
+    });
+    let delimeter = $('#delimeter').val();
+    let arr = {};
+    arr['selected'] = selected;
+    arr['delimeter'] = delimeter;
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
             url: url,
-            data: {selected: $("#selectType").val()},
+            contentType: "application/json",
+            data: JSON.stringify(arr),
             success: function () {
                 window.location.replace("/rest/client/getClientsData")
             }
         });
     }
     if (!(jQuery.isEmptyObject(data))) {
-        data['selected'] = $("#selectType").val();
+        data['selectedCheckbox'] = selected;
+        data['delimeter'] = delimeter;
         $.ajax({
             type: 'POST',
             url: urlFiltration,
@@ -103,7 +113,6 @@ $('#clientData').click(function (event) {
         })
     }
 });
-
 
 let isAdmin;
 $.get('/rest/client/getPrincipal', function (user) {

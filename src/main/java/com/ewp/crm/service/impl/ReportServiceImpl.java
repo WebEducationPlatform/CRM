@@ -95,20 +95,20 @@ public class ReportServiceImpl implements ReportService {
      * @param excludeStatusesIds  список исключенных статусов
      * @return количество подходящих под критерии клиентов
      */
+
     @Override
     public int countChangedStatusClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds) {
+        int result = 0;
         Optional<Status> fromStatus = statusService.get(fromStatusId);
         Optional<Status> toStatus = statusService.get(toStatusId);
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<ClientHistory.Type> historyTypes = Collections.singletonList(ClientHistory.Type.STATUS);
-        int result = 0;
         if (fromStatus.isPresent() && toStatus.isPresent() && !toStatus.equals(fromStatus) && reportStartDate != null && reportEndDate != null) {
             reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
             reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
             // статус fromStatus для новых клиентов?
             long newClientStatus = projectProperties.getNewClientStatus();
             boolean isNewClient = newClientStatus == fromStatus.get().getId();
-            // Выбираем клиентов, которые изменили статус на заданный в выбранном периоде
             List<Client> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, toStatus.get().getName());
             for (Client client : clients) {
                 // Получаем запись истории клиента по тем же параметрам, по которым выше был отобран клиент
@@ -130,29 +130,32 @@ public class ReportServiceImpl implements ReportService {
                                     goodResult = false;
                                 }
                             }
-                            // Получаем ближайший следующий переход клиента в другой статус, если такой переход случился
-                            // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
-                            ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
-                            if (afterHistory != null) {
-                                if (clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate())) {
-                                    goodResult = false;
-                                }
-                            }
-                        }
-                        if (goodResult) {
-                            result++;
+                        } else {
+                            continue;
                         }
                     } else {
-                        // Если ищем переходы из статуса для Новых клиентов, то удостоверяемся, что ранее переходов в другие статусы не было
                         if (isNewClient) {
                             result++;
+                            continue;
                         }
+                    }
+                    // Получаем ближайший следующий переход клиента в другой статус, если такой переход случился
+                    // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
+                    ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
+                    if (afterHistory != null) {
+                        if (clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate())) {
+                            goodResult = false;
+                        }
+                    }
+                    if (goodResult) {
+                        result++;
                     }
                 }
             }
         }
         return result;
     }
+
 
     /**
      * Подсчитывает количество студентов, которые впервые совершили оплату в заданный период

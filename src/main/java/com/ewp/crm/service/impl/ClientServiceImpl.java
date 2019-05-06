@@ -7,16 +7,20 @@ import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
+import com.google.api.client.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -40,13 +44,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService) {
+                             @Lazy SlackService slackService, SocialProfileTypeService socialProfileTypeService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -57,6 +62,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @Override
@@ -545,5 +551,156 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setClientDescriptionComment(old.getClientDescriptionComment());
         client.setLiveSkypeCall(old.isLiveSkypeCall());
         return client;
+    }
+
+    @Override
+    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
+        StringBuilder fileName = new StringBuilder();
+        if (status != null) {
+            fileName.append(status.getName()).append("_");
+        }
+
+        for (String selectedCheckbox : selectedCheckboxes) {
+            fileName.append(selectedCheckbox).append("_");
+        }
+
+        if (!Strings.isNullOrEmpty(delimeter)) {
+            fileName.append(delimeter).append(".txt");
+        } else {
+            fileName.append("without_delimeter").append(".txt");
+        }
+
+        return Optional.of(fileName.toString());
+    }
+
+    @Override
+    public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = filteringCondition.getDelimeter();
+
+        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("Text file for filtered clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Text file for filtered clients not created!", e);
+        }
+
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialNetwork : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialNetwork).isPresent()) {
+                    filteringCondition.setChecked(checkedSocialNetwork);
+                    List<String> socialNetworkLinks = getFilteredClientsSNLinks(filteringCondition);
+                    for (String socialNetworkLink : socialNetworkLinks) {
+                        if (!Strings.isNullOrEmpty(socialNetworkLink)) {
+                            bufferedWriter.write(socialNetworkLink + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getFilteredClientsEmail(filteringCondition);
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getFilteredClientsPhoneNumber(filteringCondition);
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+
+    }
+
+    @Override
+    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = conditionToDownload.getDelimeter();
+
+        if (Strings.isNullOrEmpty(delimeter)) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("File for clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Can't create file", e);
+        }
+
+        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialType : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialType).isPresent()) {
+                    List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(checkedSocialType).get().getSocialProfileList();
+                    for (SocialProfile socialProfile : socialProfiles) {
+                        if (!Strings.isNullOrEmpty(socialProfile.getSocialId())) {
+                            bufferedWriter.write(socialProfile.getSocialId() + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getClientsEmails();
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getClientsPhoneNumbers();
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
     }
 }

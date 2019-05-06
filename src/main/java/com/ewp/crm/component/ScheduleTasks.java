@@ -132,47 +132,52 @@ public class ScheduleTasks {
 		this.slackService = slackService;
 		this.projectProperties = projectPropertiesService.getOrCreate();
 	}
-	private void addClient(Client newClient) {
-		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
-		newClient.setState(Client.State.NEW);
-		newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
-		clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
-		vkService.fillClientFromProfileVK(newClient);
-		Optional<String> optionalEmail = newClient.getEmail();
-		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
-			newClient.setEmail(null);
-		}
-		clientService.addClient(newClient);
-		sendNotificationService.sendNewClientNotification(newClient, "vk");
-		logger.info("New client with id{} has added from VK", newClient.getId());
+
+	private void addClientFromVk(Client newClient) {
+//		if (vkSocialType.isPresent()) {
+            statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
+            newClient.setState(Client.State.NEW);
+            if (!newClient.getSocialProfiles().isEmpty()) {
+                newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
+            }
+            clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
+            vkService.fillClientFromProfileVK(newClient);
+            Optional<String> optionalEmail = newClient.getEmail();
+            if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
+                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
+                newClient.setEmail(null);
+            }
+            clientService.addClient(newClient);
+            sendNotificationService.sendNewClientNotification(newClient, "vk");
+            logger.info("New client with id {} has added from VK", newClient.getId());
+//        } else {
+//		    logger.warn("Failed to add client from vk with id {}! Can't find social profile type by name 'vk'", newClient.getSocialProfiles().get(0).getSocialId());
+//        }
 	}
 
-	@Scheduled(cron = "0 0 7 * * *")
-	private void sendBirthdayMails() {
-		MessageTemplate messageTemplateBirthDay = projectProperties.getBirthDayMessageTemplate();
-		if(messageTemplateBirthDay == null){
-			logger.error("Нe установлен шаблон для поздравления с днем рождения");
-			return;
-		}
-		String messageBirthDay = messageTemplateBirthDay.getOtherText();
-		LocalDate today = LocalDate.now();
-		int dayOfMonthToday = today.getDayOfMonth();
-		int monthToday = today.getMonthValue();
+    @Scheduled(cron = "0 0 7 * * *")
+    private void sendBirthdayMails() {
+        Optional<MessageTemplate> messageTemplateBirthDay = Optional.ofNullable(projectProperties.getBirthDayMessageTemplate());
+        if (messageTemplateBirthDay.isPresent()) {
+            String messageBirthDay = messageTemplateBirthDay.get().getOtherText();
+            LocalDate today = LocalDate.now();
+            int dayOfMonthToday = today.getDayOfMonth();
+            int monthToday = today.getMonthValue();
 
-		List<Client> clients = clientService.getAll();
-		for (Client currentClient : clients) {
-			LocalDate birthDate = currentClient.getBirthDate();
-			int clientDayOfBirth = birthDate.getDayOfMonth();
-			int monthOfBirth = birthDate.getMonthValue();
+            List<Client> clients = clientService.getAll();
+            for (Client currentClient : clients) {
+                LocalDate birthDate = currentClient.getBirthDate();
+                int clientDayOfBirth = birthDate.getDayOfMonth();
+                int monthOfBirth = birthDate.getMonthValue();
 
-			if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
-				if (currentClient.getEmail().isPresent() && !currentClient.getEmail().get().isEmpty()) {
-					mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
-				}
-			}
-		}
-	}
+                if ((dayOfMonthToday == clientDayOfBirth) && (monthToday == monthOfBirth)) {
+                    if (currentClient.getEmail().isPresent() && !currentClient.getEmail().get().isEmpty()) {
+                        mailSendService.sendSimpleNotification(currentClient.getId(), messageBirthDay);
+                    }
+                }
+            }
+        }
+    }
 
 	@Scheduled(fixedRate = 15_000)
 	private void checkCallInSkype() {
@@ -234,7 +239,7 @@ public class ScheduleTasks {
 							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
 							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
 							newClient.addHistory(clientHistory);
-							addClient(newClient);
+							addClientFromVk(newClient);
 						} catch (ParseClientException e) {
 							logger.error(e.getMessage());
 						}
@@ -276,7 +281,7 @@ public class ScheduleTasks {
 				if (newClient.isPresent()) {
 					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
 					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
-						addClient(newClient.get());
+						addClientFromVk(newClient.get());
 					}
 				}
 			}
