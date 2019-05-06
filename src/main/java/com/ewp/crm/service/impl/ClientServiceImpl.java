@@ -44,14 +44,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
-    private final SocialProfileTypeService socialProfileTypeService;
+
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService, SocialProfileTypeService socialProfileTypeService) {
+                             @Lazy SlackService slackService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -62,7 +62,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
-        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @Override
@@ -605,7 +604,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         try (FileWriter fileWriter = new FileWriter(file);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             for (String checkedSocialNetwork : checkedData) {
-                if (socialProfileTypeService.getByTypeName(checkedSocialNetwork).isPresent()) {
                     filteringCondition.setChecked(checkedSocialNetwork);
                     List<String> socialNetworkLinks = getFilteredClientsSNLinks(filteringCondition);
                     for (String socialNetworkLink : socialNetworkLinks) {
@@ -614,7 +612,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                         }
                     }
                     bufferedWriter.write(delimeter + separator);
-                }
             }
 
             if (checkedData.contains("email")) {
@@ -671,8 +668,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         try (FileWriter fileWriter = new FileWriter(file);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             for (String checkedSocialType : checkedData) {
-                if (socialProfileTypeService.getByTypeName(checkedSocialType).isPresent()) {
-                    List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(checkedSocialType).get().getSocialProfileList();
+                if (socialProfileService.getAllByTypeName(checkedSocialType).isPresent()) {
+                    List<SocialProfile> socialProfiles = socialProfileService.getAllByTypeName(checkedSocialType).get();
                     for (SocialProfile socialProfile : socialProfiles) {
                         if (!Strings.isNullOrEmpty(socialProfile.getSocialId())) {
                             bufferedWriter.write(socialProfile.getSocialId() + separator);
