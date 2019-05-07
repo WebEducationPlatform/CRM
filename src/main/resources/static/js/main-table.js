@@ -2205,7 +2205,7 @@ function createContractSetting() {
 // Fill table with radiobuttons and show modal window
 function fillUsersTableForDelete(button) {
     deleted = $(button).data('id');
-    var url = '/rest/user';
+    var url = '/rest/users';
     $.ajax({
         type: 'get',
         url: url,
