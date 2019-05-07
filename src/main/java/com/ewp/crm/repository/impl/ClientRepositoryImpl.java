@@ -340,11 +340,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getDateFrom() != null) {
-            query.append(" and cl.dateOfRegistration >= '").append(filteringCondition.getDateFrom()).append("'");
+            query.append(" and cl.date >= '").append(filteringCondition.getDateFrom()).append("'");
         }
 
         if (filteringCondition.getDateTo() != null) {
-            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+            query.append(" and cl.date <= '").append(filteringCondition.getDateTo()).append("'");
         }
 
         if (filteringCondition.getStatus() != null) {
@@ -507,3 +507,4 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .executeUpdate();
     }
 }
+
