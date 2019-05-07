@@ -443,18 +443,4 @@ public class ScheduleTasks {
 		logger.info("Scheduled task to add next VK friend for all campaigns been fired");
 		vkCampaignService.nextAttemptCycle();
 	}
-
-	@Scheduled(fixedDelay = 1000)
-	private void testMessages() {
-
-
-
-		String s1 = env.getProperty("messaging.phone.calls.delivery-error");
-		String s2 = env.getProperty("messaging.phone.calls.invalid-mobile-phone");
-		String s3 = env.getProperty("messaging.phone.calls.incorrect-id");
-		String s4 = env.getProperty("messaging.phone.calls.unknown-error");
-
-		System.out.println("blop");
-
-	}
 }
