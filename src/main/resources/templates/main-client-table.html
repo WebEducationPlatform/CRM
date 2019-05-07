@@ -362,7 +362,8 @@
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}"
+                                                th:attr="data-id=${usr.id}"
+                                                onclick="fillUsersTableForDelete(this)"
                                                 sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
