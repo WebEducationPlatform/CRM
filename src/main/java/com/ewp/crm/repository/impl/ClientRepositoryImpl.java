@@ -32,7 +32,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
-    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
+    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR e LIKE :search OR p LIKE :search OR c.skype LIKE :search) ";
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -447,7 +447,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
-        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles s WHERE");
+        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles AS s LEFT JOIN c.clientEmails AS e LEFT JOIN c.clientPhones AS p WHERE");
         String[] searchWords = search.split(" ");
         for (int i = 0; i < searchWords.length; i++) {
             searchString.append(queryPattern.replace("search", "search" + i));
@@ -497,4 +497,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                         .getResultList();
         return orderedClients;
     }
+
+    @Transactional
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        entityManager.createQuery("UPDATE Client c SET c.ownerUser = :receiver WHERE c.ownerUser = :sender")
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+    }
 }
+

@@ -35,6 +35,13 @@ public class UserRestController {
 		return ResponseEntity.ok(users);
 	}
 
+	@GetMapping(value = "/rest/users", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<User>> getAllUsers() {
+		List <User> users = userService.getAll();
+		return ResponseEntity.ok(users);
+	}
+
 	@GetMapping(value = {"/user/socialNetworkTypes"})
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {

@@ -299,13 +299,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail().get()));
         }
 
-        if ((client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty())) {
-            client.setPhoneNumber(null);
-        }
-        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
-            client.setEmail(null);
-        }
-
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
@@ -414,12 +407,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
-        if (client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty()) {
-            client.setPhoneNumber(null);
-        }
-        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
-            client.setEmail(null);
-        }
         //checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
@@ -516,13 +503,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setLastName(contractForm.getInputLastName());
         client.setBirthDate(contractForm.getInputBirthday());
         String email = contractForm.getInputEmail();
+        client.setId(old.getId());
         if (!email.isEmpty()) {
             Optional<Client> checkEmailClient = getClientByEmail(email);
             if (checkEmailClient.isPresent()) {
                 Client clientDelEmail = checkEmailClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelEmail::addHistory);
-                clientDelEmail.setEmail(null);
+                List<String> listWithCurrentEmail = clientDelEmail.getClientEmails();
+                listWithCurrentEmail.remove(email);
+                clientDelEmail.setClientEmails(listWithCurrentEmail);
                 update(clientDelEmail);
             }
             client.setEmail(email);
@@ -535,7 +525,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 Client clientDelPhone = checkPhoneClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelPhone::addHistory);
-                clientDelPhone.setPhoneNumber(null);
+                List<String> listWithCurrentPhone = clientDelPhone.getClientPhones();
+                listWithCurrentPhone.remove(validatedPhone);
+                clientDelPhone.setClientPhones(listWithCurrentPhone);
                 update(clientDelPhone);
             }
             client.setPhoneNumber(validatedPhone);
@@ -546,7 +538,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             passport.setClient(client);
             client.setPassport(passport);
         }
-        client.setId(old.getId());
         client.setStatus(old.getStatus());
         client.setSocialProfiles(old.getSocialProfiles());
         client.setCountry(old.getCountry());
@@ -568,6 +559,166 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setCallRecords(old.getCallRecords());
         client.setClientDescriptionComment(old.getClientDescriptionComment());
         client.setLiveSkypeCall(old.isLiveSkypeCall());
+        client.setSlackInviteLink(old.getSlackInviteLink());
         return client;
     }
+
+
+    @Override
+    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
+        StringBuilder fileName = new StringBuilder();
+        if (status != null) {
+            fileName.append(status.getName()).append("_");
+        }
+
+        for (String selectedCheckbox : selectedCheckboxes) {
+            fileName.append(selectedCheckbox).append("_");
+        }
+
+        if (!Strings.isNullOrEmpty(delimeter)) {
+            fileName.append(delimeter).append(".txt");
+        } else {
+            fileName.append("without_delimeter").append(".txt");
+        }
+
+        return Optional.of(fileName.toString());
+    }
+
+    @Override
+    public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = filteringCondition.getDelimeter();
+
+        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("Text file for filtered clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Text file for filtered clients not created!", e);
+        }
+
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialNetwork : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialNetwork).isPresent()) {
+                    filteringCondition.setChecked(checkedSocialNetwork);
+                    List<String> socialNetworkLinks = getFilteredClientsSNLinks(filteringCondition);
+                    for (String socialNetworkLink : socialNetworkLinks) {
+                        if (!Strings.isNullOrEmpty(socialNetworkLink)) {
+                            bufferedWriter.write(socialNetworkLink + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getFilteredClientsEmail(filteringCondition);
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getFilteredClientsPhoneNumber(filteringCondition);
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+
+    }
+
+    @Override
+    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = conditionToDownload.getDelimeter();
+
+        if (Strings.isNullOrEmpty(delimeter)) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("File for clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Can't create file", e);
+        }
+
+        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialType : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialType).isPresent()) {
+                    List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(checkedSocialType).get().getSocialProfileList();
+                    for (SocialProfile socialProfile : socialProfiles) {
+                        if (!Strings.isNullOrEmpty(socialProfile.getSocialId())) {
+                            bufferedWriter.write(socialProfile.getSocialId() + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getClientsEmails();
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getClientsPhoneNumbers();
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+    }
+
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        clientRepository.transferClientsBetweenOwners(sender, receiver);
+        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
+
 }
