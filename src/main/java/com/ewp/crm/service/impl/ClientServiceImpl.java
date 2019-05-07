@@ -7,6 +7,7 @@ import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
+import com.google.api.client.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -571,7 +576,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return client;
     }
 
-
     @Override
     public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
         StringBuilder fileName = new StringBuilder();
@@ -728,5 +732,4 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.transferClientsBetweenOwners(sender, receiver);
         logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
     }
-
 }
