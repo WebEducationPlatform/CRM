@@ -1,6 +1,5 @@
 package com.ewp.crm.component;
 
-import com.ewp.crm.configs.MessagesSource;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
@@ -93,8 +92,6 @@ public class ScheduleTasks {
 
 	private String adReportTemplate;
 
-	private final MessagesSource messagesSource;
-
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
 						 YouTubeTrackingCardService youTubeTrackingCardService,
@@ -108,7 +105,7 @@ public class ScheduleTasks {
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
-						 SlackService slackService, MessagesSource messagesSource) {
+						 SlackService slackService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -137,7 +134,6 @@ public class ScheduleTasks {
 		this.telegramService = telegramService;
 		this.slackService = slackService;
 		this.projectProperties = projectPropertiesService.getOrCreate();
-        this.messagesSource = messagesSource;
 	}
 	private void addClient(Client newClient) {
 		statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
@@ -362,16 +358,16 @@ public class ScheduleTasks {
 		String info;
 		switch (status) {
 			case "delivery error":
-				info = messagesSource.getDeliveryError();
+				info = env.getProperty("messaging.phone.calls.delivery-error");
 				break;
 			case "invalid mobile phone":
-				info = messagesSource.getInvalidMobilePhone();
+				info = env.getProperty("messaging.phone.calls.invalid-mobile-phone");
 				break;
 			case "incorrect id":
-				info = messagesSource.getIncorrectId();
+				info = env.getProperty("messaging.phone.calls.incorrect-id");
 				break;
 			default:
-				info = messagesSource.getUnknownError();
+				info = env.getProperty("messaging.phone.calls.unknown-error");
 		}
 		return info;
 	}
@@ -448,13 +444,17 @@ public class ScheduleTasks {
 		vkCampaignService.nextAttemptCycle();
 	}
 
-	@Scheduled(fixedDelay = 60000)
+	@Scheduled(fixedDelay = 1000)
 	private void testMessages() {
 
-		String s1 = messagesSource.getDeliveryError();
-		String s2 = messagesSource.getInvalidMobilePhone();
-		String s3 = messagesSource.getIncorrectId();
-		String s4 = messagesSource.getUnknownError();
+
+
+		String s1 = env.getProperty("messaging.phone.calls.delivery-error");
+		String s2 = env.getProperty("messaging.phone.calls.invalid-mobile-phone");
+		String s3 = env.getProperty("messaging.phone.calls.incorrect-id");
+		String s4 = env.getProperty("messaging.phone.calls.unknown-error");
+
+		System.out.println("blop");
 
 	}
 }
