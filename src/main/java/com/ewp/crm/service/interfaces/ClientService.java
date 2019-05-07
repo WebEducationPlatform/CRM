@@ -90,5 +90,4 @@ public interface ClientService extends CommonService<Client> {
 	void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
-
 }

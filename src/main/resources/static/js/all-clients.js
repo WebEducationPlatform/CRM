@@ -44,7 +44,6 @@ $('#filtration').click(function () {
     page = 1;
     data = {};
     var url = "../rest/client/filtration";
-    let urlToGetClientsWithoutPagination = "../rest/client/filtrationWithoutPagination";
 
     if ($('#sex').val() !== "") {
         data['sex'] = $('#sex').val();
@@ -66,21 +65,9 @@ $('#filtration').click(function () {
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
-            $.ajax({
-                type: 'POST',
-                contentType: "application/json",
-                dataType: 'json',
-                url: urlToGetClientsWithoutPagination,
-                data: JSON.stringify(data),
-                success: function (res) {
-                    drawNumberOfClients(res);
-                    document.getElementById("divToFiltration").style.display = "block";
-                }
-            })
             var body = $("#table-body");
             clearClientsTable();
             drawClients(body, res);
-            res.length;
         },
         error: function (error) {
             console.log(error);
@@ -148,15 +135,8 @@ function drawDefaultClients() {
     })
 }
 
-function drawNumberOfClients(count){
-    var divToWrite = document.getElementById('divToFiltration'),
-    textWriteTodiv='По вашему запросу найдено людей : ' + count.length;
-    divToWrite.innerHTML = textWriteTodiv
-}
-
 //при закрытии фильтра отображаем дефолтный вывод таблицы
 $("#open-filter").click(function () {
-    document.getElementById("divToFiltration").style.display = "none";
     if ($("#filter").hasClass('in')) {
         drawDefaultClients();
     }
