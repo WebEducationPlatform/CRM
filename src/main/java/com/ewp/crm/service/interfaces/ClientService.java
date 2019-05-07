@@ -82,10 +82,4 @@ public interface ClientService extends CommonService<Client> {
 	Optional<Comment> getLastComment(Client client);
 
 	Optional<ClientHistory> getLastHistory(Client client);
-
-	Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status);
-
-	void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDowbload, String fileName);
-
-	void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
 }

@@ -990,3 +990,8 @@ textarea[class*="feedback-video-url"] {
 #tbody-all-feedback-table textarea[class*="feedback-video-url"] {
 	max-width: 230px;
 }
+
+#divToFiltration{
+	text-align: center;
+	display: none;
+}
