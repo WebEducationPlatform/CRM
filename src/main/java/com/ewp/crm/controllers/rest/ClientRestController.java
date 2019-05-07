@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,7 +44,9 @@ public class ClientRestController {
 	private final StatusService statusService;
 	private final StudentService studentService;
 	private final StudentStatusService studentStatusService;
+	private final ReportService reportService;
 	private String fileName;
+	private final ClientRepository clientRepository;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -56,7 +60,9 @@ public class ClientRestController {
                                 ProjectPropertiesService propertiesService,
 								StatusService statusService,
                                 StudentService studentService,
-                                StudentStatusService studentStatusService) {
+                                StudentStatusService studentStatusService,
+								ReportService reportService,
+								ClientRepository clientRepository) {
         this.clientService = clientService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
@@ -66,6 +72,9 @@ public class ClientRestController {
         this.statusService = statusService;
 		this.studentService = studentService;
 		this.studentStatusService = studentStatusService;
+		this.reportService = reportService;
+		this.fileName = new String();
+		this.clientRepository = clientRepository;
 	}
 
 	@GetMapping(value = "/slack-invite-link/{clientId}")
@@ -157,11 +166,10 @@ public class ClientRestController {
 
 	@GetMapping(value = "/getClientsData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-	public ResponseEntity<InputStreamResource> getClientsData() {
-        //TODO test cross-platform separator
+	public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
 		String path = "DownloadData" + File.separator;
 		File file = new File(path + fileName);
-
+        String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8");
 		InputStreamResource resource = null;
 		try {
 			resource = new InputStreamResource(new FileInputStream(file));
@@ -170,7 +178,7 @@ public class ClientRestController {
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION,
-						"attachment;filename=" + file.getName())
+						"attachment;filename=" + encodedFileName)
 				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
 				.body(resource);
 	}
@@ -268,21 +276,28 @@ public class ClientRestController {
 		return ResponseEntity.ok(clients);
 	}
 
+	@PostMapping(value = "/filtrationWithoutPagination", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<Client>> getAllWithConditionsWithoutPagination(@RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+		return ResponseEntity.ok(clients);
+	}
+
 	@PostMapping(value = "/createFile")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFile(@RequestBody ConditionToDownload conditionToDownload) {
-		fileName = clientService.getFileName(conditionToDownload.getSelected(),
+		fileName = reportService.getFileName(conditionToDownload.getSelected(),
 				conditionToDownload.getDelimeter(), null).get();
-		clientService.writeToFileWithConditionToDonwload(conditionToDownload, fileName);
+		reportService.writeToFileWithConditionToDonwload(conditionToDownload, fileName);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-		fileName = clientService.getFileName(filteringCondition.getSelectedCheckbox(),
+		fileName = reportService.getFileName(filteringCondition.getSelectedCheckbox(),
 				filteringCondition.getDelimeter(), filteringCondition.getStatus()).get();
-		clientService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+		reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
