@@ -134,7 +134,7 @@ public class ClientController {
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) && sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
+        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) || sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
             modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
             modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
             modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
