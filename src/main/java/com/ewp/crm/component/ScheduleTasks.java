@@ -149,7 +149,6 @@ public class ScheduleTasks {
             Optional<String> optionalEmail = newClient.getEmail();
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
                 newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
-                newClient.setEmail(null);
             }
             clientService.addClient(newClient);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
