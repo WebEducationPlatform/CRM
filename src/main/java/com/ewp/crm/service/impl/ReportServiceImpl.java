@@ -28,19 +28,16 @@ public class ReportServiceImpl implements ReportService {
     private final StatusService statusService;
     private final ProjectProperties projectProperties;
     private final ClientService clientService;
-    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository,
                              StatusService statusService,
                              ProjectPropertiesService projectPropertiesService,
-                             ClientService clientService,
-                             SocialProfileTypeService socialProfileTypeService) {
+                             ClientService clientService) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.clientService = clientService;
-        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     /**
@@ -279,11 +276,9 @@ public class ReportServiceImpl implements ReportService {
                 List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
-                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
-                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
-                            if (clientSocialProfileType.getName().equals("vk")) {
-                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
                                 continue;
                             }
                             writer.write(clientSocialProfile.getSocialId() + delimeter);
@@ -360,11 +355,9 @@ public class ReportServiceImpl implements ReportService {
                 List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
-                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
-                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
-                            if (clientSocialProfileType.getName().equals("vk")) {
-                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
                                 continue;
                             }
                             writer.write(clientSocialProfile.getSocialId() + delimeter);
