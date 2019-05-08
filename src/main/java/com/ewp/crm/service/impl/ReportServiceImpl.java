@@ -41,13 +41,18 @@ public class ReportServiceImpl implements ReportService {
      * @return количество найденных клиентов
      */
     @Override
-    public int countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
+    public String countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
-        return clients.size();
+        int quantityAllNewClients = clients.size();
+        clients.removeIf(client -> (
+                client.getClientDescriptionComment() != null
+                        && (client.getClientDescriptionComment().equals("Клиент оставил повторную заявку")
+                        || (client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")))));
+        return "Новых клиентов " + quantityAllNewClients + ", из них " + (quantityAllNewClients - clients.size()) + " оставили посторную заявку.";
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
