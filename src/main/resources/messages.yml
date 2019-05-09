@@ -1,7 +1,15 @@
 messaging:
-  phone:
-    calls:
-      delivery-error: Номер заблокирован или вне зоны
-      invalid-mobile-phone: Неправильный формат номера
-      incorrect-id: Неверный id сообщения
-      unknown-error: Неизвестная ошибка
+  client:
+    email:
+      error-in-field: "Возможно клиент допустил ошибку в поле Email: "
+    birthday:
+      template-not-set: Нe установлен шаблон для поздравления с днем рождения
+    phone:
+      sms:
+        status-not-found: Клиент не найден
+        status-delivered: доставлено
+      calls:
+        delivery-error: Номер заблокирован или вне зоны
+        invalid-mobile-phone: Неправильный формат номера
+        incorrect-id: Неверный id сообщения
+        unknown-error: Неизвестная ошибка
