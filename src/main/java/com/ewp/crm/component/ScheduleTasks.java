@@ -143,7 +143,7 @@ public class ScheduleTasks {
 		vkService.fillClientFromProfileVK(newClient);
 		Optional<String> optionalEmail = newClient.getEmail();
 		if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
+			newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
 			newClient.setEmail(null);
 		}
 		clientService.addClient(newClient);
@@ -155,7 +155,7 @@ public class ScheduleTasks {
 	private void sendBirthdayMails() {
 		MessageTemplate messageTemplateBirthDay = projectProperties.getBirthDayMessageTemplate();
 		if(messageTemplateBirthDay == null){
-			logger.error("Нe установлен шаблон для поздравления с днем рождения");
+			logger.error("messaging.client.birthday.template-not-set");
 			return;
 		}
 		String messageBirthDay = messageTemplateBirthDay.getOtherText();
@@ -338,10 +338,10 @@ public class ScheduleTasks {
 			if (status.isPresent()) {
 				if (!status.get().equals("queued")) {
 					if (status.get().equals("delivered")) {
-						sms.setDeliveryStatus("доставлено");
+						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.delivered"));
 					} else if (sms.getClient() == null) {
 						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-						sms.setDeliveryStatus("Клиент не найден");
+						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.status-not-found"));
 					} else {
 						String deliveryStatus = determineStatusOfResponse(status.get());
 						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
@@ -358,16 +358,16 @@ public class ScheduleTasks {
 		String info;
 		switch (status) {
 			case "delivery error":
-				info = env.getProperty("messaging.phone.calls.delivery-error");
+				info = env.getProperty("messaging.client.phone.calls.delivery-error");
 				break;
 			case "invalid mobile phone":
-				info = env.getProperty("messaging.phone.calls.invalid-mobile-phone");
+				info = env.getProperty("messaging.client.phone.calls.invalid-mobile-phone");
 				break;
 			case "incorrect id":
-				info = env.getProperty("messaging.phone.calls.incorrect-id");
+				info = env.getProperty("messaging.client.phone.calls.incorrect-id");
 				break;
 			default:
-				info = env.getProperty("messaging.phone.calls.unknown-error");
+				info = env.getProperty("messaging.client.phone.calls.unknown-error");
 		}
 		return info;
 	}
