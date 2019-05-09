@@ -211,7 +211,7 @@ public class ReportServiceImpl implements ReportService {
         if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")){
                 fileName.append(delimeter).append(".txt");
         } else {
-            fileName.append("without_normal_delimeter").append(".txt");
+            fileName.append(".txt");
         }
         return Optional.of(fileName.toString());
     }
