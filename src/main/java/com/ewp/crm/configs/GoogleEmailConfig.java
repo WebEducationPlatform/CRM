@@ -1,4 +1,4 @@
-package com.ewp.crm.service.email;
+package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
@@ -32,7 +32,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableIntegration
-public class GoogleEmail {
+public class GoogleEmailConfig {
 
     private String login;
     private String password;
@@ -53,10 +53,10 @@ public class GoogleEmail {
     private final SendNotificationService sendNotificationService;
 
 
-    private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
+    private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
 
     @Autowired
-    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
+    public GoogleEmailConfig(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
