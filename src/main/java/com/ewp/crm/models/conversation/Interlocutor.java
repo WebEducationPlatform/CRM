@@ -1,4 +1,4 @@
-package com.ewp.crm.service.conversation;
+package com.ewp.crm.models.conversation;
 
 public class Interlocutor {
 
