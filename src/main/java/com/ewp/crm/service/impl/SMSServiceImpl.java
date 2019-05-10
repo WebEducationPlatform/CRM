@@ -216,12 +216,17 @@ public class SMSServiceImpl implements SMSService {
 	private JSONObject buildMessage(Client client, String text) {
 		logger.info("{} building messages...", SMSServiceImpl.class.getName());
 		JSONObject jsonObject = new JSONObject();
-		try {
-			jsonObject.put("phone", client.getPhoneNumber());
-			jsonObject.put("sender", smsConfig.getAlphaName());
-			jsonObject.put("text", text);
-		} catch (JSONException e) {
-			logger.error("Can`t build JSON message {}", e.getMessage());
+		Optional<String> phoneOptional = client.getPhoneNumber();
+		if (phoneOptional.isPresent() && !phoneOptional.get().isEmpty()) {
+			try {
+				jsonObject.put("phone", phoneOptional.get());
+				jsonObject.put("sender", smsConfig.getAlphaName());
+				jsonObject.put("text", text);
+			} catch (JSONException e) {
+				logger.error("Can`t build JSON message {}", e.getMessage());
+			}
+		} else {
+			logger.error("Can`t build JSON message, client id {} phone number not found", client.getId());
 		}
 		return jsonObject;
 	}

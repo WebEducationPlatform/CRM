@@ -62,11 +62,18 @@ public class ContractController {
                 ContractSetting setting = contractSettingService.getByHash(hash).get();
                 Long clientId = setting.getClientId();
                 //Работа с договором и получение ссылки на него
-                Optional<Map<String,String>> optionalMap = contractService.getContractIdByFormDataWithSetting(data, setting);
-                if (optionalMap.isPresent()) {
+                Map<String,String> contractDataMap = contractService.getContractIdByFormDataWithSetting(data, setting);
+                if (!contractDataMap.isEmpty()) {
                     clientService.updateClientFromContractForm(clientService.get(clientId), data, setting.getUser());
-                    String docLink = googleAPIConfig.getDocsUri() + optionalMap.get().get("contractId") + "/edit?usp=sharing";
-                    clientService.setContractLink(clientId, docLink, optionalMap.get().get("contractName"));
+                    String docLink;
+                    String googleDocUrl = googleAPIConfig.getDocsUri();
+                    String googleContractId = contractDataMap.get("contractId");
+                    if (setting.isStamp()) {
+                        docLink = googleAPIConfig.getViewUri() + googleDocUrl + googleContractId + "/export?format=pdf";
+                    } else {
+                        docLink = googleDocUrl + googleContractId + "/edit?usp=sharing";
+                    }
+                    clientService.setContractLink(clientId, docLink, contractDataMap.get("contractName"));
                     ProjectProperties current = projectPropertiesService.get();
                     if (current.getContractTemplate() != null) {
                         mailSendService.prepareAndSend(clientId, current.getContractTemplate().getTemplateText(), StringUtils.EMPTY, null);

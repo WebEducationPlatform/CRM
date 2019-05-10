@@ -339,5 +339,30 @@ public class DataInitializer {
         vkRequestFormService.addVkRequestForm(vkRequestForm3);
         vkRequestFormService.addVkRequestForm(vkRequestForm4);
         vkRequestFormService.addVkRequestForm(vkRequestForm5);
+
+
+
+        Client clientN2 = clientService.get(2L);
+        List<String> emails = new ArrayList<>();
+        emails.add("yabloko@mail.ru");
+        emails.add("apricot@mail.ru");
+        emails.add("gribok@mail.ru");
+        emails.add("zibra@mail.ru");
+        emails.add("cemel@mail.ru");
+        List<String> phones = new ArrayList<>();
+        phones.add("7-123123123");
+        phones.add("7-345345345");
+        phones.add("7-567567567");
+        phones.add("7-789789789");
+        clientN2.setClientEmails(emails);
+        clientN2.setClientPhones(phones);
+        clientService.update(clientN2);
+        clientN2.setEmail("miqolay@gmail.com");
+        clientN2.setPhoneNumber("79080584002");
+        clientService.update(clientN2);
+        Client nulli = new Client("Nulli", "Nullov" );
+        System.out.println(nulli.getEmail().orElse("no Email"));
+        System.out.println(clientN2.getEmail().orElse("not found"));
+
     }
 }

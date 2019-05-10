@@ -82,4 +82,7 @@ public interface ClientService extends CommonService<Client> {
 	Optional<Comment> getLastComment(Client client);
 
 	Optional<ClientHistory> getLastHistory(Client client);
+
+	void transferClientsBetweenOwners(User sender, User receiver);
+
 }

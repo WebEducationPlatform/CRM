@@ -1,4 +1,4 @@
-#msg_pop{
+#birthday-template-status{
     background-color: rgba(79, 26, 30, 0.7);
     display: none;
     position: fixed;
@@ -17,7 +17,7 @@
     -moz-border-radius: 15px;
     border-radius: 15px;
 }
-#msg_pop2 {
+#msg_status_to_new_clients {
     background-color: rgba(79, 26, 30, 0.7);
     display: none;
     position: fixed;
@@ -57,13 +57,13 @@
     border-radius: 15px;
 }
 
-#msg_pop h4{
+#birthday-template-status h4{
     margin:0;
     text-align:center;
     font-size:15px;
 }
 
-#msg_pop2 h4{
+#msg_status_to_new_client h4{
     margin:0;
     text-align:center;
     font-size:15px;
