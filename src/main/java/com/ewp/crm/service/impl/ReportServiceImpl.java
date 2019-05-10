@@ -1,18 +1,20 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.ReportService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
+import com.google.api.client.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -25,19 +27,27 @@ public class ReportServiceImpl implements ReportService {
     private final ClientRepository clientRepository;
     private final StatusService statusService;
     private final ProjectProperties projectProperties;
+    private final ClientService clientService;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
-    public ReportServiceImpl(ClientRepository clientRepository, StatusService statusService, ProjectPropertiesService projectPropertiesService) {
+    public ReportServiceImpl(ClientRepository clientRepository,
+                             StatusService statusService,
+                             ProjectPropertiesService projectPropertiesService,
+                             ClientService clientService,
+                             SocialProfileTypeService socialProfileTypeService) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
         this.projectProperties = projectPropertiesService.getOrCreate();
+        this.clientService = clientService;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     /**
      * Подсчитывает количество клиентов в статусе "новые" за период
      *
      * @param reportStartDate дата начала отчетного периода
-     * @param reportEndDate  дата окончания отчетного периода
+     * @param reportEndDate   дата окончания отчетного периода
      * @return количество найденных клиентов
      */
     @Override
@@ -88,27 +98,27 @@ public class ReportServiceImpl implements ReportService {
      * Также проверяет, не являлся ли переход в статус ошибочным. В случае, если клиент вернулся в исходных статус в течение
      * 24 часов с момента смены статуса, то считается, что смена статуса была ошибочной
      *
-     * @param reportStartDate     дата начала отчетного периода
-     * @param reportEndDate       дата окончания отчетного периода
-     * @param fromStatusId        исходный статус клиента
-     * @param toStatusId          конечный статус клиента
-     * @param excludeStatusesIds  список исключенных статусов
+     * @param reportStartDate    дата начала отчетного периода
+     * @param reportEndDate      дата окончания отчетного периода
+     * @param fromStatusId       исходный статус клиента
+     * @param toStatusId         конечный статус клиента
+     * @param excludeStatusesIds список исключенных статусов
      * @return количество подходящих под критерии клиентов
      */
+
     @Override
     public int countChangedStatusClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds) {
+        int result = 0;
         Optional<Status> fromStatus = statusService.get(fromStatusId);
         Optional<Status> toStatus = statusService.get(toStatusId);
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<ClientHistory.Type> historyTypes = Collections.singletonList(ClientHistory.Type.STATUS);
-        int result = 0;
         if (fromStatus.isPresent() && toStatus.isPresent() && !toStatus.equals(fromStatus) && reportStartDate != null && reportEndDate != null) {
             reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
             reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
             // статус fromStatus для новых клиентов?
             long newClientStatus = projectProperties.getNewClientStatus();
             boolean isNewClient = newClientStatus == fromStatus.get().getId();
-            // Выбираем клиентов, которые изменили статус на заданный в выбранном периоде
             List<Client> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, toStatus.get().getName());
             for (Client client : clients) {
                 // Получаем запись истории клиента по тем же параметрам, по которым выше был отобран клиент
@@ -130,23 +140,25 @@ public class ReportServiceImpl implements ReportService {
                                     goodResult = false;
                                 }
                             }
-                            // Получаем ближайший следующий переход клиента в другой статус, если такой переход случился
-                            // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
-                            ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
-                            if (afterHistory != null) {
-                                if (clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate())) {
-                                    goodResult = false;
-                                }
-                            }
-                        }
-                        if (goodResult) {
-                            result++;
+                        } else {
+                            continue;
                         }
                     } else {
-                        // Если ищем переходы из статуса для Новых клиентов, то удостоверяемся, что ранее переходов в другие статусы не было
                         if (isNewClient) {
                             result++;
+                            continue;
                         }
+                    }
+                    // Получаем ближайший следующий переход клиента в другой статус, если такой переход случился
+                    // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
+                    ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(client, clientHistory.getDate(), historyTypes);
+                    if (afterHistory != null) {
+                        if (clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate())) {
+                            goodResult = false;
+                        }
+                    }
+                    if (goodResult) {
+                        result++;
                     }
                 }
             }
@@ -154,10 +166,11 @@ public class ReportServiceImpl implements ReportService {
         return result;
     }
 
+
     /**
      * Подсчитывает количество студентов, которые впервые совершили оплату в заданный период
      *
-     * @param reportStartDate  дата начала отчетного периода
+     * @param reportStartDate дата начала отчетного периода
      * @param reportEndDate   дата окончания отчетного периода
      * @return количество студентов, впервые совершивших оплату в заданный период
      */
@@ -175,7 +188,7 @@ public class ReportServiceImpl implements ReportService {
             // Получение всех клиентов, которые перешли в статус в заданный период
             List<Client> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, inProgressStatus.get().getName());
             // Для каждого клиента проверяем, впервые ли ему присвоен данный статус
-            for (Client client :clients) {
+            for (Client client : clients) {
                 if (!clientRepository.hasClientBeenInStatusBefore(client.getId(), reportStartDate, inProgressStatus.get().getName())) {
                     result++;
                 }
@@ -184,4 +197,184 @@ public class ReportServiceImpl implements ReportService {
         return result;
     }
 
+    @Override
+    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
+        StringBuilder fileName = new StringBuilder();
+        if (status != null) {
+            fileName.append(status.getName()).append("_");
+        }
+
+        for (String selectedCheckbox : selectedCheckboxes) {
+            fileName.append(selectedCheckbox).append("_");
+        }
+
+        if (!Strings.isNullOrEmpty(delimeter)) {
+            fileName.append(delimeter).append(".txt");
+        } else {
+            fileName.append("without_delimeter").append(".txt");
+        }
+        return Optional.of(fileName.toString());
+    }
+
+    @Override
+    public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
+        String path = "DownloadData";
+        String delimeter = filteringCondition.getDelimeter();
+
+        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
+            delimeter = "  ";
+        }
+
+        Path directory = Paths.get(path);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                logger.error("Could not create folder for text files", e);
+            }
+        }
+        Path pathToFile = Paths.get(path, fileName);
+        Path file = null;
+        try {
+            file = Files.createFile(pathToFile);
+        } catch (IOException e) {
+            try {
+                Files.delete(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can not delete file", e);
+            }
+            try {
+                file = Files.createFile(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can bot create file", e);
+            }
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
+            List<Client> filteredClients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+            for (Client filteredClient : filteredClients) {
+                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
+                    writer.write(filteredClient.getName() + delimeter);
+                }
+
+                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
+                    writer.write(filteredClient.getLastName() + delimeter);
+                }
+
+                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
+                    List<String> clientEmails = filteredClient.getClientEmails();
+                    for (String email : clientEmails) {
+                        writer.write(email + delimeter);
+                    }
+                }
+
+                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
+                    List<String> clientPhones = filteredClient.getClientPhones();
+                    for (String phone : clientPhones) {
+                        writer.write(phone + delimeter);
+                    }
+                }
+
+                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
+                for (String checkedSocialNetwork : checkedData) {
+                    for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
+                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
+                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
+                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
+                            if (clientSocialProfileType.getName().equals("vk")) {
+                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                                continue;
+                            }
+                            writer.write(clientSocialProfile.getSocialId() + delimeter);
+                        }
+                    }
+                }
+                writer.write(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+    }
+
+    @Override
+    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
+        String path = "DownloadData";
+        String delimeter = conditionToDownload.getDelimeter();
+
+        if (Strings.isNullOrEmpty(conditionToDownload.getDelimeter())) {
+            delimeter = "  ";
+        }
+
+        Path directory = Paths.get(path);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                logger.error("Could not create folder for text files", e);
+            }
+        }
+        Path pathToFile = Paths.get(path, fileName);
+        Path file = null;
+        try {
+            file = Files.createFile(pathToFile);
+        } catch (IOException e) {
+            try {
+                Files.delete(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can not delete file", e);
+            }
+            try {
+                file = Files.createFile(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can bot create file", e);
+            }
+        }
+
+        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
+        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
+            List<Client> filteredClients = clientService.getAllClients();
+            for (Client filteredClient : filteredClients) {
+                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
+                    writer.write(filteredClient.getName() + delimeter);
+                }
+
+                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
+                    writer.write(filteredClient.getLastName() + delimeter);
+                }
+
+                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
+                    List<String> clientEmails = filteredClient.getClientEmails();
+                    for (String email : clientEmails) {
+                        writer.write(email + delimeter);
+                    }
+                }
+
+                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
+                    List<String> clientPhones = filteredClient.getClientPhones();
+                    for (String phone : clientPhones) {
+                        writer.write(phone + delimeter);
+                    }
+                }
+
+                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
+                for (String checkedSocialNetwork : checkedData) {
+                    for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
+                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
+                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
+                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
+                            if (clientSocialProfileType.getName().equals("vk")) {
+                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                                continue;
+                            }
+                            writer.write(clientSocialProfile.getSocialId() + delimeter);
+                        }
+                    }
+                }
+                writer.write(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+    }
 }

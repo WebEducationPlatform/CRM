@@ -682,24 +682,6 @@ function reAvailableUser(id) {
     });
 }
 
-function deleteUser(id) {
-    let url = '/admin/rest/user/deleteUser';
-    let formData = {
-        deleteId: id
-    };
-
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function () {
-            location.reload();
-        },
-        error: function (e) {
-        }
-    });
-}
-
 //Отправка фиксированного сообщения во вконтакте из расширенной модалки.
 $(function () {
     $('.internal-vkontakte-message').on('click', function () {
@@ -2195,6 +2177,7 @@ function createContractSetting() {
         oneTimePayment: !!$('#contract-client-setting-one-time-payment-radio').prop("checked"),
         monthPayment: !!$('#contract-client-setting-month-payment-radio').prop("checked"),
         diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        stamp: !!$('#contract-client-setting-stamp-checkbox').prop("checked"),
         paymentAmount: $('#contract-client-setting-payment-amount-form').val()
     };
 
@@ -2218,3 +2201,58 @@ function createContractSetting() {
         }
     });
 }
+
+// Fill table with radiobuttons and show modal window
+function fillUsersTableForDelete(button) {
+    deleted = $(button).data('id');
+    var url = '/rest/users';
+    $.ajax({
+        type: 'get',
+        url: url,
+        dataType: 'json',
+        success: function (response) {
+            console.log(response);
+            var trHTML = '';
+            for (var i = 0; i < response.length; i++) {
+                if (deleted == response[i].id) continue;
+                trHTML += '<tr><td>' + '<input type="radio" name="user" value="' + response[i].id + '">' +
+                                                                                 " " + response[i].firstName +
+                                                                                 " " + response[i].lastName + '</td></tr>';
+            }
+            $('#usersTable').append(trHTML);
+            $('#deleteUserModal').modal('show');
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+    // Delete user form listener
+    $("#deleteUserForm").submit(function (event) {
+        event.preventDefault();
+        receiver = $("input[name='user']:checked").val();
+        var url = '/admin/rest/user/deleteWithTransfer';
+        var formData = {
+            deleteId: deleted,
+            receiverId: receiver
+        };
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function () {
+                location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+}
+
+// Reload page after modal is hidden for not to add new radiobuttons
+$('#deleteUserModal').on('hide.bs.modal', function() {
+    console.log("hide modal");
+    location.reload();
+});
