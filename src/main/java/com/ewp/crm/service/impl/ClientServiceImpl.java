@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,13 +39,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
+    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService) {
+                             @Lazy SlackService slackService, SocialProfileTypeService socialProfileTypeService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -57,6 +57,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @Override
@@ -88,6 +89,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 client.setName(name);
                 client.setLastName(lastName);
                 client.setEmail(email);
+                client.setSlackInviteLink(null);
                 clientRepository.saveAndFlush(client);
                 slackInviteLinkRepository.deleteByClient(client);
                 return slackService.inviteToWorkspace(name, lastName, email);
@@ -297,13 +299,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail().get()));
         }
 
-        if ((client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty())) {
-            client.setPhoneNumber(null);
-        }
-        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
-            client.setEmail(null);
-        }
-
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
@@ -412,12 +407,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         } else {
             client.setCanCall(false);
         }
-        if (client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty()) {
-            client.setPhoneNumber(null);
-        }
-        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
-            client.setEmail(null);
-        }
         //checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
@@ -514,13 +503,16 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setLastName(contractForm.getInputLastName());
         client.setBirthDate(contractForm.getInputBirthday());
         String email = contractForm.getInputEmail();
+        client.setId(old.getId());
         if (!email.isEmpty()) {
             Optional<Client> checkEmailClient = getClientByEmail(email);
             if (checkEmailClient.isPresent()) {
                 Client clientDelEmail = checkEmailClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelEmail::addHistory);
-                clientDelEmail.setEmail(null);
+                List<String> listWithCurrentEmail = clientDelEmail.getClientEmails();
+                listWithCurrentEmail.remove(email);
+                clientDelEmail.setClientEmails(listWithCurrentEmail);
                 update(clientDelEmail);
             }
             client.setEmail(email);
@@ -533,7 +525,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 Client clientDelPhone = checkPhoneClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelPhone::addHistory);
-                clientDelPhone.setPhoneNumber(null);
+                List<String> listWithCurrentPhone = clientDelPhone.getClientPhones();
+                listWithCurrentPhone.remove(validatedPhone);
+                clientDelPhone.setClientPhones(listWithCurrentPhone);
                 update(clientDelPhone);
             }
             client.setPhoneNumber(validatedPhone);
@@ -544,7 +538,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             passport.setClient(client);
             client.setPassport(passport);
         }
-        client.setId(old.getId());
         client.setStatus(old.getStatus());
         client.setSocialProfiles(old.getSocialProfiles());
         client.setCountry(old.getCountry());
@@ -566,6 +559,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setCallRecords(old.getCallRecords());
         client.setClientDescriptionComment(old.getClientDescriptionComment());
         client.setLiveSkypeCall(old.isLiveSkypeCall());
+        client.setSlackInviteLink(old.getSlackInviteLink());
         return client;
     }
+
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        clientRepository.transferClientsBetweenOwners(sender, receiver);
+        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
+
 }
