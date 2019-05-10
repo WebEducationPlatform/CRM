@@ -44,6 +44,7 @@ $('#filtration').click(function () {
     page = 1;
     data = {};
     var url = "../rest/client/filtration";
+    let urlToGetClientsWithoutPagination = "../rest/client/filtrationWithoutPagination";
 
     if ($('#sex').val() !== "") {
         data['sex'] = $('#sex').val();
@@ -65,9 +66,21 @@ $('#filtration').click(function () {
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json",
+                dataType: 'json',
+                url: urlToGetClientsWithoutPagination,
+                data: JSON.stringify(data),
+                success: function (res) {
+                    drawNumberOfClients(res);
+                    document.getElementById("divToFiltration").style.display = "block";
+                }
+            })
             var body = $("#table-body");
             clearClientsTable();
             drawClients(body, res);
+            res.length;
         },
         error: function (error) {
             console.log(error);
@@ -79,18 +92,28 @@ $('#clientData').click(function (event) {
     event.preventDefault();
     var url = "../rest/client/createFile";
     var urlFiltration = "../rest/client/createFileFilter";
+    let selected = [];
+    $('#checkboxes input:checked').each(function () {
+        selected.push($(this).attr('value'));
+    });
+    let delimeter = $('#delimeter').val();
+    let arr = {};
+    arr['selected'] = selected;
+    arr['delimeter'] = delimeter;
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
             type: 'POST',
             url: url,
-            data: {selected: $("#selectType").val()},
+            contentType: "application/json",
+            data: JSON.stringify(arr),
             success: function () {
                 window.location.replace("/rest/client/getClientsData")
             }
         });
     }
     if (!(jQuery.isEmptyObject(data))) {
-        data['selected'] = $("#selectType").val();
+        data['selectedCheckbox'] = selected;
+        data['delimeter'] = delimeter;
         $.ajax({
             type: 'POST',
             url: urlFiltration,
@@ -103,7 +126,6 @@ $('#clientData').click(function (event) {
         })
     }
 });
-
 
 let isAdmin;
 $.get('/rest/client/getPrincipal', function (user) {
@@ -126,8 +148,15 @@ function drawDefaultClients() {
     })
 }
 
+function drawNumberOfClients(count){
+    var divToWrite = document.getElementById('divToFiltration'),
+    textWriteTodiv='По вашему запросу найдено людей : ' + count.length;
+    divToWrite.innerHTML = textWriteTodiv
+}
+
 //при закрытии фильтра отображаем дефолтный вывод таблицы
 $("#open-filter").click(function () {
+    document.getElementById("divToFiltration").style.display = "none";
     if ($("#filter").hasClass('in')) {
         drawDefaultClients();
     }
@@ -215,7 +244,7 @@ function drawClients(table, res) {
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
-            '        <td class="line-decoration"><a href="/client/clientInfo/' + res[i].id +'">' + res[i].name + '</a></td>' +
+            '        <td class="line-decoration"><a href="#" onclick="clientModal('+ res[i].id +')" >' + res[i].name + '</a></td>' +
             '        <td>' + res[i].lastName + '</td>' +
             '        <td>' + phoneNumber + '</td>' +
             '        <td>' + email + '</td>' +

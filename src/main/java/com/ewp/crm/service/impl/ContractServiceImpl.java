@@ -9,8 +9,8 @@ import com.ewp.crm.service.interfaces.GoogleTokenService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.utils.converters.DocxRemoveBookMark;
 import com.ibm.icu.text.Transliterator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -47,11 +46,14 @@ public class ContractServiceImpl implements ContractService {
     private static Logger logger = LoggerFactory.getLogger(ContractServiceImpl.class);
 
     private final static String GOOGLE_DOC_MIME_TYPE = "application/vnd.google-apps.document";
+    private final static String DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     private final static String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
     private final String uploadUri;
     private final String updateUri;
     private final String folderId;
     private final String docsUri;
+    private final String uploadUriOld;
+    private final String viewUri;
 
     private final ProjectPropertiesService projectPropertiesService;
     private final GoogleTokenService googleTokenService;
@@ -67,6 +69,8 @@ public class ContractServiceImpl implements ContractService {
         this.updateUri = googleAPIConfig.getDriveUpdateUri();
         this.folderId = googleAPIConfig.getFolderId();
         this.docsUri = googleAPIConfig.getDocsUri();
+        this.viewUri = googleAPIConfig.getViewUri();
+        this.uploadUriOld = googleAPIConfig.getDriveUploadUriOld();
         this.clientsContractLinkRepository = clientsContractLinkRepository;
     }
 
@@ -78,14 +82,17 @@ public class ContractServiceImpl implements ContractService {
                     "?q='" + folderId + "'+in+parents" +
                     "&access_token=" + token;
             try {
+                String searchFileName = contractLinkData.getContractName();
+                String oldLink = contractLinkData.getContractLink();
+                if (oldLink.contains(viewUri)) {
+                    return false;
+                }
                 HttpGet httpGet = new HttpGet(url);
                 HttpClient httpClient = getHttpClient();
                 HttpResponse response = httpClient.execute(httpGet);
                 String res = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(res);
                 JSONArray array = json.getJSONArray("files");
-                String searchFileName = contractLinkData.getContractName();
-                String oldLink = contractLinkData.getContractLink();
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject obj = array.getJSONObject(i);
                     String docId = obj.getString("id");
@@ -108,7 +115,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Optional<Map<String,String>> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting) {
+    public Map<String,String> getContractIdByFormDataWithSetting(ContractDataForm data, ContractSetting setting) {
         Optional<File> fileOptional = createFileWithDataAndSetting(data, setting);
         if (fileOptional.isPresent()) {
             Optional<GoogleToken> googleTokenOptional = googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE);
@@ -116,35 +123,44 @@ public class ContractServiceImpl implements ContractService {
                 File file = fileOptional.get();
                 String token = googleTokenOptional.get().getAccessToken();
                 HttpClient httpClient = getHttpClient();
-                Optional<Map<String,String>> optionalMap = Optional.empty();
+                Map<String,String> contractDataMap = new HashMap<>();
 
-                String id = uploadFileAndGetFileId(file, token, httpClient);
+                String id = uploadFileAndGetFileId(file, token, httpClient, setting.isStamp());
                 if (!id.isEmpty()) {
                     String fileName = file.getName().replaceAll("\\.docx","") + projectPropertiesService.getOrCreate().getContractLastId();
                     updateFileNameAndFolderOnGoogleDrive(id, fileName, token, httpClient);
                     uploadFileAccessOnGoogleDrive(id, token, httpClient);
-                    Map<String,String> map = new HashMap<>();
-                    map.put("contractName", fileName);
-                    map.put("contractId", id);
-                    optionalMap = Optional.of(map);
+                    contractDataMap.put("contractName", fileName);
+                    contractDataMap.put("contractId", id);
                 }
                 if (file.delete()) {
                     logger.info("File deleting " + file.getName());
                 }
-                return optionalMap;
+                return contractDataMap;
+            } else {
+                if (fileOptional.get().delete()) {
+                    logger.info("Google Token not relevant. File deleting " + fileOptional.get().getName());
+                }
             }
         }
-        return Optional.empty();
+        return new HashMap<>();
     }
 
-    private String uploadFileAndGetFileId(File file, String token, HttpClient httpClient) {
+    private String uploadFileAndGetFileId(File file, String token, HttpClient httpClient, boolean isStamp) {
         try {
-            String uri = uploadUri +
-                    "?uploadType=media&" +
-                    "access_token=" + token;
-
+            String uri;
+            if (isStamp) {
+                uri = uploadUriOld +
+                        "?uploadType=media&" +
+                        "convert=true&" +
+                        "access_token=" + token;
+            } else {
+                uri = uploadUri +
+                        "?uploadType=media&" +
+                        "access_token=" + token;
+            }
             HttpPost httpPostMessages = new HttpPost(uri);
-            httpPostMessages.setHeader("Content-type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            httpPostMessages.setHeader("Content-type", DOCX_MIME_TYPE);
             EntityBuilder builder = EntityBuilder.create();
             builder.setFile(file);
             httpPostMessages.setEntity(builder.build());
@@ -157,7 +173,7 @@ public class ContractServiceImpl implements ContractService {
         } catch (JSONException e) {
             logger.error("Error parsing json", e);
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     private void updateFileNameAndFolderOnGoogleDrive(String id, String fileName, String token, HttpClient httpClient) {
@@ -190,7 +206,12 @@ public class ContractServiceImpl implements ContractService {
     private Optional<File> createFileWithDataAndSetting(ContractDataForm data, ContractSetting setting) {
         try {
             String templatePath = contractConfig.getFilePath();
-            String templateName = contractConfig.getFileName();
+            String templateName;
+            if (setting.isStamp()) {
+                templateName = contractConfig.getFileNameWithStamp();
+            } else {
+                templateName = contractConfig.getFileName();
+            }
             WordprocessingMLPackage mlp = WordprocessingMLPackage.load(new File(templatePath + templateName));
             HashMap<String, String> map = new HashMap<>();
             ProjectProperties projectProperties = projectPropertiesService.get();

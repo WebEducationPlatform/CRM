@@ -21,5 +21,4 @@ public class SlackController {
         ModelAndView model = new ModelAndView("slack-registration");
         return model;
     }
-
 }

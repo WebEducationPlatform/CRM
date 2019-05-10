@@ -180,6 +180,60 @@ function validate(data) {
     return true;
 }
 
+// Fill values on birthday modal shows up
+$('#birthday-modal').on('show.bs.modal', function () {
+    $.ajax({
+        type: 'GET',
+        url: '/rest/message-template',
+        success: function (response) {
+            $("#birthday-template").empty().append(
+                $('<option>').val('').text('Не выбрано')
+            );
+            $.each(response, function (i, item) {
+                $("#birthday-template").append(
+                    $('<option>').val(item.id).text(item.name)
+                )
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/rest/properties',
+                success: function (response) {
+                    if (response.birthdayTemplate == null) {
+                        $("#birthday-template option[value='']").prop('selected', true)
+                    } else {
+                        $("#birthday-template option[value=" + response.birthdayTemplate.id + "]").prop('selected', true);
+                    }
+                }
+            })
+        }
+    });
+});
+
+//Set notification properties to birthday
+$("#update-birthday-modal").click(function () {
+    let data = {
+        birthdayTemplate: $("#birthday-template").val()
+    };
+    if (!validateBirthday(data)) {
+        return
+    }
+    $.ajax({
+        type: 'POST',
+        url: '/rest/properties/birthday',
+        data: data,
+        success: function () {
+        }
+    })
+});
+
+//Validate input data to birthdayTemplate
+function validateBirthday(data) {
+    console.log(data);
+    if ((data.birthdayTemplate === '')) {
+        alert("Внимание: Отправка поздравления с днем рождения не использует никакого шаблона, установите шаблон!");
+    }
+    return true;
+}
 
 //send SMS authorization code
 $("#telegram-auth-send").click(function () {

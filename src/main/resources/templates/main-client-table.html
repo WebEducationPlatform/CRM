@@ -362,7 +362,8 @@
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}"
+                                                th:attr="data-id=${usr.id}"
+                                                onclick="fillUsersTableForDelete(this)"
                                                 sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
@@ -417,13 +418,20 @@
     </div>
 </div>
 
-
-
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
-<div id="msg_pop2" sec:authorize="hasAnyAuthority('OWNER')">
-    <span class="msg_close" onclick="document.getElementById('msg_pop2').style.display='none'; return false;">X</span>
+<div id="msg_status_to_new_clients" sec:authorize="hasAnyAuthority('OWNER')">
+    <span class="msg_close" onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для новых студентов
+    <p></p>
+    <a href="/user/customize">Настройки</a>
+</div>
+
+<!--settings-remainder Модалка для напоминания о birth-->
+<div id="birthday-template-status" sec:authorize="hasAnyAuthority('OWNER')">
+    <span class="msg_close" onclick="document.getElementById('birthday-template-status').style.display='none'; return false;">X</span>
+    <h4>Напоминание</h4>
+    Необходимо установить шаблон для отправки сообщения пользователям о поздравлении с днем рождения!
     <p></p>
     <a href="/user/customize">Настройки</a>
 </div>

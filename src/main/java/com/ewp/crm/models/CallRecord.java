@@ -1,6 +1,7 @@
 package com.ewp.crm.models;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity
@@ -28,7 +29,11 @@ public class CallRecord {
 	private String comment;
 
 	@Column(name = "date")
-	private String date;
+	private ZonedDateTime date;
+
+	@ManyToOne
+	@JoinColumn(name = "calling_user_id")
+	private User callingUser;
 
 	public CallRecord() {}
 
@@ -72,12 +77,20 @@ public class CallRecord {
 		this.comment = comment;
 	}
 
-	public String getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(ZonedDateTime date) {
 		this.date = date;
+	}
+
+	public User getCallingUser() {
+		return callingUser;
+	}
+
+	public void setCallingUser(User callingUser) {
+		this.callingUser = callingUser;
 	}
 
 	@Override
