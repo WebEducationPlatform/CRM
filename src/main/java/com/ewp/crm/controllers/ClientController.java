@@ -150,6 +150,7 @@ public class ClientController {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
         modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("statuses", statusService.getAll());
+        modelAndView.addObject("users", userService.getAll());
         modelAndView.addObject("socialProfileTypes", socialProfileTypeService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());

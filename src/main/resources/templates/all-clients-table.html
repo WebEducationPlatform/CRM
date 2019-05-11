@@ -93,6 +93,14 @@
                     </select>
 
                 </div>
+                <div class="col-xs-3 offset-4">
+                    <label class="control-label" for="ownerUser">Пользователь: </label>
+                    <select class="form-control" id="ownerUser" size="1">
+                        <option></option>
+                        <option th:each="user : ${users}" th:value="${user.id}"
+                                th:text="${user.fullName}"></option>
+                    </select>
+                </div>
             </div>
             <br/>
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
@@ -120,6 +128,7 @@
                 <th>Пол</th>
                 <th onclick="sort_table('city')">Город</th>
                 <th onclick="sort_table('country')">Страна</th>
+                <th onclick="sort_table('ownerUser')">Пользователь</th>
                 <th onclick="sort_table('status')">
                     Статус
                     <div class="btn-group">
@@ -156,6 +165,8 @@
                 <td th:text="${client.sex}"></td>
                 <td th:text="${client.city}"></td>
                 <td th:text="${client.country}"></td>
+                <td th:if="${client.ownerUser == null}" th:text="''"></td>
+                <td th:if="${client.ownerUser != null}" th:text="${client.ownerUser.fullName}"></td>
                 <td class="colorTd" th:text="${client.status.name}"></td>
 
                 <!--@thymesVar id="#temporals" type="org.thymeleaf.extras.java8time.expression.Temporals"-->
