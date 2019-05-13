@@ -32,7 +32,7 @@ function drawCheckbox(currentForm, clientId) {
 
             for (let i = 0; i < soc.length; i++) {
                 currentForm.prepend("<label class='checkbox-inline soc-network-box'>" +
-                    "<input type='checkbox'  value=" + soc[i].socialProfileType.name + "  class='my-checkbox-soc' />" + soc[i].socialProfileType.name +
+                    "<input type='checkbox'  value=" + soc[i].socialNetworkType.name + "  class='my-checkbox-soc' />" + soc[i].socialNetworkType.name +
                     "</label>");
             }
             if (email !== null) {
@@ -1532,7 +1532,7 @@ function set_send_selector(clientId) {
         url: "/rest/client/" + clientId,
         success: function (client) {
             for (let i = 0; i < client.socialProfiles.length; i++) {
-                switch (client.socialProfiles[i].socialProfileType.name) {
+                switch (client.socialProfiles[i].socialNetworkType.name) {
                     case 'vk':
                         selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
                         break;
@@ -1572,7 +1572,7 @@ $('#conversations-modal').on('hidden.bs.modal', function () {
 function client_has_telegram(client) {
     let has_telegram = false;
     for (let i = 0; i < client.socialProfiles.length; i++) {
-        if (client.socialProfiles[i].socialProfileType.name === 'telegram') {
+        if (client.socialProfiles[i].socialNetworkType.name === 'telegram') {
             has_telegram = true;
             break;
         }
@@ -1740,9 +1740,9 @@ $(function () {
 
                 document.getElementById("profilePhoto").removeAttribute("src");
                 for (var i = 0; i < client.socialProfiles.length; i++) {
-                    if (client.socialProfiles[i].socialProfileType.name === 'vk') {
+                    if (client.socialProfiles[i].socialNetworkType.name === 'vk') {
                         //ajax call for profile photo
-                        let vkref = client.socialProfiles[i].socialProfileType.link + client.socialProfiles[i].socialId;
+                        let vkref = client.socialProfiles[i].socialNetworkType.link + client.socialProfiles[i].socialId;
                         let url = '/rest/vkontakte/getProfilePhotoById';
 
                         $.ajax({
@@ -1769,12 +1769,12 @@ $(function () {
 
 
 
-                    if (client.socialProfiles[i].socialProfileType.name === 'facebook') {
+                    if (client.socialProfiles[i].socialNetworkType.name === 'facebook') {
                         $('#fb-href').attr('href', client.socialProfiles[i].socialId);
                         $('#fb-href').show();
                     }
 
-                    if (client.socialProfiles[i].socialProfileType.name === 'slack') {
+                    if (client.socialProfiles[i].socialNetworkType.name === 'slack') {
 
                         let clientSlackId = client.socialProfiles[i].socialId;
 

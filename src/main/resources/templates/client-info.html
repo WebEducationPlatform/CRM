@@ -151,16 +151,16 @@
                             <tr>
                                 <th hidden="hidden" abbr="id">id</th>
                                 <th abbr="socialId">Link</th>
-                                <th abbr="socialProfileType">Type</th>
+                                <th abbr="socialNetworkType">Type</th>
                             </tr>
                             </thead>
                             <tbody id="SN-table-body">
                             <tr th:each="socials:${client.socialProfiles}">
                                 <td hidden="hidden" th:value="${socials.id}" th:text="${socials.id}"></td>
-                                <td th:if="${socials.socialProfileType.link == null}" th:value="${socials.socialId}" th:text="${socials.socialId}"></td>
-                                <td th:if="${socials.socialProfileType.link != null}" th:value="${socials.socialId}" th:text="${socials.socialProfileType.link + socials.socialId}"></td>
-                                <td th:value="${socials.socialProfileType.id}"
-                                    th:text="${socials.socialProfileType.name}"></td>
+                                <td th:if="${socials.socialNetworkType.link == null}" th:value="${socials.socialId}" th:text="${socials.socialId}"></td>
+                                <td th:if="${socials.socialNetworkType.link != null}" th:value="${socials.socialId}" th:text="${socials.socialNetworkType.link + socials.socialId}"></td>
+                                <td th:value="${socials.socialNetworkType.id}"
+                                    th:text="${socials.socialNetworkType}"></td>
                                 <td>
                                     <button disabled="disabled" type="button" th:onclick="'deleteSocial('+ this + ')'"
                                             class="glyphicon glyphicon-remove"></button>
