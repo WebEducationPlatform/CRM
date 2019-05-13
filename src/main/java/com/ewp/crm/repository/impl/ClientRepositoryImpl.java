@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.impl;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
 import org.slf4j.Logger;
@@ -41,15 +42,21 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType) {
-        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType")
-                .setParameter("socialProfileType", socialProfileType)
+
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "LEFT JOIN c.student AS s " +
+                "WHERE s IS NOT NULL AND sp.socialNetworkType = :socialProfileType")
+                .setParameter("socialProfileType",SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                 .getResultList();
     }
 
     @Override
     public boolean hasClientSocialProfileByType(Client client, String socialProfileType) {
-        return !entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt WHERE c.id = :clientId AND spt.name = :socialProfileType")
-                .setParameter("socialProfileType", socialProfileType)
+        return !entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "WHERE c.id = :clientId AND sp.socialNetworkType = :socialProfileType")
+                .setParameter("socialProfileType", SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                 .setParameter("clientId", client.getId())
                 .getResultList()
                 .isEmpty();
@@ -57,8 +64,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType) {
-        return entityManager.createQuery("SELECT sp.socialId FROM Client c LEFT JOIN c.socialProfiles AS sp LEFT JOIN sp.socialProfileType AS spt LEFT JOIN c.student AS s WHERE s IS NOT NULL AND spt.name = :socialProfileType AND c.status IN (:statuses)")
-                .setParameter("socialProfileType", socialProfileType)
+        return entityManager.createQuery("SELECT sp.socialId FROM Client c " +
+                "LEFT JOIN c.socialProfiles AS sp " +
+                "LEFT JOIN c.student AS s " +
+                "WHERE s IS NOT NULL AND sp.socialNetworkType = :socialProfileType AND c.status IN (:statuses)")
+                .setParameter("socialProfileType", SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                 .setParameter("statuses", statuses)
                 .getResultList();
     }
@@ -277,8 +287,9 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public boolean isTelegramClientPresent(Integer id) {
-        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialProfileType.name = 'telegram'", SocialProfile.class)
+        List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialNetworkType = :socialType", SocialProfile.class)
                 .setParameter("telegramId", id.toString())
+                .setParameter("socialType",  SocialNetworkType.valueOf("telegram".toUpperCase()))
                 .getResultList();
         return !result.isEmpty();
     }
@@ -287,9 +298,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     public Client getClientBySocialProfile(String id, String socialProfileType) {
         Client result = null;
         try {
-            result = entityManager.createQuery("SELECT c FROM Client c LEFT JOIN c.socialProfiles s WHERE s.socialId = :sid AND s.socialProfileType.name = :type", Client.class)
+            result = entityManager.createQuery("SELECT c FROM Client c " +
+                    "LEFT JOIN c.socialProfiles s " +
+                    "WHERE s.socialId = :sid AND s.socialNetworkType.name = :type", Client.class)
                     .setParameter("sid", id)
-                    .setParameter("type", socialProfileType)
+                    .setParameter("type", SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                     .getSingleResult();
         } catch (NoResultException e) {
             logger.info("Client with social id {} not found", id, e);
@@ -394,6 +407,10 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
             query.append(" and cl.status.name = '").append(filteringCondition.getStatus()).append("'");
         }
 
+        if (filteringCondition.getOwnerUserId() != null) {
+            query.append(" and cl.ownerUser.id = '").append(filteringCondition.getOwnerUserId()).append("'");
+        }
+
         return query.toString();
     }
 
@@ -403,9 +420,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 "FROM client_social_network\n" +
                 "  INNER JOIN social_network ON client_social_network.social_network_id = social_network.id\n" +
                 "  INNER JOIN client ON client_social_network.client_id = client.client_id\n" +
-                "  INNER JOIN social_network_social_network_type ON social_network.id = social_network_social_network_type.social_network_id\n" +
-                "  INNER JOIN social_network_type ON social_network_social_network_type.social_network_type_id = social_network_type.id\n" +
-                "WHERE social_network_type.name = '" + filteringCondition.getChecked() + "'");
+                "WHERE social_network.social_network_type = '" + filteringCondition.getChecked().toUpperCase() + "'");
 
         if (filteringCondition.getSex() != null) {
             query.append(" and client.sex = '").append(filteringCondition.getSex()).append("'");
