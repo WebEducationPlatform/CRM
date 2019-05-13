@@ -9,7 +9,7 @@ $(".change-client-order").on('click', function () {
         });
 });
 
-//Показать пропавших студентов.
+//Показать пропавших студентов в статусах
 $('a#FIND_MISSING').on('click', function () {
     let statuses;
     $.get("/rest/status")
@@ -48,26 +48,6 @@ function drawClientsPortlet(student, status) {
         value: student.id,
         'data-card-id': student.id,
     }).appendTo('#status-column' + status.id);
-
-    // $('<div></div>', {
-    //     class: 'portlet-title portlet-title-groups ui-sortable-handle',
-    //     id: student.id
-    // }).appendTo('div#' + student.id + '.portlet');
-    // $('<div></div>', {
-    //     class: 'portlet-title__group-left'
-    // }).appendTo('div#' + student.id + '.portlet-title.portlet-title-groups');
-    // $('<div></div>', {
-    //     class: 'portlet-title__group-right',
-    //     id: student.id
-    // }).appendTo('div#' + student.id + '.portlet-title.portlet-title-groups')
-    // /*добавить сюда конверик если понадобится*/
-    //
-    // $('<div></div>', {
-    //     class: 'portlet-header ui-sortable-handle panel-heading',
-    //     'client-id': student.id,
-    //     name: 'client-' + student.id + '-modal',
-    //     //onclick: "changeUrl('/client', '" + student.id + "')",
-    // }).appendTo('div#' + student.id + '.portlet');
 
     $('<div></div>', {
         class: 'portlet-body',
