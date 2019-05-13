@@ -25,11 +25,7 @@ public class ClientHistory {
 
 	@Column(name = "record_link")
 	private String recordLink;
-
-    //TODO потом переделать
-    //@Basic
-    //private String date = DateTime.now().toString("HH:mm ddMMM yyyy'г'");
-
+	
     @Column(name = "date")
     private ZonedDateTime date;
 

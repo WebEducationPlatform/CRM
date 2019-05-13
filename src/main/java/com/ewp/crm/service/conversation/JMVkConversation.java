@@ -2,9 +2,11 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
-import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.conversation.ChatMessage;
+import com.ewp.crm.models.conversation.ChatType;
+import com.ewp.crm.models.conversation.Interlocutor;
 import com.ewp.crm.service.interfaces.SocialProfileService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +58,7 @@ public class JMVkConversation implements JMConversation {
 
         String id = null;
         for (SocialProfile sp : profiles) {
-            if ("vk".equals(sp.getSocialProfileType().getName())) {
+            if ("vk".equals(sp.getSocialNetworkType().getName())) {
                 id = sp.getSocialId();
             }
         }

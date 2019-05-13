@@ -8,9 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface ClientService extends CommonService<Client> {
-
     boolean hasClientSocialProfileByType(Client client, String socialProfileType);
 
     boolean inviteToSlack(Client client, String name, String lastName, String email);
@@ -84,5 +82,4 @@ public interface ClientService extends CommonService<Client> {
 	Optional<ClientHistory> getLastHistory(Client client);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
-
 }
