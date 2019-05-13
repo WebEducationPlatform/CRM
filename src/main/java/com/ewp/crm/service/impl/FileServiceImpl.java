@@ -24,7 +24,7 @@ public class FileServiceImpl implements FileService{
 		StringBuilder result = new StringBuilder();
 		for (PotentialClient potentialClient : potentialClientService.getAllPotentialClients()) {
 			for (SocialProfile socialProfile : potentialClient.getSocialProfiles()) {
-				if (socialProfile.getSocialProfileType().getName().equals("vk")) {
+				if (socialProfile.getSocialNetworkType().getName().equals("vk")) {
 					result.append(socialProfile.getSocialId()).append("\n");
 				}
 			}

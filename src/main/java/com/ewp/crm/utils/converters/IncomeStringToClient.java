@@ -2,7 +2,7 @@ package com.ewp.crm.utils.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.service.interfaces.SocialProfileTypeService;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +17,11 @@ import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
-
-    private final SocialProfileTypeService socialProfileTypeService;
     private final VKService vkService;
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
 
     @Autowired
-    public IncomeStringToClient(SocialProfileTypeService socialProfileTypeService, VKService vkService) {
-        this.socialProfileTypeService = socialProfileTypeService;
+    public IncomeStringToClient(VKService vkService) {
         this.vkService = vkService;
     }
 
@@ -81,7 +78,7 @@ public class IncomeStringToClient {
         if (clientData.containsKey("Соцсеть")) {
             String link = clientData.get("Соцсеть").replace("~", "");
             SocialProfile currentSocialProfile = getSocialNetwork(link);
-            if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+            if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
                 client.setComment("Ссылка на социальную сеть " + link +
                         " недействительна");
                 logger.warn("Unknown social network");
@@ -173,7 +170,7 @@ public class IncomeStringToClient {
             String link = clientData.get("Social").replace("~", "");
             if (link != null && !link.isEmpty()) {
                 SocialProfile currentSocialProfile = getSocialNetwork(link);
-                if (currentSocialProfile.getSocialProfileType().getName().equals("unknown")) {
+                if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
                     client.setComment(String.format("Ссылка на социальную сеть %s недействительна", link));
                     logger.warn("Unknown social network '" + link + "'");
                 } else {
@@ -188,18 +185,18 @@ public class IncomeStringToClient {
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")) {
-                socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
+                socialProfile.setSocialNetworkType(SocialNetworkType.UNKNOWN);
             } else {
                 Optional<String> socialId = vkService.getIdFromLink(link);
                 if (socialId.isPresent()) {
                     socialProfile.setSocialId(socialId.get());
-                    socialProfileTypeService.getByTypeName("vk").ifPresent(socialProfile::setSocialProfileType);
+                    socialProfile.setSocialNetworkType(SocialNetworkType.VK);
                 }
             }
         } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
-            socialProfileTypeService.getByTypeName("facebook").ifPresent(socialProfile::setSocialProfileType);
+            socialProfile.setSocialNetworkType(SocialNetworkType.FACEBOOK);
         } else {
-            socialProfileTypeService.getByTypeName("unknown").ifPresent(socialProfile::setSocialProfileType);
+            socialProfile.setSocialNetworkType(SocialNetworkType.UNKNOWN);
         }
         return socialProfile;
     }

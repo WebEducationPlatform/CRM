@@ -279,12 +279,12 @@
                 </div>
                 <div id="modal-body">
                     <div id="checkboxes">
-                        <th:block th:each="socialProfileType : ${socialProfileTypes}">
+                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
                             <div class="container">
-                                <label class="checkbox" th:for="${socialProfileType.id}"
-                                       th:text="${socialProfileType.name}"></label>
-                                <input type="checkbox" th:value="${socialProfileType.name}"
-                                       th:id="${socialProfileType.id}"/>
+                                <label class="checkbox" th:for="${socialNetworkType.id}"
+                                       th:text="${socialNetworkType.name}"></label>
+                                <input type="checkbox" th:value="${socialNetworkType.name}"
+                                       th:id="${socialNetworkType.id}"/>
                             </div>
                         </th:block>
                         <div class="container">
@@ -748,7 +748,7 @@
 </th:block>
 
 <th:block th:fragment="updateSocialNetworkType">
-    <div th:attr="id=${socialProfileType.id}" class="modal fade" role="dialog">
+    <div th:attr="id=${socialNetworkType.id}" class="modal fade" role="dialog">
 
         <div class="modal-dialog">
             <form role="form" id="updateTypeForm" th:action="@{/admin/user/updateSocialNetworkType}" method="post">
@@ -766,9 +766,9 @@
                                 <label for="updateType">Name</label>
                                 <input type="text" id="updateType" name="name"
                                        class="form-control"
-                                       th:value="${socialProfileType.name}"/>
+                                       th:value="${socialNetworkType.name}"/>
 
-                                <input type="hidden" id="typeId" name="id" th:value="${socialProfileType.id}"/>
+                                <input type="hidden" id="typeId" name="id" th:value="${socialNetworkType.id}"/>
 
                             </div>
                         </div>
