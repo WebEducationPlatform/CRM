@@ -3,15 +3,16 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MailingMessageService extends CommonService<MailingMessage> {
 
-    List<MailingMessage> getUserMail(long userId);
+    List<MailingMessage> getMailingMessageByUserId(Long userId);
 
-    List<MailingMessage> getUserByIdAndDate(long userId, int timeFrom, int timeTo);
+    List<MailingMessage> getMailingMessageByUserIdAndDate(Long userId, LocalDateTime from, LocalDateTime to);
 
-    List<MailingMessage> getUserByDate(int timeFrom, int timeTo);
+    List<MailingMessage> getMailingMessageByDate(LocalDateTime from, LocalDateTime to);
 
     List<ClientData> getClientDataById(Long id);
 

@@ -28,19 +28,16 @@ public class ReportServiceImpl implements ReportService {
     private final StatusService statusService;
     private final ProjectProperties projectProperties;
     private final ClientService clientService;
-    private final SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository,
                              StatusService statusService,
                              ProjectPropertiesService projectPropertiesService,
-                             ClientService clientService,
-                             SocialProfileTypeService socialProfileTypeService) {
+                             ClientService clientService) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.clientService = clientService;
-        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     /**
@@ -51,13 +48,17 @@ public class ReportServiceImpl implements ReportService {
      * @return количество найденных клиентов
      */
     @Override
-    public int countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
+    public String countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
-        return clients.size();
+        int quantityAllNewClients = clients.size();
+        clients.removeIf(client -> (
+                client.getClientDescriptionComment() != null
+                        && client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")));
+        return "Новых клиентов " + quantityAllNewClients + ", из них " + (quantityAllNewClients - clients.size()) + " оставили посторную заявку.";
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
@@ -208,10 +209,10 @@ public class ReportServiceImpl implements ReportService {
             fileName.append(selectedCheckbox).append("_");
         }
 
-        if (!Strings.isNullOrEmpty(delimeter)) {
+        if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")) {
             fileName.append(delimeter).append(".txt");
         } else {
-            fileName.append("without_delimeter").append(".txt");
+            fileName.append(".txt");
         }
         return Optional.of(fileName.toString());
     }
@@ -279,11 +280,9 @@ public class ReportServiceImpl implements ReportService {
                 List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
-                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
-                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
-                            if (clientSocialProfileType.getName().equals("vk")) {
-                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
                                 continue;
                             }
                             writer.write(clientSocialProfile.getSocialId() + delimeter);
@@ -360,11 +359,9 @@ public class ReportServiceImpl implements ReportService {
                 List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        SocialProfileType clientSocialProfileType = clientSocialProfile.getSocialProfileType();
-                        if (checkedSocialNetwork.equals(clientSocialProfileType.getName())
-                                && !Strings.isNullOrEmpty(clientSocialProfileType.getName())) {
-                            if (clientSocialProfileType.getName().equals("vk")) {
-                                writer.write(clientSocialProfileType.getLink() + clientSocialProfile.getSocialId() + delimeter);
+                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
                                 continue;
                             }
                             writer.write(clientSocialProfile.getSocialId() + delimeter);
