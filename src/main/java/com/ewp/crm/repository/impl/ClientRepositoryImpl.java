@@ -407,6 +407,10 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
             query.append(" and cl.status.name = '").append(filteringCondition.getStatus()).append("'");
         }
 
+        if (filteringCondition.getOwnerUserId() != null) {
+            query.append(" and cl.ownerUser.id = '").append(filteringCondition.getOwnerUserId()).append("'");
+        }
+
         return query.toString();
     }
 
