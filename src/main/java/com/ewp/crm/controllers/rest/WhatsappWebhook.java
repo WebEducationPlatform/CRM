@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
@@ -26,17 +27,15 @@ public class WhatsappWebhook {
     private final SendNotificationService sendNotificationService;
     private final WhatsappMessageService whatsappMessageService;
     private final StatusService statusService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
 
     @Autowired
-    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService, WhatsappMessageService whatsappMessageService, StatusService statusService, SocialProfileTypeService socialProfileTypeService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService) {
+    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService, WhatsappMessageService whatsappMessageService, StatusService statusService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService) {
         this.clientService = clientService;
         this.sendNotificationService = sendNotificationService;
         this.whatsappMessageService = whatsappMessageService;
         this.statusService = statusService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
     }
@@ -93,8 +92,7 @@ public class WhatsappWebhook {
 
     private void checkSocialProfile(WhatsappMessage whatsappMessage, Client client) {
         List<SocialProfile> socialProfiles = client.getSocialProfiles();
-        if (socialProfileTypeService.getByTypeName("whatsapp").isPresent()) {
-            SocialProfile socialProfile = new SocialProfile(whatsappMessage.getChatId(), socialProfileTypeService.getByTypeName("whatsapp").get());
+            SocialProfile socialProfile = new SocialProfile(whatsappMessage.getChatId(), SocialNetworkType.WHATSAPP);
             if (client.getId() != null) {
                 Optional<SocialProfile> socialProfileWhatsApp = socialProfileService.getSocialProfileByClientIdAndTypeName(client.getId(), "whatsapp");
                 if (socialProfiles.contains(socialProfileWhatsApp.get())) {
@@ -103,7 +101,6 @@ public class WhatsappWebhook {
             }
             socialProfiles.add(socialProfile);
             client.setSocialProfiles(socialProfiles);
-        }
     }
 
 }
