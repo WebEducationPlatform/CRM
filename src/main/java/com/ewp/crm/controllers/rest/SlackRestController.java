@@ -2,9 +2,8 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
+import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,12 +36,14 @@ public class SlackRestController {
     private final SlackService slackService;
     private final ClientService clientService;
     private final StatusService statusService;
+    private final MessageTemplateServiceImpl messageTemplateService;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService) {
+    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService, MessageTemplateServiceImpl messageTemplateService) {
         this.slackService = slackService;
         this.clientService = clientService;
         this.statusService = statusService;
+        this.messageTemplateService = messageTemplateService;
     }
 
     @CrossOrigin(origins = "https://java-mentor.com")
@@ -80,9 +81,18 @@ public class SlackRestController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/send/student/{studentId}")
-    public ResponseEntity sendMessageToStudent(@PathVariable long studentId, @RequestParam("text") String text) {
-        if (slackService.trySendSlackMessageToStudent(studentId, text)) {
+    @PostMapping("/send/client")
+    public ResponseEntity sendMessageToStudent(@RequestParam Long clientId,
+                                               @RequestParam Long templateId,
+                                               @RequestParam (value = "body", required = false) String body) {
+        String templateText;
+        if (templateId == 1) {
+            templateText = body;
+        } else {
+            templateText = messageTemplateService.get(templateId).getOtherText();
+        }
+
+        if (slackService.trySendSlackMessageToStudent(clientId, templateText)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
