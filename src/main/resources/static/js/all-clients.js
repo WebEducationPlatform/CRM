@@ -59,6 +59,9 @@ $('#filtration').click(function () {
     if ($('#status').val() !== "") {
         data['status'] = $('#status').val();
     }
+    if ($('#ownerUser').val() !== "") {
+        data['ownerUserId'] = $('#ownerUser').val();
+    }
     $.ajax({
         type: 'POST',
         contentType: "application/json",
@@ -253,6 +256,7 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
+            '        <td>' + res[i].ownerUser.fullName + '</td>' +
             '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
             '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
@@ -318,6 +322,7 @@ $(document).ready(function () {
                     body.hasClass('email') ||
                     body.hasClass('city') ||
                     body.hasClass('country') ||
+                    body.hasClass('ownerUser') ||
                     body.hasClass('status') ||
                     body.hasClass('dateOfRegistration') ||
                     body.hasClass('dateOfLastChange')) {
@@ -358,6 +363,7 @@ $(document).ready(function () {
                 body.hasClass('email') ||
                 body.hasClass('city') ||
                 body.hasClass('country') ||
+                body.hasClass('ownerUser') ||
                 body.hasClass('status') ||
                 body.hasClass('dateOfRegistration') ||
                 body.hasClass('dateOfLastChange')) {
@@ -551,6 +557,9 @@ function sort_table(name) {
         data['pageNumber'] = page;
         if ($('#status').val() !== "") {
             data['status'] = $('#status').val();
+        }
+        if ($('#ownerUser').val() !== "") {
+            data['ownerUserId'] = $('#ownerUser').val();
         }
         $.ajax({
             type: 'POST',
