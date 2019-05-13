@@ -2,6 +2,9 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.conversation.ChatMessage;
+import com.ewp.crm.models.conversation.ChatType;
+import com.ewp.crm.models.conversation.Interlocutor;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;

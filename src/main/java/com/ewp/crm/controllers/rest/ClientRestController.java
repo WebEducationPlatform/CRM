@@ -37,7 +37,6 @@ public class ClientRestController {
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final ClientService clientService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
@@ -56,7 +55,6 @@ public class ClientRestController {
 
 	@Autowired
     public ClientRestController(ClientService clientService,
-                                SocialProfileTypeService socialProfileTypeService,
                                 UserService userService,
                                 SocialProfileService socialProfileService,
                                 ClientHistoryService clientHistoryService,
@@ -68,7 +66,6 @@ public class ClientRestController {
 								ReportService reportService,
 								ClientRepository clientRepository, Environment env) {
         this.clientService = clientService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
@@ -198,10 +195,10 @@ public class ClientRestController {
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
-																	   @RequestParam(name = "socialProfileType") String socialProfileType,
+																	   @RequestParam(name = "socialNetworkType") String socialNetworkType,
 																	   @RequestParam(name = "unread") String unreadCount) {
 		Map<String, String> clientInfoMap = new HashMap<>();
-        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialProfileType);
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialNetworkType);
         if (socialProfile.isPresent()) {
 			Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
 			if (!client.isPresent()) {

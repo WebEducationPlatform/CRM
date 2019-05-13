@@ -1,6 +1,7 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.SocialProfileType;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,8 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
         this.entityManager = entityManager;
     }
 
-    public List<Student> getStudentsWithoutSocialProfileByType(List<SocialProfileType> excludeSocialProfiles) {
-        return entityManager.createQuery("SELECT s FROM Student s JOIN s.client AS c JOIN c.socialProfiles AS sp JOIN sp.socialProfileType AS spt WHERE spt NOT IN :excludes")
+    public List<Student> getStudentsWithoutSocialProfileByType(List<SocialNetworkType> excludeSocialProfiles) {
+        return entityManager.createQuery("SELECT s FROM Student s JOIN s.client AS c JOIN c.socialProfiles AS sp  WHERE sp.socialNetworkType NOT IN :excludes")
                 .setParameter("excludes", excludeSocialProfiles)
                 .getResultList();
     }
