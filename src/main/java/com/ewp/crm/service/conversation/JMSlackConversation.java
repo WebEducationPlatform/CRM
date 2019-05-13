@@ -2,6 +2,9 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.conversation.ChatMessage;
+import com.ewp.crm.models.conversation.ChatType;
+import com.ewp.crm.models.conversation.Interlocutor;
 import com.ewp.crm.service.interfaces.SlackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +69,7 @@ public class JMSlackConversation implements JMConversation {
         Optional<SocialProfile> clientSlackProfile = client
                 .getSocialProfiles()
                 .stream()
-                .filter(profile -> "slack".equals(profile.getSocialProfileType().getName()))
+                .filter(profile -> "slack".equals(profile.getSocialNetworkType().getName()))
                 .findFirst();
         return clientSlackProfile.map(socialProfile -> new Interlocutor(
                 socialProfile.getSocialId(),
