@@ -39,14 +39,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
-    private final SocialProfileTypeService socialProfileTypeService;
+
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService, SocialProfileTypeService socialProfileTypeService) {
+                             @Lazy SlackService slackService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -57,7 +57,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
-        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @Override
@@ -302,9 +301,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
+            if (!socialProfile.getSocialNetworkType().getName().equals("unknown")) {
                 if (!existClient.isPresent()) {
-                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
+                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialNetworkType().getName());
                     if (profile.isPresent()) {
                         socialProfile = profile.get();
                         existClient = getClientBySocialProfile(socialProfile);
@@ -341,7 +340,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private void checkSocialIds(Client client) {
         for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
             SocialProfile socialProfile = iterator.next();
-            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
+            if ("vk".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
                 if (id.isPresent()) {
                     socialProfile.setSocialId(String.valueOf(id.get()));
@@ -410,29 +409,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         //checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
-
-//    private void checkSocialLinks(Client client) {
-//        for (int i = 0; i < client.getSocialProfiles().size(); i++) {
-//            String link = client.getSocialProfiles().get(i).getSocialId();
-//            SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
-//            if (type.getName().equals("unknown")) {
-//                if (!link.startsWith("https")) {
-//                    if (link.startsWith("http")) {
-//                        link = link.replaceFirst("http", "https");
-//                    } else {
-//                        link = "https://" + link;
-//                    }
-//                }
-//            } else {
-//                int indexOfLastSlash = link.lastIndexOf("/");
-//                if (indexOfLastSlash != -1) {
-//                    link = link.substring(indexOfLastSlash + 1);
-//                }
-//                link = "https://" + type.getName() + ".com/" + link;
-//            }
-//            client.getSocialProfiles().get(i).setSocialId(link);
-//        }
-//    }
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {

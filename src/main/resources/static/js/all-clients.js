@@ -168,11 +168,11 @@ function drawClients(table, res) {
     for (let i = 0; i < res.length; i++) {
         let socLink = '';
         for (let j = 0; j < res[i].socialProfiles.length; j++) {
-            if (res[i].socialProfiles[j].socialProfileType.name == 'vk' || res[i].socialProfiles[j].socialProfileType.name == 'facebook') {
-                if (res[i].socialProfiles[j].socialProfileType.link == null) {
+            if (res[i].socialProfiles[j].socialNetworkType.name == 'vk' || res[i].socialProfiles[j].socialNetworkType.name == 'facebook') {
+                if (res[i].socialProfiles[j].socialNetworkType.link == null) {
                     socLink += res[i].socialProfiles[j].socialId + '<br>';
                 } else {
-                    socLink += res[i].socialProfiles[j].socialProfileType.link + res[i].socialProfiles[j].socialId + '<br>';
+                    socLink += res[i].socialProfiles[j].socialNetworkType.link + res[i].socialProfiles[j].socialId + '<br>';
                 }
             }
         }

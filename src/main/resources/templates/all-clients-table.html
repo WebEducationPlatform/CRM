@@ -144,9 +144,9 @@
                 <td th:text= " ${!#arrays.isEmpty(client.clientEmails)} ? ${client.clientEmails[0]}"></td>
                 <td>
                     <th:block th:each="soc : ${client.socialProfiles}">
-                        <span th:if="${soc.socialProfileType.name == 'vk' or soc.socialProfileType.name == 'facebook'}" th:remove="tag">
-                            <th:block th:if="${soc.socialProfileType.link == null}" th:text="${soc.socialId}"></th:block>
-                            <th:block th:if="${soc.socialProfileType.link != null}" th:text="${soc.socialProfileType.link + soc.socialId}"></th:block>
+                        <span th:if="${soc.socialNetworkType.name == 'vk' or soc.socialNetworkType.name == 'facebook'}" th:remove="tag">
+                            <th:block th:if="${soc.socialNetworkType.link == null}" th:text="${soc.socialId}"></th:block>
+                            <th:block th:if="${soc.socialNetworkType.link != null}" th:text="${soc.socialNetworkType.link + soc.socialId}"></th:block>
                             <br/>
                         </span>
                     </th:block>
