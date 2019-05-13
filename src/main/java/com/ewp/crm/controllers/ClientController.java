@@ -102,26 +102,26 @@ public class ClientController {
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getStatusesWithSortedClients(userFromSession);
+            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER"));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = statusService.getAllByRole(roleService.getRoleByName("ADMIN"));
+            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN"));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = statusService.getAllByRole(roleService.getRoleByName("MENTOR"));
+            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR"));
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
         else if(sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = statusService.getAllByRole(roleService.getRoleByName("USER"));
+            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER"));
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
@@ -132,13 +132,15 @@ public class ClientController {
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
-        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-        modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
-        modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-        modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-        modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) || sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
+            modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+            modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
+            modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
+            modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+            modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+        }
         return modelAndView;
     }
 

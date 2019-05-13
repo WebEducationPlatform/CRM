@@ -65,7 +65,14 @@ public class ContractController {
                 Map<String,String> contractDataMap = contractService.getContractIdByFormDataWithSetting(data, setting);
                 if (!contractDataMap.isEmpty()) {
                     clientService.updateClientFromContractForm(clientService.get(clientId), data, setting.getUser());
-                    String docLink = googleAPIConfig.getDocsUri() + contractDataMap.get("contractId") + "/edit?usp=sharing";
+                    String docLink;
+                    String googleDocUrl = googleAPIConfig.getDocsUri();
+                    String googleContractId = contractDataMap.get("contractId");
+                    if (setting.isStamp()) {
+                        docLink = googleAPIConfig.getViewUri() + googleDocUrl + googleContractId + "/export?format=pdf";
+                    } else {
+                        docLink = googleDocUrl + googleContractId + "/edit?usp=sharing";
+                    }
                     clientService.setContractLink(clientId, docLink, contractDataMap.get("contractName"));
                     ProjectProperties current = projectPropertiesService.get();
                     if (current.getContractTemplate() != null) {

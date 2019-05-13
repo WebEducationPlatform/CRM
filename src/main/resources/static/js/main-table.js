@@ -682,24 +682,6 @@ function reAvailableUser(id) {
     });
 }
 
-function deleteUser(id) {
-    let url = '/admin/rest/user/deleteUser';
-    let formData = {
-        deleteId: id
-    };
-
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: formData,
-        success: function () {
-            location.reload();
-        },
-        error: function (e) {
-        }
-    });
-}
-
 //Отправка фиксированного сообщения во вконтакте из расширенной модалки.
 $(function () {
     $('.internal-vkontakte-message').on('click', function () {
@@ -762,6 +744,7 @@ $(function () {
         });
     });
 });
+
 $(function () {
     $('.сustom-vk-btn').on('click', function () {
         var clientId = $(this).parents('.main-modal').data('clientId');
@@ -930,7 +913,11 @@ $(function () {
         var templateId = $(this).data('templateId');
         var current = $(this);
         var currentStatus = $(this).prev('.send-fixed-template');
-        var formData = {clientId: clientId, templateId: templateId};
+        var formData = {
+            clientId : clientId,
+            templateId : templateId
+
+        };
         var url = [];
         var err = [];
         $('input[type="checkbox"]:checked').each(function (el) {
@@ -945,10 +932,14 @@ $(function () {
                 case ('sms'):
                     url = '/user/sms/send/now/client';
                     break;
+                case ('slack'):
+                    url = '/slack/send/client';
+                    break;
                 //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
                 case ('facebook'):
                     url = '/temporary blank';
                     break;
+
             }
             if (url.length > 0) {
                 $.ajax({
@@ -1047,8 +1038,9 @@ $(function () {
         var current = $(this);
         var currentStatus = $(this).prev('.send-custom-template');
         var formData = {
-            clientId: clientId, templateId: templateId,
-            body: $('#custom-eTemplate-body').val()
+            clientId : clientId,
+            templateId : templateId,
+            body : $('#custom-eTemplate-body').val()
         };
         var url = [];
         var err = [];
@@ -1063,6 +1055,9 @@ $(function () {
                     break;
                 case ('sms'):
                     url = '/user/sms/send/now/client';
+                    break;
+                case ('slack'):
+                    url = '/slack/send/client';
                     break;
                 //TODO временный адрес заглушка пока нету facebook, чтобы не нарушать работу методаю
                 case ('facebook'):
@@ -1691,15 +1686,17 @@ $(function () {
 
                 currentModal.find('.modal-title-profile').text(client.name + ' ' + client.lastName);
                 currentModal.find('#client-set-status-button').text(client.status.name);
-                $('#client-email').text(client.email);
-                $('#client-phone').text(client.phoneNumber);
+
+                $('#client-email').text(client.clientEmails[0]);
+                $('#client-phone').text(client.clientPhones[0]);
+
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
-                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
                         .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
-                    $(".call-to-client").after('<button id="btn-call-off" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
-                    $('.call-to-client').after('<button id="btn-mic-off" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
+                    $(".call-to-client.main-modal").after('<button id="btn-call-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
+                    $('.call-to-client.main-modal').after('<button id="btn-mic-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
                     $('#btn-mic-off').hide();
                     $('#btn-call-off').hide();
                 }
@@ -2180,6 +2177,7 @@ function createContractSetting() {
         oneTimePayment: !!$('#contract-client-setting-one-time-payment-radio').prop("checked"),
         monthPayment: !!$('#contract-client-setting-month-payment-radio').prop("checked"),
         diploma: !!$('#contract-client-setting-diploma-checkbox').prop("checked"),
+        stamp: !!$('#contract-client-setting-stamp-checkbox').prop("checked"),
         paymentAmount: $('#contract-client-setting-payment-amount-form').val()
     };
 
@@ -2203,3 +2201,58 @@ function createContractSetting() {
         }
     });
 }
+
+// Fill table with radiobuttons and show modal window
+function fillUsersTableForDelete(button) {
+    deleted = $(button).data('id');
+    var url = '/rest/users';
+    $.ajax({
+        type: 'get',
+        url: url,
+        dataType: 'json',
+        success: function (response) {
+            console.log(response);
+            var trHTML = '';
+            for (var i = 0; i < response.length; i++) {
+                if (deleted == response[i].id) continue;
+                trHTML += '<tr><td>' + '<input type="radio" name="user" value="' + response[i].id + '">' +
+                                                                                 " " + response[i].firstName +
+                                                                                 " " + response[i].lastName + '</td></tr>';
+            }
+            $('#usersTable').append(trHTML);
+            $('#deleteUserModal').modal('show');
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+    // Delete user form listener
+    $("#deleteUserForm").submit(function (event) {
+        event.preventDefault();
+        receiver = $("input[name='user']:checked").val();
+        var url = '/admin/rest/user/deleteWithTransfer';
+        var formData = {
+            deleteId: deleted,
+            receiverId: receiver
+        };
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function () {
+                location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+}
+
+// Reload page after modal is hidden for not to add new radiobuttons
+$('#deleteUserModal').on('hide.bs.modal', function() {
+    console.log("hide modal");
+    location.reload();
+});

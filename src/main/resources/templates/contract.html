@@ -6,7 +6,7 @@
 </head>
 <body>
 <div class="d-flex align-items-center flex-column h-100 row">
-    <form class="col-sm-5" th:action="@{/contract/{hash}(hash=${hash})}" th:method="POST" th:object="${data}">
+    <form class="col-sm-5" th:action="@{/contract/{hash}(hash=${hash})}"  th:method="POST" th:object="${data}" id="contract-form">
         <div class="form-group">
             <label for="inputFirstName" class="col-sm col-form-label">Имя :</label>
             <div class="col-sm">
@@ -87,7 +87,7 @@
             <input type="checkbox" class="custom-control-input" id="customCheck1"/>
             <label class="custom-control-label" for="customCheck1">Я согласен <a href="http://java-mentor.com/politika2.html" >с условиями передачи и обработки данных</a></label>
         </div>
-        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" id="go-button" value="Отправить"
+        <input class="btn btn-lg btn-primary btn-block" name="submit" type="submit" id="contract-send-date" value="Отправить"
                disabled="disabled" style="margin-top: 20px"/>
     </form>
     <div id="contract-loading" class="modal" style="
@@ -98,7 +98,7 @@
     height:     100%;
     width:      100%;
     background: rgba( 255, 255, 255, 0.4)
-                url('https://i.gifer.com/YCZH.gif')
+                url('../images/loading-contract.gif')
                 50% 50%
                 no-repeat;"></div>
 </div>

@@ -32,7 +32,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
-    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search OR c.skype LIKE :search) ";
+    private final String queryPattern = " (s.socialId LIKE :search OR c.name LIKE :search OR c.lastName LIKE :search OR e LIKE :search OR p LIKE :search OR c.skype LIKE :search) ";
 
     @Autowired
     public ClientRepositoryImpl(EntityManager entityManager) {
@@ -252,22 +252,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<String> getClientsEmail() {
-        return entityManager.createQuery("SELECT email FROM Client").getResultList();
+        return entityManager.createNativeQuery("SELECT client_email FROM client_emails").getResultList();
     }
 
     @Override
     public List<String> getClientsPhoneNumber() {
-        return entityManager.createQuery("SELECT phoneNumber FROM Client").getResultList();
+        return entityManager.createNativeQuery("SELECT client_phone FROM client_phones").getResultList();
     }
 
     @Override
     public List<String> getFilteredClientsEmail(FilteringCondition filteringCondition) {
-        return entityManager.createQuery(createQueryForGetEmails(filteringCondition)).getResultList();
+        return entityManager.createNativeQuery(createQueryForGetEmails(filteringCondition)).getResultList();
     }
 
     @Override
     public List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition) {
-        return entityManager.createQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
+        return entityManager.createNativeQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
     }
 
     @Override
@@ -302,11 +302,58 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     private String createQueryForGetEmails(FilteringCondition filteringCondition) {
-        return "select email from Client cl where 1 = 1" + filterQuery(filteringCondition);
+        return "SELECT client_email FROM client_emails ce JOIN client cl ON ce.client_id = cl.client_id" +
+                " JOIN status_clients sc ON cl.client_id = sc.user_id" +
+                " where 1 = 1" + filterQueryForPhonesAndEmails(filteringCondition);
     }
 
     private String createQueryForGetPhoneNumbers(FilteringCondition filteringCondition) {
-        return "select phoneNumber from Client cl where 1 = 1" + filterQuery(filteringCondition);
+        return "SELECT client_phone FROM client_phones cp JOIN client cl ON cp.client_id = cl.client_id" +
+                " JOIN status_clients sc ON cl.client_id = sc.user_id" +
+                " where 1 = 1" + filterQueryForPhonesAndEmails(filteringCondition);
+    }
+
+    private String filterQueryForPhonesAndEmails(FilteringCondition filteringCondition) {
+        StringBuilder query = new StringBuilder();
+
+        if (filteringCondition.getSex() != null) {
+            query.append(" and cl.sex = '").append(filteringCondition.getSex()).append("'");
+        }
+
+        if (filteringCondition.getAgeFrom() != null) {
+            LocalDate dateAgeTo = LocalDate.now().minusYears(filteringCondition.getAgeFrom());
+            String dateTo = dateAgeTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and cl.birthDate <= '").append(dateTo).append("'");
+        }
+        if (filteringCondition.getAgeTo() != null) {
+            LocalDate dateAgeFrom = LocalDate.now().minusYears(filteringCondition.getAgeTo());
+            String dateFrom = dateAgeFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            query.append(" and cl.birthDate >= '").append(dateFrom).append("'");
+        }
+
+        if (!filteringCondition.getCity().isEmpty()) {
+            query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
+        }
+
+        if (!filteringCondition.getCountry().isEmpty()) {
+            query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
+        }
+
+        if (filteringCondition.getDateFrom() != null) {
+            query.append(" and cl.date >= '").append(filteringCondition.getDateFrom()).append("'");
+        }
+
+        if (filteringCondition.getDateTo() != null) {
+            query.append(" and cl.date <= '").append(filteringCondition.getDateTo()).append("'");
+        }
+
+        if (filteringCondition.getStatus() != null) {
+            query.append(" and cl.client_id in (select c2.client_id from client c2 join status_clients sc1 on sc1.user_id = c2.client_id where sc1.status_id in (select s1.status_id from status s1 where s1.status_name = '")
+                    .append(filteringCondition.getStatus())
+                    .append("'))");
+        }
+
+        return query.toString();
     }
 
     private String filterQuery(FilteringCondition filteringCondition) {
@@ -358,7 +405,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 "  INNER JOIN client ON client_social_network.client_id = client.client_id\n" +
                 "  INNER JOIN social_network_social_network_type ON social_network.id = social_network_social_network_type.social_network_id\n" +
                 "  INNER JOIN social_network_type ON social_network_social_network_type.social_network_type_id = social_network_type.id\n" +
-                "WHERE social_network_type.name = '" + filteringCondition.getSelected() + "'");
+                "WHERE social_network_type.name = '" + filteringCondition.getChecked() + "'");
 
         if (filteringCondition.getSex() != null) {
             query.append(" and client.sex = '").append(filteringCondition.getSex()).append("'");
@@ -400,7 +447,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
-        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles s WHERE");
+        StringBuilder searchString = new StringBuilder("SELECT distinct c FROM Client c LEFT JOIN c.socialProfiles AS s LEFT JOIN c.clientEmails AS e LEFT JOIN c.clientPhones AS p WHERE");
         String[] searchWords = search.split(" ");
         for (int i = 0; i < searchWords.length; i++) {
             searchString.append(queryPattern.replace("search", "search" + i));
@@ -450,4 +497,14 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                         .getResultList();
         return orderedClients;
     }
+
+    @Transactional
+    @Override
+    public void transferClientsBetweenOwners(User sender, User receiver) {
+        entityManager.createQuery("UPDATE Client c SET c.ownerUser = :receiver WHERE c.ownerUser = :sender")
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+    }
 }
+

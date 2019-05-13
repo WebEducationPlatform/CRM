@@ -64,7 +64,7 @@
                                                        th:attrappend="data-target='#customMessageTemplate'"
                                                        th:text="' ' + ${template.name}"
                                                        th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')"
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR')"
                                                        th:href="'/template/edit/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal"
@@ -171,7 +171,7 @@
                                     </td>
                                     <td>
                                         <button id="chat-button" type="button" class="btn btn-primary btn-sm"
-                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}">
+                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}" sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')">
                                             <a href="#" style="color: white;"> Чаты <span id="chat-im-count"
                                                                                             class="badge"></span></a>
                                         </button>
