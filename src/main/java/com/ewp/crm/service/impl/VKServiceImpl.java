@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -87,13 +88,13 @@ public class VKServiceImpl implements VKService {
     private final AdReportService vkAdsReportService;
     private final GoogleAdsService googleAdsService;
     private final MessageTemplateService messageTemplateService;
+    private Environment env;
 
     private final String vkPattern = "[^\\/]+$";// подстрока от последнего "/" до конца строки
     private final String allDigitPattern = "\\d+";
     private final String idString = "id";
     private final String zeroString = "0";
     private final String vkURL = "https://vk.com/";
-    private static final String GETTING_REPORT_ERROR = "Ошибка";
 
     private String vkApi;
     //Токен аккаунта, отправляющего сообщения
@@ -138,7 +139,8 @@ public class VKServiceImpl implements VKService {
                          RestTemplate restTemplate,
                          GoogleAdsService googleAdsService,
                          @Qualifier("YandexDirect") AdReportService yandexDirectAdReportService,
-                         @Qualifier("VkAds") AdReportService vkAdsReportService, MessageTemplateService messageTemplateService1) {
+                         @Qualifier("VkAds") AdReportService vkAdsReportService, MessageTemplateService messageTemplateService1,
+                         Environment env) {
         this.vkConfig = vkConfig;
         clubId = vkConfig.getClubIdWithMinus();
         version = vkConfig.getVersion();
@@ -169,6 +171,7 @@ public class VKServiceImpl implements VKService {
         this.yandexDirectAdReportService = yandexDirectAdReportService;
         this.vkAdsReportService = vkAdsReportService;
         this.googleAdsService = googleAdsService;
+        this.env = env;
     }
 
 
@@ -220,7 +223,7 @@ public class VKServiceImpl implements VKService {
     public Optional<List<String>> getNewMassages() throws VKAccessTokenException {
         logger.info("VKService: getting new messages...");
         if (technicalAccountToken == null && (technicalAccountToken = projectPropertiesService.get() != null ? projectPropertiesService.get().getTechnicalAccountToken() : null) == null) {
-            throw new VKAccessTokenException("VK access token has not got");
+            throw new VKAccessTokenException(env.getProperty("messaging.vk.exception.access-token"));
         }
         String uriGetMassages = vkApi + "messages.getHistory" +
                 "?user_id=" + clubId +
@@ -588,7 +591,7 @@ public class VKServiceImpl implements VKService {
         } catch (InterruptedException e) {
             logger.error("Failed to get captcha ", e);
         }
-        return "Failed to send message";
+        return env.getProperty("messaging.vk.send-by-id-error");
     }
 
     @Override
@@ -643,7 +646,7 @@ public class VKServiceImpl implements VKService {
     private String determineResponse(JSONObject jsonObject) throws JSONException {
         try {
             jsonObject.getInt("response");
-            return "Message sent";
+            return env.getProperty("messaging.vk.send-ok");
         } catch (JSONException e) {
             JSONObject jsonError = jsonObject.getJSONObject("error");
             String errorMessage = jsonError.getString("error_msg");
@@ -1320,6 +1323,7 @@ public class VKServiceImpl implements VKService {
         String spentFromVk;
         String balanceFromGoogle;
         String spentFromGoogle;
+        String GETTING_REPORT_ERROR = env.getProperty("messaging.vk.get-report-error");
 
         // Получение отчёта с Yandex Direct
         try {

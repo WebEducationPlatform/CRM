@@ -8,6 +8,7 @@ import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +30,13 @@ public class WhatsappWebhook {
     private final SocialProfileTypeService socialProfileTypeService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
+    private Environment env;
 
     @Autowired
-    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService, WhatsappMessageService whatsappMessageService, StatusService statusService, SocialProfileTypeService socialProfileTypeService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService) {
+    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService,
+                           WhatsappMessageService whatsappMessageService, StatusService statusService,
+                           SocialProfileTypeService socialProfileTypeService, SocialProfileService socialProfileService,
+                           ClientHistoryService clientHistoryService, Environment env) {
         this.clientService = clientService;
         this.sendNotificationService = sendNotificationService;
         this.whatsappMessageService = whatsappMessageService;
@@ -39,6 +44,7 @@ public class WhatsappWebhook {
         this.socialProfileTypeService = socialProfileTypeService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
+        this.env = env;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
@@ -63,7 +69,7 @@ public class WhatsappWebhook {
                     Client newClient = new Client(whatsappMessage.getSenderName(), whatsappMessage.getChatId(), whatsappMessage.getTime());
                     checkSocialProfile(whatsappMessage, newClient);
                     statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
-                    newClient.addHistory(new ClientHistory("Был добавлен из WhatsApp", whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
+                    newClient.addHistory(new ClientHistory(env.getProperty("messaging.client.history.add-from-whatsapp"), whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
                     clientService.addClient(newClient);
                     sendNotificationService.sendNewClientNotification(newClient, "whatsapp");
                     checkSocialProfile(whatsappMessage, newClient);

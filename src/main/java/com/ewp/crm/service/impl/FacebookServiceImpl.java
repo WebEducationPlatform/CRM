@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,22 +37,25 @@ public class FacebookServiceImpl implements FacebookService {
 	private final RestTemplate restTemplate;
 	private final FacebookMessageService facebookMessageService;
 	private final FacebookDialogService facebookDialogService;
+	private Environment env;
 
 	@Autowired
-	public FacebookServiceImpl(FacebookConfig facebookConfig, RestTemplate restTemplate, FacebookMessageService facebookService, FacebookDialogService facebookDialogService) {
+	public FacebookServiceImpl(FacebookConfig facebookConfig, RestTemplate restTemplate, FacebookMessageService facebookService,
+							   FacebookDialogService facebookDialogService, Environment env) {
 		this.version = facebookConfig.getVersion();
 		this.pageToken = facebookConfig.getPageToken();
 		this.pageId = facebookConfig.getPageId();
 		this.restTemplate = restTemplate;
 		this.facebookMessageService = facebookService;
 		this.facebookDialogService = facebookDialogService;
+		this.env = env;
 	}
 
 	private final String FB_API_METHOD_TEMPLATE = "https://graph.facebook.com/";
 
 	public void getFacebookMessages() throws FBAccessTokenException {
 		if (pageToken == null) {
-			throw new FBAccessTokenException("Facebook access token has not got");
+			throw new FBAccessTokenException(env.getProperty("messaging.facebook.exception.access-token"));
 		}
 		URI uri = URI.create(FB_API_METHOD_TEMPLATE + version + "/" + pageId + "/" +
 				"?fields=about,conversations%7Bmessages%7Bmessage,created_time,from,to%7D%7D" +

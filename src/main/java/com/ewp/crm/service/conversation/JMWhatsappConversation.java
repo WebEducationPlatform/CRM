@@ -57,8 +57,8 @@ public class JMWhatsappConversation implements JMConversation {
         try {
             phoneNumber = message.getChatId().replaceAll("\\D", "");
         } catch (NumberFormatException nfe) {
-            logger.warn("При отправки сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
-            return new ChatMessage(ChatType.whatsapp, "у этого клиента не верно указан номер телефона оправка сообщения не возможна");
+            logger.warn("При отправке сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
+            return new ChatMessage(ChatType.whatsapp, environment.getProperty("messaging.whatsapp.send-error-wrong-phone"));
         }
 
         WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(phoneNumber, message.getText());
