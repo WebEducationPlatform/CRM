@@ -568,5 +568,4 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.transferClientsBetweenOwners(sender, receiver);
         logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
     }
-
 }

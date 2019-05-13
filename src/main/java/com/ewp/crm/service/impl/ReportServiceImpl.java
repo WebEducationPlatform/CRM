@@ -208,10 +208,10 @@ public class ReportServiceImpl implements ReportService {
             fileName.append(selectedCheckbox).append("_");
         }
 
-        if (!Strings.isNullOrEmpty(delimeter)) {
+        if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")) {
             fileName.append(delimeter).append(".txt");
         } else {
-            fileName.append("without_delimeter").append(".txt");
+            fileName.append(".txt");
         }
         return Optional.of(fileName.toString());
     }
