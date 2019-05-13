@@ -1,4 +1,4 @@
-package com.ewp.crm.utils.converters;
+package com.ewp.crm.util.converters;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
