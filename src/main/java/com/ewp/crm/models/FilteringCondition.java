@@ -23,6 +23,8 @@ public class FilteringCondition {
 
     private Status status;
 
+    private Integer ownerUserId;
+
     private List<String> selectedCheckbox;
 
     private String checked;
@@ -32,6 +34,14 @@ public class FilteringCondition {
     private int pageNumber;
 
     public FilteringCondition() {
+    }
+
+    public Integer getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId (Integer ownerUserId) {
+        this.ownerUserId = ownerUserId;
     }
 
     public Client.Sex getSex() {

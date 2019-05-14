@@ -5,7 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.VkProfileInfo;
-import com.ewp.crm.service.conversation.ChatMessage;
+import com.ewp.crm.models.conversation.ChatMessage;
 
 import java.time.ZonedDateTime;
 import java.util.List;
