@@ -5,6 +5,7 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
@@ -49,8 +50,6 @@ public class ScheduleTasks {
 	private final StatusService statusService;
 
 	private final SocialProfileService socialProfileService;
-
-	private final SocialProfileTypeService socialProfileTypeService;
 
 	private final SMSService smsService;
 
@@ -97,8 +96,7 @@ public class ScheduleTasks {
 						 YouTubeTrackingCardService youTubeTrackingCardService,
 						 ClientService clientService, StudentService studentService,
 						 StatusService statusService, ProjectPropertiesService projectPropertiesService,
-						 MailingService mailingService, SocialProfileService socialProfileService,
-						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
+						 MailingService mailingService, SocialProfileService socialProfileService, SMSService smsService,
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
 						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
@@ -113,7 +111,6 @@ public class ScheduleTasks {
 		this.studentService = studentService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
-		this.socialProfileTypeService = socialProfileTypeService;
 		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.mailSendService = mailSendService;
@@ -137,12 +134,10 @@ public class ScheduleTasks {
 	}
 
 	private void addClientFromVk(Client newClient) {
-		Optional<SocialProfileType> vkSocialType = socialProfileTypeService.getByTypeName("vk");
-		if (vkSocialType.isPresent()) {
             statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
             newClient.setState(Client.State.NEW);
             if (!newClient.getSocialProfiles().isEmpty()) {
-                newClient.getSocialProfiles().get(0).setSocialProfileType(vkSocialType.get());
+                newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
             }
             clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
             vkService.fillClientFromProfileVK(newClient);
@@ -153,9 +148,6 @@ public class ScheduleTasks {
             clientService.addClient(newClient);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
-        } else {
-		    logger.warn("Failed to add client from vk with id {}! Can't find social profile type by name 'vk'", newClient.getSocialProfiles().get(0).getSocialId());
-        }
 	}
 
     @Scheduled(cron = "0 0 7 * * *")
