@@ -71,8 +71,12 @@ public class IncomeStringToClient {
         String formattedName = name.replaceAll("~", " ");
         setClientName(client, formattedName);
         client.setPhoneNumber(clientData.get("Телефон").replace("~", ""));
-        client.setCountry(clientData.get("Страна").replace("~", ""));
-        client.setCity(clientData.get("Город").replace("~", ""));
+        if (clientData.containsKey("Страна")) {
+            client.setCountry(clientData.get("Страна").replace("~", ""));
+        }
+        if (clientData.containsKey("Город")) {
+            client.setCity(clientData.get("Город").replace("~", ""));
+        }
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
         if (clientData.containsKey("Запрос")) {
@@ -156,7 +160,9 @@ public class IncomeStringToClient {
         String formattedName = name.replaceAll("~", " ");
         setClientName(client, formattedName);
         client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
-        client.setCountry(clientData.get("Country").replace("~", ""));
+        if (clientData.containsKey("Country")) {
+            client.setCountry(clientData.get("Country").replace("~", ""));
+        }
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
         if (clientData.containsKey("Запрос")) {
