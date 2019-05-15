@@ -143,7 +143,7 @@ public class ScheduleTasks {
             vkService.fillClientFromProfileVK(newClient);
             Optional<String> optionalEmail = newClient.getEmail();
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
+                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
             }
             clientService.addClient(newClient);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
@@ -252,7 +252,7 @@ public class ScheduleTasks {
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
 			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-					.orElseThrow(NotFoundMemberList::new);
+					.orElseThrow(() -> new NotFoundMemberList(env.getProperty("messaging.vk.exception.not-found-member-list")));
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
 				if (!lastMemberList.contains(vkMember)) {
@@ -335,10 +335,10 @@ public class ScheduleTasks {
 			if (status.isPresent()) {
 				if (!status.get().equals("queued")) {
 					if (status.get().equals("delivered")) {
-						sms.setDeliveryStatus("доставлено");
+						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.delivered"));
 					} else if (sms.getClient() == null) {
 						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-						sms.setDeliveryStatus("Клиент не найден");
+						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.status-not-found"));
 					} else {
 						String deliveryStatus = determineStatusOfResponse(status.get());
 						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
@@ -355,16 +355,16 @@ public class ScheduleTasks {
 		String info;
 		switch (status) {
 			case "delivery error":
-				info = "Номер заблокирован или вне зоны";
+				info = env.getProperty("messaging.client.phone.calls.delivery-error");
 				break;
 			case "invalid mobile phone":
-				info = "Неправильный формат номера";
+				info = env.getProperty("messaging.client.phone.calls.invalid-mobile-phone");
 				break;
 			case "incorrect id":
-				info = "Неверный id сообщения";
+				info = env.getProperty("messaging.client.phone.calls.incorrect-id");
 				break;
 			default:
-				info = "Неизвестная ошибка";
+				info = env.getProperty("messaging.client.phone.calls.unknown-error");
 		}
 		return info;
 	}

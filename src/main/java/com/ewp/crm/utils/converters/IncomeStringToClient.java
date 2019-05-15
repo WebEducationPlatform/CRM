@@ -7,6 +7,7 @@ import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -19,10 +20,12 @@ import java.util.Optional;
 public class IncomeStringToClient {
     private final VKService vkService;
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
+    private Environment env;
 
     @Autowired
-    public IncomeStringToClient(VKService vkService) {
+    public IncomeStringToClient(VKService vkService, Environment env) {
         this.vkService = vkService;
+        this.env = env;
     }
 
     public Client convert(String income) {
@@ -177,7 +180,7 @@ public class IncomeStringToClient {
             if (link != null && !link.isEmpty()) {
                 SocialProfile currentSocialProfile = getSocialNetwork(link);
                 if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
-                    client.setComment(String.format("Ссылка на социальную сеть %s недействительна", link));
+                    client.setComment(String.format(env.getProperty("messaging.client.socials.invalid-link"), link));
                     logger.warn("Unknown social network '" + link + "'");
                 } else {
                     client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
