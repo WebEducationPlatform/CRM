@@ -68,3 +68,6 @@ function showCurrentModal(studentId) {
     currentModal.modal('show');
 }
 
+function displayOption(clientId) {
+    $("#option_" + clientId).show();
+}
