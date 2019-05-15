@@ -30,12 +30,14 @@ function drawMissingStudents(status) {
         .done(function (studentsInStatus) {
             students = studentsInStatus;
             $.each(students, function (i, student) {
-                $.get("http://localhost:8080/student/lost?email=" + student.email)
-                    .done(function (isLost) {
-                        if (isLost === true) {
-                            drawClientsPortlet(student, status);
-                        }
-                    })
+                if (student.email !== null) {
+                    $.get("http://localhost:8080/student/lost?email=" + student.email)
+                        .done(function (isLost) {
+                            if (isLost === true) {
+                                drawClientsPortlet(student, status);
+                            }
+                        })
+                }
             })
         });
 }
