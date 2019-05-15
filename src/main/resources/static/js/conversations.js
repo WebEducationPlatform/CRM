@@ -252,3 +252,73 @@ function set_telegram_id_by_phone(phone) {
         }
     })
 }
+
+
+function start_chats(clientId) {
+    $.ajax({
+        type: "GET",
+        url: "/rest/conversation/all",
+        data: {id: clientId},
+        success: function (response) {
+            $("#chat-messages").empty();
+            for (let i in response) {
+                let message_id = response[i].id;
+                let send_date = new Date(response[i].time);
+                let text = response[i].text;
+                let is_outgoing = response[i].outgoing;
+                let is_read = response[i].read;
+                let sn_type = response[i].chatType;
+                append_all_chats_message(message_id, send_date, text, is_outgoing, is_read, sn_type);
+            }
+            $("#send-selector").prop('value', response[response.length - 1].chatType);
+            setTimeout(update_chat, 2000);
+            setTimeout(scroll_down, 1000);
+        }
+    })
+}
+
+let conversations = $("#conversations-body");
+
+$('#conversations-modal').on('show.bs.modal', function () {
+    let clientId = $("#main-modal-window").data('clientId');
+    set_send_selector(clientId);
+    start_chats(clientId);
+});
+
+$('#conversations-modal').on('hidden.bs.modal', function () {
+    $('#main-modal-window').css('overflow-y', 'auto');
+    let clientId = $("#main-modal-window").data('clientId');
+    $("#chat-messages").empty();
+    $.ajax({
+        type: 'GET',
+        url: '/rest/telegram/messages/chat/close',
+        data: {clientId: clientId}
+    });
+});
+
+function set_send_selector(clientId) {
+    let selector = $("#send-selector");
+    selector.empty();
+    $.ajax({
+        type: "GET",
+        url: "/rest/client/" + clientId,
+        success: function (client) {
+            for (let i = 0; i < client.socialProfiles.length; i++) {
+                switch (client.socialProfiles[i].socialNetworkType.name) {
+                    case 'vk':
+                        selector.append("<option id='send-vk' value='vk'>Отправить в ВК</option>");
+                        break;
+                    case 'telegram':
+                        selector.append("<option id='send-telegram' value='telegram'>Отправить в Telegram</option>");
+                        break;
+                    case 'whatsapp':
+                        selector.append("<option id='send-whatsapp' value='whatsapp'>Отправить в WhatsApp</option>");
+                        break;
+                    case 'slack':
+                        selector.append("<option id='send-slack' value='slack'>Отправить в Slack</option>");
+                        break;
+                }
+            }
+        }
+    })
+}

@@ -244,6 +244,13 @@ function drawClients(table, res) {
             let bDateValues = bDate.split('-');
             birthDate = bDateValues[2] + '.' + bDateValues[1] + '.' + bDateValues[0];
         }
+        let oUsers = res[i].ownerUser;
+        let ownerUsers;
+        if (oUsers === null) {
+            ownerUsers = '';
+        } else {
+            ownerUsers = oUsers.fullName;
+        }
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
@@ -256,7 +263,7 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
-            '        <td>' + res[i].ownerUser.fullName + '</td>' +
+            '        <td>' + ownerUsers + '</td>' +
             '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
             '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +

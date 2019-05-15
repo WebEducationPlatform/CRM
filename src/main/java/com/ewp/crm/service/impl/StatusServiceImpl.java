@@ -15,6 +15,7 @@ import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
@@ -29,16 +30,20 @@ public class StatusServiceImpl implements StatusService {
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
 	private final RoleService roleService;
+	private Environment env;
 
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService, SortedStatusesRepository sortedStatusesRepository, RoleService roleService) {
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
+							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
+							 Environment env) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
 		this.roleService = roleService;
+		this.env = env;
 	}
 
 	@Autowired
@@ -131,13 +136,13 @@ public class StatusServiceImpl implements StatusService {
 	private void checkStatusUnique(Status status) {
 		Status statusFromDB = statusDAO.getStatusByName(status.getName());
 		if (statusFromDB != null && !statusFromDB.equals(status)) {
-			throw new StatusExistsException("Статус с таким названием уже существует");
+			throw new StatusExistsException(env.getProperty("messaging.client.status.exception.allready-exist"));
 		}
 	}
 
 	private void checkStatusId(Long id) {
 		if (id == 1L) {
-			throw new StatusExistsException("Статус с индексом \"1\" нельзя удалить");
+			throw new StatusExistsException(env.getProperty("messaging.client.status.exception.impossible-to-del-first"));
 		}
 		Optional<Status> optional = statusDAO.findById(id);
 		Status statusFromDB = null;
@@ -145,7 +150,7 @@ public class StatusServiceImpl implements StatusService {
 			statusFromDB = optional.get();
 		}
 		if (statusFromDB.getName().equals("deleted")) {
-			throw new StatusExistsException("Статус deleted нельзя удалить");
+			throw new StatusExistsException(env.getProperty("messaging.client.status.exception.deleted-impossible-to-del"));
 		}
 	}
 

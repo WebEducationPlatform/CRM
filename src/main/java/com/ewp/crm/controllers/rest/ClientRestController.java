@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,6 +48,7 @@ public class ClientRestController {
 	private final ReportService reportService;
 	private String fileName;
 	private final ClientRepository clientRepository;
+	private Environment env;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -62,7 +64,7 @@ public class ClientRestController {
                                 StudentService studentService,
                                 StudentStatusService studentStatusService,
 								ReportService reportService,
-								ClientRepository clientRepository) {
+								ClientRepository clientRepository, Environment env) {
         this.clientService = clientService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
@@ -75,6 +77,7 @@ public class ClientRestController {
 		this.reportService = reportService;
 		this.fileName = new String();
 		this.clientRepository = clientRepository;
+		this.env = env;
 	}
 
 	@GetMapping(value = "/slack-invite-link/{clientId}")
@@ -314,7 +317,7 @@ public class ClientRestController {
 			ZonedDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.systemDefault());
 			if (postponeDate.isBefore(ZonedDateTime.now()) || postponeDate.isEqual(ZonedDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
-				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
+				return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.wrong-postpone-date"));
 			}
             if(isPostponeFlag) {
                 client.setHideCard(true);
@@ -327,7 +330,7 @@ public class ClientRestController {
             logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Произошла ошибка");
+			return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.postpone-error"));
 		}
 	}
 
@@ -344,7 +347,7 @@ public class ClientRestController {
 			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка");
+            return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.postpone-error"));
         }
 	}
 
@@ -356,11 +359,11 @@ public class ClientRestController {
 		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
 		}
 		if (client.getClientDescriptionComment() != null && client.getClientDescriptionComment().equals(clientDescription)) {
 			logger.error("Client has same description");
-			return ResponseEntity.badRequest().body("Client has same description");
+			return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.description-same-error"));
 		}
 		client.setClientDescriptionComment(clientDescription);
 		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
@@ -377,11 +380,11 @@ public class ClientRestController {
 		Optional<Client> checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
 		if (client == null) {
 			logger.error("Client with id {} not found", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
 		}
 		if (checkDuplicateLogin.isPresent() && checkDuplicateLogin.get().getSkype().equals(skypeLogin)) {
 			logger.error("client with this skype login already exists");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(env.getProperty("messaging.client.rest.skype-login-same-error"));
 		}
 		client.setSkype(skypeLogin);
 		clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin).ifPresent(client::addHistory);
@@ -416,7 +419,7 @@ public class ClientRestController {
         Client client = clientService.get(clientId);
         if (client == null) {
             logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
         }
         if (client.isRepeated()) {
             clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
@@ -424,7 +427,7 @@ public class ClientRestController {
         client.setRepeated(isRepeated);
 
         clientService.updateClient(client);
-        return ResponseEntity.status(HttpStatus.OK).body("done");
+        return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.client.rest.repeated-client-updated"));
     }
 
     @PostMapping(value = "/order")
