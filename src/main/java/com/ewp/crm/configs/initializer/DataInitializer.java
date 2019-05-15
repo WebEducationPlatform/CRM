@@ -252,7 +252,7 @@ public class DataInitializer {
         List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
         for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
             List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-                    .orElseThrow(NotFoundMemberList::new);
+                    .orElseThrow(() -> new NotFoundMemberList("Лист подписчиков сообщества не был получен"));
             vkMemberService.addAllMembers(memberList);
         }
 
