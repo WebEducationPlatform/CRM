@@ -58,7 +58,7 @@ public class IncomeStringToClient {
         if (text.contains("Страница")) {
             text = text.substring(text.indexOf("Страница:"), text.length());
         }
-        return text.replaceAll("<b>|</b>|(\\r\\n|\\n)", "");
+        return text.replaceAll("<b>|</b>|<p>|</p>|(\\r\\n|\\n)", "");
     }
 
     private Client parseClientFormOne(String form) {
