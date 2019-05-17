@@ -7,6 +7,7 @@ import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -17,12 +18,15 @@ import java.util.Optional;
 
 @Component
 public class IncomeStringToClient {
+
     private final VKService vkService;
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
+    private Environment env;
 
     @Autowired
-    public IncomeStringToClient(VKService vkService) {
+    public IncomeStringToClient(VKService vkService, Environment env) {
         this.vkService = vkService;
+        this.env = env;
     }
 
     public Client convert(String income) {
@@ -40,6 +44,8 @@ public class IncomeStringToClient {
                 client = parseClientFormThree(workString);
             } else if (income.contains("Java Test")) {
                 client = parseClientFormFour(workString);
+            } else if (income.contains("javalearn")) {
+                client = parseClientFormJavaLearn(workString);
             } else {
                 logger.error("The incoming email does not match any of the templates!!!");
             }
@@ -49,8 +55,10 @@ public class IncomeStringToClient {
     }
 
     private static String prepareForm(String text) {
-        return text.substring(text.indexOf("Страница:"), text.length())
-                .replaceAll("<b>|</b>|(\\r\\n|\\n)", "");
+        if (text.contains("Страница")) {
+            text = text.substring(text.indexOf("Страница:"), text.length());
+        }
+        return text.replaceAll("<b>|</b>|<p>|</p>|(\\r\\n|\\n)", "");
     }
 
     private Client parseClientFormOne(String form) {
@@ -64,27 +72,20 @@ public class IncomeStringToClient {
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
-        String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", " ");
-        setClientName(client, formattedName);
+        setClientName(client, clientData.get("Name").replaceAll("~", " "));
         client.setPhoneNumber(clientData.get("Телефон").replace("~", ""));
-        client.setCountry(clientData.get("Страна").replace("~", ""));
-        client.setCity(clientData.get("Город").replace("~", ""));
+        if (clientData.containsKey("Страна")) {
+            client.setCountry(clientData.get("Страна").replace("~", ""));
+        }
+        if (clientData.containsKey("Город")) {
+            client.setCity(clientData.get("Город").replace("~", ""));
+        }
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
         if (clientData.containsKey("Запрос")) {
             client.setRequestFrom(clientData.get("Запрос").replace("~", ""));
         }
-        if (clientData.containsKey("Соцсеть")) {
-            String link = clientData.get("Соцсеть").replace("~", "");
-            SocialProfile currentSocialProfile = getSocialNetwork(link);
-            if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
-                client.setComment("Ссылка на социальную сеть " + link +
-                        " недействительна");
-                logger.warn("Unknown social network");
-            }
-            client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
-        }
+        checkSocialNetworks(client, clientData);
         logger.info("FormOne parsing finished");
         return client;
     }
@@ -98,9 +99,7 @@ public class IncomeStringToClient {
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
-        String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", "");
-        setClientName(client, formattedName);
+        setClientName(client, clientData.get("Name").replaceAll("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
         String question = clientData.get("Vopros");
@@ -124,9 +123,8 @@ public class IncomeStringToClient {
 
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
-        String name = clientData.get("Name");
-        String formattedName = name.replaceAll("~", " ");
-        setClientName(client, formattedName);
+
+        setClientName(client, clientData.get("Name").replaceAll("~", ""));
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
         String question = clientData.get("Вопрос");
@@ -149,11 +147,11 @@ public class IncomeStringToClient {
         String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
 
-        String name = clientData.get("Имя");
-        String formattedName = name.replaceAll("~", " ");
-        setClientName(client, formattedName);
+        setClientName(client, clientData.get("Имя").replaceAll("~", ""));
         client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
-        client.setCountry(clientData.get("Country").replace("~", ""));
+        if (clientData.containsKey("Country")) {
+            client.setCountry(clientData.get("Country").replace("~", ""));
+        }
         client.setEmail(clientData.get("Email").replace("~", ""));
         client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
         if (clientData.containsKey("Запрос")) {
@@ -165,17 +163,44 @@ public class IncomeStringToClient {
         return client;
     }
 
+    private Client parseClientFormJavaLearn(String form) {
+        logger.info("Parsing JavaLearnForm...");
+        Client client = new Client();
+        String removeExtraCharacters = form.substring(form.indexOf("Request"), form.length())
+                .replaceAll("<a href=\"", "")
+                .replaceAll("\">", "<br>")
+                .replaceAll("Name: ", "Name:")
+                .replaceAll(" ", "~");
+
+        String[] createArrayFromString = removeExtraCharacters.split("<br>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+
+        setClientName(client, clientData.get("Name").replaceAll("~", " "));
+        client.setPhoneNumber(clientData.get("Phone").replace("~", ""));
+        client.setEmail(clientData.get("Email").replace("~", ""));
+        client.setClientDescriptionComment(env.getProperty("messaging.client.description.java-learn-link"));
+        checkSocialNetworks(client, clientData);
+        logger.info("JavaLearnForm parsing finished");
+        return client;
+    }
+
     private void checkSocialNetworks(Client client, Map<String, String> clientData) {
+        String link = org.apache.commons.lang.StringUtils.EMPTY;
         if (clientData.containsKey("Social")) {
-            String link = clientData.get("Social").replace("~", "");
-            if (link != null && !link.isEmpty()) {
-                SocialProfile currentSocialProfile = getSocialNetwork(link);
-                if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
-                    client.setComment(String.format("Ссылка на социальную сеть %s недействительна", link));
-                    logger.warn("Unknown social network '" + link + "'");
-                } else {
-                    client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
-                }
+            link = clientData.get("Social");
+        } else if (clientData.containsKey("social")) {
+            link = clientData.get("social");
+        } else if (clientData.containsKey("Соцсеть")) {
+            link = clientData.get("Соцсеть");
+        }
+        link = link.replaceAll("~", "");
+        if (!link.isEmpty()) {
+            SocialProfile currentSocialProfile = getSocialNetwork(link);
+            if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
+                client.setComment(String.format(env.getProperty("messaging.client.socials.invalid-link"), link));
+                logger.warn("Unknown social network '" + link + "'");
+            } else {
+                client.setSocialProfiles(Collections.singletonList(currentSocialProfile));
             }
         }
     }
@@ -204,9 +229,11 @@ public class IncomeStringToClient {
     private Map<String, String> createMapFromClientData(String[] res) {
         Map<String, String> clientData = new HashMap<>();
         for (String re : res) {
-            String name = re.substring(0, re.indexOf(":"));
-            String value = re.substring(re.indexOf(":") + 1, re.length());
-            clientData.put(name, value);
+            if (re.contains(":")) {
+                String name = re.substring(0, re.indexOf(":"));
+                String value = re.substring(re.indexOf(":") + 1, re.length());
+                clientData.put(name, value);
+            }
         }
         return clientData;
     }
