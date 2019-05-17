@@ -42,6 +42,8 @@ public class SendNotificationServiceImpl implements SendNotificationService {
 
     private static Logger logger = LoggerFactory.getLogger(SendNotificationServiceImpl.class);
 
+    private Environment env;
+
     @Autowired
     public SendNotificationServiceImpl(MessageTemplateService messageTemplateService, ProjectPropertiesService projectPropertiesService, Environment env, UserService userService, MailSendService mailSendService, NotificationService notificationService, SMSService smsService, @Lazy VKService vkService, VKConfigImpl vkConfig) {
         this.userService = userService;
@@ -53,6 +55,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.serverUrl = env.getProperty("server.url");
         this.chatToNewClient = vkConfig.getChatToSendNewClient();
+        this.env = env;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class SendNotificationServiceImpl implements SendNotificationService {
         Matcher matcher = pattern.matcher(content);
 
         User contentCreator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String notificationMessage = String.format("Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"",
+        String notificationMessage = String.format(env.getProperty("messaging.notification.set-comment"),
                 contentCreator.getFullName(), client.getLastName(), client.getName(), content);
 
         while (matcher.find()) {
