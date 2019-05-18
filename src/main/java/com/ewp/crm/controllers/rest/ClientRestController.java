@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.ClientCardDtoBuilder;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -499,4 +500,9 @@ public class ClientRestController {
 		return student;
 	}
 
+	@GetMapping("/card/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+	public ResponseEntity<String> getClientCardDto(@PathVariable Long id) {
+		return ResponseEntity.ok(ClientCardDtoBuilder.buildClientCardDto(clientService.get(id), statusService.getAll()));
+	}
 }
