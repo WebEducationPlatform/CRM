@@ -1,6 +1,9 @@
 package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
+import com.ewp.crm.models.conversation.ChatMessage;
+import com.ewp.crm.models.conversation.ChatType;
+import com.ewp.crm.models.conversation.Interlocutor;
 
 import java.util.List;
 import java.util.Map;
