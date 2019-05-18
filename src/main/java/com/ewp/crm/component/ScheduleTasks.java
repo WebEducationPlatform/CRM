@@ -5,7 +5,6 @@ import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
-import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
@@ -50,6 +49,8 @@ public class ScheduleTasks {
 	private final StatusService statusService;
 
 	private final SocialProfileService socialProfileService;
+
+	private final SocialProfileTypeService socialProfileTypeService;
 
 	private final SMSService smsService;
 
@@ -96,7 +97,8 @@ public class ScheduleTasks {
 						 YouTubeTrackingCardService youTubeTrackingCardService,
 						 ClientService clientService, StudentService studentService,
 						 StatusService statusService, ProjectPropertiesService projectPropertiesService,
-						 MailingService mailingService, SocialProfileService socialProfileService, SMSService smsService,
+						 MailingService mailingService, SocialProfileService socialProfileService,
+						 SocialProfileTypeService socialProfileTypeService, SMSService smsService,
 						 SMSInfoService smsInfoService, SendNotificationService sendNotificationService,
 						 ClientHistoryService clientHistoryService, VkTrackedClubService vkTrackedClubService,
 						 VkMemberService vkMemberService, FacebookService facebookService, YoutubeService youtubeService,
@@ -111,6 +113,7 @@ public class ScheduleTasks {
 		this.studentService = studentService;
 		this.statusService = statusService;
 		this.socialProfileService = socialProfileService;
+		this.socialProfileTypeService = socialProfileTypeService;
 		this.smsService = smsService;
 		this.smsInfoService = smsInfoService;
 		this.mailSendService = mailSendService;
@@ -134,20 +137,26 @@ public class ScheduleTasks {
 	}
 
 	private void addClientFromVk(Client newClient) {
+		Optional<SocialProfileType> vkSocialType = socialProfileTypeService.getByTypeName("vk");
+		if (vkSocialType.isPresent()) {
             statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
             newClient.setState(Client.State.NEW);
             if (!newClient.getSocialProfiles().isEmpty()) {
-                newClient.getSocialProfiles().get(0).setSocialNetworkType(SocialNetworkType.VK);
+                newClient.getSocialProfiles().get(0).setSocialProfileType(vkSocialType.get());
             }
             clientHistoryService.createHistory("vk").ifPresent(newClient::addHistory);
             vkService.fillClientFromProfileVK(newClient);
             Optional<String> optionalEmail = newClient.getEmail();
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
-                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
+                newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + "Возможно клиент допустил ошибку в поле Email: " + optionalEmail.get());
+                newClient.setEmail(null);
             }
             clientService.addClient(newClient);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
+        } else {
+		    logger.warn("Failed to add client from vk with id {}! Can't find social profile type by name 'vk'", newClient.getSocialProfiles().get(0).getSocialId());
+        }
 	}
 
     @Scheduled(cron = "0 0 7 * * *")
@@ -252,7 +261,7 @@ public class ScheduleTasks {
 		List<VkMember> lastMemberList = vkMemberService.getAll();
 		for (VkTrackedClub vkTrackedClub : vkTrackedClubList) {
 			List<VkMember> freshMemberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-					.orElseThrow(() -> new NotFoundMemberList(env.getProperty("messaging.vk.exception.not-found-member-list")));
+					.orElseThrow(NotFoundMemberList::new);
 			int countNewMembers = 0;
 			for (VkMember vkMember : freshMemberList) {
 				if (!lastMemberList.contains(vkMember)) {
@@ -335,10 +344,10 @@ public class ScheduleTasks {
 			if (status.isPresent()) {
 				if (!status.get().equals("queued")) {
 					if (status.get().equals("delivered")) {
-						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.delivered"));
+						sms.setDeliveryStatus("доставлено");
 					} else if (sms.getClient() == null) {
 						logger.error("Can not create notification with empty SMS client, SMS message: {}", sms);
-						sms.setDeliveryStatus(env.getProperty("messaging.client.phone.sms.status-not-found"));
+						sms.setDeliveryStatus("Клиент не найден");
 					} else {
 						String deliveryStatus = determineStatusOfResponse(status.get());
 						sendNotificationService.sendNotificationType(deliveryStatus, sms.getClient(), sms.getUser(), Notification.Type.SMS);
@@ -355,16 +364,16 @@ public class ScheduleTasks {
 		String info;
 		switch (status) {
 			case "delivery error":
-				info = env.getProperty("messaging.client.phone.calls.delivery-error");
+				info = "Номер заблокирован или вне зоны";
 				break;
 			case "invalid mobile phone":
-				info = env.getProperty("messaging.client.phone.calls.invalid-mobile-phone");
+				info = "Неправильный формат номера";
 				break;
 			case "incorrect id":
-				info = env.getProperty("messaging.client.phone.calls.incorrect-id");
+				info = "Неверный id сообщения";
 				break;
 			default:
-				info = env.getProperty("messaging.client.phone.calls.unknown-error");
+				info = "Неизвестная ошибка";
 		}
 		return info;
 	}

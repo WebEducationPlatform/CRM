@@ -112,7 +112,7 @@ public class SendMailsController {
         if (userFromSession.getRole().contains("OWNER")) {
             return ResponseEntity.ok(mailingMessageSendService.getAll());
         }
-        return ResponseEntity.ok(mailingMessageSendService.getMailingMessageByUserId(userFromSession.getId()));
+        return ResponseEntity.ok(mailingMessageSendService.getUserMail(userFromSession.getId()));
     }
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
@@ -122,19 +122,20 @@ public class SendMailsController {
                                                                          @RequestParam("managerToTime") String timeTo) {
         List<MailingMessage> list;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        //Проверка выбран ли пользователь для сортировки,
-        //если ид пришел то выбираются сообщения отправленные данным пользователем
-        //иначе выбираются все сообщения отправленые в выбраный интервал отправки
         if (id != null) {
             LocalDateTime destinationDateFrom = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            User user = userService.get(id);
             LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageSendService.getMailingMessageByUserIdAndDate(id, destinationDateFrom, destinationDateTo);
+            list = mailingMessageSendService.getUserByIdAndDate(user.getId(), destinationDateFrom.getDayOfMonth(), destinationDateTo.getDayOfMonth());
+        } else if (id == null) {
+            LocalDateTime destinationDate = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
+            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
+            list = mailingMessageSendService.getUserByDate(destinationDate.getDayOfMonth(), destinationDateTo.getDayOfMonth());
         } else {
-            LocalDateTime destinationDateFrom = LocalDate.parse(timeFrom, dateTimeFormatter).atStartOfDay();
-            LocalDateTime destinationDateTo = LocalDate.parse(timeTo, dateTimeFormatter).atStartOfDay();
-            list = mailingMessageSendService.getMailingMessageByDate(destinationDateFrom, destinationDateTo);
+            list = mailingMessageSendService.getAll();
         }
         return ResponseEntity.ok(list);
+
     }
 
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")

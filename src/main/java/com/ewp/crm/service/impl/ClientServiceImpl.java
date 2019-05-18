@@ -7,16 +7,20 @@ import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.utils.validators.PhoneValidator;
+import com.google.api.client.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -24,8 +28,12 @@ import java.util.*;
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
     private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
+
+    private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
+
     private final ClientRepository clientRepository;
     private final SlackInviteLinkRepository slackInviteLinkRepository;
+
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
     private final SocialProfileService socialProfileService;
@@ -36,14 +44,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
-    private Environment env;
-  
+    private final SocialProfileTypeService socialProfileTypeService;
+
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService, Environment env) {
+                             @Lazy SlackService slackService, SocialProfileTypeService socialProfileTypeService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -54,7 +62,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
-        this.env = env;
+        this.socialProfileTypeService = socialProfileTypeService;
     }
 
     @Override
@@ -296,12 +304,19 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient = Optional.ofNullable(clientRepository.getClientByEmail(client.getEmail().get()));
         }
 
+        if ((client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty())) {
+            client.setPhoneNumber(null);
+        }
+        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
+            client.setEmail(null);
+        }
+
         checkSocialIds(client);
 
         for (SocialProfile socialProfile : client.getSocialProfiles()) {
-            if (!socialProfile.getSocialNetworkType().getName().equals("unknown")) {
+            if (!socialProfile.getSocialProfileType().getName().equals("unknown")) {
                 if (!existClient.isPresent()) {
-                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialNetworkType().getName());
+                    Optional<SocialProfile> profile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), socialProfile.getSocialProfileType().getName());
                     if (profile.isPresent()) {
                         socialProfile = profile.get();
                         existClient = getClientBySocialProfile(socialProfile);
@@ -322,7 +337,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 existClient.get().addHistory(clientHistory);
             }
 
-            existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
+            existClient.get().setClientDescriptionComment(REPEATED_CLIENT);
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
             statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
@@ -338,12 +353,12 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private void checkSocialIds(Client client) {
         for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
             SocialProfile socialProfile = iterator.next();
-            if ("vk".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("vk")) {
+            if ("vk".equals(socialProfile.getSocialProfileType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
                 if (id.isPresent()) {
                     socialProfile.setSocialId(String.valueOf(id.get()));
                 } else {
-                    client.setComment(env.getProperty("messaging.client.service.socials-not-found-comment") + socialProfile.getSocialId() + "\n" + client.getComment());
+                    client.setComment("Не удалось получить социальную сеть клиента: " + socialProfile.getSocialId() + "\n" + client.getComment());
                     client.deleteSocialProfile(socialProfile);
                 }
             }
@@ -385,7 +400,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
             if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
-                throw new ClientExistsException(env.getProperty("messaging.client.exception.exist"));
+                throw new ClientExistsException();
             }
         }
 
@@ -399,14 +414,43 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setCanCall(true);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber().get());
             if (clientByPhone != null && !client.getPhoneNumber().get().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
-                throw new ClientExistsException(env.getProperty("messaging.client.exception.exist"));
+                throw new ClientExistsException();
             }
         } else {
             client.setCanCall(false);
         }
+        if (client.getPhoneNumber().isPresent() && client.getPhoneNumber().get().isEmpty()) {
+            client.setPhoneNumber(null);
+        }
+        if (client.getEmail().isPresent() && client.getEmail().get().isEmpty()) {
+            client.setEmail(null);
+        }
         //checkSocialLinks(client);
         clientRepository.saveAndFlush(client);
     }
+
+//    private void checkSocialLinks(Client client) {
+//        for (int i = 0; i < client.getSocialProfiles().size(); i++) {
+//            String link = client.getSocialProfiles().get(i).getSocialId();
+//            SocialProfileType type = client.getSocialProfiles().get(i).getSocialProfileType();
+//            if (type.getName().equals("unknown")) {
+//                if (!link.startsWith("https")) {
+//                    if (link.startsWith("http")) {
+//                        link = link.replaceFirst("http", "https");
+//                    } else {
+//                        link = "https://" + link;
+//                    }
+//                }
+//            } else {
+//                int indexOfLastSlash = link.lastIndexOf("/");
+//                if (indexOfLastSlash != -1) {
+//                    link = link.substring(indexOfLastSlash + 1);
+//                }
+//                link = "https://" + type.getName() + ".com/" + link;
+//            }
+//            client.getSocialProfiles().get(i).setSocialId(link);
+//        }
+//    }
 
     @Override
     public List<Client> getClientsBySearchPhrase(String search) {
@@ -477,16 +521,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setLastName(contractForm.getInputLastName());
         client.setBirthDate(contractForm.getInputBirthday());
         String email = contractForm.getInputEmail();
-        client.setId(old.getId());
         if (!email.isEmpty()) {
             Optional<Client> checkEmailClient = getClientByEmail(email);
             if (checkEmailClient.isPresent()) {
                 Client clientDelEmail = checkEmailClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingEmail(user, clientDelEmail, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelEmail::addHistory);
-                List<String> listWithCurrentEmail = clientDelEmail.getClientEmails();
-                listWithCurrentEmail.remove(email);
-                clientDelEmail.setClientEmails(listWithCurrentEmail);
+                clientDelEmail.setEmail(null);
                 update(clientDelEmail);
             }
             client.setEmail(email);
@@ -499,9 +540,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 Client clientDelPhone = checkPhoneClient.get();
                 Optional<ClientHistory> optionalClientHistory = clientHistoryService.createHistoryOfDeletingPhone(user, clientDelPhone, ClientHistory.Type.UPDATE);
                 optionalClientHistory.ifPresent(clientDelPhone::addHistory);
-                List<String> listWithCurrentPhone = clientDelPhone.getClientPhones();
-                listWithCurrentPhone.remove(validatedPhone);
-                clientDelPhone.setClientPhones(listWithCurrentPhone);
+                clientDelPhone.setPhoneNumber(null);
                 update(clientDelPhone);
             }
             client.setPhoneNumber(validatedPhone);
@@ -512,6 +551,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             passport.setClient(client);
             client.setPassport(passport);
         }
+        client.setId(old.getId());
         client.setStatus(old.getStatus());
         client.setSocialProfiles(old.getSocialProfiles());
         client.setCountry(old.getCountry());
@@ -533,13 +573,157 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setCallRecords(old.getCallRecords());
         client.setClientDescriptionComment(old.getClientDescriptionComment());
         client.setLiveSkypeCall(old.isLiveSkypeCall());
-        client.setSlackInviteLink(old.getSlackInviteLink());
         return client;
     }
 
     @Override
-    public void transferClientsBetweenOwners(User sender, User receiver) {
-        clientRepository.transferClientsBetweenOwners(sender, receiver);
-        logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
+        StringBuilder fileName = new StringBuilder();
+        if (status != null) {
+            fileName.append(status.getName()).append("_");
+        }
+
+        for (String selectedCheckbox : selectedCheckboxes) {
+            fileName.append(selectedCheckbox).append("_");
+        }
+
+        if (!Strings.isNullOrEmpty(delimeter)) {
+            fileName.append(delimeter).append(".txt");
+        } else {
+            fileName.append("without_delimeter").append(".txt");
+        }
+
+        return Optional.of(fileName.toString());
+    }
+
+    @Override
+    public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = filteringCondition.getDelimeter();
+
+        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("Text file for filtered clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Text file for filtered clients not created!", e);
+        }
+
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialNetwork : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialNetwork).isPresent()) {
+                    filteringCondition.setChecked(checkedSocialNetwork);
+                    List<String> socialNetworkLinks = getFilteredClientsSNLinks(filteringCondition);
+                    for (String socialNetworkLink : socialNetworkLinks) {
+                        if (!Strings.isNullOrEmpty(socialNetworkLink)) {
+                            bufferedWriter.write(socialNetworkLink + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getFilteredClientsEmail(filteringCondition);
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getFilteredClientsPhoneNumber(filteringCondition);
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
+
+    }
+
+    @Override
+    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
+        String separator = System.lineSeparator();
+        String path = "DownloadData";
+        String delimeter = conditionToDownload.getDelimeter();
+
+        if (Strings.isNullOrEmpty(delimeter)) {
+            delimeter = separator;
+        }
+
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logger.error("Could not create folder for text files");
+            }
+        }
+        File file = new File(dir, fileName);
+        try {
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    logger.error("File for clients not created!");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Can't create file", e);
+        }
+
+        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
+        try (FileWriter fileWriter = new FileWriter(file);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (String checkedSocialType : checkedData) {
+                if (socialProfileTypeService.getByTypeName(checkedSocialType).isPresent()) {
+                    List<SocialProfile> socialProfiles = socialProfileTypeService.getByTypeName(checkedSocialType).get().getSocialProfileList();
+                    for (SocialProfile socialProfile : socialProfiles) {
+                        if (!Strings.isNullOrEmpty(socialProfile.getSocialId())) {
+                            bufferedWriter.write(socialProfile.getSocialId() + separator);
+                        }
+                    }
+                    bufferedWriter.write(delimeter + separator);
+                }
+            }
+
+            if (checkedData.contains("email")) {
+                List<String> emails = getClientsEmails();
+                for (String email : emails) {
+                    if (!Strings.isNullOrEmpty(email)) {
+                        bufferedWriter.write(email + separator);
+                    }
+                }
+                bufferedWriter.write(delimeter + separator);
+            }
+            if (checkedData.contains("phoneNumber")) {
+                List<String> phoneNumbers = getClientsPhoneNumbers();
+                for (String phoneNumber : phoneNumbers) {
+                    if (!Strings.isNullOrEmpty(phoneNumber)) {
+                        bufferedWriter.write(phoneNumber + separator);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("File not created! ", e);
+        }
     }
 }

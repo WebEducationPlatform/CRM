@@ -1,20 +1,18 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.ProjectProperties;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.*;
-import com.google.api.client.util.Strings;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.ReportService;
+import com.ewp.crm.service.interfaces.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -27,38 +25,29 @@ public class ReportServiceImpl implements ReportService {
     private final ClientRepository clientRepository;
     private final StatusService statusService;
     private final ProjectProperties projectProperties;
-    private final ClientService clientService;
 
     @Autowired
-    public ReportServiceImpl(ClientRepository clientRepository,
-                             StatusService statusService,
-                             ProjectPropertiesService projectPropertiesService,
-                             ClientService clientService) {
+    public ReportServiceImpl(ClientRepository clientRepository, StatusService statusService, ProjectPropertiesService projectPropertiesService) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
         this.projectProperties = projectPropertiesService.getOrCreate();
-        this.clientService = clientService;
     }
 
     /**
      * Подсчитывает количество клиентов в статусе "новые" за период
      *
      * @param reportStartDate дата начала отчетного периода
-     * @param reportEndDate   дата окончания отчетного периода
+     * @param reportEndDate  дата окончания отчетного периода
      * @return количество найденных клиентов
      */
     @Override
-    public String countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
+    public int countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
-        int quantityAllNewClients = clients.size();
-        clients.removeIf(client -> (
-                client.getClientDescriptionComment() != null
-                        && client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")));
-        return "Новых клиентов " + quantityAllNewClients + ", из них " + (quantityAllNewClients - clients.size()) + " оставили посторную заявку.";
+        return clients.size();
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
@@ -99,11 +88,11 @@ public class ReportServiceImpl implements ReportService {
      * Также проверяет, не являлся ли переход в статус ошибочным. В случае, если клиент вернулся в исходных статус в течение
      * 24 часов с момента смены статуса, то считается, что смена статуса была ошибочной
      *
-     * @param reportStartDate    дата начала отчетного периода
-     * @param reportEndDate      дата окончания отчетного периода
-     * @param fromStatusId       исходный статус клиента
-     * @param toStatusId         конечный статус клиента
-     * @param excludeStatusesIds список исключенных статусов
+     * @param reportStartDate     дата начала отчетного периода
+     * @param reportEndDate       дата окончания отчетного периода
+     * @param fromStatusId        исходный статус клиента
+     * @param toStatusId          конечный статус клиента
+     * @param excludeStatusesIds  список исключенных статусов
      * @return количество подходящих под критерии клиентов
      */
 
@@ -171,7 +160,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * Подсчитывает количество студентов, которые впервые совершили оплату в заданный период
      *
-     * @param reportStartDate дата начала отчетного периода
+     * @param reportStartDate  дата начала отчетного периода
      * @param reportEndDate   дата окончания отчетного периода
      * @return количество студентов, впервые совершивших оплату в заданный период
      */
@@ -189,7 +178,7 @@ public class ReportServiceImpl implements ReportService {
             // Получение всех клиентов, которые перешли в статус в заданный период
             List<Client> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, inProgressStatus.get().getName());
             // Для каждого клиента проверяем, впервые ли ему присвоен данный статус
-            for (Client client : clients) {
+            for (Client client :clients) {
                 if (!clientRepository.hasClientBeenInStatusBefore(client.getId(), reportStartDate, inProgressStatus.get().getName())) {
                     result++;
                 }
@@ -198,180 +187,4 @@ public class ReportServiceImpl implements ReportService {
         return result;
     }
 
-    @Override
-    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
-        StringBuilder fileName = new StringBuilder();
-        if (status != null) {
-            fileName.append(status.getName()).append("_");
-        }
-
-        for (String selectedCheckbox : selectedCheckboxes) {
-            fileName.append(selectedCheckbox).append("_");
-        }
-
-        if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")) {
-            fileName.append(delimeter).append(".txt");
-        } else {
-            fileName.append(".txt");
-        }
-        return Optional.of(fileName.toString());
-    }
-
-    @Override
-    public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
-        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
-        String path = "DownloadData";
-        String delimeter = filteringCondition.getDelimeter();
-
-        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
-            delimeter = "  ";
-        }
-
-        Path directory = Paths.get(path);
-        if (!Files.exists(directory)) {
-            try {
-                Files.createDirectories(directory);
-            } catch (IOException e) {
-                logger.error("Could not create folder for text files", e);
-            }
-        }
-        Path pathToFile = Paths.get(path, fileName);
-        Path file = null;
-        try {
-            file = Files.createFile(pathToFile);
-        } catch (IOException e) {
-            try {
-                Files.delete(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can not delete file", e);
-            }
-            try {
-                file = Files.createFile(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can bot create file", e);
-            }
-        }
-
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
-            List<Client> filteredClients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
-            for (Client filteredClient : filteredClients) {
-                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                    writer.write(filteredClient.getName() + delimeter);
-                }
-
-                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                    writer.write(filteredClient.getLastName() + delimeter);
-                }
-
-                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                    List<String> clientEmails = filteredClient.getClientEmails();
-                    for (String email : clientEmails) {
-                        writer.write(email + delimeter);
-                    }
-                }
-
-                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                    List<String> clientPhones = filteredClient.getClientPhones();
-                    for (String phone : clientPhones) {
-                        writer.write(phone + delimeter);
-                    }
-                }
-
-                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
-                for (String checkedSocialNetwork : checkedData) {
-                    for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
-                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
-                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
-                                continue;
-                            }
-                            writer.write(clientSocialProfile.getSocialId() + delimeter);
-                        }
-                    }
-                }
-                writer.write(System.lineSeparator());
-            }
-        } catch (IOException e) {
-            logger.error("File not created! ", e);
-        }
-    }
-
-    @Override
-    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
-        String path = "DownloadData";
-        String delimeter = conditionToDownload.getDelimeter();
-
-        if (Strings.isNullOrEmpty(conditionToDownload.getDelimeter())) {
-            delimeter = "  ";
-        }
-
-        Path directory = Paths.get(path);
-        if (!Files.exists(directory)) {
-            try {
-                Files.createDirectories(directory);
-            } catch (IOException e) {
-                logger.error("Could not create folder for text files", e);
-            }
-        }
-        Path pathToFile = Paths.get(path, fileName);
-        Path file = null;
-        try {
-            file = Files.createFile(pathToFile);
-        } catch (IOException e) {
-            try {
-                Files.delete(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can not delete file", e);
-            }
-            try {
-                file = Files.createFile(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can bot create file", e);
-            }
-        }
-
-        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
-            List<Client> filteredClients = clientService.getAllClients();
-            for (Client filteredClient : filteredClients) {
-                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                    writer.write(filteredClient.getName() + delimeter);
-                }
-
-                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                    writer.write(filteredClient.getLastName() + delimeter);
-                }
-
-                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                    List<String> clientEmails = filteredClient.getClientEmails();
-                    for (String email : clientEmails) {
-                        writer.write(email + delimeter);
-                    }
-                }
-
-                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                    List<String> clientPhones = filteredClient.getClientPhones();
-                    for (String phone : clientPhones) {
-                        writer.write(phone + delimeter);
-                    }
-                }
-
-                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
-                for (String checkedSocialNetwork : checkedData) {
-                    for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
-                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
-                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
-                                continue;
-                            }
-                            writer.write(clientSocialProfile.getSocialId() + delimeter);
-                        }
-                    }
-                }
-                writer.write(System.lineSeparator());
-            }
-        } catch (IOException e) {
-            logger.error("File not created! ", e);
-        }
-    }
 }

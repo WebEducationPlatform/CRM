@@ -168,7 +168,6 @@ function startCall() {
             progressTone: true
         });
     }
-
     console.log('Starting call .... ');
     currentCall = sdk.call({number: callToPhone, customData: webCallToClientId + "," + commonWebCallId});
     currentCall.on(VoxImplant.CallEvents.Connected, () => {
@@ -176,26 +175,22 @@ function startCall() {
     });
     currentCall.on(VoxImplant.CallEvents.Failed, (e) => {
         console.log(`Call failed with the ${e.code} error`);
-        stopCall();
-        callToolControl('default');
+    callToolControl('default');
     });
     currentCall.on(VoxImplant.CallEvents.Disconnected, () => {
         console.log('The call has ended');
-        stopCall();
-        callToolControl('default');
+    callToolControl('default');
     });
 }
 
 //call hangup voximplant
-$(document).on('click', '.web-call-off', stopCall);
-
-function stopCall() {
+$(document).on('click', '.web-call-off', function() {
     console.log("Client-state: " + sdk.getClientState());
     if (currentCall && currentCall.state() != "ENDED") {
         currentCall.hangup();
     }
     callToolControl('default');
-}
+});
 
 //mute microphone voximplant
 $(document).on('click', '.web-call-mic-off', function() {

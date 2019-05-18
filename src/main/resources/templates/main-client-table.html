@@ -27,9 +27,6 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
-                        <li class="link-cursor-pointer">
-                            <a class="glyphicon glyphicon-exclamation-sign" id="FIND_MISSING">Показать пропавших</a>
-                        </li>
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -365,8 +362,7 @@
                                         </button>
                                         <button th:if="${usr.firstName + usr.lastName != user.firstName + user.lastName}"
                                                 type="button" data-toggle="modal" class="glyphicon glyphicon-trash"
-                                                th:attr="data-id=${usr.id}"
-                                                onclick="fillUsersTableForDelete(this)"
+                                                th:attrappend="data-target='#deleteUserModal' + ${usr.id}"
                                                 sec:authorize="hasAnyAuthority('OWNER')">
                                         </button>
                                     </td>
@@ -475,10 +471,7 @@
     /*]]>*/
 </script>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
-<script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
-<script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>
-<script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
-<script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
