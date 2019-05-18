@@ -1,0 +1,78 @@
+messaging:
+  notification:
+    set-comment: "Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"" #SendNotificationServiceImpl
+  call-records:
+    exception:
+      download-file-not-found: File doesn't exist #DownloadCallRecordServiceImpl
+    unknown-user: "Звонок не из CRM. Номер: " #CallRecordServiceImpl
+  mailing:
+    exception:
+      parse-data: "Incorrect input data for mailing: messageType = " #MailingService
+    set-from-Java-Mentor: Java-Mentor.ru #MailingService MailSendServiceImpl
+    set-subject-personal-mentor: Ваш личный Java наставник #MailingService MailSendServiceImpl
+    set-subject-crm-notification: Оповещение из CRM #MailSendServiceImpl
+  whatsapp:
+    send-error-wrong-phone: у этого клиента не верно указан номер телефона оправка сообщения не возможна #JMWhatsappConversation
+  slack:
+    send-error: Не удалось отправить сообщение в Slack #JMSlackConversation
+  user:
+    exception:
+      allready-exist: Пользователь c таким e-mail уже существует #UserExistsException UserServiceImpl
+      photo-save-error: Произошла ошибка сохранения фотографии #UserPhotoException UserServiceImpl
+  facebook:
+    exception:
+      access-token: Facebook access token has not got #FacebookServiceImpl
+  vk:
+    send-ok: Message sent #MailingService VKServiceImpl
+    send-by-id-error: Failed to send message #VKServiceImpl
+    get-report-error: Ошибка #VKServiceImpl
+    exception:
+      not-found-member-list: Лист подписчиков сообщества не был получен #VkRestController
+      access-token: VK access token has not got #VKServiceImpl
+    rest:
+      message-send-ok: Message send successfully #VkRestController
+  skype:
+    call:
+      event-error: Произошла ошибка. #SkypeCallRestController
+  client:
+    exception:
+      exist: Пользователь уже существует #ClientExistsException ClientServiceImpl
+    history:
+      add-from-whatsapp: Был добавлен из WhatsApp #WhatsappWebhook
+    rest:
+      wrong-postpone-date: Дата должна быть позже текущей даты #ClientRestController
+      postpone-error: Произошла ошибка #ClientRestController
+      description-error: client not found or description is same #ClientRestController
+      description-same-error: Client has same description #ClientRestController
+      skype-login-same-error: client with this skype login already exists #ClientRestController
+      repeated-client-updated: done #ClientRestController
+    initRest:
+      updated: clients have updated #InitRestController
+    email:
+      error-in-field: "Возможно клиент допустил ошибку в поле Email: " #ScheduleTasks
+    phone:
+      sms:
+        status-not-found: Клиент не найден #ScheduleTasks
+        status-delivered: доставлено #ScheduleTasks
+        rest:
+          send-ok: Message sent #SMSRestController
+          send-error: Message not sent #SMSRestController
+          planned: Send Message #SMSRestController
+          in-queue: Messages in queue #SMSRestController
+      calls:
+        delivery-error: Номер заблокирован или вне зоны #ScheduleTasks
+        invalid-mobile-phone: Неправильный формат номера #ScheduleTasks
+        incorrect-id: Неверный id сообщения #ScheduleTasks
+        unknown-error: Неизвестная ошибка #ScheduleTasks
+    service:
+      repeated: Клиент оставлил повторную заявку #ClientServiceImpl
+      socials-not-found-comment: "Не удалось получить социальную сеть клиента: " #ClientServiceImpl
+    status:
+      exception:
+        allready-exist: Статус с таким названием уже существует #StatusServiceImpl
+        impossible-to-del-first: "Статус с индексом \"1\" нельзя удалить" #StatusServiceImpl
+        deleted-impossible-to-del: Статус deleted нельзя удалить #StatusServiceImpl
+    socials:
+      invalid-link: "Ссылка на социальную сеть %s недействительна" #IncomeStringToClient
+    description:
+      java-learn-link: "Заявка с сайта javalearn" #IncomeStringToClient

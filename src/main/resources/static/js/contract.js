@@ -1,13 +1,18 @@
 $(document).ready(function () {
     $("#customCheck1").click(function () {
         if ($(this).is(":checked")) {
-            $("#go-button").removeAttr("disabled");
+            $("#contract-send-date").removeAttr("disabled");
         } else {
-            $("#go-button").attr("disabled", "disabled");
+            $("#contract-send-date").attr("disabled", "disabled");
         }
     });
 });
+var form = $('#contract-form');
 
-$('#go-button').on("click", function () {
-    $('#contract-loading').show();
+$('#contract-send-date').on("click", function () {
+    if (form[0].checkValidity()) {
+        $('#contract-loading').show();
+    } else {
+        console.log("Заполнены не все поля!")
+    }
 });
