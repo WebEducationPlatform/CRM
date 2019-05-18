@@ -23,9 +23,6 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-
-### Project folders ###
-/LOG_NEW/
 /LOG/
 /Images/
 /DownloadData

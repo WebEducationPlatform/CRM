@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +28,6 @@ public class SMSRestController {
 	private final SMSService smsService;
 	private final ClientService clientService;
 	private final MessageTemplateServiceImpl messageTemplateService;
-	private Environment env;
 
 	private static Logger logger = LoggerFactory.getLogger(SMSRestController.class);
 
@@ -37,12 +35,10 @@ public class SMSRestController {
 	@Autowired
 	public SMSRestController(SMSService smsService,
 							 ClientService clientService,
-							 MessageTemplateServiceImpl messageTemplateService,
-							 Environment env) {
+							 MessageTemplateServiceImpl messageTemplateService) {
 		this.smsService = smsService;
 		this.clientService = clientService;
 		this.messageTemplateService = messageTemplateService;
-		this.env = env;
 	}
 
 	@PostMapping("/send/now/client")
@@ -53,10 +49,10 @@ public class SMSRestController {
 		String smsTemplateText = messageTemplateService.get(templateId).getOtherText();
 		try {
 			smsService.sendSMS(clientId, smsTemplateText, body, userFromSession);
-			return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.client.phone.sms.rest.send-ok"));
+			return ResponseEntity.status(HttpStatus.OK).body("Message sent");
 		} catch (JSONException e) {
 			logger.error("Error to send message ", e);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(env.getProperty("messaging.client.phone.sms.rest.send-error"));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message not sent");
 		}
 	}
 
@@ -69,7 +65,7 @@ public class SMSRestController {
 		ZonedDateTime utc = ZonedDateTime.parse(date);
 		smsService.plannedSMS(client, message, utc.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")), userFromSession);
 		clientService.updateClient(client);
-		return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.client.phone.sms.rest.planned"));
+		return ResponseEntity.status(HttpStatus.OK).body("Send Message");
 	}
 
 	@PostMapping("/send/now/clients/{listClientsId}")
@@ -79,7 +75,7 @@ public class SMSRestController {
 		List<Client> clients = clientService.getClientsByManyIds(listClientsId);
 		smsService.sendSMS(clients, message, userFromSession);
 		clientService.updateBatchClients(clients);
-		return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.client.phone.sms.rest.in-queue"));
+		return ResponseEntity.status(HttpStatus.OK).body("Messages in queue");
 	}
 
 	@PostMapping("/send/planned/clients/{listClientsId}")

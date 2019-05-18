@@ -2,7 +2,6 @@ package com.ewp.crm.controllers.rest.admin;
 
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +28,12 @@ public class AdminRestUserController {
 
     private final UserService userService;
     private final ImageConfig imageConfig;
-    private final ClientService clientService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
-                                   ImageConfig imageConfig,
-                                   ClientService clientService) {
+                                   ImageConfig imageConfig) {
         this.userService = userService;
         this.imageConfig = imageConfig;
-        this.clientService = clientService;
     }
 
     @ResponseBody
@@ -105,20 +101,14 @@ public class AdminRestUserController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    // Delete user with clients transfer to receiver user
-    @RequestMapping(value = "/admin/rest/user/deleteWithTransfer", method = RequestMethod.POST)
-    public ResponseEntity deleteUserWithClientTransfer(@RequestParam Long deleteId,
-                                                       @RequestParam Long receiverId,
-                                                       @AuthenticationPrincipal User currentAdmin) {
-        User deletedUser = Optional.of(userService.get(deleteId))
-                                    .orElseThrow(() -> new IllegalArgumentException("Wrong delete user id!"));
-        User receiver = Optional.of(userService.get(receiverId))
-                                .orElseThrow(() -> new IllegalArgumentException("Wrong receiver user id!"));
-        clientService.transferClientsBetweenOwners(deletedUser, receiver);
+    @RequestMapping(value = "/admin/rest/user/deleteUser", method = RequestMethod.POST)
+    public ResponseEntity deleteUser(@RequestParam Long deleteId) {
+        User deleteUser = userService.get(deleteId);
         userService.delete(deleteId);
-        logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
+        logger.info("{} has deleted user: id {}, email {}", deleteUser.getFullName(), deleteUser.getId(), deleteUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
 
     @PostMapping(value = "/admin/rest/user/delete")
     public ResponseEntity deleteNewUser(@RequestParam Long deleteId,

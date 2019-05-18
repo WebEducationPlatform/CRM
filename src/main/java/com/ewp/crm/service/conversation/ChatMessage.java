@@ -1,4 +1,4 @@
-package com.ewp.crm.models.conversation;
+package com.ewp.crm.service.conversation;
 
 import java.time.ZonedDateTime;
 

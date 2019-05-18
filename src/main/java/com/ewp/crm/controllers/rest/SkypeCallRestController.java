@@ -8,7 +8,6 @@ import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,20 +31,18 @@ public class SkypeCallRestController {
 	private final ClientService clientService;
 	private final UserService userService;
 	private final RoleService roleService;
-	private Environment env;
 
 	@Autowired
 	public SkypeCallRestController(AssignSkypeCallService assignSkypeCallService,
 								   ClientHistoryService clientHistoryService,
 								   ClientService clientService,
 								   UserService userService,
-								   RoleService roleService, Environment env) {
+								   RoleService roleService) {
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.roleService = roleService;
-		this.env = env;
 	}
 
 	@GetMapping(value = "rest/skype/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -82,11 +79,11 @@ public class SkypeCallRestController {
 				return ResponseEntity.ok(HttpStatus.OK);
 			} catch (Exception e) {
 				logger.error("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.get().getId(), startDate, e);
-				return ResponseEntity.badRequest().body(env.getProperty("messaging.skype.call.event-error"));
+				return ResponseEntity.badRequest().body("Произошла ошибка.");
 			}
 		}
 		logger.info("{} не смог добавить клиенту id:{} звокон по скайпу на {} (Клиент не найден)", userFromSession.getFullName(), clientId, startDate);
-		return ResponseEntity.badRequest().body(env.getProperty("messaging.skype.call.event-error"));
+		return ResponseEntity.badRequest().body("Произошла ошибка.");
 	}
 
 	@PostMapping(value = "rest/mentor/updateEvent")
@@ -114,11 +111,11 @@ public class SkypeCallRestController {
 				return ResponseEntity.ok(HttpStatus.OK);
 			} else {
 				logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {} (assignSkypeCall is null)", userFromSession.getFullName(), client.getId(), skypeCallDateNew);
-				return ResponseEntity.badRequest().body(env.getProperty("messaging.skype.call.event-error"));
+				return ResponseEntity.badRequest().body("Произошла ошибка.");
 			}
 		} catch (Exception e) {
 			logger.info("{} не смог изменить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.getId(), skypeCallDateNew, e);
-			return ResponseEntity.badRequest().body(env.getProperty("messaging.skype.call.event-error"));
+			return ResponseEntity.badRequest().body("Произошла ошибка.");
 		}
 	}
 

@@ -1,21 +1,14 @@
 package com.ewp.crm.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Objects;
 
 /**
  * Ссылка на профиль соцсети клиента (студента)
  */
 @Entity
-@Table(name = "social_network")
+@Table(name = "social_network", uniqueConstraints = {@UniqueConstraint(columnNames = {"social_id", "social_type_id"}, name = "uk_social_network")})
 public class SocialProfile implements Serializable {
 
 	@Id
@@ -26,16 +19,19 @@ public class SocialProfile implements Serializable {
 	@Column(name = "social_id")
 	private String socialId;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "social_network_type")
-	private SocialNetworkType socialNetworkType;
+    /**
+     * Тип соцсети
+     */
+	@ManyToOne
+	@JoinColumn(name = "social_type_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_TYPE_ID"))
+	private SocialProfileType socialProfileType;
 
 	public SocialProfile() {
 	}
 
-	public SocialProfile(String socialId, SocialNetworkType socialNetworkType) {
-		this.socialId = socialId;
-		this.socialNetworkType = socialNetworkType;
+	public SocialProfile(String socialId, SocialProfileType socialProfileType) {
+        this.socialId = socialId;
+		this.socialProfileType = socialProfileType;
 	}
 
 	public SocialProfile(String socialId) {
@@ -49,17 +45,17 @@ public class SocialProfile implements Serializable {
 		SocialProfile that = (SocialProfile) o;
 		return id == that.id &&
 				Objects.equals(socialId, that.socialId) &&
-				Objects.equals(socialNetworkType, that.socialNetworkType);
+				Objects.equals(socialProfileType, that.socialProfileType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, socialId, socialNetworkType);
+		return Objects.hash(id, socialId, socialProfileType);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("{type = '%s', socialId = '%s'}", socialNetworkType.getName(), socialId);
+		return String.format("{type = '%s', socialId = '%s'}", socialProfileType, socialId);
 	}
 
 	public long getId() {
@@ -78,63 +74,11 @@ public class SocialProfile implements Serializable {
         this.socialId = socialId;
     }
 
-	public SocialNetworkType getSocialNetworkType() {
-		return socialNetworkType;
+    public SocialProfileType getSocialProfileType() {
+		return socialProfileType;
 	}
 
-	public void setSocialNetworkType(SocialNetworkType socialNetworkType) {
-		this.socialNetworkType = socialNetworkType;
-	}
-
-	public List<SocialNetworkType> getAllSocialNetworkTypes(){
-		return new ArrayList<SocialNetworkType>(EnumSet.allOf(SocialNetworkType.class));
-	}
-
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-	public enum SocialNetworkType {
-
-		VK(1L,"vk","https://vk.com/id"),
-		FACEBOOK(2L,"facebook","https://fb.com/id"),
-		UNKNOWN(3L,"unknown", ""),
-		TELEGRAM(4L,"telegram", ""),
-		WHATSAPP(5L,"whatsapp", ""),
-		SLACK(6L,"slack", "");
-
-		private String name;
-		private Long id;
-		private String link;
-
-		SocialNetworkType(){
-		}
-
-		SocialNetworkType(Long id, String name, String link) {
-			this.id = id;
-			this.name = name;
-			this.link = link;
-		}
-        @JsonProperty("id")
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-        @JsonProperty("name")
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-        @JsonProperty("link")
-		public String getLink() {
-			return link;
-		}
-
-		public void setLink(String link) {
-			this.link = link;
-		}
+	public void setSocialProfileType(SocialProfileType socialProfileType) {
+		this.socialProfileType = socialProfileType;
 	}
 }

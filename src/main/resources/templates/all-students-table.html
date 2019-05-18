@@ -156,7 +156,7 @@
                                 </span>
                             </td>
                             <td width="20%">
-                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialNetworkType.name == 'vk'}" th:remove="tag">
+                                <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'vk'}" th:remove="tag">
                                     <figure class="single">
                                         <div class="figure-content"><img th:id="${student.id+'_notify_vk_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/vk_off.png}" class="notifier_img img-fluid"/></div>
                                         <figcaption><img th:id="${student.id+'_notify_vk_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/vk_on.png}"/></figcaption>
@@ -167,7 +167,7 @@
                                 </span>
                             </td>
                             <td width="20%">
-                             <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialNetworkType.name == 'slack'}" th:remove="tag">
+                             <span th:each="socProfile : ${student.client.socialProfiles}" th:if="${socProfile.socialProfileType.name == 'slack'}" th:remove="tag">
                                     <figure class="single">
                                         <div class="figure-content"><img th:id="${student.id+'_notify_slack_img_off'}" style="width: 24px; height: 24px" th:src="@{/images/slack_off.png}" class="notifier_img img-fluid"/></div>
                                         <figcaption><img th:id="${student.id+'_notify_slack_img_on'}" class="notifier_img" style="width: 24px; height: 24px" th:src="@{/images/slack_on.png}"/></figcaption>
@@ -238,8 +238,7 @@
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="/js/moment-timezone.js"></script>
-<script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
-<script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-table.js}"></script>
 <script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
 <script type="text/javascript" th:src="@{/js/conversations.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
