@@ -80,13 +80,14 @@ public class ClientCardDtoBuilder {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        String result = "";
         try {
-            return objectMapper.writeValueAsString(map);
+            result = objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
             logger.warn("Can't parse or generate JSON for card DTO with client id: " + client.getId());
             e.printStackTrace();
         }
-        return "Can't parse or generate JSON for card DTO with client id: " + client.getId();
+        return result;
     }
 
     public static Map<String, Object> convertClientToMap(Client client) {
