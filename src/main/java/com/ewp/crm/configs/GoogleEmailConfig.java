@@ -1,4 +1,4 @@
-package com.ewp.crm.service.email;
+package com.ewp.crm.configs;
 
 import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
@@ -23,16 +23,13 @@ import javax.mail.Folder;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.AndTerm;
-import javax.mail.search.FlagTerm;
-import javax.mail.search.FromTerm;
-import javax.mail.search.SearchTerm;
+import javax.mail.search.*;
 import java.util.Optional;
 import java.util.Properties;
 
 @Configuration
 @EnableIntegration
-public class GoogleEmail {
+public class GoogleEmailConfig {
 
     private String login;
     private String password;
@@ -42,6 +39,7 @@ public class GoogleEmail {
     private String protocol;
     private String debug;
     private String imapServer;
+    private String mailJavaLearn;
 
     private final BeanFactory beanFactory;
     private final ClientService clientService;
@@ -53,10 +51,10 @@ public class GoogleEmail {
     private final SendNotificationService sendNotificationService;
 
 
-    private static Logger logger = LoggerFactory.getLogger(GoogleEmail.class);
+    private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
 
     @Autowired
-    public GoogleEmail(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
+    public GoogleEmailConfig(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -72,6 +70,7 @@ public class GoogleEmail {
         protocol = mailConfig.getProtocol();
         debug = mailConfig.getDebug();
         imapServer = mailConfig.getImapServer();
+        mailJavaLearn = mailConfig.getMailJavalearn();
         this.clientHistoryService = clientHistoryService;
         this.projectPropertiesService = projectPropertiesService;
     }
@@ -139,15 +138,17 @@ public class GoogleEmail {
         return directChannel;
     }
 
-
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
         Optional<InternetAddress> internetAddress = Optional.empty();
+        Optional<InternetAddress> javaLearnAddress = Optional.empty();
         try {
             internetAddress = Optional.of(new InternetAddress(mailFrom));
+            javaLearnAddress = Optional.of(new InternetAddress(mailJavaLearn));
         } catch (AddressException e) {
             logger.error("Can't parse email address \"from\"", e);
         }
         FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
-        return new AndTerm(fromTerm, new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+        FromTerm fromJavaLearnTerm = new FromTerm(javaLearnAddress.orElse(new InternetAddress()));
+        return new AndTerm(new OrTerm(fromTerm, fromJavaLearnTerm), new FlagTerm(new Flags(Flags.Flag.SEEN), false));
     }
 }

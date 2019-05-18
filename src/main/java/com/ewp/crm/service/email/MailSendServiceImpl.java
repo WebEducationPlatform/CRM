@@ -98,9 +98,9 @@ public class MailSendServiceImpl implements MailSendService {
         if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
             try {
                 mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                mimeMessageHelper.setFrom("Java-Mentor.ru");
+                mimeMessageHelper.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
                 mimeMessageHelper.setTo(emailOptional.get());
-                mimeMessageHelper.setSubject("Ваш личный Java наставник");
+                mimeMessageHelper.setSubject(env.getProperty("messaging.mailing.set-subject-personal-mentor"));
                 mimeMessageHelper.setText(template.getTemplateText(), true);
             } catch (MessagingException e) {
                 e.printStackTrace();
@@ -212,9 +212,9 @@ public class MailSendServiceImpl implements MailSendService {
         Optional<String> emailOptional = client.getEmail();
         if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setFrom("Java-Mentor.ru");
+            mimeMessageHelper.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
             mimeMessageHelper.setTo(emailOptional.get());
-            mimeMessageHelper.setSubject("Ваш личный Java наставник");
+            mimeMessageHelper.setSubject(env.getProperty("messaging.mailing.set-subject-personal-mentor"));
             mimeMessageHelper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);
         } else {
@@ -297,7 +297,7 @@ public class MailSendServiceImpl implements MailSendService {
     @Async
     public void sendNotificationMessage(User userToNotify, String notificationMessage) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject("Оповещение из CRM");
+        message.setSubject(env.getProperty("messaging.mailing.set-subject-crm-notification"));
         message.setText(notificationMessage);
         message.setFrom(emailLogin);
         message.setTo(userToNotify.getEmail());
