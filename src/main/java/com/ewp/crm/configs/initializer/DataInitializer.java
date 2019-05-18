@@ -3,7 +3,6 @@ package com.ewp.crm.configs.initializer;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.member.NotFoundMemberList;
 import com.ewp.crm.models.*;
-import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
 import com.ewp.crm.service.conversation.JMConversationHelper;
 import com.ewp.crm.service.interfaces.*;
@@ -43,6 +42,9 @@ public class DataInitializer {
 
     @Autowired
     private MessageTemplateService MessageTemplateService;
+
+    @Autowired
+    private SocialProfileTypeService socialProfileTypeService;
 
     @Autowired
     private ClientHistoryService clientHistoryService;
@@ -91,6 +93,19 @@ public class DataInitializer {
         listMailingTypeService.add(emailList);
         listMailingTypeService.add(slackList);
         listMailingTypeService.add(smsList);
+
+        SocialProfileType VK = new SocialProfileType("vk", "https://vk.com/id");
+        SocialProfileType FACEBOOK = new SocialProfileType("facebook");
+        SocialProfileType UNKNOWN = new SocialProfileType("unknown");
+        SocialProfileType TELEGRAM = new SocialProfileType("telegram");
+        SocialProfileType whatsApp = new SocialProfileType("whatsapp");
+        SocialProfileType slack = new SocialProfileType("slack");
+        socialProfileTypeService.add(VK);
+        socialProfileTypeService.add(FACEBOOK);
+        socialProfileTypeService.add(UNKNOWN);
+        socialProfileTypeService.add(TELEGRAM);
+        socialProfileTypeService.add(whatsApp);
+        socialProfileTypeService.add(slack);
 
         User admin = new User(
                 "Stanislav",
@@ -226,20 +241,20 @@ public class DataInitializer {
         clientHistoryService.createHistory("инициализации crm").ifPresent(client3::addHistory);
         clientHistoryService.createHistory("инициализации crm").ifPresent(client4::addHistory);
         List<SocialProfile> spList1 = new ArrayList<>();
-        spList1.add(new SocialProfile("https://vk.com/id1", SocialNetworkType.VK));
-        spList1.add(  new SocialProfile("https://fb.com/id-1", SocialNetworkType.FACEBOOK));
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList1.add(new SocialProfile("https://vk.com/id1", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList1.add(  new SocialProfile("https://fb.com/id1", s)));
         client1.setSocialProfiles(spList1);
         List<SocialProfile> spList2 = new ArrayList<>();
-        spList2.add(new SocialProfile("https://vk.com/id6", SocialNetworkType.VK));
-        spList2.add(new SocialProfile("https://fb.com/id-6", SocialNetworkType.FACEBOOK));
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList2.add(new SocialProfile("https://vk.com/id6", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList2.add(new SocialProfile("https://fb.com/id6", s)));
         client2.setSocialProfiles(spList2);
         List<SocialProfile> spList3 = new ArrayList<>();
-        spList3.add(new SocialProfile("https://vk.com/id7", SocialNetworkType.VK));
-        spList3.add(new SocialProfile("https://fb.com/id-3", SocialNetworkType.FACEBOOK));
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList3.add(new SocialProfile("https://vk.com/id7", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList3.add(new SocialProfile("https://fb.com/id-3", s)));
         client3.setSocialProfiles(spList3);
         List<SocialProfile> spList4 = new ArrayList<>();
-        spList4.add(new SocialProfile("https://vk.com/id8", SocialNetworkType.VK));
-        spList4.add(new SocialProfile("https://fb.com/id-4", SocialNetworkType.FACEBOOK));
+        socialProfileTypeService.getByTypeName("vk").ifPresent(s -> spList4.add(new SocialProfile("https://vk.com/id8", s)));
+        socialProfileTypeService.getByTypeName("facebook").ifPresent(s -> spList4.add(new SocialProfile("https://fb.com/id-4", s)));
         client4.setSocialProfiles(spList4);
         client1.setJobs(Arrays.asList(new Job("javaMentor", "developer"), new Job("Microsoft", "Junior developer")));
 
@@ -250,7 +265,7 @@ public class DataInitializer {
         List<VkTrackedClub> vkTrackedClubs = vkTrackedClubService.getAll();
         for (VkTrackedClub vkTrackedClub : vkTrackedClubs) {
             List<VkMember> memberList = vkService.getAllVKMembers(vkTrackedClub.getGroupId(), 0L)
-                    .orElseThrow(() -> new NotFoundMemberList("Лист подписчиков сообщества не был получен"));
+                    .orElseThrow(NotFoundMemberList::new);
             vkMemberService.addAllMembers(memberList);
         }
 
