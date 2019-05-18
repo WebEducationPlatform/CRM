@@ -42,21 +42,6 @@
         <appender-ref ref="ALL_LOG"/>
     </logger>
 
-    <!--логи для hibernate. При необходимости установить уровень DEBUG-->
-    <!--что бы не мешались остальные логгеры можно поставить уровень OFF-->
-    <logger name="org.hibernate" level="OFF" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ALL_LOG"/>
-    </logger>
-    <logger name="org.hibernate.SQL" level="OFF" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ALL_LOG"/>
-    </logger>
-    <logger name="org.hibernate.type.descriptor" level="OFF" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ALL_LOG"/>
-    </logger>
-
     <logger name="org.thymeleaf" level="DEBUG" additivity="false"/>
 
     <root level="INFO">

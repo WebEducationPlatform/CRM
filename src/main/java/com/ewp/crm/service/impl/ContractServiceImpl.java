@@ -137,10 +137,6 @@ public class ContractServiceImpl implements ContractService {
                     logger.info("File deleting " + file.getName());
                 }
                 return contractDataMap;
-            } else {
-                if (fileOptional.get().delete()) {
-                    logger.info("Google Token not relevant. File deleting " + fileOptional.get().getName());
-                }
             }
         }
         return new HashMap<>();

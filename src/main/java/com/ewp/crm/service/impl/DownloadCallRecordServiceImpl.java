@@ -5,7 +5,6 @@ import com.ewp.crm.service.interfaces.DownloadCallRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,17 +25,15 @@ public class DownloadCallRecordServiceImpl implements DownloadCallRecordService 
 	private final String callToClientRecordingPrefix;
 	private final String commonCallRecordingPrefix;
 	private final String downloadLinkPrefix;
-	private Environment env;
 
 	@Autowired
-	public DownloadCallRecordServiceImpl(CallRecordConfig callRecordConfig, Environment env) {
+	public DownloadCallRecordServiceImpl(CallRecordConfig callRecordConfig) {
 		this.callRecordConfig = callRecordConfig;
 		recordFolderName = callRecordConfig.getRecordFolderName();
 		recordingFormat = callRecordConfig.getRecordingFormat();
 		callToClientRecordingPrefix = callRecordConfig.getRecordingToClientNamePrefix();
 		commonCallRecordingPrefix = callRecordConfig.getCommonRecordingNamePrefix();
 		downloadLinkPrefix = callRecordConfig.getRecordDownloadLinkPrefix();
-		this.env = env;
 	}
 
 	@Override
@@ -60,7 +57,7 @@ public class DownloadCallRecordServiceImpl implements DownloadCallRecordService 
 			if (!file.exists()) {
 				if (!file.createNewFile()) {
 					logger.error("Audio record file not created!");
-					throw new FileNotFoundException(env.getProperty("messaging.call-records.exception.download-file-not-found"));
+					throw new FileNotFoundException("File doesn't exist");
 				}
 			}
 			URL url = new URL(downloadUrl);

@@ -2,9 +2,6 @@ package com.ewp.crm.service.conversation;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
-import com.ewp.crm.models.conversation.ChatMessage;
-import com.ewp.crm.models.conversation.ChatType;
-import com.ewp.crm.models.conversation.Interlocutor;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappCheckDeliveryMsg;
@@ -60,8 +57,8 @@ public class JMWhatsappConversation implements JMConversation {
         try {
             phoneNumber = message.getChatId().replaceAll("\\D", "");
         } catch (NumberFormatException nfe) {
-            logger.warn("При отправке сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
-            return new ChatMessage(ChatType.whatsapp, environment.getProperty("messaging.whatsapp.send-error-wrong-phone"));
+            logger.warn("При отправки сообщения в WhatsApp был указан не верный номер телефона в поле ChatId :", nfe.getMessage());
+            return new ChatMessage(ChatType.whatsapp, "у этого клиента не верно указан номер телефона оправка сообщения не возможна");
         }
 
         WhatsappMessageSendable whatsappMessageSendable = new WhatsappMessageSendable(phoneNumber, message.getText());

@@ -11,7 +11,6 @@ import com.ewp.crm.utils.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,17 +28,15 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private final UserDAO userDAO;
     private final ImageConfig imageConfig;
     private final PhoneValidator phoneValidator;
-    private Environment env;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig,PhoneValidator phoneValidator) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
-        this.env = env;
     }
 
     @Override
@@ -58,7 +55,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
         if (userDAO.getUserByEmail(user.getEmail()) != null) {
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
+            throw new UserExistsException();
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -73,7 +70,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         User currentUserByEmail;
         if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {
             logger.warn("{}: user with email {} is already exist", UserServiceImpl.class.getName(), user.getEmail());
-            throw new UserExistsException(env.getProperty("messaging.user.exception.allready-exist"));
+            throw new UserExistsException();
         }
 
         if (!user.getPassword().equals(userDAO.getOne(user.getId()).getPassword())) {
@@ -97,7 +94,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
                 update(user);
             } catch (Exception e) {
                 logger.error("Error during saving photo: " + e.getMessage());
-                throw new UserPhotoException(env.getProperty("messaging.user.exception.photo-save-error"));
+                throw new UserPhotoException();
             }
             logger.info("{}: photo added successfully", UserServiceImpl.class.getName());
         }
