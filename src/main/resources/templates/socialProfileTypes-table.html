@@ -32,9 +32,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="socialProfileType : ${socialProfileTypes}">
-            <td th:text="${socialProfileType.id}"></td>
-            <td th:text="${socialProfileType.name}"></td>
+        <tr th:each="socialNetworkType : ${socialNetworkTypes}">
+            <td th:text="${socialNetworkType.id}"></td>
+            <td th:text="${socialNetworkType.name}"></td>
         </tr>
         <!-- Есть htmlFragment для UPDATE -->
         </tbody>

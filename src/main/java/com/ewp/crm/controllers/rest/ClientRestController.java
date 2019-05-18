@@ -2,11 +2,13 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +37,6 @@ public class ClientRestController {
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
 
     private final ClientService clientService;
-    private final SocialProfileTypeService socialProfileTypeService;
     private final UserService userService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
@@ -43,14 +45,16 @@ public class ClientRestController {
 	private final StatusService statusService;
 	private final StudentService studentService;
 	private final StudentStatusService studentStatusService;
+	private final ReportService reportService;
 	private String fileName;
+	private final ClientRepository clientRepository;
+	private Environment env;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
 
 	@Autowired
     public ClientRestController(ClientService clientService,
-                                SocialProfileTypeService socialProfileTypeService,
                                 UserService userService,
                                 SocialProfileService socialProfileService,
                                 ClientHistoryService clientHistoryService,
@@ -58,9 +62,10 @@ public class ClientRestController {
                                 ProjectPropertiesService propertiesService,
 								StatusService statusService,
                                 StudentService studentService,
-                                StudentStatusService studentStatusService) {
+                                StudentStatusService studentStatusService,
+								ReportService reportService,
+								ClientRepository clientRepository, Environment env) {
         this.clientService = clientService;
-        this.socialProfileTypeService = socialProfileTypeService;
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
@@ -69,6 +74,10 @@ public class ClientRestController {
         this.statusService = statusService;
 		this.studentService = studentService;
 		this.studentStatusService = studentStatusService;
+		this.reportService = reportService;
+		this.fileName = new String();
+		this.clientRepository = clientRepository;
+		this.env = env;
 	}
 
 	@GetMapping(value = "/slack-invite-link/{clientId}")
@@ -160,11 +169,10 @@ public class ClientRestController {
 
 	@GetMapping(value = "/getClientsData")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-	public ResponseEntity<InputStreamResource> getClientsData() {
-        //TODO test cross-platform separator
+	public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
 		String path = "DownloadData" + File.separator;
 		File file = new File(path + fileName);
-
+        String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8");
 		InputStreamResource resource = null;
 		try {
 			resource = new InputStreamResource(new FileInputStream(file));
@@ -173,7 +181,7 @@ public class ClientRestController {
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION,
-						"attachment;filename=" + file.getName())
+						"attachment;filename=" + encodedFileName)
 				.contentType(MediaType.TEXT_PLAIN).contentLength(file.length())
 				.body(resource);
 	}
@@ -187,10 +195,10 @@ public class ClientRestController {
 	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
-																	   @RequestParam(name = "socialProfileType") String socialProfileType,
+																	   @RequestParam(name = "socialNetworkType") String socialNetworkType,
 																	   @RequestParam(name = "unread") String unreadCount) {
 		Map<String, String> clientInfoMap = new HashMap<>();
-        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialProfileType);
+        Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialNetworkType);
         if (socialProfile.isPresent()) {
 			Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
 			if (!client.isPresent()) {
@@ -271,21 +279,28 @@ public class ClientRestController {
 		return ResponseEntity.ok(clients);
 	}
 
+	@PostMapping(value = "/filtrationWithoutPagination", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	public ResponseEntity<List<Client>> getAllWithConditionsWithoutPagination(@RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+		return ResponseEntity.ok(clients);
+	}
+
 	@PostMapping(value = "/createFile")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFile(@RequestBody ConditionToDownload conditionToDownload) {
-		fileName = clientService.getFileName(conditionToDownload.getSelected(),
+		fileName = reportService.getFileName(conditionToDownload.getSelected(),
 				conditionToDownload.getDelimeter(), null).get();
-		clientService.writeToFileWithConditionToDonwload(conditionToDownload, fileName);
+		reportService.writeToFileWithConditionToDonwload(conditionToDownload, fileName);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-		fileName = clientService.getFileName(filteringCondition.getSelectedCheckbox(),
+		fileName = reportService.getFileName(filteringCondition.getSelectedCheckbox(),
 				filteringCondition.getDelimeter(), filteringCondition.getStatus()).get();
-		clientService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+		reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
@@ -302,7 +317,7 @@ public class ClientRestController {
 			ZonedDateTime postponeDate = LocalDateTime.parse(date, dateTimeFormatter).atZone(ZoneId.systemDefault());
 			if (postponeDate.isBefore(ZonedDateTime.now()) || postponeDate.isEqual(ZonedDateTime.now())) {
 				logger.info("Wrong postpone date: {}", date);
-				return ResponseEntity.badRequest().body("Дата должна быть позже текущей даты");
+				return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.wrong-postpone-date"));
 			}
             if(isPostponeFlag) {
                 client.setHideCard(true);
@@ -315,7 +330,7 @@ public class ClientRestController {
             logger.info("{} has postponed client id:{} until {}", userFromSession.getFullName(), client.getId(), date);
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Произошла ошибка");
+			return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.postpone-error"));
 		}
 	}
 
@@ -332,7 +347,7 @@ public class ClientRestController {
 			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
 			return ResponseEntity.ok(HttpStatus.OK);
 		} catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка");
+            return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.postpone-error"));
         }
 	}
 
@@ -344,11 +359,11 @@ public class ClientRestController {
 		Client client = clientService.get(clientId);
 		if (client == null) {
 			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
 		}
 		if (client.getClientDescriptionComment() != null && client.getClientDescriptionComment().equals(clientDescription)) {
 			logger.error("Client has same description");
-			return ResponseEntity.badRequest().body("Client has same description");
+			return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.description-same-error"));
 		}
 		client.setClientDescriptionComment(clientDescription);
 		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
@@ -365,11 +380,11 @@ public class ClientRestController {
 		Optional<Client> checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
 		if (client == null) {
 			logger.error("Client with id {} not found", clientId);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
 		}
 		if (checkDuplicateLogin.isPresent() && checkDuplicateLogin.get().getSkype().equals(skypeLogin)) {
 			logger.error("client with this skype login already exists");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("client with this skype login already exists");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(env.getProperty("messaging.client.rest.skype-login-same-error"));
 		}
 		client.setSkype(skypeLogin);
 		clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin).ifPresent(client::addHistory);
@@ -404,7 +419,7 @@ public class ClientRestController {
         Client client = clientService.get(clientId);
         if (client == null) {
             logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("client not found or description is same");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
         }
         if (client.isRepeated()) {
             clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
@@ -412,7 +427,7 @@ public class ClientRestController {
         client.setRepeated(isRepeated);
 
         clientService.updateClient(client);
-        return ResponseEntity.status(HttpStatus.OK).body("done");
+        return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.client.rest.repeated-client-updated"));
     }
 
     @PostMapping(value = "/order")
