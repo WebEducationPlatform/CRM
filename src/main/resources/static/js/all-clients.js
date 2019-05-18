@@ -44,6 +44,7 @@ $('#filtration').click(function () {
     page = 1;
     data = {};
     var url = "../rest/client/filtration";
+    let urlToGetClientsWithoutPagination = "../rest/client/filtrationWithoutPagination";
 
     if ($('#sex').val() !== "") {
         data['sex'] = $('#sex').val();
@@ -58,6 +59,9 @@ $('#filtration').click(function () {
     if ($('#status').val() !== "") {
         data['status'] = $('#status').val();
     }
+    if ($('#ownerUser').val() !== "") {
+        data['ownerUserId'] = $('#ownerUser').val();
+    }
     $.ajax({
         type: 'POST',
         contentType: "application/json",
@@ -65,9 +69,21 @@ $('#filtration').click(function () {
         url: url,
         data: JSON.stringify(data),
         success: function (res) {
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json",
+                dataType: 'json',
+                url: urlToGetClientsWithoutPagination,
+                data: JSON.stringify(data),
+                success: function (res) {
+                    drawNumberOfClients(res);
+                    document.getElementById("divToFiltration").style.display = "block";
+                }
+            })
             var body = $("#table-body");
             clearClientsTable();
             drawClients(body, res);
+            res.length;
         },
         error: function (error) {
             console.log(error);
@@ -135,8 +151,15 @@ function drawDefaultClients() {
     })
 }
 
+function drawNumberOfClients(count){
+    var divToWrite = document.getElementById('divToFiltration'),
+    textWriteTodiv='По вашему запросу найдено людей : ' + count.length;
+    divToWrite.innerHTML = textWriteTodiv
+}
+
 //при закрытии фильтра отображаем дефолтный вывод таблицы
 $("#open-filter").click(function () {
+    document.getElementById("divToFiltration").style.display = "none";
     if ($("#filter").hasClass('in')) {
         drawDefaultClients();
     }
@@ -148,11 +171,11 @@ function drawClients(table, res) {
     for (let i = 0; i < res.length; i++) {
         let socLink = '';
         for (let j = 0; j < res[i].socialProfiles.length; j++) {
-            if (res[i].socialProfiles[j].socialProfileType.name == 'vk' || res[i].socialProfiles[j].socialProfileType.name == 'facebook') {
-                if (res[i].socialProfiles[j].socialProfileType.link == null) {
+            if (res[i].socialProfiles[j].socialNetworkType.name == 'vk' || res[i].socialProfiles[j].socialNetworkType.name == 'facebook') {
+                if (res[i].socialProfiles[j].socialNetworkType.link == null) {
                     socLink += res[i].socialProfiles[j].socialId + '<br>';
                 } else {
-                    socLink += res[i].socialProfiles[j].socialProfileType.link + res[i].socialProfiles[j].socialId + '<br>';
+                    socLink += res[i].socialProfiles[j].socialNetworkType.link + res[i].socialProfiles[j].socialId + '<br>';
                 }
             }
         }
@@ -221,6 +244,13 @@ function drawClients(table, res) {
             let bDateValues = bDate.split('-');
             birthDate = bDateValues[2] + '.' + bDateValues[1] + '.' + bDateValues[0];
         }
+        let oUsers = res[i].ownerUser;
+        let ownerUsers;
+        if (oUsers === null) {
+            ownerUsers = '';
+        } else {
+            ownerUsers = oUsers.fullName;
+        }
         $("#table-body").append(
             '    <tr>' +
             '        <td>' + res[i].id + '</td>' +
@@ -233,6 +263,7 @@ function drawClients(table, res) {
             '        <td>' + sex + ' </td>' +
             '        <td>' + city + ' </td>' +
             '        <td>' + country + ' </td>' +
+            '        <td>' + ownerUsers + '</td>' +
             '        <td class="colorTd" id="td_'+res[i].id+'">' + res[i].status.name + '</td>' +
             '        <td class="dateOfRegistration">' + dateOfRegistration + ' МСК' + ' </td>' +
             '        <td class="dateOfLastChange">' + dateOfLastChange + ' МСК' + ' </td>' +
@@ -298,6 +329,7 @@ $(document).ready(function () {
                     body.hasClass('email') ||
                     body.hasClass('city') ||
                     body.hasClass('country') ||
+                    body.hasClass('ownerUser') ||
                     body.hasClass('status') ||
                     body.hasClass('dateOfRegistration') ||
                     body.hasClass('dateOfLastChange')) {
@@ -338,6 +370,7 @@ $(document).ready(function () {
                 body.hasClass('email') ||
                 body.hasClass('city') ||
                 body.hasClass('country') ||
+                body.hasClass('ownerUser') ||
                 body.hasClass('status') ||
                 body.hasClass('dateOfRegistration') ||
                 body.hasClass('dateOfLastChange')) {
@@ -531,6 +564,9 @@ function sort_table(name) {
         data['pageNumber'] = page;
         if ($('#status').val() !== "") {
             data['status'] = $('#status').val();
+        }
+        if ($('#ownerUser').val() !== "") {
+            data['ownerUserId'] = $('#ownerUser').val();
         }
         $.ajax({
             type: 'POST',

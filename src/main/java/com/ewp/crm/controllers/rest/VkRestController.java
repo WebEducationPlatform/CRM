@@ -12,6 +12,7 @@ import com.ewp.crm.service.interfaces.VkTrackedClubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,18 +37,20 @@ public class VkRestController {
 	private final VkMemberService vkMemberService;
 	private final MessageTemplateService messageTemplateService;
 	private final VKConfig vkConfig;
+	private Environment env;
 
 	@Autowired
 	public VkRestController(VKService vkService,
 							VkTrackedClubService vkTrackedClubService,
 							VkMemberService vkMemberService,
 							MessageTemplateService messageTemplateService,
-							VKConfig vkConfig) {
+							VKConfig vkConfig, Environment env) {
 		this.vkService = vkService;
 		this.vkTrackedClubService = vkTrackedClubService;
 		this.vkMemberService = vkMemberService;
 		this.messageTemplateService = messageTemplateService;
 		this.vkConfig = vkConfig;
+		this.env = env;
 	}
 
     @PostMapping
@@ -57,7 +60,7 @@ public class VkRestController {
 												  @AuthenticationPrincipal User userFromSession) {
         String templateText = messageTemplateService.get(templateId).getOtherText();
         vkService.sendMessageToClient(clientId, templateText, body, userFromSession);
-        return ResponseEntity.status(HttpStatus.OK).body("Message send successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(env.getProperty("messaging.vk.rest.message-send-ok"));
     }
 
     @GetMapping(value = "/trackedclub", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -107,7 +110,7 @@ public class VkRestController {
 		int countNewMembers = 0;
 		List<VkMember> memberList = vkMemberService.getAllMembersByGroupId(newVkClub.getGroupId());
 		List<VkMember> newMemberList = vkService.getAllVKMembers(newVkClub.getGroupId(), 0L)
-				.orElseThrow(NotFoundMemberList::new);
+				.orElseThrow(() -> new NotFoundMemberList(env.getProperty("messaging.vk.exception.not-found-member-list")));
 		if (memberList.isEmpty()) {
 			vkMemberService.addAllMembers(newMemberList);
 

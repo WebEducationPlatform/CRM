@@ -161,6 +161,7 @@
 </th:block>
 
 <th:block th:fragment="header">
+    <link rel="icon" type="image/png" th:href="@{/images/favico.png}"/>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -279,22 +280,29 @@
                 </div>
                 <div id="modal-body">
                     <div id="checkboxes">
-                        <th:block th:each="socialProfileType : ${socialProfileTypes}">
+                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
                             <div class="container">
-                                <label class="checkbox" th:for="${socialProfileType.id}"
-                                       th:text="${socialProfileType.name}"></label>
-                                <input type="checkbox" th:value="${socialProfileType.name}"
-                                       th:id="${socialProfileType.id}"/>
+                                <label class="checkbox" th:for="${socialNetworkType.id}"
+                                       th:text="${socialNetworkType.name}"></label>
+                                <input type="checkbox" th:value="${socialNetworkType.name}"
+                                       th:id="${socialNetworkType.id}"/>
                             </div>
                         </th:block>
                         <div class="container">
                             <label class="checkbox" th:for="email" th:value="email" th:text="Email"></label>
                             <input type="checkbox" th:value="email" th:id="email"/>
                         </div>
-
                         <div class="container">
                             <label class="checkbox" th:for="phoneNumber">Номер телефона</label>
                             <input type="checkbox" th:value="phoneNumber" th:id="phoneNumber"/>
+                        </div>
+                        <div class="container">
+                            <label class="checkbox" th:for="name">Имя</label>
+                            <input type="checkbox" th:value="name" th:id="name"/>
+                        </div>
+                        <div class="container">
+                            <label class="checkbox" th:for="lastName">Фамилия</label>
+                            <input type="checkbox" th:value="lastName" th:id="lastName"/>
                         </div>
                     </div>
                     <div class="col-xs-12">
@@ -336,22 +344,29 @@
 </th:block>
 
 <th:block th:fragment="deleteUser">
-    <div th:each="usr : ${users}">
-        <div class="modal fade" th:id="'deleteUserModal' + ${usr.id}" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Подтвердите свое действие</h5>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Вы уверены, что хотите удалить пользователя?</h6>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" th:onclick="'deleteUser('+ ${usr.id} + ')'">
-                            Да
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
-                    </div>
+    <div class="modal fade" id="deleteUserModal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Перед удалением выберите пользователя для передачи клиентов</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteUserForm">
+                        <div class="custom-control custom-radio">
+                            <table id="usersTable" class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Пользователи</th>
+                                </tr>
+                                </thead>
+                            </table>
+                            <h6>Вы уверены, что хотите удалить пользователя?</h6>
+                            <button type="submit" class="btn btn-primary">Да</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
                 </div>
             </div>
         </div>
@@ -734,7 +749,7 @@
 </th:block>
 
 <th:block th:fragment="updateSocialNetworkType">
-    <div th:attr="id=${socialProfileType.id}" class="modal fade" role="dialog">
+    <div th:attr="id=${socialNetworkType.id}" class="modal fade" role="dialog">
 
         <div class="modal-dialog">
             <form role="form" id="updateTypeForm" th:action="@{/admin/user/updateSocialNetworkType}" method="post">
@@ -752,9 +767,9 @@
                                 <label for="updateType">Name</label>
                                 <input type="text" id="updateType" name="name"
                                        class="form-control"
-                                       th:value="${socialProfileType.name}"/>
+                                       th:value="${socialNetworkType.name}"/>
 
-                                <input type="hidden" id="typeId" name="id" th:value="${socialProfileType.id}"/>
+                                <input type="hidden" id="typeId" name="id" th:value="${socialNetworkType.id}"/>
 
                             </div>
                         </div>
