@@ -167,10 +167,14 @@ public class IncomeStringToClient {
         logger.info("Parsing JavaLearnForm...");
         Client client = new Client();
         String removeExtraCharacters = form.substring(form.indexOf("Request"), form.length())
-                .replaceAll("<a href=\"", "")
-                .replaceAll("\">", "<br>")
-                .replaceAll("Name: ", "Name:")
-                .replaceAll(" ", "~");
+                .replaceAll("<(.|\n)+?>", " ~ ")
+                .replaceAll("~\\s+~","<br>")
+                .replaceAll("~","");
+
+//                .replaceAll("<a href=\"", "")
+//                .replaceAll("\">", "<br>")
+//                .replaceAll("Name: ", "Name:")
+//                .replaceAll(" ", "~");
 
         String[] createArrayFromString = removeExtraCharacters.split("<br>");
         Map<String, String> clientData = createMapFromClientData(createArrayFromString);
@@ -232,7 +236,7 @@ public class IncomeStringToClient {
             if (re.contains(":")) {
                 String name = re.substring(0, re.indexOf(":"));
                 String value = re.substring(re.indexOf(":") + 1, re.length());
-                clientData.put(name, value);
+                clientData.put(name.trim(), value.trim());
             }
         }
         return clientData;
