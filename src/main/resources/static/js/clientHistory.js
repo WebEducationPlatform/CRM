@@ -4,11 +4,6 @@ $(document).ready(function () {
         current.collapse('show');
     });
 
-    $('#main-modal-window').on('shown.bs.modal', function ShowContent() {
-        let current = $(document.getElementsByClassName("upload-history"));
-        loadClientHistory(current);
-    });
-
     $('.upload-more-history').on("click", function uploadMoreHistory() {
         let current = $(this);
         let clientId = current.attr("data-clientid");
@@ -63,7 +58,8 @@ $(document).ready(function () {
 
 
 function drawClientHistory(list, history_table) {
-    for (let i = 0; i < list.length; i++) {
+    var len = (list.length > 10) ? 10 : list.length;
+    for (let i = 0; i < len; i++) {
         let $tdLink = "";
         if (list[i].link != null) {
             $tdLink = "" +
@@ -159,24 +155,3 @@ $(function () {
         })
     });
 });
-
-function loadClientHistory(element) {
-    let current = element;
-    let client_id = current.attr("data-id");
-    let url = '/client/history/rest/getHistory/' + client_id;
-    let params = {
-        page: "0"
-    };
-    let history_table = $('#client-' + client_id + 'history').find("tbody");
-    let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
-    $.get(url, params, function get(list) {
-    }).done(function (list) {
-        if (list.length < 10) {
-            upload_more_btn.hide();
-        } else {
-            upload_more_btn.show();
-        }
-        //draw client history
-        drawClientHistory(list, history_table);
-    })
-}
