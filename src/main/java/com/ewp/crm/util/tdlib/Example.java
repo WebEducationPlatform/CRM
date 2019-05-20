@@ -4,7 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-package com.ewp.crm.utils.tdlib;
+package com.ewp.crm.util.tdlib;
 
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
