@@ -1,9 +1,10 @@
-package com.ewp.crm.utils.converters;
+package com.ewp.crm.util.converters;
 
 import org.docx4j.TraversalUtil;
 import org.docx4j.XmlUtils;
 import org.docx4j.finders.RangeFinder;
 import org.docx4j.wml.CTBookmark;
+import org.docx4j.wml.CTMarkup;
 import org.docx4j.wml.CTMarkupRange;
 import org.docx4j.wml.ContentAccessor;
 import org.slf4j.Logger;
@@ -20,17 +21,22 @@ public class DocxRemoveBookMark {
         RangeFinder rt = new RangeFinder(startElement, endElement);
         new TraversalUtil(paragraphs, rt);
 
-        for (CTBookmark bm : rt.getStarts()) {
+        forCTMarkup(rt.getStarts());
+        forCTMarkup(rt.getEnds());
+    }
+
+    private static void forCTMarkup (List<? extends CTMarkup> ctMarkupList){
+        for (CTMarkup ctMarkup : ctMarkupList) {
             try {
                 List<Object> theList = null;
-                if (bm.getParent() instanceof List) {
-                    theList = (List) bm.getParent();
+                if (ctMarkup.getParent() instanceof List) {
+                    theList = (List) ctMarkup.getParent();
                 } else {
-                    theList = ((ContentAccessor) (bm.getParent())).getContent();
+                    theList = ((ContentAccessor) (ctMarkup.getParent())).getContent();
                 }
                 Object deleteMe = null;
                 for (Object ox : theList) {
-                    if (XmlUtils.unwrap(ox).equals(bm)) {
+                    if (XmlUtils.unwrap(ox).equals(ctMarkup)) {
                         deleteMe = ox;
                         break;
                     }
@@ -39,29 +45,7 @@ public class DocxRemoveBookMark {
                     theList.remove(deleteMe);
                 }
             } catch (ClassCastException cce) {
-                log.error(cce.getMessage(), cce);
-            }
-        }
-        for (CTMarkupRange mr : rt.getEnds()) {
-            try {
-                List<Object> theList = null;
-                if (mr.getParent() instanceof List) {
-                    theList = (List) mr.getParent();
-                } else {
-                    theList = ((ContentAccessor) (mr.getParent())).getContent();
-                }
-                Object deleteMe = null;
-                for (Object ox : theList) {
-                    if (XmlUtils.unwrap(ox).equals(mr)) {
-                        deleteMe = ox;
-                        break;
-                    }
-                }
-                if (deleteMe != null) {
-                    theList.remove(deleteMe);
-                }
-            } catch (ClassCastException cce) {
-                log.info(mr.getParent().getClass().getName());
+                log.info(ctMarkup.getParent().getClass().getName());
                 log.error(cce.getMessage(), cce);
             }
         }

@@ -74,3 +74,5 @@ messaging:
         deleted-impossible-to-del: Статус deleted нельзя удалить #StatusServiceImpl
     socials:
       invalid-link: "Ссылка на социальную сеть %s недействительна" #IncomeStringToClient
+    description:
+      java-learn-link: "Заявка с сайта javalearn" #IncomeStringToClient
