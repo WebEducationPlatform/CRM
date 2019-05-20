@@ -9,7 +9,7 @@ import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
-import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.ewp.crm.util.patterns.ValidationPattern;
 import org.drinkless.tdlib.TdApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

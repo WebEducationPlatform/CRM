@@ -1,4 +1,4 @@
-package com.ewp.crm.utils.validators;
+package com.ewp.crm.util.validators;
 
 import org.springframework.stereotype.Component;
 
