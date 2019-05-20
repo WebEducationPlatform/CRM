@@ -202,22 +202,18 @@ $(function () {
         $.ajax({
             async: true,
             type: 'GET',
-            url: '/rest/status',
-            success: function (status) {
+            dataType: "JSON",
+            url: '/rest/client/card/' + clientId,
+            success: function (clientCard) {
+                var status = clientCard.statuses;
+                var client = clientCard.client;
+
                 $('#client-status-list').empty();
                 $.each(status, function (i, s) {
                     $('#client-status-list').append(
                         '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
                     );
                 });
-            }
-        });
-
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: '/rest/client/' + clientId,
-            success: function (client) {
 
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
@@ -427,6 +423,116 @@ $(function () {
                     $('#repeated-client-info').show();
 
                 }
+
+                /*Client card's comments panel, see comments.js*/
+                var list = client.comments;
+
+                let user_id = user.id;
+
+                let ulComments = $('#client-' + client.id + 'comments');
+                let removeComment = "";
+                let editComment = "";
+                let removeAnswer = "";
+                let editAnswer = "";
+                let dateCommit = "";
+                let html = "";
+                ulComments.empty();
+
+                for (let i = list.length-1; i >=0; i--) {
+                    let d = new Date(list[i].dateFormat);
+                    let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                        d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+                    // if (list[i].mainComment == null) {
+                    if (user_id === list[i].user.id + '') {
+                        removeComment = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + list[i].id + ')"></span>'
+                        editComment = '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>'
+
+                    } else {
+                        removeComment = '';
+                        editComment = '';
+
+                    }
+                    html +=
+                        '<li class="list-group-item comment-item">' +
+                        '<div id="comment' + list[i].id + '" class="comment">' +
+                        '<span class="comment-name">' + list[i].user.lastName + ' ' + list[i].user.firstName + '</span>' +
+                        removeComment +
+                        editComment +
+                        '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
+                        '<span  class="comment-functional">'+ dateFormat +'</span>' +
+                        '<p class="comment-text" ">' + list[i].content + '</p>' +
+                        '<div class="form-answer">' +
+                        '<div class="form-group">' +
+                        '<textarea class="form-control textcomplete" id="new-answer-for-comment' + list[i].id + '" placeholder="Напишите ответ"></textarea>' +
+                        '<button class="btn btn-md btn-success comment-button" onclick="sendAnswer(' + list[i].id + ', \'test_message\')"> Сохранить </button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="form-edit">' +
+                        '<div class="form-group">' +
+                        '<textarea class="form-control edit-textarea textcomplete"' +
+                        ' id="edit-comment' + list[i].id + '" placeholder="Редактор"></textarea>' +
+                        '<button class="btn btn-md btn-success comment-button" onclick="editComment(' + list[i].id + ')"> Отредактировать </button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<ul class="answer-list comment-item" id="comment-' + list[i].id + 'answers">';
+                    let answers = list[i].commentAnswers;
+                    for (let i = 0; i < answers.length; i++) {
+                        let d = new Date(answers[i].dateFormat);
+                        let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+                        if (user_id === answers[i].user.id + '') {
+                            removeAnswer = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteCommentAnswer(' + answers[i].id + ')"></span>'
+                            editAnswer = '<span class="edit-answer glyphicon glyphicon-pencil comment-functional"></span>'
+                        } else {
+                            removeAnswer = '';
+                            editAnswer = '';
+                        }
+                        html +=
+                            '<li>\n' +
+                            //comment
+                            '<div id="answer' + answers[i].id + '" class="answer">\n' +
+                            //comment-name
+                            '<span class="comment-name">' + answers[i].user.lastName + ' ' + answers[i].user.firstName + '</span>' +
+                            removeAnswer +
+                            editAnswer +
+                            '<span  class="comment-functional">'+ dateFormat +'</span>' +
+                            //comment-text
+                            '<p class="comment-text" ">' + answers[i].content + '</p>' +
+                            '<div class="form-edit">' +
+                            '<div class="form-group">' +
+                            '<textarea class="form-control edit-textarea textcomplete" ' +
+                            //edit-comment
+                            ' id="edit-answer' + answers[i].id + '" placeholder="Редактор"></textarea>' +
+                            '<button class="btn btn-md btn-success comment-button" onclick="editCommentAnswer(' + answers[i].id + ')"> Отредактировать </button>' +
+                            '                                </div>\n' +
+                            '                            </div>\n' +
+                            '                        </div>\n' +
+                            '                    </li>\n';
+                    }
+
+                    html += '</ul>' +
+                        '</div>' +
+                        '</li>';
+
+                }
+                ulComments.append(html);
+
+                /*Client card's history panel, see clientHistory.js*/
+                var history = client.history;
+
+                let history_table = $('#client-' + client.id + 'history').find("tbody");
+                let current = $(document.getElementsByClassName("upload-history"));
+                let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
+                if (history.length < 10) {
+                    upload_more_btn.hide();
+                } else {
+                    upload_more_btn.show();
+                }
+                //draw client history
+                drawClientHistory(history, history_table);
+            },
+            error: function (error) {
+                console.log(error);
             }
         });
     });
