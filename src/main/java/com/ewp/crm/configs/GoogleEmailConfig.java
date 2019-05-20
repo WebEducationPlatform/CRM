@@ -5,7 +5,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.ProjectProperties;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.converters.IncomeStringToClient;
+import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

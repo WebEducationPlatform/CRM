@@ -7,7 +7,7 @@ import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.util.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
