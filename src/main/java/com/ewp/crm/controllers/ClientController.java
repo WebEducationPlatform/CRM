@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
@@ -96,37 +97,37 @@ public class ClientController {
     @GetMapping(value = "/client")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-        List<Status> statuses = null;
+        List<StatusDtoForBoard> statuses = null;
         ModelAndView modelAndView = null;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER"));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER")));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN"));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN")));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR"));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR")));
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
         else if(sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER"));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
-        statuses.sort(Comparator.comparing(Status::getPosition));
+        statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
