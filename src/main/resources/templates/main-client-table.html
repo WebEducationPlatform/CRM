@@ -157,13 +157,13 @@
                                   th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
                                   th:id="'own-' + ${client.id}">
                                 </span>
-                            <span th:if="${client.ownerMentor != null}" class="user-icon_card"
+                            <span th:if="${client.ownerMentor != null}" class="mentor-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
-                                  th:text="${#strings.substring(client.ownerMentor.firstName, 0,1)
+                                  th:text="' Ментор: ' + ${#strings.substring(client.ownerMentor.firstName, 0,1)
                                   + #strings.substring(client.ownerMentor.lastName, 0,1)
                                   }"
                                   th:value="${client.ownerMentor.firstName} + ' ' + ${client.ownerMentor.lastName}"
-                                  th:id="'own-' + ${client.id}">
+                                  th:id="'mn-' + ${client.id}">
                                 </span>
 
                         </div>
@@ -251,6 +251,12 @@
                                 <th:block>
                                     <li>
                                         <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с
+                                            карточки</a>
+                                    </li>
+                                </th:block>
+                                <th:block>
+                                    <li>
+                                        <a th:onclick="'unassignMentor('+ ${client.id} +')'">Убрать ментора с
                                             карточки</a>
                                     </li>
                                 </th:block>
