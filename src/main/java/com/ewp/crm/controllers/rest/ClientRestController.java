@@ -253,6 +253,28 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+	@PostMapping(value = "/assign/mentor")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+	public ResponseEntity assignMentor(@RequestParam(name = "clientId") Long clientId,
+									 @RequestParam(name = "userForAssign") Long userId,
+									 @AuthenticationPrincipal User userFromSession) {
+		User assignUser = userService.get(userId);
+		Client client = clientService.get(clientId);
+		if (client.getOwnerMentor() != null && client.getOwnerMentor() .equals(assignUser)) {
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+			return ResponseEntity.badRequest().build();
+		}
+		if (userFromSession.equals(assignUser)) {
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+		} else {
+			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+		}
+		client.setOwnerMentor(assignUser);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+		return ResponseEntity.ok(client.getOwnerMentor());
+	}
+
 	@PostMapping(value = "/unassign")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId,
