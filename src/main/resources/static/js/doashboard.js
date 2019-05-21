@@ -205,8 +205,20 @@ function assignMentor(id, user, principalId) {
         type: 'POST',
         url: url,
         data: formData,
-        success: function (mentor) {
+        success: function (owner) {
+            let info_client = $('#info-client' + id),
+                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
+                unassign_btn = $('#unassign-client' + id);
+            info_client.find("span[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
 
+            info_client.append(
+                "<span class='mentor-icon_card' id='mn-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "Ментор: " + owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "</span>" +
+                "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>"
+            );
+            fillFilterList()
         },
         error: function (error) {
         }
