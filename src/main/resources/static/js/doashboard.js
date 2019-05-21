@@ -192,6 +192,26 @@ function assignUser(id, user, principalId) {
     });
 }
 
+function assignMentor(id, user, principalId) {
+    var
+        url = '/rest/client/assign/mentor',
+        formData = {
+            clientId: id,
+            userForAssign: user
+        },
+        assignBtn = $('#assign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (mentor) {
+
+        },
+        error: function (error) {
+        }
+    });
+}
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
