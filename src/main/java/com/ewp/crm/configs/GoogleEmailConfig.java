@@ -125,6 +125,7 @@ public class GoogleEmailConfig {
                         prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                     }
                     clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+
 //                    c javalearn статус "Постоплата2"
                     if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                         statusService.get("Постоплата2").ifPresent(client::setStatus);
