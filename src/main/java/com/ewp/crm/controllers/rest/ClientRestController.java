@@ -265,9 +265,9 @@ public class ClientRestController {
 			return ResponseEntity.badRequest().build();
 		}
 		if (userFromSession.equals(assignUser)) {
-			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
 		} else {
-			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
 		}
 		client.setOwnerMentor(assignUser);
 		clientService.updateClient(client);
