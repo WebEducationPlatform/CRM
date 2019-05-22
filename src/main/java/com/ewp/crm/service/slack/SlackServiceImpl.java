@@ -2,6 +2,7 @@ package com.ewp.crm.service.slack;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
+import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -49,11 +50,16 @@ public class SlackServiceImpl implements SlackService {
     private final String defaultPrivateGroupNameTemplate;
     private final AssignSkypeCallService assignSkypeCallService;
     private final MessageTemplateService messageTemplateService;
+    private final StudentRepository studentRepository;
 
     @Autowired
     public SlackServiceImpl(Environment environment, StudentService studentService,
                             ClientService clientService,
-                            SocialProfileService socialProfileService, ProjectPropertiesService projectPropertiesService, AssignSkypeCallService assignSkypeCallService, MessageTemplateService messageTemplateService) {
+                            SocialProfileService socialProfileService,
+                            ProjectPropertiesService projectPropertiesService,
+                            AssignSkypeCallService assignSkypeCallService,
+                            MessageTemplateService messageTemplateService,
+                            StudentRepository studentRepository) {
         this.appToken = assignPropertyToString(environment,
                 "slack.appToken1",
                     "Can't get 'slack.appToken' get it from https://api.slack.com/apps");
@@ -75,6 +81,7 @@ public class SlackServiceImpl implements SlackService {
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.assignSkypeCallService = assignSkypeCallService;
         this.messageTemplateService = messageTemplateService;
+        this.studentRepository = studentRepository;
     }
 
     private String assignPropertyToString(Environment environment, String propertyName, String errorText) {
@@ -104,8 +111,10 @@ public class SlackServiceImpl implements SlackService {
     public void tryLinkSlackAccountToAllStudents() {
             Optional<String> allWorkspaceUsersData = receiveAllClientsFromWorkspace();
             if (allWorkspaceUsersData.isPresent()) {
+                List<Student> empty = studentRepository.getStudentsByClientSocialProfiles_Empty();
                 List<SocialNetworkType> excludeSocialProfileTypes = Arrays.asList(SocialNetworkType.SLACK);
                 List<Student> students = studentService.getStudentsWithoutSocialProfileByType(excludeSocialProfileTypes);
+                students.addAll(empty);
                 for (Student student : students) {
                     tryLinkSlackAccountToStudent(student.getId(), allWorkspaceUsersData.get());
                 }

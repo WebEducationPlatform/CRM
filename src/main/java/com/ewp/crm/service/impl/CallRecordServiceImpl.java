@@ -6,6 +6,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.CallRecordRepository;
 import com.ewp.crm.service.interfaces.CallRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import java.time.ZoneId;
@@ -18,11 +19,13 @@ import java.util.Optional;
 public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> implements CallRecordService {
 
     private final CallRecordRepository callRecordRepository;
+    private Environment env;
     private static final String UNKNOWN_USER = "Звонок не из CRM. Номер: ";
 
     @Autowired
-    public CallRecordServiceImpl(CallRecordRepository callRecordRepository) {
+    public CallRecordServiceImpl(CallRecordRepository callRecordRepository, Environment env) {
         this.callRecordRepository = callRecordRepository;
+        this.env = env;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
     @Override
     public Optional<CallRecord> addCallRecordTo(CallRecord callRecord, User user, String to) {
         callRecord.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
-        callRecord.setComment(UNKNOWN_USER + to);
+        callRecord.setComment(env.getProperty("messaging.call-records.unknown-user") + to);
         callRecord.setCallingUser(user);
         return Optional.of(callRecordRepository.saveAndFlush(callRecord));
     }

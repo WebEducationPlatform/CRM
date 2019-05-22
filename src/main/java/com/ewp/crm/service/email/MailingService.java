@@ -12,6 +12,7 @@ import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -45,17 +46,19 @@ public class MailingService {
     private final SlackService slackService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
+    private Environment env;
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
                           MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine,
-                          SlackService slackService) {
+                          SlackService slackService, Environment env) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.slackService = slackService;
+        this.env = env;
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -112,9 +115,9 @@ public class MailingService {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             for (ClientData email : message.getClientsData()) {
-                mimeMessageHelper.setFrom("Java-Mentor.ru");
+                mimeMessageHelper.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
                 mimeMessageHelper.setTo(email.getInfo());
-                mimeMessageHelper.setSubject("Ваш личный Java наставник");
+                mimeMessageHelper.setSubject(env.getProperty("messaging.mailing.set-subject-personal-mentor"));
                 final Context ctx = new Context();
                 String templateText = message.getText().replaceAll("\n", "");
                 ctx.setVariable("templateText", templateText);
@@ -139,7 +142,7 @@ public class MailingService {
             mailingMessageRepository.save(message);
             result = true;
         } catch (MessagingException e) {
-            logger.info("Message no sent.", e);
+            logger.info("Message not sent.", e);
         } catch (NullPointerException e) {
             logger.info("No recipients found, clientData is empty.", e);
         } catch (IOException e) {
@@ -178,7 +181,7 @@ public class MailingService {
             try {
                 Thread.sleep(1000);
                 String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
-                if (!value.equalsIgnoreCase("Message sent")) {
+                if (!value.equalsIgnoreCase(env.getProperty("messaging.vk.send-ok"))) {
                     notSendList.add(value);
                 }
                 message.setReadedMessage(true);
@@ -198,7 +201,7 @@ public class MailingService {
             try {
                 Thread.sleep(1000);
                 String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText());
-                if (!value.equalsIgnoreCase("Message sent")) {
+                if (!value.equalsIgnoreCase(env.getProperty("messaging.vk.send-ok"))) {
                     notSendList.add(value);
                     message.setNotSendId(notSendList);
                 }
@@ -254,7 +257,7 @@ public class MailingService {
                 pattern = EMAIL_PATTERN;
                 break;
             default:
-                throw new ParseMailingDataException("Incorrect input data for mailing: messageType = " + messageType);
+                throw new ParseMailingDataException(env.getProperty("messaging.mailing.exception.parse-data") + messageType);
         }
         addMailingToSendQueue(messageType, recipients, text, pattern, destinationDate, user);
     }

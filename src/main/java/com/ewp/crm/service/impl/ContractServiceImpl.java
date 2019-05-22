@@ -7,7 +7,7 @@ import com.ewp.crm.repository.interfaces.ClientsContractLinkRepository;
 import com.ewp.crm.service.interfaces.ContractService;
 import com.ewp.crm.service.interfaces.GoogleTokenService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.utils.converters.DocxRemoveBookMark;
+import com.ewp.crm.util.converters.DocxRemoveBookMark;
 import com.ibm.icu.text.Transliterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;

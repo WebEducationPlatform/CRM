@@ -6,12 +6,13 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,8 @@ import java.util.*;
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
     private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
-
-    private final String REPEATED_CLIENT = "Клиент оставлил повторную заявку";
-
     private final ClientRepository clientRepository;
     private final SlackInviteLinkRepository slackInviteLinkRepository;
-
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
     private final SocialProfileService socialProfileService;
@@ -39,14 +36,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
-
-
+    private Environment env;
+  
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService) {
+                             @Lazy SlackService slackService, Environment env) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -57,6 +54,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.slackInviteLinkRepository = slackInviteLinkRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
+        this.env = env;
     }
 
     @Override
@@ -324,7 +322,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 existClient.get().addHistory(clientHistory);
             }
 
-            existClient.get().setClientDescriptionComment(REPEATED_CLIENT);
+            existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
             statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
@@ -345,7 +343,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 if (id.isPresent()) {
                     socialProfile.setSocialId(String.valueOf(id.get()));
                 } else {
-                    client.setComment("Не удалось получить социальную сеть клиента: " + socialProfile.getSocialId() + "\n" + client.getComment());
+                    client.setComment(env.getProperty("messaging.client.service.socials-not-found-comment") + socialProfile.getSocialId() + "\n" + client.getComment());
                     client.deleteSocialProfile(socialProfile);
                 }
             }
@@ -387,7 +385,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
             if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
-                throw new ClientExistsException();
+                throw new ClientExistsException(env.getProperty("messaging.client.exception.exist"));
             }
         }
 
@@ -401,7 +399,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             client.setCanCall(true);
             Client clientByPhone = clientRepository.getClientByPhoneNumber(client.getPhoneNumber().get());
             if (clientByPhone != null && !client.getPhoneNumber().get().isEmpty() && !clientByPhone.getId().equals(client.getId())) {
-                throw new ClientExistsException();
+                throw new ClientExistsException(env.getProperty("messaging.client.exception.exist"));
             }
         } else {
             client.setCanCall(false);

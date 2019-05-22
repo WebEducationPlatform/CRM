@@ -9,4 +9,5 @@ public interface MailConfig {
     String getProtocol();
     String getDebug();
     String getImapServer();
+    String getMailJavalearn();
 }
