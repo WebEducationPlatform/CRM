@@ -206,6 +206,13 @@ function assignMentor(id, user, principalId) {
         url: url,
         data: formData,
         success: function (owner) {
+            assignBtn.before(
+                "<button " +
+                "   id='unassign-client" + id + "' " +
+                "   onclick='unassignMentor(" + id + ")' " +
+                "   class='btn btn-sm btn-warning remove-tag'>Отказаться от карточки</button>"
+            );
+            assignBtn.remove();
             let info_client = $('#info-client' + id),
                 target_btn = $("a[href='/client/clientInfo/" + id + "']"),
                 unassign_btn = $('#unassign-client' + id);
