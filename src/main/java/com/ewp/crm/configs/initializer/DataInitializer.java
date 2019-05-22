@@ -212,7 +212,7 @@ public class DataInitializer {
         Status status3 = new Status("pauseLearnStatus", false, 4L, false, 0, 0);
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
-  
+        
         Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
         Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
         Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", LocalDate.parse("1975-03-10"), Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
@@ -310,6 +310,7 @@ public class DataInitializer {
         }
         clientService.addBatchClients(list);
        
+        
         VkRequestForm vkRequestForm1 = new VkRequestForm(1, "Имя", "Поле сопоставленное с данными");
         VkRequestForm vkRequestForm2 = new VkRequestForm(2, "Фамилия", "Поле сопоставленное с данными");
         VkRequestForm vkRequestForm3 = new VkRequestForm(3, "Номер телефона", "Поле сопоставленное с данными");
