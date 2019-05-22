@@ -295,6 +295,26 @@ public class ClientRestController {
 		return ResponseEntity.ok(client.getOwnerUser());
 	}
 
+    @PostMapping(value = "/unassignMentor")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+    public ResponseEntity unassignMentor(@RequestParam(name = "clientId") Long clientId,
+                                   @AuthenticationPrincipal User userFromSession) {
+        Client client = clientService.get(clientId);
+        if (client.getOwnerMentor() == null) {
+            logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", userFromSession.getEmail(), clientId);
+            return ResponseEntity.badRequest().build();
+        }
+        if (client.getOwnerMentor().equals(userFromSession)) {
+            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN_MENTOR).ifPresent(client::addHistory);
+        } else {
+            clientHistoryService.createHistory(userFromSession, client.getOwnerMentor(), client, ClientHistory.Type.UNASSIGN_MENTOR).ifPresent(client::addHistory);
+        }
+        client.setOwnerMentor(null);
+        clientService.updateClient(client);
+        logger.info("User {} has unassigned client with id {}", userFromSession.getEmail(), clientId);
+        return ResponseEntity.ok(client.getOwnerMentor());
+    }
+
 	@PostMapping(value = "/filtration", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
 	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {

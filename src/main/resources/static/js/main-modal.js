@@ -1303,6 +1303,28 @@ function unassign(id) {
     });
 }
 
+function unassignMentor(id) {
+    let
+        url = '/rest/client/unassignMentor',
+        formData = {
+            clientId: id
+        }
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
+
+            fillFilterList();
+        },
+        error: function (error) {
+        }
+    });
+}
+
 function assign(id) {
     let
         url = '/rest/client/assign',
