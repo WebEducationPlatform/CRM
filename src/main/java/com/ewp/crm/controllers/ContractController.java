@@ -2,6 +2,8 @@ package com.ewp.crm.controllers;
 
 import com.ewp.crm.configs.GoogleAPIConfigImpl;
 import com.ewp.crm.models.*;
+import com.ewp.crm.repository.interfaces.ClientsContractLinkRepository;
+import com.ewp.crm.repository.interfaces.ContractLinkDataRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +31,26 @@ public class ContractController {
     private final ProjectPropertiesService projectPropertiesService;
     private final MailSendService mailSendService;
     private final GoogleAPIConfigImpl googleAPIConfig;
-
+    private final ContractLinkDataRepository contractLinkRepository;
+    private final ClientsContractLinkRepository clientsContractLinkRepository;
 
     @Autowired
-    public ContractController(ContractService contractService, ClientService clientService, ContractSettingService contractSettingService, ProjectPropertiesService projectPropertiesService, MailSendService mailSendService, GoogleAPIConfigImpl googleAPIConfig) {
+    public ContractController(ContractService contractService,
+                              ClientService clientService,
+                              ContractSettingService contractSettingService,
+                              ProjectPropertiesService projectPropertiesService,
+                              MailSendService mailSendService,
+                              GoogleAPIConfigImpl googleAPIConfig,
+                              ContractLinkDataRepository contractLinkRepository,
+                              ClientsContractLinkRepository clientsContractLinkRepository) {
         this.contractService = contractService;
         this.clientService = clientService;
         this.contractSettingService = contractSettingService;
         this.projectPropertiesService = projectPropertiesService;
         this.mailSendService = mailSendService;
         this.googleAPIConfig = googleAPIConfig;
+        this.contractLinkRepository =contractLinkRepository;
+        this.clientsContractLinkRepository = clientsContractLinkRepository;
     }
 
     @GetMapping("/{hash}")
@@ -95,5 +107,15 @@ public class ContractController {
             mailSendService.prepareAndSend(id, projectPropertiesService.getOrCreate().getContractTemplate().getTemplateText(), StringUtils.EMPTY, null);
         }
         return new ResponseEntity<>(client.getContractLinkData().getContractLink(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteContract")
+    public ResponseEntity deleteContract(@RequestParam Long id){
+        Optional<ContractLinkData> contractLinkData = clientsContractLinkRepository.getByClient_Id(id);
+        if (contractLinkData.isPresent()){
+            contractService.deleteContractFromGoogleDrive(contractLinkData.get().getContractLink());
+            contractLinkRepository.deleteContactLinkByClient_Id(id);
+        }
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }
