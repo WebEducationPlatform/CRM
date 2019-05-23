@@ -28,6 +28,7 @@ public class GoogleAPIConfigImpl {
     private final String eventName;
     private final String viewUri;
     private final String driveUploadUriOld;
+    private final String deleteFile;
     private final static Logger logger = LoggerFactory.getLogger(GoogleAPIConfigImpl.class);
 
     @Autowired
@@ -49,6 +50,7 @@ public class GoogleAPIConfigImpl {
         eventName = env.getProperty("google.client.calendar.eventName");
         viewUri = env.getProperty("google.docs.view.url");
         driveUploadUriOld = env.getProperty("google.drive.upload-uri-old");
+        deleteFile = env.getProperty("google.drive.delete");
         if (!configIsValid()) {
             logger.error("Google configs have not initialized. Check google-api.properties file");
             System.exit(-1);
@@ -58,6 +60,10 @@ public class GoogleAPIConfigImpl {
     private boolean configIsValid() {
         if (driveClientId == null || driveClientSecret.isEmpty() || calendarClientId == null || calendarClientSecret == null) return false;
         return true;
+    }
+
+    public String getDeleteFile() {
+        return deleteFile;
     }
 
     public String getDriveClientId() {

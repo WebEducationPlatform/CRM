@@ -34,3 +34,19 @@ function createContractSetting() {
         }
     });
 }
+
+$("#deleteContractButton").on('click', function () {
+    let clientId = getAllUrlParams(window.location.href).id;
+    let url = "/contract/deleteContract?id=";
+    $.ajax({
+        type: "DELETE",
+        url: url + clientId,
+        success: function () {
+            console.log("contract delete from client" + clientId);
+            location.reload();
+        },
+        error: function () {
+            console.log("error delete contract in client" + clientId);
+        }
+    });
+});
