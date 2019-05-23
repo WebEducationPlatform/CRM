@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,16 +32,18 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private final ImageConfig imageConfig;
     private final PhoneValidator phoneValidator;
     private Environment env;
+    private final EntityManager entityManager;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env,  EntityManager entityManager) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
         this.env = env;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -82,6 +86,16 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
 
         logger.info("{}: user updated successfully", UserServiceImpl.class.getName());
         userDAO.saveAndFlush(user);
+    }
+
+    @Transactional
+    @Override
+    public void removeUserWithAllServices(Long id) {
+        entityManager.createQuery("DELETE FROM SMSInfo s WHERE s.id " +
+                "IN(SELECT s.id FROM SMSInfo s JOIN s.user su WHERE su.id = :userId)")
+                .setParameter("userId", id)
+                .executeUpdate();
+        delete(id);
     }
 
     @Override
