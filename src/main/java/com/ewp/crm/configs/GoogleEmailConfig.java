@@ -118,39 +118,41 @@ public class GoogleEmailConfig {
         return imapIdleChannelAdapter;
     }
 
-    @Bean
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
             ProjectProperties properties = projectPropertiesService.getOrCreate();
             MessageTemplate template = properties.getAutoAnswerTemplate();
-            MimeMessageParser parser = new MimeMessageParser((MimeMessage) message.getPayload());
             try {
-                logger.info("start parsing income email", parser.getHtmlContent());
-                parser.parse();
-                Client client = incomeStringToClient.convert(parser.getHtmlContent());
-                if (client != null) {
-                    if (parser.getHtmlContent().contains("Java Test")) {
-                        prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
-                    }
-                    clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+                MimeMessageParser parser = new MimeMessageParser(new MimeMessage((MimeMessage) message.getPayload()));
+                try {
+                    parser.parse();
+                    Client client = incomeStringToClient.convert(parser.getHtmlContent());
+                    if (client != null) {
+                        if (parser.getHtmlContent().contains("Java Test")) {
+                            prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
+                        }
+                        clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
+                        //                    c javalearn статус "Постоплата2"
+                        if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
+                            statusService.get("Постоплата2").ifPresent(client::setStatus);
+                        } else {
+                            statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        }
 
-//                    c javalearn статус "Постоплата2"
-                    if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
-                        statusService.get("Постоплата2").ifPresent(client::setStatus);
-                    } else {
-                        statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        clientService.addClient(client);
+                        sendNotificationService.sendNewClientNotification(client, "gmail");
+                        if (template != null) {
+                            prepareAndSend.sendEmailInAllCases(client);
+                        } else {
+                            logger.info("E-mail auto-answer has been set to OFF");
+                        }
                     }
-                    clientService.addClient(client);
-                    sendNotificationService.sendNewClientNotification(client, "gmail");
-                    if (template != null) {
-                        prepareAndSend.sendEmailInAllCases(client);
-                    } else {
-                        logger.info("E-mail auto-answer has been set to OFF");
-                    }
+                } catch (Exception e) {
+                    logger.error("MimeMessageParser can't parse income data ", e);
                 }
-            } catch (Exception e) {
-                logger.error("MimeMessageParser can't parse income data ", e);
+            } catch (MessagingException e) {
+                e.printStackTrace();
             }
         });
         return directChannel;
