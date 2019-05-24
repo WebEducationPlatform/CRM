@@ -111,7 +111,7 @@ public class ContractController {
 
     @DeleteMapping("/deleteContract")
     public ResponseEntity deleteContract(@RequestParam Long id){
-        Optional<ContractLinkData> contractLinkData = clientsContractLinkRepository.getByClient_Id(id);
+        Optional<ContractLinkData> contractLinkData = clientsContractLinkRepository.getByClientId(id);
         if (contractLinkData.isPresent()){
             contractService.deleteContractFromGoogleDrive(contractLinkData.get().getContractLink());
             contractLinkRepository.deleteContactLinkByClientId(id);
