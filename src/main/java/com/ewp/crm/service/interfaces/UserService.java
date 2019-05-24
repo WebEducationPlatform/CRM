@@ -16,8 +16,6 @@ public interface UserService extends CommonService<User> {
 
 	void update(User user);
 
-	void removeUserWithAllServices(Long id);
-
 	void addPhoto(MultipartFile file, User user);
 
 	List<User> getByRole(Role role);

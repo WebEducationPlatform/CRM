@@ -12,4 +12,6 @@ public interface SMSInfoService extends CommonService<SMSInfo> {
 	List<SMSInfo> getSMSByIsChecked(boolean isChecked);
 
 	Optional<SMSInfo> addSMSInfo(SMSInfo smsInfo);
+
+	void deleteAllSMSByUserId(Long id);
 }
