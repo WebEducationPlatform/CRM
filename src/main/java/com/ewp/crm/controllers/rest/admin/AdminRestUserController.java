@@ -3,6 +3,7 @@ package com.ewp.crm.controllers.rest.admin;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +31,16 @@ public class AdminRestUserController {
     private final UserService userService;
     private final ImageConfig imageConfig;
     private final ClientService clientService;
+    private final SMSInfoService smsInfoService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
-                                   ClientService clientService) {
+                                   ClientService clientService, SMSInfoService smsInfoService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
+        this.smsInfoService = smsInfoService;
     }
 
     @ResponseBody
@@ -115,7 +118,8 @@ public class AdminRestUserController {
         User receiver = Optional.of(userService.get(receiverId))
                                 .orElseThrow(() -> new IllegalArgumentException("Wrong receiver user id!"));
         clientService.transferClientsBetweenOwners(deletedUser, receiver);
-        userService.removeUserWithAllServices(deleteId);
+        smsInfoService.deleteAllSMSByUserId(deleteId);
+        userService.delete(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -124,7 +128,7 @@ public class AdminRestUserController {
     public ResponseEntity deleteNewUser(@RequestParam Long deleteId,
                                         @AuthenticationPrincipal User currentAdmin) {
         User currentUser = userService.get(deleteId);
-        userService.removeUserWithAllServices(deleteId);
+        userService.delete(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), currentUser.getId(), currentUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
     }
