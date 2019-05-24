@@ -129,7 +129,6 @@ public class ClientController {
         roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
         modelAndView.addObject("user", userFromSession);
-        modelAndView.addObject("roles", roles);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
