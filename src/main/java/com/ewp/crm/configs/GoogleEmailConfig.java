@@ -4,8 +4,14 @@ import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.converters.IncomeStringToClient;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +27,15 @@ import org.springframework.integration.mail.ImapMailReceiver;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.*;
+import javax.mail.search.AndTerm;
+import javax.mail.search.FlagTerm;
+import javax.mail.search.FromTerm;
+import javax.mail.search.OrTerm;
+import javax.mail.search.SearchTerm;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -51,8 +62,6 @@ public class GoogleEmailConfig {
     private final ProjectPropertiesService projectPropertiesService;
     private final SendNotificationService sendNotificationService;
     private final Environment env;
-
-
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
 
     @Autowired
