@@ -22,8 +22,8 @@ public class ContractLinkDataRepositoryImpl implements ContractLinkDataRepositor
 
     @Transactional
     @Override
-    public void deleteContactLinkByClient_Id(Long id) {
-        entityManager.createNativeQuery("delete from contract_links where client_id = " + id)
+    public void deleteContactLinkByClientId(Long id) {
+        entityManager.createNativeQuery("DELETE FROM contract_links WHERE client_id = " + id)
                 .executeUpdate();
         logger.info("Delete contract from client: " + id);
     }

@@ -114,7 +114,7 @@ public class ContractController {
         Optional<ContractLinkData> contractLinkData = clientsContractLinkRepository.getByClient_Id(id);
         if (contractLinkData.isPresent()){
             contractService.deleteContractFromGoogleDrive(contractLinkData.get().getContractLink());
-            contractLinkRepository.deleteContactLinkByClient_Id(id);
+            contractLinkRepository.deleteContactLinkByClientId(id);
         }
         return ResponseEntity.ok(HttpStatus.OK);
     }

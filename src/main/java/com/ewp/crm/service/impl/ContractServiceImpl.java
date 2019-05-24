@@ -130,7 +130,7 @@ public class ContractServiceImpl implements ContractService {
         try {
             httpClient.execute(httpDelete);
         } catch (IOException e) {
-            logger.info("Не может выполнить запрос на удаление " + e);
+            logger.info("Can bot execute request to delete contract " + e);
         }
     }
 
