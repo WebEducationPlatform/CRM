@@ -5,5 +5,5 @@ import com.ewp.crm.models.ContractLinkData;
 import java.util.Optional;
 
 public interface ClientsContractLinkRepository extends CommonGenericRepository<ContractLinkData> {
-    Optional<ContractLinkData> getByClient_Id(Long id);
+    Optional<ContractLinkData> getByClientId(Long id);
 }
