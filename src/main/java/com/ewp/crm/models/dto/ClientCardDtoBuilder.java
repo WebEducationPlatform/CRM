@@ -38,6 +38,7 @@ public class ClientCardDtoBuilder {
                                                     "canCall",
                                                     "status",
                                                     "ownerUser",
+                                                    "ownerMentor",
                                                     "socialProfiles",
                                                     "clientDescriptionComment",
                                                     "liveSkypeCall",
@@ -101,6 +102,10 @@ public class ClientCardDtoBuilder {
                 }
                 case ("ownerUser") : {
                     value = convertUserToMap(client.getOwnerUser());
+                    break;
+                }
+                case ("ownerMentor") : {
+                    value = convertUserToMap(client.getOwnerMentor());
                     break;
                 }
                 case ("comments") : {

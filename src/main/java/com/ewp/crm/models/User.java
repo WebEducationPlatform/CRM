@@ -142,6 +142,18 @@ public class User implements UserDetails {
 	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
 
+	public List<Client> getOwnedMentorClients() {
+		return ownedMentorClients;
+	}
+
+	public void setOwnedMentorClients(List<Client> ownedMentorClients) {
+		this.ownedMentorClients = ownedMentorClients;
+	}
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "ownerMentor")
+	private List<Client> ownedMentorClients;
+
 	/**
 	 * Права (роль)
 	 */
