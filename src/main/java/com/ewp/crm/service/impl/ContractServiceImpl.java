@@ -15,6 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -54,6 +55,7 @@ public class ContractServiceImpl implements ContractService {
     private final String docsUri;
     private final String uploadUriOld;
     private final String viewUri;
+    private final String deleteUri;
 
     private final ProjectPropertiesService projectPropertiesService;
     private final GoogleTokenService googleTokenService;
@@ -61,7 +63,11 @@ public class ContractServiceImpl implements ContractService {
     private final ClientsContractLinkRepository clientsContractLinkRepository;
 
     @Autowired
-    public ContractServiceImpl(ProjectPropertiesService projectPropertiesService, GoogleTokenService googleTokenService, ContractConfig contractConfig, GoogleAPIConfigImpl googleAPIConfig, ClientsContractLinkRepository clientsContractLinkRepository) {
+    public ContractServiceImpl(ProjectPropertiesService projectPropertiesService,
+                               GoogleTokenService googleTokenService,
+                               ContractConfig contractConfig,
+                               GoogleAPIConfigImpl googleAPIConfig,
+                               ClientsContractLinkRepository clientsContractLinkRepository) {
         this.projectPropertiesService = projectPropertiesService;
         this.googleTokenService = googleTokenService;
         this.contractConfig = contractConfig;
@@ -72,6 +78,7 @@ public class ContractServiceImpl implements ContractService {
         this.viewUri = googleAPIConfig.getViewUri();
         this.uploadUriOld = googleAPIConfig.getDriveUploadUriOld();
         this.clientsContractLinkRepository = clientsContractLinkRepository;
+        this.deleteUri = googleAPIConfig.getDeleteFile();
     }
 
     @Override
@@ -112,6 +119,19 @@ public class ContractServiceImpl implements ContractService {
         }
         logger.info("not found link to update");
         return false;
+    }
+
+    @Override
+    public void deleteContractFromGoogleDrive(String linkFromContractLinkData) {
+        String idFileInGoogleDrive = getFilenameFromGoogleDrive(linkFromContractLinkData);
+        String delUri = deleteUri + idFileInGoogleDrive + "?access_token=" + googleTokenService.getToken(GoogleToken.TokenType.DRIVE).get().getAccessToken();
+        HttpClient httpClient = getHttpClient();
+        HttpDelete httpDelete = new HttpDelete(delUri);
+        try {
+            httpClient.execute(httpDelete);
+        } catch (IOException e) {
+            logger.info("Can bot execute request to delete contract " + e);
+        }
     }
 
     @Override
@@ -275,6 +295,12 @@ public class ContractServiceImpl implements ContractService {
         Transliterator toLatinTrans = Transliterator.getInstance(CYRILLIC_TO_LATIN);
         String fileName = toLatinTrans.transliterate(data.getInputLastName() + data.getInputFirstName());
         return fileName.replaceAll("ʹ", "");
+    }
+
+    private String getFilenameFromGoogleDrive(String link){
+        int idStart = link.indexOf("d/");
+        int idFinish = link.indexOf("/ex");
+        return link.substring(idStart + 2,idFinish);
     }
 
     private HttpClient getHttpClient() {

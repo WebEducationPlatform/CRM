@@ -229,8 +229,13 @@ $(function () {
                 }
 
                 let user = userLoggedIn;
-                if (client.ownerUser != null) {
+                if (client.ownerUser.id != null) {
                     var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+
+                if (client.ownerMentor.id != null) {
+                    var owenerMentorName = client.ownerMentor.firstName + ' ' + client.ownerMentor.lastName;
 
                 }
                 var adminName = user.firstName + ' ' + user.lastName;
@@ -376,11 +381,30 @@ $(function () {
 
                 btnBlock1.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
-                if (client.ownerUser === null) {
-                    btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                var currentUserRole;
+                for (var i = 0; i < userLoggedIn.role.length; i++) {
+                    if(userLoggedIn.role[i].roleName === 'ADMIN' || userLoggedIn.role[i].roleName === 'OWNER'){
+                        currentUserRole = 'ADMIN'
+                    }
+
                 }
-                if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+
+                if (currentUserRole !== undefined) {
+
+                    if (client.ownerUser.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerUser !== null && owenerName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+                } else {
+                    if (client.ownerMentor.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assignMentor(' + client.id + ' , '+ userLoggedIn.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerMentor !== null && owenerMentorName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassignMentor(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
@@ -1190,6 +1214,39 @@ function unassign(id) {
                 );
                 unassignBtn.remove();
             }
+            fillFilterList();
+        },
+        error: function (error) {
+        }
+    });
+}
+
+function unassignMentor(id) {
+    let
+        url = '/rest/client/unassignMentor',
+        formData = {
+            clientId: id
+        },
+        unassignBtn = $('#unassign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
+            if (unassignBtn.length !== 0) {
+                unassignBtn.before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assignMentor(" + id + ")' " +
+                    "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
+                );
+                unassignBtn.remove();
+            }
+
             fillFilterList();
         },
         error: function (error) {

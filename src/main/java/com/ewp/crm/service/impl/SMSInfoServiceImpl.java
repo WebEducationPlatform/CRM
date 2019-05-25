@@ -22,6 +22,11 @@ public class SMSInfoServiceImpl extends CommonServiceImpl<SMSInfo> implements SM
 	}
 
 	@Override
+	public void deleteAllSMSByUserId(Long id) {
+		smsInfoRepository.deleteAllByUserId(id);
+	}
+
+	@Override
 	public List<SMSInfo> getAllSMS() {
 		return smsInfoRepository.findAll();
 	}
