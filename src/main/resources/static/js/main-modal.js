@@ -202,22 +202,18 @@ $(function () {
         $.ajax({
             async: true,
             type: 'GET',
-            url: '/rest/status',
-            success: function (status) {
+            dataType: "JSON",
+            url: '/rest/client/card/' + clientId,
+            success: function (clientCard) {
+                var status = clientCard.statuses;
+                var client = clientCard.client;
+
                 $('#client-status-list').empty();
                 $.each(status, function (i, s) {
                     $('#client-status-list').append(
                         '<li><a onclick="changeStatus(' + clientId + ', ' + s.id + ')" href="#">' + s.name + '</a></li>'
                     );
                 });
-            }
-        });
-
-        $.ajax({
-            async: false,
-            type: 'GET',
-            url: '/rest/client/' + clientId,
-            success: function (client) {
 
                 if (!client_has_telegram(client) && client.phoneNumber !== '') {
                     set_telegram_id_by_phone(client.phoneNumber);
@@ -229,8 +225,13 @@ $(function () {
                 }
 
                 let user = userLoggedIn;
-                if (client.ownerUser != null) {
+                if (client.ownerUser.id != null) {
                     var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+
+                if (client.ownerMentor.id != null) {
+                    var owenerMentorName = client.ownerMentor.firstName + ' ' + client.ownerMentor.lastName;
 
                 }
                 var adminName = user.firstName + ' ' + user.lastName;
@@ -246,8 +247,8 @@ $(function () {
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
-                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.clientPhones[0] + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.clientPhones[0] + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
                     $(".call-to-client.main-modal").after('<button id="btn-call-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
                     $('.call-to-client.main-modal').after('<button id="btn-mic-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
                     $('#btn-mic-off').hide();
@@ -376,11 +377,30 @@ $(function () {
 
                 btnBlock1.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
-                if (client.ownerUser === null) {
-                    btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                var currentUserRole;
+                for (var i = 0; i < userLoggedIn.role.length; i++) {
+                    if(userLoggedIn.role[i].roleName === 'ADMIN' || userLoggedIn.role[i].roleName === 'OWNER'){
+                        currentUserRole = 'ADMIN'
+                    }
+
                 }
-                if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+
+                if (currentUserRole !== undefined) {
+
+                    if (client.ownerUser.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerUser !== null && owenerName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+                } else {
+                    if (client.ownerMentor.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assignMentor(' + client.id + ' , '+ userLoggedIn.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerMentor !== null && owenerMentorName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassignMentor(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
@@ -427,6 +447,116 @@ $(function () {
                     $('#repeated-client-info').show();
 
                 }
+
+                /*Client card's comments panel, see comments.js*/
+                var list = client.comments;
+
+                let user_id = user.id;
+
+                let ulComments = $('#client-' + client.id + 'comments');
+                let removeComment = "";
+                let editComment = "";
+                let removeAnswer = "";
+                let editAnswer = "";
+                let dateCommit = "";
+                let html = "";
+                ulComments.empty();
+
+                for (let i = list.length-1; i >=0; i--) {
+                    let d = new Date(list[i].dateFormat);
+                    let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                        d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+                    // if (list[i].mainComment == null) {
+                    if (user_id === list[i].user.id + '') {
+                        removeComment = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteComment(' + list[i].id + ')"></span>'
+                        editComment = '<span class="edit-comment glyphicon glyphicon-pencil comment-functional"></span>'
+
+                    } else {
+                        removeComment = '';
+                        editComment = '';
+
+                    }
+                    html +=
+                        '<li class="list-group-item comment-item">' +
+                        '<div id="comment' + list[i].id + '" class="comment">' +
+                        '<span class="comment-name">' + list[i].user.lastName + ' ' + list[i].user.firstName + '</span>' +
+                        removeComment +
+                        editComment +
+                        '<span class="hide-show glyphicon glyphicon-comment comment-functional"></span>' +
+                        '<span  class="comment-functional">'+ dateFormat +'</span>' +
+                        '<p class="comment-text" ">' + list[i].content + '</p>' +
+                        '<div class="form-answer">' +
+                        '<div class="form-group">' +
+                        '<textarea class="form-control textcomplete" id="new-answer-for-comment' + list[i].id + '" placeholder="Напишите ответ"></textarea>' +
+                        '<button class="btn btn-md btn-success comment-button" onclick="sendAnswer(' + list[i].id + ', \'test_message\')"> Сохранить </button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="form-edit">' +
+                        '<div class="form-group">' +
+                        '<textarea class="form-control edit-textarea textcomplete"' +
+                        ' id="edit-comment' + list[i].id + '" placeholder="Редактор"></textarea>' +
+                        '<button class="btn btn-md btn-success comment-button" onclick="editComment(' + list[i].id + ')"> Отредактировать </button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<ul class="answer-list comment-item" id="comment-' + list[i].id + 'answers">';
+                    let answers = list[i].commentAnswers;
+                    for (let i = 0; i < answers.length; i++) {
+                        let d = new Date(answers[i].dateFormat);
+                        let dateFormat = ("0" + d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." +
+                            d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+                        if (user_id === answers[i].user.id + '') {
+                            removeAnswer = '<span class="glyphicon glyphicon-remove comment-functional" onclick="deleteCommentAnswer(' + answers[i].id + ')"></span>'
+                            editAnswer = '<span class="edit-answer glyphicon glyphicon-pencil comment-functional"></span>'
+                        } else {
+                            removeAnswer = '';
+                            editAnswer = '';
+                        }
+                        html +=
+                            '<li>\n' +
+                            //comment
+                            '<div id="answer' + answers[i].id + '" class="answer">\n' +
+                            //comment-name
+                            '<span class="comment-name">' + answers[i].user.lastName + ' ' + answers[i].user.firstName + '</span>' +
+                            removeAnswer +
+                            editAnswer +
+                            '<span  class="comment-functional">'+ dateFormat +'</span>' +
+                            //comment-text
+                            '<p class="comment-text" ">' + answers[i].content + '</p>' +
+                            '<div class="form-edit">' +
+                            '<div class="form-group">' +
+                            '<textarea class="form-control edit-textarea textcomplete" ' +
+                            //edit-comment
+                            ' id="edit-answer' + answers[i].id + '" placeholder="Редактор"></textarea>' +
+                            '<button class="btn btn-md btn-success comment-button" onclick="editCommentAnswer(' + answers[i].id + ')"> Отредактировать </button>' +
+                            '                                </div>\n' +
+                            '                            </div>\n' +
+                            '                        </div>\n' +
+                            '                    </li>\n';
+                    }
+
+                    html += '</ul>' +
+                        '</div>' +
+                        '</li>';
+
+                }
+                ulComments.append(html);
+
+                /*Client card's history panel, see clientHistory.js*/
+                var history = client.history;
+
+                let history_table = $('#client-' + client.id + 'history').find("tbody");
+                let current = $(document.getElementsByClassName("upload-history"));
+                let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
+                if (history.length < 10) {
+                    upload_more_btn.hide();
+                } else {
+                    upload_more_btn.show();
+                }
+                //draw client history
+                drawClientHistory(history, history_table);
+            },
+            error: function (error) {
+                console.log(error);
             }
         });
     });
@@ -1190,6 +1320,39 @@ function unassign(id) {
                 );
                 unassignBtn.remove();
             }
+            fillFilterList();
+        },
+        error: function (error) {
+        }
+    });
+}
+
+function unassignMentor(id) {
+    let
+        url = '/rest/client/unassignMentor',
+        formData = {
+            clientId: id
+        },
+        unassignBtn = $('#unassign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
+            if (unassignBtn.length !== 0) {
+                unassignBtn.before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assignMentor(" + id + ")' " +
+                    "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
+                );
+                unassignBtn.remove();
+            }
+
             fillFilterList();
         },
         error: function (error) {
