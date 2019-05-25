@@ -54,6 +54,7 @@ public class GoogleEmailConfig {
     private final Environment env;
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
 
+
     @Autowired
     public GoogleEmailConfig(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService, Environment env) {
         this.beanFactory = beanFactory;

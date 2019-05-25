@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+
 @Service
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
