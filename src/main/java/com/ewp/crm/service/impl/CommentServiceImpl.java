@@ -29,4 +29,9 @@ public class CommentServiceImpl extends CommonServiceImpl<Comment> implements Co
     public List<Comment> getAllCommentsByUser(User user) {
         return commentDAO.getAllByUser(user);
     }
+
+    @Override
+    public void deleteAllCommentsByUserId(Long id) {
+        commentDAO.deleteAllCommentsByUserId(id);
+    }
 }
