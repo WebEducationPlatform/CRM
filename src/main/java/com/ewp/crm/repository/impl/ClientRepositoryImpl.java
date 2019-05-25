@@ -300,7 +300,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         try {
             result = entityManager.createQuery("SELECT c FROM Client c " +
                     "LEFT JOIN c.socialProfiles s " +
-                    "WHERE s.socialId = :sid AND s.socialNetworkType.name = :type", Client.class)
+                    "WHERE s.socialId = :sid AND s.socialNetworkType = :type", Client.class)
                     .setParameter("sid", id)
                     .setParameter("type", SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                     .getSingleResult();
