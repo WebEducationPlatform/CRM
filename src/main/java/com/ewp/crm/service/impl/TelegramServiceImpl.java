@@ -623,10 +623,8 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                         return;
                     }
                 }
-                com.ewp.crm.models.Client newClient = new com.ewp.crm.models.Client();
-                newClient.setName(user.firstName);
-                newClient.setLastName(user.lastName);
-                newClient.setPhoneNumber(user.phoneNumber);
+                com.ewp.crm.models.Client.Builder newClientBuilder = new com.ewp.crm.models.Client.Builder(user.firstName, user.phoneNumber, null);
+                com.ewp.crm.models.Client newClient = newClientBuilder.lastName(user.lastName).build();
                 SocialProfile profile = new SocialProfile(String.valueOf(user.id), SocialNetworkType.TELEGRAM);
                 newClient.setSocialProfiles(Collections.singletonList(profile));
                 newClient.setStatus(statusRepository.findById(projectPropertiesService.getOrCreate().getNewClientStatus()).get());
