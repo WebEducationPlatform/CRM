@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
@@ -61,7 +62,7 @@ public class MailSendServiceImpl implements MailSendService {
     public MailSendServiceImpl(JavaMailSender javaMailSender,
                                @Qualifier("thymeleafTemplateEngine") TemplateEngine htmlTemplateEngine,
                                Environment environment,
-                               ClientService clientService,
+                               @Lazy ClientService clientService,
                                ClientHistoryService clientHistoryService,
                                MessageService messageService,
                                MailConfig mailConfig, ProjectPropertiesService projectPropertiesService) {
