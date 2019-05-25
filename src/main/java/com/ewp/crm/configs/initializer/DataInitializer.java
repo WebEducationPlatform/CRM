@@ -11,6 +11,7 @@ import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
@@ -74,14 +75,15 @@ public class DataInitializer {
         Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
         Status status0 = new Status("New clients", false, 1L, false, 0, 0);
 
-        Role roleAdmin = new Role("ADMIN");
-        Role roleOwner = new Role("OWNER");
-        Role roleUser = new Role("USER");
-        Role roleMentor = new Role("MENTOR");
-        roleService.add(roleAdmin);
-        roleService.add(roleUser);
-        roleService.add(roleOwner);
-        roleService.add(roleMentor);
+        Role[] roles = {new Role("ADMIN"),
+                        new Role("MENTOR"),
+                        new Role("OWNER"),
+                        new Role("USER"),
+                        new Role("HR")};
+
+        for (Role role: roles) {
+            roleService.add(role);
+        }
 
         ListMailingType vkList = new ListMailingType("vk");
         ListMailingType emailList = new ListMailingType("email");

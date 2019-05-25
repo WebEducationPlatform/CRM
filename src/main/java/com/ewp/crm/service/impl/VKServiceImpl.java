@@ -11,7 +11,7 @@ import com.ewp.crm.models.dto.VkProfileInfo;
 import com.ewp.crm.models.conversation.ChatMessage;
 import com.ewp.crm.models.conversation.ChatType;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.util.validators.PhoneValidator;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;

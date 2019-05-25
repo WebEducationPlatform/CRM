@@ -1,4 +1,4 @@
-package com.ewp.crm.utils.patterns;
+package com.ewp.crm.util.patterns;
 
 public interface ValidationPattern {
 	String EMAIL_PATTERN =

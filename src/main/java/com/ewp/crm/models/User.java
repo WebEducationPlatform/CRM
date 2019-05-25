@@ -1,6 +1,6 @@
 package com.ewp.crm.models;
 
-import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.ewp.crm.util.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Fetch;
@@ -141,6 +141,18 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@OneToMany(mappedBy = "ownerUser")
 	private List<Client> ownedClients;
+
+	public List<Client> getOwnedMentorClients() {
+		return ownedMentorClients;
+	}
+
+	public void setOwnedMentorClients(List<Client> ownedMentorClients) {
+		this.ownedMentorClients = ownedMentorClients;
+	}
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "ownerMentor")
+	private List<Client> ownedMentorClients;
 
 	/**
 	 * Права (роль)

@@ -7,7 +7,7 @@ import com.ewp.crm.models.Role;
 import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.util.validators.PhoneValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,16 +31,18 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     private final ImageConfig imageConfig;
     private final PhoneValidator phoneValidator;
     private Environment env;
+    private final EntityManager entityManager;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env) {
+    public UserServiceImpl(UserDAO userDAO, ImageConfig imageConfig, PhoneValidator phoneValidator, Environment env,  EntityManager entityManager) {
         this.userDAO = userDAO;
         this.imageConfig = imageConfig;
         this.phoneValidator = phoneValidator;
         this.env = env;
+        this.entityManager = entityManager;
     }
 
     @Override

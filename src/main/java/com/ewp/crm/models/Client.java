@@ -1,7 +1,7 @@
 package com.ewp.crm.models;
 
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
-import com.ewp.crm.utils.patterns.ValidationPattern;
+import com.ewp.crm.util.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
@@ -128,6 +128,10 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "owner_user_id")
     private User ownerUser;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_mentor_id")
+    private User ownerMentor;
+
     @JsonIgnore
     @OrderBy("date DESC")
     @OneToMany
@@ -197,6 +201,14 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne
     @JoinColumn(name = "slack_invite_link_id")
     private SlackInviteLink slackInviteLink;
+
+    public User getOwnerMentor() {
+        return ownerMentor;
+    }
+
+    public void setOwnerMentor(User ownerMentor) {
+        this.ownerMentor = ownerMentor;
+    }
 
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
@@ -402,7 +414,7 @@ public class Client implements Serializable, Diffable<Client> {
         this.requestFrom = requestFrom;
     }
 
-    public void setAge(byte age) {
+    public void setAge(int age) {
         this.age = age;
     }
 
