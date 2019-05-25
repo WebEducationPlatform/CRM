@@ -6,7 +6,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
-import com.ewp.crm.utils.validators.PhoneValidator;
+import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
