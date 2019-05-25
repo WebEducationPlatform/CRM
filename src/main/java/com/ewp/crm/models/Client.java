@@ -132,10 +132,6 @@ public class Client implements Serializable, Diffable<Client> {
     @JoinColumn(name = "owner_mentor_id")
     private User ownerMentor;
 
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     @JsonIgnore
     @OrderBy("date DESC")
     @OneToMany
@@ -418,7 +414,7 @@ public class Client implements Serializable, Diffable<Client> {
         this.requestFrom = requestFrom;
     }
 
-    public void setAge(byte age) {
+    public void setAge(int age) {
         this.age = age;
     }
 
