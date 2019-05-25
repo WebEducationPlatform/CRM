@@ -147,7 +147,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return Optional.ofNullable(clientRepository.getClientByPhoneNumber(phoneNumber));
     }
 
-
     @Override
     public Optional<Client> getClientBySocialProfile(SocialProfile socialProfile) {
         List<SocialProfile> socialProfiles = new ArrayList<>();

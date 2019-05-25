@@ -108,6 +108,7 @@ public class GoogleEmailConfig {
         return imapIdleChannelAdapter;
     }
 
+
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
