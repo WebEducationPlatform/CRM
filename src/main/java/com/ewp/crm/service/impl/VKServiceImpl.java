@@ -721,7 +721,8 @@ public class VKServiceImpl implements VKService {
 
         try {
             if (name != null && lastName != null) {
-                Client newClient = new Client(name, lastName);
+                Client.Builder newClientBuilder = new Client.Builder(name, null, null);
+                Client newClient = newClientBuilder.lastName(lastName).build();
                 SocialProfile socialProfile = new SocialProfile(String.valueOf(id));
                 List<SocialProfile> socialProfiles = new ArrayList<>();
                 socialProfiles.add(socialProfile);
@@ -832,7 +833,7 @@ public class VKServiceImpl implements VKService {
             throw new ParseClientException("Invalid message format");
         }
         String[] fields = message.replaceAll("<br>", "").split("Q:");
-        Client newClient = new Client();
+        Client newClient = new Client.Builder(null, null, null).build();
         try {
             StringBuilder description = new StringBuilder();
             int numberVkPosition = 0; // позиция поля в заявке
