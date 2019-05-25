@@ -11,7 +11,7 @@ import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.SendNotificationService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.util.converters.IncomeStringToClient;
+import com.ewp.crm.utils.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
