@@ -1,11 +1,12 @@
 package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "status")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Status implements Serializable {
 
 	@Id
@@ -45,14 +47,17 @@ public class Status implements Serializable {
 	 * Клиенты (студенты) с данным статусом
 	 */
 	@JsonIgnore
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
+	@BatchSize(size = 25)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-
 	@ManyToMany(fetch = FetchType.LAZY)
+	@BatchSize(size = 25)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "status_roles",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
