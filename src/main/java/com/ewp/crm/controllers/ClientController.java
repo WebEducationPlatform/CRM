@@ -124,7 +124,6 @@ public class ClientController {
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
-
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(Status::getPosition));
