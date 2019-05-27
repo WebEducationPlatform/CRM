@@ -78,10 +78,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public boolean inviteToSlack(Client client, String name, String lastName, String email) {
         if (!hasClientSocialProfileByType(client, "slack")) {
             if (name != null && lastName != null && email != null && !name.isEmpty() && !lastName.isEmpty() && !email.isEmpty()) {
-                Client newClient = new Client();
-                newClient.setName(name);
-                newClient.setLastName(lastName);
-                newClient.setEmail(email);
+                Client.Builder newClientBuilder = new Client.Builder(name, null, email);
+                Client newClient = newClientBuilder.lastName(lastName).build();
                 Optional<ClientHistory> history = clientHistoryService.createHistoryFromSlackRegForm(client, newClient, ClientHistory.Type.SLACK_UPDATE);
                 history.ifPresent(client::addHistory);
                 client.setName(name);
@@ -473,11 +471,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
-        Client client = new Client();
-        client.setName(contractForm.getInputFirstName());
-        client.setMiddleName(contractForm.getInputMiddleName());
-        client.setLastName(contractForm.getInputLastName());
-        client.setBirthDate(contractForm.getInputBirthday());
+        Client.Builder clientBuidlder = new Client.Builder(contractForm.getInputFirstName(), null, null);
+        Client client = clientBuidlder.middleName(contractForm.getInputMiddleName())
+                                        .lastName(contractForm.getInputLastName())
+                                        .birthDate(contractForm.getInputBirthday())
+                                        .build();
         String email = contractForm.getInputEmail();
         client.setId(old.getId());
         if (!email.isEmpty()) {

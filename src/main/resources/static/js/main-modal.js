@@ -215,8 +215,8 @@ $(function () {
                     );
                 });
 
-                if (!client_has_telegram(client) && client.phoneNumber !== '') {
-                    set_telegram_id_by_phone(client.phoneNumber);
+                if (!client_has_telegram(client) && client.clientPhones[0] !== '') {
+                    set_telegram_id_by_phone(client.clientPhones[0]);
                 }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
 
