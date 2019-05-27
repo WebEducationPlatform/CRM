@@ -117,6 +117,7 @@ public class VKServiceImpl implements VKService {
     //ID чата, в который посылается отчёт
     private final String vkReportChatId;
     private final String firstSkypeNotifyChatId;
+    private final String vkAppAccessToken;
 
     @Value("${userKey}")
     private String userKey;
@@ -152,6 +153,7 @@ public class VKServiceImpl implements VKService {
         managerToken = vkConfig.getManagerToken();
         vkReportChatId = vkConfig.getVkReportChatId();
         firstSkypeNotifyChatId = vkConfig.getFirstSkypeNotifyChatId();
+        vkAppAccessToken = vkConfig.getVkAppAccessToken();
         this.youtubeClientService = youtubeClientService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -1402,5 +1404,48 @@ public class VKServiceImpl implements VKService {
 
         //Отправка в диалог
         sendMessageByChatId(vkReportChatId, message);
+    }
+
+    @Override
+    public Optional<String> getAllCountries() {
+        StringBuilder uri = new StringBuilder(vkApi).append("database.getCountries")
+                .append("?access_token=").append(vkAppAccessToken)
+                .append("&version=").append(version)
+                .append("&need_all=1")
+                .append("&count=1000");
+        HttpGet httpGetStat = new HttpGet(uri.toString());
+        HttpClient httpClientStat = getHttpClient();
+        HttpResponse response;
+        String result = null;
+        try {
+            response = httpClientStat.execute(httpGetStat);
+            result = EntityUtils.toString(response.getEntity()).replace("title", "value");
+        } catch (IOException e) {
+            logger.error("Can't get all countries list from VK api", e);
+        }
+        return Optional.of(result);
+    }
+
+
+    @Override
+    public Optional<String> getCitiesByCountry(int countryId, String query) {
+        StringBuilder uri = new StringBuilder(vkApi).append("database.getCities")
+                .append("?access_token=").append(vkAppAccessToken)
+                .append("&version=").append(version)
+                .append("&country_id=").append(countryId)
+                .append("&q=").append(query)
+                .append("&need_all=1")
+                .append("&count=1000");
+        HttpGet httpGetStat = new HttpGet(uri.toString());
+        HttpClient httpClientStat = getHttpClient();
+        HttpResponse response;
+        String result = null;
+        try {
+            response = httpClientStat.execute(httpGetStat);
+            result = EntityUtils.toString(response.getEntity()).replace("title", "value");
+        } catch (IOException e) {
+            logger.error("Can't get all cities list by country id from VK api", e);
+        }
+        return Optional.of(result);
     }
 }
