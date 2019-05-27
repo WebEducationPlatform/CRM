@@ -21,7 +21,7 @@ public class Comment {
 	private User user;
 
 	@JsonIgnore
-	@ManyToOne(targetEntity = Client.class)
+	@ManyToOne(targetEntity = Client.class, fetch = FetchType.LAZY)
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
@@ -36,7 +36,7 @@ public class Comment {
 	private String content;
 
 	@OrderBy("date DESC")
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "comment_comment_answer",
 			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_ANSWER"))},
 			inverseJoinColumns = {@JoinColumn(name = "answer_id", foreignKey = @ForeignKey(name = "FK_ANSWER"))})

@@ -231,7 +231,7 @@
                                 </th:block>
                                 <th:block>
                                     <li class="dropdown-header">Назначить ментора</li>
-                                    <li th:each="worker : ${users}">
+                                    <li th:each="worker : ${mentors}">
                                         <a th:text="${worker.fullName}"
                                            th:onclick="'assignMentor('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
                                     </li>
