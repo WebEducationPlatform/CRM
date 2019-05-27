@@ -46,7 +46,7 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "last_name")
     private String lastName;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_phone", unique = true)
     @OrderColumn(name = "numberInList")
@@ -54,7 +54,7 @@ public class Client implements Serializable, Diffable<Client> {
     @BatchSize(size = 10)
     private List<String> clientPhones = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_email", unique = true)
     @OrderColumn(name = "numberInList")
@@ -169,8 +169,8 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
     private List<Job> jobs = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SELECT)
     @BatchSize(size = 10)
     @JoinTable(name = "client_social_network",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
