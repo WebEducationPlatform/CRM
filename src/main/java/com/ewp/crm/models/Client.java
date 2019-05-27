@@ -221,7 +221,7 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
-    private Client() {}
+    public Client() {}
 
     private Client(Builder builder) {
         name = builder.name;
