@@ -400,7 +400,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getDateTo() != null) {
-            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo()).append("'");
+            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo().atTime(23,59,59)).append("'");
         }
 
         if (filteringCondition.getStatus() != null) {
