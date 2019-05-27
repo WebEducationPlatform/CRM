@@ -83,4 +83,8 @@ public interface VKService {
 
     void sendDailyAdvertisementReport(String template);
 
+    Optional<String> getAllCountries();
+
+    Optional<String> getCitiesByCountry(int countryId, String query);
+
 }

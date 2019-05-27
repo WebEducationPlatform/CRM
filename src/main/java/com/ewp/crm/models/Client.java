@@ -46,18 +46,20 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "last_name")
     private String lastName;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_phone", unique = true)
-    @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn(name = "numberInList")
+    @Fetch(value = FetchMode.SUBSELECT)
+    @BatchSize(size = 10)
     private List<String> clientPhones = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_email", unique = true)
-    @LazyCollection(LazyCollectionOption.FALSE)
     @OrderColumn(name = "numberInList")
+    @Fetch(value = FetchMode.SUBSELECT)
+    @BatchSize(size = 10)
     private List<String> clientEmails = new ArrayList<>();
 
     @Column(name = "skype")
@@ -111,13 +113,14 @@ public class Client implements Serializable, Diffable<Client> {
     private String postponeComment;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     @JoinTable(name = "client_whatsapp_message",
             joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_number",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     @JoinTable(name = "status_clients",
             joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
@@ -134,24 +137,21 @@ public class Client implements Serializable, Diffable<Client> {
 
     @JsonIgnore
     @OrderBy("date DESC")
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
+    @Fetch(value = FetchMode.SUBSELECT)
+    @BatchSize(size = 20)
     @JoinTable(name = "client_comment",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "client_notification",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
-    private List<Notification> notifications = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.JOIN)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
     @OrderBy("id DESC")
+    @BatchSize(size = 25)
     private List<ClientHistory> history = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
@@ -170,15 +170,17 @@ public class Client implements Serializable, Diffable<Client> {
     private List<Job> jobs = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(value = FetchMode.SELECT)
+    @BatchSize(size = 10)
     @JoinTable(name = "client_social_network",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
     private List<SocialProfile> socialProfiles = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Fetch(value = FetchMode.SUBSELECT)
+    @BatchSize(size = 50)
     @JoinTable(name = "client_sms_info",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
@@ -219,63 +221,21 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
-    public Client() {
-        this.state = State.NEW;
-        this.dateOfRegistration = ZonedDateTime.now();
-    }
+    private Client() {}
 
-    public Client(String name, String lastName) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-    }
-
-    public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
-        this();
-        this.name = name;
-        setPhoneNumber(phoneNumber);
-        this.dateOfRegistration = dateOfRegistration;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, Status status) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-        this.status = status;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, String city, String country, State state, ZonedDateTime dateOfRegistration) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-        this.city = city;
-        this.country = country;
-        this.state = state;
-        this.dateOfRegistration = dateOfRegistration;
-    }
-
-    public Client(@NotNull String name, List<String> clientPhones, List<String> clientEmails) {
-        this.name = name;
-        this.clientPhones = clientPhones;
-        this.clientEmails = clientEmails;
+    private Client(Builder builder) {
+        name = builder.name;
+        middleName = builder.middleName;
+        lastName = builder.lastName;
+        if (builder.phone != null) clientPhones.add(builder.phone);
+        if (builder.email != null) clientEmails.add(builder.email);
+        skype = builder.skype;
+        birthDate = builder.birthDate;
+        sex = builder.sex;
+        city = builder.city;
+        country = builder.country;
+        state = builder.state;
+        dateOfRegistration = builder.dateOfRegistration;
     }
 
     public List<ClientHistory> getHistory() {
@@ -628,14 +588,6 @@ public class Client implements Serializable, Diffable<Client> {
         return "Client: id: " + id + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found");
     }
 
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<Notification> notifications) {
-        this.notifications = notifications;
-    }
-
     public List<SMSInfo> getSmsInfo() {
         return smsInfo;
     }
@@ -708,5 +660,69 @@ public class Client implements Serializable, Diffable<Client> {
         LEARNING,
         FINISHED,
         REFUSED
+    }
+
+    public static class Builder {
+
+        private String name;
+        private String middleName;
+        private String lastName;
+        private String phone;
+        private String email;
+        private String skype;
+        private LocalDate birthDate;
+        private Sex sex;
+        private String city;
+        private String country;
+
+        private State state;
+        private ZonedDateTime dateOfRegistration;
+
+        public Builder(String name, String phone, String email) {
+            this.state = State.NEW;
+            this.dateOfRegistration = ZonedDateTime.now();
+            this.name = name;
+            this.phone = phone;
+            this.email = email;
+        }
+
+        public Client build() {
+            return new Client(this);
+        }
+
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder middleName(String middleName) {
+            this.middleName = middleName;
+            return this;
+        }
+
+        public Builder skype(String skype) {
+            this.skype = skype;
+            return this;
+        }
+
+        public Builder birthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
+            return this;
+        }
+
+        public Builder sex(Sex sex) {
+            this.sex = sex;
+            return this;
+        }
+
+        public Builder city(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder country(String country) {
+            this.country = country;
+            return this;
+        }
     }
 }

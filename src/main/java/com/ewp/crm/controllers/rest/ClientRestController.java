@@ -519,10 +519,8 @@ public class ClientRestController {
 					studentService.save(setStudentParams(newStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
 				}
 			} else {
-				Client newClient = new Client();
-                newClient.setName(nameAndLastNameArr[0].trim());
-                newClient.setLastName(nameAndLastNameArr[1].trim());
-                newClient.setEmail(resultEmailList.get(i).trim());
+				Client.Builder newClientBuilder = new Client.Builder(nameAndLastNameArr[0].trim(), null, resultEmailList.get(i).trim());
+                Client newClient = newClientBuilder.lastName(nameAndLastNameArr[1].trim()).build();
 				statusService.get(1L).ifPresent(newClient::setStatus);
 				clientService.addClient(newClient);
 				Student createStudent = new Student();

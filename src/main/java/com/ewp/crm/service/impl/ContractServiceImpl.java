@@ -124,13 +124,16 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public void deleteContractFromGoogleDrive(String linkFromContractLinkData) {
         String idFileInGoogleDrive = getFilenameFromGoogleDrive(linkFromContractLinkData);
-        String delUri = deleteUri + idFileInGoogleDrive + "?access_token=" + googleTokenService.getToken(GoogleToken.TokenType.DRIVE).get().getAccessToken();
-        HttpClient httpClient = getHttpClient();
-        HttpDelete httpDelete = new HttpDelete(delUri);
-        try {
-            httpClient.execute(httpDelete);
-        } catch (IOException e) {
-            logger.info("Can bot execute request to delete contract " + e);
+        if (googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE).isPresent()) {
+            String token = googleTokenService.getRefreshedToken(GoogleToken.TokenType.DRIVE).get().getAccessToken();
+            String delUri = deleteUri + idFileInGoogleDrive + "?access_token=" + token;
+            HttpClient httpClient = getHttpClient();
+            HttpDelete httpDelete = new HttpDelete(delUri);
+            try {
+                httpClient.execute(httpDelete);
+            } catch (IOException e) {
+                logger.info("Can not execute request to delete contract " + e);
+            }
         }
     }
 
