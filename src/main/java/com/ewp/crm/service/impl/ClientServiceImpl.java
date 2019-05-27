@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
+@Transactional
 public class ClientServiceImpl extends CommonServiceImpl<Client> implements ClientService {
 
     private static Logger logger = LoggerFactory.getLogger(ClientServiceImpl.class);
@@ -381,6 +382,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    @Transactional
     public void updateClient(Client client) {
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());

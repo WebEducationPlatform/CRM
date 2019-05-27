@@ -49,7 +49,7 @@ public class Status implements Serializable {
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY)
 	@BatchSize(size = 25)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@Fetch(value = FetchMode.JOIN)
 	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
@@ -57,7 +57,7 @@ public class Status implements Serializable {
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@BatchSize(size = 25)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@Fetch(value = FetchMode.SELECT)
 	@JoinTable(name = "status_roles",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})

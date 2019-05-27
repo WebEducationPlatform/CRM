@@ -6,9 +6,11 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 public interface ClientRepository extends CommonGenericRepository<Client>, ClientRepositoryCustom {
 
 	Client getClientBySocialProfiles(List<SocialProfile> list);
