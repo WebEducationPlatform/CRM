@@ -528,7 +528,6 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setStatus(old.getStatus());
         client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
         client.setSmsInfo(old.getSmsInfo());
-        client.setNotifications(old.getNotifications());
         client.setCanCall(old.isCanCall());
         client.setCallRecords(old.getCallRecords());
         client.setClientDescriptionComment(old.getClientDescriptionComment());
