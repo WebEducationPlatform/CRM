@@ -145,14 +145,6 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
-    @BatchSize(size = 20)
-    @JoinTable(name = "client_notification",
-            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
-            inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
-    private List<Notification> notifications = new ArrayList<>();
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Fetch(value = FetchMode.SUBSELECT)
     @JoinTable(name = "history_client",
@@ -636,14 +628,6 @@ public class Client implements Serializable, Diffable<Client> {
     @Override
     public String toString() {
         return "Client: id: " + id + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found");
-    }
-
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<Notification> notifications) {
-        this.notifications = notifications;
     }
 
     public List<SMSInfo> getSmsInfo() {

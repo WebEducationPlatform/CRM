@@ -63,7 +63,6 @@ public class AdminRestClientController {
         currentClient.setStatus(clientFromDB.getStatus());
         currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
         currentClient.setSmsInfo(clientFromDB.getSmsInfo());
-        currentClient.setNotifications(clientFromDB.getNotifications());
         currentClient.setCanCall(clientFromDB.isCanCall());
         currentClient.setCallRecords(clientFromDB.getCallRecords());
         currentClient.setClientDescriptionComment(clientFromDB.getClientDescriptionComment());
