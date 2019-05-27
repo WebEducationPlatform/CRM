@@ -8,7 +8,77 @@ $(function () {
 $(document).ready(function () {
     selectOptions($("#edit-client-state"));
     selectOptions($("#edit-client-sex"));
+
+    $('#edit-client-country').ready(function () {
+        // получаем список стран из вк-апи
+        var countryNameInput = $('#edit-client-country').val();
+        var url = '/rest/vkontakte/vk-countries';
+        var countries;
+        var countryArray = [];
+        $.ajax({
+            type: 'get',
+            url: url,
+            dataType: 'json',
+            success: function (result) {
+                countries = result;
+                countryArray = $(countries).attr('response');
+                // проверяем, есть ли страна в списке стран, если да - то берем id страны для получения спика городов этой страны
+                $.each(countryArray, function () {
+                    if (countryNameInput == $(this).attr('value')) {
+                        var array = document.getElementById('edit-client-country');
+                        var countId = $(this).attr('cid');
+                        array.setAttribute('cid', countId);
+                        // получаем список городов по id страны и запускаем автодополнение в поле "Город"
+                        doCities(countId);
+                    }
+                });
+
+// автодоплнение из списка всех стран в поле "Страна"
+                $('#edit-client-country').autocomplete({
+                    source: countryArray,
+                    select: function( event , ui ) {
+                        console.debug( 'Selected country: ' + ui.item.label + ' id: ' + + ui.item.cid );
+                        var countId = ui.item.cid;
+                        // как только страна выбрана, получаем список городов по id этой страны и делаем автодополнение этими городами поля "Город"
+                        doCities(countId);
+                    }
+                });
+            },
+            error: function (error) {
+                console.log(error.responseText);
+            }
+        });
+    });
 });
+
+
+function doCities(cid) {
+    $('#edit-client-city').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                type: 'get',
+                url: "/rest/vkontakte/vk-cities",
+                dataType: "json",
+                data: {
+                    q: request.term,
+                    country: cid
+                },
+                success: function (data) {
+                    console.log('success');
+                    response($(data).attr('response'));
+                },
+                error: function (error) {
+                    console.log(error.responseText);
+                }
+            });
+        },
+        minLength: 2,
+        delay: 500,
+        select: function (event, ui) {
+            console.debug('Selected city: ' + ui.item.label + ' id: ' + +ui.item.cid);
+        }
+    });
+}
 
 function changeClient(id) {
     if ($("#saveChanges")[0].className === "btn btn-primary disabled") {
