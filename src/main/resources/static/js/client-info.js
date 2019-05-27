@@ -64,7 +64,6 @@ function doCities(cid) {
                     country: cid
                 },
                 success: function (data) {
-                    console.log('success');
                     response($(data).attr('response'));
                 },
                 error: function (error) {
