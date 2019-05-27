@@ -221,63 +221,21 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
-    public Client() {
-        this.state = State.NEW;
-        this.dateOfRegistration = ZonedDateTime.now();
-    }
+    private Client() {}
 
-    public Client(String name, String lastName) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-    }
-
-    public Client(@NotNull String name, String phoneNumber, ZonedDateTime dateOfRegistration) {
-        this();
-        this.name = name;
-        setPhoneNumber(phoneNumber);
-        this.dateOfRegistration = dateOfRegistration;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, Status status) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-        this.status = status;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-    }
-
-    public Client(String name, String lastName, String phoneNumber, String email, LocalDate birthDate, Sex sex, String city, String country, State state, ZonedDateTime dateOfRegistration) {
-        this();
-        this.name = name;
-        this.lastName = lastName;
-        setPhoneNumber(phoneNumber);
-        setEmail(email);
-        this.birthDate = birthDate;
-        this.sex = sex;
-        this.city = city;
-        this.country = country;
-        this.state = state;
-        this.dateOfRegistration = dateOfRegistration;
-    }
-
-    public Client(@NotNull String name, List<String> clientPhones, List<String> clientEmails) {
-        this.name = name;
-        this.clientPhones = clientPhones;
-        this.clientEmails = clientEmails;
+    private Client(Builder builder) {
+        name = builder.name;
+        middleName = builder.middleName;
+        lastName = builder.lastName;
+        if (builder.phone != null) clientPhones.add(builder.phone);
+        if (builder.email != null) clientEmails.add(builder.email);
+        skype = builder.skype;
+        birthDate = builder.birthDate;
+        sex = builder.sex;
+        city = builder.city;
+        country = builder.country;
+        state = builder.state;
+        dateOfRegistration = builder.dateOfRegistration;
     }
 
     public List<ClientHistory> getHistory() {
@@ -702,5 +660,69 @@ public class Client implements Serializable, Diffable<Client> {
         LEARNING,
         FINISHED,
         REFUSED
+    }
+
+    public static class Builder {
+
+        private String name;
+        private String middleName;
+        private String lastName;
+        private String phone;
+        private String email;
+        private String skype;
+        private LocalDate birthDate;
+        private Sex sex;
+        private String city;
+        private String country;
+
+        private State state;
+        private ZonedDateTime dateOfRegistration;
+
+        public Builder(String name, String phone, String email) {
+            this.state = State.NEW;
+            this.dateOfRegistration = ZonedDateTime.now();
+            this.name = name;
+            this.phone = phone;
+            this.email = email;
+        }
+
+        public Client build() {
+            return new Client(this);
+        }
+
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder middleName(String middleName) {
+            this.middleName = middleName;
+            return this;
+        }
+
+        public Builder skype(String skype) {
+            this.skype = skype;
+            return this;
+        }
+
+        public Builder birthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
+            return this;
+        }
+
+        public Builder sex(Sex sex) {
+            this.sex = sex;
+            return this;
+        }
+
+        public Builder city(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder country(String country) {
+            this.country = country;
+            return this;
+        }
     }
 }
