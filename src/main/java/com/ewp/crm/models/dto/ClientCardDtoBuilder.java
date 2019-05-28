@@ -31,13 +31,13 @@ public class ClientCardDtoBuilder {
                                                     "city",
                                                     "country",
                                                     "comments",
-                                                    "notifications",
                                                     "history",
                                                     "university",
                                                     "requestFrom",
                                                     "canCall",
                                                     "status",
                                                     "ownerUser",
+                                                    "ownerMentor",
                                                     "socialProfiles",
                                                     "clientDescriptionComment",
                                                     "liveSkypeCall",
@@ -60,10 +60,6 @@ public class ClientCardDtoBuilder {
                                                             "user",
                                                             "dateFormat",
                                                             "content"};
-
-    final static String[] NOTIFICATION_TARGET_FIELDS = {"id",
-                                                        "information",
-                                                        "type"};
 
     final static String[] HISTORY_TARGET_FIELDS = { "id",
                                                     "title",
@@ -103,12 +99,12 @@ public class ClientCardDtoBuilder {
                     value = convertUserToMap(client.getOwnerUser());
                     break;
                 }
-                case ("comments") : {
-                    value = mapCommentsToMapsList(client.getComments());
+                case ("ownerMentor") : {
+                    value = convertUserToMap(client.getOwnerMentor());
                     break;
                 }
-                case ("notifications") : {
-                    value = mapNotificationsToMapsList(client.getNotifications());
+                case ("comments") : {
+                    value = mapCommentsToMapsList(client.getComments());
                     break;
                 }
                 case ("history") : {
@@ -134,10 +130,6 @@ public class ClientCardDtoBuilder {
 
     public static List<Map<String, Object>> mapCommentAnswersToMapsList(List<CommentAnswer> commentAnswers) {
         return commentAnswers.stream().map(x -> convertCommentAnswerToMap(x)).collect(Collectors.toList());
-    }
-
-    public static List<Map<String, Object>> mapNotificationsToMapsList(List<Notification> notifications) {
-        return notifications.stream().map(x -> convertNotificationToMap(x)).collect(Collectors.toList());
     }
 
     public static List<Map<String, Object>> mapHistoryToMapsList(List<ClientHistory> history) {
@@ -188,14 +180,6 @@ public class ClientCardDtoBuilder {
                 value = invokeFieldGetter(commentAnswer, field);
             }
             map.put(field, value);
-        }
-        return map;
-    }
-
-    public static Map<String, Object> convertNotificationToMap(Notification notification) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        for (String field : NOTIFICATION_TARGET_FIELDS) {
-            map.put(field, invokeFieldGetter(notification, field));
         }
         return map;
     }

@@ -131,6 +131,7 @@ public class ClientController {
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
+        modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         if (sessionRoles.contains(roleService.getRoleByName("OWNER")) || sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {

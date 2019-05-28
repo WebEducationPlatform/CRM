@@ -3,6 +3,8 @@ package com.ewp.crm.controllers.rest.admin;
 import com.ewp.crm.configs.ImageConfig;
 import com.ewp.crm.models.User;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.CommentService;
+import com.ewp.crm.service.interfaces.SMSInfoService;
 import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +32,18 @@ public class AdminRestUserController {
     private final UserService userService;
     private final ImageConfig imageConfig;
     private final ClientService clientService;
+    private final SMSInfoService smsInfoService;
+    private final CommentService commentService;
 
     @Autowired
     public AdminRestUserController(UserService userService,
                                    ImageConfig imageConfig,
-                                   ClientService clientService) {
+                                   ClientService clientService, SMSInfoService smsInfoService, CommentService commentService) {
         this.userService = userService;
         this.imageConfig = imageConfig;
         this.clientService = clientService;
+        this.smsInfoService = smsInfoService;
+        this.commentService = commentService;
     }
 
     @ResponseBody
@@ -55,7 +61,6 @@ public class AdminRestUserController {
         if (currentPhoto.isPresent() && !userPhoto.isPresent()) {
             user.setPhoto(currentPhoto.get());
         }
-        user.setNotifications(userService.get(user.getId()).getNotifications());
         userService.update(user);
         logger.info("{} has updated user: id {}, email {}", currentAdmin.getFullName(), user.getId(), user.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);
@@ -115,6 +120,8 @@ public class AdminRestUserController {
         User receiver = Optional.of(userService.get(receiverId))
                                 .orElseThrow(() -> new IllegalArgumentException("Wrong receiver user id!"));
         clientService.transferClientsBetweenOwners(deletedUser, receiver);
+        commentService.deleteAllCommentsByUserId(deleteId);
+        smsInfoService.deleteAllSMSByUserId(deleteId);
         userService.delete(deleteId);
         logger.info("{} has deleted user: id {}, email {}", currentAdmin.getFullName(), deletedUser.getId(), deletedUser.getEmail());
         return ResponseEntity.ok(HttpStatus.OK);

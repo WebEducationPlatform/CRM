@@ -148,4 +148,18 @@ public class VkRestController {
 		return ResponseEntity.ok(profilePhotoLink);
 	}
 
+	@GetMapping(value = "/vk-countries", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getCountries() {
+        String result = vkService.getAllCountries().get();
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping(value = "/vk-cities", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getCities(@RequestParam String country, String q) {
+		int countryId = Integer.parseInt(country);
+		String query = q;
+		String result = vkService.getCitiesByCountry(countryId, query).get();
+		return ResponseEntity.ok(result);
+	}
+
 }

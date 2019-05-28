@@ -46,7 +46,7 @@ public class WhatsappMessage {
     private String caption;
 
     @JsonIgnore
-    @ManyToOne(targetEntity = Client.class)
+    @ManyToOne(targetEntity = Client.class, fetch = FetchType.LAZY)
     @JoinTable(name = "client_whatsapp_message",
             joinColumns = {@JoinColumn(name = "whatsapp_message_number", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))})

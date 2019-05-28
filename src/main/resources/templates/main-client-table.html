@@ -157,6 +157,14 @@
                                   th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
                                   th:id="'own-' + ${client.id}">
                                 </span>
+                            <span th:if="${client.ownerMentor != null}" class="mentor-icon_card"
+                                  style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
+                                  th:text="' Ментор: ' + ${#strings.substring(client.ownerMentor.firstName, 0,1)
+                                  + #strings.substring(client.ownerMentor.lastName, 0,1)
+                                  }"
+                                  th:value="${client.ownerMentor.firstName} + ' ' + ${client.ownerMentor.lastName}"
+                                  th:id="'mn-' + ${client.id}">
+                                </span>
 
                         </div>
                     </div>
@@ -221,6 +229,14 @@
                                     </li>
                                     <li class="divider"></li>
                                 </th:block>
+                                <th:block>
+                                    <li class="dropdown-header">Назначить ментора</li>
+                                    <li th:each="worker : ${mentors}">
+                                        <a th:text="${worker.fullName}"
+                                           th:onclick="'assignMentor('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                    </li>
+                                    <li class="divider"></li>
+                                </th:block>
                                 <li class="dropdown-header">Скрыть в статус</li>
                                 <li th:each="inv_status:${statuses}"
                                     th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
@@ -235,6 +251,12 @@
                                 <th:block>
                                     <li>
                                         <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с
+                                            карточки</a>
+                                    </li>
+                                </th:block>
+                                <th:block>
+                                    <li>
+                                        <a th:onclick="'unassignMentor('+ ${client.id} +')'">Убрать ментора с
                                             карточки</a>
                                     </li>
                                 </th:block>

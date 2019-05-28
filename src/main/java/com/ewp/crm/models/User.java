@@ -114,16 +114,6 @@ public class User implements UserDetails {
 	private String googleToken;
 
 	/**
-	 * Уведомления, полученные пользователем
-	 */
-	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "user_notification",
-			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_USER"))},
-			inverseJoinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
-	private List<Notification> notifications;
-
-	/**
 	 * Присылать ли уведомления на электронную почту
 	 */
 	@Column(name = "enable_mail_notifications")
@@ -134,13 +124,6 @@ public class User implements UserDetails {
 	 */
 	@Column(name = "enable_sms_notifications")
 	private boolean enableSmsNotifications;
-
-	/**
-	 * Закреплен за клиентами (студентами)
-	 */
-	@JsonIgnore
-	@OneToMany(mappedBy = "ownerUser")
-	private List<Client> ownedClients;
 
 	/**
 	 * Права (роль)
@@ -364,14 +347,6 @@ public class User implements UserDetails {
 		return isEnabled;
 	}
 
-	public List<Client> getOwnedClients() {
-		return ownedClients;
-	}
-
-	public void setOwnedClients(List<Client> ownedClients) {
-		this.ownedClients = ownedClients;
-	}
-
 	public boolean isNewClientNotifyIsEnabled() {
 		return newClientNotifyIsEnabled;
 	}
@@ -415,14 +390,6 @@ public class User implements UserDetails {
 
 	public void setEnableMailNotifications(boolean enableMailNotifications) {
 		this.enableMailNotifications = enableMailNotifications;
-	}
-
-	public List<Notification> getNotifications() {
-		return notifications;
-	}
-
-	public void setNotifications(List<Notification> notifications) {
-		this.notifications = notifications;
 	}
 
 	public boolean isIpTelephony() {

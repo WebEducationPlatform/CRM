@@ -192,6 +192,45 @@ function assignUser(id, user, principalId) {
     });
 }
 
+function assignMentor(id, user, principalId) {
+    var
+        url = '/rest/client/assign/mentor',
+        formData = {
+            clientId: id,
+            userForAssign: user
+        },
+        assignBtn = $('#assign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            assignBtn.before(
+                "<button " +
+                "   id='unassign-client" + id + "' " +
+                "   onclick='unassignMentor(" + id + ")' " +
+                "   class='btn btn-sm btn-warning remove-tag'>Отказаться от карточки</button>"
+            );
+            assignBtn.remove();
+            let info_client = $('#info-client' + id),
+                target_btn = $("a[href='/client/clientInfo/" + id + "']"),
+                unassign_btn = $('#unassign-client' + id);
+            info_client.find("span[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
+
+            info_client.append(
+                "<span class='mentor-icon_card' id='mn-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
+                "Ментор: " + owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
+                "</span>" +
+                "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>"
+            );
+            fillFilterList()
+        },
+        error: function (error) {
+        }
+    });
+}
 function tilt_direction(item) {
     var left_pos = item.position().left,
         move_handler = function (e) {
