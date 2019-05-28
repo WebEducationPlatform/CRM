@@ -137,6 +137,8 @@ public class ClientHistory {
 		NOTIFICATION("прочитал напоминание"),
 		ASSIGN("прикрепил"),
 		UNASSIGN("открепил"),
+        ASSIGN_MENTOR("прикрепил ментора"),
+        UNASSIGN_MENTOR("открепил ментора"),
 		CALL("совершил(а) звонок"),
 		CALL_WITHOUT_RECORD(", не дозвонился"),
 		SEND_MESSAGE("отправил сообщение по"),

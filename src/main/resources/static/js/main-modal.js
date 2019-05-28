@@ -215,8 +215,8 @@ $(function () {
                     );
                 });
 
-                if (!client_has_telegram(client) && client.phoneNumber !== '') {
-                    set_telegram_id_by_phone(client.phoneNumber);
+                if (!client_has_telegram(client) && client.clientPhones[0] !== '') {
+                    set_telegram_id_by_phone(client.clientPhones[0]);
                 }
                 $("#conversations-title").prop('innerHTML', 'Чат с ' + client.name + ' ' + client.lastName);
 
@@ -225,8 +225,13 @@ $(function () {
                 }
 
                 let user = userLoggedIn;
-                if (client.ownerUser != null) {
+                if (client.ownerUser.id != null) {
                     var owenerName = client.ownerUser.firstName + ' ' + client.ownerUser.lastName;
+
+                }
+
+                if (client.ownerMentor.id != null) {
+                    var owenerMentorName = client.ownerMentor.firstName + ' ' + client.ownerMentor.lastName;
 
                 }
                 var adminName = user.firstName + ' ' + user.lastName;
@@ -242,8 +247,8 @@ $(function () {
                 $('#client-skype').text(client.skype);
                 if (client.canCall && user.ipTelephony) {
                     $('#client-phone')
-                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
-                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.phoneNumber + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
+                        .after('<td id="web-call-voximplant" class="remove-tag" style="white-space: nowrap;">' + '<button class="btn btn-default btn btn-light btn-xs call-to-client main-modal" onclick="webCallToClient(' + client.clientPhones[0] + ')">' + '<span class="glyphicon glyphicon-earphone call-icon">' + '</span>' + '</button>' + '</td>')
+                        .after('<td id="callback-call-voximplant" class="remove-tag">' + '<button class="btn btn-default btn btn-light btn-xs callback-call" onclick="callToClient(' + user.phoneNumber + ', ' + client.clientPhones[0] + ')">' + '<span class="glyphicon glyphicon-phone">' + '</span>' + '</button>' + '</td>');
                     $(".call-to-client.main-modal").after('<button id="btn-call-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-off">' + '<span class="glyphicon glyphicon-phone-alt call-icon">' + '</span>' + '</button>' + '</td>');
                     $('.call-to-client.main-modal').after('<button id="btn-mic-off" style="display: none !important;" class="btn btn-default btn btn-light btn-xs web-call-mic-off">' + '<span class="glyphicon glyphicon-ice-lolly">' + '</span>' + '</button>' + '</td>');
                     $('#btn-mic-off').hide();
@@ -372,11 +377,30 @@ $(function () {
 
                 btnBlock1.append('<button class="btn btn-info btn-sm remove-tag" id="get-slack-invite-link-button" data-toggle="modal" data-target="#slackLinkModal">Ссылка на первый урок</button>');
 
-                if (client.ownerUser === null) {
-                    btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                var currentUserRole;
+                for (var i = 0; i < userLoggedIn.role.length; i++) {
+                    if(userLoggedIn.role[i].roleName === 'ADMIN' || userLoggedIn.role[i].roleName === 'OWNER'){
+                        currentUserRole = 'ADMIN'
+                    }
+
                 }
-                if (client.ownerUser !== null && owenerName === adminName) {
-                    btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+
+                if (currentUserRole !== undefined) {
+
+                    if (client.ownerUser.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assign(' + client.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerUser !== null && owenerName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassign(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+                } else {
+                    if (client.ownerMentor.id === null) {
+                        btnBlock2.append('<button class="btn btn-info btn-sm remove-tag" id="assign-client' + client.id + '"onclick="assignMentor(' + client.id + ' , '+ userLoggedIn.id + ')"> Взять себе карточку </button>');
+                    }
+                    if (client.ownerMentor !== null && owenerMentorName === adminName) {
+                        btnBlock2.append('<button class="btn btn-sm btn-warning remove-tag" id="unassign-client' + client.id + '" onclick="unassignMentor(' + client.id + ')"> Отказаться от карточки </button>');
+                    }
+
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
@@ -1296,6 +1320,39 @@ function unassign(id) {
                 );
                 unassignBtn.remove();
             }
+            fillFilterList();
+        },
+        error: function (error) {
+        }
+    });
+}
+
+function unassignMentor(id) {
+    let
+        url = '/rest/client/unassignMentor',
+        formData = {
+            clientId: id
+        },
+        unassignBtn = $('#unassign-client' + id);
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        success: function (owner) {
+            let info_client = $('#info-client' + id);
+            info_client.find("p[style*='display:none']").remove();
+            info_client.find(".mentor-icon_card").remove();
+            if (unassignBtn.length !== 0) {
+                unassignBtn.before(
+                    "<button " +
+                    "   id='assign-client" + id + "' " +
+                    "   onclick='assignMentor(" + id + ")' " +
+                    "   class='btn btn-sm btn-info remove-tag'>Взять себе карточку</button>"
+                );
+                unassignBtn.remove();
+            }
+
             fillFilterList();
         },
         error: function (error) {

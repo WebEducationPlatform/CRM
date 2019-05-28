@@ -11,6 +11,7 @@ import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
@@ -74,14 +75,15 @@ public class DataInitializer {
         Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
         Status status0 = new Status("New clients", false, 1L, false, 0, 0);
 
-        Role roleAdmin = new Role("ADMIN");
-        Role roleOwner = new Role("OWNER");
-        Role roleUser = new Role("USER");
-        Role roleMentor = new Role("MENTOR");
-        roleService.add(roleAdmin);
-        roleService.add(roleUser);
-        roleService.add(roleOwner);
-        roleService.add(roleMentor);
+        Role[] roles = {new Role("ADMIN"),
+                        new Role("MENTOR"),
+                        new Role("OWNER"),
+                        new Role("USER"),
+                        new Role("HR")};
+
+        for (Role role: roles) {
+            roleService.add(role);
+        }
 
         ListMailingType vkList = new ListMailingType("vk");
         ListMailingType emailList = new ListMailingType("email");
@@ -213,10 +215,42 @@ public class DataInitializer {
         Status status4 = new Status("endLearningStatus", false, 5L, false, 0, 0);
         Status status5 = new Status("dropOut Status", false, 6L, false, 0, 0);
 
-        Client client1 = new Client("Юрий", "Долгоруков", "79999992288", "u.dolg@mail.ru", LocalDate.parse("1995-09-24"), Client.Sex.MALE, "Тула", "Россия", Client.State.FINISHED, ZonedDateTime.now());
-        Client client2 = new Client("Вадим", "Бойко", "89687745632", "vboyko@mail.ru", LocalDate.parse("1989-08-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
-        Client client3 = new Client("Александра", "Соловьева", "78300029530", "a.solo@mail.ru", LocalDate.parse("1975-03-10"), Client.Sex.FEMALE, "Тула", "Россия", Client.State.LEARNING, ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
-        Client client4 = new Client("Иван", "Федоров", "78650824705", "i.fiod@mail.ru", LocalDate.parse("1995-05-04"), Client.Sex.MALE, "Тула", "Россия", Client.State.NEW, ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
+        Client.Builder clientBuilder1 = new Client.Builder("Юрий", "79999992288", "u.dolg@mail.ru");
+        Client client1 = clientBuilder1.lastName("Долгоруков")
+                                        .birthDate(LocalDate.parse("1995-09-24"))
+                                        .sex(Client.Sex.MALE)
+                                        .city("Тула")
+                                        .country("Россия")
+                                        .build();
+        client1.setState(Client.State.FINISHED);
+        Client.Builder clientBuilder2 = new Client.Builder("Вадим", "89687745632", "vboyko@mail.ru");
+        Client client2 = clientBuilder2.lastName("Бойко")
+                                        .birthDate(LocalDate.parse("1989-08-04"))
+                                        .sex(Client.Sex.MALE)
+                                        .city("Тула")
+                                        .country("Россия")
+                                        .build();
+        client2.setState(Client.State.LEARNING);
+        client2.setDateOfRegistration(ZonedDateTime.ofInstant(Instant.now().minusMillis(200000000), ZoneId.systemDefault()));
+        Client.Builder clientBuilder3 = new Client.Builder("Александра", "78300029530", "a.solo@mail.ru");
+        Client client3 = clientBuilder3.lastName("Соловьева")
+                                        .birthDate(LocalDate.parse("1975-03-10"))
+                                        .sex(Client.Sex.FEMALE)
+                                        .city("Тула")
+                                        .country("Россия")
+                                        .build();
+        client3.setState(Client.State.LEARNING);
+        client3.setDateOfRegistration(ZonedDateTime.ofInstant(Instant.now().minusMillis(300000000), ZoneId.systemDefault()));
+        Client.Builder clientBuilder4 = new Client.Builder("Иван", "78650824705", "i.fiod@mail.ru");
+        Client client4 = clientBuilder4.lastName("Федоров")
+                                        .birthDate(LocalDate.parse("1995-05-04"))
+                                        .sex(Client.Sex.MALE)
+                                        .city("Тула")
+                                        .country("Россия")
+                                        .build();
+        client4.setState(Client.State.NEW);
+        client4.setDateOfRegistration(ZonedDateTime.ofInstant(Instant.now().minusMillis(400000000), ZoneId.systemDefault()));
+
         client1.addSMSInfo(new SMSInfo(123456789L, "SMS Message to client 1", admin));
         client2.addSMSInfo(new SMSInfo(12345678L, "SMS Message to client 2", admin));
         client3.addSMSInfo(new SMSInfo(1234567L, "SMS Message to client 3", admin));
@@ -293,7 +327,12 @@ public class DataInitializer {
         List<Client> list = new LinkedList<>();
         for (int i = 0; i < 20; i++) {
             if (statusService.get("trialLearnStatus").isPresent()) {
-                Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("trialLearnStatus").get());
+                Client.Builder clientBuilder = new Client.Builder(faker.name().firstName(), faker.phoneNumber().phoneNumber(), "teststatususer" + i + "@gmail.com");
+                Client client = clientBuilder.lastName(faker.name().lastName())
+                                                .birthDate(LocalDate.parse("1990-01-01"))
+                                                .sex(Client.Sex.MALE)
+                                                .build();
+                client.setStatus(statusService.get("trialLearnStatus").get());
                 clientHistoryService.createHistory("инициализация crm").ifPresent(client::addHistory);
                 list.add(client);
             }
@@ -303,7 +342,12 @@ public class DataInitializer {
 
         for (int i = 0; i < 50; i++) {
             if (statusService.get("endLearningStatus").isPresent()) {
-                Client client = new Client(faker.name().firstName(), faker.name().lastName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com", LocalDate.parse("1990-01-01"), Client.Sex.MALE, statusService.get("endLearningStatus").get());
+                Client.Builder clientBuilder = new Client.Builder(faker.name().firstName(), faker.phoneNumber().phoneNumber(), "testclient" + i + "@gmail.com");
+                Client client = clientBuilder.lastName(faker.name().lastName())
+                                                .birthDate(LocalDate.parse("1990-01-01"))
+                                                .sex(Client.Sex.MALE)
+                                                .build();
+                client.setStatus(statusService.get("endLearningStatus").get());
                 clientHistoryService.createHistory("инициализация crm").ifPresent(client::addHistory);
                 list.add(client);
             }
@@ -343,7 +387,7 @@ public class DataInitializer {
         clientN2.setEmail("miqolay@gmail.com");
         clientN2.setPhoneNumber("79080584002");
         clientService.update(clientN2);
-        Client nulli = new Client("Nulli", "Nullov" );
+        Client nulli = new Client.Builder("Nulli", null, null ).lastName("Nullov").build();
         System.out.println(nulli.getEmail().orElse("no Email"));
         System.out.println(clientN2.getEmail().orElse("not found"));
 

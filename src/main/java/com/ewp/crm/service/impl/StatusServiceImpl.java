@@ -19,6 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,6 +56,7 @@ public class StatusServiceImpl implements StatusService {
 	@Override
 	public List<Status> getStatusesWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role) {
 		List<Status> statuses;
+		List<Status> statusesWithSortedClients = new ArrayList<>();
 		if(role.equals(roleService.getRoleByName("OWNER"))) {
 			statuses = getAll();
 		} else{
@@ -66,10 +68,23 @@ public class StatusServiceImpl implements StatusService {
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
 				SortedStatuses finalSorted = sorted;
 				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-				status.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
+				Status newStatus = new Status();
+				newStatus.setPosition(status.getPosition());
+				newStatus.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
+				newStatus.setCreateStudent(status.isCreateStudent());
+				newStatus.setName(status.getName());
+				newStatus.setRole(status.getRole());
+				newStatus.setInvisible(status.getInvisible());
+				newStatus.setNextPaymentOffset(status.getNextPaymentOffset());
+				newStatus.setTrialOffset(status.getTrialOffset());
+				newStatus.setId(status.getId());
+				newStatus.setSortedStatuses(status.getSortedStatuses());
+				statusesWithSortedClients.add(newStatus);
+			} else {
+				statusesWithSortedClients.add(status);
 			}
 		}
-		return statuses;
+		return statusesWithSortedClients;
 	}
 
 	@Override

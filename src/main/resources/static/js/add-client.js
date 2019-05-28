@@ -239,6 +239,38 @@ var socialNetworkTypes = [];
 
 $(document).ready(function () {
 
+    $('#edit-client-country').ready(function () {
+        // получаем список стран из вк-апи
+        var countryNameInput = $('#edit-client-country').val();
+        var url = '/rest/vkontakte/vk-countries';
+        var countries;
+        var countryArray = [];
+        $.ajax({
+            type: 'get',
+            url: url,
+            dataType: 'json',
+            success: function (result) {
+                countries = result;
+                countryArray = $(countries).attr('response');
+                // автодоплнение из списка всех стран в поле "Страна"
+                $('#edit-client-country').autocomplete({
+                    source: countryArray,
+                    select: function( event , ui ) {
+                        console.debug( 'Selected country: ' + ui.item.label + ' id: ' + + ui.item.cid );
+                        var countId = ui.item.cid;
+                        // как только страна выбрана, получаем список городов по id этой страны и делаем автодополнение этими городами поля "Город"
+                        doCities(countId);
+                    }
+                });
+            },
+            error: function (error) {
+                console.log(error.responseText);
+            }
+        });
+    });
+
+
+
     var url = '/user/socialNetworkTypes';
     $.ajax({
         type: 'get',
@@ -255,6 +287,33 @@ $(document).ready(function () {
         }
     });
 });
+
+function doCities(cid) {
+    $('#edit-client-city').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                type: 'get',
+                url: "/rest/vkontakte/vk-cities",
+                dataType: "json",
+                data: {
+                    q: request.term,
+                    country: cid
+                },
+                success: function (data) {
+                    response($(data).attr('response'));
+                },
+                error: function (error) {
+                    console.log(error.responseText);
+                }
+            });
+        },
+        minLength: 2,
+        delay: 500,
+        select: function (event, ui) {
+            console.debug('Selected city: ' + ui.item.label + ' id: ' + +ui.item.cid);
+        }
+    });
+}
 
 function selectOptions (element) {
     element.find("option").each(function () {

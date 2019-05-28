@@ -11,4 +11,6 @@ public interface CommentService extends CommonService<Comment>{
     List<Comment> getAllCommentsByClient(Client client);
 
     List<Comment> getAllCommentsByUser(User user);
+
+    void deleteAllCommentsByUserId(Long id);
 }
