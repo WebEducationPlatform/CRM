@@ -39,9 +39,8 @@ public class PhoneValidator {
             }
             phone = phone.replaceAll("[- _():=+]", "")
                     .replaceAll("\\s", "");
-        } else {
-            phone = "";
         }
+        
         return phone;
     }
 }
