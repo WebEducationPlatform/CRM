@@ -204,15 +204,18 @@ public class ReportServiceImpl implements ReportService {
         if (status != null) {
             fileName.append(status.getName()).append("_");
         }
-
+        String format = null;
         for (String selectedCheckbox : selectedCheckboxes) {
+            if(selectedCheckbox.equals(".txt") || selectedCheckbox.equals(".csv") || selectedCheckbox.equals(".xlsx")){
+                format = selectedCheckbox;
+                break;
+            }
             fileName.append(selectedCheckbox).append("_");
         }
-
         if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")) {
-            fileName.append(delimeter).append(".txt");
+            fileName.append(delimeter).append(format);
         } else {
-            fileName.append(".txt");
+            fileName.append(format);
         }
         return Optional.of(fileName.toString());
     }

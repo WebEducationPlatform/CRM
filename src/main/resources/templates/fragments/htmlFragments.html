@@ -304,6 +304,14 @@
                             <label class="checkbox" th:for="lastName">Фамилия</label>
                             <input type="checkbox" th:value="lastName" th:id="lastName"/>
                         </div>
+                        <div class="container">
+                        <label>Формат:</label>
+                        <div>
+                            <label><input type="radio" name="typeformat" id="typeformat-1" value=".txt" checked="checked"/>txt</label>
+                            <label><input type="radio" name="typeformat" id="typeformat-2" value=".csv"/>csv</label>
+                            <label><input type="radio" name="typeformat" id="typeformat-3" value=".xlsx"/>xlsx</label>
+                        </div>
+                        </div>
                     </div>
                     <div class="col-xs-12">
                         <input type="form" th:id="delimeter"/>
