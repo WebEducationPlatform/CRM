@@ -15,6 +15,8 @@ messaging:
     send-error-wrong-phone: у этого клиента не верно указан номер телефона оправка сообщения не возможна #JMWhatsappConversation
   slack:
     send-error: Не удалось отправить сообщение в Slack #JMSlackConversation
+    invalid-email: Проверите email не проходит проверку на корректность #SlackRestController
+    exception-from-method-invite-to-worksspace: Ошибка со стороны сервера с методом inviteToWorkspace #SlackRestController
   user:
     exception:
       allready-exist: Пользователь c таким e-mail уже существует #UserExistsException UserServiceImpl
