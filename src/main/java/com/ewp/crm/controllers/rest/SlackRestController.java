@@ -6,6 +6,7 @@ import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +39,19 @@ public class SlackRestController {
     private final ClientService clientService;
     private final StatusService statusService;
     private final MessageTemplateServiceImpl messageTemplateService;
+    private Environment env;
 
     @Autowired
-    public SlackRestController(ClientService clientService, SlackService slackService, StatusService statusService, MessageTemplateServiceImpl messageTemplateService) {
+    public SlackRestController(ClientService clientService,
+                               SlackService slackService,
+                               StatusService statusService,
+                               MessageTemplateServiceImpl messageTemplateService,
+                               Environment env) {
         this.slackService = slackService;
         this.clientService = clientService;
         this.statusService = statusService;
         this.messageTemplateService = messageTemplateService;
+        this.env = env;
     }
 
     @CrossOrigin(origins = "https://java-mentor.com")
@@ -63,9 +70,9 @@ public class SlackRestController {
     public ResponseEntity inviteSlack(@RequestParam("email") String email) {
         String answer;
         if  (!email.matches(ValidationPattern.EMAIL_PATTERN)){
-            answer = "Проверите email не проходит проверку на корректность";
+            answer = env.getProperty("messaging.slack.invalid-email");
         } else {
-            answer = "Ошибка со стороны сервера с методом inviteToWorkspace";
+            answer = env.getProperty("messaging.slack.exception-from-method-invite-to-worksspace") ;
         }
         return slackService.inviteToWorkspace(email) ? ResponseEntity.ok("") : ResponseEntity.badRequest().body(answer);
     }
