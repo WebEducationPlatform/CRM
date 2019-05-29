@@ -4,6 +4,7 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
 import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.util.patterns.ValidationPattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -60,8 +61,13 @@ public class SlackRestController {
 
     @PostMapping("/invitelink")
     public ResponseEntity inviteSlack(@RequestParam("email") String email) {
-            boolean result = slackService.inviteToWorkspace(email);
-            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
+        String answer;
+        if  (!email.matches(ValidationPattern.EMAIL_PATTERN)){
+            answer = "Проверите email не проходит проверку на корректность";
+        } else {
+            answer = "Ошибка со стороны сервера с методом inviteToWorkspace";
+        }
+        return slackService.inviteToWorkspace(email) ? ResponseEntity.ok("") : ResponseEntity.badRequest().body(answer);
     }
 
     @GetMapping("/find/client/{clientId}")
