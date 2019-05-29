@@ -404,7 +404,7 @@ $(function () {
                 }
                 btnBlock3.append('<a href="/client/clientInfo/' + client.id + '"><button class="btn btn-info btn-sm remove-tag" id="client-info" rel="clientInfo"> Расширенная информация </button></a>');
 
-                btnBlock4.append('<button class="btn btn-info btn-sm remove-tag" id="slack-inv" onclick="inviteSlack(' + '\'' + client.email + '\'' + ')">Пригласить в Slack</button>');
+                btnBlock4.append('<button class="btn btn-info btn-sm remove-tag" id="slack-inv" onclick="inviteSlack(' + '\'' + client.clientEmails[0] + '\'' + ')">Пригласить в Slack</button>');
                 message.text("");
 
                 $('#contract-btn').empty();
@@ -1428,11 +1428,13 @@ function getHash() {
 
 function inviteSlack(clientEmail) {
     let SUCCESS_MESSAGE = 'Успешно! На почту клиента придет письмо с подтверджением регистрации. Перейдите по ссылке, чтобы задать имя и пароль и получить доступ к Slack.';
-    let ERROR_MESSAGE = 'Ошибка! Попробуйте позже или обратитесь к администратору. Возможно приглашение было отправлено раньше';
+    let ERROR_MESSAGE = "";
     let url = '/slack/invitelink';
     let email = clientEmail;
+    if  (email === "undefined"){
+        ERROR_MESSAGE = "Email отсутствует";
+    }
     let message = $('#message');
-
     $.ajax({
         url: url,
         async: true,
@@ -1445,8 +1447,12 @@ function inviteSlack(clientEmail) {
         success: function () {
             message.text(SUCCESS_MESSAGE);
         },
-        error: function () {
-            message.text(ERROR_MESSAGE);
+        error: function (data) {
+            if (ERROR_MESSAGE === ""){
+                message.text(data.responseText);
+            } else {
+                message.text(ERROR_MESSAGE);
+            }
         }
     });
 }
