@@ -9,11 +9,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("file:./facebook.properties")
+@PropertySource("classpath:facebook.properties")
 public class FacebookConfigImpl implements FacebookConfig {
 
     private String version;
-    private String schedulerCron;
     private String pageToken;
     private String pageId;
 
@@ -21,10 +20,9 @@ public class FacebookConfigImpl implements FacebookConfig {
 
     @Autowired
     public FacebookConfigImpl(Environment env) {
-        this.version = env.getProperty("fb.version");
-        this.schedulerCron = env.getProperty("fb.scheduler.cron");
-        this.pageToken = env.getProperty("fb.page.token");
-        this.pageId = env.getProperty("fb.page.Id");
+        version = env.getProperty("fb.version");
+        pageToken = env.getProperty("fb.page.token");
+        pageId = env.getProperty("fb.page.Id");
         if (!configIsValid()) {
             logger.error("Facebook configs have not initialized. Check fb.properties file");
             System.exit(-1);
@@ -32,21 +30,17 @@ public class FacebookConfigImpl implements FacebookConfig {
     }
 
 	private boolean configIsValid() {
-        // If we miss important props or this props is empty return false
-        return !((version == null || version.isEmpty()) ||
-                (schedulerCron == null || schedulerCron.isEmpty()) ||
-                (pageToken == null || pageToken.isEmpty()) ||
-                (pageId == null || pageId.isEmpty()));
+		if (version== null || version.isEmpty()) return false;
+		if (pageToken == null || pageToken.isEmpty()) return false;
+		if (pageId == null || pageId.isEmpty()) return false;
+		return true;
 	}
+
 
     public String getVersion() {
         return version;
     }
-    
-    public String getSchedulerCron() {
-        return schedulerCron;
-    }
-    
+
     public String getPageToken() {
         return pageToken;
     }
