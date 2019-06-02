@@ -50,6 +50,7 @@ public class IncomeStringToClient {
                 client = parseClientFormJavaLearn(workString);
             } else {
                 logger.error("The incoming email does not match any of the templates!!!");
+                return client;
             }
             vkService.fillClientFromProfileVK(client);
         }
