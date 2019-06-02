@@ -38,6 +38,8 @@ public class IncomeStringToClient {
                 client = parseClientFormOne(workString);
             } else if (income.contains("Месяц в подарок")) {
                 client = parseClientFormOne(workString);
+            } else if (income.contains("Оплата всей программы")) {
+                client = parseClientFormFive(workString);
             } else if (income.contains("Остались вопросы")) {
                 client = parseClientFormTwo(workString);
             } else if (income.contains("Задать вопрос")) {
@@ -158,6 +160,36 @@ public class IncomeStringToClient {
         }
         checkSocialNetworks(client, clientData);
         logger.info("Form Four parsing finished");
+        return client;
+    }
+
+    private Client parseClientFormFive(String form) {
+        logger.info("Parsing FormFive...");
+        String removeExtraCharacters = form.substring(form.indexOf("Страница"), form.length())
+                .replaceAll(" ", "~")
+                .replaceAll("Name~4", "Name")
+                .replaceAll("Email~4", "Email")
+                .replaceAll("Соц~~сеть", "Соцсеть");
+        String[] createArrayFromString = removeExtraCharacters.split("<br~/>");
+        Map<String, String> clientData = createMapFromClientData(createArrayFromString);
+        Map<String, String> clientName = splitClientName(clientData.get("Name").replaceAll("~", " "));
+        Client.Builder clientBuilder = new Client.Builder(clientName.get("firstName"),
+                clientData.get("Телефон").replace("~", ""),
+                clientData.get("Email").replace("~", ""));
+        clientBuilder.lastName(clientName.get("lastName"));
+        if (clientData.containsKey("Страна")) {
+            clientBuilder.country(clientData.get("Страна").replace("~", ""));
+        }
+        if (clientData.containsKey("Город")) {
+            clientBuilder.city(clientData.get("Город").replace("~", ""));
+        }
+        Client client = clientBuilder.build();
+        client.setClientDescriptionComment(clientData.get("Форма").replace("~", " "));
+        if (clientData.containsKey("Запрос")) {
+            client.setRequestFrom(clientData.get("Запрос").replace("~", ""));
+        }
+        checkSocialNetworks(client, clientData);
+        logger.info("FormOne parsing finished");
         return client;
     }
 
