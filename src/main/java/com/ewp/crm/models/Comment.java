@@ -16,12 +16,18 @@ public class Comment {
 	@Column(name = "comment_id")
 	private Long id;
 
-	@ManyToOne(targetEntity = User.class)
+	/**
+	 * We use FetchType.LAZY for lazy initialization.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))
 	private User user;
 
+	/**
+	 * We use FetchType.LAZY for lazy initialization.
+	 */
 	@JsonIgnore
-	@ManyToOne(targetEntity = Client.class, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinTable(name = "client_comment",
 			joinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
@@ -35,6 +41,9 @@ public class Comment {
 	@Lob
 	private String content;
 
+	/**
+	 * We use FetchType.LAZY for lazy initialization.
+	 */
 	@OrderBy("date DESC")
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "comment_comment_answer",
