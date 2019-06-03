@@ -125,8 +125,9 @@ public class GoogleEmailConfig {
                 MimeMessageParser parser = new MimeMessageParser(new MimeMessage((MimeMessage) message.getPayload()));
                 try {
                     parser.parse();
-                    Client client = incomeStringToClient.convert(parser.getHtmlContent());
-                    if (client != null) {
+                    Optional<Client> clientOpt = incomeStringToClient.convert(parser.getHtmlContent());
+                    if (clientOpt.isPresent()) {
+                        Client client = clientOpt.get();
                         if (parser.getHtmlContent().contains("Java Test")) {
                             prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                         }
