@@ -45,19 +45,24 @@ public class Status implements Serializable {
 
 	/**
 	 * Клиенты (студенты) с данным статусом
+	 * OneToMany uses FetchType.LAZY by default.
+	 * We use FetchMode.SUBSELECT for loading all elements of all collections.
 	 */
 	@JsonIgnore
-	@OneToMany(fetch = FetchType.LAZY)
-	@BatchSize(size = 25)
-	@Fetch(value = FetchMode.JOIN)
+	@OneToMany
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
 	private List<Client> clients;
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@BatchSize(size = 25)
-	@Fetch(value = FetchMode.SELECT)
+	/**
+	 * ManyToMany uses FetchType.LAZY by default.
+	 * We use FetchMode.SUBSELECT because we have limited quantity of roles,
+	 * and almost all of them are in the session.
+	 */
+	@ManyToMany
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "status_roles",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
@@ -89,8 +94,14 @@ public class Status implements Serializable {
 	@Column(name = "next_payment_offset")
 	private Integer nextPaymentOffset = 0;
 
+	/**
+	 * OneToMany uses FetchType.LAZY by default.
+	 * We use FetchMode.SUBSELECT because we have limited quantity of sortedStatuses,
+	 * and almost all of them are in the session.
+	 */
 	@JsonIgnore
 	@OneToMany(mappedBy = "sortedStatusesId.statusId")
+	@Fetch(value = FetchMode.SUBSELECT)
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
 

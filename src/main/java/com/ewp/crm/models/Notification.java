@@ -22,14 +22,22 @@ public class Notification implements Serializable {
 	@Column(name = "information")
 	private String information;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	/**
+	 * Optional set to false, client must always exist.
+	 * We use FetchType.LAZY for lazy initialization.
+	 */
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinTable(name = "client_notification",
 			joinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_CLIENT"))},
 			inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
 	@JsonIgnore
 	private Client client;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	/**
+	 * Optional set to false, user must always exist.
+	 * We use FetchType.LAZY for lazy initialization.
+	 */
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_notification",
 			joinColumns = {@JoinColumn(name = "notification_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION_USER"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_NOTIFICATION"))})
