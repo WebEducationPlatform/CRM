@@ -22,12 +22,18 @@ $('#mailingDate').daterangepicker({
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
 
-$('textarea').each(function () {
-    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+$('#reportArea').each(function () {
+    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;width:100%;');
 }).on('click', function () {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
 });
+
+function reportAreaSetHeight() {
+    let element = $('#reportArea');
+    element[0].style.height = 'auto';
+    element.height(element[0].scrollHeight);
+}
 
 function hideElements() {
     $('.hideable').hide();
@@ -53,6 +59,7 @@ $('#report-type-3').on('click', function () {
 });
 
 $('#load-data-button').on('click', function () {
+    hideAndClearTable();
     let wrap;
     if (selectedDateStart === undefined || selectedDateEnd === undefined) {
         let dates = $('#mailingDate').val().split(' - ');
@@ -81,7 +88,7 @@ $('#load-data-button').on('click', function () {
                 data: wrap,
                 traditional: true,
                 success: function (response) {
-                    $('#reportArea').val(response);
+                    showAndFillTable(response);
                 }
             });
             break;
@@ -98,7 +105,7 @@ $('#load-data-button').on('click', function () {
                 data: wrap,
                 traditional: true,
                 success: function (response) {
-                    $('#reportArea').val(response);
+                    showAndFillTable(response);
                 }
             });
             break;
@@ -115,14 +122,55 @@ $('#load-data-button').on('click', function () {
                 data: wrap,
                 traditional: true,
                 success: function (response) {
-                    $('#reportArea').val(response);
+                    showAndFillTable(response);
                 }
             });
             break;
     }
 });
 
+function hideAndClearTable() {
+    $('#report-area-holder').hide();
+    $('#reportArea').val('');
+    $('#client-cards-table').hide();
+    $('.client-row').remove();
+}
+
+function showAndFillTable(data) {
+    if (data['message']) {
+        $('#reportArea').val(data['message']);
+        $('#report-area-holder').show();
+        reportAreaSetHeight();
+    }
+    if (data['clients'].length > 0) {
+        let i = 1;
+        $.each(data['clients'], function fill() {
+            let client = $(this)[0];
+            $('#client-cards-table tr:last').after(
+                '<tr id="client_' + client["id"] + '" class="client-row">' +
+                '<td>' + i + '</td>' +
+                '<td>' + client["name"] + '</td>' +
+                '<td>' + client["lastName"] + '</td>' +
+                '<td>' + client["phoneNumber"] + '</td>' +
+                '<td>' + client["email"] + '</td>' +
+                '</tr>'
+            );
+            i++;
+        });
+        $('#client-cards-table').show();
+    }
+    window.scrollTo(0, 0);
+}
+
+$('#client-cards-table').on('click', '.client-row', function () {
+    let id = $(this)[0]['id'].split("_")[1];
+    var currentModal = $('#main-modal-window');
+    currentModal.data('clientId', id);
+    currentModal.modal('show');
+});
+
 $(document).ready(function () {
+    hideAndClearTable();
     let statusFromSelector = $('#statusFromSelect');
     let statusToSelector = $('#statusToSelect');
     let statusExcludeSelector = $('#statusExcludeSelect');

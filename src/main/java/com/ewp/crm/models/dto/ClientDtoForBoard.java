@@ -20,6 +20,7 @@ public class ClientDtoForBoard {
     private String city;
     private String country;
     private List<SocialProfile> socialProfiles;
+    private User ownerMentor;
 
     public ClientDtoForBoard() {
     }
@@ -31,9 +32,11 @@ public class ClientDtoForBoard {
                              boolean isHideCard,
                              List<String> clientEmails,
                              List<String> clientPhones,
-                             String skype, String city,
+                             String skype,
+                             String city,
                              String country,
-                             List<SocialProfile> socialProfiles) {
+                             List<SocialProfile> socialProfiles,
+                             User ownerMentor) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
@@ -45,6 +48,15 @@ public class ClientDtoForBoard {
         this.city = city;
         this.country = country;
         this.socialProfiles = socialProfiles;
+        this.ownerMentor = ownerMentor;
+    }
+
+    public User getOwnerMentor() {
+        return ownerMentor;
+    }
+
+    public void setOwnerMentor(User ownerMentor) {
+        this.ownerMentor = ownerMentor;
     }
 
     public Long getId() {
@@ -159,6 +171,7 @@ public class ClientDtoForBoard {
         clientDtoForBoard.city = client.getCity();
         clientDtoForBoard.country = client.getCountry();
         clientDtoForBoard.socialProfiles = client.getSocialProfiles();
+        clientDtoForBoard.ownerMentor = client.getOwnerMentor();
 
         return clientDtoForBoard;
     }
