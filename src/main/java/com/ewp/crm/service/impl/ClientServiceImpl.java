@@ -387,7 +387,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                     socialProfile.setSocialId(String.valueOf(id.get()));
                 } else {
                     client.setComment(env.getProperty("messaging.client.service.socials-not-found-comment") + socialProfile.getSocialId() + "\n" + client.getComment());
-                    client.deleteSocialProfile(socialProfile);
+//                    client.deleteSocialProfile(socialProfile);
+                    //TODO исправить ситуацию, когда не можем получить ID пользователя по ссылке vk
                 }
             }
         }
