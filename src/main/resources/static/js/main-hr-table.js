@@ -1,29 +1,65 @@
 //тут все при старте страницы
 $(document).ready(function () {
+//Показать пропавших студентов в статусах
+//     $('a#FIND_MISSING').on('click', function () {
+    let statuses;
     $.get("/rest/status")
-        .done(function (statusesList) {
-                drawStudentsInStatuses(drawStatuses(statusesList))
-            }
-        )
-});
-
-function drawStatuses(statuses) {
-    var studentStatuses = [];
-    for (var i in statuses)
-        if (statuses[i].createStudent === true) {
-            studentStatuses.push(statuses[i])
-            $('div[name=statuses]').append("<div id='" + statuses[i].name + "'/>")
-        }
-    return studentStatuses
-}
-
-function drawStudentsInStatuses(studentStatuses) {
-    for (var i in studentStatuses) {
-        $.get("/rest/status/" + studentStatuses[i].id)
-            .done(function (clients) {
-                for (var j in clients) {
-                    $('#' + studentStatuses[i].name).append("<div name='" + clients[j].name + "'/>")
+        .done(function (statusesFromServer) {
+            statuses = statusesFromServer;
+            $("#status-columns").children().remove();
+            $.each(statuses, function (i, status) {
+                if (status.createStudent === true) {
+                    $('<div></div>', {
+                        class: 'column ui-sortable',
+                        id: 'status-column' + status.id,
+                        text: status.name
+                    }).appendTo('#status-columns');
+                    drawMissingStudents(status);
                 }
             })
-    }
+        })
+});
+
+function drawMissingStudents(status) {
+    let students;
+    $.get("/rest/status/" + status.id)
+        .done(function (studentsInStatus) {
+            students = studentsInStatus;
+            $.each(students, function (i, student) {
+                if (student.email !== null) {
+                    $.get("http://localhost:8080/student/lost?email=" + student.email)
+                        .done(function (isLost) {
+                            if (isLost === true) {
+                                drawClientsPortlet(student, status);
+                            }
+                        })
+                }
+            })
+        });
+}
+
+function drawClientsPortlet(student, status) {
+    $('<div></div>', {
+        class: 'portlet common-modal panel panel-default',
+        id: student.id,
+        onmouseover: 'displayOption(' + student.id + ')',
+        value: student.id,
+        'data-card-id': student.id,
+    }).appendTo('#status-column' + status.id);
+
+    $('<div></div>', {
+        class: 'portlet-body',
+        'client-id': student.id,
+        name: 'client-' + student.id + '-modal',
+        onclick: 'showCurrentModal(' + student.id + ')',
+        text: student.name + " " + student.lastName
+    }).appendTo('div#' + student.id + '.portlet');
+
+}
+
+function showCurrentModal(studentId) {
+    var clientId = studentId;
+    var currentModal = $('#main-modal-window');
+    currentModal.data('clientId', clientId);
+    currentModal.modal('show');
 }

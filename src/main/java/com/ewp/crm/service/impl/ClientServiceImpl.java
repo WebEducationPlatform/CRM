@@ -273,8 +273,52 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return clientRepository.getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(statuses, socialProfileType);
     }
 
+    private Client clientFieldsTrimmer(Client client) {
+        if (client.getName() != null && !client.getName().isEmpty()) {
+            client.setName(client.getName().trim());
+        }
+        if (client.getMiddleName() != null && !client.getMiddleName().isEmpty()) {
+            client.setMiddleName(client.getMiddleName().trim());
+        }
+        if (client.getLastName() != null && !client.getLastName().isEmpty()) {
+            client.setLastName(client.getLastName().trim());
+        }
+        if (client.getSkype() != null && !client.getSkype().isEmpty()) {
+            client.setSkype(client.getSkype().trim());
+        }
+        if (client.getCity() != null && !client.getCity().isEmpty()) {
+            client.setCity(client.getCity().trim());
+        }
+        if (client.getCountry() != null && !client.getCountry().isEmpty()) {
+            client.setCountry(client.getCountry().trim());
+        }
+        if (!client.getClientPhones().isEmpty()) {
+            List<String> phones = new ArrayList<>();
+            for (String phone: client.getClientPhones()) {
+                if (phone != null && !phone.matches("\\s*")) {
+                    phones.add(phone.trim());
+                }
+            }
+            client.setClientPhones(phones);
+        }
+        if (!client.getClientEmails().isEmpty()) {
+            List<String> emails = new ArrayList<>();
+            for (String email: client.getClientEmails()) {
+                if ( email != null  && !email.matches("\\s*")) {
+                    emails.add(email.trim());
+                }
+            }
+            client.setClientEmails(emails);
+        }
+        if (client.getUniversity() != null && !client.getUniversity().isEmpty() ) {
+            client.setUniversity(client.getUniversity().trim());
+        }
+       return  client;
+    }
+
     @Override
     public void addClient(Client client) {
+        clientFieldsTrimmer(client);
         if (client.getLastName() == null) {
             client.setLastName("");
         }
@@ -382,6 +426,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     @Transactional
     public void updateClient(Client client) {
+        clientFieldsTrimmer(client);
         if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
             Client clientByMail = clientRepository.getClientByEmail(client.getEmail().get());
             if (clientByMail != null && !clientByMail.getId().equals(client.getId())) {
