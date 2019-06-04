@@ -15,9 +15,14 @@ $('a#FIND_MISSING').on('click', function () {
     $.get("/rest/status")
         .done(function (statusesFromServer) {
             statuses = statusesFromServer;
-            $(".portlet.common-modal.panel.panel-default").remove();
+            $("#status-columns").children().remove();
             $.each(statuses, function (i, status) {
                 if (status.createStudent === true) {
+                    $('<div></div>', {
+                        class: 'column ui-sortable',
+                        id: 'status-column' + status.id,
+                        text: status.name
+                    }).appendTo('#status-columns');
                     drawMissingStudents(status);
                 }
             })
