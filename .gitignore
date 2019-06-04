@@ -15,7 +15,6 @@ target/
 *.iml
 *.ipr
 *.log
-telegram.properties
 
 ### NetBeans ###
 nbproject/private/
