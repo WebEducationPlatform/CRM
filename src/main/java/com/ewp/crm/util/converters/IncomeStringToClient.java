@@ -229,10 +229,10 @@ public class IncomeStringToClient {
         Map<String, String> clientName = splitClientName(clientData.getOrDefault("Name", UNKNOWN_NAME_DEFAULT).replaceAll("~", " "));
         Client.Builder clientBuilder = new Client.Builder(clientName.getOrDefault("firstName", UNKNOWN_NAME_DEFAULT));
         if (clientData.containsKey("Email")) {
-            clientBuilder.email(clientData.get("Email").replace("~", EMPTY));
+            clientBuilder.email(clientData.get("Email").replace("~", EMPTY).replace("mailto:", EMPTY).replace("\"target=\"_blank", EMPTY));
         }
         if (clientData.containsKey("Phone")) {
-            clientBuilder.phone(clientData.get("Телефон").replace("~", EMPTY));
+            clientBuilder.phone(clientData.get("Phone").replace("~", EMPTY));
         }
         Client client = clientBuilder.lastName(clientName.getOrDefault("lastName", EMPTY)).build();
         client.setClientDescriptionComment(env.getProperty("messaging.client.description.java-learn-link"));
