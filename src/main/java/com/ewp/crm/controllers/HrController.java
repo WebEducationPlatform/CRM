@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/hr")
 @PreAuthorize("hasAnyAuthority('OWNER','HR')")
+@PropertySource("file:./slackbot.properties")
 public class HrController {
 	private static Logger logger = LoggerFactory.getLogger(HrController.class);
 
@@ -31,8 +33,10 @@ public class HrController {
 	private final StudentStatusService studentStatus;
 
 
-	@Value("${project.pagination.page-size.clients}")
-	private int pageSize;
+	@Value("${slackbot.ip}")
+	private String slackBotIp;
+	@Value("${slackbot.port}")
+	private String slackBotPort;
 
 	@Autowired
 	public HrController(StatusService statusService,
@@ -53,11 +57,13 @@ public class HrController {
 	public ModelAndView showAllStudents() {
 		ModelAndView modelAndView = new ModelAndView("main-client-table-hr");
 		SocialProfile socialProfile = new SocialProfile();
-		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
+		modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
+		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotPort", slackBotPort);
 		modelAndView.addObject("statuses", statusService.getAll());
+		modelAndView.addObject("projectProperties", propertiesService.get());
 		modelAndView.addObject("users", userService.getAll());
 		modelAndView.addObject("socialNetworkTypes", socialProfile.getAllSocialNetworkTypes());
-		modelAndView.addObject("projectProperties", propertiesService.get());
 		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
 		modelAndView.addObject("studentStatuses", studentStatus.getAll());
 		return modelAndView;
