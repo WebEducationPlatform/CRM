@@ -21,13 +21,15 @@ $(document).ready(function () {
 });
 
 function drawMissingStudents(status) {
+    let botIp = $("#slackbotIp").val();
+    let botPort = $("#slackbotPort").val();
     let students;
     $.get("/rest/status/" + status.id)
         .done(function (studentsInStatus) {
             students = studentsInStatus;
             $.each(students, function (i, student) {
                 if (student.email !== null) {
-                    $.get("http://localhost:8080/student/lost?email=" + student.email)
+                    $.get("http://" + botIp + ":" + botPort + "/student/lost?email=" + student.email)
                         .done(function (isLost) {
                             if (isLost === true) {
                                 drawClientsPortlet(student, status);
