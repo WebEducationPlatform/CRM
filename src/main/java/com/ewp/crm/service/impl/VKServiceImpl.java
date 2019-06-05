@@ -228,7 +228,7 @@ public class VKServiceImpl implements VKService {
         String uriGetMassages = vkApi + "messages.getHistory" +
                 "?user_id=" + clubId +
                 "&rev=0" +
-                "&version=" + version +
+                "&v=" + version +
                 "&access_token=" + technicalAccountToken;
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
@@ -236,15 +236,15 @@ public class VKServiceImpl implements VKService {
             HttpResponse response = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
-            JSONArray jsonMessages = json.getJSONArray("response");
+            JSONArray jsonMessages = json.getJSONObject("response").getJSONArray("items");
             List<String> resultList = new ArrayList<>();
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
-                if ((clubId.equals(jsonMessage.getString("uid"))) && (jsonMessage.getInt("read_state") == 0)) {
+                if ((clubId.equals(jsonMessage.getString("id"))) && (jsonMessage.getInt("read_state") == 0)) {
                     String messageBody = jsonMessage.getString("body");
                     resultList.add(messageBody);
                     if (messageBody.startsWith("Новая заявка")) {
-                        markAsRead(clubId, technicalAccountToken, jsonMessage.optString("mid"));
+                        markAsRead(clubId, technicalAccountToken, jsonMessage.optString("id"));
                     }
 
                 }
@@ -267,7 +267,7 @@ public class VKServiceImpl implements VKService {
                 "&group_id=" + vkConfig.getClubId() +
                 "&count=" + count +
                 "&rev=0" +
-                "&version=" + version +
+                "&v=" + version +
                 "&access_token=" + communityToken;
 
         try {
@@ -276,14 +276,14 @@ public class VKServiceImpl implements VKService {
             HttpResponse response = httpClient.execute(httpGetMessages);
             String result = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(result);
-            JSONArray jsonMessages = json.getJSONArray("response");
+            JSONArray jsonMessages = json.getJSONObject("response").getJSONArray("items");
 
             List<ChatMessage> resultList = new LinkedList<>();
 
             for (int i = 1; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
 
-                String id = jsonMessage.getString("mid");
+                String id = jsonMessage.getString("id");
                 String body = jsonMessage.getString("body");
                 Integer read_state = jsonMessage.getInt("read_state");
                 Long date = jsonMessage.getLong("date");
@@ -325,7 +325,7 @@ public class VKServiceImpl implements VKService {
         String uriGetMassages = vkApi + "messages.getConversations" +
                 "?filter=unread" +
                 "&group_id=" + vkConfig.getClubId() +
-                "&version=" + version +
+                "&v=" + version +
                 "&access_token=" + communityToken;
         try {
             HttpGet httpGetMessages = new HttpGet(uriGetMassages);
@@ -336,23 +336,20 @@ public class VKServiceImpl implements VKService {
 
             Map<Client, Integer> resultMap = new HashMap<>();
 
-            if (json.optJSONObject("response") == null) {
+            if (json.optJSONObject("response") == null || json.getJSONObject("response").optJSONArray("items") == null) {
                 return Optional.of(resultMap);
             }
 
-            JSONObject jsonMessages = json.getJSONObject("response");
-            Iterator<String> keys = jsonMessages.keys();
+            JSONArray jsonMessages = json.getJSONObject("response").getJSONArray("items");
 
-            while (keys.hasNext()) {
-                String key = keys.next();
-                if (jsonMessages.get(key) instanceof JSONObject) {
-                    Integer count = ((Integer) ((JSONObject) ((JSONObject) (jsonMessages.get(key))).get("conversation")).get("unread_count"));
-                    String userId = Integer.toString((Integer) ((JSONObject) ((JSONObject) ((JSONObject) (jsonMessages.get(key))).get("conversation")).get("peer")).get("id"));
+            for (int i = 0; i < jsonMessages.length(); i++) {
+                JSONObject object = jsonMessages.getJSONObject(i);
 
-                    Optional<Client> client = getVkLinkById(userId);
+                Integer count = ((Integer) ((JSONObject) object.get("conversation")).get("unread_count"));
+                String userId = Integer.toString((Integer) ((JSONObject) ((JSONObject) object.get("conversation")).get("peer")).get("id"));
+                Optional<Client> client = getVkLinkById(userId);
 
-                    client.ifPresent(x -> resultMap.put(x, count));
-                }
+                client.ifPresent(x -> resultMap.put(x, count));
             }
 
             return Optional.of(resultMap);
@@ -408,7 +405,7 @@ public class VKServiceImpl implements VKService {
             String screenName = url.substring(url.lastIndexOf("/") + 1);
             String urlGetMessages = vkApi + "users.get" +
                     "?user_ids=" + screenName +
-                    "&version=" + version +
+                    "&v=" + version +
                     "&access_token=" + communityToken;
             try {
                 HttpGet httpGetMessages = new HttpGet(urlGetMessages);
@@ -416,11 +413,11 @@ public class VKServiceImpl implements VKService {
                 HttpResponse httpResponse = httpClient.execute(httpGetMessages);
                 String entity = EntityUtils.toString(httpResponse.getEntity());
                 JSONArray users = new JSONObject(entity).getJSONArray("response");
-                result = Optional.of(users.getJSONObject(0).getLong("uid"));
+                result = Optional.of(users.getJSONObject(0).getLong("id"));
             } catch (IOException e) {
                 logger.error("Failed to connect to VK server", e);
             } catch (JSONException e) {
-//                logger.error("Can not read message from JSON", e);
+                logger.error("Can not read message from JSON", e);
 
                 // todo  исправить, ошибку при открытии карточки
             }
@@ -448,7 +445,7 @@ public class VKServiceImpl implements VKService {
         String urlGetMessages = vkApi + "groups.getMembers" +
                 "?group_id=" + groupId +
                 "&offset=" + offset +
-                "&version=" + version +
+                "&v=" + version +
                 "&access_token=" + communityToken;
         try {
             HttpGet httpGetMessages = new HttpGet(urlGetMessages);
@@ -691,14 +688,14 @@ public class VKServiceImpl implements VKService {
 
         String uriMarkAsRead = vkApi + "messages.markAsRead" +
                 "?peer_id=" + userId +
-                "&version=" + version +
+                "&v=" + version +
                 "&start_message_id=" + (startMessageId != null && !startMessageId.isEmpty() ? startMessageId : "0") +
                 "&access_token=" + token;
-
         HttpGet httpMarkMessages = new HttpGet(uriMarkAsRead);
         try {
             HttpClient httpClient = getHttpClient();
-            httpClient.execute(httpMarkMessages);
+            HttpResponse response = httpClient.execute(httpMarkMessages);
+            logger.info("Message successfully marked as read");
         } catch (IOException e) {
             logger.error("Failed to mark as read message from community", e);
         }
@@ -746,7 +743,7 @@ public class VKServiceImpl implements VKService {
         returnMap.put("id", Long.toString(id));
 
         String uriGetClient = vkApi + "users.get" +
-                "?version=" + version +
+                "?v=" + version +
                 "&user_id=" + id +
                 "&fields=" + additionalFields +
                 "&access_token=" + communityToken;
@@ -790,7 +787,7 @@ public class VKServiceImpl implements VKService {
         returnMap.put("id", Long.toString(id));
 
         String uriGetClient = vkApi + "groups.getById" +
-                "?version=" + version +
+                "?v=" + version +
                 "&groupID=" + id +
                 "&fields=" + additionalFields +
                 "&access_token=" + communityToken;
@@ -1411,7 +1408,7 @@ public class VKServiceImpl implements VKService {
     public Optional<String> getAllCountries() {
         StringBuilder uri = new StringBuilder(vkApi).append("database.getCountries")
                 .append("?access_token=").append(vkAppAccessToken)
-                .append("&version=").append(version)
+                .append("&v=").append(version)
                 .append("&need_all=1")
                 .append("&count=1000");
         HttpGet httpGetStat = new HttpGet(uri.toString());
@@ -1432,7 +1429,7 @@ public class VKServiceImpl implements VKService {
     public Optional<String> getCitiesByCountry(int countryId, String query) {
         StringBuilder uri = new StringBuilder(vkApi).append("database.getCities")
                 .append("?access_token=").append(vkAppAccessToken)
-                .append("&version=").append(version)
+                .append("&v=").append(version)
                 .append("&country_id=").append(countryId)
                 .append("&q=").append(query)
                 .append("&need_all=1")
