@@ -19,6 +19,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mail.ImapIdleChannelAdapter;
@@ -62,9 +63,15 @@ public class GoogleEmailConfig {
     private final SendNotificationService sendNotificationService;
     
     private static Logger logger = LoggerFactory.getLogger(GoogleEmailConfig.class);
+    private final Environment env;
 
     @Autowired
-    public GoogleEmailConfig(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory, ClientService clientService, StatusService statusService, IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService, VKService vkService, ProjectPropertiesService projectPropertiesService, SendNotificationService sendNotificationService) {
+    public GoogleEmailConfig(MailSendService prepareAndSend, MailConfig mailConfig, BeanFactory beanFactory,
+                             ClientService clientService, StatusService statusService,
+                             IncomeStringToClient incomeStringToClient, ClientHistoryService clientHistoryService,
+                             VKService vkService, ProjectPropertiesService projectPropertiesService,
+                             SendNotificationService sendNotificationService, Environment env
+    ) {
         this.beanFactory = beanFactory;
         this.clientService = clientService;
         this.statusService = statusService;
@@ -83,6 +90,7 @@ public class GoogleEmailConfig {
         mailJavaLearn = mailConfig.getMailJavalearn();
         this.clientHistoryService = clientHistoryService;
         this.projectPropertiesService = projectPropertiesService;
+        this.env = env;
     }
 
     private Properties javaMailProperties() {
@@ -132,7 +140,11 @@ public class GoogleEmailConfig {
                             prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                         }
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
-                        statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
+                            statusService.get("Постоплата2").ifPresent(client::setStatus);
+                        } else {
+                            statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                        }
                         clientService.addClient(client);
                         sendNotificationService.sendNewClientNotification(client, "gmail");
                         if (template != null) {
