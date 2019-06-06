@@ -27,9 +27,6 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
-                        <li class="link-cursor-pointer">
-                            <a class="glyphicon glyphicon-exclamation-sign" id="FIND_MISSING">Показать пропавших</a>
-                        </li>
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -128,18 +125,6 @@
                                 </th:block>
 
                             </th:block>
-
-
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
-                                   <span id="notification-new"
-
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                                </th:block>
-
-                            </th:block>
-
 
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
@@ -489,13 +474,6 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-
-    var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
-
-    /*]]>*/
-</script>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
 <script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>

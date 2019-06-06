@@ -302,7 +302,7 @@ public class ContractServiceImpl implements ContractService {
 
     private String getFilenameFromGoogleDrive(String link){
         int idStart = link.indexOf("d/");
-        int idFinish = link.indexOf("/ex");
+        int idFinish = link.indexOf("/e");
         return link.substring(idStart + 2,idFinish);
     }
 

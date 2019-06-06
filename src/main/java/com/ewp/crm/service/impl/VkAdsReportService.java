@@ -51,7 +51,7 @@ public class VkAdsReportService implements AdReportService {
                 .append("&period=day")
                 .append("&date_from=").append(dateFrom)
                 .append("&date_to=").append(dateTo)
-                .append("&version=").append(version)
+                .append("&v=").append(version)
                 .append("&access_token=").append(accessToken);
         return stb.toString();
     }
@@ -60,7 +60,7 @@ public class VkAdsReportService implements AdReportService {
     private String vkAdsBudgetUri() {
         StringBuilder stb = new StringBuilder(vkApi).append("ads.getBudget")
                 .append("?account_id=").append(adsClientId)
-                .append("&version=").append(version)
+                .append("&v=").append(version)
                 .append("&access_token=").append(accessToken);
         return stb.toString();
     }
@@ -99,7 +99,7 @@ public class VkAdsReportService implements AdReportService {
     //получение баланса рекламного кабинета вк
     public String getBalance() throws JSONException, IOException {
         JSONObject jsonBalance = getAdsFromVkApi(vkAdsBudgetUri);
-        return   jsonBalance.getString("response");
+        return jsonBalance.getString("response");
     }
 
     //получение отчета по потраченным средствам из рекламного кабинета ВК
