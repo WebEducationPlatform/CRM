@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:facebook.properties")
+@PropertySource("file:./facebook.properties")
 public class FacebookConfigImpl implements FacebookConfig {
 
     private String version;
