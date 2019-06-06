@@ -6,12 +6,13 @@ import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.ClientDtoForBoard;
+import com.ewp.crm.models.dto.StatusDtoForBoard;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.repository.interfaces.UserDAO;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,19 +33,30 @@ public class StatusServiceImpl implements StatusService {
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
 	private final RoleService roleService;
+	private final UserService userService;
+	private final UserDAO userDAO;
+	private final ClientRepository clientRepository;
 	private Environment env;
 
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
-							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
+	public StatusServiceImpl(StatusDAO statusDAO,
+							 ProjectPropertiesService propertiesService,
+							 SortedStatusesRepository sortedStatusesRepository,
+							 RoleService roleService,
+							 UserService userService,
+							 UserDAO userDAO,
+							 ClientRepository clientRepository,
 							 Environment env) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
 		this.roleService = roleService;
+		this.userService = userService;
+		this.userDAO = userDAO;
+		this.clientRepository = clientRepository;
 		this.env = env;
 	}
 
@@ -216,5 +229,57 @@ public class StatusServiceImpl implements StatusService {
 			sortedStatus.setSortingType(newOrder);
 			sortedStatusesRepository.save(sortedStatus);
 		}
+	}
+
+	@Override
+	public List<StatusDtoForBoard> getStatusesDtoForBoardWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role) {
+		List<StatusDtoForBoard> statusDtoForBoards = new ArrayList<>();
+		List<Long> stasusesId;
+		if (role.equals(roleService.getRoleByName("OWNER"))) {
+			stasusesId = statusDAO.getAllStatusesId();
+		} else {
+			stasusesId = statusDAO.getAllStatusByRole(role.getRoleName());
+		}
+		for (Long statusId : stasusesId) {
+			List<Long> clientsId;
+			List<ClientDtoForBoard> clientsDtoForBoards = new ArrayList<>();
+			StatusDtoForBoard newStatusDTO = new StatusDtoForBoard();
+			newStatusDTO.setId(statusId);
+			newStatusDTO.setName(statusDAO.getStatusNameById(statusId));
+			newStatusDTO.setInvisible(statusDAO.getStatusIsInvisibleById(statusId));
+			newStatusDTO.setCreateStudent(statusDAO.getCreateStudentById(statusId));
+			newStatusDTO.setPosition(statusDAO.getPositionById(statusId));
+			newStatusDTO.setRole(statusDAO.getRoleById(statusId));
+			newStatusDTO.setTrialOffset(statusDAO.getTrialOffsetById(statusId));
+			newStatusDTO.setNextPaymentOffset(statusDAO.getNextPaymentOffsetById(statusId));
+			//Достаем вообще есть ли тип по которому сравнивают это статус
+			Optional<String> sortedStatusTypeName = sortedStatusesRepository.findSortedStatusTypeByStatusIdAndUserId(statusId, userFromSession.getId());
+			if (sortedStatusTypeName.isPresent()) {
+				clientsId = clientService.getOrderedClientsIdInStatus(statusId, sortedStatusTypeName.get(), userFromSession);
+			} else {
+				clientsId = clientService.getClientsIdFromStatus(statusId);
+			}
+			//Формируем клиентов
+			for (Long clientId : clientsId) {
+				ClientDtoForBoard newClientDTOForBoard = new ClientDtoForBoard(clientId);
+				newClientDTOForBoard.setName(clientRepository.getClientNameById(clientId));
+				newClientDTOForBoard.setLastName(clientRepository.getClientLastNameById(clientId));
+				newClientDTOForBoard.setHideCard(clientRepository.getClientHideById(clientId));
+
+				BigInteger ownerId = clientRepository.getClientOwnerUserIdById(clientId);
+				if (ownerId != null) {
+					newClientDTOForBoard.setOwnerUser(userDAO.getById(ownerId.longValue()));
+				}
+
+				BigInteger mentorId = clientRepository.getClientOwnerMentorIdById(clientId);
+				if (mentorId != null) {
+					newClientDTOForBoard.setOwnerMentor(userDAO.getById(mentorId.longValue()));
+				}
+				clientsDtoForBoards.add(newClientDTOForBoard);
+			}
+			newStatusDTO.setClients(clientsDtoForBoards);
+			statusDtoForBoards.add(newStatusDTO);
+		}
+		return statusDtoForBoards;
 	}
 }

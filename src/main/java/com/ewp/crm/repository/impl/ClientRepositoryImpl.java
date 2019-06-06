@@ -4,6 +4,8 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.interfaces.ClientRepositoryCustom;
+import org.hibernate.SQLQuery;
+import org.hibernate.type.LongType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -521,5 +523,76 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .setParameter("receiver", receiver)
                 .executeUpdate();
     }
-}
 
+    @Override
+    public List<Long> getClientsIdInStatusOrderedByRegistration(Long idStatus, String order, boolean isAdmin, User user) {
+        String stringQuery = isAdmin ? "SELECT user_id FROM status_clients JOIN client WHERE client_id = user_id AND status_id = :id ORDER BY user_id" :
+                "SELECT user_id FROM status_client JOIN client WHERE client_id = user_id AND status_id = :statusId AND owner_user_id = :userId OR owner_user_id = NULL ORDER BY user_id";
+
+        if (order.equals("NEW_FIRST")) {
+            stringQuery += " DESC";
+        }
+        Query query = isAdmin ?
+                entityManager.createNativeQuery(stringQuery)
+                        .setParameter("id", idStatus):
+                entityManager.createQuery(stringQuery)
+                        .setParameter("statusId", idStatus)
+                        .setParameter("userId", user.getId());
+        query.unwrap(SQLQuery.class).addScalar("user_id", LongType.INSTANCE);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Long> getClientsIdInStatusOrderedByHistory(Long idStatus, String order, boolean isAdmin, User user) {
+        String stringQuery = isAdmin ? "SELECT user_id FROM status_clients INNER JOIN client INNER JOIN history_client WHERE client.client_id = user_id AND history_client.client_id = user_id AND status_id = :statusId GROUP BY user_id ORDER BY MAX(history_id)" :
+                "SELECT user_id FROM status_clients INNER JOIN client INNER JOIN history_client WHERE client.client_id = user_id AND history_client.client_id = user_id AND status_id = :statusId AND owner_user_id = :ownerUserId OR owner_user_id = null GROUP BY user_id ORDER BY MAX(history_id)";
+        if (order.equals("NEW_CHANGES_FIRST")) {
+            stringQuery += " DESC";
+        }
+
+        Query query = isAdmin ?
+                entityManager.createNativeQuery(stringQuery)
+                        .setParameter("statusId", idStatus) :
+                entityManager.createQuery(stringQuery)
+                        .setParameter("statusId", idStatus)
+                        .setParameter("ownerUserId", user.getId());
+        query.unwrap(SQLQuery.class).addScalar("user_id", LongType.INSTANCE);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Long> getClientsIdFromStatus(Long statusId) {
+        String query = "SELECT user_id FROM status_clients WHERE status_id = :id";
+        return entityManager.createNativeQuery(query).unwrap(SQLQuery.class).addScalar("user_id", LongType.INSTANCE).setParameter("id",statusId).getResultList();
+    }
+
+    @Override
+    public String getClientNameById(Long id) {
+        String query = "SELECT first_name FROM client WHERE client_id = :id";
+        return (String) entityManager.createNativeQuery(query).setParameter("id",id).getSingleResult();
+    }
+
+    @Override
+    public String getClientLastNameById(Long id) {
+        String query = "SELECT last_name FROM client WHERE client_id = :id";
+        return  (String) entityManager.createNativeQuery(query).setParameter("id",id).getSingleResult();
+    }
+
+    @Override
+    public boolean getClientHideById(Long id) {
+        String query = "SELECT hide_card FROM client WHERE client_id = :id";
+        return  (boolean) entityManager.createNativeQuery(query).setParameter("id",id).getSingleResult();
+    }
+
+    @Override
+    public BigInteger getClientOwnerUserIdById(Long id) {
+        String query = "SELECT owner_user_id FROM client WHERE client_id = :id";
+        return  (BigInteger) entityManager.createNativeQuery(query).setParameter("id",id).getSingleResult();
+    }
+
+    @Override
+    public BigInteger getClientOwnerMentorIdById(Long id) {
+        String query = "SELECT owner_mentor_id FROM client WHERE client_id = :id";
+        return  (BigInteger)entityManager.createNativeQuery(query).setParameter("id",id).getSingleResult();
+    }
+}

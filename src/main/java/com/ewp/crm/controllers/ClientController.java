@@ -101,40 +101,45 @@ public class ClientController {
         ModelAndView modelAndView = null;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER")));
+        Role roleOwner = roleService.getRoleByName("OWNER");
+        Role roleAdmin = roleService.getRoleByName("ADMIN");
+        Role roleMentor = roleService.getRoleByName("MENTOR");
+        Role roleUser = roleService.getRoleByName("USER");
+        if (sessionRoles.contains(roleOwner)) {
+            statuses = statusService.getStatusesDtoForBoardWithSortedClientsByRole(userFromSession, roleOwner);
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
-        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN")));
+        if (sessionRoles.contains(roleAdmin)
+                & !(sessionRoles.contains(roleOwner))) {
+            statuses = statusService.getStatusesDtoForBoardWithSortedClientsByRole(userFromSession, roleAdmin);
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR")));
+        if (sessionRoles.contains(roleMentor)
+                & !(sessionRoles.contains(roleAdmin) || sessionRoles.contains(roleOwner))) {
+            statuses = statusService.getStatusesDtoForBoardWithSortedClientsByRole(userFromSession, roleMentor);
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
-        else if(sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+        else if(sessionRoles.contains(roleUser)
+                & !(sessionRoles.contains(roleMentor)
+                || sessionRoles.contains(roleAdmin) || sessionRoles.contains(roleOwner))){
+            statuses = statusService.getStatusesDtoForBoardWithSortedClientsByRole(userFromSession, roleUser);
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
         List<Role> roles = roleService.getAll();
-        roles.remove(roleService.getRoleByName("OWNER"));
+        roles.remove(roleOwner);
         statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
-        modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
+        modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleMentor)).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) || sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
+        if (sessionRoles.contains(roleOwner) || sessionRoles.contains(roleAdmin)) {
             modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
             modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
             modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));

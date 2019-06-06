@@ -206,9 +206,7 @@
                      th:attr="client-id=${client.id} "
                      th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
 
-                    <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
-                    ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
-                    ${client.country}" hidden="hidden">
+                    <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName}" hidden="hidden">
                     </div>
 
                 </div>

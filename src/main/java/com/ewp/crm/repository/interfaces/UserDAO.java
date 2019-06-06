@@ -19,4 +19,6 @@ public interface UserDAO extends CommonGenericRepository<User> {
 
 	@Query("SELECT user FROM User user WHERE user.id = :userId")
 	List<User> getUserByVkToken(@Param("userId") long id);
+
+	User getById(Long Id);
 }

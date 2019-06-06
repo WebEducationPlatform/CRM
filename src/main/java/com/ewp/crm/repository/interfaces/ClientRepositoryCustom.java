@@ -3,6 +3,7 @@ package com.ewp.crm.repository.interfaces;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -67,4 +68,20 @@ public interface ClientRepositoryCustom {
 	List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
+
+	List<Long> getClientsIdInStatusOrderedByHistory(Long idStatus, String order, boolean isAdmin, User user);
+
+	List<Long> getClientsIdFromStatus(Long statusId);
+
+	String getClientNameById(Long id);
+
+	String getClientLastNameById(Long id);
+
+	boolean getClientHideById(Long id);
+
+	BigInteger getClientOwnerUserIdById(Long id);
+
+	BigInteger getClientOwnerMentorIdById(Long id);
+
+	List<Long> getClientsIdInStatusOrderedByRegistration(Long statusId, String order, boolean isAdmin, User user);
 }

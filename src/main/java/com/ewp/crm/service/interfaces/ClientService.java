@@ -4,7 +4,6 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,4 +81,8 @@ public interface ClientService extends CommonService<Client> {
 	Optional<ClientHistory> getLastHistory(Client client);
 
 	void transferClientsBetweenOwners(User sender, User receiver);
+
+	List<Long> getOrderedClientsIdInStatus(Long statusId, String order, User user);
+
+	List<Long> getClientsIdFromStatus(Long statusId);
 }

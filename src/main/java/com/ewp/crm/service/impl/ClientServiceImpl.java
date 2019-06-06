@@ -591,4 +591,25 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         clientRepository.transferClientsBetweenOwners(sender, receiver);
         logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
     }
+
+    @Override
+    public List<Long> getOrderedClientsIdInStatus(Long statusId, String order, User user) {
+        List<Long> orderedIdClients;
+        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
+        if (order.equals("NEW_FIRST") || order.equals("OLD_FIRST")) {
+            orderedIdClients = clientRepository.getClientsIdInStatusOrderedByRegistration(statusId, order, isAdmin, user);
+            return orderedIdClients;
+        }
+        if (order.equals("NEW_CHANGES_FIRST") || order.equals("OLD_CHANGES_FIRST")) {
+            orderedIdClients = clientRepository.getClientsIdInStatusOrderedByHistory(statusId, order, isAdmin, user);
+            return orderedIdClients;
+        }
+        logger.error("Error with sorting clients dto ids");
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Long> getClientsIdFromStatus(Long statusId) {
+        return clientRepository.getClientsIdFromStatus(statusId);
+    }
 }

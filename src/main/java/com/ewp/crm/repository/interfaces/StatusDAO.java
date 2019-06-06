@@ -26,4 +26,30 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
 
 	@Query("SELECT s FROM Status s WHERE s.createStudent = true")
 	List<Status> getAllStatusesForStudents();
+
+	@Query("SELECT s.id FROM Status s")
+	List<Long> getAllStatusesId();
+
+	@Query(value = "SELECT status_id FROM status_roles where role_id = (SELECT id from role where role_name = ?1)", nativeQuery = true)
+	List<Long> getAllStatusByRole(String roleName);
+
+	String getStatusNameById(Long id);
+
+	@Query(value = "SELECT is_invisible FROM status WHERE status_id = ?1", nativeQuery = true)
+	boolean getStatusIsInvisibleById(Long id);
+
+	@Query(value = "SELECT position FROM status WHERE status_id = ?1", nativeQuery = true)
+	Long getPositionById(Long id);
+
+	@Query("SELECT s.role FROM Status s WHERE s.id = ?1")
+	List<Role> getRoleById(Long id);
+
+	@Query(value = "SELECT create_student FROM status WHERE status_id = ?1", nativeQuery = true)
+	Boolean getCreateStudentById(Long id);
+
+	@Query(value = "SELECT trial_offset FROM status WHERE status_id = ?1", nativeQuery = true)
+	Integer getTrialOffsetById(Long id);
+
+	@Query(value = "SELECT next_payment_offset FROM status WHERE status_id = ?1", nativeQuery = true)
+	Integer getNextPaymentOffsetById(Long id);
 }
