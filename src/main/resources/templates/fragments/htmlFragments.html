@@ -32,6 +32,7 @@
                     <li><a href="/client">Доска</a></li>
                     <li><a href="/client/allClients">Все клиенты</a></li>
                     <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
+                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Пропавшие студенты</a></li>
                     <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER')">Статусы обучения</a></li>
                     <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Рассылка</a></li>
                     <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Шаблоны</a></li>
@@ -227,7 +228,7 @@
                 <div class="panel-heading">
                     <span><h4>Комментарии:</h4></span>
                     <div class="form-group comment-div">
-                <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
+                        <textarea class="form-control textcomplete graur-class" th:id="'new-text-for-client'"
                           placeholder="Напишите комментарий"></textarea>
                     </div>
                     <ul class="list-group main-modal-comment">

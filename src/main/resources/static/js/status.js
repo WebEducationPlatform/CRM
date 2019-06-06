@@ -8,14 +8,7 @@ $('.delete-client').on('click', function (event) {
         url: 'rest/client/' + deleteId,
         data: formData,
         success: function (client) {
-            console.log(client.notifications);
-            if (client.notifications.length != 0) {
-                $('#delete-client-btn').attr('onclick', 'deleteClientStatus()');
-                var deleteModal = $('#delete-client-modal');
-                deleteModal.modal('show');
-            } else {
-                deleteClientStatus();
-            }
+            deleteClientStatus();
         }
     });
 
@@ -78,7 +71,6 @@ $(document).on("show.bs.dropdown", ".statuses-by-dropdown", function () {
     $(this).find(".statuses-content").html(data.html());
 });
 
-
 //скрытие карточки в скрытый статус
 var invisibleId;
 var statusId;
@@ -90,19 +82,10 @@ $('.invisible-client').on('click', function (event) {
         type: 'GET',
         url: 'rest/client/' + invisibleId,
         data: formData,
-        success: function (client) {
-            console.log(client.notifications);
-            if (client.notifications.length != 0) {
-                console.log(client.notifications)
-                $('#delete-client-btn').attr('onclick', 'invisible()');
-                var deleteModal = $('#delete-client-modal');
-                deleteModal.modal('show');
-            } else {
-                invisible();
-            }
+        success: function () {
+            invisible();
         }
     });
-
 });
 
 function invisible() {
@@ -125,8 +108,8 @@ function invisible() {
             alert('Не задан статус по-умолчанию для нового студента!');
         }
     });
-
 }
+
 //Удаление статуса и карточек
 var deleteStatusId;
 $(".glyphicon-remove-circle").on("click", function dStatus() {

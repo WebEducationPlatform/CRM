@@ -221,7 +221,7 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
-    private Client() {}
+    public Client() {}
 
     private Client(Builder builder) {
         name = builder.name;
@@ -686,12 +686,28 @@ public class Client implements Serializable, Diffable<Client> {
             this.email = email;
         }
 
+        public Builder(String name) {
+            this.state = State.NEW;
+            this.dateOfRegistration = ZonedDateTime.now();
+            this.name = name;
+        }
+
         public Client build() {
             return new Client(this);
         }
 
         public Builder lastName(String lastName) {
             this.lastName = lastName;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder phone(String phone) {
+            this.phone = phone;
             return this;
         }
 
