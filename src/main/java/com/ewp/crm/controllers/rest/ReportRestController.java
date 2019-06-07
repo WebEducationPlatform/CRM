@@ -5,6 +5,7 @@ import com.ewp.crm.service.interfaces.MailSendService;
 import com.ewp.crm.service.interfaces.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,36 +36,35 @@ public class ReportRestController {
         return ZonedDateTime.of(LocalDate.parse(date, DateTimeFormatter.ISO_DATE).atStartOfDay(), ZoneId.systemDefault());
     }
 
-    @GetMapping(value = "/count")
+    @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity count(@RequestParam String firstReportDate,
                                 @RequestParam String lastReportDate,
                                 @RequestParam Long fromId,
                                 @RequestParam Long toId,
                                 @RequestParam(required = false) List<Long> excludeIds) {
-        int result = reportService.countChangedStatusClients(
+        return ResponseEntity.ok(reportService.getAllChangedStatusClientsByDate(
                 getZonedDateTimeFromString(firstReportDate),
                 getZonedDateTimeFromString(lastReportDate),
                 fromId,
                 toId,
-                excludeIds);
-        return ResponseEntity.ok(result);
+                excludeIds));
     }
 
-    @GetMapping(value = "/countNew")
+    @GetMapping(value = "/countNew", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity countNew(@RequestParam String firstReportDate,
                                    @RequestParam String lastReportDate,
                                    @RequestParam(required = false) List<Long> excludeIds) {
-        return ResponseEntity.ok(reportService.countNewClients(
+        return ResponseEntity.ok(reportService.getAllNewClientsByDate(
                 getZonedDateTimeFromString(firstReportDate),
                 getZonedDateTimeFromString(lastReportDate),
                 excludeIds));
     }
 
-    @GetMapping(value = "/countFirstPayments")
+    @GetMapping(value = "/countFirstPayments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity countFirstPayments(@RequestParam String firstReportDate,
                                              @RequestParam String lastReportDate,
                                              @RequestParam(required = false) List<Long> excludeIds) {
-        return ResponseEntity.ok(reportService.countFirstPaymentClients(
+        return ResponseEntity.ok(reportService.getAllFirstPaymentClientsByDate(
                 getZonedDateTimeFromString(firstReportDate),
                 getZonedDateTimeFromString(lastReportDate),
                 excludeIds));

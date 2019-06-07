@@ -7,6 +7,8 @@ import com.google.api.client.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
@@ -15,11 +17,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
+@PropertySource(value = "file:./report.properties", encoding = "UTF-8")
 public class ReportServiceImpl implements ReportService {
 
     private static Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
@@ -28,16 +32,21 @@ public class ReportServiceImpl implements ReportService {
     private final StatusService statusService;
     private final ProjectProperties projectProperties;
     private final ClientService clientService;
+    private final String defaultTemplate;
+    private final String allNewStudentsByDateTemplate;
 
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository,
                              StatusService statusService,
                              ProjectPropertiesService projectPropertiesService,
-                             ClientService clientService) {
+                             ClientService clientService,
+                             Environment env) {
         this.clientRepository = clientRepository;
         this.statusService = statusService;
         this.projectProperties = projectPropertiesService.getOrCreate();
         this.clientService = clientService;
+        this.defaultTemplate = env.getProperty("report.default.template");
+        this.allNewStudentsByDateTemplate = env.getProperty("report.new.clients.by.date.template");
     }
 
     /**
@@ -48,17 +57,19 @@ public class ReportServiceImpl implements ReportService {
      * @return количество найденных клиентов
      */
     @Override
-    public String countNewClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
+    public Report getAllNewClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
         List<ClientHistory.Type> historyTypes = Arrays.asList(ClientHistory.Type.ADD, ClientHistory.Type.SOCIAL_REQUEST);
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
         int quantityAllNewClients = clients.size();
-        clients.removeIf(client -> (
+        List<Client> clientsWithDuplicateRequest = new ArrayList<>(clients);
+        clientsWithDuplicateRequest.removeIf(client -> (
                 client.getClientDescriptionComment() != null
                         && client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")));
-        return "Новых клиентов " + quantityAllNewClients + ", из них " + (quantityAllNewClients - clients.size()) + " оставили посторную заявку.";
+        String message = MessageFormat.format(allNewStudentsByDateTemplate, quantityAllNewClients, (quantityAllNewClients - clientsWithDuplicateRequest.size()));
+        return new Report(message, clients);
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
@@ -108,8 +119,8 @@ public class ReportServiceImpl implements ReportService {
      */
 
     @Override
-    public int countChangedStatusClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds) {
-        int result = 0;
+    public Report getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds) {
+        List<Client> result = new ArrayList<>();
         Optional<Status> fromStatus = statusService.get(fromStatusId);
         Optional<Status> toStatus = statusService.get(toStatusId);
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
@@ -146,7 +157,7 @@ public class ReportServiceImpl implements ReportService {
                         }
                     } else {
                         if (isNewClient) {
-                            result++;
+                            result.add(client);
                             continue;
                         }
                     }
@@ -159,12 +170,13 @@ public class ReportServiceImpl implements ReportService {
                         }
                     }
                     if (goodResult) {
-                        result++;
+                        result.add(client);
                     }
                 }
             }
         }
-        return result;
+        String message = MessageFormat.format(defaultTemplate, result.size());
+        return new Report(message, result);
     }
 
 
@@ -176,8 +188,8 @@ public class ReportServiceImpl implements ReportService {
      * @return количество студентов, впервые совершивших оплату в заданный период
      */
     @Override
-    public long countFirstPaymentClients(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
-        long result = 0;
+    public Report getAllFirstPaymentClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
+        List<Client> result = new ArrayList<>();
         // Получаем статус, в который переходит клиент после первой оплаты
         long defaultFirstPayStatusId = projectProperties.getClientFirstPayStatus();
         Optional<Status> inProgressStatus = statusService.get(defaultFirstPayStatusId);
@@ -191,11 +203,12 @@ public class ReportServiceImpl implements ReportService {
             // Для каждого клиента проверяем, впервые ли ему присвоен данный статус
             for (Client client : clients) {
                 if (!clientRepository.hasClientBeenInStatusBefore(client.getId(), reportStartDate, inProgressStatus.get().getName())) {
-                    result++;
+                    result.add(client);
                 }
             }
         }
-        return result;
+        String message = MessageFormat.format(defaultTemplate, result.size());
+        return new Report(message, result);
     }
 
     @Override
