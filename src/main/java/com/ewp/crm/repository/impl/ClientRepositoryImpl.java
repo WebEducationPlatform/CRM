@@ -18,7 +18,10 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepositoryCustom {
@@ -180,25 +183,93 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 .getResultList();
     }
 
+    /*
+    Был ли клиент когда-либо в заданных статусах
+     */
     @Override
-    public List<Client> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title) {
-        String query = "SELECT DISTINCT c FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%: ',:title,'%')";
+    public boolean hasClientEverBeenInStatus(Client client, List<Status> statuses, List<ClientHistory.Type> types) {
+        boolean result = false;
+        if (!statuses.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < statuses.size(); i++) {
+                Status status = statuses.get(i);
+                sb.append("(p.title LIKE CONCAT('%").append(status.getName()).append("%'))");
+                if (i < statuses.size() - 1) {
+                    sb.append(" OR ");
+                }
+            }
+            String query = "SELECT p FROM Client c JOIN c.history p WHERE (c.id = :id AND p.type IN :types AND (" + sb.toString() + "))";
+            result = !entityManager.createQuery(query)
+                    .setParameter("types", types)
+                    .setParameter("id", client.getId())
+                    .setMaxResults(1)
+                    .getResultList()
+                    .isEmpty();
+        }
+        return result;
+    }
+
+    /*
+    Был ли клиент в определенном статусе в промежутке между двумя датами?
+     */
+    @Override
+    public boolean hasClientChangedStatusFromThisToAnotherInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title) {
+        List<ClientHistory> histories;
+        String query = "SELECT p FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('% из ',:title,'%')";
         if (excludeStatuses != null && !excludeStatuses.isEmpty()) {
             query += " AND c.status NOT IN :excludes";
-            return entityManager.createQuery(query)
+            histories = entityManager.createQuery(query)
+                    .setParameter("firstDate", firstDate)
+                    .setParameter("lastDate", lastDate)
+                    .setParameter("types", types)
+                    .setParameter("title", title)
+                    .setParameter("excludes", excludeStatuses)
+                    .setMaxResults(1)
+                    .getResultList();
+        } else {
+            histories = entityManager.createQuery(query)
+                    .setParameter("firstDate", firstDate)
+                    .setParameter("lastDate", lastDate)
+                    .setParameter("types", types)
+                    .setParameter("title", title)
+                    .setMaxResults(1)
+                    .getResultList();
+        }
+        return !histories.isEmpty();
+    }
+
+    /*
+    Получаем все переходы клиента в определенный статус в заданном интервале дат
+     */
+    @Override
+    public Map<Client, List<ClientHistory>> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title) {
+        List<ClientHistory> histories;
+        String query = "SELECT p FROM Client c JOIN c.history p WHERE p.date >= :firstDate AND p.date <= :lastDate AND p.type IN :types AND p.title LIKE CONCAT('%: ',:title,'%')";
+        if (excludeStatuses != null && !excludeStatuses.isEmpty()) {
+            query += " AND c.status NOT IN :excludes";
+            histories = entityManager.createQuery(query)
                     .setParameter("firstDate", firstDate)
                     .setParameter("lastDate", lastDate)
                     .setParameter("types", types)
                     .setParameter("title", title)
                     .setParameter("excludes", excludeStatuses)
                     .getResultList();
+        } else {
+            histories = entityManager.createQuery(query)
+                    .setParameter("firstDate", firstDate)
+                    .setParameter("lastDate", lastDate)
+                    .setParameter("types", types)
+                    .setParameter("title", title)
+                    .getResultList();
         }
-        return entityManager.createQuery(query)
-                .setParameter("firstDate", firstDate)
-                .setParameter("lastDate", lastDate)
-                .setParameter("types", types)
-                .setParameter("title", title)
-                .getResultList();
+        Map<Client, List<ClientHistory>> result = new HashMap<>();
+        for (ClientHistory history :histories) {
+            if (!result.containsKey(history.getClient())) {
+                result.put(history.getClient(), new ArrayList<>());
+            }
+            result.get(history.getClient()).add(history);
+        }
+        return result;
     }
 
     @Override
