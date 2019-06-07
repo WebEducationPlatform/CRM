@@ -29,7 +29,7 @@ function drawMissingStudents(status) {
             students = studentsInStatus;
             $.each(students, function (i, student) {
                 if (student.email !== null) {
-                    $.get("http://" + botIp + ":" + botPort + "/student/lost?email=" + student.email)
+                    $.get("https://" + botIp + ":" + botPort + "/student/lost?email=" + student.email)
                         .done(function (isLost) {
                             if (isLost === true) {
                                 drawClientsPortlet(student, status);

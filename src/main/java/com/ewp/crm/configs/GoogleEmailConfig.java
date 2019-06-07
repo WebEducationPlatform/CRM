@@ -105,6 +105,9 @@ public class GoogleEmailConfig {
 
     @Bean
     public ImapIdleChannelAdapter mailAdapter() {
+        // Если стоит пароль по умолчанию * (из gmail.properties), то не зпускаем службу слежки за почтой
+        if (password.equals("*")) return null;
+        
         ImapMailReceiver mailReceiver = new ImapMailReceiver("imaps://" + login + ":" + password + "@" + imapServer);
         mailReceiver.setJavaMailProperties(javaMailProperties());
         mailReceiver.setShouldDeleteMessages(false);
@@ -123,7 +126,8 @@ public class GoogleEmailConfig {
 
         return imapIdleChannelAdapter;
     }
-
+    
+    @Bean
     public DirectChannel directChannel() {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
