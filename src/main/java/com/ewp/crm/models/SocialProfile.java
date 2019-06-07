@@ -2,9 +2,15 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -59,7 +65,8 @@ public class SocialProfile implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("{type = '%s', socialId = '%s'}", socialNetworkType.getName(), socialId);
+		return String.format("{type = '%s', socialId = '%s'}",
+				Objects.isNull(socialNetworkType) ? SocialNetworkType.UNKNOWN.getName() : socialNetworkType.getName(), socialId);
 	}
 
 	public long getId() {
@@ -87,7 +94,7 @@ public class SocialProfile implements Serializable {
 	}
 
 	public List<SocialNetworkType> getAllSocialNetworkTypes(){
-		return new ArrayList<SocialNetworkType>(EnumSet.allOf(SocialNetworkType.class));
+		return new ArrayList<>(EnumSet.allOf(SocialNetworkType.class));
 	}
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
