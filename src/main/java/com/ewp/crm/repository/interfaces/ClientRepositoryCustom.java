@@ -5,6 +5,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface ClientRepositoryCustom {
 
@@ -48,7 +49,11 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 
-	List<Client> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
+	boolean hasClientEverBeenInStatus(Client client, List<Status> statuses, List<ClientHistory.Type> types);
+
+	boolean hasClientChangedStatusFromThisToAnotherInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
+
+	Map<Client, List<ClientHistory>> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
 
 	List<Client> getClientByHistoryTimeIntervalAndHistoryType(ZonedDateTime firstDay, ZonedDateTime lastDay, List<ClientHistory.Type> types, List<Status> excludeStatuses);
 

@@ -1,23 +1,19 @@
 package com.ewp.crm.models;
 
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
-import com.ewp.crm.util.patterns.ValidationPattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.*;
-import org.hibernate.validator.constraints.Email;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -29,6 +25,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Entity
 @Table(name = "client")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Client implements Serializable, Diffable<Client> {
 
     @Id
