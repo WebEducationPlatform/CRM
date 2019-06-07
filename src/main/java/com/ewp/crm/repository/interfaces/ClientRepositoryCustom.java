@@ -49,7 +49,7 @@ public interface ClientRepositoryCustom {
 
 	List<ClientHistory> getClientByTimeInterval(int days);
 
-	boolean hasClientEverBeenInStatus(Client client, List<Status> statuses, List<ClientHistory.Type> types);
+    List<ClientHistory> getAllHistoriesByClientStatusChanging(Client client, List<Status> statuses, List<ClientHistory.Type> types);
 
 	boolean hasClientChangedStatusFromThisToAnotherInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
 
