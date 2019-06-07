@@ -2,7 +2,10 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.ReportService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.google.api.client.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,35 +166,65 @@ public class ReportServiceImpl implements ReportService {
      * @return
      */
     private boolean isFakeChangingStatusBy24hrRule(ClientHistory clientHistory, ClientHistory beforeHistory) {
+        // Получаем имя статуса, из которого клиент перешел в искомый статус
+        Optional<String> beforeStatus = parseStatusNameFromHistoryTitle(beforeHistory.getTitle());
+        return beforeStatus.map(s -> isFakeChangingStatusBy24hrRule(clientHistory, s)).orElse(true);
+    }
+
+    /**
+     * Проверяет, что клиент не вернулся в исходный статус в течение 24 часов с момента перемещения
+     *
+     * @param clientHistory
+     * @param beforeStatusName
+     * @return
+     */
+    private boolean isFakeChangingStatusBy24hrRule(ClientHistory clientHistory, String beforeStatusName) {
         Client client = clientHistory.getClient();
         List<ClientHistory.Type> historyTypes = Collections.singletonList(ClientHistory.Type.STATUS);
         boolean isFake = false;
-        // Получаем имя статуса, из которого клиент перешел в искомый статус
-        Optional<String> beforeStatus = parseStatusNameFromHistoryTitle(beforeHistory.getTitle());
-        if (beforeStatus.isPresent()) {
-            // Получаем историю клиента, в которой он возвращается в исходный статус и проверяем,
-            // если возврат произошел в течение 24 часов, то этот результат исключается из отчета
-            ClientHistory returnHistory = clientRepository.getNearestClientHistoryAfterDateByHistoryType(client, clientHistory.getDate(), historyTypes, beforeStatus.get());
-            if (returnHistory != null) {
-                Optional<String> returnStatus = parseStatusNameFromHistoryTitle(returnHistory.getTitle());
-                if (returnStatus.isPresent() && beforeStatus.get().equals(returnStatus.get()) && clientHistory.getDate().plusDays(1L).isAfter(returnHistory.getDate())) {
-                    isFake = true;
-                }
+        // Получаем историю клиента, в которой он возвращается в исходный статус и проверяем,
+        // если возврат произошел в течение 24 часов, то этот результат исключается из отчета
+        ClientHistory returnHistory = clientRepository.getNearestClientHistoryAfterDateByHistoryType(client, clientHistory.getDate(), historyTypes, beforeStatusName);
+        if (returnHistory != null) {
+            Optional<String> returnStatus = parseStatusNameFromHistoryTitle(returnHistory.getTitle());
+            if (returnStatus.isPresent() && beforeStatusName.equals(returnStatus.get()) && clientHistory.getDate().plusDays(1L).isAfter(returnHistory.getDate())) {
+                isFake = true;
             }
-        } else {
-            isFake = true;
         }
         return isFake;
     }
 
     /**
      * Был ли клиент когда-либо в одном из заданных статусов
+     * При этом учитываем, являлись переходы в статус ошибочными
      *
      * @param statuses список статусов для проверки
      * @return был ли клиент в одном из статусов из списка
      */
     private boolean hasClientEverBeenInStatus(Client client, List<Status> statuses) {
-        return clientRepository.hasClientEverBeenInStatus(client, statuses, Collections.singletonList(ClientHistory.Type.STATUS));
+        List<ClientHistory> allHistories = clientRepository.getAllHistoriesByClientStatusChanging(client, statuses, Collections.singletonList(ClientHistory.Type.STATUS));
+        System.out.println(client.getName() + " count: " + allHistories.size());
+        for (ClientHistory history :allHistories) {
+            System.out.println(client.getName() + " " + history.getTitle());
+            if (!isFakeChangingStatusBy3minsRule(history)) {
+                Optional<ClientHistory> beforeHistory = historyBeforeThis(history);
+                if (beforeHistory.isPresent()) {
+                    if (!isFakeChangingStatusBy24hrRule(history, beforeHistory.get())) {
+                        return true;
+                    }
+                } else {
+                    Optional<String> beforeStatusName = parseSourceStatusNameFromHistoryTitle(history.getTitle());
+                    if (beforeStatusName.isPresent()) {
+                        if (!isFakeChangingStatusBy24hrRule(history, beforeStatusName.get())) {
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

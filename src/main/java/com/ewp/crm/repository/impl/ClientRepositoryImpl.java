@@ -187,24 +187,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     Был ли клиент когда-либо в заданных статусах
      */
     @Override
-    public boolean hasClientEverBeenInStatus(Client client, List<Status> statuses, List<ClientHistory.Type> types) {
-        boolean result = false;
+    public List<ClientHistory> getAllHistoriesByClientStatusChanging(Client client, List<Status> statuses, List<ClientHistory.Type> types) {
+        List<ClientHistory> result = new ArrayList<>();
         if (!statuses.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < statuses.size(); i++) {
                 Status status = statuses.get(i);
-                sb.append("(p.title LIKE CONCAT('%").append(status.getName()).append("%'))");
+                sb.append("(p.title LIKE CONCAT('%: ").append(status.getName()).append("%'))");
                 if (i < statuses.size() - 1) {
                     sb.append(" OR ");
                 }
             }
             String query = "SELECT p FROM Client c JOIN c.history p WHERE (c.id = :id AND p.type IN :types AND (" + sb.toString() + "))";
-            result = !entityManager.createQuery(query)
+            result = entityManager.createQuery(query)
                     .setParameter("types", types)
                     .setParameter("id", client.getId())
-                    .setMaxResults(1)
-                    .getResultList()
-                    .isEmpty();
+                    .getResultList();
         }
         return result;
     }
