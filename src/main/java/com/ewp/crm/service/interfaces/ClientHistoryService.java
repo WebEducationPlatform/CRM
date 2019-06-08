@@ -38,7 +38,9 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> createHistoryOfDeletingPhone(User user, Client client, ClientHistory.Type type);
 
-	List<ClientHistory> getClientById(long id);
+	List<ClientHistory> getByClientId(long id);
 
-	List<ClientHistory> getAllClientById(long id, Pageable pageable);
+	Optional<ClientHistory> getFirstByClientId(long id);
+
+	List<ClientHistory> getAllByClientId(long id, Pageable pageable);
 }
