@@ -1,10 +1,6 @@
 package com.ewp.crm.models.dto;
 
-import com.ewp.crm.models.Client;
 import com.ewp.crm.models.User;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClientDtoForBoard {
     private Long id;
@@ -13,6 +9,8 @@ public class ClientDtoForBoard {
     private User ownerUser;
     private boolean isHideCard;
     private User ownerMentor;
+    private String email;
+    private String phone;
 
     public ClientDtoForBoard() {
     }
@@ -26,13 +24,17 @@ public class ClientDtoForBoard {
                              String lastName,
                              User ownerUser,
                              boolean isHideCard,
-                             User ownerMentor) {
+                             User ownerMentor,
+                             String email,
+                             String phone) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.ownerUser = ownerUser;
         this.isHideCard = isHideCard;
         this.ownerMentor = ownerMentor;
+        this.email = email;
+        this.phone = phone;
     }
 
     public User getOwnerMentor() {
@@ -83,21 +85,19 @@ public class ClientDtoForBoard {
         isHideCard = hideCard;
     }
 
-    private static ClientDtoForBoard getDtoClient(Client client) {
-        ClientDtoForBoard clientDtoForBoard = new ClientDtoForBoard();
-        clientDtoForBoard.id = client.getId();
-        clientDtoForBoard.name = client.getName();
-        clientDtoForBoard.lastName = client.getLastName();
-        clientDtoForBoard.ownerUser = client.getOwnerUser();
-        clientDtoForBoard.isHideCard = client.isHideCard();
-        clientDtoForBoard.ownerMentor = client.getOwnerMentor();
-
-        return clientDtoForBoard;
+    public String getEmail() {
+        return email;
     }
 
-    public static List<ClientDtoForBoard> getListDtoClients(List<Client> clients) {
-        return clients.stream()
-                .map(ClientDtoForBoard::getDtoClient)
-                .collect(Collectors.toList());
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

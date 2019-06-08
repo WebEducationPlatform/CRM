@@ -265,7 +265,8 @@ public class StatusServiceImpl implements StatusService {
 				newClientDTOForBoard.setName(clientRepository.getClientNameById(clientId));
 				newClientDTOForBoard.setLastName(clientRepository.getClientLastNameById(clientId));
 				newClientDTOForBoard.setHideCard(clientRepository.getClientHideById(clientId));
-
+				newClientDTOForBoard.setEmail(clientRepository.getClientFirstEmailById(clientId));
+				newClientDTOForBoard.setPhone(clientRepository.getClientFirstPhoneById(clientId));
 				BigInteger ownerId = clientRepository.getClientOwnerUserIdById(clientId);
 				if (ownerId != null) {
 					newClientDTOForBoard.setOwnerUser(userDAO.getById(ownerId.longValue()));

@@ -6,6 +6,7 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -42,4 +43,10 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 	default Client getClientByEmail(String Email) {
 		return getClientByClientEmailsEquals(Email);
 	}
+
+	@Query(value = "SELECT client_email FROM client_emails WHERE client_id = ?1 AND number_in_list = 0", nativeQuery = true)
+	String getClientFirstEmailById(Long id);
+
+	@Query(value = "SELECT client_phone FROM client_phones WHERE client_id = ?1 AND number_in_list = 0", nativeQuery = true)
+	String getClientFirstPhoneById(Long id);
 }
