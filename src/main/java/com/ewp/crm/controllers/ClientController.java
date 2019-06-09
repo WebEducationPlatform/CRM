@@ -156,6 +156,7 @@ public class ClientController {
         modelAndView.addObject("projectProperties", propertiesService.get());
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("studentStatuses", studentStatus.getAll());
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         return modelAndView;
     }
 

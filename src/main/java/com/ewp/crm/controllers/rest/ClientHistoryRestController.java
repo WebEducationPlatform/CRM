@@ -33,7 +33,7 @@ public class ClientHistoryRestController {
 	@GetMapping("/getHistory/{clientId}")
 	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page) {
 		Pageable pageable = PageRequest.of(page, pageSize, Sort.by(new Sort.Order(Sort.Direction.DESC,"id")));
-		List<ClientHistory> clientHistory = clientHistoryService.getAllClientById(id, pageable);
+		List<ClientHistory> clientHistory = clientHistoryService.getAllByClientId(id, pageable);
 		if (clientHistory == null || clientHistory.isEmpty()) {
 			logger.info("no more history for client id " + id);
 			return ResponseEntity.notFound().build();
