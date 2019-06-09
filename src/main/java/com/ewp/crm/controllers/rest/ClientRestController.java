@@ -333,17 +333,37 @@ public class ClientRestController {
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFile(@RequestBody ConditionToDownload conditionToDownload) {
 		fileName = reportService.getFileName(conditionToDownload.getSelected(),
-				conditionToDownload.getDelimeter(), null).get();
-		reportService.writeToFileWithConditionToDonwload(conditionToDownload, fileName);
+				conditionToDownload.getDelimeter(), conditionToDownload.getFiletype(), null).get();
+		if (conditionToDownload.getFiletype().equals("txt")) {
+			reportService.writeToFileWithConditionToDownload(conditionToDownload, fileName);
+		}
+		if (conditionToDownload.getFiletype().equals("xlsx")) {
+			reportService.writeToExcelFileWithConditionToDownload(conditionToDownload, fileName);
+		}
+		if (conditionToDownload.getFiletype().equals("csv")) {
+			reportService.writeToCSVFileWithConditionToDownload(conditionToDownload, fileName);
+		} else {
+			logger.info("Can't parse condition to download.");
+		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/createFileFilter", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/createFileFilter")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
 	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
 		fileName = reportService.getFileName(filteringCondition.getSelectedCheckbox(),
-				filteringCondition.getDelimeter(), filteringCondition.getStatus()).get();
-		reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+				filteringCondition.getDelimeter(), filteringCondition.getFiletype(), filteringCondition.getStatus()).get();
+		if (filteringCondition.getFiletype().equals("txt")) {
+			reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+		}
+		if (filteringCondition.getFiletype().equals("xlsx")) {
+			reportService.writeToExcelFileWithFilteringConditions(filteringCondition, fileName);
+		}
+		if (filteringCondition.getFiletype().equals("csv")) {
+			reportService.writeToCSVFileWithFilteringConditions(filteringCondition, fileName);
+		} else {
+			logger.info("Can't parse filtering condition.");
+		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
 
