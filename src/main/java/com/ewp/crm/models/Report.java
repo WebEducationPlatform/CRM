@@ -1,10 +1,13 @@
 package com.ewp.crm.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 /**
  * Class for sending reports in a JSON format via ReportRestController
  */
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Report {
 
     private String message;
