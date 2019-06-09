@@ -445,9 +445,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
      */
     @Override
     public void setClientDateOfRegistrationByHistoryDate(Client client) {
-        Optional<ClientHistory> firstHistory = clientHistoryService.getFirstByClientId(client.getId());
-        if (firstHistory.isPresent()) {
-            client.setDateOfRegistration(firstHistory.get().getDate());
+        if (client.getId() != null) {
+            Optional<ClientHistory> firstHistory = clientHistoryService.getFirstByClientId(client.getId());
+            if (firstHistory.isPresent()) {
+                client.setDateOfRegistration(firstHistory.get().getDate());
+            } else {
+                client.setDateOfRegistration(ZonedDateTime.now());
+            }
         } else {
             client.setDateOfRegistration(ZonedDateTime.now());
         }
