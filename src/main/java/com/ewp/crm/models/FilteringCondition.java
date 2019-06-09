@@ -29,6 +29,8 @@ public class FilteringCondition {
 
     private String checked;
 
+    private String filetype;
+
     private String delimeter;
 
     private int pageNumber;
@@ -122,6 +124,14 @@ public class FilteringCondition {
 
     public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public void setFiletype(String filetype) {
+        this.filetype = filetype;
     }
 
     public String getDelimeter() {
