@@ -281,14 +281,14 @@
                 </div>
                 <div id="modal-body">
                     <div id="checkboxes">
-                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
-                            <div class="container">
-                                <label class="checkbox" th:for="${socialNetworkType.id}"
-                                       th:text="${socialNetworkType.name}"></label>
-                                <input type="checkbox" th:value="${socialNetworkType.name}"
-                                       th:id="${socialNetworkType.id}"/>
-                            </div>
-                        </th:block>
+                        <div class="container">
+                            <label class="checkbox" th:for="name">Имя</label>
+                            <input type="checkbox" th:value="name" th:id="name"/>
+                        </div>
+                        <div class="container">
+                            <label class="checkbox" th:for="lastName">Фамилия</label>
+                            <input type="checkbox" th:value="lastName" th:id="lastName"/>
+                        </div>
                         <div class="container">
                             <label class="checkbox" th:for="email" th:value="email" th:text="Email"></label>
                             <input type="checkbox" th:value="email" th:id="email"/>
@@ -297,13 +297,31 @@
                             <label class="checkbox" th:for="phoneNumber">Номер телефона</label>
                             <input type="checkbox" th:value="phoneNumber" th:id="phoneNumber"/>
                         </div>
+                        <th:block th:each="socialNetworkType : ${socialNetworkTypes}">
+                            <div class="container">
+                                <label class="checkbox" th:for="${socialNetworkType.id}"
+                                       th:text="${socialNetworkType.name}"></label>
+                                <input type="checkbox" th:value="${socialNetworkType.name}"
+                                       th:id="${socialNetworkType.id}"/>
+                            </div>
+                        </th:block>
+                    </div>
+                    <h5>Выберите тип файла: </h5>
+                    <div class="container" id="radiobuttons">
                         <div class="container">
-                            <label class="checkbox" th:for="name">Имя</label>
-                            <input type="checkbox" th:value="name" th:id="name"/>
+                            <label class="radio">
+                                <input type="radio" class="custom-control-input" checked="checked" value="txt" name="fileType" />TXT
+                            </label>
                         </div>
                         <div class="container">
-                            <label class="checkbox" th:for="lastName">Фамилия</label>
-                            <input type="checkbox" th:value="lastName" th:id="lastName"/>
+                            <label class="radio">
+                                <input type="radio" class="custom-control-input" value="xlsx" name="fileType" />Excel
+                            </label>
+                        </div>
+                        <div class="container">
+                            <label class="radio">
+                                <input type="radio" class="custom-control-input" value="csv" name="fileType" />CSV
+                            </label>
                         </div>
                     </div>
                     <div class="col-xs-12">
@@ -360,6 +378,8 @@
                                     <th>Пользователи</th>
                                 </tr>
                                 </thead>
+                                <tbody>
+                                </tbody>
                             </table>
                             <h6>Вы уверены, что хотите удалить пользователя?</h6>
                             <button type="submit" class="btn btn-primary">Да</button>

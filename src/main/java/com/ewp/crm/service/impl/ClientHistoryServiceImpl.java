@@ -44,12 +44,17 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public List<ClientHistory> getClientById(long id) {
+	public List<ClientHistory> getByClientId(long id) {
 		return clientHistoryRepository.getByClientId(id);
 	}
 
 	@Override
-	public List<ClientHistory> getAllClientById(long id, Pageable pageable) {
+	public Optional<ClientHistory> getFirstByClientId(long id) {
+		return Optional.ofNullable(clientHistoryRepository.getFirstByClientId(id));
+	}
+
+	@Override
+	public List<ClientHistory> getAllByClientId(long id, Pageable pageable) {
 		return clientHistoryRepository.getAllByClientId(id, pageable).stream().peek((h) -> {
 			if (h.getType().equals(ClientHistory.Type.CALL) && (h.getLink() == null || IPTelephonyRestController.INIT_RECORD_LINK.equals(h.getLink()))) {
 				h.setTitle(h.getTitle() + ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo());

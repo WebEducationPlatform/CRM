@@ -42,6 +42,9 @@
 		<logback.version>1.2.3</logback.version>
 		<fasterxml.jackson.version>2.9.6</fasterxml.jackson.version>
 		<jadira.usertype.version>6.0.1.GA</jadira.usertype.version>
+		<poi.version>4.1.0</poi.version>
+		<poi-ooxml.version>4.1.0</poi-ooxml.version>
+		<commons-csv.version>1.7</commons-csv.version>
 	</properties>
 
 	<dependencies>
@@ -267,6 +270,21 @@
             <artifactId>adwords-axis</artifactId>
             <version>4.5.0</version>
         </dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi-ooxml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${commons-csv.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -61,6 +61,8 @@ public interface ClientService extends CommonService<Client> {
 
 	List<String> getFilteredClientsSNLinks(FilteringCondition filteringCondition);
 
+	void setClientDateOfRegistrationByHistoryDate(Client client);
+
 	List<Client> getAllClientsByPage(Pageable pageable);
 
 	List<Client> getClientsBySearchPhrase(String search);
