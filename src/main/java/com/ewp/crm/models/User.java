@@ -127,9 +127,11 @@ public class User implements UserDetails {
 
 	/**
 	 * Права (роль)
+	 * FetchType.EAGER for initialize all fields.
+	 * We use FetchMode.SUBSELECT for loading all elements of all collections.
 	 */
 	@NotNull
-	@ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
 	@JoinTable(name = "permissions",
 			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
