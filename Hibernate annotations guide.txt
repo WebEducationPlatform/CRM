@@ -1,0 +1,277 @@
+Hebernate annotations guide
+
+Информация актуальна на 06.06.2019
+
+Для просмотра результатов sql-запросов есть библиотека.
+	<dependency>
+		<groupId>com.integralblue</groupId>
+		<artifactId>log4jdbc-spring-boot-starter</artifactId>
+		<version>1.0.2</version>
+	</dependency>
+
+***************************************************************************************
+
+Полезные ссылки
+https://www.solidsyntax.be/2013/10/17/fetching-collections-hibernate/
+https://vladmihalcea.com/tutorials/hibernate/
+
+***************************************************************************************
+
+class Client
+
+Если оставить дефолтное fetchType.LAZY, на доске clientPhones все равно сразу загружаются на доске, как будто стоит fetchType.EAGER, скорее всего, потому что fetchType.LAZY - не требование, а подсказка для ORM. Но на странице "Все клиенты" телефоны загружаются для каждого клиента отдельно. Чтобы сразу не загружать слишком много коллекций, используется BatchSize. size = 30, потому что на странице "Все клиенты" загружается по 30 клиентов.
+    /**
+     * We reduce number of requests with FetchType.EAGER.
+     * ElementCollection uses cascadeType.ALL and orphanRemoval = true by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     * OrderColumn used to maintain the persistent order of a list.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="client_phones", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="client_phone", unique = true)
+    @OrderColumn(name = "numberInList")
+    @BatchSize(size = 30)
+    private List<String> clientPhones = new ArrayList<>();
+	
+Если оставить дефолтное fetchType.LAZY, на доске clientEmails все равно сразу загружаются, как будто стоит fetchType.EAGER, скорее всего, потому что fetchType.LAZY - не требование, а подсказка для ORM. Но на странице "Все клиенты" емэйлы загружаются для каждого клиента отдельно. Чтобы сразу не загружать слишком много коллекций, используется BatchSize. size = 30, потому что на странице "Все клиенты" загружается по 30 клиентов.
+    /**
+     * We reduce number of requests with FetchType.EAGER.
+     * ElementCollection uses cascadeType.ALL and orphanRemoval = true by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     * OrderColumn used to maintain the persistent order of a list.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="client_emails", joinColumns = @JoinColumn(name="client_id"))
+    @Column(name="client_email", unique = true)
+    @OrderColumn(name = "numberInList")
+    @BatchSize(size = 30)
+    private List<String> clientEmails = new ArrayList<>();
+	
+Двунаправленная связь OneToMany через таблицу, можно было бы сделать однонаправленную с дополнительным столбцом на стороне ManyToOne.
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
+    @JoinTable(name = "client_whatsapp_message",
+            joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_number",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
+    private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
+
+Двунаправленная связь ManyToOne через таблицу, если бы все клиенты на доске не загружались через статусы, можно было бы сделать однонаправленную с дополнительным столбцом на стороне ManyToOne.
+	/**
+     * We use FetchType.LAZY for lazy initialization.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id")
+    @JoinTable(name = "status_clients",
+            joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
+            inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
+    private Status status;
+	
+Однонаправленная связь ManyToOne, желательно сделать fetchType.LAZY, но нужно действовать аккуратно, так как возникают эксепшены, когда хибернейт подсовывает прокси вместо сущности.
+    /**
+     * ManyToOne uses fetchType.EAGER by default.
+     */
+    @ManyToOne
+    @JoinColumn(name = "owner_user_id")
+    private User ownerUser;
+	
+Однонаправленная связь ManyToOne, желательно сделать fetchType.LAZY, но нужно действовать аккуратно, так как возникают эксепшены, когда хибернейт подсовывает прокси вместо сущности.
+    /**
+     * ManyToOne uses fetchType.EAGER by default.
+     */
+    @ManyToOne
+    @JoinColumn(name = "owner_mentor_id")
+    private User ownerMentor;
+	
+При загрузке доски не загружаются, все нормально, а при загрузке страницы "Все клиенты" почему-то загружаются селектами на каждого клиента.
+	/**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @JsonIgnore
+    @OrderBy("date DESC")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
+    @JoinTable(name = "client_comment",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
+    private List<Comment> comments = new ArrayList<>();
+	
+При загрузке доски не загружаются, все нормально, а при загрузке страницы "Все клиенты" почему-то загружаются селектами на каждого клиента.
+	/**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "history_client",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
+    @OrderBy("id DESC")
+    @BatchSize(size = 25)
+    private List<ClientHistory> history = new ArrayList<>();
+
+При загрузке доски и при загрузке страницы "Все клиенты" не загружаются, все нормально.
+    /**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "feedback_client",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))})
+    @OrderBy("id DESC")
+    @BatchSize(size = 25)
+    private List<ClientFeedback> feedback = new ArrayList<>();
+	
+При загрузке доски и при загрузке страницы "Все клиенты" не загружаются, все нормально.
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "client_job",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
+    @BatchSize(size = 25)
+    private List<Job> jobs = new ArrayList<>();
+	
+При загрузке доски загружаются в непонятной последовательности, а при загрузке страницы "Все клиенты" почему-то загружаются селектами на каждого клиента.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * We use FetchType.EAGER because this field is used in Transactional method and have to initialize before.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
+    @JoinTable(name = "client_social_network",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
+    private List<SocialProfile> socialProfiles = new ArrayList<>();
+
+При загрузке доски и при загрузке страницы "Все клиенты" не загружаются, все нормально.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
+    @JoinTable(name = "client_sms_info",
+            joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
+            inverseJoinColumns = {@JoinColumn(name = "sms_info_id", foreignKey = @ForeignKey(name = "FK_SMS_INFO"))})
+    private List<SMSInfo> smsInfo = new ArrayList<>();
+	
+При загрузке доски и при загрузке страницы "Все клиенты" не загружаются, все нормально.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     */
+    @JsonIgnore
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CallRecord> callRecords = new ArrayList<>();
+	
+Двунаправленная связь OneToOne, желательно сделать однонаправленную через MapsId в сущности Student, а из клиента убрать это поле. При загрузке страницы "Все клиенты" загружается селектами для каждого клиента.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
+    @JsonIgnore
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "student_id")
+    private Student student;
+
+Двунаправленная связь OneToOne, желательно сделать однонаправленную через MapsId в сущности SlackInviteLink, а из клиента убрать это поле. При загрузке доски НЕ загружается селектами, все нормально.
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "slack_invite_link_id")
+    private SlackInviteLink slackInviteLink;
+	
+Двунаправленная связь OneToOne, желательно сделать однонаправленную через MapsId в сущности Passport, а из клиента убрать это поле. При загрузке страницы "Все клиенты" загружается селектами для каждого клиента.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Passport passport;
+	
+Двунаправленная связь OneToOne, желательно сделать однонаправленную через MapsId в сущности ContractLinkData, а из клиента убрать это поле. При загрузке страницы "Все клиенты" загружается селектами для каждого клиента.
+	/**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ContractLinkData contractLinkData;
+
+***************************************************************************************
+
+class Status
+
+Чтобы загрузить всех клиентов за один запрос, используем SUBSELECT. Использовать его для таких ситуаций не рекомендуется, но это лучшее, что можно выбрать, пока клиенты будут загружаться через статусы.
+	/**
+	 * Клиенты (студенты) с данным статусом
+	 * OneToMany uses FetchType.LAZY by default.
+	 * We use FetchMode.SUBSELECT for loading all elements of all collections.
+	 */
+	@JsonIgnore
+	@OneToMany
+	@Fetch(value = FetchMode.SUBSELECT)
+	@JoinTable(name = "status_clients",
+			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
+			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
+	private List<Client> clients;
+
+Чтобы загрузить все роли за один запрос, используем SUBSELECT. Так как ролей немного, тут он отлично подходит.
+	/**
+	 * ManyToMany uses FetchType.LAZY by default.
+	 * We use FetchMode.SUBSELECT because we have limited quantity of roles,
+	 * and almost all of them are in the session.
+	 */
+	@ManyToMany
+	@Fetch(value = FetchMode.SUBSELECT)
+	@JoinTable(name = "status_roles",
+			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
+			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
+	private List<Role> role;
+
+***************************************************************************************
+
+class User
+
+Чтобы загрузить все роли за один запрос, используем SUBSELECT. Так как ролей немного, тут он отлично подходит.
+	/**
+	 * Права (роль)
+	 * FetchType.EAGER for for initialize all fields.
+	 * We use FetchMode.SUBSELECT for loading all elements of all collections.
+	 */
+	@NotNull
+	@ManyToMany(fetch = FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
+	@JoinTable(name = "permissions",
+			joinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))},
+			inverseJoinColumns = {@JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "FK_ROLE"))})
+	private List<Role> role = new ArrayList<>();

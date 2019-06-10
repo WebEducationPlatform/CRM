@@ -99,9 +99,11 @@ $('#clientData').click(function (event) {
     $('#checkboxes input:checked').each(function () {
         selected.push($(this).attr('value'));
     });
+    let filetype = $('#radiobuttons input:checked').val();
     let delimeter = $('#delimeter').val();
     let arr = {};
     arr['selected'] = selected;
+    arr['filetype'] = filetype;
     arr['delimeter'] = delimeter;
     if (jQuery.isEmptyObject(data)) {
         $.ajax({
@@ -116,6 +118,7 @@ $('#clientData').click(function (event) {
     }
     if (!(jQuery.isEmptyObject(data))) {
         data['selectedCheckbox'] = selected;
+        data['filetype'] = filetype;
         data['delimeter'] = delimeter;
         $.ajax({
             type: 'POST',

@@ -7,6 +7,10 @@ import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.ReportService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.google.api.client.util.Strings;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +27,7 @@ import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @PropertySource(value = "file:./report.properties", encoding = "UTF-8")
@@ -328,163 +332,91 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status) {
+    public Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, String filetype, Status status) {
         StringBuilder fileName = new StringBuilder();
         if (status != null) {
             fileName.append(status.getName()).append("_");
         }
-
         for (String selectedCheckbox : selectedCheckboxes) {
             fileName.append(selectedCheckbox).append("_");
         }
-
         if (!Strings.isNullOrEmpty(delimeter) && !delimeter.startsWith("/") && !delimeter.startsWith("\\")) {
-            fileName.append(delimeter).append(".txt");
+            fileName.append(delimeter).append(".").append(filetype);
         } else {
-            fileName.append(".txt");
+            fileName.append(".").append(filetype);
         }
         return Optional.of(fileName.toString());
     }
 
     @Override
     public void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
-        Set<String> checkedData = new HashSet<>(filteringCondition.getSelectedCheckbox());
-        String path = "DownloadData";
-        String delimeter = filteringCondition.getDelimeter();
-
-        if (Strings.isNullOrEmpty(filteringCondition.getDelimeter())) {
-            delimeter = "  ";
-        }
-
-        Path directory = Paths.get(path);
-        if (!Files.exists(directory)) {
-            try {
-                Files.createDirectories(directory);
-            } catch (IOException e) {
-                logger.error("Could not create folder for text files", e);
-            }
-        }
-        Path pathToFile = Paths.get(path, fileName);
-        Path file = null;
-        try {
-            file = Files.createFile(pathToFile);
-        } catch (IOException e) {
-            try {
-                Files.delete(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can not delete file", e);
-            }
-            try {
-                file = Files.createFile(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can bot create file", e);
-            }
-        }
-
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
-            List<Client> filteredClients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
-            for (Client filteredClient : filteredClients) {
-                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                    writer.write(filteredClient.getName() + delimeter);
-                }
-
-                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                    writer.write(filteredClient.getLastName() + delimeter);
-                }
-
-                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                    List<String> clientEmails = filteredClient.getClientEmails();
-                    for (String email : clientEmails) {
-                        writer.write(email + delimeter);
-                    }
-                }
-
-                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                    List<String> clientPhones = filteredClient.getClientPhones();
-                    for (String phone : clientPhones) {
-                        writer.write(phone + delimeter);
-                    }
-                }
-
-                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
-                for (String checkedSocialNetwork : checkedData) {
-                    for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                        if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
-                            if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
-                                writer.write(clientSocialProfile.getSocialNetworkType().getLink() + clientSocialProfile.getSocialId() + delimeter);
-                                continue;
-                            }
-                            writer.write(clientSocialProfile.getSocialId() + delimeter);
-                        }
-                    }
-                }
-                writer.write(System.lineSeparator());
-            }
-        } catch (IOException e) {
-            logger.error("File not created! ", e);
-        }
+        fillTxtFile(clientRepository.filteringClientWithoutPaginator(filteringCondition),
+                    filteringCondition.getSelectedCheckbox(),
+                    filteringCondition.getDelimeter(),
+                    createFilePath(fileName));
     }
 
     @Override
-    public void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDownload, String fileName) {
-        String path = "DownloadData";
-        String delimeter = conditionToDownload.getDelimeter();
+    public void writeToFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName) {
+        fillTxtFile(clientService.getAllClients(),
+                    conditionToDownload.getSelected(),
+                    conditionToDownload.getDelimeter(),
+                    createFilePath(fileName));
+    }
 
-        if (Strings.isNullOrEmpty(conditionToDownload.getDelimeter())) {
+    @Override
+    public void writeToExcelFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        fillExcelFile(clientRepository.filteringClientWithoutPaginator(filteringCondition),
+                        filteringCondition.getSelectedCheckbox(),
+                        createFilePath(fileName));
+    }
+
+    @Override
+    public void writeToExcelFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName) {
+        fillExcelFile(clientService.getAllClients(),
+                        conditionToDownload.getSelected(),
+                        createFilePath(fileName));
+    }
+
+    @Override
+    public void writeToCSVFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName) {
+        fillCSVFile(clientRepository.filteringClientWithoutPaginator(filteringCondition),
+                    filteringCondition.getSelectedCheckbox(),
+                    createFilePath(fileName));
+    }
+
+    @Override
+    public void writeToCSVFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName) {
+        fillCSVFile(clientService.getAllClients(),
+                    conditionToDownload.getSelected(),
+                    createFilePath(fileName));
+    }
+
+    private void fillTxtFile(List<Client> clients, List<String> checkedData, String delimeter,Path filePath) {
+        if (Strings.isNullOrEmpty(delimeter)) {
             delimeter = "  ";
         }
-
-        Path directory = Paths.get(path);
-        if (!Files.exists(directory)) {
-            try {
-                Files.createDirectories(directory);
-            } catch (IOException e) {
-                logger.error("Could not create folder for text files", e);
-            }
-        }
-        Path pathToFile = Paths.get(path, fileName);
-        Path file = null;
-        try {
-            file = Files.createFile(pathToFile);
-        } catch (IOException e) {
-            try {
-                Files.delete(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can not delete file", e);
-            }
-            try {
-                file = Files.createFile(pathToFile);
-            } catch (IOException ex) {
-                logger.error("Can bot create file", e);
-            }
-        }
-
-        Set<String> checkedData = new HashSet<>(conditionToDownload.getSelected());
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"))) {
             List<Client> filteredClients = clientService.getAllClients();
             for (Client filteredClient : filteredClients) {
                 if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
                     writer.write(filteredClient.getName() + delimeter);
                 }
-
                 if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
                     writer.write(filteredClient.getLastName() + delimeter);
                 }
-
                 if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
                     List<String> clientEmails = filteredClient.getClientEmails();
                     for (String email : clientEmails) {
                         writer.write(email + delimeter);
                     }
                 }
-
                 if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
                     List<String> clientPhones = filteredClient.getClientPhones();
                     for (String phone : clientPhones) {
                         writer.write(phone + delimeter);
                     }
                 }
-
                 List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
@@ -500,7 +432,147 @@ public class ReportServiceImpl implements ReportService {
                 writer.write(System.lineSeparator());
             }
         } catch (IOException e) {
-            logger.error("File not created! ", e);
+            logger.error("Can't fill text file! ", e);
         }
+    }
+
+    private void fillExcelFile(List<Client> clients, List<String> checkedData, Path filePath) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Clients");
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 12);
+        headerFont.setColor(IndexedColors.BLACK.getIndex());
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFont(headerFont);
+
+        Row headerRow = sheet.createRow(0);
+
+        Iterator<String> dataIter = checkedData.iterator();
+
+        for (int i = 0; i < checkedData.size(); i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(dataIter.next());
+            cell.setCellStyle(headerCellStyle);
+        }
+        int rowNum = 1;
+        int colNum;
+        for (Client filteredClient : clients) {
+            colNum = 0;
+            Row row = sheet.createRow(rowNum++);
+            if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
+                row.createCell(colNum++).setCellValue(filteredClient.getName());
+            }
+            if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
+                row.createCell(colNum++).setCellValue(filteredClient.getLastName());
+            }
+            if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
+                row.createCell(colNum++).setCellValue(filteredClient.getClientEmails()
+                        .stream()
+                        .collect(Collectors.joining(", ")));
+            }
+            if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
+                row.createCell(colNum++).setCellValue(filteredClient.getClientPhones()
+                        .stream()
+                        .collect(Collectors.joining(", ")));
+            }
+            List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
+            for (String checkedSocialNetwork : checkedData) {
+                for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
+                    if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                        if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                            row.createCell(colNum++).setCellValue(clientSocialProfile.getSocialNetworkType().getLink() +
+                                    clientSocialProfile.getSocialId());
+                            continue;
+                        }
+                        row.createCell(colNum++).setCellValue(clientSocialProfile.getSocialId());
+                    }
+                }
+            }
+        }
+        FileOutputStream fileOut = null;
+        try {
+            fileOut = new FileOutputStream(filePath.toFile());
+            workbook.write(fileOut);
+            fileOut.close();
+        } catch (FileNotFoundException e) {
+            logger.error("Can't find file! ", e);
+        } catch (IOException e) {
+            logger.error("Can't fill excel file! ", e);
+        }
+    }
+
+    private void fillCSVFile(List<Client> clients, List<String> checkedData, Path filePath) {
+        try(BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"));
+                CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
+            printer.printRecord(checkedData);
+            for (Client filteredClient : clients) {
+                    printer.println();
+                    if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
+                        printer.print(filteredClient.getName());
+                    }
+                    if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
+                        printer.print(filteredClient.getLastName());
+                    }
+                    if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
+                        printer.print(filteredClient.getClientEmails()
+                                .stream()
+                                .collect(Collectors.joining(", ")));
+                    }
+                    if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
+                        printer.print(filteredClient.getClientPhones()
+                                .stream()
+                                .collect(Collectors.joining(", ")));
+                    }
+                    List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
+                    for (String checkedSocialNetwork : checkedData) {
+                        for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
+                            if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
+                                if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
+                                    printer.print(clientSocialProfile.getSocialNetworkType().getLink() +
+                                            clientSocialProfile.getSocialId());
+                                    continue;
+                                }
+                                printer.print(clientSocialProfile.getSocialId());
+                            }
+                        }
+                    }
+            }
+            printer.flush();
+        } catch (IOException e) {
+            logger.error("Can't fill csv file! ", e);
+        }
+    }
+
+    private Path createFilePath(String fileName) {
+        String path = "DownloadData";
+
+        Path directory = Paths.get(path);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
+                logger.error("Could not create folder for files", e);
+            }
+        }
+        Path pathToFile = Paths.get(path, fileName);
+        Path file = null;
+        try {
+            file = Files.createFile(pathToFile);
+        } catch (IOException e) {
+            try {
+                Files.delete(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can not delete file", e);
+            }
+            try {
+                file = Files.createFile(pathToFile);
+            } catch (IOException ex) {
+                logger.error("Can bot create file", e);
+            }
+        }
+        return file;
     }
 }

@@ -5,6 +5,8 @@ import java.util.List;
 public class ConditionToDownload {
     private List<String> selected;
 
+    private String filetype;
+
     private String delimeter;
 
     public List<String> getSelected() {
@@ -13,6 +15,14 @@ public class ConditionToDownload {
 
     public void setSelected(List<String> selected) {
         this.selected = selected;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public void setFiletype(String filetype) {
+        this.filetype = filetype;
     }
 
     public String getDelimeter() {
