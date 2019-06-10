@@ -25,7 +25,7 @@ public class ClientFeedback {
     private String videoUrl;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(name = "feedback_client",
             joinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))},
             inverseJoinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))})
