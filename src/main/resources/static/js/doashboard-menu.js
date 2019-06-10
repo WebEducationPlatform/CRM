@@ -15,7 +15,7 @@ function fillUsersTableForDelete(button) {
                     " " + response[i].firstName +
                     " " + response[i].lastName + '</td></tr>';
             }
-            $('#usersTable').append(trHTML);
+            $('#usersTable tbody').append(trHTML);
             $('#deleteUserModal').modal('show');
         },
         error: function (error) {
@@ -50,7 +50,7 @@ function fillUsersTableForDelete(button) {
 // Reload page after modal is hidden for not to add new radiobuttons
 $('#deleteUserModal').on('hide.bs.modal', function() {
     console.log("hide modal");
-    location.reload();
+    $('#usersTable tbody tr').remove();
 });
 
 //Функция для удаления нового пользователя из меню на доске

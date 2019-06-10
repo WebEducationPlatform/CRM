@@ -43,20 +43,30 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "last_name")
     private String lastName;
 
+    /**
+     * We reduce number of requests with FetchType.EAGER.
+     * ElementCollection uses cascadeType.ALL and orphanRemoval = true by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     * OrderColumn used to maintain the persistent order of a list.
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_phones", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_phone", unique = true)
     @OrderColumn(name = "numberInList")
-    @Fetch(value = FetchMode.SUBSELECT)
-    @BatchSize(size = 10)
+    @BatchSize(size = 30)
     private List<String> clientPhones = new ArrayList<>();
 
+    /**
+     * We reduce number of requests with FetchType.EAGER.
+     * ElementCollection uses cascadeType.ALL and orphanRemoval = true by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     * OrderColumn used to maintain the persistent order of a list.
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="client_emails", joinColumns = @JoinColumn(name="client_id"))
     @Column(name="client_email", unique = true)
     @OrderColumn(name = "numberInList")
-    @Fetch(value = FetchMode.SUBSELECT)
-    @BatchSize(size = 10)
+    @BatchSize(size = 30)
     private List<String> clientEmails = new ArrayList<>();
 
     @Column(name = "skype")
@@ -109,14 +119,23 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "postpone_comment")
     private String postponeComment;
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 50)
     @JoinTable(name = "client_whatsapp_message",
             joinColumns = {@JoinColumn(name = "client_id",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "whatsapp_message_number",foreignKey = @ForeignKey(name = "FK_WHATSAPP_MESSAGE"))})
     private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
 
+    /**
+     * We use FetchType.LAZY for lazy initialization.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     @JoinTable(name = "status_clients",
@@ -124,26 +143,44 @@ public class Client implements Serializable, Diffable<Client> {
             inverseJoinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))})
     private Status status;
 
+    /**
+     * ManyToOne uses fetchType.EAGER by default.
+     */
     @ManyToOne
     @JoinColumn(name = "owner_user_id")
     private User ownerUser;
 
+    /**
+     * ManyToOne uses fetchType.EAGER by default.
+     */
     @ManyToOne
     @JoinColumn(name = "owner_mentor_id")
     private User ownerMentor;
 
+    /**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
     @JsonIgnore
     @OrderBy("date DESC")
-    @OneToMany(fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
-    @BatchSize(size = 20)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 25)
     @JoinTable(name = "client_comment",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_COMMENT_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "FK_COMMENT"))})
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
+    /**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "history_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "history_id", foreignKey = @ForeignKey(name = "FK_HISTORY"))})
@@ -151,32 +188,56 @@ public class Client implements Serializable, Diffable<Client> {
     @BatchSize(size = 25)
     private List<ClientHistory> history = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
+    /**
+     * OrderBy determines the ordering of the elements.
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "feedback_client",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "feedback_id", foreignKey = @ForeignKey(name = "FK_FEEDBACK"))})
     @OrderBy("id DESC")
+    @BatchSize(size = 25)
     private List<ClientFeedback> feedback = new ArrayList<>();
 
-    @Column
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "client_job",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "job_id", foreignKey = @ForeignKey(name = "FK_JOB"))})
+    @BatchSize(size = 25)
     private List<Job> jobs = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * We use FetchType.EAGER because this field is used in Transactional method and have to initialize before.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(value = FetchMode.SELECT)
-    @BatchSize(size = 10)
+    @BatchSize(size = 30)
     @JoinTable(name = "client_social_network",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
             inverseJoinColumns = {@JoinColumn(name = "social_network_id", foreignKey = @ForeignKey(name = "FK_SOCIAL_NETWORK"))})
     private List<SocialProfile> socialProfiles = new ArrayList<>();
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     * We use BatchSize to control our queries and not request too many entities.
+     */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Fetch(value = FetchMode.SUBSELECT)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 50)
     @JoinTable(name = "client_sms_info",
             joinColumns = {@JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "FK_CLIENT"))},
@@ -187,17 +248,30 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "client_description_comment", length = 1500)
     private String clientDescriptionComment;
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     * OneToMany uses FetchType.LAZY by default.
+     */
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CallRecord> callRecords = new ArrayList<>();
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
     @JsonIgnore
-    @OneToOne(mappedBy = "client")
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "student_id")
     private Student student;
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
     @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "slack_invite_link_id")
     private SlackInviteLink slackInviteLink;
 
@@ -212,9 +286,17 @@ public class Client implements Serializable, Diffable<Client> {
     @Column(name = "live_skype_call")
     private boolean liveSkypeCall;
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Passport passport;
 
+    /**
+     * We use CascadeType.ALL to manage entity through Client's entity.
+     * OrphanRemoval needs for a disconnected instance is automatically removed.
+     */
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
