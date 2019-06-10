@@ -73,11 +73,18 @@ function getAllUrlParams(url) {
 
 $(function () {
     $(document).ready(function () {
-        if (window.location.href.indexOf('client?id=') != -1) {
-            var clientId = getAllUrlParams(window.location.href).id;
-            var currentModal = $('#main-modal-window');
-            currentModal.data('clientId', clientId);
-            currentModal.modal('show');
+        // Указываем ендпоинты которые надо проверять, на которых возможено открытие модального диалога карточки по ID
+        var enpointsWithId = ['client', 'client/allClients', 'student/all'];
+
+        for (var i = 0; i < enpointsWithId.length; i++) {
+            // Если совпадение есть, то выполняем логику и выходим
+            if (window.location.href.indexOf(enpointsWithId[i] + '?id=') !== -1) {
+                var clientId = getAllUrlParams(window.location.href).id;
+                var currentModal = $('#main-modal-window');
+                currentModal.data('clientId', clientId);
+                currentModal.modal('show');
+                break;
+            }
         }
     });
 });
