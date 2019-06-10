@@ -15,7 +15,7 @@ public class SortedStatuses implements Serializable {
     @MapsId("statusId")
     private Status status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("userId")
     private User user;
 
