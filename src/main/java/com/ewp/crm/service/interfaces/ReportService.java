@@ -13,9 +13,17 @@ public interface ReportService {
 
     Report getAllFirstPaymentClientsByDate(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds);
 
-    Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, Status status);
-
-    void writeToFileWithConditionToDonwload(ConditionToDownload conditionToDowbload, String fileName);
+    Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, String filetype, Status status);
 
     void writeToFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
+
+    void writeToFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName);
+
+    void writeToExcelFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
+
+    void writeToExcelFileWithConditionToDownload(ConditionToDownload conditionToDowbload, String fileName);
+
+    void writeToCSVFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
+
+    void writeToCSVFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName);
 }
