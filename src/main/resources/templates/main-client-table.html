@@ -474,6 +474,13 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
+
+    /*]]>*/
+</script>
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
 <script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>

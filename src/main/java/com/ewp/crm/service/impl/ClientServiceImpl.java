@@ -374,8 +374,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
             }
             client.setId(existClient.get().getId());
+
+            if (existClient.get().getDateOfRegistration() == null) {
+                setClientDateOfRegistrationByHistoryDate(existClient.get());
+            }
+
             clientRepository.saveAndFlush(existClient.get());
             return;
+        }
+
+        if (client.getDateOfRegistration() == null) {
+            setClientDateOfRegistrationByHistoryDate(client);
         }
 
         clientRepository.saveAndFlush(client);
@@ -426,6 +435,26 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> getAllClientsByPage(Pageable pageable) {
         return clientRepository.findAll(pageable).getContent();
+    }
+
+    /**
+     * Задает клиенту дату регистрации по дате первой записи в и стории клиента.
+     * Если такая запись не найдена - ставит текущую системную дату.
+     *
+     * @param client
+     */
+    @Override
+    public void setClientDateOfRegistrationByHistoryDate(Client client) {
+        if (client.getId() != null) {
+            Optional<ClientHistory> firstHistory = clientHistoryService.getFirstByClientId(client.getId());
+            if (firstHistory.isPresent()) {
+                client.setDateOfRegistration(firstHistory.get().getDate());
+            } else {
+                client.setDateOfRegistration(ZonedDateTime.now());
+            }
+        } else {
+            client.setDateOfRegistration(ZonedDateTime.now());
+        }
     }
 
     @Override
@@ -576,7 +605,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setComments(old.getComments());
         client.setOwnerUser(old.getOwnerUser());
         client.setStatus(old.getStatus());
-        client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
+        if (old.getDateOfRegistration() == null) {
+            setClientDateOfRegistrationByHistoryDate(client);
+        } else {
+            client.setDateOfRegistration(ZonedDateTime.parse(old.getDateOfRegistration().toString()));
+        }
         client.setSmsInfo(old.getSmsInfo());
         client.setCanCall(old.isCanCall());
         client.setCallRecords(old.getCallRecords());

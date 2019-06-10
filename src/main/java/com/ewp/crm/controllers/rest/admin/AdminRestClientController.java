@@ -72,7 +72,11 @@ public class AdminRestClientController {
         currentClient.setComments(clientFromDB.getComments());
         currentClient.setOwnerUser(clientFromDB.getOwnerUser());
         currentClient.setStatus(clientFromDB.getStatus());
-        currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
+        if (clientFromDB.getDateOfRegistration() == null) {
+            clientService.setClientDateOfRegistrationByHistoryDate(currentClient);
+        } else {
+            currentClient.setDateOfRegistration(ZonedDateTime.parse(clientFromDB.getDateOfRegistration().toString()));
+        }
         currentClient.setSmsInfo(clientFromDB.getSmsInfo());
         currentClient.setCanCall(clientFromDB.isCanCall());
         currentClient.setCallRecords(clientFromDB.getCallRecords());
