@@ -336,14 +336,12 @@ public class ClientRestController {
 				conditionToDownload.getDelimeter(), conditionToDownload.getFiletype(), null).get();
 		if (conditionToDownload.getFiletype().equals("txt")) {
 			reportService.writeToFileWithConditionToDownload(conditionToDownload, fileName);
-		}
-		if (conditionToDownload.getFiletype().equals("xlsx")) {
+		} else if (conditionToDownload.getFiletype().equals("xlsx")) {
 			reportService.writeToExcelFileWithConditionToDownload(conditionToDownload, fileName);
-		}
-		if (conditionToDownload.getFiletype().equals("csv")) {
+		} else if (conditionToDownload.getFiletype().equals("csv")) {
 			reportService.writeToCSVFileWithConditionToDownload(conditionToDownload, fileName);
 		} else {
-			logger.info("Can't parse condition to download.");
+			return ResponseEntity.badRequest().body("Can't parse condition to download.");
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -355,14 +353,12 @@ public class ClientRestController {
 				filteringCondition.getDelimeter(), filteringCondition.getFiletype(), filteringCondition.getStatus()).get();
 		if (filteringCondition.getFiletype().equals("txt")) {
 			reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
-		}
-		if (filteringCondition.getFiletype().equals("xlsx")) {
+		} else if (filteringCondition.getFiletype().equals("xlsx")) {
 			reportService.writeToExcelFileWithFilteringConditions(filteringCondition, fileName);
-		}
-		if (filteringCondition.getFiletype().equals("csv")) {
+		} else if (filteringCondition.getFiletype().equals("csv")) {
 			reportService.writeToCSVFileWithFilteringConditions(filteringCondition, fileName);
 		} else {
-			logger.info("Can't parse filtering condition.");
+			return ResponseEntity.badRequest().body("Can't parse filtering condition.");
 		}
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
