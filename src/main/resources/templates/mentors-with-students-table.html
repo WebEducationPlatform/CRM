@@ -15,18 +15,16 @@
 </head>
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
-<div id="mentors-row"></div>
+<div id="empty-container" class="container-fluid" style="height: 60px;"></div>
+<div id="mentors-container" class="container-fluid h-100 d-flex flex-column" ></div>
 
 <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
 <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // var mentors = /*[[${mentors}]]*/ 'default';
-    var students = /*[[${students}]]*/ 'default';
-
+    var mentors = /*[[${mentors}]]*/ 'default';
     /*]]>*/
 </script>
-
 <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
@@ -60,6 +58,6 @@
 <script th:src="@{/js/status.js}"></script>
 <script th:src="@{/js/clientHistory.js}"></script>
 <script th:src="@{/js/clientHistory.js}"></script>
-<script th:src="@{/js/mentors-with-students-table.html.js}"></script>
+<script th:src="@{/js/mentors-with-students-table.js}"></script>
 </body>
 </html>
