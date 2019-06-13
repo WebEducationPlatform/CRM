@@ -42,6 +42,8 @@ public class ReportServiceImpl implements ReportService {
     private final String defaultTemplate;
     private final String allNewStudentsByDateTemplate;
 
+    private final Map<String, String> CLIENT_REPORT_FIELDS;
+
     @Autowired
     public ReportServiceImpl(ClientRepository clientRepository,
                              StatusService statusService,
@@ -54,6 +56,19 @@ public class ReportServiceImpl implements ReportService {
         this.clientService = clientService;
         this.defaultTemplate = env.getProperty("report.default.template");
         this.allNewStudentsByDateTemplate = env.getProperty("report.new.clients.by.date.template");
+
+        Map<String, String> clientReportMap = new LinkedHashMap<>();
+        clientReportMap.put("name", "First Name");
+        clientReportMap.put("lastName", "Last Name");
+        clientReportMap.put("email", "E-mail");
+        clientReportMap.put("phoneNumber", "Phone Number");
+        clientReportMap.put("vk", "VK");
+        clientReportMap.put("facebook", "Facebook");
+        clientReportMap.put("unknown", "Unknown");
+        clientReportMap.put("telegram", "Telegram");
+        clientReportMap.put("whatsapp", "Whatsapp");
+        clientReportMap.put("slack", "Slack");
+        CLIENT_REPORT_FIELDS = Collections.unmodifiableMap(clientReportMap);
     }
 
     /**
@@ -397,27 +412,26 @@ public class ReportServiceImpl implements ReportService {
             delimeter = "  ";
         }
         try (BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"))) {
-            List<Client> filteredClients = clientService.getAllClients();
-            for (Client filteredClient : filteredClients) {
-                if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                    writer.write(filteredClient.getName() + delimeter);
+            for (Client client : clients) {
+                if (checkedData.contains("name") && !Strings.isNullOrEmpty(client.getName())) {
+                    writer.write(client.getName() + delimeter);
                 }
-                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                    writer.write(filteredClient.getLastName() + delimeter);
+                if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(client.getLastName())) {
+                    writer.write(client.getLastName() + delimeter);
                 }
-                if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                    List<String> clientEmails = filteredClient.getClientEmails();
+                if (checkedData.contains("email") && client.getEmail().isPresent()) {
+                    List<String> clientEmails = client.getClientEmails();
                     for (String email : clientEmails) {
                         writer.write(email + delimeter);
                     }
                 }
-                if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                    List<String> clientPhones = filteredClient.getClientPhones();
+                if (checkedData.contains("phoneNumber") && client.getPhoneNumber().isPresent()) {
+                    List<String> clientPhones = client.getClientPhones();
                     for (String phone : clientPhones) {
                         writer.write(phone + delimeter);
                     }
                 }
-                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
+                List<SocialProfile> clientsSocialProfiles = new ArrayList<>(client.getSocialProfiles());
                 for (String checkedSocialNetwork : checkedData) {
                     for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
                         if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
@@ -437,6 +451,14 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void fillExcelFile(List<Client> clients, List<String> checkedData, Path filePath) {
+        Map<String,String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
+        requestedFieldsMap.entrySet().removeIf(x -> !checkedData.contains(x.getKey()));
+
+        List<String> socialNetworkTypes = Arrays.asList(SocialProfile.SocialNetworkType.values())
+                .stream()
+                .map(x -> x.getName())
+                .collect(Collectors.toList());
+
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Clients");
 
@@ -448,46 +470,45 @@ public class ReportServiceImpl implements ReportService {
         CellStyle headerCellStyle = workbook.createCellStyle();
         headerCellStyle.setFont(headerFont);
 
+        List<String> requestedFieldsHeader = new ArrayList<>(requestedFieldsMap.values());
+
         Row headerRow = sheet.createRow(0);
 
-        Iterator<String> dataIter = checkedData.iterator();
-
-        for (int i = 0; i < checkedData.size(); i++) {
+        for (int i = 0; i < requestedFieldsHeader.size(); i++) {
             Cell cell = headerRow.createCell(i);
-            cell.setCellValue(dataIter.next());
+            cell.setCellValue(requestedFieldsHeader.get(i));
             cell.setCellStyle(headerCellStyle);
         }
+
         int rowNum = 1;
         int colNum;
-        for (Client filteredClient : clients) {
+        for (Client client : clients) {
             colNum = 0;
             Row row = sheet.createRow(rowNum++);
-            if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                row.createCell(colNum++).setCellValue(filteredClient.getName());
-            }
-            if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                row.createCell(colNum++).setCellValue(filteredClient.getLastName());
-            }
-            if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                row.createCell(colNum++).setCellValue(filteredClient.getClientEmails()
-                        .stream()
-                        .collect(Collectors.joining(", ")));
-            }
-            if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                row.createCell(colNum++).setCellValue(filteredClient.getClientPhones()
-                        .stream()
-                        .collect(Collectors.joining(", ")));
-            }
-            List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
-            for (String checkedSocialNetwork : checkedData) {
-                for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                    if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
-                        if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
-                            row.createCell(colNum++).setCellValue(clientSocialProfile.getSocialNetworkType().getLink() +
-                                    clientSocialProfile.getSocialId());
-                            continue;
-                        }
-                        row.createCell(colNum++).setCellValue(clientSocialProfile.getSocialId());
+            for (String field : requestedFieldsMap.keySet()) {
+                if (field.equals("name")) {
+                        row.createCell(colNum++).setCellValue(client.getName());
+                } else if (field.equals("lastName")) {
+                        row.createCell(colNum++).setCellValue(client.getLastName());
+                } else if (field.equals("email")) {
+                        row.createCell(colNum++).setCellValue(client.getClientEmails()
+                                .stream()
+                                .collect(Collectors.joining(", ")));
+                } else if (field.equals("phoneNumber")) {
+                        row.createCell(colNum++).setCellValue(client.getClientPhones()
+                                .stream()
+                                .collect(Collectors.joining(", ")));
+                } else if (socialNetworkTypes.contains(field)){
+                    if (field.equals("vk")) {
+                        row.createCell(colNum++).setCellValue(client.getSocialProfiles().stream()
+                                .filter(x -> x.getSocialNetworkType().getName().equals("vk"))
+                                .map(x -> x.getSocialNetworkType().getLink() + x.getSocialId())
+                                .collect(Collectors.joining(", ")));
+                    } else {
+                        row.createCell(colNum++).setCellValue(client.getSocialProfiles().stream()
+                                .filter(x -> x.getSocialNetworkType().getName().equals(field))
+                                .map(x -> x.getSocialId())
+                                .collect(Collectors.joining(", ")));
                     }
                 }
             }
@@ -505,40 +526,50 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void fillCSVFile(List<Client> clients, List<String> checkedData, Path filePath) {
+        Map<String,String> requestedFieldsMap = new LinkedHashMap<>(CLIENT_REPORT_FIELDS);
+        requestedFieldsMap.entrySet().removeIf(x -> !checkedData.contains(x.getKey()));
+
+        List<String> socialNetworkTypes = Arrays.asList(SocialProfile.SocialNetworkType.values())
+                .stream()
+                .map(x -> x.getName())
+                .collect(Collectors.toList());
+
         try(BufferedWriter writer = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"));
                 CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
-            printer.printRecord(checkedData);
-            for (Client filteredClient : clients) {
-                    printer.println();
-                    if (checkedData.contains("name") && !Strings.isNullOrEmpty(filteredClient.getName())) {
-                        printer.print(filteredClient.getName());
-                    }
-                    if (checkedData.contains("lastName") && !Strings.isNullOrEmpty(filteredClient.getLastName())) {
-                        printer.print(filteredClient.getLastName());
-                    }
-                    if (checkedData.contains("email") && filteredClient.getEmail().isPresent()) {
-                        printer.print(filteredClient.getClientEmails()
-                                .stream()
-                                .collect(Collectors.joining(", ")));
-                    }
-                    if (checkedData.contains("phoneNumber") && filteredClient.getPhoneNumber().isPresent()) {
-                        printer.print(filteredClient.getClientPhones()
-                                .stream()
-                                .collect(Collectors.joining(", ")));
-                    }
-                    List<SocialProfile> clientsSocialProfiles = new ArrayList<>(filteredClient.getSocialProfiles());
-                    for (String checkedSocialNetwork : checkedData) {
-                        for (SocialProfile clientSocialProfile : clientsSocialProfiles) {
-                            if (checkedSocialNetwork.equals(clientSocialProfile.getSocialNetworkType().getName())) {
-                                if (clientSocialProfile.getSocialNetworkType().getName().equals("vk")) {
-                                    printer.print(clientSocialProfile.getSocialNetworkType().getLink() +
-                                            clientSocialProfile.getSocialId());
-                                    continue;
-                                }
-                                printer.print(clientSocialProfile.getSocialId());
+            printer.printRecord(requestedFieldsMap.values());
+            for (Client client : clients) {
+                printer.println();
+                for (String field : requestedFieldsMap.keySet()) {
+                    try {
+                        if (field.equals("name")) {
+                            printer.print(client.getName());
+                        } else if (field.equals("lastName")) {
+                            printer.print(client.getLastName());
+                        } else if (field.equals("email")) {
+                            printer.print(client.getClientEmails()
+                                    .stream()
+                                    .collect(Collectors.joining(", ")));
+                        } else if (field.equals("phoneNumber")) {
+                            printer.print(client.getClientPhones()
+                                    .stream()
+                                    .collect(Collectors.joining(", ")));
+                        } else if (socialNetworkTypes.contains(field)){
+                            if (field.equals("vk")) {
+                                printer.print(client.getSocialProfiles().stream()
+                                        .filter(x -> x.getSocialNetworkType().getName().equals("vk"))
+                                        .map(x -> x.getSocialNetworkType().getLink() + x.getSocialId())
+                                        .collect(Collectors.joining(", ")));
+                            } else {
+                                printer.print(client.getSocialProfiles().stream()
+                                        .filter(x -> x.getSocialNetworkType().getName().equals(field))
+                                        .map(x -> x.getSocialId())
+                                        .collect(Collectors.joining(", ")));
                             }
                         }
+                    } catch (IOException e) {
+                        logger.error("Can't fill field " + field + " for client with id " + client.getId(), e);
                     }
+                }
             }
             printer.flush();
         } catch (IOException e) {
