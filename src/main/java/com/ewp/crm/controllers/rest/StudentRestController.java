@@ -14,6 +14,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public class StudentRestController {
     }
 
     @GetMapping
-    public ResponseEntity<Student> getStudentById(@RequestParam("email") String email) {
+    public ResponseEntity<Student> getStudentByEmail(@RequestParam("email") String email) {
         ResponseEntity result;
         Student student = studentService.getStudentByEmail(email);
         if (student != null) {
@@ -73,6 +74,12 @@ public class StudentRestController {
             result = new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return result;
+    }
+
+    @PostMapping
+    public ResponseEntity<List<Student>> getStudentsByEmailsList(@RequestParam("emailsList") List<String> emailsList) {
+
+        return null;
     }
 
     @PostMapping ("/update")

@@ -42,7 +42,8 @@ public class MentorsController {
                              MessageTemplateService MessageTemplateService,
                              ProjectPropertiesService propertiesService,
                              StudentStatusService studentStatus,
-                             RoleService roleService, StudentService studentService) {
+                             RoleService roleService,
+							 StudentService studentService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
@@ -64,7 +65,6 @@ public class MentorsController {
         modelAndView.addObject("slackBotIp", slackBotIp);
         modelAndView.addObject("slackBotPort", slackBotPort);
         modelAndView.addObject("mentors", userService.getAll().stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
-        modelAndView.addObject("stu", studentService.getAll());
         modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("studentStatuses", studentStatus.getAll());
         modelAndView.addObject("statuses", statusService.getAll());

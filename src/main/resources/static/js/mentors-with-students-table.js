@@ -1,5 +1,6 @@
 let botIp = $("#slackbotIp").val();
 let botPort = $("#slackbotPort").val();
+var mentorsList = [];
 
 $(document).ready(function () {
     $("#mentors-row").children().remove();
@@ -7,40 +8,47 @@ $(document).ready(function () {
         class: 'row flex-shrink-0',
         id: 'mentors-row'
     }).appendTo('#mentors-container');
+    $.ajaxSetup({async: false});
     $.each(mentors, function (i, mentor) {
         $.get("http://" + botIp + ":" + botPort + "/mentor/students?email=" + mentor.email)
             .done(function (response) {
-                drawMentorTable(mentor, response);
+                mentorsList.push(response);
             })
 
     });
+    console.log(mentorsList);
+    drawMentorTable();
 });
 
-function drawMentorTable(mentor, studentsEmails) {
-    $('<div></div>', {
-        class: 'text-center col-md-' + 12 / mentors.length,
-        id: 'mentor-column' + mentor.id,
-        text: studentsEmails.mentorName
-    }).appendTo('#mentors-row');
-    $('<div></div>', {
-        class: 'row',
-        id: 'mentor-row' + mentor.id
-    }).appendTo('#mentor-column' + mentor.id);
-    $.each(studentsEmails, function (key, obj) {
-        if (key.includes('emails')) {
-            $('<div></div>', {
-                class: 'column ui-sortable',
-                id: 'column-' + key,
-                text: key
-            }).appendTo('#mentor-row' + mentor.id);
-            $.each(obj, function (i, email) {
-                $.get("/rest/student?email=" + email)
-                    .done(function (client) {
-                       drawClientsPortlet(client, key)
-                    })
-            })
-        }
-    })
+function drawMentorTable() {
+    $.each(mentorsList, function (i, mentor) {
+        $('<div></div>', {
+            class: 'text-center col-md-' + 12 / mentorsList.length,
+            id: 'mentor-column' + i,
+            text: mentor.mentorName
+        }).appendTo('#mentors-row');
+        $('<div></div>', {
+            class: 'row',
+            id: 'mentor-row' + i
+        }).appendTo('#mentor-column' + i);
+        $.each(mentor, function (key, obj) {
+            if (key.includes('emails')) {
+                $('<div></div>', {
+                    class: 'column ui-sortable',
+                    id: 'column-' + key,
+                    text: key
+                }).appendTo('#mentor-row' + i);
+                $.each(obj, function (i, email) {
+                    $.get("/rest/student?email=" + email)
+                        .done(function (client) {
+                            drawClientsPortlet(client, key)
+                        })
+                })
+            }
+        })
+    });
+
+
 }
 
 function drawClientsPortlet(student, key) {
