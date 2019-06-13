@@ -62,6 +62,19 @@ public class StudentRestController {
         return result;
     }
 
+    @GetMapping
+    public ResponseEntity<Student> getStudentById(@RequestParam("email") String email) {
+        ResponseEntity result;
+        Student student = studentService.getStudentByEmail(email);
+        if (student != null) {
+            result = ResponseEntity.ok(student);
+        } else {
+            logger.info("Student with email {} not found", email);
+            result = new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return result;
+    }
+
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         if (student.getStatus().getId() == null) {
