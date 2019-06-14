@@ -18,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.net.URI;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -52,6 +53,19 @@ public class FacebookServiceImpl implements FacebookService {
 	}
 
 	private final String FB_API_METHOD_TEMPLATE = "https://graph.facebook.com/";
+
+	@Override
+	public Optional<String> getIdFromLink(String link) {
+		Optional<String> id = Optional.empty();
+		if (link != null && link.matches(".*(facebook.com/|fb.com/).*")) {
+			if (link.contains("profile.php?id=")) {
+				id = Optional.of(link.substring(link.indexOf("?id=") + 4));
+			} else {
+				id = Optional.of(link.substring(link.indexOf(".com/") + 5));
+			}
+		}
+		return id;
+	}
 
 	public void getFacebookMessages() throws FBAccessTokenException {
 		if (pageToken == null) {
