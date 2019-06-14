@@ -17,9 +17,9 @@ public class Comment {
 	private Long id;
 
 	/**
-	 * We use FetchType.LAZY for lazy initialization.
+	 * ManyToOne uses FetchType.EAGER by default.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))
 	private User user;
 
