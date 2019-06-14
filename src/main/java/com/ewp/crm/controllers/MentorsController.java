@@ -65,7 +65,7 @@ public class MentorsController {
         modelAndView.addObject("slackBotIp", slackBotIp);
         modelAndView.addObject("slackBotPort", slackBotPort);
         modelAndView.addObject("mentors", userService.getAll().stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
-        modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
+        //modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("studentStatuses", studentStatus.getAll());
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
