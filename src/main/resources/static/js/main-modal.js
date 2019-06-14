@@ -328,7 +328,7 @@ $(function () {
                     $('#chat-button').show();
 
                     if (client.socialProfiles[i].socialNetworkType.name === 'facebook') {
-                        $('#fb-href').attr('href', client.socialProfiles[i].socialId);
+                        $('#fb-href').attr('href', client.socialProfiles[i].socialNetworkType.link + client.socialProfiles[i].socialId);
                         $('#fb-href').show();
                     }
 
