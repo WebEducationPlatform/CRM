@@ -3,6 +3,7 @@ package com.ewp.crm.util.converters;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
+import com.ewp.crm.service.interfaces.FacebookService;
 import com.ewp.crm.service.interfaces.VKService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class IncomeStringToClient {
 
     private final VKService vkService;
+    private final FacebookService facebookService;
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
     private Environment env;
 
@@ -27,9 +29,11 @@ public class IncomeStringToClient {
     private static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
 
     @Autowired
-    public IncomeStringToClient(VKService vkService, Environment env) {
+    public IncomeStringToClient(VKService vkService, Environment env,
+                                FacebookService facebookService) {
         this.vkService = vkService;
         this.env = env;
+        this.facebookService = facebookService;
     }
 
     public Optional<Client> convert(String income) {
@@ -250,7 +254,7 @@ public class IncomeStringToClient {
         } else if (clientData.containsKey("Соцсеть")) {
             link = clientData.get("Соцсеть");
         }
-        link = link.replaceAll("~", EMPTY);
+        link = link.replaceAll("~", EMPTY).replace("\"target=\"_blank", EMPTY);
         if (!link.isEmpty()) {
             SocialProfile currentSocialProfile = getSocialNetwork(link);
             if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
@@ -267,6 +271,7 @@ public class IncomeStringToClient {
         if (link.contains("vk.com") || link.contains("m.vk.com")) {
             String validLink = vkService.refactorAndValidateVkLink(link);
             if (validLink.equals("undefined")) {
+                socialProfile.setSocialId(link);
                 socialProfile.setSocialNetworkType(SocialNetworkType.UNKNOWN);
             } else {
                 Optional<String> socialId = vkService.getIdFromLink(link);
@@ -275,9 +280,14 @@ public class IncomeStringToClient {
                     socialProfile.setSocialNetworkType(SocialNetworkType.VK);
                 }
             }
-        } else if (link.contains("www.facebook.com") || link.contains("m.facebook.com")) {
-            socialProfile.setSocialNetworkType(SocialNetworkType.FACEBOOK);
+        } else if (link.contains("facebook.com") || link.contains("fb.com")) {
+            Optional<String> socialId = facebookService.getIdFromLink(link);
+            if (socialId.isPresent()) {
+                socialProfile.setSocialId(socialId.get());
+                socialProfile.setSocialNetworkType(SocialNetworkType.FACEBOOK);
+            }
         } else {
+            socialProfile.setSocialId(link);
             socialProfile.setSocialNetworkType(SocialNetworkType.UNKNOWN);
         }
         return socialProfile;
