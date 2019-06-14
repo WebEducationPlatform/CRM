@@ -9,6 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+
 @RestController
 public class EmailRestController {
 
@@ -32,5 +34,4 @@ public class EmailRestController {
 		mailSendService.prepareAndSend(clientId, templateText, body, userFromSession);
 		return ResponseEntity.ok().build();
 	}
-
 }

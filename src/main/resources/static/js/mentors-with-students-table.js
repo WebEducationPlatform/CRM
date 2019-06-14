@@ -5,7 +5,7 @@ let mentorsMap = new Map();
 $(document).ready(function () {
     $("#mentors-row").children().remove();
     $('<div></div>', {
-        class: 'row flex-shrink-0',
+        class: 'row',
         id: 'mentors-row'
     }).appendTo('#mentors-container');
     $.ajaxSetup({async: false});
@@ -25,13 +25,14 @@ function drawMentorTable() {
     for (const mentor of mentorsMap.entries()) {
         let mentorWithClientsMap = new Map();
         $('<div></div>', {
-            class: 'text-center col-md-' + 12 / mentorsMap.length,
+            class: 'text-center col-md-auto',
             id: 'mentor-column' + mentor[0],
             text: mentor[1].mentorName
         }).appendTo('#mentors-row');
         $('<div></div>', {
-            class: 'row',
-            id: 'mentor-row' + mentor[0]
+            class: 'row center-block',
+            id: 'mentor-row' + mentor[0],
+            style: "display: flex; justify-content: center; flex-flow:row wrap;"
         }).appendTo('#mentor-column' + mentor[0]);
         $.each(mentor[1], function (key, obj) {
             if (key.includes('emails')) {
@@ -39,10 +40,10 @@ function drawMentorTable() {
                 $('<div></div>', {
                     class: 'column ui-sortable',
                     id: 'column-' + mentor[0] + "-" + key,
-                    text: key
+                    text: key.replace('emails','')
                 }).appendTo('#mentor-row' + mentor[0]);
                 $.each(obj, function (i, email) {
-                    $.get("/rest/student?email=" + email)
+                    $.get("/rest/client?email=" + email)
                         .done(function (client) {
                             studentsInStatusList.push(client);
                         })
@@ -62,23 +63,23 @@ function drawClientsPortlet(mentorsWithClientsMap) {
         for (const statuses of mentorWithClientsMap[1].entries()) {
             //console.log(statuses);
             let status = statuses[0];
-            statuses[1].forEach(function (student, i, statuses) {
-                console.log(i + " " + student.client.name);
+            statuses[1].forEach(function (client, i, statuses) {
+                //console.log(i + " " + student.client.name);
                 $('<div></div>', {
                     class: 'portlet common-modal panel panel-default',
-                    id: student.id,
-                    onmouseover: 'displayOption(' + student.id + ')',
-                    value: student.id,
-                    'data-card-id': student.id,
-                }).appendTo('#column-' + mentorWithClientsMap[0]+ "-" + status);
+                    id: client.id,
+                    onmouseover: 'displayOption(' + client.id + ')',
+                    value: client.id,
+                    'data-card-id': client.id,
+                }).appendTo('#column-' + mentorWithClientsMap[0] + "-" + status);
                 //
                 $('<div></div>', {
                     class: 'portlet-body',
-                    'client-id': student.id,
-                    name: 'client-' + student.id + '-modal',
-                    onclick: 'showCurrentModal(' + student.client.id + ')',
-                    text: student.client.name + " " + student.client.lastName
-                }).appendTo('div#' + student.id + '.portlet');
+                    'client-id': client.id,
+                    name: 'client-' + client.id + '-modal',
+                    onclick: 'showCurrentModal(' + client.id + ')',
+                    text: client.name + " " + client.lastName
+                }).appendTo('div#' + client.id + '.portlet');
             });
         }
     }
