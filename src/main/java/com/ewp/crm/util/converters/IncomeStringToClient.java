@@ -254,7 +254,7 @@ public class IncomeStringToClient {
         } else if (clientData.containsKey("Соцсеть")) {
             link = clientData.get("Соцсеть");
         }
-        link = link.replaceAll("~", EMPTY);
+        link = link.replaceAll("~", EMPTY).replace("\"target=\"_blank", EMPTY);
         if (!link.isEmpty()) {
             SocialProfile currentSocialProfile = getSocialNetwork(link);
             if (currentSocialProfile.getSocialNetworkType().getName().equals("unknown")) {
