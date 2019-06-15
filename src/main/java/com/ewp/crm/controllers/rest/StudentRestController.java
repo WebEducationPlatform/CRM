@@ -91,6 +91,7 @@ public class StudentRestController {
             if (!student.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS).equals(previous.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS)) &&
                     "На пробных".equals(client.getStatus().getName())) {
                     client.setStatus(statusService.get("Учатся").orElseThrow(() -> new IllegalArgumentException("Status \"Учатся\" doesn't exist!")));
+                    clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.STATUS).ifPresent(client::addHistory);
                     logger.info("{} has changed status of client with id: {} to status \"Учатся\" by the way change next payment date.", userFromSession.getFullName(), client.getId());
                 }
         }
