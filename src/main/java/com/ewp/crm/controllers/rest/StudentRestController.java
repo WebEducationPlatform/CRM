@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +86,13 @@ public class StudentRestController {
         }
         if (updatedClient.getEmail().isPresent() && !updatedClient.getEmail().get().isEmpty()) {
             client.setEmail(updatedClient.getEmail().get());
+        }
+        if (student.getNextPaymentDate() != null) {
+            if (!student.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS).equals(previous.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS)) &&
+                    "На пробных".equals(client.getStatus().getName())) {
+                    client.setStatus(statusService.get("Учатся").orElseThrow(() -> new IllegalArgumentException("Status \"Учатся\" doesn't exist!")));
+                    logger.info("{} has changed status of client with id: {} to status \"Учатся\" by the way change next payment date.", userFromSession.getFullName(), client.getId());
+                }
         }
         studentService.update(student);
         clientService.updateClient(client);
