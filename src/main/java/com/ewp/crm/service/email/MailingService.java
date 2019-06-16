@@ -1,6 +1,7 @@
 package com.ewp.crm.service.email;
 
 
+import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
@@ -45,17 +46,19 @@ public class MailingService {
     private final SlackService slackService;
     private final MailingMessageRepository mailingMessageRepository;
     private final TemplateEngine htmlTemplateEngine;
+    private final VKConfig vkConfig;
 
     @Autowired
     public MailingService(SMSService smsService, VKService vkService, JavaMailSender javaMailSender,
                           MailingMessageRepository mailingMessageRepository, TemplateEngine htmlTemplateEngine,
-                          SlackService slackService) {
+                          SlackService slackService, VKConfig vkConfig) {
         this.smsService = smsService;
         this.vkService = vkService;
         this.javaMailSender = javaMailSender;
         this.mailingMessageRepository = mailingMessageRepository;
         this.htmlTemplateEngine = htmlTemplateEngine;
         this.slackService = slackService;
+        this.vkConfig = vkConfig;
     }
 
     public MailingMessage addMailingMessage(MailingMessage message) {
@@ -177,7 +180,7 @@ public class MailingService {
         for (ClientData idVk : message.getClientsData()) {
             try {
                 Thread.sleep(1000);
-                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), message.getVkType());
+                String value = vkService.sendMessageById(Long.parseLong(idVk.getInfo()), message.getText(), vkConfig.getCommunityToken());
                 if (!value.equalsIgnoreCase("Message sent")) {
                     notSendList.add(value);
                 }

@@ -460,7 +460,7 @@ public class VKServiceImpl implements VKService {
             String result = EntityUtils.toString(httpResponse.getEntity());
             JSONObject json = new JSONObject(result);
             JSONObject responeJson = json.getJSONObject("response");
-            JSONArray jsonArray = responeJson.getJSONArray("users");
+            JSONArray jsonArray = responeJson.getJSONArray("items");
             List<VkMember> vkMembers = new LinkedList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 VkMember vkMember = new VkMember(Long.parseLong(jsonArray.get(i).toString()), groupId);
@@ -497,11 +497,13 @@ public class VKServiceImpl implements VKService {
     @Override
     public String sendMessageById(Long id, String msg, String token) {
         logger.info("VKService: sending message to client with id {}...", id);
+        Random rand = new Random();
         String sendMsgRequest = vkApi + "messages.send";
         HttpPost request = new HttpPost(sendMsgRequest);
         List<NameValuePair> params = new ArrayList<>(4);
         params.add(new BasicNameValuePair("user_id", String.valueOf(id)));
         params.add(new BasicNameValuePair("v", version));
+        params.add(new BasicNameValuePair("random_id", String.valueOf(rand.nextInt(Integer.MAX_VALUE))));
         params.add(new BasicNameValuePair("message", msg));
         params.add(new BasicNameValuePair("access_token", token));
         try {
