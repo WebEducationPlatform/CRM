@@ -42,6 +42,12 @@ public class Student implements Diffable<Student> {
     private LocalDateTime nextPaymentDate;
 
     /**
+     * Дата последнего уведомления об оплате
+     */
+    @Column (name = "last_payment_notification")
+    private LocalDateTime lastPaymentNotification;
+
+    /**
      * Стоимость обучения в месяц, руб
      */
     @Column (name = "price")
@@ -144,6 +150,14 @@ public class Student implements Diffable<Student> {
         this.nextPaymentDate = nextPaymentDate;
     }
 
+    public LocalDateTime getLastPaymentNotification() {
+        return lastPaymentNotification;
+    }
+
+    public void setLastPaymentNotification(LocalDateTime lastPaymentNotification) {
+        this.lastPaymentNotification = lastPaymentNotification;
+    }
+
     public BigDecimal getPrice() {
         return price;
     }
@@ -223,6 +237,7 @@ public class Student implements Diffable<Student> {
                 ", client=" + client +
                 ", trialEndDate=" + trialEndDate +
                 ", nextPaymentDate=" + nextPaymentDate +
+                ", lastPaymentNotification=" + lastPaymentNotification +
                 ", price=" + price +
                 ", paymentAmount=" + paymentAmount +
                 ", payLater=" + payLater +
