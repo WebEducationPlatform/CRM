@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  * Студент
  */
 @Table (name = "student")
+@EntityListeners(StudentListener.class)
 @Entity
 public class Student implements Diffable<Student> {
 
