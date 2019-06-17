@@ -298,7 +298,7 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-	@Scheduled(cron = "* */15 * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	private void getSlackProfiles() {
 		slackService.tryLinkSlackAccountToAllStudents();
 	}
@@ -314,11 +314,14 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 0 * * *")
 	private void sendDailyAdvertisementReport() {
+		logger.debug("Start filling ad report");
         LocalDate date = LocalDate.now().minusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        String formattedDate = date.format(formatter);
-        adReportTemplate = adReportTemplate.replace("{date}", formattedDate);
+		String formattedDate = date.format(formatter);
+		logger.debug("Ad report for {}", formattedDate);
+		adReportTemplate = adReportTemplate.replace("{date}", formattedDate);
         vkService.sendDailyAdvertisementReport(adReportTemplate);
+		logger.debug("Finish filling ad report");
 	}
 
 	@Scheduled(cron = "0 0 10 01 * ?")
