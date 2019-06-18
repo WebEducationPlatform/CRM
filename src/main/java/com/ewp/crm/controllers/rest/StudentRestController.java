@@ -15,7 +15,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import javax.servlet.http.HttpServletRequest;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -75,12 +74,6 @@ public class StudentRestController {
             result = new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return result;
-    }
-
-    @PostMapping
-    public ResponseEntity<List<Student>> getStudentsByEmailsList(@RequestParam("emailsList") List<String> emailsList) {
-
-        return null;
     }
 
     @PostMapping ("/update")
