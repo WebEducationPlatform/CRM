@@ -366,9 +366,6 @@ public class ReportServiceImpl implements ReportService {
                             break;
                         }
                     }
-                    if (!goodResult) {
-                        continue;
-                    }
                     // Проверяем, что клиент пробыл в данном статусе более 3-х минут
                     if (goodResult) {
                         goodResult = isFakeChangingStatusBy3minsRule(clientHistory);
