@@ -41,6 +41,7 @@ public class ReportServiceImpl implements ReportService {
     private final ClientService clientService;
     private final String defaultTemplate;
     private final String allNewStudentsByDateTemplate;
+    private final String repeatedClientTopic;
 
     private final Map<String, String> CLIENT_REPORT_FIELDS;
 
@@ -56,6 +57,7 @@ public class ReportServiceImpl implements ReportService {
         this.clientService = clientService;
         this.defaultTemplate = env.getProperty("report.default.template");
         this.allNewStudentsByDateTemplate = env.getProperty("report.new.clients.by.date.template");
+        this.repeatedClientTopic = env.getProperty("messaging.client.service.repeated");
 
         Map<String, String> clientReportMap = new LinkedHashMap<>();
         clientReportMap.put("name", "First Name");
@@ -84,14 +86,12 @@ public class ReportServiceImpl implements ReportService {
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
-        List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
-        int quantityAllNewClients = clients.size();
-        List<Client> clientsWithDuplicateRequest = new ArrayList<>(clients);
-        clientsWithDuplicateRequest.removeIf(client -> (
-                client.getClientDescriptionComment() != null
-                        && client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")));
+        List<Client> result = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
+        int quantityAllNewClients = result.size();
+        List<Client> clientsWithDuplicateRequest = new ArrayList<>(result);
+        clientsWithDuplicateRequest.removeIf(client -> repeatedClientTopic.equals(client.getClientDescriptionComment()));
         String message = MessageFormat.format(allNewStudentsByDateTemplate, quantityAllNewClients, (quantityAllNewClients - clientsWithDuplicateRequest.size()));
-        return new Report(message, clients);
+        return new Report(message, sortList(result));
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
@@ -300,7 +300,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         String message = MessageFormat.format(defaultTemplate, result.size());
-        return new Report(message, result);
+        return new Report(message, sortList(result));
     }
 
     /**
@@ -382,7 +382,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         String message = MessageFormat.format(defaultTemplate, result.size());
-        return new Report(message, result);
+        return new Report(message, sortList(result));
     }
 
 
@@ -414,7 +414,11 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         String message = MessageFormat.format(defaultTemplate, result.size());
-        return new Report(message, result);
+        return new Report(message, sortList(result));
+    }
+
+    private List<Client> sortList(List<Client> list) {
+        return list.stream().sorted(Comparator.comparing(Client::getLastName).thenComparing(Client::getName)).collect(Collectors.toList());
     }
 
     @Override
