@@ -344,10 +344,11 @@ public class ReportServiceImpl implements ReportService {
                     // Ищем предыдущие истории и проверяем, был ли клиент ранее в исходном статусе
                     while (true) {
                         // Если вышли за диапазон по дате - прекращаем поиск
-                        if (lastHistory.getDate().isBefore(reportStartDate)) {
-                            goodResult = false;
-                            break;
-                        }
+                        // TODO уточнить логику формирования отчета
+//                        if (lastHistory.getDate().isBefore(reportStartDate)) {
+//                            goodResult = false;
+//                            break;
+//                        }
                         // Получаем из истории клиента предшествующую запись, чтобы определить
                         // исходный статус, из которого клиент перешел в искомый статус
                         Optional<ClientHistory> beforeHistory = historyBeforeThis(lastHistory);
