@@ -23,27 +23,75 @@ $('#mailingDate').daterangepicker({
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
 
-function hideElements() {
-    $('.hideable').hide();
-}
-
-function showElements() {
-    $('.hideable').show();
+function setVisibility(i) {
+    let btn = $('#load-data-button');
+    switch (i) {
+        case 1:
+            $('.hideable').show();
+            $('.hideable_1').show();
+            $('.hideable_2').hide();
+            $('.hideable_3').hide();
+            btn.prop('disabled', false);
+            break;
+        case 2:
+        case 3:
+            $('.hideable').hide();
+            $('.hideable_1').show();
+            $('.hideable_2').hide();
+            $('.hideable_3').hide();
+            btn.prop('disabled', false);
+            break;
+        case 4:
+            $('.hideable').hide();
+            $('.hideable_1').hide();
+            $('.hideable_2').hide();
+            $('.hideable_3').show();
+            btn.prop('disabled', false);
+            break;
+        case 5:
+            $('.hideable').hide();
+            $('.hideable_1').hide();
+            $('.hideable_2').show();
+            $('.hideable_3').hide();
+            btn.prop('disabled', true);
+            break;
+    }
 }
 
 $('#report-type-1').on('click', function () {
-    showElements();
+    setVisibility(1);
     selectedReport = 1;
 });
 
 $('#report-type-2').on('click', function () {
-    hideElements();
+    setVisibility(2);
     selectedReport = 2;
 });
 
 $('#report-type-3').on('click', function () {
-    hideElements();
+    setVisibility(3);
     selectedReport = 3;
+});
+
+$('#report-type-4').on('click', function () {
+    setVisibility(4);
+    selectedReport = 4;
+    $('.reports-checkboxes').prop('checked', false);
+});
+
+$('#report-type-5').on('click', function () {
+    setVisibility(5);
+    selectedReport = 5;
+    $('.reports-checkboxes').prop('checked', false);
+});
+
+$('#reportList').on('change', '.reports-checkboxes', function () {
+    let btn = $('#load-data-button');
+    if ($('.reports-checkboxes:checked').length === 2) {
+        btn.prop('disabled', false);
+    } else {
+        btn.prop('disabled', true);
+    }
 });
 
 $('#from-all-checkbox').on('change', function () {
@@ -166,6 +214,18 @@ $('#exclude-statuses-btn').on('click', function () {
 
 function showAndFillTable(data) {
     lastReportCount++;
+    if (lastReportCount === 2) {
+        $('.hideable_once').show();
+    }
+    $('#reportList').append(
+        '<label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Отчет #' + lastReportCount + '"/>Отчет #' + lastReportCount + '</label><br />'
+    );
+    $('#report_selector_1').append(
+        '<option value="' + lastReportCount + '">Отчет #' + lastReportCount + '</option>'
+    );
+    $('#report_selector_2').append(
+        '<option value="' + lastReportCount + '">Отчет #' + lastReportCount + '</option>'
+    );
     $('.report-tab').removeClass('active');
     $('#panel-tabs-data').append(
         '<li role="presentation" id="report_tab_' + lastReportCount + '" class="report-tab active"><a href="#">Отчет #' + lastReportCount + '</a></li>'
@@ -225,7 +285,7 @@ $(document).ready(function () {
     let statusFromSelector = $('#statusFromSelect');
     let statusToSelector = $('#statusToSelect');
     let statusExcludeSelector = $('#statusExcludeSelect');
-
+    $('.hideable_once').hide();
     $.ajax({
         url: "/rest/status",
         type: "GET",
@@ -234,6 +294,9 @@ $(document).ready(function () {
             statusFromSelector.empty();
             statusToSelector.empty();
             statusExcludeSelector.empty();
+            $('#reportList').empty();
+            $('#report_selector_1').empty();
+            $('#report_selector_2').empty();
             for (var i = 0; i < response.length; i++) {
                 statusFromSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
                 statusToSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
