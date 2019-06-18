@@ -1,6 +1,7 @@
 var selectedDateStart;
 var selectedDateEnd;
 var selectedReport = 1;
+var lastReportCount = 0;
 
 $('#mailingDate').daterangepicker({
     locale: {
@@ -21,19 +22,6 @@ $('#mailingDate').daterangepicker({
     selectedDateEnd = end.format('YYYY-MM-DD');
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
 });
-
-$('#reportArea').each(function () {
-    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;width:100%;');
-}).on('click', function () {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-
-function reportAreaSetHeight() {
-    let element = $('#reportArea');
-    element[0].style.height = 'auto';
-    element.height(element[0].scrollHeight);
-}
 
 function hideElements() {
     $('.hideable').hide();
@@ -67,7 +55,6 @@ $('#from-all-checkbox').on('change', function () {
 });
 
 $('#load-data-button').on('click', function () {
-    hideAndClearTable();
     let wrap;
     if (selectedDateStart === undefined || selectedDateEnd === undefined) {
         let dates = $('#mailingDate').val().split(' - ');
@@ -156,25 +143,62 @@ $('#load-data-button').on('click', function () {
     }
 });
 
-function hideAndClearTable() {
-    $('#report-area-holder').hide();
-    $('#reportArea').val('');
-    $('#client-cards-table').hide();
-    $('.client-row').remove();
-}
+$('#panel-tabs-data').on('click', '.report-tab', function () {
+    let report = $(this)[0]['id'].split("_")[2];
+    $('.report-tab').removeClass('active');
+    $('#report_tab_' + report).addClass('active');
+    $('.report-panel').hide();
+    $('#report_panel_' + report).show();
+});
+
+$('#exclude-statuses-btn').on('click', function () {
+    let btnicon = $('#exclude-statuses-btn-icon');
+    if (btnicon.hasClass('glyphicon-plus')) {
+        btnicon.removeClass('glyphicon-plus');
+        btnicon.addClass('glyphicon-minus');
+        $('#statusExcludeSelect').show();
+    } else {
+        btnicon.removeClass('glyphicon-minus');
+        btnicon.addClass('glyphicon-plus');
+        $('#statusExcludeSelect').hide();
+    }
+});
 
 function showAndFillTable(data) {
+    lastReportCount++;
+    $('.report-tab').removeClass('active');
+    $('#panel-tabs-data').append(
+        '<li role="presentation" id="report_tab_' + lastReportCount + '" class="report-tab active"><a href="#">Отчет #' + lastReportCount + '</a></li>'
+    );
+    $('.report-panel').hide();
+    $('#panels').append(
+        '<div id="report_panel_' + lastReportCount + '" class="panel panel-default report-panel">' +
+            '<div class="panel-heading">Отчет #' + lastReportCount + '</div>' +
+            '<div class="panel-body">' +
+                '<p id="report-text-' + lastReportCount + '">' +
+                '</p>' +
+                '</div>' +
+                '<table id="client-cards-table' + lastReportCount + '" class="table table-hover table-condensed">' +
+                    '<tr>' +
+                        '<th>#</th>' +
+                        '<th>Имя</th>' +
+                        '<th>Фамилия</th>' +
+                        '<th>Телефон</th>' +
+                        '<th>E-mail</th>' +
+                    '</tr>' +
+                '</table>' +
+            '</div>' +
+        '</div>'
+    );
     if (data['message']) {
-        $('#reportArea').val(data['message']);
-        $('#report-area-holder').show();
-        reportAreaSetHeight();
+        $('#report-text-' + lastReportCount).text(data['message']);
     }
     if (data['clients'].length > 0) {
         let i = 1;
         $.each(data['clients'], function fill() {
             let client = $(this)[0];
-            $('#client-cards-table tr:last').after(
-                '<tr id="client_' + client["id"] + '" class="client-row">' +
+            $('#client-cards-table' + lastReportCount + ' tr:last').after(
+                '<tr id="t' + lastReportCount + 'client_' + client["id"] + '" class="client-row">' +
                 '<td>' + i + '</td>' +
                 '<td>' + client["name"] + '</td>' +
                 '<td>' + client["lastName"] + '</td>' +
@@ -184,12 +208,13 @@ function showAndFillTable(data) {
             );
             i++;
         });
-        $('#client-cards-table').show();
+        $('#report_panel_' + lastReportCount).show();
     }
     window.scrollTo(0, 0);
+    $('#client-cards-holder').show();
 }
 
-$('#client-cards-table').on('click', '.client-row', function () {
+$('#panels').on('click', '.client-row', function () {
     let id = $(this)[0]['id'].split("_")[1];
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', id);
@@ -197,7 +222,6 @@ $('#client-cards-table').on('click', '.client-row', function () {
 });
 
 $(document).ready(function () {
-    hideAndClearTable();
     let statusFromSelector = $('#statusFromSelect');
     let statusToSelector = $('#statusToSelect');
     let statusExcludeSelector = $('#statusExcludeSelect');
@@ -217,6 +241,7 @@ $(document).ready(function () {
             }
         }
     });
+    statusExcludeSelector.hide();
 });
 
 function updateReportsStatus() {
