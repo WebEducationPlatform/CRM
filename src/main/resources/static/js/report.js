@@ -58,6 +58,14 @@ $('#report-type-3').on('click', function () {
     selectedReport = 3;
 });
 
+$('#from-all-checkbox').on('change', function () {
+    if (this.checked) {
+        $('#statusFromSelect').prop('disabled', true);
+    } else {
+        $('#statusFromSelect').prop('disabled', false);
+    }
+});
+
 $('#load-data-button').on('click', function () {
     hideAndClearTable();
     let wrap;
@@ -74,23 +82,42 @@ $('#load-data-button').on('click', function () {
     });
     switch (selectedReport) {
         case 1:
-            wrap = {
-                "firstReportDate" : selectedDateStart,
-                "lastReportDate" : selectedDateEnd,
-                "fromId" : $('#statusFromSelect').val(),
-                "toId" : $('#statusToSelect').val(),
-                "excludeIds" : selectedExcludes
-            };
-            $.ajax({
-                url: '/rest/report/count',
-                type: 'GET',
-                async: true,
-                data: wrap,
-                traditional: true,
-                success: function (response) {
-                    showAndFillTable(response);
-                }
-            });
+            if ($('#from-all-checkbox').is(':checked')) {
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "toId" : $('#statusToSelect').val(),
+                    "excludeIds" : selectedExcludes
+                };
+                $.ajax({
+                    url: '/rest/report/countFromAny',
+                    type: 'GET',
+                    async: true,
+                    data: wrap,
+                    traditional: true,
+                    success: function (response) {
+                        showAndFillTable(response);
+                    }
+                });
+            } else {
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "fromId" : $('#statusFromSelect').val(),
+                    "toId" : $('#statusToSelect').val(),
+                    "excludeIds" : selectedExcludes
+                };
+                $.ajax({
+                    url: '/rest/report/count',
+                    type: 'GET',
+                    async: true,
+                    data: wrap,
+                    traditional: true,
+                    success: function (response) {
+                        showAndFillTable(response);
+                    }
+                });
+            }
             break;
         case 2:
             wrap = {
