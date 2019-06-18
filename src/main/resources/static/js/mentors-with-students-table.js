@@ -7,7 +7,7 @@ $(document).ready(function () {
     $('<div></div>', {
         class: 'row',
         id: 'mentors-row'
-    }).appendTo('#mentors-container');
+    }).appendTo('#mentors-column');
     $.ajaxSetup({async: false});
     $.each(mentors, function (i, mentor) {
         $.get("http://" + botIp + ":" + botPort + "/mentor/students?email=" + mentor.email)
@@ -16,12 +16,12 @@ $(document).ready(function () {
             })
 
     });
-    //console.log(mentorsMap);
     drawMentorTable();
 });
 
 function drawMentorTable() {
     let mentorsWithClientsMap = new Map();
+    let undefinedEmails = [];
     for (const mentor of mentorsMap.entries()) {
         let mentorWithClientsMap = new Map();
         $('<div></div>', {
@@ -40,12 +40,15 @@ function drawMentorTable() {
                 $('<div></div>', {
                     class: 'column ui-sortable',
                     id: 'column-' + mentor[0] + "-" + key,
-                    text: key.replace('emails','')
+                    text: key.replace('emails', '')
                 }).appendTo('#mentor-row' + mentor[0]);
                 $.each(obj, function (i, email) {
                     $.get("/rest/client?email=" + email)
                         .done(function (client) {
                             studentsInStatusList.push(client);
+                        })
+                        .fail(function () {
+                            undefinedEmails.push(email);
                         })
                 });
                 mentorWithClientsMap.set(key, studentsInStatusList);
@@ -53,22 +56,27 @@ function drawMentorTable() {
         });
         mentorsWithClientsMap.set(mentor[0], mentorWithClientsMap);
     }
-    //console.log(mentorsWithClientsMap);
     drawClientsPortlet(mentorsWithClientsMap);
+    if (undefinedEmails.length > 0) {
+        drawUndefinedEmailsBlock(undefinedEmails);
+    }
 }
 
 function drawClientsPortlet(mentorsWithClientsMap) {
     for (const mentorWithClientsMap of mentorsWithClientsMap.entries()) {
-        //console.log(mentorWithClientsMap);
         for (const statuses of mentorWithClientsMap[1].entries()) {
-            //console.log(statuses);
+            let counter = 0;
             let status = statuses[0];
+            $('<div></div>', {
+                class: 'portlet panel panel-default',
+                text: statuses[1].length,
+                style:"color: red;"
+            }).appendTo('#column-' + mentorWithClientsMap[0] + "-" + status);
             statuses[1].forEach(function (client, i, statuses) {
-                //console.log(i + " " + student.client.name);
+                counter++;
                 $('<div></div>', {
                     class: 'portlet common-modal panel panel-default',
                     id: client.id,
-                    onmouseover: 'displayOption(' + client.id + ')',
                     value: client.id,
                     'data-card-id': client.id,
                 }).appendTo('#column-' + mentorWithClientsMap[0] + "-" + status);
@@ -81,15 +89,30 @@ function drawClientsPortlet(mentorsWithClientsMap) {
                     text: client.name + " " + client.lastName
                 }).appendTo('div#' + client.id + '.portlet');
             });
+
         }
+
     }
 }
-
 
 function showCurrentModal(studentId) {
     var clientId = studentId;
     var currentModal = $('#main-modal-window');
     currentModal.data('clientId', clientId);
     currentModal.modal('show');
+}
+
+function drawUndefinedEmailsBlock(undefinedEmails) {
+    $('<P></P>', {
+        text: 'Undefined Emails',
+        style:"color: red;"
+    }).appendTo('#undefinedEmails');
+    $.each(undefinedEmails, function (i, email) {
+        $('<div></div>', {
+            class: 'portlet panel panel-default',
+            text: email,
+            style:"color: red;"
+        }).appendTo('#undefinedEmails');
+    })
 }
 
