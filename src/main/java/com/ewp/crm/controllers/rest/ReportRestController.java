@@ -50,6 +50,18 @@ public class ReportRestController {
                 excludeIds));
     }
 
+    @GetMapping(value = "/countFromAny", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity countFromAny(@RequestParam String firstReportDate,
+                                @RequestParam String lastReportDate,
+                                @RequestParam Long toId,
+                                @RequestParam(required = false) List<Long> excludeIds) {
+        return ResponseEntity.ok(reportService.getAllChangedStatusClientsByDate(
+                getZonedDateTimeFromString(firstReportDate),
+                getZonedDateTimeFromString(lastReportDate),
+                toId,
+                excludeIds));
+    }
+
     @GetMapping(value = "/countNew", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity countNew(@RequestParam String firstReportDate,
                                    @RequestParam String lastReportDate,
