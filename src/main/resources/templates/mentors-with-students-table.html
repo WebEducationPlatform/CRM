@@ -16,8 +16,12 @@
 <body>
 <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
 <div id="empty-container" class="container-fluid" style="height: 60px;"></div>
-<div id="mentors-container" class="container-fluid" style="margin: 2%;"></div>
-
+<div id="page-container" class="container-fluid">
+    <div id="main-row" class="row">
+        <div id="mentors-column" class="col-lg-8"></div>
+        <div id="undefinedEmails" class="col-lg-4"></div>
+    </div>
+</div>
 <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
 <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
 <script th:inline="javascript">
