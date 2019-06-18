@@ -30,26 +30,26 @@ public class ClientServiceTest {
     @Test
     public void testCreate() {
         String expectedName = "Test_clientService_add";
-        Client client = new Client.Builder(expectedName).build();
-        clientService.add(client);
-        Long id = client.getId();
+        Client expectedClient = new Client.Builder(expectedName).build();
+        clientService.add(expectedClient);
+        Long id = expectedClient.getId();
         Assert.assertNotNull(id);
-        Client clientNew = clientService.get(id);
-        String actualName = clientNew.getName();
-        Assert.assertEquals(expectedName, actualName);
+        Client actualClient = clientService.get(id);
+        Assert.assertEquals(expectedClient, actualClient);
     }
 
     @Test
     public void testUpdate() {
-        Client client = new Client.Builder("Test_clientService_update").build();
-        clientService.add(client);
-        Long id = client.getId();
+        String oldName = "Test_clientService_update";
+        Client expectedClient = new Client.Builder(oldName).build();
+        clientService.add(expectedClient);
         String expectedName = "Test_clientService_updated";
-        client.setName(expectedName);
+        expectedClient.setName(expectedName);
+        Long id = expectedClient.getId();
         Assert.assertNotNull(id);
-        clientService.updateClient(client);
-        String actualName = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get().getName() : null;
-        Assert.assertEquals(expectedName,actualName);
+        clientService.updateClient(expectedClient);
+        Client actualClient = clientService.get(id);
+        Assert.assertEquals(expectedClient, actualClient);
     }
 
     @Test

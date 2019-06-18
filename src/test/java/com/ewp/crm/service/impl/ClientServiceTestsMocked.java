@@ -23,6 +23,9 @@ public class ClientServiceTestsMocked {
     @MockBean
     private ClientRepository clientRepository;
 
+  /*  @MockBean
+    private CommonService commonService; */
+
     @Autowired
     private ClientService clientService;
 
@@ -39,4 +42,38 @@ public class ClientServiceTestsMocked {
         Assert.assertEquals(willReturnClient, clientFromPhone);
     }
 
+    @Test
+    public void testCreate() {
+        String expectedName = "Test_clientService_add";
+        Client expectedClient = new Client.Builder(expectedName).build();
+        when(this.clientRepository.saveAndFlush(any())).thenReturn(expectedClient);
+        Client actualClient = clientService.add(expectedClient);
+        Assert.assertEquals(expectedClient, actualClient);
+    }
+
+ /*   @Test
+    public void testUpdate() {
+        String oldName = "Test_clientService_update";
+        Client expectedClient = new Client.Builder(oldName).build();
+        clientService.add(expectedClient);
+        String expectedName = "Test_clientService_updated";
+        expectedClient.setName(expectedName);
+        Long id = expectedClient.getId();
+        Assert.assertNotNull(id);
+        clientService.updateClient(expectedClient);
+        Client actualClient = clientService.get(id);
+        Assert.assertEquals(expectedClient, actualClient);
+    }
+
+    @Test
+    public void testDelete() {
+        Client client = new Client.Builder("Test_clientService_delete").build();
+        clientService.add(client);
+        Long id = client.getId();
+        Assert.assertNotNull(id);
+        clientService.delete(id);
+        Client deleted = clientService.get(id);
+        Assert.assertNull(deleted);
+    }
+*/
 }
