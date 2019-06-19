@@ -28,8 +28,16 @@ public class ClientServiceTest {
     private ClientService clientService;
 
     @Test
-    public void testCreate() {
+    public void testAdd() {
         String expectedName = "Test_clientService_add";
+        Client expectedClient = new Client.Builder(expectedName).build();
+        Client actualClient = clientService.add(expectedClient);
+        Assert.assertEquals(expectedClient, actualClient);
+    }
+
+    @Test
+    public void testGet() {
+        String expectedName = "Test_clientService_get";
         Client expectedClient = new Client.Builder(expectedName).build();
         clientService.add(expectedClient);
         Long id = expectedClient.getId();
@@ -37,6 +45,7 @@ public class ClientServiceTest {
         Client actualClient = clientService.get(id);
         Assert.assertEquals(expectedClient, actualClient);
     }
+
 
     @Test
     public void testUpdate() {
