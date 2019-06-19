@@ -12,7 +12,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,7 +28,7 @@ public class IncomeStringToClient {
     private static final Logger logger = LoggerFactory.getLogger(IncomeStringToClient.class);
     private Environment env;
 
-    private static final String UNKNOWN_NAME_DEFAULT = "UNKNOWN?";
+    public static final String UNKNOWN_NAME_DEFAULT = "UNKNOWN?";
     private static final String EMPTY = org.apache.commons.lang3.StringUtils.EMPTY;
     private static final String SPLITTER = "<BR>";
 
