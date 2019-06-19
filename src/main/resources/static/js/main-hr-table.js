@@ -56,7 +56,6 @@ function drawClientsPortlet(student, status) {
         onclick: 'showCurrentModal(' + student.id + ')',
         text: student.name + " " + student.lastName
     }).appendTo('div#' + student.id + '.portlet');
-
 }
 
 function showCurrentModal(studentId) {
