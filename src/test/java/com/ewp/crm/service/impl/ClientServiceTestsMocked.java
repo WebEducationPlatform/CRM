@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Optional;
+
 import static org.mockito.BDDMockito.*;
 
 /*
@@ -23,57 +26,50 @@ public class ClientServiceTestsMocked {
     @MockBean
     private ClientRepository clientRepository;
 
-  /*  @MockBean
-    private CommonService commonService; */
 
     @Autowired
     private ClientService clientService;
 
-    @Test
-    public void testGetByEmailAndPhone() {
-        Client willReturnClient = new Client.Builder("Ivan").build();
-        willReturnClient.setEmail("goblin@mail.ru");
-        willReturnClient.setPhoneNumber("12345678999");
-        when(this.clientRepository.getClientByEmail(any())).thenReturn(willReturnClient);
-        when(this.clientRepository.getClientByPhoneNumber(eq("12345678999"))).thenReturn(willReturnClient);
-        Client clientFromMail = clientService.getClientByEmail("goblin@mail.ru").get();
-        Client clientFromPhone = clientService.getClientByPhoneNumber("12345678999").get();
-        Assert.assertEquals(willReturnClient, clientFromMail);
-        Assert.assertEquals(willReturnClient, clientFromPhone);
-    }
+    static final long id = 123L;
 
     @Test
-    public void testCreate() {
-        String expectedName = "Test_clientService_add";
-        Client expectedClient = new Client.Builder(expectedName).build();
+    public void add_delegateToRepository() {
+        String expectedName = "Test_clientService_add_mock";
+        Client expectedClient = new Client();
+        expectedClient.setName(expectedName);
         when(this.clientRepository.saveAndFlush(any())).thenReturn(expectedClient);
         Client actualClient = clientService.add(expectedClient);
-        Assert.assertEquals(expectedClient, actualClient);
-    }
-
- /*   @Test
-    public void testUpdate() {
-        String oldName = "Test_clientService_update";
-        Client expectedClient = new Client.Builder(oldName).build();
         clientService.add(expectedClient);
-        String expectedName = "Test_clientService_updated";
-        expectedClient.setName(expectedName);
-        Long id = expectedClient.getId();
-        Assert.assertNotNull(id);
-        clientService.updateClient(expectedClient);
-        Client actualClient = clientService.get(id);
         Assert.assertEquals(expectedClient, actualClient);
     }
 
     @Test
-    public void testDelete() {
-        Client client = new Client.Builder("Test_clientService_delete").build();
-        clientService.add(client);
-        Long id = client.getId();
-        Assert.assertNotNull(id);
-        clientService.delete(id);
-        Client deleted = clientService.get(id);
-        Assert.assertNull(deleted);
+    public void get_delegateToRepository() {
+        String expectedName = "Test_clientService_get_mock";
+        Client expectedClient = new Client();
+        expectedClient.setName(expectedName);
+        when(this.clientRepository.findById(any())).thenReturn(Optional.of(expectedClient));
+        Client actualClient = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get() : null;
+        Assert.assertEquals(expectedClient, actualClient);
     }
-*/
+
+    @Test
+    public void update_delegateToRepository() {
+        String expectedName = "Test_clientService_update_mock";
+        Client client = new Client();
+        client.setName(expectedName);
+        clientService.update(client);
+        verify(clientRepository).saveAndFlush(client);
+    }
+
+
+    @Test
+    public void detele_delegateToRepository() {
+        String expectedName = "Test_clientService_delete_mock";
+        Client client = new Client.Builder(expectedName).build();
+        client.setName(expectedName);
+        clientService.delete(client);
+        verify(clientRepository).delete(client);
+    }
+
 }
