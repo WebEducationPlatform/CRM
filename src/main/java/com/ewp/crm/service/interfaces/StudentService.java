@@ -18,5 +18,5 @@ public interface StudentService extends CommonService<Student> {
     Optional<Student> getStudentByClientId(Long clientId);
     void save(Student student);
     void resetColors();
-
+    Student getStudentByEmail(String email);
 }

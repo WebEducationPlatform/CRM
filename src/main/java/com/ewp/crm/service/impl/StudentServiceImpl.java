@@ -1,7 +1,9 @@
 package com.ewp.crm.service.impl;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
+import com.ewp.crm.models.Student;
+import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
 import com.ewp.crm.repository.interfaces.StudentStatusRepository;
@@ -21,7 +23,6 @@ import java.util.Optional;
 public class StudentServiceImpl extends CommonServiceImpl<Student> implements StudentService {
 
     private final StudentRepository studentRepository;
-    private final StudentStatusRepository studentStatusRepository;
     private final StudentRepositoryCustom studentRepositoryCustom;
     private final ProjectPropertiesService projectPropertiesService;
 
@@ -29,11 +30,9 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
 
     @Autowired
     public StudentServiceImpl(StudentRepository studentRepository,
-                              StudentStatusRepository studentStatusRepository,
                               StudentRepositoryCustom studentRepositoryCustom,
                               ProjectPropertiesService projectPropertiesService) {
         this.studentRepository = studentRepository;
-        this.studentStatusRepository = studentStatusRepository;
         this.studentRepositoryCustom = studentRepositoryCustom;
         this.projectPropertiesService = projectPropertiesService;
     }
@@ -98,6 +97,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     @Override
     public void resetColors() {
         studentRepositoryCustom.resetColors();
+    }
+
+    @Override
+    public Student getStudentByEmail(String email) {
+        return studentRepository.getStudentByEmail(email);
     }
 
 }
