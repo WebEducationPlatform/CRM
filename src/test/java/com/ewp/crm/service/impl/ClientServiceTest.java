@@ -42,10 +42,9 @@ public class ClientServiceTest {
         clientService.add(expectedClient);
         Long id = expectedClient.getId();
         Assert.assertNotNull(id);
-        Client actualClient = clientService.get(id);
+        Client actualClient = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get() : null;
         Assert.assertEquals(expectedClient, actualClient);
     }
-
 
     @Test
     public void testUpdate() {
@@ -71,8 +70,5 @@ public class ClientServiceTest {
         Client deleted = clientService.get(id);
         Assert.assertNull(deleted);
     }
-
-
-
 
 }
