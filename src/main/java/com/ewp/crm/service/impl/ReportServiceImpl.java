@@ -174,7 +174,7 @@ public class ReportServiceImpl implements ReportService {
         if (afterHistory != null) {
             return clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate());
         }
-        return true;
+        return false;
     }
 
     /**
@@ -368,7 +368,7 @@ public class ReportServiceImpl implements ReportService {
                     }
                     // Проверяем, что клиент пробыл в данном статусе более 3-х минут
                     if (goodResult) {
-                        goodResult = isFakeChangingStatusBy3minsRule(clientHistory);
+                        goodResult = !isFakeChangingStatusBy3minsRule(clientHistory);
                     }
                     // Если данный переход в статус подошел по всем параметрам - добавляем клиента в результирующий список
                     if (goodResult) {
