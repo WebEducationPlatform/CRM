@@ -87,7 +87,7 @@ $('#report-type-5').on('click', function () {
 
 $('#reportList').on('change', '.reports-checkboxes', function () {
     let btn = $('#load-data-button');
-    if ($('.reports-checkboxes:checked').length === 2) {
+    if ($('.reports-checkboxes:checked').length >= 2) {
         btn.prop('disabled', false);
     } else {
         btn.prop('disabled', true);
@@ -103,6 +103,7 @@ $('#from-all-checkbox').on('change', function () {
 });
 
 $('#load-data-button').on('click', function () {
+    let i = 0;
     let wrap;
     if (selectedDateStart === undefined || selectedDateEnd === undefined) {
         let dates = $('#mailingDate').val().split(' - ');
@@ -193,7 +194,7 @@ $('#load-data-button').on('click', function () {
             createReport(lastReportCount);
             let fromReportId = $('#report_selector_1').val();
             let toReportId = $('#report_selector_2').val();
-            let i = 0;
+            i = 0;
             $('#client-cards-table' + fromReportId + " tr.client-row").each(function () {
                 $this = $(this);
                 let fromId = $this[0]['id'].split("_")[1];
@@ -221,7 +222,33 @@ $('#load-data-button').on('click', function () {
             );
             break;
         case 5:
-
+            lastReportCount++;
+            createReport(lastReportCount);
+            let text = '';
+            i = 0;
+            let filledClients = new Array();
+            $('#reportList input:checked').each(function () {
+                reportId = $(this).val();
+                let report = $(this);
+                text = text + ' "' + report[0].nextSibling.nodeValue + '",';
+                $('#client-cards-table' + reportId + " tr.client-row").each(function () {
+                    $this = $(this);
+                    let userId = $this[0]['id'].split("_")[1];
+                    if ($.inArray(userId, filledClients) === -1) {
+                        let name = $this.find("td.cl-name").html();
+                        let lastName = $this.find("td.cl-last-name").html();
+                        let phone = $this.find("td.cl-phone").html();
+                        let email = $this.find("td.cl-email").html();
+                        i++;
+                        putClientTableRowToReport(lastReportCount, userId, i, name, lastName, phone, email);
+                        filledClients.push(userId);
+                    }
+                });
+            });
+            $('#report-text-' + lastReportCount).text(
+                'Объединение отчетов ' + text + '. ' +
+                'Итого ' + i + ' строк.'
+            );
             break;
     }
 });
@@ -249,7 +276,7 @@ $('#exclude-statuses-btn').on('click', function () {
 
 function createReport(idx) {
     $('#reportList').append(
-        '<label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Отчет #' + idx + '"/>Отчет #' + idx + '</label><br />'
+        '<label><input type="checkbox" value="' + idx + '" class="reports-checkboxes" aria-label="Отчет #' + idx + '"/>Отчет #' + idx + '</label><br />'
     );
     $('#report_selector_1').append(
         '<option value="' + idx + '">Отчет #' + idx + '</option>'
