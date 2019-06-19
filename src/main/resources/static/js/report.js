@@ -188,6 +188,41 @@ $('#load-data-button').on('click', function () {
                 }
             });
             break;
+        case 4:
+            lastReportCount++;
+            createReport(lastReportCount);
+            let fromReportId = $('#report_selector_1').val();
+            let toReportId = $('#report_selector_2').val();
+            let i = 0;
+            $('#client-cards-table' + fromReportId + " tr.client-row").each(function () {
+                $this = $(this);
+                let fromId = $this[0]['id'].split("_")[1];
+                let needToInsert = true;
+                $('#client-cards-table' + toReportId + " tr.client-row").each(function () {
+                    $that = $(this);
+                    let toId = $that[0]['id'].split("_")[1];
+                    if (toId === fromId) {
+                        needToInsert = false;
+                        return false;
+                    }
+                });
+                if (needToInsert === true) {
+                    let name = $this.find("td.cl-name").html();
+                    let lastName = $this.find("td.cl-last-name").html();
+                    let phone = $this.find("td.cl-phone").html();
+                    let email = $this.find("td.cl-email").html();
+                    i++;
+                    putClientTableRowToReport(lastReportCount, fromId, i, name, lastName, phone, email);
+                }
+            });
+            $('#report-text-' + lastReportCount).text(
+                'Из отчета "' + $('#report_selector_1 option:selected').text() + '" исключить значения отчета "' + $('#report_selector_2 option:selected').text() + '". ' +
+                'Итого ' + i + ' строк.'
+            );
+            break;
+        case 5:
+
+            break;
     }
 });
 
@@ -212,44 +247,60 @@ $('#exclude-statuses-btn').on('click', function () {
     }
 });
 
+function createReport(idx) {
+    $('#reportList').append(
+        '<label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Отчет #' + idx + '"/>Отчет #' + idx + '</label><br />'
+    );
+    $('#report_selector_1').append(
+        '<option value="' + idx + '">Отчет #' + idx + '</option>'
+    );
+    $('#report_selector_2').append(
+        '<option value="' + idx + '">Отчет #' + idx + '</option>'
+    );
+    $('.report-tab').removeClass('active');
+    $('#panel-tabs-data').append(
+        '<li role="presentation" id="report_tab_' + idx + '" class="report-tab active"><a href="#">Отчет #' + idx + '</a></li>'
+    );
+    $('.report-panel').hide();
+    $('#panels').append(
+        '<div id="report_panel_' + idx + '" class="panel panel-default report-panel">' +
+        '<div class="panel-heading">Отчет #' + idx + '</div>' +
+        '<div class="panel-body">' +
+        '<p id="report-text-' + idx + '">' +
+        '</p>' +
+        '</div>' +
+        '<table id="client-cards-table' + idx + '" class="table table-hover table-condensed">' +
+        '<tr>' +
+        '<th>#</th>' +
+        '<th>Имя</th>' +
+        '<th>Фамилия</th>' +
+        '<th>Телефон</th>' +
+        '<th>E-mail</th>' +
+        '</tr>' +
+        '</table>' +
+        '</div>' +
+        '</div>'
+    );
+}
+
+function putClientTableRowToReport(idx, clientId, i, name, lastName, phone, email) {
+    $('#client-cards-table' + idx + ' tr:last').after(
+        '<tr id="t' + idx + 'client_' + clientId + '" class="client-row">' +
+        '<td>' + i + '</td>' +
+        '<td class="cl-name">' + name + '</td>' +
+        '<td class="cl-last-name">' + lastName + '</td>' +
+        '<td class="cl-phone">' + phone + '</td>' +
+        '<td class="cl-email">' + email + '</td>' +
+        '</tr>'
+    );
+}
+
 function showAndFillTable(data) {
     lastReportCount++;
     if (lastReportCount === 2) {
         $('.hideable_once').show();
     }
-    $('#reportList').append(
-        '<label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Отчет #' + lastReportCount + '"/>Отчет #' + lastReportCount + '</label><br />'
-    );
-    $('#report_selector_1').append(
-        '<option value="' + lastReportCount + '">Отчет #' + lastReportCount + '</option>'
-    );
-    $('#report_selector_2').append(
-        '<option value="' + lastReportCount + '">Отчет #' + lastReportCount + '</option>'
-    );
-    $('.report-tab').removeClass('active');
-    $('#panel-tabs-data').append(
-        '<li role="presentation" id="report_tab_' + lastReportCount + '" class="report-tab active"><a href="#">Отчет #' + lastReportCount + '</a></li>'
-    );
-    $('.report-panel').hide();
-    $('#panels').append(
-        '<div id="report_panel_' + lastReportCount + '" class="panel panel-default report-panel">' +
-            '<div class="panel-heading">Отчет #' + lastReportCount + '</div>' +
-            '<div class="panel-body">' +
-                '<p id="report-text-' + lastReportCount + '">' +
-                '</p>' +
-                '</div>' +
-                '<table id="client-cards-table' + lastReportCount + '" class="table table-hover table-condensed">' +
-                    '<tr>' +
-                        '<th>#</th>' +
-                        '<th>Имя</th>' +
-                        '<th>Фамилия</th>' +
-                        '<th>Телефон</th>' +
-                        '<th>E-mail</th>' +
-                    '</tr>' +
-                '</table>' +
-            '</div>' +
-        '</div>'
-    );
+    createReport(lastReportCount);
     if (data['message']) {
         $('#report-text-' + lastReportCount).text(data['message']);
     }
@@ -257,15 +308,7 @@ function showAndFillTable(data) {
         let i = 1;
         $.each(data['clients'], function fill() {
             let client = $(this)[0];
-            $('#client-cards-table' + lastReportCount + ' tr:last').after(
-                '<tr id="t' + lastReportCount + 'client_' + client["id"] + '" class="client-row">' +
-                '<td>' + i + '</td>' +
-                '<td>' + client["name"] + '</td>' +
-                '<td>' + client["lastName"] + '</td>' +
-                '<td>' + client["phoneNumber"] + '</td>' +
-                '<td>' + client["email"] + '</td>' +
-                '</tr>'
-            );
+            putClientTableRowToReport(lastReportCount, client['id'], i, client['name'], client["lastName"], client["phoneNumber"], client["email"]);
             i++;
         });
         $('#report_panel_' + lastReportCount).show();
