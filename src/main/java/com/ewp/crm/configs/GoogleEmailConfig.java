@@ -4,7 +4,13 @@ import com.ewp.crm.configs.inteface.MailConfig;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.MessageTemplate;
 import com.ewp.crm.models.ProjectProperties;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.util.converters.IncomeStringToClient;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.slf4j.Logger;
@@ -25,7 +31,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.*;
+import javax.mail.search.AndTerm;
+import javax.mail.search.FlagTerm;
+import javax.mail.search.FromTerm;
+import javax.mail.search.OrTerm;
+import javax.mail.search.SearchTerm;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -136,7 +146,23 @@ public class GoogleEmailConfig {
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
                         if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                             sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
-                            statusService.get("Постоплата2").ifPresent(client::setStatus);
+                            
+                            // Если клиент пришёл только за рассылкой (в форме один емайл), то отправляем его в статус "рассылки постоплата"
+                            if (!client.getPhoneNumber().isPresent() &&
+                                    (client.getName().isEmpty() || IncomeStringToClient.UNKNOWN_NAME_DEFAULT.equals(client.getName()))) {
+                                // Если такого статуса нет то создаём, если нет назначаем пользователя на этот статус
+                                Optional<Status> mailingPostpay = statusService.get("Постоплата рассылки");
+                                
+                                if (!mailingPostpay.isPresent()) {
+                                    mailingPostpay = Optional.of(new Status("Постоплата рассылки"));
+                                    statusService.add(mailingPostpay.get());
+                                }
+                                
+                                client.getEmail().ifPresent(client::setName);
+                                mailingPostpay.ifPresent(client::setStatus);
+                            } else {
+                                statusService.get("Постоплата2").ifPresent(client::setStatus);
+                            }
                         } else {
                             sendAutoAnswer = true;
                             statusService.getFirstStatusForClient().ifPresent(client::setStatus);
