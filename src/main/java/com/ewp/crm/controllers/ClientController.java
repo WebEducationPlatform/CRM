@@ -1,9 +1,23 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.Notification;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ListMailingService;
+import com.ewp.crm.service.interfaces.ListMailingTypeService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.NotificationService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -128,6 +143,8 @@ public class ClientController {
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
+        // Добавляем список ролей системы, кроме OWNER
+        modelAndView.addObject("roles", roles);
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
@@ -161,7 +178,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')")
     public ModelAndView mailingPage() {
         ModelAndView modelAndView = new ModelAndView("mailing");
         modelAndView.addObject("listMailing", listMailingService.getAll());
