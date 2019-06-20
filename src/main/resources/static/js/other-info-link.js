@@ -60,13 +60,13 @@ function createListOtherInformation() {
         url: "/information/link",
         data: JSON.stringify(inputValueAndHash),
         success: function () {
-           // window.location.replace("/client")
+            var contractLink = 'https://' + window.location.host + '/client';
+            window.location.replace(contractLink);
             },
         error:function(xhr, status, errorThrown) {
             console.log(errorThrown);
             console.log(status);
             console.log(xhr.statusText);
-
         }
     });
 }
