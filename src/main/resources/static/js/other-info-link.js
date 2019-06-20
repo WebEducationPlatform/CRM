@@ -1,7 +1,7 @@
-function createOtherInformationLink(){
+function createOtherInformationLink() {
     console.log("Зашел");
     var baseUrl = window.location.host;
-    var url ="/otherInformation/link/create";
+    var url = "/otherInformation/link/create";
 
     var clientId = getAllUrlParams(window.location.href).id;
     var hash = (+new Date).toString(36);
@@ -31,12 +31,12 @@ function createListOtherInformation() {
     $('form#other-information-form :input').each(function () {
         var input = $(this);
         let name = input.attr('id');
-        if (input.attr('type') === 'checkbox'){
+        if (input.attr('type') === 'checkbox') {
             if ($(input).is(":checked")) {
-               list.push({
-                   value: true,
-                   name: name
-               })
+                list.push({
+                    value: true,
+                    name: name
+                })
             } else {
                 list.push({
                     value: false,
@@ -57,16 +57,31 @@ function createListOtherInformation() {
     $.ajax({
         type: "POST",
         contentType: "application/json",
-        url: "/information/link",
+        url: "/otherInformation/link/link",
         data: JSON.stringify(inputValueAndHash),
         success: function () {
-            var contractLink = 'https://' + window.location.host + '/client';
+            var contractLink = 'https://' + window.location.host + '/information/thanks';
             window.location.replace(contractLink);
-            },
-        error:function(xhr, status, errorThrown) {
+        },
+        error: function (xhr, status, errorThrown) {
             console.log(errorThrown);
             console.log(status);
             console.log(xhr.statusText);
+        }
+    });
+}
+
+function deleteOtherInformation() {
+    var url = "/otherInformation/link/delete/" + getAllUrlParams(window.location.href).id;;
+    $.ajax({
+        type: "DELETE",
+        dataType: 'json',
+        url: url,
+        complete: function () {
+            location.reload();
+        },
+        error: function (error) {
+            console.log(error);
         }
     });
 }
