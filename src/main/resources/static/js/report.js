@@ -2,6 +2,8 @@ var selectedDateStart;
 var selectedDateEnd;
 var selectedReport = 1;
 var lastReportCount = 0;
+var startTime;
+var endTime;
 
 $('#mailingDate').daterangepicker({
     locale: {
@@ -18,6 +20,8 @@ $('#mailingDate').daterangepicker({
     "startDate": moment().startOf('month'),
     "endDate": moment()
 }, function (start, end, label) {
+    startTime = start.format('DD.MM.YYYY');
+    endTime = end.format('DD.MM.YYYY');
     selectedDateStart = start.format('YYYY-MM-DD');
     selectedDateEnd = end.format('YYYY-MM-DD');
     console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
@@ -111,6 +115,8 @@ $('#load-data-button').on('click', function () {
         let end = dates[1].split('.');
         selectedDateStart = start[2] + '-' + start[1] + '-' + start[0];
         selectedDateEnd = end[2] + '-' + end[1] + '-' + end[0];
+        startTime = start[0] + '.' + start[1] + '.' + start[2];
+        endTime = end[0] + '.' + end[1] + '.' + end[2];
     }
     let selectedExcludes = [];
     $('.exclude-status-checkboxes:checked').each(function(){
@@ -133,6 +139,7 @@ $('#load-data-button').on('click', function () {
                     traditional: true,
                     success: function (response) {
                         showAndFillTable(response);
+                        setReportTopic(lastReportCount, 1);
                     }
                 });
             } else {
@@ -151,6 +158,7 @@ $('#load-data-button').on('click', function () {
                     traditional: true,
                     success: function (response) {
                         showAndFillTable(response);
+                        setReportTopic(lastReportCount, 1);
                     }
                 });
             }
@@ -169,6 +177,7 @@ $('#load-data-button').on('click', function () {
                 traditional: true,
                 success: function (response) {
                     showAndFillTable(response);
+                    setReportTopic(lastReportCount, 2);
                 }
             });
             break;
@@ -186,6 +195,7 @@ $('#load-data-button').on('click', function () {
                 traditional: true,
                 success: function (response) {
                     showAndFillTable(response);
+                    setReportTopic(lastReportCount, 3);
                 }
             });
             break;
@@ -246,7 +256,7 @@ $('#load-data-button').on('click', function () {
                 });
             });
             $('#report-text-' + lastReportCount).text(
-                'Объединение отчетов ' + text + '. ' +
+                'Объединение отчетов' + text.substr(0, text.length - 1) + '. ' +
                 'Итого ' + i + ' строк.'
             );
             break;
@@ -291,7 +301,7 @@ function createReport(idx) {
     $('.report-panel').hide();
     $('#panels').append(
         '<div id="report_panel_' + idx + '" class="panel panel-default report-panel">' +
-        '<div class="panel-heading">Отчет #' + idx + '</div>' +
+        '<div class="panel-heading" id="report_head_' + idx + '">Отчет #' + idx + '</div>' +
         '<div class="panel-body">' +
         '<p id="report-text-' + idx + '">' +
         '</p>' +
@@ -342,6 +352,53 @@ function showAndFillTable(data) {
     }
     window.scrollTo(0, 0);
     $('#client-cards-holder').show();
+}
+
+function setReportTopic(idx, reportId) {
+    let excludeStatuses = '';
+    switch (reportId) {
+        case 1:
+            excludeStatuses = '';
+            $('#statusExcludeSelect input:checked').each(function () {
+                statusEx = $(this);
+                excludeStatuses = excludeStatuses + statusEx[0].nextSibling.nodeValue + ', ';
+            });
+            if (excludeStatuses !== '') {
+                excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
+            }
+            $('#report_head_' + idx).html(
+                'Переходы из "' + $('#statusFromSelect option:selected').text() + '" в "' + $('#statusToSelect option:selected').text() +
+                '" с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+            );
+            break;
+        case 2:
+            excludeStatuses = '';
+            $('#statusExcludeSelect input:checked').each(function () {
+                statusEx = $(this);
+                excludeStatuses = excludeStatuses + statusEx[0].nextSibling.nodeValue + ', ';
+            });
+            if (excludeStatuses !== '') {
+                excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
+            }
+            $('#report_head_' + idx).html(
+                'Появление новых клиентов с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+            );
+            break;
+        case 3:
+            excludeStatuses = '';
+            $('#statusExcludeSelect input:checked').each(function () {
+                statusEx = $(this);
+                excludeStatuses = excludeStatuses + statusEx[0].nextSibling.nodeValue + ', ';
+            });
+            if (excludeStatuses !== '') {
+                excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
+            }
+            $('#report_head_' + idx).html(
+                'Первые оплаты с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+            );
+            break;
+    }
+
 }
 
 $('#panels').on('click', '.client-row', function () {
