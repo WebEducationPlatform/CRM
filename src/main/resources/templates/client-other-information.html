@@ -1,0 +1,31 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>Дополнительные вопросы</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+</head>
+<body>
+<input type="hidden" id="hiddenHash" th:value="${hash}" />
+<div class="d-flex align-items-center flex-column h-100 row">
+    <form class="col-sm-5" id="other-information-form">
+        <div th:each="question : ${data}">
+            <div class="col-sm form-group col-form-label" th:if="${question.typeField == 'CHECKBOX'}">
+                <label th:for="${question.nameField}" th:text="${question.nameField}"></label>
+                <input type="checkbox" th:id="${question.nameField}"/>
+            </div>
+            <div class="form-group" th:unless="${question.typeField == 'CHECKBOX'}">
+                <label th:for="${question.nameField}" class="col-sm col-form-label"
+                       th:text="${question.nameField}"></label>
+                <div class="col-sm">
+                    <input type="text" class="form-control" th:id="${question.nameField}"/>
+                </div>
+            </div>
+        </div>
+    </form>
+    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="createListOtherInformation()">Сохранить
+    </button>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
+</body>
+</html>
