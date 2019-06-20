@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+
+<th:block th:fragment="otherInformationValue">
+    <div th:id="other-information-value-modal" class="modal fade" role="dialog"
+         data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Дополнительная информация о клиенте:</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">
+                            &times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <table id="client-string-other-information" class="table table-bordered history-line" >
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>
