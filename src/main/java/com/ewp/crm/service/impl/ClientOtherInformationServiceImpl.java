@@ -57,4 +57,9 @@ public class ClientOtherInformationServiceImpl implements ClientOtherInformation
     public void save(ClientOtherInformation clientOtherInformation) {
         clientOtherInformationRepository.save(clientOtherInformation);
     }
+
+    @Override
+    public void deleteAllByClientId(Long clientId) {
+        clientOtherInformationRepository.deleteAllByClientId(clientId);
+    }
 }

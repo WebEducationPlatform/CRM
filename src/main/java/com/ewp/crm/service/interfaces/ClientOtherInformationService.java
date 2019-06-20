@@ -21,4 +21,6 @@ public interface ClientOtherInformationService {
     ClientOtherInformation getClientOtherInformationByNameAndClientId(String name, Long clientId);
 
     void save(ClientOtherInformation clientOtherInformation);
+
+    void deleteAllByClientId(Long clientId);
 }
