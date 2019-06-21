@@ -139,7 +139,7 @@ $('#load-data-button').on('click', function () {
                     traditional: true,
                     success: function (response) {
                         showAndFillTable(response);
-                        setReportTopic(lastReportCount, 1);
+                        setReportTopic(lastReportCount, 0);
                     }
                 });
             } else {
@@ -357,6 +357,20 @@ function showAndFillTable(data) {
 function setReportTopic(idx, reportId) {
     let excludeStatuses = '';
     switch (reportId) {
+        case 0:
+            excludeStatuses = '';
+            $('#statusExcludeSelect input:checked').each(function () {
+                statusEx = $(this);
+                excludeStatuses = excludeStatuses + statusEx[0].nextSibling.nodeValue + ', ';
+            });
+            if (excludeStatuses !== '') {
+                excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
+            }
+            $('#report_head_' + idx).html(
+                'Переходы из любого статуса в "' + $('#statusToSelect option:selected').text() +
+                '" с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+            );
+            break;
         case 1:
             excludeStatuses = '';
             $('#statusExcludeSelect input:checked').each(function () {
