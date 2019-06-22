@@ -89,8 +89,6 @@ public class HrController {
                 .map(HrDtoForBoard::new)
                 .collect(Collectors.toList()));
 
-        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
-
         return modelAndView;
     }
 
