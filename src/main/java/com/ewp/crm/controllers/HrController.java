@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.dto.HrDtoForBoard;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
@@ -65,7 +66,9 @@ public class HrController {
     public ModelAndView showAllStudents() {
         ModelAndView modelAndView = new ModelAndView("main-client-table-hr");
         SocialProfile socialProfile = new SocialProfile();
-        modelAndView.addObject("allClients", clientService.getAllClientsByPage(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
+        modelAndView.addObject("allClients",
+                clientService.getAllClientsByPage(
+                        PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("slackBotIp", slackBotIp);
         modelAndView.addObject("slackBotPort", slackBotPort);
         modelAndView.addObject("statuses", statusService.getAll());
@@ -80,8 +83,14 @@ public class HrController {
     @GetMapping("/managers")
     public ModelAndView showAllManagers() {
         ModelAndView modelAndView = new ModelAndView("hr-table");
-        modelAndView.addObject("hrManagers", userService.getAll().stream().filter(x -> x.getRole().contains(roleService.getRoleByName("HR"))).collect(Collectors.toList()));
+
+        modelAndView.addObject("hrManagers", userService.getAll().stream()
+                .filter(x -> x.getRole().contains(roleService.getRoleByName("HR")))
+                .map(HrDtoForBoard::new)
+                .collect(Collectors.toList()));
+
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+
         return modelAndView;
     }
 
