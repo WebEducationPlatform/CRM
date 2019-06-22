@@ -29,10 +29,10 @@ public class HrDtoForBoard {
         this.city = user.getCity();
         this.country = user.getCountry();
         this.numberOfCards = (long) user.getClients().size();
-        final Long numberOfCalls = (long) user.getCallRecords().size();
-        this.numberOfCalls = numberOfCalls;
+        final Long callRecords = (long) user.getCallRecords().size();
+        this.numberOfCalls = callRecords;
         long numberOfDays = user.getCallRecords().stream().map(c -> c.getDate().toLocalDate()).distinct().count();
-        this.avgCallsPerDay = numberOfDays == 0L ? 0L : numberOfCalls / numberOfDays;
+        this.avgCallsPerDay = numberOfDays == 0L ? 0L : callRecords / numberOfDays;
     }
 
     public Long getId() {

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HrDtoForBoardTest {
 
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
