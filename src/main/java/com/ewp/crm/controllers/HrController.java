@@ -82,7 +82,7 @@ public class HrController {
 
     @GetMapping("/managers")
     public ModelAndView showAllManagers() {
-        ModelAndView modelAndView = new ModelAndView("hr-table");
+        final ModelAndView modelAndView = new ModelAndView("hr-table");
 
         modelAndView.addObject("hrManagers", userService.getAll().stream()
                 .filter(x -> x.getRole().contains(roleService.getRoleByName("HR")))

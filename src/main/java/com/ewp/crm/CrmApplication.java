@@ -15,4 +15,5 @@ public class CrmApplication {
 	public DataInitializer initTestData() {
 		return new DataInitializer();
 	}
+
 }

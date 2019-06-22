@@ -29,7 +29,7 @@ class HrDtoForBoardTest {
     }
 
     @Test
-    void whenUserOneCreated_ThenAvgCallsPerDayIsTwo() {
+    void whenUserOneCreated_thenAvgCallsPerDayIsTwo() {
         // given
 
         // when
@@ -38,6 +38,103 @@ class HrDtoForBoardTest {
 
         // then
         assertEquals(2L, result, "Wrong average of calls");
+    }
+
+    @Test
+    void whenUserTwoCreated_thenAvgCallsPerDayIsOne() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(1));
+        long result = hrDto.getAvgCallsPerDay();
+
+        // then
+        assertEquals(1L, result, "Wrong average of calls");
+    }
+
+    @Test
+    void whenUserThreeCreated_thenAvgCallsPerDayIsZero() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(2));
+        long result = hrDto.getAvgCallsPerDay();
+
+        // then
+        assertEquals(0L, result, "Wrong average of calls");
+    }
+
+    @Test
+    void whenUserOneCreated_thenNumberOfCardsIsOne() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(0));
+        long result = hrDto.getNumberOfCards();
+
+        // then
+        assertEquals(1L, result, "Wrong number of cards");
+    }
+
+    @Test
+    void whenUserTwoCreated_thenNumberOfCardsIsTwo() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(1));
+        long result = hrDto.getNumberOfCards();
+
+        // then
+        assertEquals(2L, result, "Wrong number of cards");
+    }
+
+    @Test
+    void whenUserThreeCreated_thenNumberOfCardsIsThree() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(2));
+        long result = hrDto.getNumberOfCards();
+
+        // then
+        assertEquals(3L, result, "Wrong number of cards");
+    }
+
+
+    @Test
+    void whenUserOneCreated_thenNumberOfCallsIsFour() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(0));
+        long result = hrDto.getNumberOfCalls();
+
+        // then
+        assertEquals(4L, result, "Wrong number of cards");
+    }
+
+    @Test
+    void whenUserTwoCreated_thenNumberOfCallsIsThree() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(1));
+        long result = hrDto.getNumberOfCalls();
+
+        // then
+        assertEquals(3L, result, "Wrong number of cards");
+    }
+
+    @Test
+    void whenUserThreeCreated_thenNumberOfCallsIsZero() {
+        // given
+
+        // when
+        HrDtoForBoard hrDto = new HrDtoForBoard(users.get(2));
+        long result = hrDto.getNumberOfCalls();
+
+        // then
+        assertEquals(0L, result, "Wrong number of cards");
     }
 
     private void init() {
@@ -99,7 +196,9 @@ class HrDtoForBoardTest {
         callRecord21.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
         CallRecord callRecord22 = new CallRecord();
         callRecord22.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.of(10, 40), ZoneId.systemDefault()));
-        user2.setCallRecords(Arrays.asList(callRecord21, callRecord22));
+        CallRecord callRecord23 = new CallRecord();
+        callRecord23.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 12), LocalTime.of(10, 40), ZoneId.systemDefault()));
+        user2.setCallRecords(Arrays.asList(callRecord21, callRecord22, callRecord23));
 
         users.addAll(Arrays.asList(user1, user2, user3));
     }
