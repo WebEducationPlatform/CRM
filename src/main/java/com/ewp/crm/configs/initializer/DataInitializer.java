@@ -458,32 +458,32 @@ public class DataInitializer {
         CallRecord callRecord11 = new CallRecord();
         callRecord11.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
         callRecord11.setCallingUser(user6);
-        callRecordService.addCallRecord(callRecord11);
+        callRecordService.updateCallRecord(callRecord11);
         CallRecord callRecord12 = new CallRecord();
         callRecord12.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.of(10, 50), ZoneId.systemDefault()));
         callRecord12.setCallingUser(user6);
-        callRecordService.addCallRecord(callRecord12);
+        callRecordService.updateCallRecord(callRecord12);
         CallRecord callRecord13 = new CallRecord();
         callRecord13.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 10), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
         callRecord13.setCallingUser(user6);
-        callRecordService.addCallRecord(callRecord13);
+        callRecordService.updateCallRecord(callRecord13);
         CallRecord callRecord14 = new CallRecord();
         callRecord14.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 10), LocalTime.of(11, 10), ZoneId.systemDefault()));
         callRecord14.setCallingUser(user6);
-        callRecordService.addCallRecord(callRecord14);
+        callRecordService.updateCallRecord(callRecord14);
 
         CallRecord callRecord21 = new CallRecord();
         callRecord21.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
         callRecord21.setCallingUser(user7);
-        callRecordService.addCallRecord(callRecord21);
+        callRecordService.updateCallRecord(callRecord21);
         CallRecord callRecord22 = new CallRecord();
         callRecord22.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.of(10, 40), ZoneId.systemDefault()));
         callRecord22.setCallingUser(user7);
-        callRecordService.addCallRecord(callRecord22);
+        callRecordService.updateCallRecord(callRecord22);
         CallRecord callRecord23 = new CallRecord();
         callRecord23.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 12), LocalTime.of(10, 40), ZoneId.systemDefault()));
         callRecord23.setCallingUser(user7);
-        callRecordService.addCallRecord(callRecord23);
+        callRecordService.updateCallRecord(callRecord23);
     }
 
 }
