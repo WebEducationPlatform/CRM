@@ -40,6 +40,7 @@
               <th>Email</th>
               <th>Пол</th>
               <th>Город</th>
+              <th>Country</th>
               <th>Карточек</th>
               <th>Звонков всего</th>
               <th>Звонков в день</th>
@@ -55,9 +56,11 @@
               <td th:text="${manager.email}"></td>
               <td th:text="${manager.sex}"></td>
               <td th:text="${manager.city}"></td>
-              <td th:text="${manager.clients.size()}"></td>
-              <td th:text="${manager.callRecords.size()}"></td>
-              <td th:text="${manager.sex}"></td>
+              <td th:text="${manager.country}"></td>
+              <td th:text="${manager.numberOfCards}"></td>
+              <td th:text="${manager.numberOfCalls}"></td>
+              <td th:text="${manager.avgCallsPerDay}"></td>
+              <td ></td>
             </tr>
           </tbody>
         </table>
