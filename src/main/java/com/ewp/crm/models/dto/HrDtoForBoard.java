@@ -29,7 +29,7 @@ public class HrDtoForBoard {
         this.city = user.getCity();
         this.country = user.getCountry();
         this.numberOfCards = (long) user.getClients().size();
-        Long numberOfCalls = (long) user.getCallRecords().size();
+        final Long numberOfCalls = (long) user.getCallRecords().size();
         this.numberOfCalls = numberOfCalls;
         long numberOfDays = user.getCallRecords().stream().map(c -> c.getDate().toLocalDate()).distinct().count();
         this.avgCallsPerDay = numberOfDays == 0L ? 0L : numberOfCalls / numberOfDays;
@@ -47,7 +47,7 @@ public class HrDtoForBoard {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -55,7 +55,7 @@ public class HrDtoForBoard {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -63,7 +63,7 @@ public class HrDtoForBoard {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -71,7 +71,7 @@ public class HrDtoForBoard {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -79,7 +79,7 @@ public class HrDtoForBoard {
         return sex;
     }
 
-    public void setSex(String sex) {
+    public void setSex(final String sex) {
         this.sex = sex;
     }
 
@@ -87,7 +87,7 @@ public class HrDtoForBoard {
         return city;
     }
 
-    public void setCity(String city) {
+    public void setCity(final String city) {
         this.city = city;
     }
 
@@ -95,7 +95,7 @@ public class HrDtoForBoard {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(final String country) {
         this.country = country;
     }
 
@@ -103,7 +103,7 @@ public class HrDtoForBoard {
         return numberOfCards;
     }
 
-    public void setNumberOfCards(Long numberOfCards) {
+    public void setNumberOfCards(final Long numberOfCards) {
         this.numberOfCards = numberOfCards;
     }
 
@@ -111,7 +111,7 @@ public class HrDtoForBoard {
         return numberOfCalls;
     }
 
-    public void setNumberOfCalls(Long numberOfCalls) {
+    public void setNumberOfCalls(final Long numberOfCalls) {
         this.numberOfCalls = numberOfCalls;
     }
 
@@ -119,7 +119,7 @@ public class HrDtoForBoard {
         return avgCallsPerDay;
     }
 
-    public void setAvgCallsPerDay(Long avgCallsPerDay) {
+    public void setAvgCallsPerDay(final Long avgCallsPerDay) {
         this.avgCallsPerDay = avgCallsPerDay;
     }
 

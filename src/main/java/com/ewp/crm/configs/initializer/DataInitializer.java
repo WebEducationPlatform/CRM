@@ -1,6 +1,7 @@
 package com.ewp.crm.configs.initializer;
 
 import com.ewp.crm.configs.inteface.VKConfig;
+import com.ewp.crm.models.CallRecord;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Job;
 import com.ewp.crm.models.ListMailingType;
@@ -15,6 +16,7 @@ import com.ewp.crm.models.User;
 import com.ewp.crm.models.VkRequestForm;
 import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
 import com.ewp.crm.service.conversation.JMConversationHelper;
+import com.ewp.crm.service.interfaces.CallRecordService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.ListMailingTypeService;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -94,6 +97,9 @@ public class DataInitializer {
 
     @Autowired
     private JMConversationHelper jmConversationHelper;
+
+    @Autowired
+    private CallRecordService callRecordService;
 
     private void init() {
 
@@ -163,21 +169,6 @@ public class DataInitializer {
                         roleService.getRoleByName("ADMIN"),
                         roleService.getRoleByName("OWNER")), true, true);
         userService.add(user5);
-
-        User user6 = new User("Vasya", "Hr", LocalDate.of(1989, 4, 1), "1999999999", "hr1@gmail.com",
-                "hr1", null, Client.Sex.MALE.toString(), "Dubna", "Russia",
-                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
-        userService.add(user6);
-
-        User user7 = new User("Petya", "Hr", LocalDate.of(1998, 7, 9), "2999999999", "hr2@gmail.com",
-                "hr2", null, Client.Sex.MALE.toString(), "Novgorod", "Russia",
-                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
-        userService.add(user7);
-
-        User user8 = new User("Dasha", "Hr", LocalDate.of(1984, 3, 12), "3999999999", "hr3@gmail.com",
-                "hr3", null, Client.Sex.FEMALE.toString(), "Samara", "Russia",
-                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
-        userService.add(user8);
 
         String templateText5 = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"http://www.thymeleaf.org\">\n" +
@@ -435,5 +426,64 @@ public class DataInitializer {
         System.out.println(nulli.getEmail().orElse("no Email"));
         System.out.println(clientN2.getEmail().orElse("not found"));
 
+        initHrData();
     }
+
+    private void initHrData() {
+
+        User user6 = new User("Vasya", "Hr", LocalDate.of(1989, 4, 1), "1999999999", "hr1@gmail.com",
+                "hr1", null, Client.Sex.MALE.toString(), "Dubna", "Russia",
+                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
+        userService.add(user6);
+        Client client2 = clientService.getClientByID(2L).get();
+        client2.setOwnerUser(user6);
+        clientService.updateClient(client2);
+
+        User user7 = new User("Petya", "Hr", LocalDate.of(1998, 7, 9), "2999999999", "hr2@gmail.com",
+                "hr2", null, Client.Sex.MALE.toString(), "Novgorod", "Russia",
+                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
+        userService.add(user7);
+        Client client3 = clientService.getClientByID(3L).get();
+        client3.setOwnerUser(user7);
+        clientService.updateClient(client3);
+
+        User user8 = new User("Dasha", "Hr", LocalDate.of(1984, 3, 12), "3999999999", "hr3@gmail.com",
+                "hr3", null, Client.Sex.FEMALE.toString(), "Samara", "Russia",
+                Collections.singletonList(roleService.getRoleByName("HR")), true, true);
+        userService.add(user8);
+        Client client4 = clientService.getClientByID(4L).get();
+        client4.setOwnerUser(user8);
+        clientService.updateClient(client4);
+
+        CallRecord callRecord11 = new CallRecord();
+        callRecord11.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
+        callRecord11.setCallingUser(user6);
+        callRecordService.addCallRecord(callRecord11);
+        CallRecord callRecord12 = new CallRecord();
+        callRecord12.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.of(10, 50), ZoneId.systemDefault()));
+        callRecord12.setCallingUser(user6);
+        callRecordService.addCallRecord(callRecord12);
+        CallRecord callRecord13 = new CallRecord();
+        callRecord13.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 10), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
+        callRecord13.setCallingUser(user6);
+        callRecordService.addCallRecord(callRecord13);
+        CallRecord callRecord14 = new CallRecord();
+        callRecord14.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 10), LocalTime.of(11, 10), ZoneId.systemDefault()));
+        callRecord14.setCallingUser(user6);
+        callRecordService.addCallRecord(callRecord14);
+
+        CallRecord callRecord21 = new CallRecord();
+        callRecord21.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.MIDNIGHT, ZoneId.systemDefault()));
+        callRecord21.setCallingUser(user7);
+        callRecordService.addCallRecord(callRecord21);
+        CallRecord callRecord22 = new CallRecord();
+        callRecord22.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 14), LocalTime.of(10, 40), ZoneId.systemDefault()));
+        callRecord22.setCallingUser(user7);
+        callRecordService.addCallRecord(callRecord22);
+        CallRecord callRecord23 = new CallRecord();
+        callRecord23.setDate(ZonedDateTime.of(LocalDate.of(2019, 5, 12), LocalTime.of(10, 40), ZoneId.systemDefault()));
+        callRecord23.setCallingUser(user7);
+        callRecordService.addCallRecord(callRecord23);
+    }
+
 }
