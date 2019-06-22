@@ -75,6 +75,7 @@ public class DataInitializer {
         // DEFAULT STATUS AND FIRST STATUS FOR RELEASE
         Status defaultStatus = new Status("deleted", true, 5L, false, 0, 0);
         Status status0 = new Status("New clients", false, 1L, false, 0, 0);
+        Status status_all = new Status("Select all", false, 1L, false, 0, 0);
 
         Role roleAdmin = new Role("ADMIN");
         Role roleOwner = new Role("OWNER");
@@ -279,6 +280,7 @@ public class DataInitializer {
         clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(status1::addClient);
         clientService.getClientByEmail("vboyko@mail.ru").ifPresent(status2::addClient);
         clientService.getClientByEmail("a.solo@mail.ru").ifPresent(status3::addClient);
+        statusService.addInit(status_all);
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(status2);
