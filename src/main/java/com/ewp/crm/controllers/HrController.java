@@ -9,8 +9,6 @@ import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.service.interfaces.StudentStatusService;
 import com.ewp.crm.service.interfaces.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -29,7 +27,11 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasAnyAuthority('OWNER','HR')")
 @PropertySource("file:./slackbot.properties")
 public class HrController {
-    private static Logger logger = LoggerFactory.getLogger(HrController.class);
+
+    @Value("${slackbot.ip}")
+    private String slackBotIp;
+    @Value("${slackbot.port}")
+    private String slackBotPort;
 
     private final StatusService statusService;
     private final ClientService clientService;
@@ -39,24 +41,18 @@ public class HrController {
     private final StudentStatusService studentStatus;
     private final RoleService roleService;
 
-
-    @Value("${slackbot.ip}")
-    private String slackBotIp;
-    @Value("${slackbot.port}")
-    private String slackBotPort;
-
     @Autowired
     public HrController(StatusService statusService,
                         ClientService clientService,
                         UserService userService,
-                        MessageTemplateService MessageTemplateService,
+                        MessageTemplateService messageTemplateService,
                         ProjectPropertiesService propertiesService,
                         StudentStatusService studentStatus,
                         RoleService roleService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.userService = userService;
-        this.messageTemplateService = MessageTemplateService;
+        this.messageTemplateService = messageTemplateService;
         this.propertiesService = propertiesService;
         this.studentStatus = studentStatus;
         this.roleService = roleService;
