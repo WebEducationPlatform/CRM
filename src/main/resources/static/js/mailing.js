@@ -99,6 +99,27 @@ function fillStatuses() {
     });
 }
 
+
+/**
+ * Функция выделает все статусы слиентов для рассылки при выделении чек бокса "select all"
+ * */
+$(document).on("change", "#status_checkbox_1", function () {
+
+    if (this.checked) {
+
+        $('.status-checkboxes').each(function(){
+            console.log('selecting all...');
+            $(this).prop("checked", true);
+
+        });
+    } else {
+        $('.status-checkboxes').each(function(){
+            console.log('selecting all...');
+            $(this).prop("checked", false);
+        });
+    }
+});
+
 /**
  * Функция, переключающая состояние кнопок режима рассылки и перенастраивающая интерфейс редактора.
  * Для функции отправки сообщений посредством СМС, в CKEditor отключаются все плагины форматирования
