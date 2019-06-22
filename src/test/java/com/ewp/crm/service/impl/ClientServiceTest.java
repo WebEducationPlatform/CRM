@@ -22,8 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-//@SpringBootTest(properties = "spring.profiles.active=test")
+@SpringBootTest(properties = "spring.profiles.active=test")
 @Rollback
 @Transactional
 public class ClientServiceTest {
