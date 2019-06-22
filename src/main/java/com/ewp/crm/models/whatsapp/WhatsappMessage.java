@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 @Entity
 @Table(name = "whatsapp_message")
-public class WhatsappMessage {
+public class    WhatsappMessage {
 
 
     @Column(name = "whatsapp_id",unique = true,nullable = true)
