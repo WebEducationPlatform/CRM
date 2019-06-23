@@ -561,4 +561,18 @@ public class ClientRestController {
 	public ResponseEntity<String> getClientCardDto(@PathVariable Long id) {
 		return ResponseEntity.ok(ClientCardDtoBuilder.buildClientCardDto(clientService.get(id), statusService.getAll()));
 	}
+
+	@GetMapping
+	public ResponseEntity<Student> getStudentByEmail(@RequestParam("email") String email) {
+		ResponseEntity result;
+		try {
+			Client client = clientService.getClientByEmail(email)
+					.orElseThrow(() -> new RuntimeException("Client with email not found" + email));
+			result = ResponseEntity.ok(client);
+		} catch (RuntimeException rte) {
+			logger.info("Student with email {} not found", email);
+			result = new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+		return result;
+	}
 }
