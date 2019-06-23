@@ -14,13 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-/*
-Тестирование ClientService на отдельной базе данных
-Перед запуском теста не забудьте создать базу данных crmtest, на которой будет происходить тестирование,
-настройки хранятся в файле test\resources\application-test.properties,
-если убрать (properties = "spring.profiles.active=test") - тестирование произодет на реальной базе проекта
- */
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = "spring.profiles.active=test")
 @Rollback
