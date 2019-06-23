@@ -32,5 +32,4 @@ public class EmailRestController {
 		mailSendService.prepareAndSend(clientId, templateText, body, userFromSession);
 		return ResponseEntity.ok().build();
 	}
-
 }

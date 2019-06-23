@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +63,19 @@ public class StudentRestController {
         return result;
     }
 
+    @GetMapping
+    public ResponseEntity<Student> getStudentByEmail(@RequestParam("email") String email) {
+        ResponseEntity result;
+        Student student = studentService.getStudentByEmail(email);
+        if (student != null) {
+            result = ResponseEntity.ok(student);
+        } else {
+            logger.info("Student with email {} not found", email);
+            result = new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return result;
+    }
+
     @PostMapping ("/update")
     public HttpStatus updateStudent(@RequestBody Student student, @AuthenticationPrincipal User userFromSession) {
         if (student.getStatus().getId() == null) {
@@ -85,6 +99,15 @@ public class StudentRestController {
         }
         if (updatedClient.getEmail().isPresent() && !updatedClient.getEmail().get().isEmpty()) {
             client.setEmail(updatedClient.getEmail().get());
+        }
+        if (student.getNextPaymentDate() != null) {
+            if (!student.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS).equals(previous.getNextPaymentDate().truncatedTo(ChronoUnit.DAYS)) &&
+                    "На пробных".equals(client.getStatus().getName())) {
+                Status oldStatus = client.getStatus();
+                client.setStatus(statusService.get("Учатся").orElseThrow(() -> new IllegalArgumentException("Status \"Учатся\" doesn't exist!")));
+                clientHistoryService.createHistoryOfChangingStatus(userFromSession, client, oldStatus).ifPresent(client::addHistory);
+                logger.info("{} has changed status of client with id: {} to status \"Учатся\" by the way change next payment date.", userFromSession.getFullName(), client.getId());
+            }
         }
         studentService.update(student);
         clientService.updateClient(client);
