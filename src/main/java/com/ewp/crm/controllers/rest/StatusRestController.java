@@ -67,7 +67,10 @@ public class StatusRestController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR')")
     public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName,
                                        @AuthenticationPrincipal User currentAdmin) {
-        statusService.add(new Status(statusName));
+
+        final Status status = new Status(statusName);
+        status.setRole(currentAdmin.getRole());
+        statusService.add(status);
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }
