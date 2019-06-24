@@ -53,17 +53,17 @@ public class AdminRestClientController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity addClient(@RequestBody Client client,
                                     @AuthenticationPrincipal User userFromSession) {
-            Optional<Status> status = statusService.get(client.getStatus().getName());
-            status.ifPresent(client::setStatus);
-            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
-            clientService.addClient(client);
-            studentService.addStudentForClient(client);
-            logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail().orElse("not found"));
+        Optional<Status> status = statusService.get(client.getStatus().getName());
+        status.ifPresent(client::setStatus);
+        clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
+        clientService.addClient(client);
+        studentService.addStudentForClient(client);
+        logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping(value = "/update")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')")
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(currentClient.getId());
@@ -87,19 +87,19 @@ public class AdminRestClientController {
             return ResponseEntity.noContent().build();
         }
         clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
-    
+
         // Код ниже необходим чтобы задедектить изменение сущностей которые смапленны аннотацией @ElementCollection
         // Относится к списку почты и телефона, ошибка заключается в том что когда пытаешься изменить порядок уже существующих даннх
         // Происходит ошибка уникальности (неправильны мердж сущности) в остальном всё ок
         // Если произошёл такой случай то руками удаляем зависимости, сохраняем и записываем что пришло
         List<String> emails = currentClient.getClientEmails();
         List<String> phones = currentClient.getClientPhones();
-    
+
         List<String> emailsFromDb = clientFromDB.getClientEmails();
         List<String> phonesFromDb = clientFromDB.getClientPhones();
-    
+
         boolean needUpdateClient = false;
-    
+
         // Если размеры равны начинаем проверку
         int count = Math.min(emails.size(), emailsFromDb.size());
         for (int i = 0; i < count; i++) {
@@ -110,7 +110,7 @@ public class AdminRestClientController {
                 break;
             }
         }
-    
+
         // Если флаг взведён даже не проверям телефоны
         if (!needUpdateClient) {
             count = Math.min(phones.size(), phonesFromDb.size());
@@ -123,12 +123,12 @@ public class AdminRestClientController {
                 }
             }
         }
-    
+
         // Проверяем достаточные условия для удаления/записи
         if (needUpdateClient) {
             clientService.updateClient(clientFromDB);
         }
-        
+
         clientService.updateClient(currentClient);
         logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
