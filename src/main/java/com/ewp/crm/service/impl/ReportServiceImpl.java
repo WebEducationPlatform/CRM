@@ -78,7 +78,8 @@ public class ReportServiceImpl implements ReportService {
      *
      * @param reportStartDate дата начала отчетного периода
      * @param reportEndDate   дата окончания отчетного периода
-     * @return количество найденных клиентов
+     * @param excludeStatusesIds список статусов, которые нужно игнорировать
+     * @return отчет с количеством и списком найденных клиентов
      */
     @Override
     public Report getAllNewClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
@@ -87,6 +88,43 @@ public class ReportServiceImpl implements ReportService {
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
         List<Client> result = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
+        int quantityAllNewClients = result.size();
+        List<Client> clientsWithDuplicateRequest = new ArrayList<>(result);
+        clientsWithDuplicateRequest.removeIf(client -> repeatedClientTopic.equals(client.getClientDescriptionComment()));
+        String message = MessageFormat.format(allNewStudentsByDateTemplate, quantityAllNewClients, (quantityAllNewClients - clientsWithDuplicateRequest.size()));
+        return new Report(message, sortList(result));
+    }
+
+    /**
+     *
+     * @param reportStartDate дата начала отчетного периода
+     * @param reportEndDate дата окончания отчетного периода
+     * @param excludeStatusesIds список статусов, которые нужно игнорировать
+     * @param firstStatusId статус, в котором искать появление нового клиента
+     * @return отчет с количеством и списком найденных клиентов
+     */
+    @Override
+    public Report getAllNewClientsByDateAndFirstStatus(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds, Long firstStatusId) {
+        Report report = getAllNewClientsByDate(reportStartDate, reportEndDate, excludeStatusesIds);
+        List<Client> result = report.getClients();
+        if (firstStatusId != null) {
+            Optional<Status> firstStatus = statusService.get(firstStatusId);
+            firstStatus.ifPresent(st -> result.removeIf(client -> {
+                ClientHistory firstHistory = clientRepository.getClientFirstStatusChangingHistory(client.getId());
+                if (firstHistory != null && clientRepository.getNearestClientHistoryBeforeDate(client, firstHistory.getDate(), Arrays.asList(ClientHistory.Type.STATUS)) == null) {
+                    Optional<String> status = parseSourceStatusNameFromHistoryTitle(firstHistory.getTitle());
+                    if (status.isPresent()) {
+                        return !st.getName().equals(status.get());
+                    }
+                } else {
+                    if (!clientRepository.hasClientStatusChangingHistory(client.getId())) {
+                        return !st.getName().equals(client.getStatus().getName());
+                    }
+                    return !hasClientEverBeenInStatus(client, Arrays.asList(firstStatus.get()));
+                }
+                return false;
+            }));
+        }
         int quantityAllNewClients = result.size();
         List<Client> clientsWithDuplicateRequest = new ArrayList<>(result);
         clientsWithDuplicateRequest.removeIf(client -> repeatedClientTopic.equals(client.getClientDescriptionComment()));

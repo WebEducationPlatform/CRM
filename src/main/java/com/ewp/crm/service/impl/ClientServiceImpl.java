@@ -368,10 +368,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
-            if ( client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link")) ){
+            Status lastStatus = existClient.get().getStatus();
+            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                 statusService.get("Постоплата2").ifPresent(existClient.get()::setStatus);
-            }else{
+            } else {
                 statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            }
+            if (!lastStatus.equals(existClient.get().getStatus())) {
+                Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
+                historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
             }
             client.setId(existClient.get().getId());
 
