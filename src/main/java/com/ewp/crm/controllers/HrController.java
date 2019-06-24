@@ -80,10 +80,10 @@ public class HrController {
     public ModelAndView showAllManagers() {
         final ModelAndView modelAndView = new ModelAndView("hr-table");
 
-        modelAndView.addObject("hrManagers", userService.getAll().stream()
-                .filter(x -> x.getRole().contains(roleService.getRoleByName("HR")))
-                .map(HrDtoForBoard::new)
-                .collect(Collectors.toList()));
+        modelAndView.addObject("hrManagers",
+                userService.getByRole(roleService.getRoleByName("HR"))
+                        .stream().map(HrDtoForBoard::new)
+                        .collect(Collectors.toList()));
 
         return modelAndView;
     }
