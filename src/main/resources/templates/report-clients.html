@@ -66,6 +66,17 @@
                     <label for="mailingDate" class="p-user">Выберите дату:</label>
                     <input class="form-control input-sm form-control-report" type="text" name="mailingDate" id="mailingDate"/>
                 </div>
+                <div class="form-group hideable_4" hidden="hidden">
+                    <label for="statusNewSelect" class="p-user">Статус для нового клиента:</label>
+                    <select id="statusNewSelect" class="form-control">
+                        <option value="null">Статус</option>
+                    </select>
+                    <div class="checkbox">
+                        <label>
+                            <input id="new-all-checkbox" type="checkbox"/>Любой
+                        </label>
+                    </div>
+                </div>
                 <div class="form-group hideable">
                     <label for="statusFromSelect" class="p-user">Статус из которого перешел:</label>
                     <select id="statusFromSelect" class="form-control">
