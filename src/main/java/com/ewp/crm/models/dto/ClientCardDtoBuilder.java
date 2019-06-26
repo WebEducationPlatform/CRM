@@ -41,7 +41,8 @@ public class ClientCardDtoBuilder {
                                                     "socialProfiles",
                                                     "clientDescriptionComment",
                                                     "liveSkypeCall",
-                                                    "contractLinkData"};
+                                                    "contractLinkData",
+                                                    "otherInformationLinkData"};
 
     final static String[] STATUS_TARGET_FIELDS = {  "id",
                                                     "name"};
