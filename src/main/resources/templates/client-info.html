@@ -19,6 +19,8 @@
                         id="editClientBtn" onclick="revertUnable()">Редактировать</button>
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
                         style="margin-bottom: 10px" id="feedbackClientBtn" th:onclick="'getFeedback('+ ${client.id} + ')'">смотреть отзывы</button>
+                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-danger"
+                        style="margin-bottom: 10px; margin-left: 15px" id="deleteClientBtn" th:onclick="'deleteClient('+ ${client.id} + ')'">Удалить</button>
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="edit-client-first-name">Имя</label>
