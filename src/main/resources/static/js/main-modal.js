@@ -432,6 +432,40 @@ $(function () {
                     $('#contract-client-setting-contract-link').empty();
                 }
 
+                $('#other-information-btn').empty();
+
+                if (client.otherInformationLinkData != null) {
+                    $('#other-information-btn').empty().append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
+                        'data-toggle="modal" data-target="#other-information-value-modal" >Дополнительная информация</button>');
+                    $.ajax({
+                        type: 'GET',
+                        url: "/otherInformation/client/" + client.id,
+                        success: function (listInfo) {
+                            let id = "client-" + client.id + "history";
+                            console.log(id);
+                            for (let i = 0; i < listInfo.length; i++) {
+                                let name = listInfo[i].nameField;
+                                if (listInfo[i].typeField === "CHECKBOX") {
+                                    if (listInfo[i].checkboxValue) {
+                                        $('#' + id + ' tbody').append('<tr><td>' + name + '</td><td>ДА</td></tr>')
+                                    } else {
+                                        $('#' + id + ' tbody').append('<tr><td>' + name + '</td>' +
+                                            '<td>НЕТ</td>' +
+                                            '</tr>')
+                                    }
+                                } else {
+                                    $('#' + id + ' tbody').append('<tr><td>' + name + '</td>' +
+                                        '<td>' + listInfo[i].textValue+ '</td>' +
+                                        '</tr>')
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    $('#other-information-btn').empty().append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
+                        'data-toggle="modal" data-target="#other-information-link-modal" >Дополнительная информация</button>');
+                    $('#other-information-link-input').empty();
+                }
 
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
