@@ -171,12 +171,14 @@ public class ProjectPropertiesRestController {
 
     @PostMapping("/client-default-properties")
     public HttpStatus setClientDefaults(@RequestParam Long repeatedStatus, @RequestParam Long newClientStatus,
-                                        @RequestParam Long rejectId, @RequestParam Long firstPayStatus) {
+                                        @RequestParam Long rejectId, @RequestParam Long firstPayStatus,
+                                        @RequestParam Long firstSkypeCallAfterStatus) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setRepeatedDefaultStatusId(repeatedStatus);
         current.setNewClientStatus(newClientStatus);
         current.setClientRejectStudentStatus(rejectId);
         current.setClientFirstPayStatus(firstPayStatus);
+        current.setFirstSkypeCallAfterStatus(firstSkypeCallAfterStatus);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }
