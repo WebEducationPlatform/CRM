@@ -7,6 +7,7 @@ import com.ewp.crm.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public interface StatusDAO extends JpaRepository<Status, Long> {
@@ -26,4 +27,13 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
 
 	@Query("SELECT s FROM Status s WHERE s.createStudent = true")
 	List<Status> getAllStatusesForStudents();
+
+	@Query(value = "SELECT status_id FROM status WHERE is_invisible = 0", nativeQuery = true)
+	List<BigInteger> getAllIdsWhichNotInvisible();
+
+	@Query(value = "SELECT status_name FROM status WHERE status_id = ?1", nativeQuery = true)
+	String getStatusNameById(Long id);
+
+	@Query(value = "SELECT position FROM status WHERE status_id = ?1", nativeQuery = true)
+	Long getStatusPositionById(Long id);
 }
