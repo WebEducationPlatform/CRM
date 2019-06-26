@@ -23,6 +23,7 @@ public interface ClientRepository extends CommonGenericRepository<Client>, Clien
 
 	List<Client> getAllByIdIn(List<Long> ids);
 
+	@Override
 	Page<Client> findAll(Pageable pageable);
 
 	Page<Client> getAllByOwnerUser(Pageable pageable, User clientOwner);
