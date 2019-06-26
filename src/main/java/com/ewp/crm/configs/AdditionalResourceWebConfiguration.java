@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @PropertySource("file:./ckeditor.properties")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "classpath:messages.yml")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "classpath:firstSkypeCall.yml")
 public class AdditionalResourceWebConfiguration implements WebMvcConfigurer {
 
     @Value("${ckediror.img.uri}")
