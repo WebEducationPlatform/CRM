@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 @Controller
 @PreAuthorize("hasAnyAuthority('OWNER','ADMIN','MENTOR')")
 @RequestMapping("/mentors")
-@PropertySource("file:./slackbot.properties")
+@PropertySource({"file:./slackbot.properties", "file:./mentors.properties"})
 public class MentorsController {
 
-	private static Logger logger = LoggerFactory.getLogger(HrController.class);
+	private static Logger logger = LoggerFactory.getLogger(MentorsController.class);
 
 	private final StatusService statusService;
 	private final UserService userService;
@@ -50,12 +50,15 @@ public class MentorsController {
 	private String slackBotIp;
 	@Value("${slackbot.port}")
 	private String slackBotPort;
+	@Value("${mentor.max.students}")
+	private String maxStudents;
 
 	@GetMapping
 	public ModelAndView showMentorsWithThearStudents() {
 		ModelAndView modelAndView = new ModelAndView("mentors-with-students-table");
 		modelAndView.addObject("slackBotIp", slackBotIp);
 		modelAndView.addObject("slackBotPort", slackBotPort);
+		modelAndView.addObject("maxStudents", maxStudents);
 		modelAndView.addObject("mentors", userService.getAll().stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
 		modelAndView.addObject("studentStatuses", studentStatus.getAll());
 		modelAndView.addObject("statuses", statusService.getAll());

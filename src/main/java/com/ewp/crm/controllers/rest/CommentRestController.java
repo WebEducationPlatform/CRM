@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/comment")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
 public class CommentRestController {
 
 	private static Logger logger = LoggerFactory.getLogger(CommentRestController.class);

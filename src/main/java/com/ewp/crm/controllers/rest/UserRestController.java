@@ -40,7 +40,7 @@ public class UserRestController {
 	}
 
 	@GetMapping(value = {"/user/socialNetworkTypes"})
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		SocialProfile socialProfile = new SocialProfile();
 		List<SocialNetworkType> socialNetworkTypes = socialProfile.getAllSocialNetworkTypes();

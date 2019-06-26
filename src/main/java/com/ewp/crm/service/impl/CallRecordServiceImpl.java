@@ -7,11 +7,11 @@ import com.ewp.crm.repository.interfaces.CallRecordRepository;
 import com.ewp.crm.service.interfaces.CallRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +41,11 @@ public class CallRecordServiceImpl extends CommonServiceImpl<CallRecord> impleme
             return Optional.of(callRecordRepository.saveAndFlush(callRecord));
         }
         return Optional.of(callRecordRepository.saveAndFlush(callRecord));
+    }
+
+    @Override
+    public CallRecord updateCallRecord(CallRecord callRecord) {
+        return callRecordRepository.saveAndFlush(callRecord);
     }
 
     @Override

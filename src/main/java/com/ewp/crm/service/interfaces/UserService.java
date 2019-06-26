@@ -12,8 +12,10 @@ public interface UserService extends CommonService<User> {
 
 	Optional<User> getByEmailOrPhone(String email, String phone);
 
-	User add(User user);
+	@Override
+    User add(User user);
 
+	@Override
 	void update(User user);
 
 	void addPhoto(MultipartFile file, User user);
