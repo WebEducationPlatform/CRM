@@ -471,7 +471,7 @@ public class ClientRestController {
     }
 
     @PostMapping(value = "/setRepeated")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
     public ResponseEntity<String> setRepeated(@RequestParam(name = "clientId") Long clientId,
                                               @RequestParam(name = "isRepeated") Boolean isRepeated,
                                               @AuthenticationPrincipal User userFromSession) {

@@ -35,14 +35,23 @@ function setVisibility(i) {
             $('.hideable_1').show();
             $('.hideable_2').hide();
             $('.hideable_3').hide();
+            $('.hideable_4').hide();
             btn.prop('disabled', false);
             break;
         case 2:
+            $('.hideable').hide();
+            $('.hideable_1').show();
+            $('.hideable_2').hide();
+            $('.hideable_3').hide();
+            $('.hideable_4').show();
+            btn.prop('disabled', false);
+            break;
         case 3:
             $('.hideable').hide();
             $('.hideable_1').show();
             $('.hideable_2').hide();
             $('.hideable_3').hide();
+            $('.hideable_4').hide();
             btn.prop('disabled', false);
             break;
         case 4:
@@ -50,6 +59,7 @@ function setVisibility(i) {
             $('.hideable_1').hide();
             $('.hideable_2').hide();
             $('.hideable_3').show();
+            $('.hideable_4').hide();
             btn.prop('disabled', false);
             break;
         case 5:
@@ -57,6 +67,7 @@ function setVisibility(i) {
             $('.hideable_1').hide();
             $('.hideable_2').show();
             $('.hideable_3').hide();
+            $('.hideable_4').hide();
             btn.prop('disabled', true);
             break;
     }
@@ -139,7 +150,7 @@ $('#load-data-button').on('click', function () {
                     traditional: true,
                     success: function (response) {
                         showAndFillTable(response);
-                        setReportTopic(lastReportCount, 1);
+                        setReportTopic(lastReportCount, 0);
                     }
                 });
             } else {
@@ -164,11 +175,20 @@ $('#load-data-button').on('click', function () {
             }
             break;
         case 2:
-            wrap = {
-                "firstReportDate" : selectedDateStart,
-                "lastReportDate" : selectedDateEnd,
-                "excludeIds" : selectedExcludes
-            };
+            if ($('#new-all-checkbox').is(':checked')) {
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes
+                };
+            } else {
+                wrap = {
+                    "firstReportDate" : selectedDateStart,
+                    "lastReportDate" : selectedDateEnd,
+                    "excludeIds" : selectedExcludes,
+                    "newStatusId" : $('#statusNewSelect').val()
+                };
+            }
             $.ajax({
                 url: '/rest/report/countNew',
                 type: 'GET',
@@ -357,6 +377,20 @@ function showAndFillTable(data) {
 function setReportTopic(idx, reportId) {
     let excludeStatuses = '';
     switch (reportId) {
+        case 0:
+            excludeStatuses = '';
+            $('#statusExcludeSelect input:checked').each(function () {
+                statusEx = $(this);
+                excludeStatuses = excludeStatuses + statusEx[0].nextSibling.nodeValue + ', ';
+            });
+            if (excludeStatuses !== '') {
+                excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
+            }
+            $('#report_head_' + idx).html(
+                'Переходы из любого статуса в "' + $('#statusToSelect option:selected').text() +
+                '" с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+            );
+            break;
         case 1:
             excludeStatuses = '';
             $('#statusExcludeSelect input:checked').each(function () {
@@ -380,9 +414,15 @@ function setReportTopic(idx, reportId) {
             if (excludeStatuses !== '') {
                 excludeStatuses = '<br />Кроме статусов ' + excludeStatuses.substr(0, excludeStatuses.length - 2) + '.';
             }
-            $('#report_head_' + idx).html(
-                'Появление новых клиентов с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
-            );
+            if ($('#new-all-checkbox').is(':checked')) {
+                $('#report_head_' + idx).html(
+                    'Появление новых клиентов с ' + startTime + ' по ' + endTime + '. ' + excludeStatuses
+                );
+            } else {
+                $('#report_head_' + idx).html(
+                    'Появление новых клиентов с ' + startTime + ' по ' + endTime + ' в статусе ' + $('#statusNewSelect option:selected').text() + '. ' + excludeStatuses
+                );
+            }
             break;
         case 3:
             excludeStatuses = '';
@@ -410,6 +450,7 @@ $('#panels').on('click', '.client-row', function () {
 
 $(document).ready(function () {
     let statusFromSelector = $('#statusFromSelect');
+    let statusNewSelector = $('#statusNewSelect');
     let statusToSelector = $('#statusToSelect');
     let statusExcludeSelector = $('#statusExcludeSelect');
     $('.hideable_once').hide();
@@ -419,6 +460,7 @@ $(document).ready(function () {
         async: true,
         success: function (response) {
             statusFromSelector.empty();
+            statusNewSelector.empty();
             statusToSelector.empty();
             statusExcludeSelector.empty();
             $('#reportList').empty();
@@ -426,6 +468,7 @@ $(document).ready(function () {
             $('#report_selector_2').empty();
             for (var i = 0; i < response.length; i++) {
                 statusFromSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+                statusNewSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
                 statusToSelector.append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
                 statusExcludeSelector.append('<label><input type="checkbox" class="exclude-status-checkboxes" value="' + response[i].id + '" aria-label="' + response[i].name + '"/>' + response[i].name + '</label><br />');
             }

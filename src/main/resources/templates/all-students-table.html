@@ -91,21 +91,27 @@
             </div>
             <div class="col-md-10"></div>
         </div>
-
+        <div class="col-xs-offset-4">
+            <div id="sortingNotification" class="alert alert-info col-xs-4" align="center" role="alert" style="display: none">
+                <h5></h5>
+            </div>
+            <div id="sortingEnded" class="alert alert-success col-xs-4" align="center" role="alert" style="display: none">
+            </div>
+        </div>
         <table class="table table-hover table-fixed" id="students-table">
             <thead id="thead-table-students">
             <tr class="head-table">
-                <th onclick="sort_table(1)">Имя</th>
-                <th onclick="sort_table(2)">Фамилия</th>
-                <th onclick="sort_table(3)">Email</th>
-                <th onclick="sort_table(4, 'date')">Конец пробных</th>
-                <th onclick="sort_table(5, 'date')">Следующая оплата</th>
-                <th class="fit" onclick="sort_table(6)">Цена</th>
-                <th class="fit" onclick="sort_table(7)">Сумма платежа</th>
-                <th class="fit" onclick="sort_table(8)">Оплата после</th>
-                <th width="240px">Напоминание</th>
-                <th class="fit" onclick="sort_table(10)">Статус учёбы</th>
-                <th onclick="sort_table(11)">Заметки</th>
+                <th><button onclick="noteAndSort(this, 1)" type="button" class="btn btn-secondary" value="">Имя<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 2)" type="button" class="btn btn-secondary">Фамилия<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 3, 'email')" type="button" class="btn btn-secondary">Email<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 4, 'date')" type="button" class="btn btn-secondary">Конец пробных<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 5, 'date')" type="button" class="btn btn-secondary">Следующая оплата<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 6)" type="button" class="btn btn-secondary fit">Цена<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 7)" type="button" class="btn btn-secondary fit">Сумма платежа<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 8)" type="button" class="btn btn-secondary fit">Оплата после<i class="fa fa-fw fa-sort"></i></button></th>
+                <th width="240px"><button type="button" class="btn btn-secondary">Напоминание</button></th>
+                <th><button onclick="noteAndSort(this, 15, 'status')" type="button" class="btn btn-secondary fit">Статус учёбы<i class="fa fa-fw fa-sort"></i></button></th>
+                <th><button onclick="noteAndSort(this, 16, 'notes')" type="button" class="btn btn-secondary">Заметки<i class="fa fa-fw fa-sort"></i></button></th>
                 <th></th>
             </tr>
             </thead>
@@ -253,6 +259,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
 <script type="text/javascript" th:src="@{/js/jquery.imgcheckbox.js}"></script>
+
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
+
+<!--Font for arrows in table buttons-->
+<link href="/css/font-awesome.min.css" rel="stylesheet"/>
+<!--Noty for notifications-->
+<link href="/css/noty.css" rel="stylesheet"/>
+<script type="text/javascript" src="/js/noty.js"></script>
 </body>
 </html>

@@ -19,11 +19,12 @@
 <div id="page-container" class="container-fluid">
     <div id="main-row" class="row">
         <div id="mentors-column" class="col-lg-8"></div>
-        <div id="undefinedEmails" class="col-lg-4"></div>
+        <div id="right-column" class="col-lg-4"></div>
     </div>
 </div>
 <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
 <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
+<input hidden="true" id="mentorMaxStudents" th:value="${maxStudents}"/>
 <script th:inline="javascript">
     /*<![CDATA[*/
     var mentors = /*[[${mentors}]]*/ 'default';

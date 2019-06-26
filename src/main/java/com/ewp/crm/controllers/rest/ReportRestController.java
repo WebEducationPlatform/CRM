@@ -65,11 +65,19 @@ public class ReportRestController {
     @GetMapping(value = "/countNew", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity countNew(@RequestParam String firstReportDate,
                                    @RequestParam String lastReportDate,
-                                   @RequestParam(required = false) List<Long> excludeIds) {
-        return ResponseEntity.ok(reportService.getAllNewClientsByDate(
+                                   @RequestParam(required = false) List<Long> excludeIds,
+                                   @RequestParam(required = false) Long newStatusId) {
+        if (newStatusId == null) {
+            return ResponseEntity.ok(reportService.getAllNewClientsByDate(
+                    getZonedDateTimeFromString(firstReportDate),
+                    getZonedDateTimeFromString(lastReportDate),
+                    excludeIds));
+        }
+        return ResponseEntity.ok(reportService.getAllNewClientsByDateAndFirstStatus(
                 getZonedDateTimeFromString(firstReportDate),
                 getZonedDateTimeFromString(lastReportDate),
-                excludeIds));
+                excludeIds,
+                newStatusId));
     }
 
     @GetMapping(value = "/countFirstPayments", produces = MediaType.APPLICATION_JSON_VALUE)
