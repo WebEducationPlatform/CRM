@@ -225,6 +225,32 @@ function changeClient(id) {
     });
 }
 
+function deleteClient(clientId) {
+    const url = '/admin/rest/client/remove';
+    const infoMsg = document.getElementById("message");
+    $.ajax({
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        data: {clientId: clientId},
+        beforeSend: function () {
+            infoMsg.style.color = "darkorange";
+            infoMsg.textContent = "Загрузка...";
+
+        },
+        success: function () {
+            infoMsg.textContent = "Удалено";
+            infoMsg.style.color = "limegreen";
+            document.location.href = '/client';
+        },
+        error: function (e) {
+            console.log(e.responseText);
+            infoMsg.textContent = "Ошибка сохранения. " + e.responseText;
+            infoMsg.style.color = "red";
+        }
+    });
+}
+
 function disableInputE() {
     var disMas = [69, 187, 189, 109];
     if (disMas.indexOf(event.keyCode) !== -1) {
