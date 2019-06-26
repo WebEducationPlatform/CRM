@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Все клиенты</title>
+    <meta charset="UTF-8" />
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css" />
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+  </head>
+
+  <body>
+    <div style="margin: 2%">
+      <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+      <div class="container-fluid">
+        <div><h1>Статистика по координаторам</h1></div>
+
+        <div class="row">
+          <div class="col-md-1">
+            <div style="float: right;" id="loaderImage"></div>
+          </div>
+          <div class="col-md-4"><input class="form-control clearable" id="searchInput"
+                                       placeholder="Поиск координатора ..." />
+          </div>
+        </div>
+
+        <table class="table table-hover table-fixed" id="clients-table">
+          <thead id="thead-table-clients">
+            <tr class="head-table">
+              <th>#</th>
+              <th>Имя</th>
+              <th>Фамилия</th>
+              <th>Телефон</th>
+              <th>Email</th>
+              <th>Пол</th>
+              <th>Город</th>
+              <th>Country</th>
+              <th>Карточек</th>
+              <th>Звонков всего</th>
+              <th>Звонков в день</th>
+            </tr>
+          </thead>
+
+          <tbody id="table-body">
+            <tr th:each="manager : ${hrManagers}">
+              <td th:text="${manager.id}"></td>
+              <td th:text="${manager.firstName}"></td>
+              <td th:text="${manager.lastName}"></td>
+              <td th:text="${manager.phoneNumber}"></td>
+              <td th:text="${manager.email}"></td>
+              <td th:text="${manager.sex}"></td>
+              <td th:text="${manager.city}"></td>
+              <td th:text="${manager.country}"></td>
+              <td th:text="${manager.numberOfCards}"></td>
+              <td th:text="${manager.numberOfCalls}"></td>
+              <td th:text="${manager.avgCallsPerDay}"></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <script type="text/javascript" th:src="@{/js/hr-table.js}"></script>
+  </body>
+</html>
