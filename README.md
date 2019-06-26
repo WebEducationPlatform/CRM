@@ -612,4 +612,14 @@
 ![alt text](https://pp.userapi.com/c844617/v844617291/1b83ef/KJjPnjBYadk.jpg)
 ***Авторизация в Telegram***
 
+## Тесты
+Тестирование ClientService на отдельной базе данных
+---
+класс ClientServiceTest
+Перед запуском теста не забудьте создать базу данных crmtest, на которой будет происходить тестирование,
+настройки хранятся в файле test\resources\application-test.properties,
+
+если убрать (properties = "spring.profiles.active=test") в аннотации @SpringBootTest
+тестирование произодет на реальной базе проекта
+
 # Конец

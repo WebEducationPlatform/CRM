@@ -1,0 +1,6 @@
+vk:
+  firstSkypeNotify:
+    chatId: 1
+    template: "=== Уведомление ===\n\nНазначен первый созвон\nКлиент: %s %s\nhttps://crm.java-mentor.com/client?id=%s\nДата: %s"
+    updateTemplate: "=== Уведомление ===\n\nИзменена дата первого созвона\nКлиент: %s %s\nhttps://crm.java-mentor.com/client?id=%s\nДата: %s"
+    deleteTemplate: "=== Уведомление ===\n\nОтменен первый созвон\nКлиент: %s %s\nhttps://crm.java-mentor.com/client?id=%s\nДата: %s"
