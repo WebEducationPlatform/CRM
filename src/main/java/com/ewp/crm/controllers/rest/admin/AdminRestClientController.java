@@ -16,13 +16,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -89,7 +92,7 @@ public class AdminRestClientController {
         clientHistoryService.createHistory(userFromSession, clientFromDB, currentClient, ClientHistory.Type.UPDATE).ifPresent(currentClient::addHistory);
     
         // Код ниже необходим чтобы задедектить изменение сущностей которые смапленны аннотацией @ElementCollection
-        // Относится к списку почты и телефона, ошибка заключается в том что когда пытаешься изменить порядок уже существующих даннх
+        // Относится к списку почты и телефона, ошибка заключается в том что когда пытаешься изменить порядок уже существующих данных
         // Происходит ошибка уникальности (неправильны мердж сущности) в остальном всё ок
         // Если произошёл такой случай то руками удаляем зависимости, сохраняем и записываем что пришло
         List<String> emails = currentClient.getClientEmails();
@@ -133,5 +136,18 @@ public class AdminRestClientController {
         logger.info("{} has updated client: id {}, email {}", userFromSession.getFullName(), currentClient.getId(), currentClient.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
-
+    
+    @GetMapping(value = "/remove")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity removeClient(@RequestParam(name = "clientId") Long clientId,
+                                       @AuthenticationPrincipal User userFromSession) {
+        Client clientFromDB = clientService.get(clientId);
+        if (Objects.isNull(clientFromDB)) {
+            return ResponseEntity.notFound().build();
+        }
+        clientService.delete(clientId);
+        
+        logger.info("{} has delete client: id {}, email {}", userFromSession.getFullName(), clientFromDB.getId(), clientFromDB.getEmail().orElse("not found"));
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
 }
