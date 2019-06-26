@@ -8,6 +8,8 @@ let learningStudents = 0;
 let trialStudents = 0;
 let lostStudents = 0;
 let lostTrialStudents = 0;
+let undefinedMentorsEmails = [];
+let undefinedStudentsEmails = [];
 
 $(document).ready(function () {
     $("#mentors-row").children().remove();
@@ -21,6 +23,9 @@ $(document).ready(function () {
             .done(function (response) {
                 mentorsMap.set(mentor.id, response);
             })
+            .fail(function () {
+                undefinedMentorsEmails.push(mentor.email)
+            })
 
     });
     drawMentorTable();
@@ -28,7 +33,6 @@ $(document).ready(function () {
 
 function drawMentorTable() {
     let mentorsWithClientsMap = new Map();
-    let undefinedEmails = [];
     for (const mentor of mentorsMap.entries()) {
         let mentorWithClientsMap = new Map();
         $('<div></div>', {
@@ -60,7 +64,7 @@ function drawMentorTable() {
                             studentsInStatusList.push(client);
                         })
                         .fail(function () {
-                            undefinedEmails.push(email);
+                            undefinedStudentsEmails.push(email);
                         })
                 });
                 mentorWithClientsMap.set(key, studentsInStatusList);
@@ -70,8 +74,8 @@ function drawMentorTable() {
     }
     drawClientsPortlet(mentorsWithClientsMap);
     drawInfoBlock();
-    if (undefinedEmails.length > 0) {
-        drawUndefinedEmailsBlock(undefinedEmails);
+    if (undefinedStudentsEmails.length > 0 || undefinedMentorsEmails.length > 0) {
+        drawUndefinedEmailsBlock(undefinedStudentsEmails);
     }
 }
 
@@ -102,7 +106,7 @@ function drawClientsPortlet(mentorsWithClientsMap) {
                     text: client.name + " " + client.lastName
                 }).appendTo('div#' + client.id + '.portlet');
             });
-            counterStudentsOnMentor +=counter;
+            counterStudentsOnMentor += counter;
             countStudents(counter, status);
         }
         let q = $("#mentor" + mentorWithClientsMap[0]);
@@ -167,15 +171,33 @@ function drawUndefinedEmailsBlock(undefinedEmails) {
         text: 'Имеются нераспознанные данные:',
         style: "font-size: 120%; color: red;"
     }).appendTo('#right-column');
-    $.each(undefinedEmails, function (i, email) {
-        $('<div></div>', {
-           //class: 'portlet panel panel-default',
-            text: email,
-            style: "color: red;"
+    if (undefinedMentorsEmails.length > 0) {
+        $('<P></P>', {
+            text: 'Нераспознанные менторы:',
+            style: "font-size: 120%; color: red;"
         }).appendTo('#right-column');
-    });
-    $('<P></P>', {
-    }).appendTo('#right-column');
+        $.each(undefinedMentorsEmails, function (i, email) {
+            $('<div></div>', {
+                //class: 'portlet panel panel-default',
+                text: email,
+                style: "color: red;"
+            }).appendTo('#right-column');
+        })
+    }
+    if (undefinedStudentsEmails.length > 0) {
+        $('<P></P>', {
+            text: 'Нераспознанные студенты:',
+            style: "font-size: 120%; color: red;"
+        }).appendTo('#right-column');
+        $.each(undefinedEmails, function (i, email) {
+            $('<div></div>', {
+                //class: 'portlet panel panel-default',
+                text: email,
+                style: "color: red;"
+            }).appendTo('#right-column');
+        });
+    }
+    $('<P></P>', {}).appendTo('#right-column');
     $('<P></P>', {
         text: 'Расчеты по студентам неверны!',
         style: "font-size: 120%; color: red;"
