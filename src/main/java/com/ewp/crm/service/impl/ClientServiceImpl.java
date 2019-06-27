@@ -1,19 +1,8 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.client.ClientExistsException;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Comment;
-import com.ewp.crm.models.ContractDataForm;
-import com.ewp.crm.models.ContractLinkData;
-import com.ewp.crm.models.FilteringCondition;
-import com.ewp.crm.models.OtherInformationLinkData;
-import com.ewp.crm.models.Passport;
-import com.ewp.crm.models.SlackInviteLink;
-import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
