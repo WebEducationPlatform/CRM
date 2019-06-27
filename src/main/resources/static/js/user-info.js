@@ -1,6 +1,9 @@
 var isAutorizedUserOwner = false;
 var isAutorizedUserAdmin = false;
 var isUpdatedUserOwner = false;
+var myRows = [];
+let botIp = $("#slackbotIp").val();
+let botPort = $("#slackbotPort").val();
 $(document).ready(function () {
     $.each(updatedUserRoles, function (i, role) {
         if (role.roleName === 'OWNER') {
@@ -53,12 +56,12 @@ function changeUser(id, authId) {
 
     var $sel = $('#edit-user-roles').find("input[type=checkbox]:checked");
     let url = '/admin/rest/user/update';
-    var myRows = [];
 
     $sel.each(function (index, sel) {
         var obj = {};
         obj["id"] = sel.value;
-        obj["roleName"] = sel.innerText;
+        let labelFor = "checkbox-user-" + sel.value;
+        obj["roleName"] = $("label[for='" + labelFor  + "']").text();
         myRows.push(obj);
     });
     let wrap = {
@@ -232,12 +235,12 @@ function addUser() {
 
     var $sel = $('#add-user-roles').find("input[type=checkbox]:checked");
     let url = '/admin/rest/user/add';
-    var myRows = [];
 
     $sel.each(function (index, sel) {
         var obj = {};
         obj["id"] = sel.value;
-        obj["roleName"] = sel.innerText;
+        let labelFor = "checkbox-user-" + sel.value;
+        obj["roleName"] = $("label[for='" + labelFor  + "']").text();
         myRows.push(obj);
     });
     let wrap = {
@@ -293,7 +296,7 @@ function registerUser() {
     var obj = {};
     obj["id"] = 2;
     obj["roleName"] = 'USER';
-    var myRows = [];
+
     myRows.push(obj);
     let wrap = {
         firstName: $('#add-user-first-name').val(),
@@ -336,4 +339,8 @@ function disableInputE() {
     if (disMas.indexOf(event.keyCode) !== -1) {
         event.preventDefault()
     }
+}
+
+function sendPostToSlackBotAboutNewMentor() {
+    $.post
 }
