@@ -4,13 +4,32 @@ import com.ewp.crm.configs.VKConfigImpl;
 import com.ewp.crm.configs.inteface.VKConfig;
 import com.ewp.crm.exceptions.parse.ParseClientException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Client.Sex;
+import com.ewp.crm.models.Message;
+import com.ewp.crm.models.PotentialClient;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.dto.VkProfileInfo;
+import com.ewp.crm.models.User;
+import com.ewp.crm.models.VkMember;
+import com.ewp.crm.models.VkRequestForm;
+import com.ewp.crm.models.YoutubeClient;
 import com.ewp.crm.models.conversation.ChatMessage;
 import com.ewp.crm.models.conversation.ChatType;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.models.dto.VkProfileInfo;
+import com.ewp.crm.service.interfaces.AdReportService;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.GoogleAdsService;
+import com.ewp.crm.service.interfaces.MessageService;
+import com.ewp.crm.service.interfaces.MessageTemplateService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.VkMemberService;
+import com.ewp.crm.service.interfaces.VkRequestFormService;
+import com.ewp.crm.service.interfaces.YoutubeClientService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import com.github.scribejava.apis.VkontakteApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -65,7 +84,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -238,15 +266,14 @@ public class VKServiceImpl implements VKService {
             JSONObject json = new JSONObject(result);
             JSONArray jsonMessages = json.getJSONObject("response").getJSONArray("items");
             List<String> resultList = new ArrayList<>();
-            for (int i = 1; i < jsonMessages.length(); i++) {
+            for (int i = 0; i < jsonMessages.length(); i++) {
                 JSONObject jsonMessage = jsonMessages.getJSONObject(i);
-                if ((clubId.equals(jsonMessage.getString("id"))) && (jsonMessage.getInt("read_state") == 0)) {
+                if ((clubId.equals(jsonMessage.getString("from_id"))) && (jsonMessage.getInt("read_state") == 0)) {
                     String messageBody = jsonMessage.getString("body");
-                    resultList.add(messageBody);
+                    markAsRead(clubId, technicalAccountToken, jsonMessage.optString("id"));
                     if (messageBody.startsWith("Новая заявка")) {
-                        markAsRead(clubId, technicalAccountToken, jsonMessage.optString("id"));
+                        resultList.add(messageBody);
                     }
-
                 }
             }
             return Optional.of(resultList);
@@ -1283,7 +1310,7 @@ public class VKServiceImpl implements VKService {
             }
         }
         if (socialProfile.isPresent()) {
-            long vkId = getVKIdByUrl("https://vk.com/"+socialProfile.get().getSocialId()).orElse(0L);
+            long vkId = getVKIdByUrl("https://vk.com/" + socialProfile.get().getSocialId()).orElse(0L);
             if (vkId > 0) {
                 vkProfileInfo = getProfileInfoById(vkId);
             }
@@ -1356,7 +1383,7 @@ public class VKServiceImpl implements VKService {
         try {
             spentFromVk = vkAdsReportService.getSpentMoney();
         } catch (Exception e) {
-            spentFromVk =  GETTING_REPORT_ERROR;
+            spentFromVk = GETTING_REPORT_ERROR;
             logger.error("Can't receive spent money report from VK ads. Check if request to VK ads API is correct", e);
         }
 
