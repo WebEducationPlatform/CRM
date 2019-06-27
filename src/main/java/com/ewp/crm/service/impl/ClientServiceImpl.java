@@ -7,6 +7,7 @@ import com.ewp.crm.models.Comment;
 import com.ewp.crm.models.ContractDataForm;
 import com.ewp.crm.models.ContractLinkData;
 import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.OtherInformationLinkData;
 import com.ewp.crm.models.Passport;
 import com.ewp.crm.models.SlackInviteLink;
 import com.ewp.crm.models.SocialProfile;
@@ -666,7 +667,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         newOtherInformationLinkData.setClient(client);
         client.setOtherInformationLinkData(newOtherInformationLinkData);
         clientRepository.saveAndFlush(client);
-
+    }
     
     @Override
     public void delete(Long id) {
