@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.dto.MentorDtoForMentorsPage;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +49,6 @@ public class MentorsController {
 
 	@Value("${slackbot.ip}")
 	private String slackBotIp;
-	@Value("${slackbot.port}")
-	private String slackBotPort;
 	@Value("${mentor.max.students}")
 	private String maxStudents;
 
@@ -57,9 +56,11 @@ public class MentorsController {
 	public ModelAndView showMentorsWithThearStudents() {
 		ModelAndView modelAndView = new ModelAndView("mentors-with-students-table");
 		modelAndView.addObject("slackBotIp", slackBotIp);
-		modelAndView.addObject("slackBotPort", slackBotPort);
 		modelAndView.addObject("maxStudents", maxStudents);
-		modelAndView.addObject("mentors", userService.getAll().stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
+		modelAndView.addObject("mentors",
+				userService.getByRole(roleService.getRoleByName("MENTOR"))
+						.stream().map(MentorDtoForMentorsPage::new)
+						.collect(Collectors.toList()));
 		modelAndView.addObject("studentStatuses", studentStatus.getAll());
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("projectProperties", propertiesService.get());
