@@ -1,9 +1,6 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.AssignSkypeCall;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +29,8 @@ public class SkypeCallRestController {
 	private final ClientService clientService;
 	private final UserService userService;
 	private final RoleService roleService;
+	private final StatusService statusService;
+	private final ProjectProperties projectProperties;
 	private Environment env;
 
 	@Autowired
@@ -39,13 +38,17 @@ public class SkypeCallRestController {
 								   ClientHistoryService clientHistoryService,
 								   ClientService clientService,
 								   UserService userService,
-								   RoleService roleService, Environment env) {
+								   RoleService roleService, Environment env,
+								   StatusService statusService,
+								   ProjectPropertiesService projectPropertiesService) {
 		this.assignSkypeCallService = assignSkypeCallService;
 		this.clientHistoryService = clientHistoryService;
 		this.clientService = clientService;
 		this.userService = userService;
 		this.roleService = roleService;
 		this.env = env;
+		this.statusService = statusService;
+		this.projectProperties = projectPropertiesService.getOrCreate();
 	}
 
 	@GetMapping(value = "rest/skype/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,21 +70,28 @@ public class SkypeCallRestController {
 	public ResponseEntity addSkypeCallAndNotification(@AuthenticationPrincipal User userFromSession,
 													  @RequestParam Long startDate,
 													  @RequestParam Long clientId) {
-		Optional<Client> client = clientService.getClientByID(clientId);
-		if (client.isPresent()) {
+		Optional<Client> optionalClient = clientService.getClientByID(clientId);
+		if (optionalClient.isPresent()) {
 			ZonedDateTime dateSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow"));
 			ZonedDateTime notificationBeforeOfSkypeCall = Instant.ofEpochMilli(startDate).atZone(ZoneId.of("+00:00")).withZoneSameLocal(ZoneId.of("Europe/Moscow")).minusHours(1);
 			try {
-				AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client.get(), ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall);
+				Client client = optionalClient.get();
+				AssignSkypeCall clientAssignSkypeCall = new AssignSkypeCall(userFromSession, client, ZonedDateTime.now(), dateSkypeCall, notificationBeforeOfSkypeCall);
 				assignSkypeCallService.addSkypeCall(clientAssignSkypeCall);
-				client.get().setLiveSkypeCall(true);
-				clientHistoryService.createHistory(userFromSession, client.get(), ClientHistory.Type.SKYPE).ifPresent(client.get()::addHistory);
-				clientService.update(client.get());
-				logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.get().getId(), dateSkypeCall);
-
+				client.setLiveSkypeCall(true);
+				clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.SKYPE).ifPresent(client::addHistory);
+				clientService.update(client);
+				logger.info("{} добавил клиенту id:{} звонок по скайпу на {}", userFromSession.getFullName(), client.getId(), dateSkypeCall);
+				long firstSkypeCallAfterStatus = projectProperties.getFirstSkypeCallAfterStatus();
+				if (statusService.get(firstSkypeCallAfterStatus).isPresent()) {
+					Status status = statusService.get(firstSkypeCallAfterStatus).get();
+					client.setStatus(status);
+					clientService.update(client);
+					logger.info("{} статус клиента id:{} изменен на {} при назначении звонка по скайпу", userFromSession.getFullName(), client.getId(), status.getName());
+				}
 				return ResponseEntity.ok(HttpStatus.OK);
 			} catch (Exception e) {
-				logger.error("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), client.get().getId(), startDate, e);
+				logger.error("{} не смог добавить клиенту id:{} звокон по скайпу на {}", userFromSession.getFullName(), optionalClient.get().getId(), startDate, e);
 				return ResponseEntity.badRequest().body(env.getProperty("messaging.skype.call.event-error"));
 			}
 		}

@@ -13,8 +13,10 @@ public interface ListMailingService extends CommonService<ListMailing> {
 
     List<ListMailing> getByType(String typeName);
 
+    @Override
     void update(ListMailing listMailing);
 
+    @Override
     void delete(ListMailing listMailing);
 
     Optional<ListMailing> getListMailingById(Long id);

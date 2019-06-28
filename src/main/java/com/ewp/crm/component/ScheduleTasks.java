@@ -20,10 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -298,7 +295,7 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-	@Scheduled(cron = "* */15 * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	private void getSlackProfiles() {
 		slackService.tryLinkSlackAccountToAllStudents();
 	}
@@ -314,11 +311,14 @@ public class ScheduleTasks {
 
 	@Scheduled(cron = "0 0 0 * * *")
 	private void sendDailyAdvertisementReport() {
+		logger.debug("Start filling ad report");
         LocalDate date = LocalDate.now().minusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        String formattedDate = date.format(formatter);
-        adReportTemplate = adReportTemplate.replace("{date}", formattedDate);
+		String formattedDate = date.format(formatter);
+		logger.debug("Ad report for {}", formattedDate);
+		adReportTemplate = adReportTemplate.replace("{date}", formattedDate);
         vkService.sendDailyAdvertisementReport(adReportTemplate);
+		logger.debug("Finish filling ad report");
 	}
 
 	@Scheduled(cron = "0 0 10 01 * ?")
@@ -400,19 +400,26 @@ public class ScheduleTasks {
 			LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.HOURS);
 			if (properties.isPaymentNotificationEnabled() && now.equals(time)) {
 				for (Student student : studentService.getStudentsWithTodayNotificationsEnabled()) {
-					MessageTemplate template = properties.getPaymentMessageTemplate();
-					Long clientId = student.getClient().getId();
-					if (student.isNotifyEmail()) {
-						mailSendService.sendSimpleNotification(clientId, template.getTemplateText());
-					}
-					if (student.isNotifySMS()) {
-						smsService.sendSimpleSMS(clientId, template.getOtherText());
-					}
-					if (student.isNotifyVK()) {
-						vkService.simpleVKNotification(clientId, template.getOtherText());
-					}
-					if (student.isNotifySlack()) {
-						slackService.trySendSlackMessageToStudent(clientId, template.getOtherText());
+					if (student.getLastPaymentNotification() == null ||
+							ChronoUnit.DAYS.between(student.getLastPaymentNotification(), LocalDateTime.now()) > 1) {
+						MessageTemplate template = properties.getPaymentMessageTemplate();
+						Long clientId = student.getClient().getId();
+						if (student.isNotifyEmail()) {
+							mailSendService.sendSimpleNotification(clientId, template.getTemplateText());
+						}
+						if (student.isNotifySMS()) {
+							smsService.sendSimpleSMS(clientId, template.getOtherText());
+						}
+						if (student.isNotifyVK()) {
+							vkService.simpleVKNotification(clientId, template.getOtherText());
+						}
+						if (student.isNotifySlack()) {
+							slackService.trySendSlackMessageToStudent(clientId, template.getOtherText());
+						}
+						student.setLastPaymentNotification(LocalDateTime.now());
+						studentService.update(student);
+					} else {
+						logger.info("Payment notification is already sent today to student with id {}", student.getId());
 					}
 				}
 			}

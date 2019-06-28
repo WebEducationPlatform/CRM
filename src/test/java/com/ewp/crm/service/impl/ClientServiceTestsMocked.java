@@ -2,24 +2,26 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.*;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.ewp.crm.service.interfaces.ClientService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import static org.mockito.BDDMockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.when;
 
 /**
  * тестирование CRUD операций clientService с заглушенным репозиторием clientRepository без использования базы данных
  */
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class ClientServiceTestsMocked {
 
@@ -39,7 +41,7 @@ public class ClientServiceTestsMocked {
         //метод saveAndFlush() заглущенного репозитория вернет клиента при вызове
         when(this.clientRepository.saveAndFlush(any())).thenReturn(expectedClient);
         Client actualClient = clientService.add(expectedClient);
-        Assert.assertEquals(expectedClient, actualClient);
+        assertEquals(expectedClient, actualClient);
     }
 
     //Проверяет, происходит ли делегирование в методе getClientByID() клиент-сервиса методу findById() клиент репозитория
@@ -50,7 +52,7 @@ public class ClientServiceTestsMocked {
         //метод findById(any()) заглущенного репозитория вернет Optional клиента при вызове  с любым значением long id
         when(this.clientRepository.findById(any())).thenReturn(Optional.of(expectedClient));
         Client actualClient = clientService.getClientByID(id).isPresent() ? clientService.getClientByID(id).get() : null;
-        Assert.assertEquals(expectedClient, actualClient);
+        assertEquals(expectedClient, actualClient);
     }
 
     //Проверяет, происходит ли делегирование в методе update() клиент-сервиса методу saveAndFlush() клиент репозитория
