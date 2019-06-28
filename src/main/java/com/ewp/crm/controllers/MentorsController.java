@@ -49,8 +49,6 @@ public class MentorsController {
 
 	@Value("${slackbot.ip}")
 	private String slackBotIp;
-	@Value("${slackbot.port}")
-	private String slackBotPort;
 	@Value("${mentor.max.students}")
 	private String maxStudents;
 
@@ -58,7 +56,6 @@ public class MentorsController {
 	public ModelAndView showMentorsWithThearStudents() {
 		ModelAndView modelAndView = new ModelAndView("mentors-with-students-table");
 		modelAndView.addObject("slackBotIp", slackBotIp);
-		modelAndView.addObject("slackBotPort", slackBotPort);
 		modelAndView.addObject("maxStudents", maxStudents);
 		modelAndView.addObject("mentors",
 				userService.getByRole(roleService.getRoleByName("MENTOR"))

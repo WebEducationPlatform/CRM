@@ -1,5 +1,4 @@
 let botIp = $("#slackbotIp").val();
-let botPort = $("#slackbotPort").val();
 let mentorMaxStudents = $("#mentorMaxStudents").val();
 const maxStudents = mentorMaxStudents * mentors.length;
 let mentorsMap = new Map();
@@ -19,7 +18,7 @@ $(document).ready(function () {
     }).appendTo('#mentors-column');
     $.ajaxSetup({async: false});
     $.each(mentors, function (i, mentor) {
-        $.get("https://" + botIp + ":" + botPort + "/mentor/students?email=" + mentor.email)
+        $.get("https://" + botIp + "/mentor/students?email=" + mentor.email)
             .done(function (response) {
                 mentorsMap.set(mentor.id, response);
             })

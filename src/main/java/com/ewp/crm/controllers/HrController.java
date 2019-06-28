@@ -30,8 +30,7 @@ public class HrController {
 
     @Value("${slackbot.ip}")
     private String slackBotIp;
-    @Value("${slackbot.port}")
-    private String slackBotPort;
+
 
     private final StatusService statusService;
     private final ClientService clientService;
@@ -66,7 +65,6 @@ public class HrController {
                 clientService.getAllClientsByPage(
                         PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
         modelAndView.addObject("slackBotIp", slackBotIp);
-        modelAndView.addObject("slackBotPort", slackBotPort);
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
         modelAndView.addObject("users", userService.getAll());
