@@ -9,6 +9,8 @@ import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@PropertySource("file:./slackbot.properties")
 public class UserController {
 
 	private static Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -42,6 +45,11 @@ public class UserController {
 		this.telegramService = telegramService;
 	}
 
+	@Value("${slackbot.ip}")
+	private String slackBotIp;
+	@Value("${slackbot.port}")
+	private String slackBotPort;
+
 	@GetMapping(value = "/admin/user/{id}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
 	public ModelAndView clientInfo(@PathVariable Long id,
@@ -51,6 +59,8 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotPort", slackBotPort);
 		return modelAndView;
 	}
 
@@ -61,6 +71,8 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotPort", slackBotPort);
 		return modelAndView;
 	}
 
