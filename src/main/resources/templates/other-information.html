@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Дополнительная информация</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+</div>
+<div class="container-fluid">
+    <br/>
+    <br/>
+    <table class="table table-striped tablesorter" id="other-information-table">
+        <h1>Настройка дополнительной информации о клиенте</h1>
+        <br/>
+        <thead th:align="center">
+        <th style="display:none;"></th>
+        <th>Название вопроса</th>
+        <th>Тип вопроса</th>
+        <th data-type="number" style="display:none;"></th>
+        </thead>
+        <tbody id="other-information-body">
+        <th:block th:each="info : ${otherInformation}">
+            <tr>
+                <td style="display:none;" th:text="${info.id}"></td>
+                <td th:text="${info.nameField}"></td>
+                <td th:text="${info.typeField}"></td>
+                <td class="fit">
+                    <button class="btn btn-info" data-toggle="modal" data-target="#myModal"
+                            th:onclick="'getOtherInformationById('+ ${info.id} +')'"
+                            th:text="Изменить">
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-danger"
+                            th:onclick="'deleteOtherInformationById('+ ${info.id} +')'"
+                            th:text="Удалить">
+                    </button>
+                </td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+    <button class="btn btn-info" data-toggle="modal" data-target="#createModalCheckbox">Создать вопрос с типом
+        checkbox
+    </button>
+    <button class="btn btn-info" data-toggle="modal" data-target="#createModalText">Создать вопрос с типом текст
+    </button>
+
+    <div class="modal fade" id="createModalText">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Вопрос с типом текст</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-name-create-text">Вопрос:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Вопрос в заявке типа текст">
+                            </button>
+                            <div class="form-group">
+                                <input id="app-name-create-text" type="text" class="form-control"/>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal"
+                            onclick="createText()">Создать
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createModalCheckbox">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Вопрос с типом checkbox</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-name-create-checkbox">Вопрос:</label>
+                            <button type="button" class="glyphicon glyphicon-question-sign"
+                                    title="Вопрос с типом чекбокс">
+                            </button>
+                            <div class="form-group">
+                                <input id="app-name-create-checkbox" type="text" class="form-control"/>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal"
+                            onclick="createCheckbox()">Создать
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Изменение поля</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <input id="app-rowNumber" type="hidden" class="form-control" readonly="readonly"/>
+                    <form class="form">
+                        <div class="form-group">
+                            <label for="app-id">Id :</label>
+                            <input id="app-id" type="text" class="form-control" readonly="readonly"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-type">Тип :</label>
+                            <select class="form-control" id="app-type">
+                                <option value="1">Чекбокс</option>
+                                <option value="2">Текст</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="app-label">Вопрос:</label>
+                            <input id="app-label" type="text" class="form-control"/>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info" data-dismiss="modal" onclick="updateOtherInformation()">
+                        Сохранить
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/client-other-information.js}"></script>
+</body>
+</html>

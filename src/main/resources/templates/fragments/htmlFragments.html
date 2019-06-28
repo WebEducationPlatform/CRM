@@ -34,10 +34,12 @@
                     <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
                     <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Пропавшие студенты</a></li>
                     <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER')">Статусы обучения</a></li>
-                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Рассылка</a></li>
+                    <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Рассылка</a></li>
                     <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Шаблоны</a></li>
                     <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>
-                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Звонки</a></li>
+                    <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Звонки</a></li>
+                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Менторы</a></li>
+                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Координаторы</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">

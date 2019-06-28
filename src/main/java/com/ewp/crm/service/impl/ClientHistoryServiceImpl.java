@@ -133,6 +133,16 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
         return Optional.of(clientHistory);
     }
 
+	//change status on [status] from [last_status]
+    @Override
+	public Optional<ClientHistory> createHistoryOfChangingStatus(Client client, Status lastStatus) {
+        logger.info("creation of client history...");
+        ClientHistory clientHistory = new ClientHistory(ClientHistory.Type.STATUS);
+        String action = ClientHistory.Type.STATUS.getInfo();
+        clientHistory.setTitle("Автоматически " + action + " " + client.getStatus() + " из " + lastStatus);
+        return Optional.of(clientHistory);
+    }
+
 	/*
 		admin assigned worker to client
 		admin unassigned worker on client

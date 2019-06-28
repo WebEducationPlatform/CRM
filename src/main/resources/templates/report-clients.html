@@ -29,10 +29,6 @@
         <div class="row-fluid">
             <label class="h2">Создать отчет:</label><br/>
             <div class="col-md-4" style="width: 20%; padding:30px;">
-                <div class="form-group">
-                    <label for="mailingDate" class="p-user">Выберите дату:</label>
-                    <input class="form-control input-sm form-control-report" type="text" name="mailingDate" id="mailingDate"/>
-                </div>
                 <label for="report-type-radios" class="p-user">Выберите тип отчета:</label>
                 <div id="report-type-radios" class="form-group">
                     <div class="radio">
@@ -53,12 +49,44 @@
                             Первые оплаты
                         </label>
                     </div>
+                    <div class="radio hideable_once" hidden="hidden">
+                        <label>
+                            <input type="radio" name="report-type" id="report-type-4" value="4"/>
+                            Сравнение отчетов
+                        </label>
+                    </div>
+                    <div class="radio hideable_once" hidden="hidden">
+                        <label>
+                            <input type="radio" name="report-type" id="report-type-5" value="4"/>
+                            Объединение отчетов
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group hideable_1">
+                    <label for="mailingDate" class="p-user">Выберите дату:</label>
+                    <input class="form-control input-sm form-control-report" type="text" name="mailingDate" id="mailingDate"/>
+                </div>
+                <div class="form-group hideable_4" hidden="hidden">
+                    <label for="statusNewSelect" class="p-user">Статус для нового клиента:</label>
+                    <select id="statusNewSelect" class="form-control">
+                        <option value="null">Статус</option>
+                    </select>
+                    <div class="checkbox">
+                        <label>
+                            <input id="new-all-checkbox" type="checkbox"/>Любой
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group hideable">
                     <label for="statusFromSelect" class="p-user">Статус из которого перешел:</label>
                     <select id="statusFromSelect" class="form-control">
                         <option value="null">Статус</option>
                     </select>
+                    <div class="checkbox">
+                        <label>
+                            <input id="from-all-checkbox" type="checkbox"/>Из любого
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group hideable">
                     <label for="statusToSelect" class="p-user">Статус в который перешел:</label>
@@ -66,10 +94,31 @@
                         <option value="null">Статус</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group hideable_1">
+                    <button type="button" class="btn btn-default btn-xs" id="exclude-statuses-btn">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true" id="exclude-statuses-btn-icon"></span>
+                    </button>
                     <label for="statusExcludeSelect" class="p-user">Кроме статусов:</label>
                     <div id="statusExcludeSelect" class="checkbox">
                         <label><input type="checkbox" value="null" class="exclude-status-checkboxes" aria-label="Статус"/>Статус</label>
+                    </div>
+                </div>
+                <div class="form-group hideable_3" hidden="hidden">
+                    <label for="report_selector_1" class="p-user">Из отчета:</label>
+                    <select id="report_selector_1" class="form-control">
+                        <option value="null">Отчет 1</option>
+                    </select>
+                </div>
+                <div class="form-group hideable_3" hidden="hidden">
+                    <label for="report_selector_2" class="p-user">Исключить значения:</label>
+                    <select id="report_selector_2" class="form-control">
+                        <option value="null">Отчет 2</option>
+                    </select>
+                </div>
+                <div class="form-group hideable_2" hidden="hidden">
+                    <label for="reportList" class="p-user">Отчеты:</label>
+                    <div id="reportList" class="checkbox">
+                        <label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Статус"/>Отчет #0</label>
                     </div>
                 </div>
                 <div id="formToSend">
@@ -81,7 +130,7 @@
                         </div>
                         <br/>
                         <button id="load-data-button" class="form-control form-control-report btn btn-primary btn-block">
-                            Загрузить данные
+                            Сформировать отчет
                         </button>
                         <br/>
                         <button class="form-control form-control-report btn btn-primary btn-block" onclick="sendReport()">
@@ -92,21 +141,11 @@
                 <br/>
                 <a href="#" onclick="history.back();" class="form-control form-control-report btn btn-primary btn-block">Назад</a>
             </div>
-            <div id="client-cards-holder" class="col-md-8">
-                <div id="report-area-holder" class="form-group">
-                    <label class="p-user">Отчет:</label>
-                    <textarea style="resize: both" class="form-control input-sm form-control-report"
-                              name="reportArea" th:id="reportArea" placeholder="Choose a date range above..."></textarea>
+            <div id="client-cards-holder" hidden="hidden" class="col-md-8">
+                <div id="panels-tabs">
+                    <ul class="nav nav-tabs" id="panel-tabs-data"></ul>
                 </div>
-                <table id="client-cards-table" class="table table-hover table-condensed">
-                    <tr>
-                        <th>#</th>
-                        <th>Имя</th>
-                        <th>Фамилия</th>
-                        <th>Телефон</th>
-                        <th>E-mail</th>
-                    </tr>
-                </table>
+                <div id="panels"></div>
             </div>
         </div>
     </div>
@@ -126,6 +165,8 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript"
@@ -148,6 +189,6 @@
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 </body>
 </html>

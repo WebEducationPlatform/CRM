@@ -619,7 +619,7 @@ public class VKServiceImpl implements VKService {
     public void sendMessageByChatId(String id, String message) {
         String sendMsgRequest = vkApi + "messages.send";
         HttpPost request = new HttpPost(sendMsgRequest);
-        List<NameValuePair> params = new ArrayList<>(4);
+        List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("random_id", String.valueOf(new Random().nextInt(32))));
         params.add(new BasicNameValuePair("chat_id", id));
         params.add(new BasicNameValuePair("message", message));
@@ -633,7 +633,7 @@ public class VKServiceImpl implements VKService {
         HttpClient httpClient = getHttpClient();
         try {
             HttpResponse response = httpClient.execute(request);
-            logger.info("Message successfully has been sent to the dialogue");
+            logger.debug("Message successfully has been sent to the dialogue");
         } catch (IOException e) {
             logger.error("Can't send message to vk chat by id " + id, e);
         }
@@ -1314,6 +1314,7 @@ public class VKServiceImpl implements VKService {
 
     @Override
     public void sendDailyAdvertisementReport(String template) {
+        logger.debug("Start filling ad report template");
         String balanceFromYandexDirect;
         String spentFromYandexDirect;
         String balanceFromVk;
@@ -1400,6 +1401,8 @@ public class VKServiceImpl implements VKService {
                 balanceFromGoogle, spentFromGoogle};
         String message = MessageFormat.format(template, params);
 
+        logger.debug("End filling ad report template");
+        logger.debug("Start sending ad report to VK: {}" + message);
         //Отправка в диалог
         sendMessageByChatId(vkReportChatId, message);
     }

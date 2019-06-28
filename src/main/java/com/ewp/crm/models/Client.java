@@ -300,6 +300,9 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private OtherInformationLinkData otherInformationLinkData;
+
     public Client() {}
 
     private Client(Builder builder) {
@@ -633,6 +636,15 @@ public class Client implements Serializable, Diffable<Client> {
         this.slackInviteLink = slackInviteLink;
     }
 
+    public OtherInformationLinkData getOtherInformationLinkData() {
+        return otherInformationLinkData;
+    }
+
+    public void setOtherInformationLinkData(OtherInformationLinkData otherInformationLinkData) {
+        this.otherInformationLinkData = otherInformationLinkData;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -664,7 +676,9 @@ public class Client implements Serializable, Diffable<Client> {
 
     @Override
     public String toString() {
-        return "Client: id: " + id + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found");
+        return "Client: id: " + id + "; name: " + name + "; email: " +  getEmail().orElse("not found")  + "; phone number: "+ getPhoneNumber().orElse("not found")
+                + "; city: " + Optional.ofNullable(city).orElse("not found") + "; country: " + Optional.ofNullable(country).orElse("not found")
+                + "; request from: " + Optional.ofNullable(requestFrom).orElse("not found") + "; description comment: " + Optional.ofNullable(clientDescriptionComment).orElse("not found");
     }
 
     public List<SMSInfo> getSmsInfo() {

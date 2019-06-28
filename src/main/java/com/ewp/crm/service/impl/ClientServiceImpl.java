@@ -5,7 +5,17 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.repository.interfaces.NotificationRepository;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.PassportService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +28,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -29,6 +44,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final SlackInviteLinkRepository slackInviteLinkRepository;
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
+    private NotificationRepository notificationRepository;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
@@ -44,7 +60,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService, Environment env) {
+                             NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -53,6 +69,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.phoneValidator = phoneValidator;
         this.passportService = passportService;
         this.slackInviteLinkRepository = slackInviteLinkRepository;
+        this.notificationRepository = notificationRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
         this.env = env;
@@ -368,10 +385,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
-            if ( client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link")) ){
+            Status lastStatus = existClient.get().getStatus();
+            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                 statusService.get("Постоплата2").ifPresent(existClient.get()::setStatus);
-            }else{
+            } else {
                 statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            }
+            if (!lastStatus.equals(existClient.get().getStatus())) {
+                Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
+                historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
             }
             client.setId(existClient.get().getId());
 
@@ -623,5 +645,23 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public void transferClientsBetweenOwners(User sender, User receiver) {
         clientRepository.transferClientsBetweenOwners(sender, receiver);
         logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
+
+
+    @Override
+    public void setOtherInformationLink(Long clientId, String hash) {
+        Client client = clientRepository.getOne(clientId);
+        OtherInformationLinkData newOtherInformationLinkData = new OtherInformationLinkData();
+        newOtherInformationLinkData.setHash(hash);
+        newOtherInformationLinkData.setClient(client);
+        client.setOtherInformationLinkData(newOtherInformationLinkData);
+        clientRepository.saveAndFlush(client);
+    }
+    
+    @Override
+    public void delete(Long id) {
+        notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
+        super.delete(id);
+
     }
 }
