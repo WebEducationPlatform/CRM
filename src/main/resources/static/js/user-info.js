@@ -96,6 +96,12 @@ function changeUser(id, authId) {
 
         },
         success: function (result) {
+            for (let i = 0; i < myRows.length; i++) {
+                if (myRows[i].roleName === "MENTOR") {
+                    sendPostToSlackBotAboutNewMentor(wrap);
+                    break;
+                }
+            }
             sendPhoto(id, authId);
             window.location.replace("/client")
         },
@@ -271,6 +277,12 @@ function addUser() {
             current.textContent = "Загрузка...";
         },
         success: function (result) {
+            for (let i = 0; i < myRows.length; i++) {
+                if (myRows[i].roleName === "MENTOR") {
+                    sendPostToSlackBotAboutNewMentor(wrap);
+                    break;
+                }
+            }
             sendPhoto(result.id);
             window.location.replace("/client")
         },
@@ -296,7 +308,6 @@ function registerUser() {
     var obj = {};
     obj["id"] = 2;
     obj["roleName"] = 'USER';
-
     myRows.push(obj);
     let wrap = {
         firstName: $('#add-user-first-name').val(),
@@ -341,6 +352,16 @@ function disableInputE() {
     }
 }
 
-function sendPostToSlackBotAboutNewMentor() {
-    $.post
+function sendPostToSlackBotAboutNewMentor(wrap) {
+    let data = {
+        name: wrap.firstName + " " + wrap.lastName,
+        email: wrap.email
+    };
+    let url = "https://" + botIp + ":" + botPort + "/crm/new/mentor";
+    $.ajax({
+        url: url,
+        type: 'POST',
+        contentType: 'application/json; charset=UTF-8',
+        data: JSON.stringify(data),
+    })
 }
