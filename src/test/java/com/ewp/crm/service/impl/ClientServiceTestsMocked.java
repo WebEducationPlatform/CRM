@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.when;
 
 /**
- * тестирование CRUD операций clientService с заглушенным репозиторием clientRepository без использования базы данных
+ * тестирование CRUD операций clientService с заглушенным при помощи mockito репозиторием clientRepository без использования базы данных
  */
 
 @ExtendWith(SpringExtension.class)
