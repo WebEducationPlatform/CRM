@@ -59,14 +59,7 @@
                                                                                          th:value="${status.id}"
                                                                                          th:checked="${status.createStudent}"/></a>
                         </li>
-                        <li class="glyphicon dropdown"><a class="link-cursor-pointer">Поменять позицию<i
-                                class="glyphicon glyphicon-chevron-right"></i></a>
-                            <ul class="dropdown-menu sub-menu">
-                                <li class="link-cursor-pointer" th:each="st:${statuses}"
-                                    th:if="${!st.invisible} and ${st.id != status.id}"><a class="change-status-position"
-                                                                                          th:value="${st.id}"
-                                                                                          th:text="${st.name}"></a></li>
-                            </ul>
+                        <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal" data-target="#all-statuses-to-change-position" onclick="showAllStatuses()">Поменять позицию</a>
                         </li>
                     </ul>
                 </div>
@@ -475,6 +468,7 @@
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/other-information-link::otherInformationLink"></div>
 <div th:replace="fragments/other-information-value::otherInformationValue"></div>
+<div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/

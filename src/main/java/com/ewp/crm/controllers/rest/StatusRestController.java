@@ -5,6 +5,7 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
 import com.ewp.crm.service.interfaces.NotificationService;
@@ -19,13 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -164,4 +161,34 @@ public class StatusRestController {
         return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/all/dto-position-id")
+    public ResponseEntity<List<StatusPositionIdNameDTO>> getAllStatusPositions() {
+        List<StatusPositionIdNameDTO> statusPositionIdNameDTOList = statusService.getAllStatusesMinDTOWhichAreNotInvisible();
+        statusPositionIdNameDTOList.sort(Comparator.comparingLong(StatusPositionIdNameDTO::getPosition));
+        return ResponseEntity.ok(statusPositionIdNameDTOList);
+    }
+
+    @RequestMapping(value = "/position/change", method = RequestMethod.PUT)
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity updateStatusesPositions(@RequestBody List<StatusPositionIdNameDTO> statusesPositionIdsNameDTO) {
+        for (int out = statusesPositionIdsNameDTO.size() - 1; out >= 1; out--){
+            for (int in = 0; in < out; in++){
+                if(statusesPositionIdsNameDTO.get(in).getPosition() > statusesPositionIdsNameDTO.get(in + 1).getPosition())    {
+                    Long postitonFirst =   statusesPositionIdsNameDTO.get(in).getPosition();
+                    Long postitonSecond =   statusesPositionIdsNameDTO.get(in + 1).getPosition();
+                    Long idFirst = statusesPositionIdsNameDTO.get(in).getId();
+                    Long idSecond = statusesPositionIdsNameDTO.get(in + 1).getId();
+                    statusesPositionIdsNameDTO.get(in).setPosition(postitonSecond);
+                    statusesPositionIdsNameDTO.get(in + 1).setPosition(postitonFirst);
+                    Optional<Status> first = statusService.get(idFirst);
+                    Optional<Status> second = statusService.get(idSecond);
+                    first.get().setPosition(postitonSecond);
+                    second.get().setPosition(postitonFirst);
+                    statusService.update(first.get());
+                    statusService.update(second.get());
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

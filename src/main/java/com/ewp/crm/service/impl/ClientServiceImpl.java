@@ -54,7 +54,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
     private Environment env;
-  
+
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
@@ -311,7 +311,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
         if (!client.getClientPhones().isEmpty()) {
             List<String> phones = new ArrayList<>();
-            for (String phone: client.getClientPhones()) {
+            for (String phone : client.getClientPhones()) {
                 if (phone != null && !phone.matches("\\s*")) {
                     phones.add(phone.trim());
                 }
@@ -320,17 +320,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
         if (!client.getClientEmails().isEmpty()) {
             List<String> emails = new ArrayList<>();
-            for (String email: client.getClientEmails()) {
-                if ( email != null  && !email.matches("\\s*")) {
+            for (String email : client.getClientEmails()) {
+                if (email != null && !email.matches("\\s*")) {
                     emails.add(email.trim());
                 }
             }
             client.setClientEmails(emails);
         }
-        if (client.getUniversity() != null && !client.getUniversity().isEmpty() ) {
+        if (client.getUniversity() != null && !client.getUniversity().isEmpty()) {
             client.setUniversity(client.getUniversity().trim());
         }
-       return  client;
+        return client;
     }
 
     @Override
@@ -414,7 +414,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private void checkSocialIds(Client client) {
-        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
+        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext(); ) {
             SocialProfile socialProfile = iterator.next();
             if ("vk".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
@@ -574,9 +574,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
         Client.Builder clientBuidlder = new Client.Builder(contractForm.getInputFirstName(), null, null);
         Client client = clientBuidlder.middleName(contractForm.getInputMiddleName())
-                                        .lastName(contractForm.getInputLastName())
-                                        .birthDate(contractForm.getInputBirthday())
-                                        .build();
+                .lastName(contractForm.getInputLastName())
+                .birthDate(contractForm.getInputBirthday())
+                .build();
         String email = contractForm.getInputEmail();
         client.setId(old.getId());
         if (!email.isEmpty()) {
@@ -657,11 +657,10 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         client.setOtherInformationLinkData(newOtherInformationLinkData);
         clientRepository.saveAndFlush(client);
     }
-    
+
     @Override
     public void delete(Long id) {
         notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
         super.delete(id);
-
     }
 }
