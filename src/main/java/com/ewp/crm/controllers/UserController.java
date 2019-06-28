@@ -47,8 +47,7 @@ public class UserController {
 
 	@Value("${slackbot.ip}")
 	private String slackBotIp;
-	@Value("${slackbot.port}")
-	private String slackBotPort;
+
 
 	@GetMapping(value = "/admin/user/{id}")
 	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
@@ -60,7 +59,6 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("slackBotIp", slackBotIp);
-		modelAndView.addObject("slackBotPort", slackBotPort);
 		return modelAndView;
 	}
 
@@ -72,7 +70,6 @@ public class UserController {
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
 		modelAndView.addObject("slackBotIp", slackBotIp);
-		modelAndView.addObject("slackBotPort", slackBotPort);
 		return modelAndView;
 	}
 
