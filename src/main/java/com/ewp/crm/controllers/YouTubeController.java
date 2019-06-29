@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Controller
-@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
 @RequestMapping("/admin/YouTubeLive")
 public class YouTubeController {
 

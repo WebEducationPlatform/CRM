@@ -527,7 +527,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
         List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
+        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
+                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
+                user.getRole().contains(roleService.getRoleByName("HR"));
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
             orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
             return orderedClients;

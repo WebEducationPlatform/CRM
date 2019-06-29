@@ -54,7 +54,7 @@
         </div>
         <br />
 
-        <div sec:authorize="hasAnyAuthority('OWNER')" class="row">
+        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" class="row">
             <div class="col-md-12">
                 <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
             </div>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div sec:authorize="hasAnyAuthority('OWNER')" id="additional-data" class="row justify-content-md-start hidden">
+        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" id="additional-data" class="row justify-content-md-start hidden">
             <div class="col-md-2 well">
                 <div class="row justify-content-md-start">
                     <div class="col-md-6">

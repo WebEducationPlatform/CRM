@@ -69,6 +69,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             logger.info(user.getEmail() + " has been logged in like MENTOR");
             return "/client";
         }
+        if (authorities.contains(new Role("HR"))) {
+            logger.info(user.getEmail() + " has been logged in like HR");
+            return "/client";
+        }
         throw new IllegalStateException();
     }
     protected void clearAuthenticationAttributes(HttpServletRequest request) {

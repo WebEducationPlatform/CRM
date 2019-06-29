@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/student-status")
-@PreAuthorize("hasAnyAuthority('OWNER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 public class StudentStatusController {
 
     private static Logger logger = LoggerFactory.getLogger(StudentStatusController.class);
