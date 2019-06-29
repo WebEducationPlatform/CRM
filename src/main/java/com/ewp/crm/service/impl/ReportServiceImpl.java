@@ -179,7 +179,7 @@ public class ReportServiceImpl implements ReportService {
             // Бывает 2 варианта - когда просто указан статус, в который переместили клиента,
             // а бывает после указан статус, из которого клиент был перемещен - этот вариант и проверяем
             String[] strings2 = strings1[1].split(" из ");
-            if (strings2.length > 0) {
+            if (strings2.length == 2) {
                 return Optional.of(strings2[1].trim());
             }
         }
