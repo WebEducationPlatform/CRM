@@ -25,7 +25,7 @@ public class VkRequestFormRestController {
     }
 
     @GetMapping(value = "/vk/request/form")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ModelAndView vkRequestForm(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("vk-request-form");
         modelAndView.addObject("userCustomize", userFromSession);

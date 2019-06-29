@@ -152,7 +152,7 @@
             </div>
             <div class="modal-body modal-with-overflow" id="historyModalBody">
 
-                <div class="form-group" sec:authorize="hasAnyAuthority('OWNER')">
+                <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'HR')">
                     <div class="row">
                         <div class="col-sm-3" id="timeFromDiv">
                             <input type="text" class="form-control" aria-label="Date" aria-describedby="date-addon" name="messageSendingTime" id="historyFromTime"/>
