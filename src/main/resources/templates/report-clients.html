@@ -36,30 +36,77 @@
                             <input type="radio" name="report-type" id="report-type-1" value="1" checked="checked"/>
                             Переходы из статусов
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;Выводит всех клиентов, которые в указанный период времени были перемещены из исходного статуса в заданный.&lt;br /&gt;
+                                В отчет попадают не только прямые переходы из одного статуса в другой, но также и переходы через несколько статусов. Количество переходов не ограничено.&lt;br /&gt;
+                                Если отмечено &lt;mark&gt;Из любого&lt;/mark&gt; - значит исходный статус не важен - в отчет попадут все клиенты, которые побывали в данный период в заданном статусе.&lt;br /&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                Переход в статус не считается, если:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- клиент пробыл в статусе менее 3 минут, затем был перемещен в любой другой;&lt;/li&gt;
+                                &lt;li&gt;- в течение 24 часов клиент был возвращен в исходный статус.&lt;/li&gt;
+                                &lt;/ul&gt;&lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio">
                         <label>
                             <input type="radio" name="report-type" id="report-type-2" value="2"/>
                             Появление новых
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводит всех клиентов, которые в указанный период времени впервые или повторно появились (были созданы) в заданном статусе.&lt;br /&gt;
+                                Если отмечено &lt;mark&gt;Любой&lt;/mark&gt;, то в отчет выводятся все клиенты, имеющие в истории запись о создании в указанном интервале времени.&lt;br /&gt;
+                                Повторное появление клиента - когда уже имеющейся клиент добавляется в систему вручную или автоматически через заявку на сайте и т.п.&lt;br /&gt;
+                                Индикатором появления клиента в заданный интервал времени является запись в истории вида &lt;mark&gt;добавлен вручную&lt;/mark&gt;, &lt;mark&gt;добавлен из gmail/vk&lt;/mark&gt; и т.п.&lt;br /&gt;
+                                Индикатором появления студента в конкретном статусе считается:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- первая история перемещения клиента - для впервые добавленных клиентов;&lt;/li&gt;
+                                &lt;li&gt;- текущий статус - если историй перемещения нет;&lt;/li&gt;
+                                &lt;li&gt;- история, которая предшествует первой истории перемещения в указанный;&lt;/li&gt;
+                                &lt;li&gt;- интервал времени - для клиентов, добавленных не впервые.&lt;/li&gt;
+                                &lt;/ul&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                Переход в статус не считается, если:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- клиент пробыл в статусе менее 3 минут, затем был перемещен в любой другой;&lt;/li&gt;
+                                &lt;li&gt;- в течение 24 часов клиент был возвращен в исходный статус.&lt;/li&gt;
+                                &lt;/ul&gt;&lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio">
                         <label>
                             <input type="radio" name="report-type" id="report-type-3" value="3"/>
                             Первые оплаты
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                В отчет попадают клиенты, которые в заданный период времени впервые перешли в статус, который задан в настройках CRM в меню &lt;mark&gt;Статусы по-умолчанию&lt;/mark&gt; -&gt; &lt;mark&gt;Статус клиента после первой оплаты&lt;/mark&gt;.&lt;br /&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio hideable_once" hidden="hidden">
                         <label>
                             <input type="radio" name="report-type" id="report-type-4" value="4"/>
                             Сравнение отчетов
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводится отчет, который содержит всех клиентов первого отчета и при этом не содержит ни одного клиента второго отчета.
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio hideable_once" hidden="hidden">
                         <label>
                             <input type="radio" name="report-type" id="report-type-5" value="4"/>
                             Объединение отчетов
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводится отчет, который объединяет два и более выбранных отчета, при этом не допускает повторных записей.
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
                 <div class="form-group hideable_1">
