@@ -78,7 +78,8 @@ function changeUser(id, authId) {
         enabled: true,
         role: myRows,
         enableSmsNotifications: $("#checkbox-user-sms-notify").is(":checked") ? true : false,
-        enableMailNotifications: $("#checkbox-user-email-notify").is(":checked") ? true : false
+        enableMailNotifications: $("#checkbox-user-email-notify").is(":checked") ? true : false,
+        enableAsignClientEmailNotifications: $("#checkbox-user-email-notify-asignClient").is(":checked") ? true : false
     };
 
     $.ajax({
