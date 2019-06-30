@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.User;
+import com.ewp.crm.service.interfaces.IPService;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,13 @@ public class ReportController {
 
 	private final StatusService statusService;
 	private final MessageTemplateService messageTemplateService;
+	private final IPService ipService;
 
 	@Autowired
-	public ReportController(StatusService statusService, MessageTemplateService messageTemplateService) {
+	public ReportController(StatusService statusService, MessageTemplateService messageTemplateService, IPService ipService) {
 		this.statusService = statusService;
 		this.messageTemplateService = messageTemplateService;
+		this.ipService = ipService;
 	}
 
 	@GetMapping(value = "/report")
@@ -29,6 +32,7 @@ public class ReportController {
 		modelAndView.addObject("statuses", statusService.getAll());
 		modelAndView.addObject("currentMail", userFromSession.getEmail());
 		modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+		modelAndView.addObject("voximplantBalance", ipService.getBalanceOfVoximplantAccountInfo());
 		return modelAndView;
 	}
 }
