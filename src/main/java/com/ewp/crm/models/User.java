@@ -163,11 +163,11 @@ public class User implements UserDetails {
     private String studentPageFilters;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "ownerUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Client> clients = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "callingUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CallRecord> callRecords = new ArrayList<>();
 
     public User() {
