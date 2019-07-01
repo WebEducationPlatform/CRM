@@ -18,7 +18,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/feedback")
-@PreAuthorize("hasAnyAuthority('OWNER','ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER','ADMIN', 'HR')")
 public class FeedbackController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientController.class);
