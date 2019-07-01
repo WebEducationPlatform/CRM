@@ -52,21 +52,21 @@ public class SkypeCallRestController {
 	}
 
 	@GetMapping(value = "rest/skype/{clientId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity<AssignSkypeCall> getAssignSkypeCallByClientId(@PathVariable Long clientId) {
 		Optional<AssignSkypeCall> assignSkypeCall = assignSkypeCallService.getAssignSkypeCallByClientId(clientId);
 		return assignSkypeCall.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
 	@GetMapping(value = "rest/skype/allMentors", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity<List<User>> getAllMentors() {
 		List<User> users = userService.getByRole(roleService.getRoleByName("MENTOR"));
 		return ResponseEntity.ok(users);
 	}
 
 	@PostMapping(value = "rest/skype/addSkypeCallAndNotification")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity addSkypeCallAndNotification(@AuthenticationPrincipal User userFromSession,
 													  @RequestParam Long startDate,
 													  @RequestParam Long clientId) {
@@ -100,7 +100,7 @@ public class SkypeCallRestController {
 	}
 
 	@PostMapping(value = "rest/mentor/updateEvent")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity updateEvent(@AuthenticationPrincipal User userFromSession,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam Long skypeCallDateNew,
@@ -133,7 +133,7 @@ public class SkypeCallRestController {
 	}
 
 	@PostMapping(value = "rest/mentor/deleteEvent")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity deleteEvent(@AuthenticationPrincipal User principal,
 									  @RequestParam(name = "clientId") Long clientId,
 									  @RequestParam Long skypeCallDateOld) {

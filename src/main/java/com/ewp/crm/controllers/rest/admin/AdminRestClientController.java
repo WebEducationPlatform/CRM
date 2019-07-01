@@ -53,7 +53,7 @@ public class AdminRestClientController {
     }
 
     @PostMapping(value = "/add")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity addClient(@RequestBody Client client,
                                     @AuthenticationPrincipal User userFromSession) {
         Optional<Status> status = statusService.get(client.getStatus().getName());
@@ -66,7 +66,7 @@ public class AdminRestClientController {
     }
 
     @PostMapping(value = "/update")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(currentClient.getId());
@@ -138,7 +138,7 @@ public class AdminRestClientController {
     }
     
     @GetMapping(value = "/remove")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity removeClient(@RequestParam(name = "clientId") Long clientId,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(clientId);

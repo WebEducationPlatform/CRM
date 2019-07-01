@@ -32,7 +32,7 @@ public class ClientContractRestController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity createContractSetting(@RequestBody ContractSetting setting, @AuthenticationPrincipal User userFromSession) {
         if (googleTokenService.getToken(GoogleToken.TokenType.DRIVE).isPresent()) {
             Long clientId = setting.getClientId();

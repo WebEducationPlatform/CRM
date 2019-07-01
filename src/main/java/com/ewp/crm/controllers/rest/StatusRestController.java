@@ -61,7 +61,7 @@ public class StatusRestController {
     }
 
     @PostMapping(value = "/add")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity addNewStatus(@RequestParam(name = "statusName") String statusName,
                                        @AuthenticationPrincipal User currentAdmin) {
 
@@ -73,7 +73,7 @@ public class StatusRestController {
     }
 
     @PostMapping(value = "/client/change")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity changeClientStatus(@RequestParam(name = "statusId") Long statusId,
                                              @RequestParam(name = "clientId") Long clientId,
                                              @AuthenticationPrincipal User userFromSession) {
@@ -102,7 +102,7 @@ public class StatusRestController {
     }
 
     @PostMapping(value = "/client/delete")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity deleteClientStatus(@RequestParam("clientId") long clientId,
                                              @AuthenticationPrincipal User userFromSession) {
         Client client = clientService.get(clientId);
@@ -136,7 +136,7 @@ public class StatusRestController {
     }
 
     @PostMapping(value = "/create-student")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public HttpStatus setCreateStudent(@RequestParam("id") Long id, @RequestParam("create") Boolean create) {
         Optional<Status> status = statusService.get(id);
         if (status.isPresent()) {
@@ -148,7 +148,7 @@ public class StatusRestController {
     }
 
     @PostMapping("/client/changeByName")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity changeStatusByName(@RequestParam("newStatus") String newStatus,
                                              @RequestParam("clientId") Long clientId,
                                              @AuthenticationPrincipal User currentUser) {

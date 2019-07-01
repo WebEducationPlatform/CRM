@@ -52,9 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/init/**", "/contract/**").permitAll()
-                .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER", "MENTOR")
-                .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER", "MENTOR")
-                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
+                .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER", "MENTOR", "HR")
+                .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER", "MENTOR", "HR")
+                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER", "HR")
                 .and()
                 .httpBasic()
                 .and()
