@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/rest/student")
-@PreAuthorize("hasAnyAuthority('OWNER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 public class StudentRestController {
 
     private static Logger logger = LoggerFactory.getLogger(StudentRestController.class);

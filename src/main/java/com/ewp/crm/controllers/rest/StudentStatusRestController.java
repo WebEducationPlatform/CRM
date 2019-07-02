@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rest/student/status")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 public class StudentStatusRestController {
 
     private static Logger logger = LoggerFactory.getLogger(StudentStatusRestController.class);
