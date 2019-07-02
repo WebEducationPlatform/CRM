@@ -66,7 +66,7 @@ public class WhatsappWebhook {
                     checkSocialProfile(whatsappMessage, newClient);
                     statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
                     newClient.addHistory(new ClientHistory(env.getProperty("messaging.client.history.add-from-whatsapp"), whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
-                    clientService.addClient(newClient);
+                    clientService.addClient(newClient, null);
                     sendNotificationService.sendNewClientNotification(newClient, "whatsapp");
                     checkSocialProfile(whatsappMessage, newClient);
                     whatsappMessage.setClient(newClient);
