@@ -1,17 +1,8 @@
 package com.ewp.crm.controllers.rest;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.ClientHistory;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.Student;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +30,20 @@ public class StatusRestController {
     private final NotificationService notificationService;
     private final StudentService studentService;
     private final StudentStatusService studentStatusService;
+    private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
 
     @Autowired
-    public StatusRestController(StatusService statusService, ClientService clientService, ClientHistoryService clientHistoryService, NotificationService notificationService, StudentService studentService, StudentStatusService studentStatusService) {
+    public StatusRestController(StatusService statusService, ClientService clientService,
+                                ClientHistoryService clientHistoryService, NotificationService notificationService,
+                                StudentService studentService, StudentStatusService studentStatusService,
+                                ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
         this.statusService = statusService;
         this.clientService = clientService;
         this.clientHistoryService = clientHistoryService;
         this.notificationService = notificationService;
         this.studentService = studentService;
         this.studentStatusService = studentStatusService;
+        this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
     }
 
     @GetMapping
@@ -84,6 +81,13 @@ public class StatusRestController {
         Status lastStatus = currentClient.getStatus();
         statusService.get(statusId).ifPresent(currentClient::setStatus);
         clientHistoryService.createHistoryOfChangingStatus(userFromSession, currentClient, lastStatus).ifPresent(currentClient::addHistory);
+        ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                ZonedDateTime.now(),
+                lastStatus,
+                currentClient.getStatus(),
+                currentClient,
+                userFromSession);
+        clientStatusChangingHistoryService.add(clientStatusChangingHistory);
         if (!lastStatus.isCreateStudent() && currentClient.getStatus().isCreateStudent()) {
             Optional<Student> newStudent = studentService.addStudentForClient(currentClient);
             if (newStudent.isPresent()) {
@@ -113,6 +117,13 @@ public class StatusRestController {
         Status lastStatus = client.getStatus();
         statusService.get("deleted").ifPresent(client::setStatus);
         clientHistoryService.createHistoryOfChangingStatus(userFromSession, client, lastStatus).ifPresent(client::addHistory);
+        ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                ZonedDateTime.now(),
+                lastStatus,
+                client.getStatus(),
+                client,
+                userFromSession);
+        clientStatusChangingHistoryService.add(clientStatusChangingHistory);
         clientService.updateClient(client);
         notificationService.deleteNotificationsByClient(client);
         logger.info("{} delete client with id = {} in status {}", userFromSession.getFullName(), client.getId(), lastStatus.getName());

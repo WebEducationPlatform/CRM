@@ -327,10 +327,10 @@ public class DataInitializer {
 //            vkMemberService.addAllMembers(memberList);
 //        }
 
-        clientService.addClient(client1);
-        clientService.addClient(client2);
-        clientService.addClient(client3);
-        clientService.addClient(client4);
+        clientService.addClient(client1, admin);
+        clientService.addClient(client2, admin);
+        clientService.addClient(client3, admin);
+        clientService.addClient(client4, admin);
         clientService.getClientByEmail("u.dolg@mail.ru").ifPresent(status0::addClient);
         clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(status1::addClient);
         clientService.getClientByEmail("vboyko@mail.ru").ifPresent(status2::addClient);

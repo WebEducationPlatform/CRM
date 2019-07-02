@@ -36,6 +36,20 @@ public class ReportRestController {
         return ZonedDateTime.of(LocalDate.parse(date, DateTimeFormatter.ISO_DATE).atStartOfDay(), ZoneId.systemDefault());
     }
 
+//    // Temporary method to fill new entity's table
+//    @GetMapping(value = "/init")
+//    public ResponseEntity init() {
+//        reportService.fillClientStatusChangingHistoryFromClientHistory();
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
+//
+//    // Temporary method to fill new entity's table
+//    @GetMapping(value = "/links")
+//    public ResponseEntity links() {
+//        reportService.processLinksInStatusChangingHistory();
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
+
     @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity count(@RequestParam String firstReportDate,
                                 @RequestParam String lastReportDate,

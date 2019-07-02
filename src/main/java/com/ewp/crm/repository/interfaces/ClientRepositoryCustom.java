@@ -55,6 +55,8 @@ public interface ClientRepositoryCustom {
 
     List<ClientHistory> getAllHistoriesByClientStatusChanging(Client client, List<Status> statuses, List<ClientHistory.Type> types);
 
+	List<ClientHistory> getAllHistoriesByClientAndHistoryType(Client client, List<ClientHistory.Type> types);
+
 	boolean hasClientChangedStatusFromThisToAnotherInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);
 
 	Map<Client, List<ClientHistory>> getChangedStatusClientsInPeriod(ZonedDateTime firstDate, ZonedDateTime lastDate, List<ClientHistory.Type> types, List<Status> excludeStatuses, String title);

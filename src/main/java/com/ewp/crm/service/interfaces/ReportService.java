@@ -30,4 +30,8 @@ public interface ReportService {
     void writeToCSVFileWithFilteringConditions(FilteringCondition filteringCondition, String fileName);
 
     void writeToCSVFileWithConditionToDownload(ConditionToDownload conditionToDownload, String fileName);
+
+    void fillClientStatusChangingHistoryFromClientHistory();
+
+    void processLinksInStatusChangingHistory();
 }
