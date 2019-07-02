@@ -50,7 +50,7 @@ public class UserController {
 
 
 	@GetMapping(value = "/admin/user/{id}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 	public ModelAndView clientInfo(@PathVariable Long id,
 								   @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
@@ -63,7 +63,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/admin/user/add")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 	public ModelAndView addUser(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("add-user");
 		modelAndView.addObject("roles", roleService.getAll());
@@ -81,7 +81,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/user/customize")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ModelAndView getUserCustomize(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
@@ -92,7 +92,7 @@ public class UserController {
 	}
 
 	@PostMapping(value = "/user/autoAnswer")
-	@PreAuthorize("hasAnyAuthority('OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 	public ModelAndView changeAutoAnswer(@RequestParam String text,
 											@AuthenticationPrincipal User userFromSession) {
 	    userFromSession.setAutoAnswer(text);
@@ -100,7 +100,7 @@ public class UserController {
 		return new ModelAndView("redirect:/user/customize");
 	}
 	@GetMapping(value = "/user/autoAnswer")
-	@PreAuthorize("hasAnyAuthority('OWNER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
 	public ModelAndView getAutoAnswerView(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-autoanswer");
 		modelAndView.addObject("userCustomize",userFromSession);

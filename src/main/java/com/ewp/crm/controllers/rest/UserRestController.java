@@ -25,7 +25,7 @@ public class UserRestController {
     }
 
 	@GetMapping(value = "/rest/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity<List<User>> getAll(@AuthenticationPrincipal User userFromSession) {
 		List <User> users = userService.getAll();
 		users.remove(userService.get(userFromSession.getId()));
@@ -33,14 +33,14 @@ public class UserRestController {
 	}
 
 	@GetMapping(value = "/rest/users", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity<List<User>> getAllUsers() {
 		List <User> users = userService.getAll();
 		return ResponseEntity.ok(users);
 	}
 
 	@GetMapping(value = {"/user/socialNetworkTypes"})
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity<Map<Long, String>> getSocialNetworkTypes() {
 		SocialProfile socialProfile = new SocialProfile();
 		List<SocialNetworkType> socialNetworkTypes = socialProfile.getAllSocialNetworkTypes();
@@ -57,7 +57,7 @@ public class UserRestController {
 	}
 
 	@PostMapping(value = "/user/ColorBackground")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
 	public ResponseEntity addColor(@RequestParam(name = "color") String color,
 								   @AuthenticationPrincipal User userFromSession) {
 		userService.setColorBackground(color, userFromSession);
@@ -65,7 +65,7 @@ public class UserRestController {
 	}
 
 	@GetMapping(value = "/user/ColorBackground")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
 	public ResponseEntity getColor(@AuthenticationPrincipal User userFromSession) {
 		return ResponseEntity.ok(userFromSession.getColorBackground());
 	}

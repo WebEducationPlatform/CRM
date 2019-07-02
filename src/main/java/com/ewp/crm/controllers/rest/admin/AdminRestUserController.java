@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 public class AdminRestUserController {
 
     private static Logger logger = LoggerFactory.getLogger(AdminRestUserController.class);
