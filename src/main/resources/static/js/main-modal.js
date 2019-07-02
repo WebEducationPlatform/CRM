@@ -582,19 +582,26 @@ $(function () {
                 }
                 ulComments.append(html);
 
-                /*Client card's history panel, see clientHistory.js*/
-                var history = client.history;
+                $.ajax({
+                    method: 'GET',
+                    url: '/client/history/rest/getHistory/' + client.id,
+                    data: {
+                        page: 0
+                    },
+                    success: function (history) {
+                        let history_table = $('#client-' + client.id + 'history').find("tbody");
+                        let current = $(document.getElementsByClassName("upload-history"));
+                        let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
+                        if (history.length < 10) {
+                            upload_more_btn.hide();
+                        } else {
+                            upload_more_btn.show();
+                        }
+                        //draw client history
+                        drawClientHistory(history, history_table);
+                    }
+                });
 
-                let history_table = $('#client-' + client.id + 'history').find("tbody");
-                let current = $(document.getElementsByClassName("upload-history"));
-                let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
-                if (history.length < 10) {
-                    upload_more_btn.hide();
-                } else {
-                    upload_more_btn.show();
-                }
-                //draw client history
-                drawClientHistory(history, history_table);
             },
             error: function (error) {
                 console.log(error);
