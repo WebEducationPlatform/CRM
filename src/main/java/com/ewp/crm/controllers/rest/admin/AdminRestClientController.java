@@ -59,7 +59,7 @@ public class AdminRestClientController {
         Optional<Status> status = statusService.get(client.getStatus().getName());
         status.ifPresent(client::setStatus);
         clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
-        clientService.addClient(client);
+        clientService.addClient(client, userFromSession);
         studentService.addStudentForClient(client);
         logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
