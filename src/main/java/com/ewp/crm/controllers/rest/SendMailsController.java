@@ -65,7 +65,7 @@ public class SendMailsController {
         Optional<User> user = userService.getUserByEmail(userFromSession.getEmail());
         if (user.isPresent()) {
             try {
-                slackService.setAppToken(selectAppNumberToToken, environment);
+//                slackService.setAppToken(selectAppNumberToToken, environment);
                 mailingService.prepareAndSendMailingMessages(type, recipients, text, date, vkType, user.get());
             } catch (ParseMailingDataException e) {
                 logger.error("Incorrect data at send mailing request", e);

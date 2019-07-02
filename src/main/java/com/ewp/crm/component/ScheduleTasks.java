@@ -297,7 +297,7 @@ public class ScheduleTasks {
 	private void sendMailing() {
         mailingService.sendMessages();
 	}
-
+    //todo test
 	@Scheduled(cron = "0 0 * * * *")
 	private void getSlackProfiles() {
 		slackService.tryLinkSlackAccountToAllStudents();

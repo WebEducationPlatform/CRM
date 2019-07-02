@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +77,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public boolean inviteToSlack(Client client, String name, String lastName, String email) {
+    public ResponseEntity<String> inviteToSlack(Client client, String name, String lastName, String email) {
         if (!hasClientSocialProfileByType(client, "slack")) {
             if (name != null && lastName != null && email != null && !name.isEmpty() && !lastName.isEmpty() && !email.isEmpty()) {
                 Client.Builder newClientBuilder = new Client.Builder(name, null, email);
@@ -91,7 +93,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 return slackService.inviteToWorkspace(name, lastName, email);
             }
         }
-        return false;
+        return new ResponseEntity<>("client has slack account already", HttpStatus.CONFLICT);
     }
 
     @Override

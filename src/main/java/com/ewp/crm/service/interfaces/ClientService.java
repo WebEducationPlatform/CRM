@@ -3,15 +3,15 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface ClientService extends CommonService<Client> {
     boolean hasClientSocialProfileByType(Client client, String socialProfileType);
 
-    boolean inviteToSlack(Client client, String name, String lastName, String email);
+    ResponseEntity<String> inviteToSlack(Client client, String name, String lastName, String email);
 
     Optional<Client> getClientBySlackInviteHash(String hash);
 

@@ -60,8 +60,8 @@ public class SlackRestController {
                                        @RequestParam("lastName") String lastName, @RequestParam("email") String email) {
         Optional<Client> client = clientService.getClientBySlackInviteHash(hash);
         if (client.isPresent()) {
-            boolean result = clientService.inviteToSlack(client.get(), name, lastName, email);
-            return result ? ResponseEntity.ok("") : ResponseEntity.badRequest().body("");
+
+            return clientService.inviteToSlack(client.get(), name, lastName, email);
         }
         return ResponseEntity.badRequest().body("");
     }
@@ -74,7 +74,7 @@ public class SlackRestController {
         } else {
             answer = env.getProperty("messaging.slack.exception-from-method-invite-to-worksspace") ;
         }
-        return slackService.inviteToWorkspace(email) ? ResponseEntity.ok("") : ResponseEntity.badRequest().body(answer);
+        return slackService.inviteToWorkspace(email);
     }
 
     @GetMapping("/find/client/{clientId}")
