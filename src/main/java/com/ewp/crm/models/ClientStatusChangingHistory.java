@@ -30,7 +30,7 @@ public class ClientStatusChangingHistory {
     private Boolean isFake = false;
 
     @JoinColumn(name = "client_id", nullable = false)
-    @ManyToOne(targetEntity = Client.class, optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(targetEntity = Client.class, optional = false)
     private Client client;
 
     @JoinColumn(name = "user_id", nullable = false)
