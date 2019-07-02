@@ -12,9 +12,9 @@ public class CrmApplication {
 		SpringApplication.run(CrmApplication.class, args);
 	}
 
-	@Bean(initMethod = "init")
-	public DataInitializer initTestData() {
-		return new DataInitializer();
-	}
+//	@Bean(initMethod = "init")
+//	public DataInitializer initTestData() {
+//		return new DataInitializer();
+//	}
 
 }
