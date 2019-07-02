@@ -167,7 +167,7 @@ public class GoogleEmailConfig {
                             sendAutoAnswer = true;
                             statusService.getFirstStatusForClient().ifPresent(client::setStatus);
                         }
-                        clientService.addClient(client);
+                        clientService.addClient(client, null);
                         sendNotificationService.sendNewClientNotification(client, "gmail");
                         if (sendAutoAnswer && template != null) {
                             prepareAndSend.sendEmailInAllCases(client);

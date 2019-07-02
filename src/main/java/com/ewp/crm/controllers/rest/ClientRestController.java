@@ -504,7 +504,8 @@ public class ClientRestController {
 									@RequestParam(name = "nextPaymentList") String nextPaymentList,
 									@RequestParam(name = "priceList") String priceList,
 									@RequestParam(name = "paymentSumList") String paymentSumList,
-									@RequestParam(name = "studentStatus") String studentStatusId) {
+									@RequestParam(name = "studentStatus") String studentStatusId,
+									@AuthenticationPrincipal User userFromSession) {
 
 		List<String> resultEmailList = Arrays.asList(emailList.split("\n"));
 		List<String> resultFioList = Arrays.asList(fioList.split("\n"));
@@ -538,7 +539,7 @@ public class ClientRestController {
 				Client.Builder newClientBuilder = new Client.Builder(nameAndLastNameArr[0].trim(), null, resultEmailList.get(i).trim());
                 Client newClient = newClientBuilder.lastName(nameAndLastNameArr[1].trim()).build();
 				statusService.get(1L).ifPresent(newClient::setStatus);
-				clientService.addClient(newClient);
+				clientService.addClient(newClient, userFromSession);
 				Student createStudent = new Student();
 				createStudent.setClient(newClient);
 				studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
