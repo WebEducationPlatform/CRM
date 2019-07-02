@@ -8,7 +8,6 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -163,11 +162,11 @@ public class User implements UserDetails {
     private String studentPageFilters;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "ownerUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerUser")
     private List<Client> clients = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "callingUser")
     private List<CallRecord> callRecords = new ArrayList<>();
 
     public User() {
