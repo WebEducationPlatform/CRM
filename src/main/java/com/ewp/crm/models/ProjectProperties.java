@@ -32,6 +32,10 @@ public class ProjectProperties {
     @Column(name = "client_first_pay_status")
     private Long clientFirstPayStatus = -1L;
 
+    // ID статуса по-умолчанию для клиентов после первого созвона
+    @Column(name = "first_skype_call_after_status")
+    private Long firstSkypeCallAfterStatus = -1L;
+
     /**
      * Message template for scheduled payment notification.
      */
@@ -330,6 +334,14 @@ public class ProjectProperties {
 
     public void setBirthDayMessageTemplate(MessageTemplate birthDayMessageTemplate) {
         this.birthDayMessageTemplate = birthDayMessageTemplate;
+    }
+
+    public Long getFirstSkypeCallAfterStatus() {
+        return firstSkypeCallAfterStatus;
+    }
+
+    public void setFirstSkypeCallAfterStatus(Long firstSkypeCallAfterStatus) {
+        this.firstSkypeCallAfterStatus = firstSkypeCallAfterStatus;
     }
 
     @Override

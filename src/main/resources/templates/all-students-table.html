@@ -54,7 +54,7 @@
         </div>
         <br />
 
-        <div sec:authorize="hasAnyAuthority('OWNER')" class="row">
+        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" class="row">
             <div class="col-md-12">
                 <button id="show-additional-info-button" type="button" class="btn btn-info">Показать данные</button>
             </div>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div sec:authorize="hasAnyAuthority('OWNER')" id="additional-data" class="row justify-content-md-start hidden">
+        <div sec:authorize="hasAnyAuthority('OWNER', 'HR')" id="additional-data" class="row justify-content-md-start hidden">
             <div class="col-md-2 well">
                 <div class="row justify-content-md-start">
                     <div class="col-md-6">
@@ -229,6 +229,9 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
+
 <script th:inline="javascript">
     /*<![CDATA[*/
 
@@ -256,6 +259,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" th:src="@{/js/all-students.js}"></script>
 <script type="text/javascript" th:src="@{/js/jquery.imgcheckbox.js}"></script>
+
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
+
 <!--Font for arrows in table buttons-->
 <link href="/css/font-awesome.min.css" rel="stylesheet"/>
 <!--Noty for notifications-->
