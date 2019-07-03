@@ -41,8 +41,8 @@ messaging:
       exist: Пользователь уже существует #ClientExistsException ClientServiceImpl
     history:
       add-from-whatsapp: Был добавлен из WhatsApp #WhatsappWebhook
-      history-change-message: "%s переместил клиента в статус: %s" #ClientHistoryRepositoryImpl
-      history-change-message-full: "%s переместил клиента в статус: %s из %s" #ClientHistoryRepositoryImpl
+      history-change-message: "(*) %s переместил клиента в статус: %s" #ClientHistoryRepositoryImpl
+      history-change-message-full: "(*) %s переместил клиента в статус: %s из %s" #ClientHistoryRepositoryImpl
     rest:
       wrong-postpone-date: Дата должна быть позже текущей даты #ClientRestController
       postpone-error: Произошла ошибка #ClientRestController
