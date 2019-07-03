@@ -1,5 +1,7 @@
 package com.ewp.crm.repository.impl;
 
+import com.ewp.crm.controllers.rest.IPTelephonyRestController;
+import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepositoryCustom;
@@ -75,6 +77,10 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
                     String title = (String) tuple.get("title");
                     String link = (String) tuple.get("link");
                     String recordLink = (String) tuple.get("record_link");
+                    if (title.contains(ClientHistory.Type.CALL.getInfo()) && !title.contains(ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo()) &&
+                            (recordLink == null || IPTelephonyRestController.INIT_RECORD_LINK.equals(recordLink))) {
+                        title += ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo();
+                    }
                     result.add(new ClientHistoryDto(title, link, recordLink, date));
                     break;
                 case "status":
