@@ -1,1 +1,0 @@
-insert into crm.role(role_name)values('ADMIN');
