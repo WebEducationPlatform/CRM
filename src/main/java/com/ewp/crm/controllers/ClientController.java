@@ -83,7 +83,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ModelAndView addClient(@PathVariable String statusName,
                                   @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
@@ -97,7 +97,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/admin/client/add")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ModelAndView addClient(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("add-client");
         SocialProfile socialProfile = new SocialProfile();
@@ -110,7 +110,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
         List<StatusDtoForBoard> statuses = null;
         ModelAndView modelAndView = null;
@@ -133,8 +133,14 @@ public class ClientController {
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
-        else if(sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+        if (sessionRoles.contains(roleService.getRoleByName("HR"))
+                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("HR")));
+            modelAndView = new ModelAndView("main-client-table");
+            modelAndView.addObject("statuses", statuses);
+        }
+        if(sessionRoles.contains(roleService.getRoleByName("USER"))
+                & !(sessionRoles.contains(roleService.getRoleByName("HR")) || sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             modelAndView = new ModelAndView("main-client-table-user");
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
             modelAndView.addObject("statuses", statuses);
@@ -151,7 +157,9 @@ public class ClientController {
         modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) || sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
+        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) ||
+                sessionRoles.contains(roleService.getRoleByName("ADMIN")) ||
+                sessionRoles.contains(roleService.getRoleByName("HR"))) {
             modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
             modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
             modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
@@ -162,7 +170,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/allClients")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ModelAndView allClientsPage() {
         ModelAndView modelAndView = new ModelAndView("all-clients-table");
         SocialProfile socialProfile = new SocialProfile();
@@ -178,7 +186,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/mailing")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     public ModelAndView mailingPage() {
         ModelAndView modelAndView = new ModelAndView("mailing");
         modelAndView.addObject("listMailing", listMailingService.getAll());
@@ -189,7 +197,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client/clientInfo/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
     public ModelAndView clientInfo(@PathVariable Long id,
                                    @AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("client-info");
@@ -204,7 +212,7 @@ public class ClientController {
     }
 
     @GetMapping(value = "/phone")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
     public ModelAndView getPhone() {
         return new ModelAndView("webrtrc");
     }

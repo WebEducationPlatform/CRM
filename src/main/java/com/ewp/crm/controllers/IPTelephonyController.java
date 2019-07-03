@@ -29,7 +29,7 @@ public class IPTelephonyController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ModelAndView getPage() {
         ModelAndView modelAndView = new ModelAndView("calls");
         modelAndView.addObject("allClients", clientService.getAll());

@@ -64,7 +64,7 @@
                                                        th:attrappend="data-target='#customMessageTemplate'"
                                                        th:text="' ' + ${template.name}"
                                                        th:attrprepend="data-template-id=${template.id}"></a>
-                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR')"
+                                                    <a sec:authorize="hasAnyAuthority('ADMIN', 'OWNER','MENTOR', 'HR')"
                                                        th:href="'/template/edit/' +  ${template.id}">
                                                         <button
                                                                 type="button" data-toggle="modal"
@@ -171,7 +171,8 @@
                                     </td>
                                     <td>
                                         <button id="chat-button" type="button" class="btn btn-primary btn-sm"
-                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}" sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')">
+                                                data-toggle="modal" data-target="#conversations-modal" th:value="${client}"
+                                                sec:authorize="hasAnyAuthority('ADMIN', 'OWNER', 'HR')">
                                             <a href="#" style="color: white;"> Чаты <span id="chat-im-count"
                                                                                             class="badge"></span></a>
                                         </button>
@@ -198,6 +199,9 @@
                             </div>
                             <div class="row" style="text-align: center; margin-top: 10px;">
                                 <div id="contract-btn"></div>
+                            </div>
+                            <div class="row" style="text-align: center; margin-top: 10px;">
+                                <div id="other-information-btn"></div>
                             </div>
                         </div>
                     </div>

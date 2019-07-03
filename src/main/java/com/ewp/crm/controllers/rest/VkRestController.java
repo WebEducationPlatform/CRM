@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 @RequestMapping("/rest/vkontakte")
 public class VkRestController {
 

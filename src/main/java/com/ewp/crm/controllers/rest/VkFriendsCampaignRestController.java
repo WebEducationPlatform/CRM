@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/rest/vk-campaigns")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
 public class VkFriendsCampaignRestController {
 
     private static final int RESPONSE_CODE_SENT = 1;
@@ -113,4 +113,5 @@ public class VkFriendsCampaignRestController {
 
         return result;
     }
+
 }
