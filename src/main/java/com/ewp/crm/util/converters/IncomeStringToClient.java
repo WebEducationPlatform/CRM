@@ -39,7 +39,8 @@ public class IncomeStringToClient {
             "Остались вопросы",
             "Задать вопрос",
             "Java Test",
-            "javalearn"
+            "javalearn",
+            "javabootcamp.ru"
     );
 
     private enum KEYS {
@@ -111,7 +112,7 @@ public class IncomeStringToClient {
                 .replaceAll("(C|c)(I|i)(T|t)(Y|y)[^6:]*6:", KEYS.COUNTRY + ":")
                 .replaceAll("(С|с)(Т|т)(Р|р)(А|а)(Н|н)(А|а)[^:]*:", KEYS.COUNTRY + ":")
                 .replaceAll("(С|с)(Т|т)(Р|р)(А|а)(Н|н)(И|и)(Ц|ц)(А|а)[^:]*:", KEYS.PAGE + ":")
-                .replaceAll("(E|e)(M|m)(A|a)(I|i)(L|l)[^:]*:", KEYS.EMAIL + ":")
+                .replaceAll("(E|e)-?(M|m)(A|a)(I|i)(L|l)[^:]*:", KEYS.EMAIL + ":")
                 .replaceAll("(S|s)(O|o)(C|c)(I|i)(A|a)(L|l)[^:]*:", KEYS.SOCIAL + ":")
                 .replaceAll("(С|с)(О|о)(Ц|ц)[^:]*(С|с)(Е|е)(Т|т)(Ь|ь)[^:]*:", KEYS.SOCIAL + ":")
                 .replaceAll("(Ф|ф)(О|о)(Р|р)(М|м)(А|а)[^:]*:", KEYS.FORM + ":")
