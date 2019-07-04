@@ -16,8 +16,6 @@ public interface SlackService {
 
     boolean tryLinkSlackAccountToStudent(long studentId);
 
-//    boolean tryLinkSlackAccountToStudent(long studentId, String slackAllUsersJsonResponse);
-
     void tryLinkSlackAccountToAllStudents();
 
     boolean trySendMessageToSlackUser(String slackUserId, String text);
@@ -34,7 +32,6 @@ public interface SlackService {
 
     List getAllClientsFromWorkspace();
 
-//    void setAppToken(String number, Environment environment);
 
 
 }
