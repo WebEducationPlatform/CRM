@@ -23,4 +23,6 @@ public interface MailSendService {
     void sendReportToJavaMentorEmail(String report);
 
     void sendEmailInAllCases(Client client);
+
+    void sendMessage(String email);
 }
