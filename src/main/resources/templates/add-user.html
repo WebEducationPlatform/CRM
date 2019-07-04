@@ -112,6 +112,22 @@
                                id="add-user-city"/>
                         <div class="help-block with-errors"></div>
                     </div>
+                    <div class="form-group" id="mentors-info" style="display:none">
+                        <label for="prefix">Префикс каналов ментора в Slack</label>
+                        <input type="text"
+                               class="form-control"
+                               data-error=""
+                               required="required"
+                               id="prefix"/>
+                        <div class="help-block with-errors"></div>
+                        <label for="calendar">GoogleCalendar ментора</label>
+                        <input type="text"
+                               class="form-control"
+                               data-error=""
+                               required="required"
+                               id="calendar"/>
+                        <div class="help-block with-errors"></div>
+                    </div>
                     <div class="form-group" id="add-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="add-user-roles">Роли</label>
                         <div class="checkbox" th:each="role : ${roles}">

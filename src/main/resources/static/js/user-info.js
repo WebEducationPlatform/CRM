@@ -61,7 +61,7 @@ function changeUser(id, authId) {
         var obj = {};
         obj["id"] = sel.value;
         let labelFor = "checkbox-user-" + sel.value;
-        obj["roleName"] = $("label[for='" + labelFor  + "']").text();
+        obj["roleName"] = $("label[for='" + labelFor + "']").text();
         myRows.push(obj);
     });
     let wrap = {
@@ -246,7 +246,7 @@ function addUser() {
         var obj = {};
         obj["id"] = sel.value;
         let labelFor = "checkbox-user-" + sel.value;
-        obj["roleName"] = $("label[for='" + labelFor  + "']").text();
+        obj["roleName"] = $("label[for='" + labelFor + "']").text();
         myRows.push(obj);
     });
     let wrap = {
@@ -357,7 +357,7 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
         name: wrap.firstName + " " + wrap.lastName,
         email: wrap.email
     };
-    let url = "https://" + botIp + ":" + botPort + "/crm/new/mentor";
+    let url = "https://" + botIp + "/crm/new/mentor";
     $.ajax({
         url: url,
         type: 'POST',
@@ -365,3 +365,23 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
         data: JSON.stringify(data),
     })
 }
+
+$('#checkbox-user-4').change(function () {
+    $('#mentors-info').toggle();
+});
+
+var changeTimer = false;
+
+$("#prefix").on("keydown",function(){
+    if(changeTimer !== false) {
+        clearTimeout(changeTimer);
+    }
+    changeTimer = setTimeout(function(){
+        $.get("http://127.0.0.1:8080/mentor/free/prefix?prefix=" + $('#prefix').val())
+            .done(function (response) {
+                console.log(response);
+            })
+            .fail()
+        changeTimer = false;
+    },300);
+});
