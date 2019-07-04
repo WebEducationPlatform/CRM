@@ -11,6 +11,8 @@ messaging:
     set-from-Java-Mentor: Java-Mentor.ru #MailingService MailSendServiceImpl
     set-subject-personal-mentor: Ваш личный Java наставник #MailingService MailSendServiceImpl
     set-subject-crm-notification: Оповещение из CRM #MailSendServiceImpl
+    set-subject-bootcamp-autoanswer: Javabootcamp #MailSendServiceImpl
+    set-message-bootcamp-autoanswer: Ваша заявка на участие в Javabootcamp принята, скоро мы с Вами свяжемся. #MailSendServiceImpl
   whatsapp:
     send-error-wrong-phone: у этого клиента не верно указан номер телефона оправка сообщения не возможна #JMWhatsappConversation
   slack:
