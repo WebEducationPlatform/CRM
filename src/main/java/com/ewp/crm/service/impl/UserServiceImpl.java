@@ -81,7 +81,7 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
         } catch (Exception ignore) {
 
         }
-        logger.error("{}: user {} executed updating of a user id={}, name={}, roles={}, stacktrace:\n{}",
+        logger.info("{}: user {} executed updating of a user id={}, name={}, roles={}, stacktrace:\n{}",
                 UserServiceImpl.class.getName(),
                 username,
                 user.getId(), user.getFullName(),
