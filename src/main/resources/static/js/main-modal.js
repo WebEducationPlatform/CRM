@@ -467,6 +467,9 @@ $(function () {
                     $('#other-information-link-input').empty();
                 }
 
+                    $('#message-history-btn').empty().append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
+                        'data-toggle="modal" data-target="#message-history-modal" >История сообщений</button>');
+
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
