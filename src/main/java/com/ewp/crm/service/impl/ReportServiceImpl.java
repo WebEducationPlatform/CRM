@@ -41,6 +41,7 @@ public class ReportServiceImpl implements ReportService {
     private final ClientService clientService;
     private final String defaultTemplate;
     private final String allNewStudentsByDateTemplate;
+    private final String repeatedClientTopic;
 
     private final Map<String, String> CLIENT_REPORT_FIELDS;
 
@@ -56,6 +57,7 @@ public class ReportServiceImpl implements ReportService {
         this.clientService = clientService;
         this.defaultTemplate = env.getProperty("report.default.template");
         this.allNewStudentsByDateTemplate = env.getProperty("report.new.clients.by.date.template");
+        this.repeatedClientTopic = env.getProperty("messaging.client.service.repeated");
 
         Map<String, String> clientReportMap = new LinkedHashMap<>();
         clientReportMap.put("name", "First Name");
@@ -76,7 +78,8 @@ public class ReportServiceImpl implements ReportService {
      *
      * @param reportStartDate дата начала отчетного периода
      * @param reportEndDate   дата окончания отчетного периода
-     * @return количество найденных клиентов
+     * @param excludeStatusesIds список статусов, которые нужно игнорировать
+     * @return отчет с количеством и списком найденных клиентов
      */
     @Override
     public Report getAllNewClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
@@ -84,14 +87,49 @@ public class ReportServiceImpl implements ReportService {
         reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
         reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
         List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
-        List<Client> clients = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
-        int quantityAllNewClients = clients.size();
-        List<Client> clientsWithDuplicateRequest = new ArrayList<>(clients);
-        clientsWithDuplicateRequest.removeIf(client -> (
-                client.getClientDescriptionComment() != null
-                        && client.getClientDescriptionComment().equals("Клиент оставлил повторную заявку")));
+        List<Client> result = clientRepository.getClientByHistoryTimeIntervalAndHistoryType(reportStartDate, reportEndDate, historyTypes, excludeStatuses);
+        int quantityAllNewClients = result.size();
+        List<Client> clientsWithDuplicateRequest = new ArrayList<>(result);
+        clientsWithDuplicateRequest.removeIf(client -> repeatedClientTopic.equals(client.getClientDescriptionComment()));
         String message = MessageFormat.format(allNewStudentsByDateTemplate, quantityAllNewClients, (quantityAllNewClients - clientsWithDuplicateRequest.size()));
-        return new Report(message, clients);
+        return new Report(message, sortList(result));
+    }
+
+    /**
+     *
+     * @param reportStartDate дата начала отчетного периода
+     * @param reportEndDate дата окончания отчетного периода
+     * @param excludeStatusesIds список статусов, которые нужно игнорировать
+     * @param firstStatusId статус, в котором искать появление нового клиента
+     * @return отчет с количеством и списком найденных клиентов
+     */
+    @Override
+    public Report getAllNewClientsByDateAndFirstStatus(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds, Long firstStatusId) {
+        Report report = getAllNewClientsByDate(reportStartDate, reportEndDate, excludeStatusesIds);
+        List<Client> result = report.getClients();
+        if (firstStatusId != null) {
+            Optional<Status> firstStatus = statusService.get(firstStatusId);
+            firstStatus.ifPresent(st -> result.removeIf(client -> {
+                ClientHistory firstHistory = clientRepository.getClientFirstStatusChangingHistory(client.getId());
+                if (firstHistory != null && clientRepository.getNearestClientHistoryBeforeDate(client, firstHistory.getDate(), Arrays.asList(ClientHistory.Type.STATUS)) == null) {
+                    Optional<String> status = parseSourceStatusNameFromHistoryTitle(firstHistory.getTitle());
+                    if (status.isPresent()) {
+                        return !st.getName().equals(status.get());
+                    }
+                } else {
+                    if (!clientRepository.hasClientStatusChangingHistory(client.getId())) {
+                        return !st.getName().equals(client.getStatus().getName());
+                    }
+                    return !hasClientEverBeenInStatus(client, Arrays.asList(firstStatus.get()));
+                }
+                return false;
+            }));
+        }
+        int quantityAllNewClients = result.size();
+        List<Client> clientsWithDuplicateRequest = new ArrayList<>(result);
+        clientsWithDuplicateRequest.removeIf(client -> repeatedClientTopic.equals(client.getClientDescriptionComment()));
+        String message = MessageFormat.format(allNewStudentsByDateTemplate, quantityAllNewClients, (quantityAllNewClients - clientsWithDuplicateRequest.size()));
+        return new Report(message, sortList(result));
     }
 
     private List<Status> getAllStatusesByIds(List<Long> ids) {
@@ -141,7 +179,7 @@ public class ReportServiceImpl implements ReportService {
             // Бывает 2 варианта - когда просто указан статус, в который переместили клиента,
             // а бывает после указан статус, из которого клиент был перемещен - этот вариант и проверяем
             String[] strings2 = strings1[1].split(" из ");
-            if (strings2.length > 0) {
+            if (strings2.length == 2) {
                 return Optional.of(strings2[1].trim());
             }
         }
@@ -172,9 +210,21 @@ public class ReportServiceImpl implements ReportService {
         // в течение 3 минут после предыдущей смены статуса, такой результат исключается из отчета
         ClientHistory afterHistory = clientRepository.getNearestClientHistoryAfterDate(clientHistory.getClient(), clientHistory.getDate(), Collections.singletonList(ClientHistory.Type.STATUS));
         if (afterHistory != null) {
-            return !clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate());
+            return clientHistory.getDate().plusMinutes(3L).isAfter(afterHistory.getDate());
         }
-        return true;
+        return false;
+    }
+
+    /**
+     * Проверяет, что клиент не вернулся в исходный статус в течение 24 часов с момента перемещения
+     *
+     * @param clientHistory
+     * @return
+     */
+    private boolean isFakeChangingStatusBy24hrRule(ClientHistory clientHistory) {
+        Optional<ClientHistory> beforeHistory = historyBeforeThis(clientHistory);
+        // Получаем имя статуса, из которого клиент перешел в искомый статус
+        return beforeHistory.filter(history -> isFakeChangingStatusBy24hrRule(clientHistory, history)).isPresent();
     }
 
     /**
@@ -222,9 +272,7 @@ public class ReportServiceImpl implements ReportService {
      */
     private boolean hasClientEverBeenInStatus(Client client, List<Status> statuses) {
         List<ClientHistory> allHistories = clientRepository.getAllHistoriesByClientStatusChanging(client, statuses, Collections.singletonList(ClientHistory.Type.STATUS));
-        System.out.println(client.getName() + " count: " + allHistories.size());
         for (ClientHistory history :allHistories) {
-            System.out.println(client.getName() + " " + history.getTitle());
             if (!isFakeChangingStatusBy3minsRule(history)) {
                 Optional<ClientHistory> beforeHistory = historyBeforeThis(history);
                 if (beforeHistory.isPresent()) {
@@ -248,7 +296,54 @@ public class ReportServiceImpl implements ReportService {
 
     /**
      * Подсчитывает количество клиентов, которые перешли в статус toStatus в заданный период reportStartDate - reportEndDate
-     * из статуса fromStatus и в данный момент не находятся в исключенных статусах excludeStatuses
+     * из любого статуса и никогда не были в исключенных статусах excludeStatuses
+     * Также проверяет, не являлся ли переход в статус ошибочным. В случае, если клиент вернулся в исходных статус в течение
+     * 24 часов с момента смены статуса, то считается, что смена статуса была ошибочной
+     *
+     * @param reportStartDate дата начала отчетного периода
+     * @param reportEndDate дата окончания отчетного периода
+     * @param toStatusId конечный статус клиента
+     * @param excludeStatusesIds список исключенных статусов
+     * @return отчет с количеством подходящих под критерии клиентов и списком клиентов
+     */
+    @Override
+    public Report getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long toStatusId, List<Long> excludeStatusesIds) {
+        List<Client> result = new ArrayList<>();
+        Optional<Status> toStatus = statusService.get(toStatusId);
+        List<Status> excludeStatuses = getAllStatusesByIds(excludeStatusesIds);
+        List<ClientHistory.Type> historyTypes = Collections.singletonList(ClientHistory.Type.STATUS);
+        if (toStatus.isPresent()) {
+            reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
+            reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
+            // Получаем клиентов, которые в заданном промежутке времени переходили в статус toStatus
+            Map<Client, List<ClientHistory>> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, toStatus.get().getName());
+            for (Map.Entry<Client, List<ClientHistory>> entry : clients.entrySet()) {
+                Client client = entry.getKey();
+                List<ClientHistory> histories = entry.getValue();
+                // Если клиент был когда-либо в статусах на исключение, то игнорируем его и переходим к следующему
+                boolean goodResult = !hasClientEverBeenInStatus(client, excludeStatuses);
+                if (goodResult) {
+                    goodResult = false;
+                    // Проверяем переходы клиентов на правила 24 часов и 3 минут
+                    for (ClientHistory history :histories) {
+                        if (!isFakeChangingStatusBy3minsRule(history) && !isFakeChangingStatusBy24hrRule(history)) {
+                            goodResult = true;
+                            break;
+                        }
+                    }
+                }
+                if (goodResult) {
+                    result.add(client);
+                }
+            }
+        }
+        String message = MessageFormat.format(defaultTemplate, result.size());
+        return new Report(message, sortList(result));
+    }
+
+    /**
+     * Подсчитывает количество клиентов, которые перешли в статус toStatus в заданный период reportStartDate - reportEndDate
+     * из статуса fromStatus и никогда не были в исключенных статусах excludeStatuses
      * Также проверяет, не являлся ли переход в статус ошибочным. В случае, если клиент вернулся в исходных статус в течение
      * 24 часов с момента смены статуса, то считается, что смена статуса была ошибочной
      *
@@ -257,7 +352,7 @@ public class ReportServiceImpl implements ReportService {
      * @param fromStatusId       исходный статус клиента
      * @param toStatusId         конечный статус клиента
      * @param excludeStatusesIds список исключенных статусов
-     * @return количество подходящих под критерии клиентов
+     * @return отчет с количеством подходящих под критерии клиентов и списком клиентов
      */
 
     @Override
@@ -271,8 +366,8 @@ public class ReportServiceImpl implements ReportService {
             reportStartDate = ZonedDateTime.of(reportStartDate.toLocalDate().atStartOfDay(), ZoneId.systemDefault());
             reportEndDate = ZonedDateTime.of(reportEndDate.toLocalDate().atTime(23, 59, 59), ZoneId.systemDefault());
             // статус fromStatus для новых клиентов?
-            long newClientStatus = projectProperties.getNewClientStatus();
-            boolean isNewClient = newClientStatus == fromStatus.get().getId();
+            long newClientStatusId = projectProperties.getNewClientStatus();
+            boolean isNewClient = newClientStatusId == fromStatus.get().getId();
             Map<Client, List<ClientHistory>> clients = clientRepository.getChangedStatusClientsInPeriod(reportStartDate, reportEndDate, historyTypes, excludeStatuses, toStatus.get().getName());
             for (Map.Entry<Client, List<ClientHistory>> entry : clients.entrySet()) {
                 Client client = entry.getKey();
@@ -283,24 +378,35 @@ public class ReportServiceImpl implements ReportService {
                     continue;
                 }
                 for (ClientHistory clientHistory :histories) {
-                    // Получаем из истории клиента запись, предшествующую записи выше, чтобы определить
-                    // исходный статус, из которого клиент перешел в искомый статус
-                    Optional<ClientHistory> beforeHistory = historyBeforeThis(clientHistory);
-                    if (beforeHistory.isPresent()) {
-                        goodResult = !isFakeChangingStatusBy24hrRule(clientHistory, beforeHistory.get());
-                    } else {
-                        if (!isNewClient) {
-                            continue;
+                    ClientHistory lastHistory = clientHistory;
+                    // Ищем предыдущие истории и проверяем, был ли клиент ранее в исходном статусе
+                    while (true) {
+                        // Если вышли за диапазон по дате - прекращаем поиск
+                        // TODO уточнить логику формирования отчета
+//                        if (lastHistory.getDate().isBefore(reportStartDate)) {
+//                            goodResult = false;
+//                            break;
+//                        }
+                        // Получаем из истории клиента предшествующую запись, чтобы определить
+                        // исходный статус, из которого клиент перешел в искомый статус
+                        Optional<ClientHistory> beforeHistory = historyBeforeThis(lastHistory);
+                        if (beforeHistory.isPresent()) {
+                            lastHistory = beforeHistory.get();
+                            Optional<String> sourceName = parseStatusNameFromHistoryTitle(beforeHistory.get().getTitle());
+
+                            if (sourceName.isPresent() && sourceName.get().equals(fromStatus.get().getName()) &&
+                                    !isFakeChangingStatusBy24hrRule(beforeHistory.get()) && !isFakeChangingStatusBy3minsRule(beforeHistory.get())) {
+                                goodResult = true;
+                                break;
+                            }
+                        } else {
+                            goodResult = isNewClient;
+                            break;
                         }
-                    }
-                    // Если клиент перешел в текущий статус не из искомого, то проверяем,
-                    // что клиент был в статусе fromStatus в промежутке времени между reportStartDate и clientHistory.getDate()
-                    if (goodResult) {
-                        goodResult = clientRepository.hasClientChangedStatusFromThisToAnotherInPeriod(reportStartDate, clientHistory.getDate(), historyTypes, excludeStatuses, toStatus.get().getName());
                     }
                     // Проверяем, что клиент пробыл в данном статусе более 3-х минут
                     if (goodResult) {
-                        goodResult = isFakeChangingStatusBy3minsRule(clientHistory);
+                        goodResult = !isFakeChangingStatusBy3minsRule(clientHistory);
                     }
                     // Если данный переход в статус подошел по всем параметрам - добавляем клиента в результирующий список
                     if (goodResult) {
@@ -311,7 +417,7 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         String message = MessageFormat.format(defaultTemplate, result.size());
-        return new Report(message, result);
+        return new Report(message, sortList(result));
     }
 
 
@@ -320,7 +426,7 @@ public class ReportServiceImpl implements ReportService {
      *
      * @param reportStartDate дата начала отчетного периода
      * @param reportEndDate   дата окончания отчетного периода
-     * @return количество студентов, впервые совершивших оплату в заданный период
+     * @return отчет из количества и списка студентов, впервые совершивших оплату в заданный период
      */
     @Override
     public Report getAllFirstPaymentClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds) {
@@ -343,7 +449,11 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         String message = MessageFormat.format(defaultTemplate, result.size());
-        return new Report(message, result);
+        return new Report(message, sortList(result));
+    }
+
+    private List<Client> sortList(List<Client> list) {
+        return list.stream().sorted(Comparator.comparing(Client::getLastName).thenComparing(Client::getName)).collect(Collectors.toList());
     }
 
     @Override

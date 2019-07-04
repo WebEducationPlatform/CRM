@@ -36,7 +36,7 @@ public class SlackServiceImpl implements SlackService {
     private final SocialProfileService socialProfileService;
     private final ClientService clientService;
     private final String slackWorkspaceUrl;
-//    private String appToken;
+    //    private String appToken;
 //    private final String legacyToken;
     private final String generalChannelId;
     private final String defaultPrivateGroupNameTemplate;
@@ -108,13 +108,17 @@ public class SlackServiceImpl implements SlackService {
         List<SocialNetworkType> excludeSocialProfileTypes = Arrays.asList(SocialNetworkType.SLACK);
         List<Student> students = studentService.getStudentsWithoutSocialProfileByType(excludeSocialProfileTypes);
         students.addAll(empty);
+        List<SlackProfile> allClientsFromWorkspace = getAllClientsFromWorkspace();
         for (Student student : students) {
-            tryLinkSlackAccountToStudent(student.getId());
+            tryLinkSlackAccountToStudent(student.getId(),allClientsFromWorkspace);
         }
     }
-
     @Override
-    public boolean tryLinkSlackAccountToStudent(long studentId) {
+    public boolean tryLinkSlackAccountToStudent(long studentId){
+        return tryLinkSlackAccountToStudent(studentId,getAllClientsFromWorkspace());
+    }
+
+    private boolean tryLinkSlackAccountToStudent(long studentId, List<SlackProfile> profiles) {
         // Weights for matches
         double emailWeight = 1.0d;
         double nameWeight = 0.25d;
@@ -124,7 +128,8 @@ public class SlackServiceImpl implements SlackService {
         Student student = studentService.get(studentId);
         Client client = student.getClient();
 //        List<SlackProfile> profiles = parseSlackUsersFromJson(slackAllUsersJsonResponse);
-        List<SlackProfile> profiles = getAllClientsFromWorkspace();
+//        List<SlackProfile> profiles = getAllClientsFromWorkspace();
+        Collections.sort(profiles, Comparator.comparing(SlackProfile::getEmail));
         for (SlackProfile profile : profiles) {
             double currentWeight = 0d;
             String id = profile.getSlackId();
@@ -411,12 +416,13 @@ public class SlackServiceImpl implements SlackService {
 
         return getStringResponseEntity(url);
     }
-    private ResponseEntity<String>getStringResponseEntity(String url){
+
+    private ResponseEntity<String> getStringResponseEntity(String url) {
         RestTemplate restTemplate = new RestTemplate();
-        try{
+        try {
             return restTemplate.getForEntity(url, String.class);
 
-        }catch (HttpStatusCodeException e){
+        } catch (HttpStatusCodeException e) {
             return new ResponseEntity<>(e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -424,7 +430,8 @@ public class SlackServiceImpl implements SlackService {
     private ResponseEntity<String> inviteToWorkspace(String email, String channelIds, String name, String lastName) {
         String url = slackBotUrl + "/bot/user/workspace/invite?" + "email=" + email + "&channels=" + channelIds + "&name=" + name + "&last_name=" + lastName;
         RestTemplate restTemplate = new RestTemplate();
-        return getStringResponseEntity(url);    }
+        return getStringResponseEntity(url);
+    }
 
     @Override
     public Optional<String> getChatIdForSlackUser(String slackUserId) {

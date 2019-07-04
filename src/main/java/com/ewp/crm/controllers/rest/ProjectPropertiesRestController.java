@@ -9,14 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/rest/properties")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 public class ProjectPropertiesRestController {
 
     private final ProjectPropertiesService projectPropertiesService;
@@ -38,10 +42,10 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/notifications")
-    public HttpStatus setPaymentNotificationSettings(@RequestParam( name = "paymentMessageTemplate") Long templateId,
-                                                     @RequestParam( name = "paymentNotificationTime") String time,
-                                                     @RequestParam( name = "paymentNotificationEnabled") Boolean enabled,
-                                                     @RequestParam( name = "newClientMessageTemplate") Long newClientTemplateId) {
+    public HttpStatus setPaymentNotificationSettings(@RequestParam(name = "paymentMessageTemplate") Long templateId,
+                                                     @RequestParam(name = "paymentNotificationTime") String time,
+                                                     @RequestParam(name = "paymentNotificationEnabled") Boolean enabled,
+                                                     @RequestParam(name = "newClientMessageTemplate") Long newClientTemplateId) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         if (templateId == null) {
             current.setPaymentMessageTemplate(null);
@@ -152,7 +156,7 @@ public class ProjectPropertiesRestController {
     }
 
     @PostMapping("/saveColorByStatus")
-    public HttpStatus saveColorByStatus(@RequestParam( name = "colors") String colors) {
+    public HttpStatus saveColorByStatus(@RequestParam(name = "colors") String colors) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setStatusColor(colors);
         projectPropertiesService.update(current);
@@ -171,12 +175,14 @@ public class ProjectPropertiesRestController {
 
     @PostMapping("/client-default-properties")
     public HttpStatus setClientDefaults(@RequestParam Long repeatedStatus, @RequestParam Long newClientStatus,
-                                        @RequestParam Long rejectId, @RequestParam Long firstPayStatus) {
+                                        @RequestParam Long rejectId, @RequestParam Long firstPayStatus,
+                                        @RequestParam Long firstSkypeCallAfterStatus) {
         ProjectProperties current = projectPropertiesService.getOrCreate();
         current.setRepeatedDefaultStatusId(repeatedStatus);
         current.setNewClientStatus(newClientStatus);
         current.setClientRejectStudentStatus(rejectId);
         current.setClientFirstPayStatus(firstPayStatus);
+        current.setFirstSkypeCallAfterStatus(firstSkypeCallAfterStatus);
         projectPropertiesService.update(current);
         return HttpStatus.OK;
     }

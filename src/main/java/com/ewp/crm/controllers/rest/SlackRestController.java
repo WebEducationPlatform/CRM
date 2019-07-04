@@ -3,7 +3,9 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.service.impl.MessageTemplateServiceImpl;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.StatusService;
 import com.ewp.crm.util.patterns.ValidationPattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -11,7 +13,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +128,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/emails")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllEmailsFromSlack() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -128,7 +136,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/ids/all")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllIdsFromSlack() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -136,7 +144,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/chat/by/client/{id}")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
     public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -145,7 +153,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/ids/students")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllStudentsIdsFromSlack(@RequestParam(name = "statuses", required = false) List<Long> statuses) {
         List<Status> requiredStatuses = new ArrayList<>();
         List<String> slackIdsForStudents;

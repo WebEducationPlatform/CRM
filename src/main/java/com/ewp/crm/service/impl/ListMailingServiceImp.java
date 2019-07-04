@@ -37,10 +37,12 @@ public class ListMailingServiceImp extends CommonServiceImpl<ListMailing> implem
         return Optional.of(listMailingDAO.getOne(id));
     }
 
+    @Override
     public void update(ListMailing listMailing) {
         listMailingDAO.save(listMailing);
     }
 
+    @Override
     public void delete(ListMailing listMailing) {
         listMailingDAO.delete(listMailing);
     }

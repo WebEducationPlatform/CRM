@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rest/message-template")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 public class MessageTemplateRestController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientRestController.class);
@@ -58,4 +58,21 @@ public class MessageTemplateRestController {
         return result;
     }
 
+    @PostMapping ("/rename")
+    public HttpStatus renameTemplate(@RequestParam("id") Long id, @RequestParam("name") String name) {
+        if(messageTemplateService.get(id) != null) {
+            if (!messageTemplateService.getByName(name).isPresent()) {
+                MessageTemplate template = messageTemplateService.get(id);
+                template.setName(name);
+                messageTemplateService.update(template);
+                return HttpStatus.OK;
+            } else {
+                logger.info("Template with name {} already exists", name);
+                return HttpStatus.BAD_REQUEST;
+            }
+        } else {
+            logger.info("Template with id {} doesn't exist", id);
+            return HttpStatus.BAD_REQUEST;
+        }
+    }
 }

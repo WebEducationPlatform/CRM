@@ -51,10 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/init/**","/contract/**").permitAll()
-                .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER", "MENTOR")
-                .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER")
-                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER")
+                .antMatchers("/init/**", "/contract/**").permitAll()
+                .antMatchers("/client/**").hasAnyAuthority("ADMIN", "USER", "OWNER", "MENTOR", "HR")
+                .antMatchers("/admin/**").hasAnyAuthority("ADMIN", "OWNER", "MENTOR", "HR")
+                .antMatchers("/student/**").hasAnyAuthority("ADMIN", "OWNER", "HR")
                 .and()
                 .httpBasic()
                 .and()

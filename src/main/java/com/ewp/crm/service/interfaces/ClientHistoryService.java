@@ -16,6 +16,8 @@ public interface ClientHistoryService {
 
 	Optional<ClientHistory> createHistoryOfChangingStatus(User user, Client client, Status lastStatus);
 
+	Optional<ClientHistory> createHistoryOfChangingStatus(Client client, Status lastStatus);
+
 	Optional<ClientHistory> createHistory(User admin, User worker, Client client, ClientHistory.Type type);
 
 	Optional<ClientHistory> createHistory(User user, Client client, ClientHistory.Type type, String link);

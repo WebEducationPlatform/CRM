@@ -23,7 +23,7 @@ public class EmailRestController {
 	}
 
 	@PostMapping(value = "/rest/sendEmail")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 	public ResponseEntity sendEmail(@RequestParam("clientId") Long clientId,
 									@RequestParam("templateId") Long templateId,
 									@RequestParam(value = "body", required = false) String body,
@@ -32,5 +32,4 @@ public class EmailRestController {
 		mailSendService.prepareAndSend(clientId, templateText, body, userFromSession);
 		return ResponseEntity.ok().build();
 	}
-
 }

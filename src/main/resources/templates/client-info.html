@@ -19,6 +19,28 @@
                         id="editClientBtn" onclick="revertUnable()">Редактировать</button>
                 <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-primary"
                         style="margin-bottom: 10px" id="feedbackClientBtn" th:onclick="'getFeedback('+ ${client.id} + ')'">смотреть отзывы</button>
+                <button sec:authorize="hasAnyAuthority('ADMIN', 'OWNER')" type="button" class="btn btn-danger"
+                        style="margin-bottom: 10px; margin-left: 15px" data-toggle="modal" data-target="#modalRemove">Удалить</button>
+                <!-- Modal -->
+                <div class="modal fade" id="modalRemove" tabindex="-1" role="dialog" aria-labelledby="modalRemoveTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Подтверждение</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Вы действительно хотите удалить клиента?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                                <button type="button" class="btn btn-danger" th:onclick="'deleteClient('+ ${client.id} + ')'">Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <form id="client-from" data-toggle="validator" role="form" onsubmit="return false;">
                     <div class="form-group">
                         <label for="edit-client-first-name">Имя</label>

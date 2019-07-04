@@ -26,13 +26,14 @@
 <div style="margin-top: 3%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="user-info-container" class="container-fluid">
+        <div>
+            <label>Текущий баланс воксимпланта:
+                <span class="h4" th:text="${voximplantBalance}"></span>
+            </label>
+        </div>
         <div class="row-fluid">
             <label class="h2">Создать отчет:</label><br/>
             <div class="col-md-4" style="width: 20%; padding:30px;">
-                <div class="form-group">
-                    <label for="mailingDate" class="p-user">Выберите дату:</label>
-                    <input class="form-control input-sm form-control-report" type="text" name="mailingDate" id="mailingDate"/>
-                </div>
                 <label for="report-type-radios" class="p-user">Выберите тип отчета:</label>
                 <div id="report-type-radios" class="form-group">
                     <div class="radio">
@@ -40,17 +41,91 @@
                             <input type="radio" name="report-type" id="report-type-1" value="1" checked="checked"/>
                             Переходы из статусов
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;Выводит всех клиентов, которые в указанный период времени были перемещены из исходного статуса в заданный.&lt;br /&gt;
+                                В отчет попадают не только прямые переходы из одного статуса в другой, но также и переходы через несколько статусов. Количество переходов не ограничено.&lt;br /&gt;
+                                Если отмечено &lt;mark&gt;Из любого&lt;/mark&gt; - значит исходный статус не важен - в отчет попадут все клиенты, которые побывали в данный период в заданном статусе.&lt;br /&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                Переход в статус не считается, если:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- клиент пробыл в статусе менее 3 минут, затем был перемещен в любой другой;&lt;/li&gt;
+                                &lt;li&gt;- в течение 24 часов клиент был возвращен в исходный статус.&lt;/li&gt;
+                                &lt;/ul&gt;&lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio">
                         <label>
                             <input type="radio" name="report-type" id="report-type-2" value="2"/>
                             Появление новых
                         </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводит всех клиентов, которые в указанный период времени впервые или повторно появились (были созданы) в заданном статусе.&lt;br /&gt;
+                                Если отмечено &lt;mark&gt;Любой&lt;/mark&gt;, то в отчет выводятся все клиенты, имеющие в истории запись о создании в указанном интервале времени.&lt;br /&gt;
+                                Повторное появление клиента - когда уже имеющейся клиент добавляется в систему вручную или автоматически через заявку на сайте и т.п.&lt;br /&gt;
+                                Индикатором появления клиента в заданный интервал времени является запись в истории вида &lt;mark&gt;добавлен вручную&lt;/mark&gt;, &lt;mark&gt;добавлен из gmail/vk&lt;/mark&gt; и т.п.&lt;br /&gt;
+                                Индикатором появления студента в конкретном статусе считается:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- первая история перемещения клиента - для впервые добавленных клиентов;&lt;/li&gt;
+                                &lt;li&gt;- текущий статус - если историй перемещения нет;&lt;/li&gt;
+                                &lt;li&gt;- история, которая предшествует первой истории перемещения в указанный;&lt;/li&gt;
+                                &lt;li&gt;- интервал времени - для клиентов, добавленных не впервые.&lt;/li&gt;
+                                &lt;/ul&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                Переход в статус не считается, если:&lt;br /&gt;
+                                &lt;ul&gt;
+                                &lt;li&gt;- клиент пробыл в статусе менее 3 минут, затем был перемещен в любой другой;&lt;/li&gt;
+                                &lt;li&gt;- в течение 24 часов клиент был возвращен в исходный статус.&lt;/li&gt;
+                                &lt;/ul&gt;&lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="radio">
                         <label>
                             <input type="radio" name="report-type" id="report-type-3" value="3"/>
                             Первые оплаты
+                        </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                В отчет попадают клиенты, которые в заданный период времени впервые перешли в статус, который задан в настройках CRM в меню &lt;mark&gt;Статусы по-умолчанию&lt;/mark&gt; -&gt; &lt;mark&gt;Статус клиента после первой оплаты&lt;/mark&gt;.&lt;br /&gt;
+                                Из отчета исключаются все клиенты, хотя бы единожды побывавшие в одном из статусов &lt;mark&gt;кроме&lt;/mark&gt;.&lt;br /&gt;
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="radio hideable_once" hidden="hidden">
+                        <label>
+                            <input type="radio" name="report-type" id="report-type-4" value="4"/>
+                            Сравнение отчетов
+                        </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводится отчет, который содержит всех клиентов первого отчета и при этом не содержит ни одного клиента второго отчета.
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="radio hideable_once" hidden="hidden">
+                        <label>
+                            <input type="radio" name="report-type" id="report-type-5" value="4"/>
+                            Объединение отчетов
+                        </label>
+                        <button type="button" class="btn btn-info btn-xs" data-toggle="popover" data-content="&lt;small&gt;
+                                Выводится отчет, который объединяет два и более выбранных отчета, при этом не допускает повторных записей.
+                                &lt;/small&gt;" data-placement="right" data-container="body">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group hideable_1">
+                    <label for="mailingDate" class="p-user">Выберите дату:</label>
+                    <input class="form-control input-sm form-control-report" type="text" name="mailingDate" id="mailingDate"/>
+                </div>
+                <div class="form-group hideable_4" hidden="hidden">
+                    <label for="statusNewSelect" class="p-user">Статус для нового клиента:</label>
+                    <select id="statusNewSelect" class="form-control">
+                        <option value="null">Статус</option>
+                    </select>
+                    <div class="checkbox">
+                        <label>
+                            <input id="new-all-checkbox" type="checkbox"/>Любой
                         </label>
                     </div>
                 </div>
@@ -59,6 +134,11 @@
                     <select id="statusFromSelect" class="form-control">
                         <option value="null">Статус</option>
                     </select>
+                    <div class="checkbox">
+                        <label>
+                            <input id="from-all-checkbox" type="checkbox"/>Из любого
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group hideable">
                     <label for="statusToSelect" class="p-user">Статус в который перешел:</label>
@@ -66,10 +146,31 @@
                         <option value="null">Статус</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group hideable_1">
+                    <button type="button" class="btn btn-default btn-xs" id="exclude-statuses-btn">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true" id="exclude-statuses-btn-icon"></span>
+                    </button>
                     <label for="statusExcludeSelect" class="p-user">Кроме статусов:</label>
                     <div id="statusExcludeSelect" class="checkbox">
                         <label><input type="checkbox" value="null" class="exclude-status-checkboxes" aria-label="Статус"/>Статус</label>
+                    </div>
+                </div>
+                <div class="form-group hideable_3" hidden="hidden">
+                    <label for="report_selector_1" class="p-user">Из отчета:</label>
+                    <select id="report_selector_1" class="form-control">
+                        <option value="null">Отчет 1</option>
+                    </select>
+                </div>
+                <div class="form-group hideable_3" hidden="hidden">
+                    <label for="report_selector_2" class="p-user">Исключить значения:</label>
+                    <select id="report_selector_2" class="form-control">
+                        <option value="null">Отчет 2</option>
+                    </select>
+                </div>
+                <div class="form-group hideable_2" hidden="hidden">
+                    <label for="reportList" class="p-user">Отчеты:</label>
+                    <div id="reportList" class="checkbox">
+                        <label><input type="checkbox" value="null" class="reports-checkboxes" aria-label="Статус"/>Отчет #0</label>
                     </div>
                 </div>
                 <div id="formToSend">
@@ -81,7 +182,7 @@
                         </div>
                         <br/>
                         <button id="load-data-button" class="form-control form-control-report btn btn-primary btn-block">
-                            Загрузить данные
+                            Сформировать отчет
                         </button>
                         <br/>
                         <button class="form-control form-control-report btn btn-primary btn-block" onclick="sendReport()">
@@ -92,21 +193,11 @@
                 <br/>
                 <a href="#" onclick="history.back();" class="form-control form-control-report btn btn-primary btn-block">Назад</a>
             </div>
-            <div id="client-cards-holder" class="col-md-8">
-                <div id="report-area-holder" class="form-group">
-                    <label class="p-user">Отчет:</label>
-                    <textarea style="resize: both" class="form-control input-sm form-control-report"
-                              name="reportArea" th:id="reportArea" placeholder="Choose a date range above..."></textarea>
+            <div id="client-cards-holder" hidden="hidden" class="col-md-8">
+                <div id="panels-tabs">
+                    <ul class="nav nav-tabs" id="panel-tabs-data"></ul>
                 </div>
-                <table id="client-cards-table" class="table table-hover table-condensed">
-                    <tr>
-                        <th>#</th>
-                        <th>Имя</th>
-                        <th>Фамилия</th>
-                        <th>Телефон</th>
-                        <th>E-mail</th>
-                    </tr>
-                </table>
+                <div id="panels"></div>
             </div>
         </div>
     </div>
@@ -126,6 +217,8 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript"
@@ -148,6 +241,6 @@
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 </body>
 </html>

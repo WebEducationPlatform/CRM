@@ -154,6 +154,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public ClientHistory getClientFirstStatusChangingHistory(long clientId) {
+         List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE c.id = :clientId AND h.title LIKE CONCAT('%',:status,'% из %') ORDER BY h.date ASC")
+                 .setParameter("clientId", clientId)
+                 .setParameter("status", ClientHistory.Type.STATUS.getInfo())
+                 .setFirstResult(0)
+                 .setMaxResults(1)
+                 .getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public boolean hasClientStatusChangingHistory(long clientId) {
+         return getClientFirstStatusChangingHistory(clientId) != null;
+    }
+
+    @Override
     public boolean hasClientBeenInStatusBefore(long clientId, ZonedDateTime date, String statusName) {
         return !entityManager.createQuery("SELECT c FROM Client c JOIN c.history AS h WHERE c.id = :clientId AND h.date < :date AND h.title LIKE CONCAT('%: ',:title,'%')")
                 .setParameter("clientId", clientId)

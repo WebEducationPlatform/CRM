@@ -38,7 +38,7 @@ public class AdminEmailRestController {
 
     @ResponseBody
     @GetMapping(value = "/admin/image/{file}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public byte[] getImage(@PathVariable("file") String file) throws IOException {
         Path fileLocation = Paths.get(imageConfig.getPathForImages() + file + ".png");
         return Files.readAllBytes(fileLocation);
@@ -46,7 +46,7 @@ public class AdminEmailRestController {
 
 
     @PostMapping(value = {"/admin/editMessageTemplate"})
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public HttpStatus editETemplate(@RequestParam("templateName") String templateName,
                                     @RequestParam("templateText") String templateText,
                                     @RequestParam String otherTemplateText) {
@@ -79,7 +79,7 @@ public class AdminEmailRestController {
 
     @ResponseBody
     @PostMapping(value = "/admin/savePicture")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity savePicture(@RequestParam("0") MultipartFile file,
                                       @RequestParam String templateName,
                                       @AuthenticationPrincipal User currentAdmin) {

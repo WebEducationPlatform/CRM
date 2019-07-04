@@ -131,7 +131,37 @@ function calc_info_values() {
     }
 }
 
-function sort_table(n, type) {
+/*Data sorting with notifications*/
+function noteAndSort(button, n, type) {
+    /* Create notifications and start table sorting*/
+    var notification = $('#sortingNotification');
+    $('#sortingNotification h5').html('Подождите, идет сортировка...');
+    notification.show();
+    var endOfSort = $('#sortingEnded');
+    var sorting = async function() {
+        sort_table(button, n, type);
+    }
+    /* Without timeout notification can't be showed*/
+    setTimeout(() => { sorting().then(function() {
+        notification.hide();
+        new Noty({
+            type: 'success',
+            text: '<h5>Сортировка завершена</h5>',
+            timeout: '1000',
+            progressBar: false,
+            container: '#sortingEnded',
+            callbacks: {
+                onShow: function() {endOfSort.show();},
+                onClose: function() {
+                    endOfSort.hide();
+                    endOfSort.empty()},
+            }
+        }).show();
+    } );}, 10);
+}
+
+/*Method was modified to sort only visible rows.*/
+function sort_table(button, n, type) {
     var table, rows, switching, i, x, y, x_val, y_val, temp_x, temp_y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("students-table");
     switching = true;
@@ -143,21 +173,24 @@ function sort_table(n, type) {
             shouldSwitch = false;
             x = rows[i].getElementsByTagName("TD")[n];
             y = rows[i + 1].getElementsByTagName("TD")[n];
-            if(type == "href") {
+            if (type == "notes" || type == "email") {
                 x_val = x.innerText.toLowerCase();
                 y_val = y.innerText.toLowerCase();
-            } else if(type == "date") {
+            } else if (type == "date") {
                 temp_x = x.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
                 temp_y = y.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase().split(".");
                 x_val = new Date(temp_x[2], temp_x[1] - 1, temp_x[0]);
                 y_val = new Date(temp_y[2], temp_y[1] - 1, temp_y[0]);
+            } else if (type == "status") {
+                x_val = x.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase();
+                y_val = y.getElementsByTagName("SPAN")[0].innerHTML.toLowerCase();
             } else {
-                x_val = x.innerHTML.toLowerCase();
-                y_val = y.innerHTML.toLowerCase();
+                x_val = isNaN(parseInt(x.innerHTML)) ? x.innerHTML.toLowerCase() : parseInt(x.innerHTML);
+                y_val = isNaN(parseInt(y.innerHTML)) ? y.innerHTML.toLowerCase() : parseInt(y.innerHTML);
             }
             if (dir == "asc") {
                 if (x_val > y_val) {
-                    shouldSwitch= true;
+                    shouldSwitch = true;
                     break;
                 }
             } else if (dir == "desc") {
@@ -177,6 +210,16 @@ function sort_table(n, type) {
                 switching = true;
             }
         }
+    }
+    /*Conditions to change arrows directions*/
+    if (dir == "asc") {
+        if($(button).find('i').hasClass('fa-sort')) {
+            $(button).find('i').toggleClass('fa-sort fa-sort-up');
+        } else {
+            $(button).find('i').toggleClass('fa-sort-down fa-sort-up');
+        }
+    } else if (dir == "desc"){
+        $(button).find('i').toggleClass('fa-sort-up fa-sort-down');
     }
 }
 

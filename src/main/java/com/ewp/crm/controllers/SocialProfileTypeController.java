@@ -14,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 
 @Controller
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
 public class SocialProfileTypeController {
 
 

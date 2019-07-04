@@ -6,6 +6,7 @@ import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
+import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.ClientService;
@@ -19,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -216,5 +218,15 @@ public class StatusServiceImpl implements StatusService {
 			sortedStatus.setSortingType(newOrder);
 			sortedStatusesRepository.save(sortedStatus);
 		}
+	}
+
+	@Override
+	public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible() {
+		List<BigInteger> ids = statusDAO.getAllIdsWhichNotInvisible();
+		List<StatusPositionIdNameDTO> statusPositionIdNameDTOS = new ArrayList<>();
+		for (BigInteger id:ids) {
+			statusPositionIdNameDTOS.add(new StatusPositionIdNameDTO(id.longValue(), statusDAO.getStatusPositionById(id.longValue()), statusDAO.getStatusNameById(id.longValue())));
+		}
+		return statusPositionIdNameDTOS;
 	}
 }

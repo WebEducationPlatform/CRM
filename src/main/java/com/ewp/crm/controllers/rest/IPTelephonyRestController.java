@@ -4,12 +4,17 @@ import com.ewp.crm.models.CallRecord;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.CallRecordService;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.DownloadCallRecordService;
+import com.ewp.crm.service.interfaces.IPService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +22,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.io.File;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -114,7 +126,7 @@ public class IPTelephonyRestController {
 
 	@ResponseBody
 	@GetMapping(value = "/record/{file}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity<FileSystemResource> getCallRecord(@PathVariable String file) {
 		File fileLocation = new File("CallRecords/" + file);
 		if (fileLocation.exists()) {
@@ -126,7 +138,7 @@ public class IPTelephonyRestController {
 	}
 
 	@GetMapping(value = "/voximplantCredentials")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public String getVoximplantCredentials() {
 		if (ipService.getVoximplantLoginForWebCall().isPresent() && ipService.getVoximplantPasswordForWebCall().isPresent()) {
 			return ipService.getVoximplantLoginForWebCall().get() + "," + ipService.getVoximplantPasswordForWebCall().get();
@@ -136,7 +148,7 @@ public class IPTelephonyRestController {
 	}
 
 	@GetMapping(value = "/records/all")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity getAllCommonRecords(@RequestParam("page") int page) {
 		Pageable pageable = PageRequest.of(page, pageSize);
 		List<CallRecord> callRecords = callRecordService.getAllCommonRecords(pageable);
@@ -147,7 +159,7 @@ public class IPTelephonyRestController {
 	}
 
 	@GetMapping("/records/filter")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity getFilteredRecords(@RequestParam("page") int page, @RequestParam("userId") Long userId,
 											 @RequestParam("from") String from, @RequestParam("to") String to) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss").withZone(ZoneId.of("UTC"));
@@ -169,7 +181,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/voximplant")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public void voximplantCall(@RequestParam String from,
 							   @RequestParam String to,
 							   @AuthenticationPrincipal User userFromSession) {
@@ -196,7 +208,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/toClient")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity getCallRecordToClientCredentials(@RequestParam String to, @AuthenticationPrincipal User userFromSession) {
 		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (client.isPresent() && client.get().isCanCall() && userFromSession.isIpTelephony()) {
@@ -227,7 +239,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/common")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public ResponseEntity getCallRecordsCredentials(@RequestParam String to, @AuthenticationPrincipal User userFromSession) {
 		Optional<Client> client = clientService.getClientByPhoneNumber(to);
 		if (userFromSession.isIpTelephony()) {
@@ -245,7 +257,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/calcKey")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', HR)")
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());

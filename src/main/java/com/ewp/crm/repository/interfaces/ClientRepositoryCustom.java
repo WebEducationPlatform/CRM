@@ -23,6 +23,10 @@ public interface ClientRepositoryCustom {
 
     boolean hasClientBeenInStatusBefore(long clientId, ZonedDateTime date, String statusName);
 
+	ClientHistory getClientFirstStatusChangingHistory(long clientId);
+
+	boolean hasClientStatusChangingHistory(long clientId);
+
 	List<String> getSocialIdsBySocialProfileTypeAndStatusAndStudentExists(List<Status> statuses, String socialProfileType);
 
 	List<String> getSocialIdsBySocialProfileTypeAndStudentExists(String socialProfileType);

@@ -3,7 +3,7 @@ package com.ewp.crm.controllers.rest;
 import com.ewp.crm.exceptions.parse.ParseMailingDataException;
 import com.ewp.crm.models.ClientData;
 import com.ewp.crm.models.MailingMessage;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ImageUploadDto;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.MailingMessageService;
@@ -20,7 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,10 +34,11 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 @PropertySource("file:./ckeditor.properties")
 public class SendMailsController {
 
@@ -81,7 +86,7 @@ public class SendMailsController {
     @Value("${ckediror.img.uri}")
     String uploadUri;
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @PostMapping(value = "/image/upload", produces = "application/json")
     public ResponseEntity<ImageUploadDto> upload(@RequestPart MultipartFile upload, HttpServletRequest request) throws IOException {
 
@@ -106,16 +111,16 @@ public class SendMailsController {
         return new ResponseEntity<>(imageUploadDto, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @GetMapping(value = "/mailing/history", produces = "application/json")
     public ResponseEntity<List<MailingMessage>> getHistoryMail(@AuthenticationPrincipal User userFromSession) {
-        if (userFromSession.getRole().contains("OWNER")) {
+        if (userFromSession.getRole().contains("OWNER") || userFromSession.getRole().contains("HR")) {
             return ResponseEntity.ok(mailingMessageSendService.getAll());
         }
         return ResponseEntity.ok(mailingMessageSendService.getMailingMessageByUserId(userFromSession.getId()));
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @PostMapping("/mailing/manager/history")
     public ResponseEntity<List<MailingMessage>> getHistoryMailForManager(@RequestParam("managerId") Long id,
                                                                          @RequestParam("managerFromTime") String timeFrom,
@@ -137,28 +142,28 @@ public class SendMailsController {
         return ResponseEntity.ok(list);
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @GetMapping(value = "/get/sender")
     public ResponseEntity<List<User>> getVkTokenSender(@AuthenticationPrincipal User userFromSession) {
-        if (userFromSession.getRole().contains("OWNER")) {
+        if (userFromSession.getRole().contains("OWNER") || userFromSession.getRole().contains("HR")) {
             return ResponseEntity.ok(userService.getAll());
         }
         return ResponseEntity.ok(userService.getUserByVkToken(userFromSession.getId()));
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @PostMapping(value = "/get/client-data")
     public ResponseEntity<List<ClientData>> getVkTokenSender(@RequestParam("mailId") Long id) {
         return ResponseEntity.ok(mailingMessageSendService.getClientDataById(id));
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @GetMapping(value = "/get/no/send")
     public ResponseEntity<List<MailingMessage>> getNoSendId() {
         return ResponseEntity.ok(mailingMessageSendService.getAll());
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     @PostMapping(value = "/get/message/id")
     public ResponseEntity<MailingMessage> getMailingMessageById(@RequestParam("messageId") Long id) {
         return ResponseEntity.ok(mailingMessageSendService.get(id));

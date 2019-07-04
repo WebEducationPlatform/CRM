@@ -5,7 +5,17 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.repository.interfaces.NotificationRepository;
+import com.ewp.crm.service.interfaces.ClientHistoryService;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.PassportService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.SendNotificationService;
+import com.ewp.crm.service.interfaces.SlackService;
+import com.ewp.crm.service.interfaces.SocialProfileService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.VKService;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +30,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -31,6 +46,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final SlackInviteLinkRepository slackInviteLinkRepository;
     private StatusService statusService;
     private SendNotificationService sendNotificationService;
+    private NotificationRepository notificationRepository;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
     private final RoleService roleService;
@@ -40,13 +56,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
     private Environment env;
-  
+
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             @Lazy SlackService slackService, Environment env) {
+                             NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -55,6 +71,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.phoneValidator = phoneValidator;
         this.passportService = passportService;
         this.slackInviteLinkRepository = slackInviteLinkRepository;
+        this.notificationRepository = notificationRepository;
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
         this.env = env;
@@ -296,7 +313,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
         if (!client.getClientPhones().isEmpty()) {
             List<String> phones = new ArrayList<>();
-            for (String phone: client.getClientPhones()) {
+            for (String phone : client.getClientPhones()) {
                 if (phone != null && !phone.matches("\\s*")) {
                     phones.add(phone.trim());
                 }
@@ -305,17 +322,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         }
         if (!client.getClientEmails().isEmpty()) {
             List<String> emails = new ArrayList<>();
-            for (String email: client.getClientEmails()) {
-                if ( email != null  && !email.matches("\\s*")) {
+            for (String email : client.getClientEmails()) {
+                if (email != null && !email.matches("\\s*")) {
                     emails.add(email.trim());
                 }
             }
             client.setClientEmails(emails);
         }
-        if (client.getUniversity() != null && !client.getUniversity().isEmpty() ) {
+        if (client.getUniversity() != null && !client.getUniversity().isEmpty()) {
             client.setUniversity(client.getUniversity().trim());
         }
-       return  client;
+        return client;
     }
 
     @Override
@@ -370,10 +387,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             existClient.get().setClientDescriptionComment(env.getProperty("messaging.client.service.repeated"));
             existClient.get().setRepeated(true);
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
-            if ( client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link")) ){
+            Status lastStatus = existClient.get().getStatus();
+            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                 statusService.get("Постоплата2").ifPresent(existClient.get()::setStatus);
-            }else{
+            } else {
                 statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+            }
+            if (!lastStatus.equals(existClient.get().getStatus())) {
+                Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
+                historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
             }
             client.setId(existClient.get().getId());
 
@@ -394,7 +416,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     private void checkSocialIds(Client client) {
-        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext();) {
+        for (Iterator<SocialProfile> iterator = client.getSocialProfiles().iterator(); iterator.hasNext(); ) {
             SocialProfile socialProfile = iterator.next();
             if ("vk".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("vk")) {
                 Optional<Long> id = vkService.getVKIdByUrl(socialProfile.getSocialId());
@@ -507,7 +529,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     @Override
     public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
         List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) || user.getRole().contains(roleService.getRoleByName("OWNER"));
+        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
+                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
+                user.getRole().contains(roleService.getRoleByName("HR"));
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
             orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
             return orderedClients;
@@ -554,9 +578,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private Client createUpdateClient(User user, Client old, ContractDataForm contractForm) {
         Client.Builder clientBuidlder = new Client.Builder(contractForm.getInputFirstName(), null, null);
         Client client = clientBuidlder.middleName(contractForm.getInputMiddleName())
-                                        .lastName(contractForm.getInputLastName())
-                                        .birthDate(contractForm.getInputBirthday())
-                                        .build();
+                .lastName(contractForm.getInputLastName())
+                .birthDate(contractForm.getInputBirthday())
+                .build();
         String email = contractForm.getInputEmail();
         client.setId(old.getId());
         if (!email.isEmpty()) {
@@ -625,5 +649,22 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     public void transferClientsBetweenOwners(User sender, User receiver) {
         clientRepository.transferClientsBetweenOwners(sender, receiver);
         logger.info("Clients has transferred from {} to {}", sender.getFullName(), receiver.getFullName());
+    }
+
+
+    @Override
+    public void setOtherInformationLink(Long clientId, String hash) {
+        Client client = clientRepository.getOne(clientId);
+        OtherInformationLinkData newOtherInformationLinkData = new OtherInformationLinkData();
+        newOtherInformationLinkData.setHash(hash);
+        newOtherInformationLinkData.setClient(client);
+        client.setOtherInformationLinkData(newOtherInformationLinkData);
+        clientRepository.saveAndFlush(client);
+    }
+
+    @Override
+    public void delete(Long id) {
+        notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
+        super.delete(id);
     }
 }
