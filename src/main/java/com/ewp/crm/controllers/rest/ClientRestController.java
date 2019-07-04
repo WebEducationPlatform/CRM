@@ -41,6 +41,7 @@ public class ClientRestController {
     private final UserService userService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
+    private final MailSendService mailSendService;
     private final ProjectPropertiesService propertiesService;
     private final SocialProfileService socialProfileService;
 	private final StatusService statusService;
@@ -60,6 +61,7 @@ public class ClientRestController {
                                 SocialProfileService socialProfileService,
                                 ClientHistoryService clientHistoryService,
                                 MessageService messageService,
+                                MailSendService mailSendService,
                                 ProjectPropertiesService propertiesService,
 								StatusService statusService,
                                 StudentService studentService,
@@ -70,6 +72,7 @@ public class ClientRestController {
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
+        this.mailSendService = mailSendService;
         this.propertiesService = propertiesService;
         this.socialProfileService = socialProfileService;
         this.statusService = statusService;
@@ -270,6 +273,10 @@ public class ClientRestController {
 			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
 		}
 		client.setOwnerMentor(assignUser);
+		if (assignUser.isEnableAsignMentorMailNotifications()) {
+			String notification = "К вам прикреплен студент " + client.getName() + client.getLastName();
+			mailSendService.sendNotificationMessage(assignUser, notification);
+		}
 		clientService.updateClient(client);
 		logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
 		return ResponseEntity.ok(client.getOwnerMentor());
