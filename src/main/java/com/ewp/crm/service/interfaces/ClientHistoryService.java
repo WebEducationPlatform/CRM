@@ -1,6 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.ClientHistoryDto;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -45,4 +46,6 @@ public interface ClientHistoryService {
 	Optional<ClientHistory> getFirstByClientId(long id);
 
 	List<ClientHistory> getAllByClientId(long id, Pageable pageable);
+
+	List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize);
 }

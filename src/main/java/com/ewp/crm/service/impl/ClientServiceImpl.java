@@ -6,16 +6,7 @@ import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.repository.SlackInviteLinkRepository;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.NotificationRepository;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.PassportService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SendNotificationService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.SocialProfileService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.VKService;
+import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.util.validators.PhoneValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,12 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -55,14 +41,17 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     private final PassportService passportService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SlackService slackService;
+    private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
     private Environment env;
+    private final UserService userService;
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository, SocialProfileService socialProfileService,
                              ClientHistoryService clientHistoryService, PhoneValidator phoneValidator,
                              RoleService roleService, @Lazy VKService vkService, PassportService passportService,
                              ProjectPropertiesService projectPropertiesService, SlackInviteLinkRepository slackInviteLinkRepository,
-                             NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env) {
+                             NotificationRepository notificationRepository, @Lazy SlackService slackService, Environment env,
+                             ClientStatusChangingHistoryService clientStatusChangingHistoryService, UserService userService) {
         this.clientRepository = clientRepository;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
@@ -75,6 +64,8 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         this.projectPropertiesService = projectPropertiesService;
         this.slackService = slackService;
         this.env = env;
+        this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+        this.userService = userService;
     }
 
     @Override
@@ -336,7 +327,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public void addClient(Client client) {
+    public void addClient(Client client, User user) {
+        if (user == null) {
+            user = userService.get(1L);
+        }
+
         clientFieldsTrimmer(client);
         if (client.getLastName() == null) {
             client.setLastName("");
@@ -396,6 +391,13 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             if (!lastStatus.equals(existClient.get().getStatus())) {
                 Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);
                 historyOfChangingStatus.ifPresent(existClient.get()::addHistory);
+                ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                        ZonedDateTime.now(),
+                        lastStatus,
+                        existClient.get().getStatus(),
+                        existClient.get(),
+                        user);
+                clientStatusChangingHistoryService.add(clientStatusChangingHistory);
             }
             client.setId(existClient.get().getId());
 
@@ -413,6 +415,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
 
         clientRepository.saveAndFlush(client);
         sendNotificationService.sendNotificationsAllUsers(client);
+
+        ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(
+                client.getDateOfRegistration(),
+                null,
+                client.getStatus(),
+                client,
+                user);
+        clientStatusChangingHistoryService.add(clientStatusChangingHistory);
     }
 
     private void checkSocialIds(Client client) {

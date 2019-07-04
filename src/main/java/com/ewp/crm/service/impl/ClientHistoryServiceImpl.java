@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.controllers.rest.IPTelephonyRestController;
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepository;
 import com.ewp.crm.service.interfaces.AssignSkypeCallService;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
@@ -60,6 +61,11 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 				h.setTitle(h.getTitle() + ClientHistory.Type.CALL_WITHOUT_RECORD.getInfo());
 			}
 		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize) {
+		return clientHistoryRepository.getAllDtoByClientId(id, page, pageSize);
 	}
 
 	@Override

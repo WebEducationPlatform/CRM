@@ -142,7 +142,7 @@ public class ScheduleTasks {
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
                 newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
             }
-            clientService.addClient(newClient);
+            clientService.addClient(newClient, null);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
 	}
