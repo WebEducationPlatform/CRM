@@ -37,7 +37,7 @@ public interface ClientService extends CommonService<Client> {
 
 	Optional<Client> getClientBySocialProfile(SocialProfile socialProfile);
 
-	void addClient(Client client);
+	void addClient(Client client, User user);
 
 	void updateClient(Client client);
 

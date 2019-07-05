@@ -327,14 +327,6 @@ public class DataInitializer {
 //            vkMemberService.addAllMembers(memberList);
 //        }
 
-        clientService.addClient(client1);
-        clientService.addClient(client2);
-        clientService.addClient(client3);
-        clientService.addClient(client4);
-        clientService.getClientByEmail("u.dolg@mail.ru").ifPresent(status0::addClient);
-        clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(status1::addClient);
-        clientService.getClientByEmail("vboyko@mail.ru").ifPresent(status2::addClient);
-        clientService.getClientByEmail("a.solo@mail.ru").ifPresent(status3::addClient);
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(status2);
@@ -342,6 +334,14 @@ public class DataInitializer {
         statusService.addInit(status4);
         statusService.addInit(status5);
         statusService.addInit(defaultStatus);
+        client1.setStatus(status0);
+        client2.setStatus(status2);
+        client3.setStatus(status3);
+        client4.setStatus(status1);
+        clientService.addClient(client1, null);
+        clientService.addClient(client2, null);
+        clientService.addClient(client3, null);
+        clientService.addClient(client4, null);
 
         StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));

@@ -257,7 +257,7 @@ public class IPTelephonyRestController {
 	}
 
 	@PostMapping(value = "/calcKey")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', HR)")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 	public String getHash(@RequestParam String key) {
 		String hashKey = key + "|" + voximplantHash;
 		return DigestUtils.md5DigestAsHex(hashKey.getBytes());

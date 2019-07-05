@@ -133,13 +133,14 @@ public class ClientController {
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
-        if (sessionRoles.contains(roleService.getRoleByName("HR"))) {
+        if (sessionRoles.contains(roleService.getRoleByName("HR"))
+                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("HR")));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
-        else if(sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+        if(sessionRoles.contains(roleService.getRoleByName("USER"))
+                & !(sessionRoles.contains(roleService.getRoleByName("HR")) || sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             modelAndView = new ModelAndView("main-client-table-user");
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
             modelAndView.addObject("statuses", statuses);
