@@ -52,6 +52,7 @@ public class GoogleEmailConfig {
     private String debug;
     private String imapServer;
     private String mailJavaLearn;
+    private String mailBootCamp;
 
     private final BeanFactory beanFactory;
     private final ClientService clientService;
@@ -81,6 +82,7 @@ public class GoogleEmailConfig {
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
         mailFrom = mailConfig.getMailFrom();
+        mailBootCamp = mailConfig.getMailBootCamp();
         socketFactoryClass = mailConfig.getSocketFactoryClass();
         socketFactoryFallback = mailConfig.getSocketFactoryFallback();
         protocol = mailConfig.getProtocol();
@@ -199,14 +201,17 @@ public class GoogleEmailConfig {
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
         Optional<InternetAddress> internetAddress = Optional.empty();
         Optional<InternetAddress> javaLearnAddress = Optional.empty();
+        Optional<InternetAddress> bootCampAddress = Optional.empty();
         try {
             internetAddress = Optional.of(new InternetAddress(mailFrom));
             javaLearnAddress = Optional.of(new InternetAddress(mailJavaLearn));
+            bootCampAddress = Optional.of(new InternetAddress(mailBootCamp));
         } catch (AddressException e) {
             logger.error("Can't parse email address \"from\"", e);
         }
         FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
         FromTerm fromJavaLearnTerm = new FromTerm(javaLearnAddress.orElse(new InternetAddress()));
-        return new AndTerm(new OrTerm(fromTerm, fromJavaLearnTerm), new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+        FromTerm fromBootCampTerm = new FromTerm(bootCampAddress.orElse(new InternetAddress()));
+        return new AndTerm(new OrTerm(new FromTerm[]{fromTerm, fromJavaLearnTerm, fromBootCampTerm}), new FlagTerm(new Flags(Flags.Flag.SEEN), false));
     }
 }

@@ -10,4 +10,5 @@ public interface MailConfig {
     String getDebug();
     String getImapServer();
     String getMailJavalearn();
+    String getMailBootCamp();
 }
