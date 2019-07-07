@@ -300,6 +300,9 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContractLinkData contractLinkData;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private OtherInformationLinkData otherInformationLinkData;
+
     public Client() {}
 
     private Client(Builder builder) {
@@ -632,6 +635,15 @@ public class Client implements Serializable, Diffable<Client> {
     public void setSlackInviteLink(SlackInviteLink slackInviteLink) {
         this.slackInviteLink = slackInviteLink;
     }
+
+    public OtherInformationLinkData getOtherInformationLinkData() {
+        return otherInformationLinkData;
+    }
+
+    public void setOtherInformationLinkData(OtherInformationLinkData otherInformationLinkData) {
+        this.otherInformationLinkData = otherInformationLinkData;
+    }
+
 
     @Override
     public boolean equals(Object o) {

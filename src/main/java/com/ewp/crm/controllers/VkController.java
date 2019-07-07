@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Controller
-@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER')")
+@PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'USER', 'HR')")
 public class VkController {
     private static Logger logger = LoggerFactory.getLogger(VkController.class);
 
@@ -63,7 +63,7 @@ public class VkController {
         this.vkConfig = vkConfig;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
     @GetMapping(value = "/admin/vkontakte/trackedclub")
     public ModelAndView trackingGroupInfo() {
         ModelAndView modelAndView = new ModelAndView("vk-trackedclub-info");
@@ -78,7 +78,7 @@ public class VkController {
         return "redirect:" + uri;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
     @PostMapping(value = "/vk-auth")
     public String vkGetAccessToken(@RequestParam("token") String token, @AuthenticationPrincipal User userFromSession) {
         String applicationToken = vkService.replaceApplicationTokenFromUri(token);
@@ -90,7 +90,7 @@ public class VkController {
         return "redirect:/client";
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     @GetMapping(value = "/vk/campaigns/all")
     public ModelAndView showVkCampaignsPage(@AuthenticationPrincipal User userFromSession) {
         ModelAndView modelAndView = new ModelAndView("all-vk-friends-campaigns");
@@ -100,7 +100,7 @@ public class VkController {
         return modelAndView;
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     @GetMapping(value = "/vk/campaigns/create")
     public ModelAndView createNewVkCampaignPage(@AuthenticationPrincipal User userFromSession,
                                                 @RequestParam("name") String name,
@@ -116,7 +116,7 @@ public class VkController {
         return modelAndView;
     }
 
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     @GetMapping(value = "/vk/campaigns/edit/{id}")
     public ModelAndView editVkCampaignPage(@AuthenticationPrincipal User userFromSession,
                                            @PathVariable Long id) {
@@ -137,7 +137,7 @@ public class VkController {
         return "redirect:" + uri;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
     @PostMapping(value = "/vk-campaign-new")
     public String vkCampaignCreateNew(@RequestParam("token") String urlString,
                                            @RequestParam("appid") Long appId,
@@ -158,7 +158,7 @@ public class VkController {
         return "redirect:/vk/campaigns/all";
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'HR')")
     @PostMapping(value = "/vk-campaign-edit")
     public String vkCampaignEdit(@RequestParam("id") Long id,
                                       @RequestParam("name") String campaignName,

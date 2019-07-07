@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-md-3">
                 <a href="/admin/client/add" class="btn btn-info" th:id="addClient"
-                   sec:authorize="hasAnyAuthority('OWNER','ADMIN')">Добавить Клиента</a>
+                   sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">Добавить Клиента</a>
                 <button type="button" id="open-filter" class="btn btn-info" data-toggle="collapse"
                         data-target="#filter">Фильтр
                 </button>
@@ -103,7 +103,7 @@
                 </div>
             </div>
             <br/>
-            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                 Скачать данные
             </button>
             <br/>
@@ -184,14 +184,14 @@
                 <!--<td th:text="${client.dateOfRegistration}"></td>-->
                 <td class="no-fix">
                     <div class="dropdown statuses-by-dropdown" th:if="${client.status.invisible}"
-                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                         <button type="button" class="btn btn-default" data-toggle="dropdown"
                                 th:attrappend="data-client=${client.id}"> Вернуть
                         </button>
                         <ul class="dropdown-menu statuses-content"></ul>
                     </div>
                     <div class="button-return-from-postpone" th:if="${client.postponeDate != null}"
-                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                         sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                         <button type="button" id="return-from-postpone" class="btn btn-default from-postpone"
                                 th:attrappend="data-client=${client.id}"> Вернуть
                         </button>
@@ -296,6 +296,8 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -324,6 +326,7 @@
 <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 
 </body>
 </html>
