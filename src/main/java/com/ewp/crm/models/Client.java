@@ -303,6 +303,12 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private OtherInformationLinkData otherInformationLinkData;
 
+    @Column(name = "time_add_to_dashboard")
+    private ZonedDateTime timeAddToDashboard;
+
+    @Column(name = "minutes_to_first_call_with_hr")
+    private Integer minutesToFirstCallWithHr;
+
     public Client() {}
 
     private Client(Builder builder) {
@@ -318,6 +324,22 @@ public class Client implements Serializable, Diffable<Client> {
         country = builder.country;
         state = builder.state;
         dateOfRegistration = builder.dateOfRegistration;
+    }
+
+    public ZonedDateTime getTimeAddToDashboard() {
+        return timeAddToDashboard;
+    }
+
+    public void setTimeAddToDashboard(ZonedDateTime timeAddToDashboard) {
+        this.timeAddToDashboard = timeAddToDashboard;
+    }
+
+    public Integer getMinutesToFirstCallWithHr() {
+        return minutesToFirstCallWithHr;
+    }
+
+    public void setMinutesToFirstCallWithHr(Integer minutesToFirstCallWithHr) {
+        this.minutesToFirstCallWithHr = minutesToFirstCallWithHr;
     }
 
     public List<ClientHistory> getHistory() {
