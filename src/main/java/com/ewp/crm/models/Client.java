@@ -303,9 +303,6 @@ public class Client implements Serializable, Diffable<Client> {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private OtherInformationLinkData otherInformationLinkData;
 
-    @Column(name = "time_add_to_dashboard")
-    private ZonedDateTime timeAddToDashboard;
-
     @Column(name = "minutes_to_first_call_with_hr")
     private Integer minutesToFirstCallWithHr;
 
