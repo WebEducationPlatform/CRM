@@ -38,6 +38,7 @@
               <th>Карточек</th>
               <th>Звонков всего</th>
               <th>Звонков в день</th>
+              <th>Среднее количество минут до первых звонков</th>
             </tr>
           </thead>
 
@@ -54,6 +55,7 @@
               <td th:text="${manager.numberOfCards}"></td>
               <td th:text="${manager.numberOfCalls}"></td>
               <td th:text="${manager.avgCallsPerDay}"></td>
+              <td th:text="${manager.getAverageMinutes()}"></td>
               <td></td>
             </tr>
           </tbody>
