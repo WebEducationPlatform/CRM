@@ -323,14 +323,6 @@ public class Client implements Serializable, Diffable<Client> {
         dateOfRegistration = builder.dateOfRegistration;
     }
 
-    public ZonedDateTime getTimeAddToDashboard() {
-        return timeAddToDashboard;
-    }
-
-    public void setTimeAddToDashboard(ZonedDateTime timeAddToDashboard) {
-        this.timeAddToDashboard = timeAddToDashboard;
-    }
-
     public Integer getMinutesToFirstCallWithHr() {
         return minutesToFirstCallWithHr;
     }
