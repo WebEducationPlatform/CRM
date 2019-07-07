@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<!--table table-condensed font-size-->
+
+<th:block th:fragment="allStatusesPositionsToChange">
+    <div th:id="all-statuses-to-change-position" class="modal fade client-contract-modal" role="dialog" data-keyboard="false">
+        <div class="modal-dialog modal-md" style="margin-top: 18%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm">
+                        <h4 class="col-sm-11">Все статусы для изменения :</h4>
+                        <button type="button" class="close col-sm-1" th:onclick="'backUrl()'" data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover table-fixed" id="all-statuses-positions-table">
+                        <tbody id="all-statuses-positions-table-body"></tbody>
+                    </table>
+                    <div class="row" style="text-align: center; margin-top: 10px;">
+                        <div id="statuses-position-button"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

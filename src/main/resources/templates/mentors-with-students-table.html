@@ -19,11 +19,11 @@
 <div id="page-container" class="container-fluid">
     <div id="main-row" class="row">
         <div id="mentors-column" class="col-lg-8"></div>
-        <div id="undefinedEmails" class="col-lg-4"></div>
+        <div id="right-column" class="col-lg-4"></div>
     </div>
 </div>
 <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
-<input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
+<input hidden="true" id="mentorMaxStudents" th:value="${maxStudents}"/>
 <script th:inline="javascript">
     /*<![CDATA[*/
     var mentors = /*[[${mentors}]]*/ 'default';
@@ -43,6 +43,8 @@
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
+<div th:replace="fragments/other-information-link::otherInformationLink"></div>
+<div th:replace="fragments/other-information-value::otherInformationValue"></div>
 <script src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -63,5 +65,6 @@
 <script th:src="@{/js/clientHistory.js}"></script>
 <script th:src="@{/js/clientHistory.js}"></script>
 <script th:src="@{/js/mentors-with-students-table.js}"></script>
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 </body>
 </html>

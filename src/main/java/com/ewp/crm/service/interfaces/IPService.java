@@ -4,13 +4,15 @@ import java.util.Optional;
 
 public interface IPService {
 
-	void call(String from, String to, Long callId);
+    void call(String from, String to, Long callId);
 
-	Optional<String> getVoximplantLoginForWebCall();
+    String getBalanceOfVoximplantAccountInfo();
 
-	Optional<String> getVoximplantPasswordForWebCall();
+    Optional<String> getVoximplantLoginForWebCall();
 
-	Optional<String> getVoximplantUserLogin(String fullLogin);
+    Optional<String> getVoximplantPasswordForWebCall();
 
-	Optional<String> getVoximplantCodeToSetRecord();
+    Optional<String> getVoximplantUserLogin(String fullLogin);
+
+    Optional<String> getVoximplantCodeToSetRecord();
 }

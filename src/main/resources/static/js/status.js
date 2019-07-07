@@ -279,3 +279,58 @@ $(".create_student_checkbox").click(function () {
         }
     });
 });
+
+function showAllStatuses(){
+    $.ajax({
+        type: 'GET',
+        url: "/rest/status/all/dto-position-id",
+        success: function (dtoes) {
+            for (let i = 0; i <dtoes.length ; i++) {
+                $('#all-statuses-positions-table tbody').append("<tr>" +
+                    "<td hidden>" + dtoes[i].id + "</td>" +
+                    "<td hidden>" + dtoes[i].position + "</td>" +
+                    "<td>" +dtoes[i].statusName +"</td>" +
+                    "</tr>")
+            }
+        }
+    });
+}
+
+$(function () {
+    $("#all-statuses-positions-table-body").sortable({
+        connectWith: ".connectedSortable",
+        stop: function () {
+            $('#statuses-position-button').empty();
+            var table = document.getElementById("all-statuses-positions-table");
+            let dtos = [];
+            for (var i = 0; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                var id = row.cells[0].textContent;
+                let position = row.cells[1].textContent;
+                let dto = {
+                    id: id,
+                    position:position
+                }
+                dtos.push(dto);
+            }
+            let jsonDtos = JSON.stringify(dtos);
+            $.ajax({
+                url: "/rest/status/position/change",
+                data: jsonDtos,
+                contentType: "application/json",
+                type: 'PUT',
+                dataType: 'JSON',
+                success: function (returnObj) {
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+            $('#statuses-position-button').empty().append('<button class="btn btn-info btn-sm" id="button-statuses-position" onclick="reload()">Сохранить</button>');
+        }
+    }).disableSelection();
+});
+
+function reload() {
+    window.location.reload();
+}
