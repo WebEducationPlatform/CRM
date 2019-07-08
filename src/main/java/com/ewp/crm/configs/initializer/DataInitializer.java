@@ -132,7 +132,7 @@ public class DataInitializer {
                 LocalDate.of(1975, 12, 12),
                 "88062334088",
                 "admin@mail.ru",
-                "admin",
+                "pwd",
                 null, Client.Sex.MALE.toString(),
                 "Moscow",
                 "Russia",

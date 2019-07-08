@@ -61,6 +61,20 @@
                         </li>
                         <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal" data-target="#all-statuses-to-change-position" onclick="showAllStatuses()">Поменять позицию</a>
                         </li>
+                        <!--<li ><a class="glyphicon glyphicon-filter" data-toggle="modal" data-target="#filter" onclick=""> Фильтр ...</a>-->
+                        <!--</li>-->
+                        <li class="glyphicon  dropdown" sec:authorize="hasAnyAuthority('OWNER')" ><a class="link-cursor-pointer"><i
+                                class="glyphicon glyphicon-filter"></i> Фильтр ...
+                            <i class="glyphicon glyphicon-chevron-right"></i></a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li class="dropdown-header">... по ментору (выбрать)</li>
+                                <li th:each="worker : ${mentors}">
+                                    <a th:text="${worker.fullName}"
+                                       th:onclick="'assignMentor('+${worker.id}+','+${user.id}+')'"></a>
+                                </li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </div>
                 <div style="height: 25px">
