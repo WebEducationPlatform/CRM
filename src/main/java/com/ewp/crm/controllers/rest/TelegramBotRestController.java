@@ -29,7 +29,6 @@ public class TelegramBotRestController {
     private CommentService commentService;
     private StatusDAO statusRepository;
     private ProjectPropertiesService projectPropertiesService;
-    private SendNotificationService sendNotificationService;
 
     @Autowired
     public TelegramBotRestController(TelegramClientReqService telegramClientReqService,
@@ -37,8 +36,7 @@ public class TelegramBotRestController {
                                      ClientService clientService,
                                      CommentService commentService,
                                      StatusDAO statusRepository,
-                                     ProjectPropertiesService projectPropertiesService,
-                                     SendNotificationService sendNotificationService
+                                     ProjectPropertiesService projectPropertiesService
                                      ) {
 
         this.telegramClientReqService = telegramClientReqService;
@@ -47,7 +45,6 @@ public class TelegramBotRestController {
         this.commentService = commentService;
         this.statusRepository = statusRepository;
         this.projectPropertiesService = projectPropertiesService;
-        this.sendNotificationService = sendNotificationService;
     }
 
     /**
@@ -177,7 +174,7 @@ public class TelegramBotRestController {
     /**
      * Метод создает нового клиента с историей и уведомлениями и сохраняет заявку.
      * Сначала создает нового клиента, устанавливает ему первоначальный статус и создает клиентскую историю.
-     * Затем отправляет уведомления пользователям о новом клиенте и устанавливает клиента для завки, после этого
+     * Затем отправляет уведомления пользователям о новом клиенте и устанавливает клиента для заявки, после этого
      * сохраняет клиента и заявку в базу.
      * @param telegramClientReq
      * @param userFromSession
@@ -192,7 +189,6 @@ public class TelegramBotRestController {
             newClient.addHistory(history);
         });
         clientService.addClient(newClient);
-        sendNotificationService.sendNotificationsAllUsers(newClient);
         telegramClientReq.setClient(newClient);
         telegramClientReqService.add(telegramClientReq);
         logger.info("TelegramBot {} has added client with id {}", userFromSession.getFullName(), newClient.getId());
