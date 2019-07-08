@@ -21,12 +21,21 @@ public class Message {
 	@Column(name = "type")
 	private Type type;
 
+	@Column(name = "author")
+	private String authorName;
+
 	public Message() {
 	}
 
 	public Message(Type type, String content) {
 		this.type = type;
 		this.content = content;
+	}
+
+	public Message(Type type, String content, String authorName) {
+		this.content = content;
+		this.type = type;
+		this.authorName = authorName;
 	}
 
 	public String getContent() {
@@ -39,6 +48,10 @@ public class Message {
 
 	public Long getId() {
 		return id;
+	}
+
+	public String getAuthorName() {
+		return authorName;
 	}
 
 	public enum Type {
