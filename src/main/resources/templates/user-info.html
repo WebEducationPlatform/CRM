@@ -119,6 +119,16 @@
                                 <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
                             </th:block>
                         </div>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableAsignMentorMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-asign-mentor-email-notify'" name = "signMentorEmailNotifyCheckbox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-asign-mentor-email-notify'" th:text="'Email-оповещение прикрепления клиента'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableAsignMentorMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-asign-mentor-email-notify'" name = "signMentorEmailNotifyCheckbox" title=""/>
+                                <label th:for="'checkbox-user-asign-mentor-email-notify'" th:text="'Email-оповещение прикрепления клиента'"></label>
+                            </th:block>
+                        </div>
                     </div>
                 </form>
             </div>
