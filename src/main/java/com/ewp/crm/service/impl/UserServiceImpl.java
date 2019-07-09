@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ import javax.persistence.EntityManager;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +74,19 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
 
     @Override
     public void update(User user) {
-        logger.info("{}: updating of a user...", UserServiceImpl.class.getName());
+        String username = "unknown";
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            username = authentication.getName();
+        } catch (Exception ignore) {
+
+        }
+        logger.info("{}: user {} executed updating of a user id={}, name={}, roles={}, stacktrace:\n{}",
+                UserServiceImpl.class.getName(),
+                username,
+                user.getId(), user.getFullName(),
+                user.getRole().toString(),
+                Arrays.toString(new Throwable().getStackTrace()));
         user.setPhoneNumber(phoneValidator.phoneRestore(user.getPhoneNumber()));
         User currentUserByEmail;
         if ((currentUserByEmail = userDAO.getUserByEmail(user.getEmail())) != null && !currentUserByEmail.getId().equals(user.getId())) {

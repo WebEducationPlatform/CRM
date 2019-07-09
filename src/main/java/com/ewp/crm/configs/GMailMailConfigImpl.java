@@ -21,6 +21,7 @@ public class GMailMailConfigImpl implements MailConfig {
     private String debug;
     private String imapServer;
     private String mailJavalearn;
+    private String mailBootCamp;
 
     private static Logger logger = LoggerFactory.getLogger(GMailMailConfigImpl.class);
 
@@ -36,9 +37,10 @@ public class GMailMailConfigImpl implements MailConfig {
             debug = env.getRequiredProperty("mail.debug");
             imapServer = env.getRequiredProperty("mail.imap.server");
             mailJavalearn = env.getRequiredProperty("mail.javaLearn");
+            mailBootCamp = env.getRequiredProperty("mail.bootCamp");
             if (login.isEmpty() || password.isEmpty() || mailFrom.isEmpty() || socketFactoryClass.isEmpty() ||
                     socketFactoryFallback.isEmpty() || protocol.isEmpty() ||
-                    debug.isEmpty() || imapServer.isEmpty() || mailJavalearn.isEmpty()) {
+                    debug.isEmpty() || imapServer.isEmpty() || mailJavalearn.isEmpty() || mailBootCamp.isEmpty()) {
                 throw new NoSuchFieldException();
             }
         } catch (IllegalStateException | NoSuchFieldException e) {
@@ -81,5 +83,9 @@ public class GMailMailConfigImpl implements MailConfig {
 
     public String getMailJavalearn() {
         return mailJavalearn;
+    }
+
+    public String getMailBootCamp() {
+        return mailBootCamp;
     }
 }
