@@ -1,7 +1,9 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.SortedStatusesId;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
@@ -45,4 +47,7 @@ public interface StatusService {
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
+
+    SortedStatuses getBySortedStatusesId(SortedStatusesId sortedStatusesId);
+
 }

@@ -497,6 +497,14 @@ public class ClientRestController {
         return ResponseEntity.ok("Ok");
     }
 
+    @GetMapping(value = "/order")
+    public ResponseEntity<SortingType> getClientsOrder(@RequestParam(name = "statusId") Long statusId,
+                                             @AuthenticationPrincipal User userFromSession) {
+	    SortedStatusesId sortedStatusesId= new SortedStatusesId(statusId,userFromSession.getId());
+		SortingType sortingType = statusService.getBySortedStatusesId(sortedStatusesId).getSortingType();
+	    return new ResponseEntity<>(sortingType, HttpStatus.OK);
+    }
+
 	@PostMapping(value = "/massInputSend")
 	public void massClientInputSave(@RequestParam(name = "emailList") String emailList,
 									@RequestParam(name = "fioList") String fioList,

@@ -4,6 +4,7 @@ import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.SortedStatusesId;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
@@ -229,4 +230,10 @@ public class StatusServiceImpl implements StatusService {
 		}
 		return statusPositionIdNameDTOS;
 	}
+
+	@Override
+    public SortedStatuses getBySortedStatusesId(SortedStatusesId sortedStatusesId){
+		return sortedStatusesRepository.getSortedStatusesBySortedStatusesId(sortedStatusesId);
+	}
+
 }

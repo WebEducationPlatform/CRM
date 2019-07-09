@@ -17,7 +17,7 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}"
+        <div th:id="'status-column'+${status.id}" class="column" th:each="status,iter : ${statuses}" th:value="${status.id}"
              th:if="${!status.invisible}">
             <div id="column-header">
                 <div class="btn-group">
@@ -30,19 +30,19 @@
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
-                            <ul class="dropdown-menu sub-menu">
+                            <ul class="dropdown-menu sub-menu" th:id="'statusSortedMenu'+${iter.index}" th:value="${status.id}">
                                 <p style="margin-left: 20px;">Сначала</p>
-                                <li class="link-cursor-pointer">
-                                    <a class="change-client-order" id="NEW_FIRST">Новые</a>
+                                <li class="link-cursor-pointer" th:id="'NEW_FIRST'+${status.id}">
+                                    <a class="change-client-order" th:value="NEW_FIRST">Новые</a>
                                 </li>
-                                <li class="link-cursor-pointer">
-                                    <a class="change-client-order" id="OLD_FIRST">Старые</a>
+                                <li class="link-cursor-pointer" th:id="'OLD_FIRST'+${status.id}">
+                                    <a class="change-client-order" th:value="OLD_FIRST">Старые</a>
                                 </li>
-                                <li class="link-cursor-pointer">
-                                    <a class="change-client-order" id="NEW_CHANGES_FIRST">Со свежей историей</a>
+                                <li class="link-cursor-pointer" th:id="'NEW_CHANGES_FIRST'+${status.id}">
+                                    <a class="change-client-order" th:value="NEW_CHANGES_FIRST">Со свежей историей</a>
                                 </li>
-                                <li class="link-cursor-pointer">
-                                    <a class="change-client-order" id="OLD_CHANGES_FIRST">Со старой историей</a>
+                                <li class="link-cursor-pointer" th:id="'OLD_CHANGES_FIRST'+${status.id}">
+                                    <a class="change-client-order" th:value="OLD_CHANGES_FIRST">Со старой историей</a>
                                 </li>
                             </ul>
                         </li>
