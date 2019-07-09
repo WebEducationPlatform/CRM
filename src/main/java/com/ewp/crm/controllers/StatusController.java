@@ -45,6 +45,7 @@ public class StatusController {
 
         List<StatusDtoForBoard> statuses = Collections.emptyList();
         List<Role> sessionRoles = userFromSession.getRole();
+        String url = "fragments/status-client-sorted :: statusClientSorted";
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER")));
         }
@@ -55,9 +56,11 @@ public class StatusController {
         if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR")));
+            url = "fragments/status-client-mentor-sorted :: statusClientSorted";
         } else if (sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
+            url = "fragments/status-client-user-sorted :: statusClientSorted";
         }
 
         for (StatusDtoForBoard status : statuses) {
@@ -68,6 +71,6 @@ public class StatusController {
         }
 
         model.addAttribute("emailTmpl", messageTemplateService.getAll());
-        return "fragments/status-client-sorted :: statusClientSorted";
+        return url;
     }
 }

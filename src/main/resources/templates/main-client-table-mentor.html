@@ -16,7 +16,7 @@
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
-        <div th:id="'status-column'+${status.id}" class="column" th:each="status,iter : ${statuses}" th:value="${status.id}"
+        <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}"
              th:if="${!status.invisible}">
             <div id="column-header">
                 <div class="btn-group">
@@ -27,7 +27,9 @@
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
-                            <ul class="dropdown-menu sub-menu" th:id="'statusSortedMenu'+${iter.index}" th:value="${status.id}">
+                            <ul class="dropdown-menu sub-menu"
+                                th:id="'statusSortedMenu'+${counter.incrementAndGet()}"
+                                th:value="${status.id}">
                                 <p style="margin-left: 20px;">Сначала</p>
                                 <li class="link-cursor-pointer" th:id="'NEW_FIRST'+${status.id}">
                                     <a class="change-client-order" th:value="NEW_FIRST">Новые</a>
@@ -57,9 +59,6 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div th:id="'statusClientSortedBlockInitial'+${status.id}">
-                <div th:replace="fragments/status-client-mentor-sorted::statusClientSorted"></div>
-            </div>
             <div th:id="'statusClientSortedBlock'+${status.id}"></div>
         </div>
     </div>

@@ -33,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Controller
@@ -158,6 +159,7 @@ public class ClientController {
             modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
             modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
         }
+        modelAndView.addObject("counter", new AtomicInteger(0));
         return modelAndView;
     }
 

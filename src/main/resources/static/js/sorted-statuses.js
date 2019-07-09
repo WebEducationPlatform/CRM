@@ -1,11 +1,13 @@
 $(document).ready(function () {
-  let i = 0;
+  let i = 1;
   while ($("#statusSortedMenu"+i).length){
     const statusId = $("#statusSortedMenu"+i).attr("value");
     $.get("/rest/client/order", {statusId: statusId})
       .done(function (order) {
         $("#"+order+statusId).addClass("active");
       });
+    const url = "/status/" + statusId;
+    $('#statusClientSortedBlock'+statusId).load(url);
     i++;
   }
 });
@@ -18,7 +20,6 @@ $(".change-client-order").on('click', function () {
     $.post("/rest/client/order", {newOrder: newOrder, statusId: statusId})
         .done(function () {
             const url = "/status/" + statusId;
-            $('#statusClientSortedBlockInitial'+statusId).hide();
             $('#statusClientSortedBlock'+statusId).load(url);
         });
     clearActiveClientOrder(statusId);
