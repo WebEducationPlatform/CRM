@@ -14,6 +14,7 @@ import com.ewp.crm.models.dto.ClientCardDtoBuilder;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.ClientHistoryService;
 import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.MailSendService;
 import com.ewp.crm.service.interfaces.MessageService;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.ReportService;
@@ -204,7 +205,7 @@ public class ClientRestController {
 	}
 
 	@GetMapping(value = "/getClientsData")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR''HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
 	public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
 		String path = "DownloadData" + File.separator;
 		File file = new File(path + fileName);
