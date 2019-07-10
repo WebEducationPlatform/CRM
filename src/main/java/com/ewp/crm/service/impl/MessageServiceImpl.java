@@ -25,4 +25,10 @@ public class MessageServiceImpl extends CommonServiceImpl<Message> implements Me
 		logger.info("adding message...");
 		return Optional.of(messageRepository.saveAndFlush(new Message(type, content)));
 	}
+
+	@Override
+	public Optional<Message> addMessage(Message.Type type, String content, String authorName) {
+		logger.info("adding message...");
+		return Optional.of(messageRepository.saveAndFlush(new Message(type, content, authorName)));
+	}
 }
