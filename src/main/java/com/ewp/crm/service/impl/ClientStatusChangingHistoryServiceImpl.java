@@ -2,6 +2,7 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.repository.interfaces.ClientStatusChangingHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class ClientStatusChangingHistoryServiceImpl extends CommonServiceImpl<ClientStatusChangingHistory> implements ClientStatusChangingHistoryService {
 
     private static Logger logger = LoggerFactory.getLogger(ClientStatusChangingHistoryServiceImpl.class);
+
     private final ClientStatusChangingHistoryRepository clientStatusChangingHistoryRepository;
 
     @Autowired
@@ -43,6 +46,29 @@ public class ClientStatusChangingHistoryServiceImpl extends CommonServiceImpl<Cl
         return Optional.ofNullable(clientStatusChangingHistoryRepository.getTopByClientId(client.getId()));
     }
 
+    @Override
+    public List<Client> getClientsEverBeenInStatusButExcludeStatuses(Status status, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getClientsEverBeenInStatusButExcludeStatuses(status, excludeStatuses);
+    }
 
+    @Override
+    public List<Client> getClientsBeenInStatusAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getClientsBeenInStatusAtPeriodButExcludeStatuses(status, beginDate, endDate, excludeStatuses);
+    }
+
+    @Override
+    public List<Client> getClientsWhoChangedStatusInPeriodButExcludeStatuses(Status sourceStatus, Status destinationStatus, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getClientsWhoChangedStatusInPeriodButExcludeStatuses(sourceStatus, destinationStatus, beginDate, endDate, excludeStatuses);
+    }
+
+    @Override
+    public void markAllFakeStatusesByChangingInIntervalRule(int minutes) {
+        clientStatusChangingHistoryRepository.markAllFakeStatusesByChangingInIntervalRule(minutes);
+    }
+
+    @Override
+    public void markAllFakeStatusesByReturningInIntervalRule(int hours) {
+        clientStatusChangingHistoryRepository.markAllFakeStatusesByReturningInIntervalRule(hours);
+    }
 
 }

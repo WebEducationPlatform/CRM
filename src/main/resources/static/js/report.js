@@ -449,6 +449,11 @@ $('#panels').on('click', '.client-row', function () {
 });
 
 $(document).ready(function () {
+    $.ajax({
+        type: 'GET',
+        async: true,
+        url: '/rest/report/mark-fakes'
+    });
     $('[data-toggle="popover"]')
         .popover({html: true})
         .on("show.bs.popover", function(){ $(this).data("bs.popover").tip().css("max-width", "600px"); });
