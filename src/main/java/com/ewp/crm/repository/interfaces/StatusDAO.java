@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 public interface StatusDAO extends JpaRepository<Status, Long> {
 
@@ -21,6 +22,8 @@ public interface StatusDAO extends JpaRepository<Status, Long> {
 	List<Status> getAllByOrderByIdAsc();
 
 	List<Status> getAllByRole(Role role);
+
+	Optional<Status> findStatusByIdAndRole(Long statusId, Role role);
 
 	@Query("SELECT MAX(s.position) from Status s")
 	Long findMaxPosition();

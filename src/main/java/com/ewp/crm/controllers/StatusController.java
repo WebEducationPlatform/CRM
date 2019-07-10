@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers;
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
@@ -15,8 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR')")
@@ -43,34 +44,53 @@ public class StatusController {
             @PathVariable("id") String id,
             @AuthenticationPrincipal User userFromSession) {
 
-        List<StatusDtoForBoard> statuses = Collections.emptyList();
+        String url = "";
+        Long statusId = Long.parseLong(id);
         List<Role> sessionRoles = userFromSession.getRole();
-        String url = "fragments/status-client-sorted :: statusClientSorted";
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER")));
+
+        Optional<Status> optional = statusService.get(statusId);
+        if (!(optional.isPresent())) {
+            return "";
         }
+
+        StatusDtoForBoard status = StatusDtoForBoard.getStatusDto(optional.get());
+        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
+            optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("OWNER"));
+            if (optional.isPresent()) {
+                status = StatusDtoForBoard.getStatusDto(optional.get());
+            }
+            url = "fragments/status-client-sorted :: statusClientSorted";
+        }
+
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN")));
+            optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("ADMIN"));
+            if (optional.isPresent()) {
+                status = StatusDtoForBoard.getStatusDto(optional.get());
+            }
+            url = "fragments/status-client-sorted :: statusClientSorted";
         }
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR")));
+
+        if (sessionRoles.contains(roleService.getRoleByName("MENTOR")) & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+            optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("MENTOR"));
+            if (optional.isPresent()) {
+                status = StatusDtoForBoard.getStatusDto(optional.get());
+            }
             url = "fragments/status-client-mentor-sorted :: statusClientSorted";
-        } else if (sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
+        } else if (sessionRoles.contains(roleService.getRoleByName("USER")) & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+            optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("USER"));
+            if (optional.isPresent()) {
+                status = StatusDtoForBoard.getStatusDto(optional.get());
+            }
             url = "fragments/status-client-user-sorted :: statusClientSorted";
         }
 
-        for (StatusDtoForBoard status : statuses) {
-            if (status.getId().equals(Long.parseLong(id))) {
-                model.addAttribute("status", status);
-                break;
-            }
-        }
-
+        model.addAttribute("status", status);
         model.addAttribute("emailTmpl", messageTemplateService.getAll());
         return url;
     }
+
 }

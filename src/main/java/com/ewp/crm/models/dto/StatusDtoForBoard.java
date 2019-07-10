@@ -128,7 +128,7 @@ public class StatusDtoForBoard {
         this.sortedStatuses = sortedStatuses;
     }
 
-    private static StatusDtoForBoard getStatusDto(Status status) {
+    public static StatusDtoForBoard getStatusDto(Status status) {
 
         StatusDtoForBoard statusDtoForBoard = new StatusDtoForBoard();
 

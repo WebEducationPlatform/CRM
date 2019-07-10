@@ -6,9 +6,7 @@ import com.ewp.crm.models.ConditionToDownload;
 import com.ewp.crm.models.FilteringCondition;
 import com.ewp.crm.models.Message;
 import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.SortedStatusesId;
 import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.models.User;
@@ -534,14 +532,15 @@ public class ClientRestController {
     @GetMapping(value = "/order")
     public ResponseEntity<SortingType> getClientsOrder(@RequestParam(name = "statusId") final Long statusId,
                                                        @AuthenticationPrincipal final User userFromSession) {
-        final SortedStatusesId sortedStatusesId = new SortedStatusesId(statusId, userFromSession.getId());
-        final SortedStatuses sortedStatuses = statusService.getBySortedStatusesId(sortedStatusesId);
-        SortingType sortingType = SortingType.NEW_FIRST;
-        if (sortedStatuses != null) {
-            sortingType = sortedStatuses.getSortingType();
+        final Optional<SortingType> optional = statusService.findOrderForChosenStatusForCurrentUser(statusId, userFromSession);
+        SortingType sortingType;
+        if (optional.isPresent()) {
+            sortingType = optional.get();
         } else {
+            sortingType = SortingType.NEW_FIRST;
             statusService.setNewOrderForChosenStatusForCurrentUser(sortingType, statusId, userFromSession);
         }
+
         return new ResponseEntity<>(sortingType, HttpStatus.OK);
     }
 

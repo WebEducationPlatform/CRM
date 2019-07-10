@@ -1,9 +1,7 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.SortedStatusesId;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
@@ -15,8 +13,6 @@ import java.util.Optional;
 public interface StatusService {
 
     List<Status> getAll();
-
-    List<Status> getStatusesWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role);
 
     List<Status> getAllByRole(Role role);
 
@@ -30,7 +26,11 @@ public interface StatusService {
 
     Optional<Status> getStatusByName(String name);
 
-	void add(Status status);
+    Optional<Status> findStatusByIdAndRole(Long statusId, Role role);
+
+    Optional<Status> findStatusWithSortedClientsByRole(Long statusId, @AuthenticationPrincipal User userFromSession, Role role);
+
+    void add(Status status);
 
     void addInit(Status status);
 
@@ -46,8 +46,8 @@ public interface StatusService {
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
 
-    List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
+    Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User currentUser);
 
-    SortedStatuses getBySortedStatusesId(SortedStatusesId sortedStatusesId);
+    List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 
 }
