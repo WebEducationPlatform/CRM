@@ -12,6 +12,8 @@ public interface ClientStatusChangingHistoryRepositoryCustom {
 
     List<Client> getClientsBeenInStatusAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses);
 
+    List<Client> getClientsBeenInStatusFirstTimeAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses);
+
     void markAllFakeStatusesByChangingInIntervalRule(int minutes);
 
     void markAllFakeStatusesByReturningInIntervalRule(int hours);
