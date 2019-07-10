@@ -68,6 +68,8 @@
                              style="margin-left: 2px;display: inline-block;height: 12px;">
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
+                            <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
+                               th:text="${client.ownerMentor.id}"></span>
                             <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                   th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
