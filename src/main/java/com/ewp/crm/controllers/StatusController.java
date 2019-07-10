@@ -71,16 +71,30 @@ public class StatusController {
             url = "fragments/status-client-sorted :: statusClientSorted";
         }
 
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR")) & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("MENTOR"));
             if (optional.isPresent()) {
                 status = StatusDtoForBoard.getStatusDto(optional.get());
             }
             url = "fragments/status-client-mentor-sorted :: statusClientSorted";
-        } else if (sessionRoles.contains(roleService.getRoleByName("USER")) & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+        }
+        if (sessionRoles.contains(roleService.getRoleByName("HR"))
+                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+            optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("HR"));
+            if (optional.isPresent()) {
+                status = StatusDtoForBoard.getStatusDto(optional.get());
+            }
+            url = "fragments/status-client-sorted :: statusClientSorted";
+        }
+        if (sessionRoles.contains(roleService.getRoleByName("USER"))
+                & !(sessionRoles.contains(roleService.getRoleByName("HR"))
+                || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             optional = statusService.findStatusWithSortedClientsByRole(statusId, userFromSession, roleService.getRoleByName("USER"));
             if (optional.isPresent()) {
                 status = StatusDtoForBoard.getStatusDto(optional.get());

@@ -1,12 +1,22 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientStatusChangingHistory;
+import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
-import com.ewp.crm.service.interfaces.*;
+import com.ewp.crm.service.interfaces.ClientService;
+import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
+import com.ewp.crm.service.interfaces.ProjectPropertiesService;
+import com.ewp.crm.service.interfaces.RoleService;
+import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,10 +121,18 @@ public class StatusServiceImpl implements StatusService {
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             optionalStatus = findStatusByIdAndRole(statusId, role);
-        } else if (sessionRoles.contains(roleService.getRoleByName("USER"))
+        }
+        if (sessionRoles.contains(roleService.getRoleByName("HR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+            optionalStatus = findStatusByIdAndRole(statusId, role);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName("USER"))
+                & !(sessionRoles.contains(roleService.getRoleByName("HR"))
+                || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             optionalStatus = findStatusByIdAndRole(statusId, role);
         }
 
