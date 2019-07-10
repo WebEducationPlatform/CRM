@@ -108,33 +108,34 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public Optional<Status> findStatusWithSortedClientsByRole(Long statusId, @AuthenticationPrincipal User userFromSession, Role role) {
 
-        Optional<Status> optionalStatus = Optional.empty();
-        List<Role> sessionRoles = userFromSession.getRole();
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            optionalStatus = get(statusId);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            optionalStatus = get(statusId);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            optionalStatus = findStatusByIdAndRole(statusId, role);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("HR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            optionalStatus = findStatusByIdAndRole(statusId, role);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("HR"))
-                || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
-            optionalStatus = findStatusByIdAndRole(statusId, role);
-        }
+        Optional<Status> optionalStatus = get(statusId);
+//        Optional<Status> optionalStatus = Optional.empty();
+//        List<Role> sessionRoles = userFromSession.getRole();
+//        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
+//            optionalStatus = get(statusId);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+//                & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+//            optionalStatus = get(statusId);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+//                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+//            optionalStatus = findStatusByIdAndRole(statusId, role);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName("HR"))
+//                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+//                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
+//            optionalStatus = findStatusByIdAndRole(statusId, role);
+//        }
+//        if (sessionRoles.contains(roleService.getRoleByName("USER"))
+//                & !(sessionRoles.contains(roleService.getRoleByName("HR"))
+//                || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+//                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+//            optionalStatus = findStatusByIdAndRole(statusId, role);
+//        }
 
         if (!(optionalStatus.isPresent())) {
             return Optional.empty();

@@ -114,25 +114,26 @@ public class ClientController {
     @GetMapping(value = "/client")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-        List<StatusDtoForBoard> statuses = null;
+        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());;
+//        List<StatusDtoForBoard> statuses = null;
         ModelAndView modelAndView = null;
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
+//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
+//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
+//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
             modelAndView = new ModelAndView("main-client-table-mentor");
             modelAndView.addObject("statuses", statuses);
         }
@@ -140,7 +141,7 @@ public class ClientController {
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("HR")));
+//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("HR")));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
         }
@@ -150,7 +151,7 @@ public class ClientController {
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("USER")));
+//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("USER")));
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
