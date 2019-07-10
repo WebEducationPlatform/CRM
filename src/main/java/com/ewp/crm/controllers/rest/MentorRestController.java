@@ -22,28 +22,16 @@ public class MentorRestController {
     public ResponseEntity showOnlyMyClients(@RequestParam(name = "showOnlyMyClients") Boolean showOnlyMyClients, @AuthenticationPrincipal User userFromSession){
         Mentor mentor = mentorService.getMentorById(userFromSession.getId());
         if (mentor == null){
-            mentorService.save(showOnlyMyClients, userFromSession.getId());
+            mentorService.saveMentorShowAllFieldAndUserIdField(showOnlyMyClients, userFromSession.getId());
         } else {
-            mentorService.update(showOnlyMyClients, userFromSession.getId());
+            mentorService.updateMentorShowAllFieldAndUserIdField(showOnlyMyClients, userFromSession.getId());
         }
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping(value = "/mentor/showOnlyMyClient/{id}")
     public ResponseEntity getShowAllMyClientsByIdUser(@PathVariable("id") Long id){
-        Mentor mentor = mentorService.getMentorById(id);
-        if (mentor == null){
-            return ResponseEntity.notFound().build();
-        }
-        return  ResponseEntity.ok(mentor.isShowOnlyMyClients());
-    }
-
-    @GetMapping(value = "/mentor/firstLetterFromNameAndSurname/{id}")
-    public ResponseEntity getfirstLetterFromNameAndSurname(@PathVariable("id") Long id){
-        Mentor mentor = mentorService.getMentorById(id);
-        if (mentor == null){
-            return ResponseEntity.notFound().build();
-        }
-        return  ResponseEntity.ok(mentorService.getFirstLetterFromNameAndSurname(mentor));
+        Boolean mentorShowAllClients = mentorService.getMentorShowAllClientsById(id);
+        return  ResponseEntity.ok(mentorShowAllClients);
     }
 }

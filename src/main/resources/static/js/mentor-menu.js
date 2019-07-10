@@ -37,8 +37,6 @@ $(document).ready(function () {
     })
 
     let id = user["id"];
-    console.log(id);
-    let showAllClients;
 
     $.ajax({
         type: "GET",
@@ -51,33 +49,16 @@ $(document).ready(function () {
         }
     });
 
-    console.log(showAllClients);
-
     if (showAllClients) {
-
-        let firstLastLetter;
-
-        $.ajax({
-            type: "GET",
-            url: "/mentor/firstLetterFromNameAndSurname/" + id,
-            async: false,
-            success: function (letterFirstLastLetters) {
-                firstLastLetter = letterFirstLastLetters;
-            },
-            error: function (e) {
-            }
-        });
-
-        console.log(firstLastLetter);
         var jo = $("#status-columns").find($(".portlet"));
         jo.hide();
         jo.filter(function (i, v) {
-            var d = $(this)[0].getElementsByClassName("mentor-icon_card");
+            var d = $(this)[0].getElementsByClassName("ownerMentorId");
             if (d.length === 0) {
                 return false;
             }
 
-            if (d[0].innerText.indexOf(firstLastLetter) !== -1) {
+            if (d[0].innerText.indexOf(id) !== -1) {
                 return true;
             }
 

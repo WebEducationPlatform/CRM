@@ -11,10 +11,11 @@ public class MentorServiceImpl implements MentorService {
 
     private final MentorRepository mentorRepository;
 
-@Autowired
+    @Autowired
     public MentorServiceImpl(MentorRepository mentorRepository) {
         this.mentorRepository = mentorRepository;
     }
+
 
     @Override
     public Mentor getMentorById(Long userId) {
@@ -22,20 +23,17 @@ public class MentorServiceImpl implements MentorService {
     }
 
     @Override
-    public void save(boolean showAll, Long userId) {
-        mentorRepository.save(showAll, userId);
+    public Boolean getMentorShowAllClientsById(Long userId) {
+        return mentorRepository.getMentorShowAllClientsById(userId);
     }
 
     @Override
-    public void update(boolean showAll, Long userId) {
-        mentorRepository.update(showAll, userId);
+    public void saveMentorShowAllFieldAndUserIdField(boolean showAll, Long userId) {
+        mentorRepository.saveMentorShowAllFieldAndUserIdField(showAll, userId);
     }
 
     @Override
-    public String getFirstLetterFromNameAndSurname(Mentor mentor) {
-        String name = mentor.getFirstName();
-        String lastName = mentor.getLastName();
-        String firstLetterFromNameAndSurname = name.substring(0,1) + lastName.substring(0,1);
-        return firstLetterFromNameAndSurname;
+    public void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId) {
+        mentorRepository.updateMentorShowAllFieldAndUserIdField(showAll, userId);
     }
 }

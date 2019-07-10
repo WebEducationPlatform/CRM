@@ -6,7 +6,9 @@ public interface MentorRepository {
 
     Mentor getMentorById(Long userId);
 
-    void save(boolean showAll, Long userId);
+    Boolean getMentorShowAllClientsById(Long userId);
 
-    void update(boolean showAll, Long userId);
+    void saveMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
+
+    void updateMentorShowAllFieldAndUserIdField(boolean showAll, Long userId);
 }

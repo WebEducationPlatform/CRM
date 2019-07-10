@@ -1391,6 +1391,7 @@ function unassignMentor(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".mentor-icon_card").remove();
+            info_client.find(".ownerMentorId").remove();
             if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +
