@@ -467,6 +467,9 @@ $(function () {
                     $('#other-information-link-input').empty();
                 }
 
+                    $('#message-history-btn').empty().append('<button class="btn btn-info btn-sm" id="get-other-info-btn" ' +
+                        'data-toggle="modal" data-target="#message-history-modal" >История сообщений</button>');
+
                 $('.send-all-custom-message').attr('clientId', clientId);
                 $('.send-all-message').attr('clientId', clientId);
                 $('#hideClientCollapse').attr('id', 'hideClientCollapse' + client.id);
@@ -582,19 +585,26 @@ $(function () {
                 }
                 ulComments.append(html);
 
-                /*Client card's history panel, see clientHistory.js*/
-                var history = client.history;
+                $.ajax({
+                    method: 'GET',
+                    url: '/client/history/rest/getHistory/' + client.id,
+                    data: {
+                        page: 0
+                    },
+                    success: function (history) {
+                        let history_table = $('#client-' + client.id + 'history').find("tbody");
+                        let current = $(document.getElementsByClassName("upload-history"));
+                        let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
+                        if (history.length < 10) {
+                            upload_more_btn.hide();
+                        } else {
+                            upload_more_btn.show();
+                        }
+                        //draw client history
+                        drawClientHistory(history, history_table);
+                    }
+                });
 
-                let history_table = $('#client-' + client.id + 'history').find("tbody");
-                let current = $(document.getElementsByClassName("upload-history"));
-                let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
-                if (history.length < 10) {
-                    upload_more_btn.hide();
-                } else {
-                    upload_more_btn.show();
-                }
-                //draw client history
-                drawClientHistory(history, history_table);
             },
             error: function (error) {
                 console.log(error);

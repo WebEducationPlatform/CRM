@@ -8,7 +8,6 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -138,6 +137,12 @@ public class User implements UserDetails {
     private boolean enableSmsNotifications;
 
     /**
+     *Присылать ли уведомления на почту о прикреплении клиента
+     */
+    @Column(name = "enable_asign_mentor_mail_notifications")
+    private boolean enableAsignMentorMailNotifications;
+
+    /**
      * Права (роль)
      * FetchType.EAGER for initialize all fields.
      * We use FetchMode.SUBSELECT for loading all elements of all collections.
@@ -163,11 +168,11 @@ public class User implements UserDetails {
     private String studentPageFilters;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "ownerUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerUser")
     private List<Client> clients = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "callingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "callingUser")
     private List<CallRecord> callRecords = new ArrayList<>();
 
     public User() {
@@ -412,6 +417,14 @@ public class User implements UserDetails {
 
     public void setEnableMailNotifications(boolean enableMailNotifications) {
         this.enableMailNotifications = enableMailNotifications;
+    }
+
+    public boolean isEnableAsignMentorMailNotifications() {
+        return enableAsignMentorMailNotifications;
+    }
+
+    public void setEnableAsignMentorMailNotifications(boolean enableAsignMentorMailNotifications) {
+        this.enableAsignMentorMailNotifications = enableAsignMentorMailNotifications;
     }
 
     public boolean isIpTelephony() {

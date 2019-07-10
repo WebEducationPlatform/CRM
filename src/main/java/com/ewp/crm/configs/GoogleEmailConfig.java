@@ -52,6 +52,7 @@ public class GoogleEmailConfig {
     private String debug;
     private String imapServer;
     private String mailJavaLearn;
+    private String mailBootCamp;
 
     private final BeanFactory beanFactory;
     private final ClientService clientService;
@@ -81,6 +82,7 @@ public class GoogleEmailConfig {
         login = mailConfig.getLogin();
         password = mailConfig.getPassword();
         mailFrom = mailConfig.getMailFrom();
+        mailBootCamp = mailConfig.getMailBootCamp();
         socketFactoryClass = mailConfig.getSocketFactoryClass();
         socketFactoryFallback = mailConfig.getSocketFactoryFallback();
         protocol = mailConfig.getProtocol();
@@ -131,6 +133,7 @@ public class GoogleEmailConfig {
         DirectChannel directChannel = new DirectChannel();
         directChannel.subscribe(message -> {
             boolean sendAutoAnswer = true; // TODO Убрать костыль.
+            boolean addClient = true; // TODO Убрать костыль))
             ProjectProperties properties = projectPropertiesService.getOrCreate();
             MessageTemplate template = properties.getAutoAnswerTemplate();
             try {
@@ -143,6 +146,7 @@ public class GoogleEmailConfig {
                         if (parser.getHtmlContent().contains("Java Test")) {
                             prepareAndSend.validatorTestResult(parser.getPlainContent(), client);
                         }
+                        addClient = !parser.getHtmlContent().contains("javabootcamp.ru"); // не создавать карточку для клиента из заявки на буткемп
                         clientHistoryService.createHistory("GMail").ifPresent(client::addHistory);
                         if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                             sendAutoAnswer = false; // Для клиентов из javalearn временно отключаем автоответ
@@ -167,19 +171,28 @@ public class GoogleEmailConfig {
                             sendAutoAnswer = true;
                             statusService.getFirstStatusForClient().ifPresent(client::setStatus);
                         }
-                        clientService.addClient(client);
-                        sendNotificationService.sendNewClientNotification(client, "gmail");
-                        if (sendAutoAnswer && template != null) {
-                            prepareAndSend.sendEmailInAllCases(client);
+                        if (addClient) {
+                            clientService.addClient(client, null);
+                            sendNotificationService.sendNewClientNotification(client, "gmail");
+                            if (sendAutoAnswer && template != null) {
+                                prepareAndSend.sendEmailInAllCases(client);
+                            } else {
+                                logger.info("E-mail auto-answer has been set to OFF");
+                            }
                         } else {
-                            logger.info("E-mail auto-answer has been set to OFF");
+                            if (client.getEmail().isPresent()) {
+                                logger.info("Got request from javabootcamp, sending auto answer to " + client.getEmail().get());
+                                prepareAndSend.sendMessage(client.getEmail().get());
+                            } else {
+                                logger.info("No email found when parsing request from javabootcamp.ru: " + parser.getHtmlContent());
+                            }
                         }
                     }
                 } catch (Exception e) {
                     logger.error("MimeMessageParser can't parse income data ", e);
                 }
             } catch (MessagingException e) {
-                e.printStackTrace();
+                logger.error("MimeMessageParser can't get message ", e);
             }
         });
         return directChannel;
@@ -188,14 +201,17 @@ public class GoogleEmailConfig {
     private SearchTerm fromAndNotSeenTerm(Flags supportedFlags, Folder folder) {
         Optional<InternetAddress> internetAddress = Optional.empty();
         Optional<InternetAddress> javaLearnAddress = Optional.empty();
+        Optional<InternetAddress> bootCampAddress = Optional.empty();
         try {
             internetAddress = Optional.of(new InternetAddress(mailFrom));
             javaLearnAddress = Optional.of(new InternetAddress(mailJavaLearn));
+            bootCampAddress = Optional.of(new InternetAddress(mailBootCamp));
         } catch (AddressException e) {
             logger.error("Can't parse email address \"from\"", e);
         }
         FromTerm fromTerm = new FromTerm(internetAddress.orElse(new InternetAddress()));
         FromTerm fromJavaLearnTerm = new FromTerm(javaLearnAddress.orElse(new InternetAddress()));
-        return new AndTerm(new OrTerm(fromTerm, fromJavaLearnTerm), new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+        FromTerm fromBootCampTerm = new FromTerm(bootCampAddress.orElse(new InternetAddress()));
+        return new AndTerm(new OrTerm(new FromTerm[]{fromTerm, fromJavaLearnTerm, fromBootCampTerm}), new FlagTerm(new Flags(Flags.Flag.SEEN), false));
     }
 }

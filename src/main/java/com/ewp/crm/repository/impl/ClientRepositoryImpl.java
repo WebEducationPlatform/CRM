@@ -224,6 +224,20 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     /*
+    Получить все истории клиента по типу
+     */
+    @Override
+    public List<ClientHistory> getAllHistoriesByClientAndHistoryType(Client client, List<ClientHistory.Type> types) {
+        List<ClientHistory> result = new ArrayList<>();
+        String query = "SELECT p FROM Client c JOIN c.history p WHERE (c.id = :id AND p.type IN :types)";
+        result = entityManager.createQuery(query)
+                .setParameter("types", types)
+                .setParameter("id", client.getId())
+                .getResultList();
+        return result;
+    }
+
+    /*
     Был ли клиент в определенном статусе в промежутке между двумя датами?
      */
     @Override

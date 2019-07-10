@@ -38,7 +38,7 @@
                         <input class="form-control" required="required" id="edit-user-birth-date" disabled="disabled" type="date" th:value="${user.birthDate}"/>
                         <div class="help-block with-errors"></div>
                     </div>
-                    <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                    <div class="form-group" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                         <label for="edit-user-password">Пароль</label>
                         <input type="password" class="form-control" required="required" disabled="disabled" id="edit-user-password" th:value="${user.password}"/>
                     </div>
@@ -87,7 +87,7 @@
                         <label for="edit-user-city">Город</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-city" th:value="${user.city}"/>
                     </div>
-                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                         <label for="edit-user-roles">Роли</label>
                         <div id="current-user-roles">
                             <span th:each="role : ${user.role}" th:value="${role.id}"></span>
@@ -97,7 +97,7 @@
                             <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
                         </div>
                     </div>
-                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
+                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
                         <label for="edit-user-notifications-settings">Настройки оповещений</label>
                         <div class="checkbox">
                             <th:block th:if="${user.enableMailNotifications}">
@@ -117,6 +117,16 @@
                             <th:block th:if="${!user.enableSmsNotifications}">
                                 <input type="checkbox" disabled="disabled" th:id="'checkbox-user-sms-notify'" name = "smsNotifyCheckBox" title=""/>
                                 <label th:for="'checkbox-user-sms-notify'" th:text="'SMS оповещения'"></label>
+                            </th:block>
+                        </div>
+                        <div class="checkbox">
+                            <th:block th:if="${user.enableAsignMentorMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-asign-mentor-email-notify'" name = "signMentorEmailNotifyCheckbox" title="" checked="checked"/>
+                                <label th:for="'checkbox-user-asign-mentor-email-notify'" th:text="'Email-оповещение прикрепления клиента'"></label>
+                            </th:block>
+                            <th:block th:if="${!user.enableAsignMentorMailNotifications}">
+                                <input type="checkbox" disabled="disabled" th:id="'checkbox-user-asign-mentor-email-notify'" name = "signMentorEmailNotifyCheckbox" title=""/>
+                                <label th:for="'checkbox-user-asign-mentor-email-notify'" th:text="'Email-оповещение прикрепления клиента'"></label>
                             </th:block>
                         </div>
                     </div>

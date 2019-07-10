@@ -73,6 +73,7 @@ public class ClientRestController {
     private final UserService userService;
     private final ClientHistoryService clientHistoryService;
     private final MessageService messageService;
+    private final MailSendService mailSendService;
     private final ProjectPropertiesService propertiesService;
     private final SocialProfileService socialProfileService;
     private final StatusService statusService;
@@ -92,6 +93,7 @@ public class ClientRestController {
                                 SocialProfileService socialProfileService,
                                 ClientHistoryService clientHistoryService,
                                 MessageService messageService,
+                                MailSendService mailSendService,
                                 ProjectPropertiesService propertiesService,
                                 StatusService statusService,
                                 StudentService studentService,
@@ -102,6 +104,7 @@ public class ClientRestController {
         this.userService = userService;
         this.clientHistoryService = clientHistoryService;
         this.messageService = messageService;
+        this.mailSendService = mailSendService;
         this.propertiesService = propertiesService;
         this.socialProfileService = socialProfileService;
         this.statusService = statusService;
@@ -119,15 +122,15 @@ public class ClientRestController {
         return inviteLink.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().body(""));
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<List<Client>> getAll() {
-        return ResponseEntity.ok(clientService.getAll());
-    }
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<List<Client>> getAll() {
+		return ResponseEntity.ok(clientService.getAll());
+	}
 
     //запрос для вывода клиентов постранично - порядок из базы
     @GetMapping(value = "/pagination/get")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
     public ResponseEntity getClients(@RequestParam int page) {
         List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize));
         if (clients == null || clients.isEmpty()) {
@@ -136,35 +139,35 @@ public class ClientRestController {
         return ResponseEntity.ok(clients);
     }
 
-    //запрос для вывода клиентов постранично - новые выше (16.10.18 установлен по дефолту для all-clients-table)
-    @GetMapping(value = "/pagination/new/first")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity getClientsNewFirst(@RequestParam int page) {
-        List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration")));
-        if (clients == null || clients.isEmpty()) {
-            logger.info("No more clients");
-        }
-        return ResponseEntity.ok(clients);
-    }
+	//запрос для вывода клиентов постранично - новые выше (16.10.18 установлен по дефолту для all-clients-table)
+ 	@GetMapping(value = "/pagination/new/first")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity getClientsNewFirst(@RequestParam int page) {
+		List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "dateOfRegistration")));
+		if (clients == null || clients.isEmpty()) {
+			logger.info("No more clients");
+		}
+		return ResponseEntity.ok(clients);
+	}
 
-    @GetMapping(value = "/sort")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity getClientsSort(@RequestParam int page, @RequestParam String columnName, @RequestParam boolean sortType) {
-        if (columnName.equals("dateOfLastChange")) {
-            List<Client> clients = clientService.getAllClientsSortingByLastChange();
-            if (sortType) {
-                Collections.reverse(clients);
-            }
-            List<Client> listClientsOnPage = getClientsOnPage(clients, page);
-            return ResponseEntity.ok(listClientsOnPage);
-        } else {
-            List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(sortType ? Sort.Direction.ASC : Sort.Direction.DESC, columnName)));
-            if (clients.isEmpty()) {
-                logger.info("No more clients");
-            }
-            return ResponseEntity.ok(clients);
-        }
-    }
+	@GetMapping(value = "/sort")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	public ResponseEntity getClientsSort(@RequestParam int page, @RequestParam String columnName, @RequestParam boolean sortType) {
+		if (columnName.equals("dateOfLastChange")) {
+			List<Client> clients = clientService.getAllClientsSortingByLastChange();
+			if (sortType) {
+				Collections.reverse(clients);
+			}
+			List<Client> listClientsOnPage = getClientsOnPage(clients, page);
+			return ResponseEntity.ok(listClientsOnPage);
+		} else {
+			List<Client> clients = clientService.getAllClientsByPage(PageRequest.of(page, pageSize, Sort.by(sortType ? Sort.Direction.ASC : Sort.Direction.DESC, columnName)));
+			if (clients.isEmpty()) {
+				logger.info("No more clients");
+			}
+			return ResponseEntity.ok(clients);
+		}
+	}
 
     private List<Client> getClientsOnPage(List<Client> allClients, int page) {
         int sizeOnePage = allClients.size() / (pageSize / 2);
@@ -186,25 +189,25 @@ public class ClientRestController {
         return listClientsOnPage;
     }
 
-    @PostMapping(value = "/filtration/sort", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity getAllWithConditionsAndSort(@RequestParam String columnName, @RequestParam boolean sortType, @RequestBody FilteringCondition filteringCondition) {
-        List<Client> clients = clientService.getFilteringAndSortClients(filteringCondition, columnName);
-        if (sortType) {
-            Collections.reverse(clients);
-        }
-        List<Client> listClientsOnPage = getClientsOnPage(clients, filteringCondition.getPageNumber());
-        if (listClientsOnPage.isEmpty()) {
-            logger.info("No more clients");
-        }
-        return ResponseEntity.ok(listClientsOnPage);
-    }
+	@PostMapping(value = "/filtration/sort", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	public ResponseEntity getAllWithConditionsAndSort(@RequestParam String columnName, @RequestParam boolean sortType, @RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientService.getFilteringAndSortClients(filteringCondition, columnName);
+		if (sortType) {
+			Collections.reverse(clients);
+		}
+		List<Client> listClientsOnPage = getClientsOnPage(clients, filteringCondition.getPageNumber());
+		if (listClientsOnPage.isEmpty()) {
+			logger.info("No more clients");
+		}
+		return ResponseEntity.ok(listClientsOnPage);
+	}
 
-    @GetMapping(value = "/getClientsData")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
-        String path = "DownloadData" + File.separator;
-        File file = new File(path + fileName);
+	@GetMapping(value = "/getClientsData")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR''HR')")
+	public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
+		String path = "DownloadData" + File.separator;
+		File file = new File(path + fileName);
         String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8");
         InputStreamResource resource = null;
         try {
@@ -219,18 +222,18 @@ public class ClientRestController {
                 .body(resource);
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
-        return ResponseEntity.ok(clientService.get(id));
-    }
+	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<Client> getClientByID(@PathVariable Long id) {
+		return ResponseEntity.ok(clientService.get(id));
+	}
 
-    @GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<Map<String, String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
-                                                                        @RequestParam(name = "socialNetworkType") String socialNetworkType,
-                                                                        @RequestParam(name = "unread") String unreadCount) {
-        Map<String, String> clientInfoMap = new HashMap<>();
+	@GetMapping(value = "/socialID", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<Map<String,String>> getClientBySocialProfile(@RequestParam(name = "userID") String socialId,
+																	   @RequestParam(name = "socialNetworkType") String socialNetworkType,
+																	   @RequestParam(name = "unread") String unreadCount) {
+		Map<String, String> clientInfoMap = new HashMap<>();
         Optional<SocialProfile> socialProfile = socialProfileService.getSocialProfileBySocialIdAndSocialType(socialId, socialNetworkType);
         if (socialProfile.isPresent()) {
             Optional<Client> client = clientService.getClientBySocialProfile(socialProfile.get());
@@ -247,88 +250,92 @@ public class ClientRestController {
         return ResponseEntity.ok(clientInfoMap);
     }
 
-    @PostMapping(value = "/assign")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId,
-                                       @AuthenticationPrincipal User userFromSession) {
-        Client client = clientService.get(clientId);
-        if (client.getOwnerUser() != null) {
-            logger.info("User {} tried to assign a client with id {}, but client have owner", userFromSession.getEmail(), clientId);
-            return ResponseEntity.badRequest().body(null);
-        }
-        client.setOwnerUser(userFromSession);
-        clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
-        clientService.updateClient(client);
-        logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
-        return ResponseEntity.ok(client.getOwnerUser());
-    }
+	@PostMapping(value = "/assign")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<User> assign(@RequestParam(name = "clientId") Long clientId,
+									   @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		if (client.getOwnerUser() != null) {
+			logger.info("User {} tried to assign a client with id {}, but client have owner", userFromSession.getEmail(), clientId);
+			return ResponseEntity.badRequest().body(null);
+		}
+		client.setOwnerUser(userFromSession);
+		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {}", userFromSession.getEmail(), clientId);
+		return ResponseEntity.ok(client.getOwnerUser());
+	}
 
-    @PostMapping(value = "/assign/user")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
-                                     @RequestParam(name = "userForAssign") Long userId,
-                                     @AuthenticationPrincipal User userFromSession) {
-        User assignUser = userService.get(userId);
-        Client client = clientService.get(clientId);
-        if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
-            logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
-            return ResponseEntity.badRequest().build();
-        }
-        if (userFromSession.equals(assignUser)) {
-            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
-        } else {
-            clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
-        }
-        client.setOwnerUser(assignUser);
-        clientService.updateClient(client);
-        logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
-        return ResponseEntity.ok(client.getOwnerUser());
-    }
+	@PostMapping(value = "/assign/user")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity assignUser(@RequestParam(name = "clientId") Long clientId,
+									 @RequestParam(name = "userForAssign") Long userId,
+									 @AuthenticationPrincipal User userFromSession) {
+		User assignUser = userService.get(userId);
+		Client client = clientService.get(clientId);
+		if (client.getOwnerUser() != null && client.getOwnerUser().equals(assignUser)) {
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+			return ResponseEntity.badRequest().build();
+		}
+		if (userFromSession.equals(assignUser)) {
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+		} else {
+			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN).ifPresent(client::addHistory);
+		}
+		client.setOwnerUser(assignUser);
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+		return ResponseEntity.ok(client.getOwnerUser());
+	}
 
-    @PostMapping(value = "/assign/mentor")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity assignMentor(@RequestParam(name = "clientId") Long clientId,
-                                       @RequestParam(name = "userForAssign") Long userId,
-                                       @AuthenticationPrincipal User userFromSession) {
-        User assignUser = userService.get(userId);
-        Client client = clientService.get(clientId);
-        if (client.getOwnerMentor() != null && client.getOwnerMentor().equals(assignUser)) {
-            logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
-            return ResponseEntity.badRequest().build();
-        }
-        if (userFromSession.equals(assignUser)) {
-            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
-        } else {
-            clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
-        }
-        client.setOwnerMentor(assignUser);
-        clientService.updateClient(client);
-        logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
-        return ResponseEntity.ok(client.getOwnerMentor());
-    }
+	@PostMapping(value = "/assign/mentor")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity assignMentor(@RequestParam(name = "clientId") Long clientId,
+									 @RequestParam(name = "userForAssign") Long userId,
+									 @AuthenticationPrincipal User userFromSession) {
+		User assignUser = userService.get(userId);
+		Client client = clientService.get(clientId);
+		if (client.getOwnerMentor() != null && client.getOwnerMentor() .equals(assignUser)) {
+			logger.info("User {} tried to assign a client with id {}, but client have same owner {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+			return ResponseEntity.badRequest().build();
+		}
+		if (userFromSession.equals(assignUser)) {
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
+		} else {
+			clientHistoryService.createHistory(userFromSession, assignUser, client, ClientHistory.Type.ASSIGN_MENTOR).ifPresent(client::addHistory);
+		}
+		client.setOwnerMentor(assignUser);
+		if (assignUser.isEnableAsignMentorMailNotifications()) {
+			String notification = "К вам прикреплен студент " + client.getName() + client.getLastName();
+			mailSendService.sendNotificationMessage(assignUser, notification);
+		}
+		clientService.updateClient(client);
+		logger.info("User {} has assigned client with id {} to user {}", userFromSession.getEmail(), clientId, assignUser.getEmail());
+		return ResponseEntity.ok(client.getOwnerMentor());
+	}
 
-    @PostMapping(value = "/unassign")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId,
-                                   @AuthenticationPrincipal User userFromSession) {
-        Client client = clientService.get(clientId);
-        if (client.getOwnerUser() == null) {
-            logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", userFromSession.getEmail(), clientId);
-            return ResponseEntity.badRequest().build();
-        }
-        if (client.getOwnerUser().equals(userFromSession)) {
-            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
-        } else {
-            clientHistoryService.createHistory(userFromSession, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
-        }
-        client.setOwnerUser(null);
-        clientService.updateClient(client);
-        logger.info("User {} has unassigned client with id {}", userFromSession.getEmail(), clientId);
-        return ResponseEntity.ok(client.getOwnerUser());
-    }
+	@PostMapping(value = "/unassign")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity unassign(@RequestParam(name = "clientId") Long clientId,
+								   @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		if (client.getOwnerUser() == null) {
+			logger.info("User {} tried to unassign a client with id {}, but client already doesn't have owner", userFromSession.getEmail(), clientId);
+			return ResponseEntity.badRequest().build();
+		}
+		if (client.getOwnerUser().equals(userFromSession)) {
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
+		} else {
+			clientHistoryService.createHistory(userFromSession, client.getOwnerUser(), client, ClientHistory.Type.UNASSIGN).ifPresent(client::addHistory);
+		}
+		client.setOwnerUser(null);
+		clientService.updateClient(client);
+		logger.info("User {} has unassigned client with id {}", userFromSession.getEmail(), clientId);
+		return ResponseEntity.ok(client.getOwnerUser());
+	}
 
     @PostMapping(value = "/unassignMentor")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
     public ResponseEntity unassignMentor(@RequestParam(name = "clientId") Long clientId,
                                          @AuthenticationPrincipal User userFromSession) {
         Client client = clientService.get(clientId);
@@ -347,59 +354,59 @@ public class ClientRestController {
         return ResponseEntity.ok(client.getOwnerMentor());
     }
 
-    @PostMapping(value = "/filtration", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
-        List<Client> clients = clientService.filteringClient(filteringCondition);
-        return ResponseEntity.ok(clients);
-    }
+	@PostMapping(value = "/filtration", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	public ResponseEntity<List<Client>> getAllWithConditions(@RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientService.filteringClient(filteringCondition);
+		return ResponseEntity.ok(clients);
+	}
 
-    @PostMapping(value = "/filtrationWithoutPagination", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<Client>> getAllWithConditionsWithoutPagination(@RequestBody FilteringCondition filteringCondition) {
-        List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
-        return ResponseEntity.ok(clients);
-    }
+	@PostMapping(value = "/filtrationWithoutPagination", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	public ResponseEntity<List<Client>> getAllWithConditionsWithoutPagination(@RequestBody FilteringCondition filteringCondition) {
+		List<Client> clients = clientRepository.filteringClientWithoutPaginator(filteringCondition);
+		return ResponseEntity.ok(clients);
+	}
 
-    @PostMapping(value = "/createFile")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity createFile(@RequestBody ConditionToDownload conditionToDownload) {
-        fileName = reportService.getFileName(conditionToDownload.getSelected(),
-                conditionToDownload.getDelimeter(), conditionToDownload.getFiletype(), null).get();
-        if (conditionToDownload.getFiletype().equals("txt")) {
-            reportService.writeToFileWithConditionToDownload(conditionToDownload, fileName);
-        } else if (conditionToDownload.getFiletype().equals("xlsx")) {
-            reportService.writeToExcelFileWithConditionToDownload(conditionToDownload, fileName);
-        } else if (conditionToDownload.getFiletype().equals("csv")) {
-            reportService.writeToCSVFileWithConditionToDownload(conditionToDownload, fileName);
-        } else {
-            return ResponseEntity.badRequest().body("Can't parse condition to download.");
-        }
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
+	@PostMapping(value = "/createFile")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity createFile(@RequestBody ConditionToDownload conditionToDownload) {
+		fileName = reportService.getFileName(conditionToDownload.getSelected(),
+				conditionToDownload.getDelimeter(), conditionToDownload.getFiletype(), null).get();
+		if (conditionToDownload.getFiletype().equals("txt")) {
+			reportService.writeToFileWithConditionToDownload(conditionToDownload, fileName);
+		} else if (conditionToDownload.getFiletype().equals("xlsx")) {
+			reportService.writeToExcelFileWithConditionToDownload(conditionToDownload, fileName);
+		} else if (conditionToDownload.getFiletype().equals("csv")) {
+			reportService.writeToCSVFileWithConditionToDownload(conditionToDownload, fileName);
+		} else {
+			return ResponseEntity.badRequest().body("Can't parse condition to download.");
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
 
-    @PostMapping(value = "/createFileFilter")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
-        fileName = reportService.getFileName(filteringCondition.getSelectedCheckbox(),
-                filteringCondition.getDelimeter(), filteringCondition.getFiletype(), filteringCondition.getStatus()).get();
-        if (filteringCondition.getFiletype().equals("txt")) {
-            reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
-        } else if (filteringCondition.getFiletype().equals("xlsx")) {
-            reportService.writeToExcelFileWithFilteringConditions(filteringCondition, fileName);
-        } else if (filteringCondition.getFiletype().equals("csv")) {
-            reportService.writeToCSVFileWithFilteringConditions(filteringCondition, fileName);
-        } else {
-            return ResponseEntity.badRequest().body("Can't parse filtering condition.");
-        }
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
+	@PostMapping(value = "/createFileFilter")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity createFileWithFilter(@RequestBody FilteringCondition filteringCondition) {
+		fileName = reportService.getFileName(filteringCondition.getSelectedCheckbox(),
+				filteringCondition.getDelimeter(), filteringCondition.getFiletype(), filteringCondition.getStatus()).get();
+		if (filteringCondition.getFiletype().equals("txt")) {
+			reportService.writeToFileWithFilteringConditions(filteringCondition, fileName);
+		} else if (filteringCondition.getFiletype().equals("xlsx")) {
+			reportService.writeToExcelFileWithFilteringConditions(filteringCondition, fileName);
+		} else if (filteringCondition.getFiletype().equals("csv")) {
+			reportService.writeToCSVFileWithFilteringConditions(filteringCondition, fileName);
+		} else {
+			return ResponseEntity.badRequest().body("Can't parse filtering condition.");
+		}
+		return ResponseEntity.ok(HttpStatus.OK);
+	}
 
-    @PostMapping(value = "/postpone")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity postponeClient(@RequestParam Long clientId,
-                                         @RequestParam String date,
-                                         @RequestParam Boolean isPostponeFlag,
+	@PostMapping(value = "/postpone")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity postponeClient(@RequestParam Long clientId,
+										 @RequestParam String date,
+										 @RequestParam Boolean isPostponeFlag,
                                          @RequestParam String postponeComment,
                                          @AuthenticationPrincipal User userFromSession) {
         try {
@@ -425,85 +432,85 @@ public class ClientRestController {
         }
     }
 
-    @PostMapping(value = "/remove/postpone")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity removePostpone(@RequestParam Long clientId,
-                                         @AuthenticationPrincipal User userFromSession) {
-        try {
-            Client client = clientService.get(clientId);
-            client.setHideCard(false);
-            client.setPostponeDate(null);
-            clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE).ifPresent(client::addHistory);
-            clientService.updateClient(client);
-            logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
-            return ResponseEntity.ok(HttpStatus.OK);
-        } catch (Exception e) {
+	@PostMapping(value = "/remove/postpone")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity removePostpone(@RequestParam Long clientId,
+										 @AuthenticationPrincipal User userFromSession) {
+		try {
+			Client client = clientService.get(clientId);
+			client.setHideCard(false);
+			client.setPostponeDate(null);
+			clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.REMOVE_POSTPONE).ifPresent(client::addHistory);
+			clientService.updateClient(client);
+			logger.info("{} remove from postpone client id:{}", userFromSession.getFullName(), client.getId());
+			return ResponseEntity.ok(HttpStatus.OK);
+		} catch (Exception e) {
             return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.postpone-error"));
         }
     }
 
-    @PostMapping(value = "/addDescription")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
-                                                 @RequestParam(name = "clientDescription") String clientDescription,
-                                                 @AuthenticationPrincipal User userFromSession) {
-        Client client = clientService.get(clientId);
-        if (client == null) {
-            logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
-        }
-        if (client.getClientDescriptionComment() != null && client.getClientDescriptionComment().equals(clientDescription)) {
-            logger.error("Client has same description");
-            return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.description-same-error"));
-        }
-        client.setClientDescriptionComment(clientDescription);
-        clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
-        clientService.updateClient(client);
-        return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
-    }
+	@PostMapping(value = "/addDescription")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<String> addDescription(@RequestParam(name = "clientId") Long clientId,
+												 @RequestParam(name = "clientDescription") String clientDescription,
+												 @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		if (client == null) {
+			logger.error("Can`t add description, client with id {} not found or description is the same", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
+		}
+		if (client.getClientDescriptionComment() != null && client.getClientDescriptionComment().equals(clientDescription)) {
+			logger.error("Client has same description");
+			return ResponseEntity.badRequest().body(env.getProperty("messaging.client.rest.description-same-error"));
+		}
+		client.setClientDescriptionComment(clientDescription);
+		clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.DESCRIPTION).ifPresent(client::addHistory);
+		clientService.updateClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body(clientDescription);
+	}
 
-    @PostMapping(value = "/setSkypeLogin")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<String> setClientSkypeLogin(@RequestParam(name = "clientId") Long clientId,
-                                                      @RequestParam(name = "skypeLogin") String skypeLogin,
-                                                      @AuthenticationPrincipal User userFromSession) {
-        Client client = clientService.get(clientId);
-        Optional<Client> checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
-        if (client == null) {
-            logger.error("Client with id {} not found", clientId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
-        }
-        if (checkDuplicateLogin.isPresent() && checkDuplicateLogin.get().getSkype().equals(skypeLogin)) {
-            logger.error("client with this skype login already exists");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(env.getProperty("messaging.client.rest.skype-login-same-error"));
-        }
-        client.setSkype(skypeLogin);
-        clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin).ifPresent(client::addHistory);
-        clientService.updateClient(client);
-        return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
-    }
+	@PostMapping(value = "/setSkypeLogin")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<String> setClientSkypeLogin(@RequestParam(name = "clientId") Long clientId,
+													  @RequestParam(name = "skypeLogin") String skypeLogin,
+													  @AuthenticationPrincipal User userFromSession) {
+		Client client = clientService.get(clientId);
+		Optional<Client> checkDuplicateLogin = clientService.getClientBySkype(skypeLogin);
+		if (client == null) {
+			logger.error("Client with id {} not found", clientId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(env.getProperty("messaging.client.rest.description-error"));
+		}
+		if (checkDuplicateLogin.isPresent() && checkDuplicateLogin.get().getSkype().equals(skypeLogin)) {
+			logger.error("client with this skype login already exists");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(env.getProperty("messaging.client.rest.skype-login-same-error"));
+		}
+		client.setSkype(skypeLogin);
+		clientHistoryService.createInfoHistory(userFromSession, client, ClientHistory.Type.ADD_LOGIN, skypeLogin).ifPresent(client::addHistory);
+		clientService.updateClient(client);
+		return ResponseEntity.status(HttpStatus.OK).body(skypeLogin);
+	}
 
-    @GetMapping(value = "/message/info/{id}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
-    }
+	@GetMapping(value = "/message/info/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<Message> getClientMessageInfoByID(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(messageService.get(id), HttpStatus.OK);
+	}
 
-    @GetMapping(value = "/search")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
-    public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
-        return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
-    }
+	@GetMapping(value = "/search")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
+	public ResponseEntity<List<Client>> getClientsBySearchPhrase(@RequestParam(name = "search") String search) {
+		return new ResponseEntity<>(clientService.getClientsBySearchPhrase(search), HttpStatus.OK);
+	}
 
     @PostMapping(value = "/postpone/getComment")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','HR')")
     public ResponseEntity<String> getPostponeComment(@RequestParam Long clientId) {
         String postponeComment = clientService.get(clientId).getPostponeComment();
         return ResponseEntity.status(HttpStatus.OK).body(postponeComment);
     }
 
     @PostMapping(value = "/setRepeated")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR','HR')")
     public ResponseEntity<String> setRepeated(@RequestParam(name = "clientId") Long clientId,
                                               @RequestParam(name = "isRepeated") Boolean isRepeated,
                                               @AuthenticationPrincipal User userFromSession) {
@@ -545,13 +552,14 @@ public class ClientRestController {
     }
 
     @PostMapping(value = "/massInputSend")
-    public void massClientInputSave(@RequestParam(name = "emailList") String emailList,
-                                    @RequestParam(name = "fioList") String fioList,
-                                    @RequestParam(name = "trialDateList") String trialDateList,
-                                    @RequestParam(name = "nextPaymentList") String nextPaymentList,
-                                    @RequestParam(name = "priceList") String priceList,
-                                    @RequestParam(name = "paymentSumList") String paymentSumList,
-                                    @RequestParam(name = "studentStatus") String studentStatusId) {
+	public void massClientInputSave(@RequestParam(name = "emailList") String emailList,
+									@RequestParam(name = "fioList") String fioList,
+									@RequestParam(name = "trialDateList") String trialDateList,
+									@RequestParam(name = "nextPaymentList") String nextPaymentList,
+									@RequestParam(name = "priceList") String priceList,
+									@RequestParam(name = "paymentSumList") String paymentSumList,
+									@RequestParam(name = "studentStatus") String studentStatusId,
+									@AuthenticationPrincipal User userFromSession) {
 
         List<String> resultEmailList = Arrays.asList(emailList.split("\n"));
         List<String> resultFioList = Arrays.asList(fioList.split("\n"));
@@ -584,14 +592,14 @@ public class ClientRestController {
             } else {
                 Client.Builder newClientBuilder = new Client.Builder(nameAndLastNameArr[0].trim(), null, resultEmailList.get(i).trim());
                 Client newClient = newClientBuilder.lastName(nameAndLastNameArr[1].trim()).build();
-                statusService.get(1L).ifPresent(newClient::setStatus);
-                clientService.addClient(newClient);
-                Student createStudent = new Student();
-                createStudent.setClient(newClient);
-                studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount, studentStatus));
-            }
-        }
-    }
+				statusService.get(1L).ifPresent(newClient::setStatus);
+				clientService.addClient(newClient, userFromSession);
+				Student createStudent = new Student();
+				createStudent.setClient(newClient);
+				studentService.save(setStudentParams(createStudent, endTrialDate, nextPaymentDate, price, paymentAmount,studentStatus));
+			}
+		}
+	}
 
     public Student setStudentParams(Student student, LocalDate endTrialDate, LocalDate nextPaymentDate, BigDecimal price, BigDecimal paymentAmount, StudentStatus studentStatus) {
         student.setTrialEndDate(endTrialDate.atStartOfDay());
@@ -603,11 +611,11 @@ public class ClientRestController {
         return student;
     }
 
-    @GetMapping("/card/{id}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR')")
-    public ResponseEntity<String> getClientCardDto(@PathVariable Long id) {
-        return ResponseEntity.ok(ClientCardDtoBuilder.buildClientCardDto(clientService.get(id), statusService.getAll()));
-    }
+	@GetMapping("/card/{id}")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
+	public ResponseEntity<String> getClientCardDto(@PathVariable Long id) {
+		return ResponseEntity.ok(ClientCardDtoBuilder.buildClientCardDto(clientService.get(id), statusService.getAll()));
+	}
 
     @GetMapping
     public ResponseEntity<Student> getStudentByEmail(@RequestParam("email") String email) {

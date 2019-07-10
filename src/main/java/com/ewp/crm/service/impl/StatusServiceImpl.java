@@ -1,18 +1,12 @@
 package com.ewp.crm.service.impl;
 
 import com.ewp.crm.exceptions.status.StatusExistsException;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SortedStatuses;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.StatusService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,29 +25,30 @@ import java.util.Optional;
 @Service
 @Transactional
 public class StatusServiceImpl implements StatusService {
+	private final StatusDAO statusDAO;
+	private ClientService clientService;
+	private final ProjectPropertiesService propertiesService;
+	private final SortedStatusesRepository sortedStatusesRepository;
+	private final RoleService roleService;
+	private final UserService userService;
+	private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
+	private Environment env;
 
-    private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
-    private ClientService clientService;
+	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
-    private final StatusDAO statusDAO;
-    private final ProjectPropertiesService propertiesService;
-    private final RoleService roleService;
-    private final SortedStatusesRepository sortedStatusesRepository;
-    private final Environment env;
-
-    @Autowired
-    public StatusServiceImpl(StatusDAO statusDAO,
-                             ProjectPropertiesService propertiesService,
-                             RoleService roleService,
-                             SortedStatusesRepository sortedStatusesRepository,
-                             Environment env) {
-        this.statusDAO = statusDAO;
-        this.propertiesService = propertiesService;
-        this.roleService = roleService;
-        this.sortedStatusesRepository = sortedStatusesRepository;
-        this.env = env;
-    }
+	@Autowired
+	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
+							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
+							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+		this.statusDAO = statusDAO;
+		this.propertiesService = propertiesService;
+		this.sortedStatusesRepository = sortedStatusesRepository;
+		this.roleService = roleService;
+		this.env = env;
+		this.userService = userService;
+		this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+	}
 
     @Autowired
     private void setStatusService(ClientService clientService) {
@@ -197,14 +193,19 @@ public class StatusServiceImpl implements StatusService {
         }
     }
 
-    private void transferStatusClientsBeforeDelete(Status status) {
-        if (status.getClients() != null) {
-            Status defaultStatus = statusDAO.getStatusByName("deleted");
-            defaultStatus.getClients().addAll(status.getClients());
-            status.getClients().clear();
-            statusDAO.saveAndFlush(status);
-        }
-    }
+	private void transferStatusClientsBeforeDelete(Status status) {
+		User user = userService.get(1L);
+		if (status.getClients() != null) {
+			Status defaultStatus = statusDAO.getStatusByName("deleted");
+			defaultStatus.getClients().addAll(status.getClients());
+			for (Client client :status.getClients()) {
+				ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(ZonedDateTime.now(), status, defaultStatus, client, user);
+				clientStatusChangingHistoryService.add(clientStatusChangingHistory);
+			}
+			status.getClients().clear();
+			statusDAO.saveAndFlush(status);
+		}
+	}
 
     @Override
     public void delete(Status status) {
