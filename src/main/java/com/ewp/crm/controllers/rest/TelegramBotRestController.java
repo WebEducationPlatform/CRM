@@ -188,7 +188,7 @@ public class TelegramBotRestController {
             history.setTitle(history.getTitle() + " чата с TelegramBot");
             newClient.addHistory(history);
         });
-        clientService.addClient(newClient);
+        clientService.addClient(newClient, userFromSession);
         telegramClientReq.setClient(newClient);
         telegramClientReqService.add(telegramClientReq);
         logger.info("TelegramBot {} has added client with id {}", userFromSession.getFullName(), newClient.getId());
