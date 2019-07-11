@@ -1,21 +1,22 @@
 package com.ewp.crm.service.interfaces;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.ReportDto;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface ReportService {
-    Report getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds);
+    ReportDto getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long fromStatusId, long toStatusId, List<Long> excludeStatusesIds);
 
-    Report getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long toStatusId, List<Long> excludeStatusesIds);
+    ReportDto getAllChangedStatusClientsByDate(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, long toStatusId, List<Long> excludeStatusesIds);
 
-    Report getAllNewClientsByDate(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds);
+    ReportDto getAllNewClientsByDate(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds);
 
-    Report getAllNewClientsByDateAndFirstStatus(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds, Long firstStatusId);
+    ReportDto getAllNewClientsByDateAndFirstStatus(ZonedDateTime reportStartDate, ZonedDateTime reportEndDate, List<Long> excludeStatusesIds, Long firstStatusId);
 
-    Report getAllFirstPaymentClientsByDate(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds);
+    ReportDto getAllFirstPaymentClientsByDate(ZonedDateTime firstReportDate, ZonedDateTime lastReportDate, List<Long> excludeStatusesIds);
 
     Optional<String> getFileName(List<String> selectedCheckboxes, String delimeter, String filetype, Status status);
 
@@ -34,4 +35,6 @@ public interface ReportService {
     void fillClientStatusChangingHistoryFromClientHistory();
 
     void processLinksInStatusChangingHistory();
+
+    void setCreationsInStatusChangingHistory();
 }

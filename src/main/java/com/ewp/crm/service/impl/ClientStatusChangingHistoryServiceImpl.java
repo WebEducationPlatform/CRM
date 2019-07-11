@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientStatusChangingHistory;
 import com.ewp.crm.models.Status;
+import com.ewp.crm.models.dto.ClientDto;
 import com.ewp.crm.repository.interfaces.ClientStatusChangingHistoryRepository;
 import com.ewp.crm.service.interfaces.ClientStatusChangingHistoryService;
 import org.slf4j.Logger;
@@ -47,17 +48,17 @@ public class ClientStatusChangingHistoryServiceImpl extends CommonServiceImpl<Cl
     }
 
     @Override
-    public List<Client> getClientsEverBeenInStatusButExcludeStatuses(Status status, Status... excludeStatuses) {
+    public List<ClientDto> getClientsEverBeenInStatusButExcludeStatuses(Status status, Status... excludeStatuses) {
         return clientStatusChangingHistoryRepository.getClientsEverBeenInStatusButExcludeStatuses(status, excludeStatuses);
     }
 
     @Override
-    public List<Client> getClientsBeenInStatusAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+    public List<ClientDto> getClientsBeenInStatusAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
         return clientStatusChangingHistoryRepository.getClientsBeenInStatusAtPeriodButExcludeStatuses(status, beginDate, endDate, excludeStatuses);
     }
 
     @Override
-    public List<Client> getClientsWhoChangedStatusInPeriodButExcludeStatuses(Status sourceStatus, Status destinationStatus, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+    public List<ClientDto> getClientsWhoChangedStatusInPeriodButExcludeStatuses(Status sourceStatus, Status destinationStatus, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
         return clientStatusChangingHistoryRepository.getClientsWhoChangedStatusInPeriodButExcludeStatuses(sourceStatus, destinationStatus, beginDate, endDate, excludeStatuses);
     }
 
@@ -69,6 +70,26 @@ public class ClientStatusChangingHistoryServiceImpl extends CommonServiceImpl<Cl
     @Override
     public void markAllFakeStatusesByReturningInIntervalRule(int hours) {
         clientStatusChangingHistoryRepository.markAllFakeStatusesByReturningInIntervalRule(hours);
+    }
+
+    @Override
+    public List<ClientDto> getClientsBeenInStatusFirstTimeAtPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getClientsBeenInStatusFirstTimeAtPeriodButExcludeStatuses(status, beginDate, endDate, excludeStatuses);
+    }
+
+    @Override
+    public void setCreationInNearestStatusChangingHistoryForClient(Client client, ZonedDateTime date) {
+        clientStatusChangingHistoryRepository.setCreationInNearestStatusChangingHistoryForClient(client, date);
+    }
+
+    @Override
+    public List<ClientDto> getNewClientsInPeriodButExcludeStatuses(ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getNewClientsInPeriodButExcludeStatuses(beginDate, endDate, excludeStatuses);
+    }
+
+    @Override
+    public List<ClientDto> getNewClientsInStatusAndPeriodButExcludeStatuses(Status status, ZonedDateTime beginDate, ZonedDateTime endDate, Status... excludeStatuses) {
+        return clientStatusChangingHistoryRepository.getNewClientsInStatusAndPeriodButExcludeStatuses(status, beginDate, endDate, excludeStatuses);
     }
 
 }

@@ -449,10 +449,15 @@ $('#panels').on('click', '.client-row', function () {
 });
 
 $(document).ready(function () {
+    let btn = $('#load-data-button');
+    btn.prop('disabled', true);
     $.ajax({
         type: 'GET',
         async: true,
-        url: '/rest/report/mark-fakes'
+        url: '/rest/report/mark-fakes',
+        success: function () {
+            btn.prop('disabled', false);
+        }
     });
     $('[data-toggle="popover"]')
         .popover({html: true})
