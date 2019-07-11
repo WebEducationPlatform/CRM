@@ -122,27 +122,23 @@ public class ClientController {
 
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
             modelAndView = new ModelAndView("main-client-table");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("OWNER")));
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
+        } else if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             modelAndView = new ModelAndView("main-client-table");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("ADMIN")));
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
+        } else if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
             modelAndView = new ModelAndView("main-client-table-mentor");
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("HR"))
+        } else if (sessionRoles.contains(roleService.getRoleByName("HR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("HR")));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("USER"))
+        } else if (sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("HR"))
                 || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))

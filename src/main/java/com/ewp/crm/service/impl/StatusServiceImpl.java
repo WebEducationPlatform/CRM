@@ -101,10 +101,9 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public Optional<Status> findStatusWithSortedClientsByRoleAndUser(
+    public Optional<Status> findStatusWithSortedClientsByUser(
             final Long statusId,
-            final @AuthenticationPrincipal User userFromSession,
-            final Role role) {
+            final @AuthenticationPrincipal User userFromSession) {
 
         final Optional<Status> optionalStatus = get(statusId);
         if (!(optionalStatus.isPresent())) {

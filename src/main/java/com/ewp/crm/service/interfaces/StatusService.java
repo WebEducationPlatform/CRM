@@ -26,7 +26,7 @@ public interface StatusService {
 
     Optional<Status> getStatusByName(String name);
 
-    Optional<Status> findStatusWithSortedClientsByRoleAndUser(Long statusId, @AuthenticationPrincipal User userFromSession, Role role);
+    Optional<Status> findStatusWithSortedClientsByUser(Long statusId, @AuthenticationPrincipal User userFromSession);
 
     void add(Status status);
 
