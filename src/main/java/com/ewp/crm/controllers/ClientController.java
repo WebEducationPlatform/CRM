@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,58 +115,56 @@ public class ClientController {
     @GetMapping(value = "/client")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());;
-//        List<StatusDtoForBoard> statuses = null;
-        ModelAndView modelAndView = null;
-        //TODO Сделать ещё адекватней
-        List<Role> sessionRoles = userFromSession.getRole();
+
+        ModelAndView modelAndView = new ModelAndView("main-client-table");
+        List<StatusDtoForBoard> statuses = Collections.emptyList();
+        final List<Role> sessionRoles = userFromSession.getRole();
+
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("OWNER")));
         }
         if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("ADMIN")));
         }
         if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
             modelAndView = new ModelAndView("main-client-table-mentor");
-            modelAndView.addObject("statuses", statuses);
         }
         if (sessionRoles.contains(roleService.getRoleByName("HR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("HR")));
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("HR")));
             modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
         }
-        if(sessionRoles.contains(roleService.getRoleByName("USER"))
+        if (sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("HR"))
                 || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             modelAndView = new ModelAndView("main-client-table-user");
-//            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("USER")));
-            modelAndView.addObject("statuses", statuses);
+            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("USER")));
         }
-        List<User> userList = userService.getAll();
-        List<Role> roles = roleService.getAll();
+
+        modelAndView.addObject("statuses", statuses);
+
+        // Добавляем список ролей системы кроме OWNER
+        final List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
-        // Добавляем список ролей системы, кроме OWNER
         modelAndView.addObject("roles", roles);
+
+        final List<User> userList = userService.getAll();
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
-        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
-        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+
         if (sessionRoles.contains(roleService.getRoleByName("OWNER")) ||
                 sessionRoles.contains(roleService.getRoleByName("ADMIN")) ||
                 sessionRoles.contains(roleService.getRoleByName("HR"))) {
@@ -175,7 +174,11 @@ public class ClientController {
             modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
             modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
         }
+
         modelAndView.addObject("counter", new AtomicInteger(0));
+        modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+        modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+
         return modelAndView;
     }
 

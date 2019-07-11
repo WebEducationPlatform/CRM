@@ -101,59 +101,31 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public Optional<Status> findStatusByIdAndRole(Long statusId, Role role) {
-        return statusDAO.findStatusByIdAndRole(statusId, role);
-    }
+    public Optional<Status> findStatusWithSortedClientsByRoleAndUser(
+            final Long statusId,
+            final @AuthenticationPrincipal User userFromSession,
+            final Role role) {
 
-    @Override
-    public Optional<Status> findStatusWithSortedClientsByRole(Long statusId, @AuthenticationPrincipal User userFromSession, Role role) {
-
-        Optional<Status> optionalStatus = get(statusId);
-//        Optional<Status> optionalStatus = Optional.empty();
-//        List<Role> sessionRoles = userFromSession.getRole();
-//        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-//            optionalStatus = get(statusId);
-//        }
-//        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-//                & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            optionalStatus = get(statusId);
-//        }
-//        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-//                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            optionalStatus = findStatusByIdAndRole(statusId, role);
-//        }
-//        if (sessionRoles.contains(roleService.getRoleByName("HR"))
-//                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-//                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-//            optionalStatus = findStatusByIdAndRole(statusId, role);
-//        }
-//        if (sessionRoles.contains(roleService.getRoleByName("USER"))
-//                & !(sessionRoles.contains(roleService.getRoleByName("HR"))
-//                || sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-//                || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-//                || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
-//            optionalStatus = findStatusByIdAndRole(statusId, role);
-//        }
-
+        final Optional<Status> optionalStatus = get(statusId);
         if (!(optionalStatus.isPresent())) {
             return Optional.empty();
         }
 
-        Status status = optionalStatus.get();
+        final Status status = optionalStatus.get();
         SortedStatuses sortedStatuses = new SortedStatuses(status, userFromSession);
-        if (status.getSortedStatuses().isEmpty() || !(status.getSortedStatuses().contains(sortedStatuses))) {
-            return Optional.of(status);
-        }
 
-        Optional<SortedStatuses> optionalSortedStatuses = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, sortedStatuses)).findFirst();
-        SortingType sortingType = optionalSortedStatuses.isPresent()
+        final Optional<SortedStatuses> optionalSortedStatuses = status.getSortedStatuses().stream()
+                .filter(data -> Objects.equals(data, sortedStatuses))
+                .findFirst();
+        final SortingType sortingType = optionalSortedStatuses.isPresent()
                 ? optionalSortedStatuses.get().getSortingType()
                 : SortingType.NEW_FIRST;
-        Status newStatus = new Status();
+
+        final List<Client> sortedClients = clientService.getSortedClientsByStatusAndUser(status, userFromSession, sortingType);
+
+        final Status newStatus = new Status();
+        newStatus.setClients(sortedClients);
         newStatus.setPosition(status.getPosition());
-        newStatus.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
         newStatus.setCreateStudent(status.isCreateStudent());
         newStatus.setName(status.getName());
         newStatus.setRole(status.getRole());
@@ -162,6 +134,7 @@ public class StatusServiceImpl implements StatusService {
         newStatus.setTrialOffset(status.getTrialOffset());
         newStatus.setId(status.getId());
         newStatus.setSortedStatuses(status.getSortedStatuses());
+
         return Optional.of(newStatus);
     }
 

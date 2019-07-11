@@ -1,10 +1,16 @@
 package com.ewp.crm.service.interfaces;
 
-import com.ewp.crm.models.*;
+import com.ewp.crm.models.Client;
+import com.ewp.crm.models.ClientHistory;
+import com.ewp.crm.models.Comment;
+import com.ewp.crm.models.ContractDataForm;
+import com.ewp.crm.models.FilteringCondition;
+import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.Status;
+import com.ewp.crm.models.User;
 import org.springframework.data.domain.Pageable;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,10 +73,10 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
+	List<Client> getSortedClientsByStatusAndUser(Status status, User user, SortingType order);
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
-  
+
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);
 
 	void setContractLink(Long clientId, String contractLink, String contractName);
