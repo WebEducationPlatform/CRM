@@ -382,7 +382,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             sendNotificationService.sendNotificationsAllUsers(existClient.get());
             Status lastStatus = existClient.get().getStatus();
             if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
-                statusService.get("Постоплата2").ifPresent(existClient.get()::setStatus);
+                statusService.get("Постоплата 3").ifPresent(existClient.get()::setStatus);
             } else {
                 statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
             }
