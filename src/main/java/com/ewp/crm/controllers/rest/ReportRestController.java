@@ -54,6 +54,15 @@ public class ReportRestController {
 //        return new ResponseEntity(HttpStatus.OK);
 //    }
 
+    // Temporary method to fill new entity's table
+    @GetMapping(value = "/set-creations")
+    public ResponseEntity setCreations() {
+        System.out.println("Start");
+        reportService.setCreationsInStatusChangingHistory();
+        System.out.println("End");
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @GetMapping(value = "/mark-fakes")
     public ResponseEntity markFakes() {
         clientStatusChangingHistoryService.markAllFakeStatusesByChangingInIntervalRule(3);
