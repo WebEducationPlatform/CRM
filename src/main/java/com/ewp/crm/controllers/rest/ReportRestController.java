@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/rest/report")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
 public class ReportRestController {
 
     private final ReportService reportService;
@@ -35,6 +35,20 @@ public class ReportRestController {
     private ZonedDateTime getZonedDateTimeFromString(String date) {
         return ZonedDateTime.of(LocalDate.parse(date, DateTimeFormatter.ISO_DATE).atStartOfDay(), ZoneId.systemDefault());
     }
+
+//    // Temporary method to fill new entity's table
+//    @GetMapping(value = "/init")
+//    public ResponseEntity init() {
+//        reportService.fillClientStatusChangingHistoryFromClientHistory();
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
+//
+//    // Temporary method to fill new entity's table
+//    @GetMapping(value = "/links")
+//    public ResponseEntity links() {
+//        reportService.processLinksInStatusChangingHistory();
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
     @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity count(@RequestParam String firstReportDate,

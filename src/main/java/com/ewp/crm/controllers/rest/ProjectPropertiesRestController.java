@@ -20,7 +20,7 @@ import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/rest/properties")
-@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
 public class ProjectPropertiesRestController {
 
     private final ProjectPropertiesService projectPropertiesService;

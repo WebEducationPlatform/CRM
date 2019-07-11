@@ -136,7 +136,7 @@ $('#clientData').click(function (event) {
 let isAdmin;
 $.get('/rest/client/getPrincipal', function (user) {
     $.each(user.role, function (i, v) {
-        if (v.roleName === 'ADMIN' || v.roleName === 'OWNER') {
+        if (v.roleName === 'ADMIN' || v.roleName === 'OWNER' || v.roleName === 'HR') {
             isAdmin = true;
         }
     })

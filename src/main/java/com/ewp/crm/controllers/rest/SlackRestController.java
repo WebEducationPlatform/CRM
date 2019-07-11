@@ -128,7 +128,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/emails")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllEmailsFromSlack() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -136,7 +136,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/ids/all")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllIdsFromSlack() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -144,7 +144,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/chat/by/client/{id}")
-    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'HR')")
     public ResponseEntity<String> getChatIdByClientId(@PathVariable String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "text/plain;charset=UTF-8");
@@ -153,7 +153,7 @@ public class SlackRestController {
     }
 
     @GetMapping("/get/ids/students")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'MENTOR', 'HR')")
     public ResponseEntity<String> getAllStudentsIdsFromSlack(@RequestParam(name = "statuses", required = false) List<Long> statuses) {
         List<Status> requiredStatuses = new ArrayList<>();
         List<String> slackIdsForStudents;

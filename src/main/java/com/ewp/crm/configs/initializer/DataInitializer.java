@@ -236,17 +236,21 @@ public class DataInitializer {
         String otherText2 = "Добрый день, %fullName%!\nНапоминаем, что вам необходимо оплатить обучение за следующий месяц.\n" +
                 "С наилучшими пожеланиями, команда JavaMentor.";
         String otherText1 = "%bodyText%";
+        String defaultText = "Пожалуйста введите текст сообщения";
 
         MessageTemplate MessageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5);
         MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4);
         MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3);
         MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2);
         MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1);
+        MessageTemplate MessageTemplateWithoutTemplate = new MessageTemplate("Без шаблона", templateText1, defaultText);
+
         MessageTemplateService.add(MessageTemplate1);
         MessageTemplateService.add(MessageTemplate2);
         MessageTemplateService.add(MessageTemplate3);
         MessageTemplateService.add(MessageTemplate4);
         MessageTemplateService.add(MessageTemplate5);
+        MessageTemplateService.add(MessageTemplateWithoutTemplate);
 
         Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
         Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
@@ -327,14 +331,6 @@ public class DataInitializer {
 //            vkMemberService.addAllMembers(memberList);
 //        }
 
-        clientService.addClient(client1);
-        clientService.addClient(client2);
-        clientService.addClient(client3);
-        clientService.addClient(client4);
-        clientService.getClientByEmail("u.dolg@mail.ru").ifPresent(status0::addClient);
-        clientService.getClientByEmail("i.fiod@mail.ru").ifPresent(status1::addClient);
-        clientService.getClientByEmail("vboyko@mail.ru").ifPresent(status2::addClient);
-        clientService.getClientByEmail("a.solo@mail.ru").ifPresent(status3::addClient);
         statusService.addInit(status0);
         statusService.addInit(status1);
         statusService.addInit(status2);
@@ -342,6 +338,14 @@ public class DataInitializer {
         statusService.addInit(status4);
         statusService.addInit(status5);
         statusService.addInit(defaultStatus);
+        client1.setStatus(status0);
+        client2.setStatus(status2);
+        client3.setStatus(status3);
+        client4.setStatus(status1);
+        clientService.addClient(client1, null);
+        clientService.addClient(client2, null);
+        clientService.addClient(client3, null);
+        clientService.addClient(client4, null);
 
         StudentStatus trialStatus = studentStatusService.add(new StudentStatus("Java CORE"));
         StudentStatus learningStatus = studentStatusService.add(new StudentStatus("Java web"));

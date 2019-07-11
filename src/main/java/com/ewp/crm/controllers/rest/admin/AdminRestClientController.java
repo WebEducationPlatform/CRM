@@ -53,20 +53,20 @@ public class AdminRestClientController {
     }
 
     @PostMapping(value = "/add")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity addClient(@RequestBody Client client,
                                     @AuthenticationPrincipal User userFromSession) {
         Optional<Status> status = statusService.get(client.getStatus().getName());
         status.ifPresent(client::setStatus);
         clientHistoryService.createHistory(userFromSession, client, ClientHistory.Type.ADD).ifPresent(client::addHistory);
-        clientService.addClient(client);
+        clientService.addClient(client, userFromSession);
         studentService.addStudentForClient(client);
         logger.info("{} has added client: id {}, email {}", userFromSession.getFullName(), client.getId(), client.getEmail().orElse("not found"));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping(value = "/update")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR', 'HR')")
     public ResponseEntity updateClient(@RequestBody Client currentClient,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(currentClient.getId());
@@ -75,6 +75,7 @@ public class AdminRestClientController {
         currentClient.setComments(clientFromDB.getComments());
         currentClient.setOwnerUser(clientFromDB.getOwnerUser());
         currentClient.setStatus(clientFromDB.getStatus());
+        currentClient.setStudent(clientFromDB.getStudent());
         if (clientFromDB.getDateOfRegistration() == null) {
             clientService.setClientDateOfRegistrationByHistoryDate(currentClient);
         } else {
@@ -138,7 +139,7 @@ public class AdminRestClientController {
     }
     
     @GetMapping(value = "/remove")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public ResponseEntity removeClient(@RequestParam(name = "clientId") Long clientId,
                                        @AuthenticationPrincipal User userFromSession) {
         Client clientFromDB = clientService.get(clientId);

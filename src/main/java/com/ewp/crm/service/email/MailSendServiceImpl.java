@@ -273,7 +273,7 @@ public class MailSendServiceImpl implements MailSendService {
                     javaMailSender.send(mimeMessage);
                     if (principal != null) {
                         Optional<Client> clientEmail = clientService.getClientByEmail(recipient);
-                        Optional<Message> message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString());
+                        Optional<Message> message = messageService.addMessage(Message.Type.EMAIL, htmlContent.toString(), principal.getFullName());
                         if (clientEmail.isPresent() && message.isPresent()) {
                             clientHistoryService.createHistory(principal, clientEmail.get(), message.get()).ifPresent(client.get()::addHistory);
                             clientService.updateClient(client.get());
@@ -312,4 +312,20 @@ public class MailSendServiceImpl implements MailSendService {
         user.setEmail(javaMentorEmail);
         sendNotificationMessage(user, report);
     }
+
+    @Async
+    public void sendBootCampAnswer(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setSubject(env.getProperty("messaging.mailing.set-subject-bootcamp-autoanswer"));
+        message.setText(env.getProperty("messaging.mailing.set-message-bootcamp-autoanswer"));
+        message.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
+        message.setTo(email);
+        javaMailSender.send(message);
+    }
+
+    @Override
+    public void sendMessage(String email) {
+        sendBootCampAnswer(email);
+    }
+
 }
