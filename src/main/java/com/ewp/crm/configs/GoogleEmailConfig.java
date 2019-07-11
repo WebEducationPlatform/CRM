@@ -165,7 +165,7 @@ public class GoogleEmailConfig {
                                 client.getEmail().ifPresent(client::setName);
                                 mailingPostpay.ifPresent(client::setStatus);
                             } else {
-                                statusService.get("Постоплата2").ifPresent(client::setStatus);
+                                statusService.get("Постоплата 3").ifPresent(client::setStatus);
                             }
                         } else {
                             sendAutoAnswer = true;
