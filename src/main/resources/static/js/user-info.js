@@ -368,21 +368,36 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
 }
 
 $('#checkbox-user-4').change(function () {
+    let firstName = $('#add-user-first-name').val();
+    let lastName = $('#add-user-last-name').val();
+    let mentorPrefix = (firstName.charAt(0) + lastName.charAt(0)).toLowerCase();
+    isPrefixFree(mentorPrefix);
+    let textInInputPrefix = $('#prefix');
+    textInInputPrefix.val(textInInputPrefix.val() + mentorPrefix);
     $('#mentors-info').toggle();
 });
 
 var changeTimer = false;
-
-$("#prefix").on("keydown",function(){
-    if(changeTimer !== false) {
+$("#prefix").on("keydown", function () {
+    if (changeTimer !== false) {
         clearTimeout(changeTimer);
     }
-    changeTimer = setTimeout(function(){
-        $.get("http://127.0.0.1:8080/mentor/free/prefix?prefix=" + $('#prefix').val())
-            .done(function (response) {
-                console.log(response);
-            })
-            .fail()
+    changeTimer = setTimeout(function () {
+        isPrefixFree($('#prefix').val());
         changeTimer = false;
-    },300);
+    }, 300);
 });
+
+function isPrefixFree(prefix) {
+    //TODO не забыть внешний ip
+    $.get("http://127.0.0.1:8080/mentor/free/prefix?prefix=" + prefix)
+        .done(function (response) {
+            if (response === true) {
+                console.log(response);
+                $("#prefix-error[for='text']").text(response);
+            } else {
+                console.log(response);
+            }
+        })
+        .fail()
+}
