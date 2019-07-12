@@ -75,6 +75,7 @@ public class AdminRestClientController {
         currentClient.setComments(clientFromDB.getComments());
         currentClient.setOwnerUser(clientFromDB.getOwnerUser());
         currentClient.setStatus(clientFromDB.getStatus());
+        currentClient.setStudent(clientFromDB.getStudent());
         if (clientFromDB.getDateOfRegistration() == null) {
             clientService.setClientDateOfRegistrationByHistoryDate(currentClient);
         } else {
