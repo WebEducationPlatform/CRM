@@ -47,24 +47,25 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
     public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize, boolean isAsc) {
         List<ClientHistoryDto> result = new ArrayList<>();
 
-        String order = (isAsc) ? "ASC" : "DESC";
+        String order = (isAsc) ? " ASC " : " DESC ";
 
         String sqlQuery =
                 " SELECT * FROM ( " +
-                " ( " +
-                " SELECT 'history' AS `type`, `h`.`date` AS `date`, `h`.`record_link` AS `record_link`, `h`.`link` AS `link`, `h`.`title` AS `title`, null AS `new_status_id`, null AS `source_status_id`, null AS `user_id` " +
-                " FROM `history` `h` " +
-                " LEFT JOIN `history_client` `hc` ON `h`.`history_id` = `hc`.`history_id` " +
-                " WHERE `hc`.`client_id` = :clientId " +
-                " ) " +
-                " UNION ALL " +
-                " ( " +
-                " SELECT 'status' AS `type`, `csch`.`date` AS `date`, null AS `record_link`, null AS `link`, null AS `title`, `csch`.`new_status_id` AS `new_status_id`, `csch`.`source_status_id` AS `source_status_id`, `csch`.`user_id` AS `user_id` " +
-                " FROM `client_status_changing_history` `csch` " +
-                " WHERE `csch`.`client_id` = :clientId " +
-                " )) `result` " +
-                " ORDER BY `result`.`date` " + order +
-                " LIMIT :startFrom , :count ";
+                        " ( " +
+                        " SELECT 'history' AS `type`, `h`.`date` AS `date`, `h`.`record_link` AS `record_link`, `h`.`link` AS `link`, `h`.`title` AS `title`, null AS `new_status_id`, null AS `source_status_id`, null AS `user_id` " +
+                        " FROM `history` `h` " +
+                        " LEFT JOIN `history_client` `hc` ON `h`.`history_id` = `hc`.`history_id` " +
+                        " WHERE `hc`.`client_id` = :clientId " +
+                        " AND h.history_type NOT LIKE 'STATUS' " +
+                        " ) " +
+                        " UNION ALL " +
+                        " ( " +
+                        " SELECT 'status' AS `type`, `csch`.`date` AS `date`, null AS `record_link`, null AS `link`, null AS `title`, `csch`.`new_status_id` AS `new_status_id`, `csch`.`source_status_id` AS `source_status_id`, `csch`.`user_id` AS `user_id` " +
+                        " FROM `client_status_changing_history` `csch` " +
+                        " WHERE `csch`.`client_id` = :clientId " +
+                        " )) `result` " +
+                        " ORDER BY `result`.`date` " + order +
+                        " LIMIT :startFrom , :count ";
 
         List<Tuple> tuples = entityManager.createNativeQuery(sqlQuery, Tuple.class)
                 .setParameter("clientId", id)
