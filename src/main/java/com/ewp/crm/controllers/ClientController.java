@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -117,26 +116,21 @@ public class ClientController {
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
 
         ModelAndView modelAndView = new ModelAndView("main-client-table");
-        List<StatusDtoForBoard> statuses = Collections.emptyList();
         final List<Role> sessionRoles = userFromSession.getRole();
 
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
             modelAndView = new ModelAndView("main-client-table");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         } else if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             modelAndView = new ModelAndView("main-client-table");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         } else if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("MENTOR")));
             modelAndView = new ModelAndView("main-client-table-mentor");
         } else if (sessionRoles.contains(roleService.getRoleByName("HR"))
                 & !(sessionRoles.contains(roleService.getRoleByName("MENTOR"))
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
             modelAndView = new ModelAndView("main-client-table");
         } else if (sessionRoles.contains(roleService.getRoleByName("USER"))
                 & !(sessionRoles.contains(roleService.getRoleByName("HR"))
@@ -144,9 +138,9 @@ public class ClientController {
                 || sessionRoles.contains(roleService.getRoleByName("ADMIN"))
                 || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAllByRole(roleService.getRoleByName("USER")));
         }
 
+        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         modelAndView.addObject("statuses", statuses);
 
         // Добавляем список ролей системы кроме OWNER
