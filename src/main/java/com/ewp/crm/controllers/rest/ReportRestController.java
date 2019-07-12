@@ -46,7 +46,7 @@ public class ReportRestController {
 //        reportService.fillClientStatusChangingHistoryFromClientHistory();
 //        return new ResponseEntity(HttpStatus.OK);
 //    }
-//
+
 //    // Temporary method to fill new entity's table
 //    @GetMapping(value = "/links")
 //    public ResponseEntity links() {
@@ -54,12 +54,12 @@ public class ReportRestController {
 //        return new ResponseEntity(HttpStatus.OK);
 //    }
 
-    // Temporary method to fill new entity's table
-    @GetMapping(value = "/set-creations")
-    public ResponseEntity setCreations() {
-        reportService.setCreationsInStatusChangingHistory();
-        return new ResponseEntity(HttpStatus.OK);
-    }
+//    // Temporary method to fill new entity's table
+//    @GetMapping(value = "/set-creations")
+//    public ResponseEntity setCreations() {
+//        reportService.setCreationsInStatusChangingHistory();
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
     @GetMapping(value = "/mark-fakes")
     public ResponseEntity markFakes() {
