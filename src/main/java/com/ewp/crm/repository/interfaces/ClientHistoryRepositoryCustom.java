@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface ClientHistoryRepositoryCustom {
 
-    List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize);
+    List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize, boolean isAsc);
 
 }

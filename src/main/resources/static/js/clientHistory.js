@@ -9,8 +9,19 @@ $(document).ready(function () {
         let clientId = current.attr("data-clientid");
         let page = current.attr("data-page");
         let url = '/client/history/rest/getHistory/' + clientId;
+
+        //Set sorting order and arrow direction.
+        let arrow = $('#date').find('i');
+        let isAsc = true;
+        if (arrow.hasClass('fa-sort-up')) {
+            isAsc = true;
+        } else if (arrow.hasClass('fa-sort-down')) {
+            isAsc = false;
+        }
+
         let params = {
-            page: page
+            page: page,
+            isAsc: isAsc
         };
         let history_table = $('#client-' + clientId + 'history').find("tbody");
         $.get(url, params, function takeHistoryList(list) {
@@ -55,6 +66,54 @@ $(document).ready(function () {
         $(this).find("button.upload-more-history").attr("data-page", 1);
     })
 });
+
+/*Re-sort client history by date.*/
+function resortClientHistory(button) {
+    let uploadHistoryButton = $('.upload-more-history');
+    let clientId = uploadHistoryButton.attr("data-clientid");
+    let url = '/client/history/rest/getHistory/' + clientId;
+
+    //Set sorting order and change arrow direction.
+    let arrow = $(button).find('i');
+    let isAsc;
+    if (arrow.hasClass('fa-sort-up')) {
+        isAsc = false;
+        arrow.toggleClass('fa-sort-up fa-sort-down');
+    } else if (arrow.hasClass('fa-sort-down')) {
+        isAsc = true;
+        arrow.toggleClass('fa-sort-down fa-sort-up');
+    }
+
+    let history_table = $('#client-' + clientId + 'history').find("tbody");
+    //If table is full, reverse it!
+    if (uploadHistoryButton.is(":hidden")) {
+        history_table.each(function(elem,index){
+            var arr = $.makeArray($("tr",this).detach());
+            arr.reverse();
+            $(this).append(arr);
+        });
+    //Else recreate it with new order.
+    } else {
+        let params = {
+            page: 0,
+            isAsc: isAsc
+        };
+        history_table.empty();
+        $.get(url, params, function takeHistoryList(list) {
+            if (list.length < 10) {
+                uploadHistoryButton.hide();
+            }
+            //draw client history
+            drawClientHistory(list, history_table);
+        }).fail(function () {
+            uploadHistoryButton.hide();
+        });
+        //Reset page number
+        let data_page = uploadHistoryButton.attr("data-page");
+        data_page = 1;
+        uploadHistoryButton.attr("data-page", data_page);
+    }
+}
 
 
 function drawClientHistory(list, history_table) {
