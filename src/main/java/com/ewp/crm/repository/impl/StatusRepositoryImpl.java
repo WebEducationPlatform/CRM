@@ -26,11 +26,22 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
     @PersistenceContext
     EntityManager entityManager;
 
+    /**
+     *  Метод получает из базы все статусы, которые доступны для данного пользователя и формирует список
+     *  DTO данных статусов. Также, для каждого статуса, который не скрыт для показа на доске, в DTO
+     *  загружается список DTO всех клиентов, находящихся в данном статусе
+     *
+     * @param userId id пользователя, для которого формируюся данные
+     * @param roles список всех ролей необходим для передачи в дто
+     * @param roleId роль пользователя, для которой загружаем видимые для этой роли статусы
+     * @return список DTO статусов со списком DTO клиентов в каждом статусе
+     */
     @Override
     public List<StatusDtoForBoard> getStatusesForBoard(long userId, List<Role> roles, long roleId) {
         logger.debug("{} getStatusesForBoard({}, {}, {}) started", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
         List<StatusDtoForBoard> result = new ArrayList<>();
 
+        // Получаем все видимые статусы, которые доступны роли roleId, отсортированные по позиции
         List<Tuple> tupleStatuses = entityManager.createNativeQuery(
                 "SELECT DISTINCT s.status_id AS id, s.status_name AS name, s.is_invisible, s.create_student, s.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
                         "   FROM status s " +
@@ -61,6 +72,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
             String sortingType = (String) tuple.get("sorting_type");
 
+            // Задаем значения для сортировки клиентов внутри статусов
             String sortDirection = " ORDER BY c.date DESC ";
             String historyJoin = "";
             if (sortingType != null) {
@@ -94,6 +106,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 }
             }
 
+            // Для статуса получаем всех клиентов с нужной сортировкой
             List<Tuple> tupleClients = entityManager.createNativeQuery(
                     "SELECT DISTINCT c.client_id AS id, c.first_name AS name, c.last_name, c.hide_card, ce.client_email AS email, cp.client_phone AS phone, c.skype, c.city, c.country, " +
                             "   own.user_id AS own_user_id, own.first_name AS own_first_name, own.last_name AS own_last_name, " +
@@ -133,6 +146,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 String menLastName = (String) userTuple.get("men_last_name");
                 User mentor = menUserId == -1 ? null : new User(menUserId, menFirstName, menLastName);
 
+                // Каждому клиенту получаем список его социальных сетей (используется для поиска на доске)
                 List<SocialProfile> socials = entityManager.createNativeQuery(
                         "SELECT id, social_id, social_network_type " +
                                 "   FROM social_network " +
@@ -150,6 +164,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
 
         }
 
+        // Получаем все скрытые статусы, которые доступны для роли roleId. Эти статусы будут без клиентов внутри
         tupleStatuses = entityManager.createNativeQuery(
                 "SELECT DISTINCT s.status_id AS id, s.status_name AS name, s.is_invisible, s.create_student, s.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
                         "   FROM status s " +
