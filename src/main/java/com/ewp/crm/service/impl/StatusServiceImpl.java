@@ -3,9 +3,10 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
-import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StatusServiceImpl implements StatusService {
-	private final StatusDAO statusDAO;
+	private final StatusRepository statusDAO;
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
@@ -36,7 +34,7 @@ public class StatusServiceImpl implements StatusService {
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
 
 	@Autowired
-	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
+	public StatusServiceImpl(StatusRepository statusDAO, ProjectPropertiesService propertiesService,
 							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
 							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
 		this.statusDAO = statusDAO;
@@ -89,6 +87,11 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role) {
+		return statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId());
+	}
+
+	@Override
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
@@ -125,9 +128,16 @@ public class StatusServiceImpl implements StatusService {
 
 	@Override
 	public void add(Status status) {
+		List<Role> roles = Collections.singletonList(roleService.getRoleByName("OWNER"));
+		add(status, roles);
+	}
+
+	@Override
+	public void add(Status status, List<Role> roles) {
 		logger.info("{} adding of a new status...", StatusServiceImpl.class.getName());
 		checkStatusUnique(status);
 		Long position = statusDAO.findMaxPosition() + 1L;
+		status.setRole(new ArrayList<>(roles));
 		status.setPosition(position);
 		statusDAO.saveAndFlush(status);
 		logger.info("{} status added successfully...", StatusServiceImpl.class.getName());
