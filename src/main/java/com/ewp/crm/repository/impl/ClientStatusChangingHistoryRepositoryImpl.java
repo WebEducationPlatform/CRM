@@ -88,7 +88,7 @@ public class ClientStatusChangingHistoryRepositoryImpl implements ClientStatusCh
                         "                   csch.client_id NOT IN ( " +
                         "                       SELECT client_id FROM client_status_changing_history exclude " +
                         "                           WHERE " +
-                        "                               texclude.client_id = csch.client_id AND " +
+                        "                               exclude.client_id = csch.client_id AND " +
                         "                               exclude.new_status_id IN (-1" + createStringOfExcludeStatusesIds(excludeStatuses) + ") " +
                         "                   ) AND " +
                         "                   csch.date >= :beginDate AND " +
