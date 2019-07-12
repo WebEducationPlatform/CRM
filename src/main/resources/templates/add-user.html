@@ -119,7 +119,7 @@
                                data-error=""
                                required="required"
                                id="prefix"/>
-                        <div class="help-block with-errors"></div>
+                        <div class="help-block with-errors" id="prefix-error"></div>
                         <label for="calendar">GoogleCalendar ментора</label>
                         <input type="text"
                                class="form-control"
@@ -155,6 +155,7 @@
 </div>
 <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
 <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
+<script type="text/javascript" th:src="@{/js/transliteration.js}"></script>
 <script type="text/javascript" th:src="@{/js/user-info.js}"></script>
 <script th:src="@{/js/validator.min.js}"></script>
 </body>

@@ -356,9 +356,12 @@ function disableInputE() {
 function sendPostToSlackBotAboutNewMentor(wrap) {
     let data = {
         name: wrap.firstName + " " + wrap.lastName,
-        email: wrap.email
+        email: wrap.email,
+        slackPrefix: $('#prefix').val(),
+        calendarId: $('#calendar').val()
     };
-    let url = "https://" + botIp + "/crm/new/mentor";
+    //Исправить на https
+    let url = "http://" + botIp + "/crm/new/mentor";
     $.ajax({
         url: url,
         type: 'POST',
@@ -370,7 +373,12 @@ function sendPostToSlackBotAboutNewMentor(wrap) {
 $('#checkbox-user-4').change(function () {
     let firstName = $('#add-user-first-name').val();
     let lastName = $('#add-user-last-name').val();
+    if (firstName === undefined | lastName === undefined) {
+        firstName = $('#edit-user-first-name').val();
+        lastName = $('#edit-user-last-name').val();
+    }
     let mentorPrefix = (firstName.charAt(0) + lastName.charAt(0)).toLowerCase();
+    mentorPrefix = translit(mentorPrefix);
     isPrefixFree(mentorPrefix);
     let textInInputPrefix = $('#prefix');
     textInInputPrefix.val(textInInputPrefix.val() + mentorPrefix);
@@ -393,10 +401,9 @@ function isPrefixFree(prefix) {
     $.get("http://127.0.0.1:8080/mentor/free/prefix?prefix=" + prefix)
         .done(function (response) {
             if (response === true) {
-                console.log(response);
-                $("#prefix-error[for='text']").text(response);
+                $("#prefix-error").text("Префикс занят!");
             } else {
-                console.log(response);
+                $("#prefix-error").empty();
             }
         })
         .fail()
