@@ -5,7 +5,7 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepositoryCustom;
-import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +30,11 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
     private final String statusChangeMessageTemplate;
     private final String statusChangeMessageTemplateFull;
     private final EntityManager entityManager;
-    private final StatusDAO statusDao;
+    private final StatusRepository statusDao;
     private final UserDAO userDao;
 
     @Autowired
-    public ClientHistoryRepositoryImpl(EntityManager entityManager, StatusDAO statusDao, UserDAO userDao,
+    public ClientHistoryRepositoryImpl(EntityManager entityManager, StatusRepository statusDao, UserDAO userDao,
                                        Environment env) {
         this.entityManager = entityManager;
         this.statusDao = statusDao;
