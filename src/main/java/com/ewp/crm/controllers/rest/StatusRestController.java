@@ -63,8 +63,7 @@ public class StatusRestController {
                                        @AuthenticationPrincipal User currentAdmin) {
 
         final Status status = new Status(statusName);
-        status.setRole(currentAdmin.getRole());
-        statusService.add(status);
+        statusService.add(status, currentAdmin.getRole());
         logger.info("{} has added status with name: {}", currentAdmin.getFullName(), statusName);
         return ResponseEntity.ok("Успешно добавлено");
     }

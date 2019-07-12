@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface StatusDAO extends JpaRepository<Status, Long> {
+public interface StatusRepository extends JpaRepository<Status, Long>, StatusRepositoryCustom {
 
 	Status getStatusByName(String name);
 
