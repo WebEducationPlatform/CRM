@@ -180,6 +180,12 @@ public class User implements UserDetails {
         this.isVerified = false;
     }
 
+    public User(long id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public User(String firstName, String lastName, LocalDate birthDate, String phoneNumber, String email, String password, String vk, String sex, String city, String country, List<Role> role, boolean ipTelephony, boolean isVerified) {
         this.firstName = firstName;
         this.lastName = lastName;
