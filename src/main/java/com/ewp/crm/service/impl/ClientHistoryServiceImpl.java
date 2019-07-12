@@ -64,8 +64,8 @@ public class ClientHistoryServiceImpl implements ClientHistoryService {
 	}
 
 	@Override
-	public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize) {
-		return clientHistoryRepository.getAllDtoByClientId(id, page, pageSize);
+	public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize, boolean isAsc) {
+		return clientHistoryRepository.getAllDtoByClientId(id, page, pageSize, isAsc);
 	}
 
 	@Override

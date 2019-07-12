@@ -843,6 +843,12 @@
                 <div th:id="'collapse'" class="panel-collapse collapse client-collapse history">
                     <div class="panel-body">
                         <table class="table table-bordered history-line" th:id="'client-string-history'">
+                            <thead>
+                                <tr class="head-table">
+                                    <th><button type="button" class="btn btn-secondary">Подробности</button></th>
+                                    <th><button id="date" onclick="resortClientHistory(this)" type="button" class="btn btn-default btn-secondary">Дата<i class="fa fa-fw fa-sort-up"></i></button></th>
+                                </tr>
+                            </thead>
                             <tbody></tbody>
                         </table>
                         <button type="button" data-page="1" class="btn upload-more-history">Загрузить ещё</button>

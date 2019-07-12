@@ -160,7 +160,6 @@ function noteAndSort(button, n, type) {
     } );}, 10);
 }
 
-/*Method was modified to sort only visible rows.*/
 function sort_table(button, n, type) {
     var table, rows, switching, i, x, y, x_val, y_val, temp_x, temp_y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("students-table");
