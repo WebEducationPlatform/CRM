@@ -57,9 +57,7 @@ public class ReportRestController {
     // Temporary method to fill new entity's table
     @GetMapping(value = "/set-creations")
     public ResponseEntity setCreations() {
-        System.out.println("Start");
         reportService.setCreationsInStatusChangingHistory();
-        System.out.println("End");
         return new ResponseEntity(HttpStatus.OK);
     }
 
