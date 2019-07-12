@@ -4,9 +4,11 @@ import com.ewp.crm.models.Client;
 import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
+import com.ewp.crm.models.User;
 import com.ewp.crm.models.whatsapp.WhatsappMessage;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgement;
 import com.ewp.crm.models.whatsapp.whatsappDTO.WhatsappAcknowledgementDTO;
+import com.ewp.crm.repository.interfaces.UserFindTurnService;
 import com.ewp.crm.service.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -30,16 +32,21 @@ public class WhatsappWebhook {
     private final StatusService statusService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
+    private  final UserFindTurnService userFindTurnService;
     private Environment env;
 
     @Autowired
-    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService, WhatsappMessageService whatsappMessageService, StatusService statusService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, Environment env) {
+    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService,
+                           WhatsappMessageService whatsappMessageService, StatusService statusService,
+                           SocialProfileService socialProfileService, ClientHistoryService clientHistoryService,
+                           Environment env, UserFindTurnService userFindTurnService) {
         this.clientService = clientService;
         this.sendNotificationService = sendNotificationService;
         this.whatsappMessageService = whatsappMessageService;
         this.statusService = statusService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
+        this.userFindTurnService = userFindTurnService;
         this.env = env;
     }
 
@@ -66,6 +73,8 @@ public class WhatsappWebhook {
                     checkSocialProfile(whatsappMessage, newClient);
                     statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
                     newClient.addHistory(new ClientHistory(env.getProperty("messaging.client.history.add-from-whatsapp"), whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
+                    User userToOwnCard = userFindTurnService.getUserToOwnCard();
+                    newClient.setOwnerUser(userToOwnCard);
                     clientService.addClient(newClient, null);
                     sendNotificationService.sendNewClientNotification(newClient, "whatsapp");
                     checkSocialProfile(whatsappMessage, newClient);
