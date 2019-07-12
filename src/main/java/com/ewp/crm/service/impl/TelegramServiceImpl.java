@@ -3,7 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
 import com.ewp.crm.repository.interfaces.ClientRepository;
-import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.models.conversation.ChatMessage;
 import com.ewp.crm.models.conversation.ChatType;
 import com.ewp.crm.models.conversation.Interlocutor;
@@ -61,14 +61,14 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     private static final ConcurrentMap<Integer, TdApi.File> downloadingFiles = new ConcurrentHashMap<Integer, TdApi.File>();
 
     private final ClientRepository clientRepository;
-    private final StatusDAO statusRepository;
+    private final StatusRepository statusRepository;
     private final ClientHistoryService clientHistoryService;
     private final SendNotificationService sendNotificationService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SocialProfileService socialProfileService;
 
     @Autowired
-    public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository,
+    public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusRepository statusRepository,
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
                                ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService) {
         this.env = env;

@@ -117,38 +117,30 @@ public class ClientController {
         //TODO Сделать ещё адекватней
         List<Role> sessionRoles = userFromSession.getRole();
         if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("OWNER")));
+            statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, roleService.getRoleByName("OWNER"));
             modelAndView = new ModelAndView("main-client-table");
             modelAndView.addObject("statuses", statuses);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))
-                & !(sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("ADMIN")));
-            modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("MENTOR")));
-            modelAndView = new ModelAndView("main-client-table-mentor");
-            modelAndView.addObject("statuses", statuses);
-        }
-        if (sessionRoles.contains(roleService.getRoleByName("HR"))
-                & !(sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))) {
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("HR")));
-            modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
-        }
-        if(sessionRoles.contains(roleService.getRoleByName("USER"))
-                & !(sessionRoles.contains(roleService.getRoleByName("HR")) || sessionRoles.contains(roleService.getRoleByName("MENTOR")) || sessionRoles.contains(roleService.getRoleByName("ADMIN")) || sessionRoles.contains(roleService.getRoleByName("OWNER")))){
+        } else {
+            Role priorityRole = roleService.getRoleByName("USER");
             modelAndView = new ModelAndView("main-client-table-user");
-            statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getStatusesWithSortedClientsByRole(userFromSession, roleService.getRoleByName("USER")));
+            if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))) {
+                priorityRole = roleService.getRoleByName("MENTOR");
+                modelAndView = new ModelAndView("main-client-table-mentor");
+            }
+            if (sessionRoles.contains(roleService.getRoleByName("HR"))) {
+                priorityRole = roleService.getRoleByName("HR");
+                modelAndView = new ModelAndView("main-client-table");
+            }
+            if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
+                priorityRole = roleService.getRoleByName("ADMIN");
+                modelAndView = new ModelAndView("main-client-table");
+            }
+            statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, priorityRole);
             modelAndView.addObject("statuses", statuses);
         }
         List<User> userList = userService.getAll();
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
-        statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
         // Добавляем список ролей системы, кроме OWNER
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("user", userFromSession);
