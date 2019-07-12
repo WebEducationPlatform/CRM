@@ -137,6 +137,12 @@ public class User implements UserDetails {
     private boolean enableSmsNotifications;
 
     /**
+     *Присылать ли уведомления на почту о прикреплении клиента
+     */
+    @Column(name = "enable_asign_mentor_mail_notifications")
+    private boolean enableAsignMentorMailNotifications;
+
+    /**
      * Права (роль)
      * FetchType.EAGER for initialize all fields.
      * We use FetchMode.SUBSELECT for loading all elements of all collections.
@@ -172,6 +178,12 @@ public class User implements UserDetails {
     public User() {
         this.isEnabled = false;
         this.isVerified = false;
+    }
+
+    public User(long id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public User(String firstName, String lastName, LocalDate birthDate, String phoneNumber, String email, String password, String vk, String sex, String city, String country, List<Role> role, boolean ipTelephony, boolean isVerified) {
@@ -411,6 +423,14 @@ public class User implements UserDetails {
 
     public void setEnableMailNotifications(boolean enableMailNotifications) {
         this.enableMailNotifications = enableMailNotifications;
+    }
+
+    public boolean isEnableAsignMentorMailNotifications() {
+        return enableAsignMentorMailNotifications;
+    }
+
+    public void setEnableAsignMentorMailNotifications(boolean enableAsignMentorMailNotifications) {
+        this.enableAsignMentorMailNotifications = enableAsignMentorMailNotifications;
     }
 
     public boolean isIpTelephony() {
