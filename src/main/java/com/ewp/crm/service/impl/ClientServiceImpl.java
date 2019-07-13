@@ -397,6 +397,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                         existClient.get().getStatus(),
                         existClient.get(),
                         user);
+                clientStatusChangingHistory.setClientCreation(true);
                 clientStatusChangingHistoryService.add(clientStatusChangingHistory);
             }
             client.setId(existClient.get().getId());
@@ -422,6 +423,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                 client.getStatus(),
                 client,
                 user);
+        clientStatusChangingHistory.setClientCreation(true);
         clientStatusChangingHistoryService.add(clientStatusChangingHistory);
     }
 

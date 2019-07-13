@@ -223,7 +223,8 @@ function assignMentor(id, user, principalId) {
                 "<span class='mentor-icon_card' id='mn-" + id + "' value=" + owner.firstName + " " + owner.lastName + ">" +
                 "Ментор: " + owner.firstName.substring(0, 1) + owner.lastName.substring(0, 1) +
                 "</span>" +
-                "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>"
+                "<span style='display:none'>" + owner.firstName + " " + owner.lastName + "</span>" +
+                "<span class='ownerMentorId' style='display:none'>" + owner.id + "</span>"
             );
             fillFilterList()
         },

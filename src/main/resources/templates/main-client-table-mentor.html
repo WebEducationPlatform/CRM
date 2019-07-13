@@ -68,6 +68,8 @@
                              style="margin-left: 2px;display: inline-block;height: 12px;">
                             <p th:if="${client.ownerUser != null}" style="display:none"
                                th:text="${client.ownerUser.fullName}"></p>
+                            <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
+                               th:text="${client.ownerMentor.id}"></span>
                             <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                   th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
@@ -159,7 +161,22 @@
         </div>
     </div>
 </div>
+<div id="panel">
+    <div id="panel-content">
+        <div class="panel-group">
+            <div class="panel-title">
+                <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
+                <h2>Меню</h2>
+            </div>
+            <div id="showOnlyMyClientsDiv">
 
+            </div>
+        </div>
+    </div>
+    <div id="panel-sticker">
+        <span>Меню</span>
+    </div>
+</div>
 <div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -199,5 +216,6 @@
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
+<script type="text/javascript" th:src="@{/js/mentor-menu.js}"></script>
 </body>
 </html>

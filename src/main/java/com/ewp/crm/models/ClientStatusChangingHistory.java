@@ -25,9 +25,13 @@ public class ClientStatusChangingHistory {
     @ManyToOne(targetEntity = Status.class, optional = false)
     private Status newStatus;
 
-    @Column(name = "is_fake", columnDefinition = "TINYINT")
+    @Column(name = "is_fake", columnDefinition = "TINYINT(1) DEFAULT 0", nullable = false)
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private Boolean isFake = false;
+
+    @Column(name = "is_client_creation", columnDefinition = "TINYINT(1) DEFAULT 0", nullable = false)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private Boolean isClientCreation = false;
 
     @JoinColumn(name = "client_id", nullable = false)
     @ManyToOne(targetEntity = Client.class, optional = false)
@@ -102,5 +106,13 @@ public class ClientStatusChangingHistory {
 
     public void setMover(User mover) {
         this.mover = mover;
+    }
+
+    public Boolean getClientCreation() {
+        return isClientCreation;
+    }
+
+    public void setClientCreation(Boolean clientCreation) {
+        isClientCreation = clientCreation;
     }
 }
