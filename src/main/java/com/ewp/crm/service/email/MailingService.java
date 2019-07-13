@@ -22,6 +22,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class MailingService {
     private static final String EMAIL_PATTERN = "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
     private static final String SMS_PATTERN = "\\d{11}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}";
     private static final String SLACK_PATTERN = ".+";
+    private static final int MAXMESSAGESINPOOL = 20;
 
     private final JavaMailSender javaMailSender;
     private final SMSService smsService;
@@ -109,14 +111,34 @@ public class MailingService {
         return result;
     }
 
+    public String getNextPoolOfEmails(Queue<String> queueOfAllEmails){
+        StringBuilder emailBuilder = new StringBuilder();
+
+        int counter = 0;
+        while(counter<MAXMESSAGESINPOOL && queueOfAllEmails.size()>0){
+            emailBuilder.append(queueOfAllEmails.poll());
+            counter++;
+            if(counter!=MAXMESSAGESINPOOL)emailBuilder.append(",");
+        }
+        return emailBuilder.toString();
+    }
+
     private boolean sendingMailingsEmails(MailingMessage message) {
         boolean result = false;
         try {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            for (ClientData email : message.getClientsData()) {
+
+            Queue<String> queue = new ArrayDeque<>();
+            message.getClientsData().stream().forEach(i -> queue.add(i.getInfo()));
+
+            while(!queue.isEmpty()){
+                // берем по 20 емэйл сообщений, забирая их из пула и отправляем и группами
+                String emails = getNextPoolOfEmails(queue);
+
                 mimeMessageHelper.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
-                mimeMessageHelper.setTo(email.getInfo());
+                mimeMessageHelper.setBcc(InternetAddress.parse(emails));
+
                 mimeMessageHelper.setSubject(env.getProperty("messaging.mailing.set-subject-personal-mentor"));
                 final Context ctx = new Context();
                 String templateText = message.getText().replaceAll("\n", "");
@@ -138,6 +160,7 @@ public class MailingService {
                 }
                 javaMailSender.send(mimeMessage);
             }
+
             message.setReadedMessage(true);
             mailingMessageRepository.save(message);
             result = true;
