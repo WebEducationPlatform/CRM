@@ -576,4 +576,14 @@ public class ClientRestController {
 		}
 		return result;
 	}
+
+    @PostMapping(value = "/filter")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+    public ResponseEntity setNewClientsOrder(@RequestParam FilterStatuses.FilterType newFilter,
+                                             @RequestParam Long statusId,
+                                             @RequestParam Long filterId,
+                                             @AuthenticationPrincipal User userFromSession) {
+        statusService.setNewFilterForChosenStatusForCurrentUser(newFilter, statusId, filterId, userFromSession);
+        return ResponseEntity.ok("Ok");
+    }
 }

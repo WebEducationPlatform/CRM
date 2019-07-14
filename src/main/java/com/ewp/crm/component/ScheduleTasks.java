@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@EnableScheduling
+//@EnableScheduling
 @PropertySource(value = "file:./skype-message.properties", encoding = "Cp1251")
 @PropertySource(value = "file:./advertisement-report.properties", encoding = "UTF-8")
 public class ScheduleTasks {

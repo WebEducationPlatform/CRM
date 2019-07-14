@@ -4,6 +4,7 @@ import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
+import com.ewp.crm.repository.interfaces.FilterStatusesRepository;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.*;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Filter;
+import java.util.stream.Collectors;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -27,6 +30,7 @@ public class StatusServiceImpl implements StatusService {
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
+	private final FilterStatusesRepository filterStatusesRepository;
 	private final RoleService roleService;
 	private final UserService userService;
 	private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
@@ -38,10 +42,12 @@ public class StatusServiceImpl implements StatusService {
 	@Autowired
 	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
 							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
-							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService,
+							 FilterStatusesRepository filterStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
+		this.filterStatusesRepository = filterStatusesRepository;
 		this.roleService = roleService;
 		this.env = env;
 		this.userService = userService;
@@ -84,6 +90,19 @@ public class StatusServiceImpl implements StatusService {
 			} else {
 				statusesWithSortedClients.add(status);
 			}
+//			Фильтры
+//			if(!status.getFilterStatuses().isEmpty()){
+//				for(FilterStatuses filter: status.getFilterStatuses()) {
+//					if( filter.getFilterType().equals(FilterStatuses.FilterType.BY_MENTOR) ){
+//						User mentor = userService.get(filter.getFilterId());
+//
+//						List<Client> clients = status.getClients();
+//						List<Client> newClientList = clients.stream().filter(client -> client.getOwnerMentor().equals(mentor))
+//								.collect(Collectors.toList());
+//						status.setClients(newClientList);
+//					}
+//				}
+//			}
 		}
 		return statusesWithSortedClients;
 	}
@@ -221,6 +240,15 @@ public class StatusServiceImpl implements StatusService {
 			SortedStatuses sortedStatus = new SortedStatuses(get(statusId).get(), currentUser);
 			sortedStatus.setSortingType(newOrder);
 			sortedStatusesRepository.save(sortedStatus);
+		}
+	}
+
+	@Override
+	public void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilterType newFilter, Long statusId, Long filterId,User currentUser) {
+		if (get(statusId).isPresent()) {
+			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(), currentUser, filterId);
+			filterStatus.setFilterType(newFilter);
+			filterStatusesRepository.save(filterStatus);
 		}
 	}
 

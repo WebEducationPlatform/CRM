@@ -1,9 +1,6 @@
 package com.ewp.crm.models.dto;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SortedStatuses;
-import com.ewp.crm.models.Status;
+import com.ewp.crm.models.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +19,7 @@ public class StatusDtoForBoard {
     private Integer trialOffset = 0;
     private Integer nextPaymentOffset = 0;
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
+    private Set<FilterStatuses> filterStatuses = new HashSet<>();
 
     public StatusDtoForBoard() {
     }
@@ -35,7 +33,8 @@ public class StatusDtoForBoard {
                              List<Role> role,
                              Integer trialOffset,
                              Integer nextPaymentOffset,
-                             Set<SortedStatuses> sortedStatuses) {
+                             Set<SortedStatuses> sortedStatuses,
+                             Set<FilterStatuses> filterStatuses) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -46,6 +45,7 @@ public class StatusDtoForBoard {
         this.trialOffset = trialOffset;
         this.nextPaymentOffset = nextPaymentOffset;
         this.sortedStatuses = sortedStatuses;
+        this.filterStatuses = filterStatuses;
     }
 
     public Long getId() {
@@ -142,6 +142,7 @@ public class StatusDtoForBoard {
         statusDtoForBoard.trialOffset = status.getTrialOffset();
         statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
         statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
+        statusDtoForBoard.filterStatuses = status.getFilterStatuses();
 
         return statusDtoForBoard;
     }

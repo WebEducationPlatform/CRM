@@ -149,6 +149,7 @@ public class ClientController {
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         statuses.sort(Comparator.comparing(StatusDtoForBoard::getPosition));
+
         // Добавляем список ролей системы, кроме OWNER
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("user", userFromSession);
