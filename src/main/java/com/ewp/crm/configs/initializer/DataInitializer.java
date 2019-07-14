@@ -239,12 +239,12 @@ public class DataInitializer {
         String defaultText = "Пожалуйста введите текст сообщения";
         String defaultTheme = "Java mentor";
 
-        MessageTemplate MessageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5,null);
-        MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4, null);
-        MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3, null);
-        MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2, null);
-        MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1, null);
-        MessageTemplate MessageTemplateWithoutTemplate = new MessageTemplate("Без шаблона", templateText1, defaultText, null);
+        MessageTemplate MessageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5,defaultTheme);
+        MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4, defaultTheme);
+        MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3, defaultTheme);
+        MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2, defaultTheme);
+        MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1, defaultTheme);
+        MessageTemplate MessageTemplateWithoutTemplate = new MessageTemplate("Без шаблона", templateText1, defaultText, defaultTheme);
 
         MessageTemplateService.add(MessageTemplate1);
         MessageTemplateService.add(MessageTemplate2);
