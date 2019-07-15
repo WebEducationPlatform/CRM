@@ -16,6 +16,11 @@
 
     <div class="container head-padding">
         <div class="container head-padding">
+            <label for="template-theme-rename" style="font-size: 20px">Задайте тему шаблона</label>
+            <input id="template-theme-rename" class="form-inline" required="required" th:value="${template.theme}"/>
+        </div>
+
+        <div class="container head-padding">
             <label style="font-size: 20px" for="socNetworkChoose">Редактирование шаблона </label>
             <select style="font-size: 20px" class="form-inline" id="socNetworkChoose" th:onchange="'switchTemplate()'">
                 <option th:id="email" value="email">email</option>

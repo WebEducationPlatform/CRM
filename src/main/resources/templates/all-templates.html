@@ -38,6 +38,7 @@
                     <td th:text="${template.name}"></td>
                     <td class="fit" align='right'>
                         <button class="btn btn-primary glyphicon glyphicon-font" th:data="${template.id}" th:value="${template.name}" onclick="renameTemplate(this)" title="Переименовать шаблон"></button>
+                        <button class="btn btn-primary glyphicon glyphicon-font glyphicon-text-size" th:data="${template.id}" th:value="${template.theme}" onclick="renameTemplateTheme(this)" title="Переименовать тему шаблона"></button>
                         <button class="button_edit_template btn btn-info glyphicon glyphicon-pencil" th:value="${template.id}" title="Изменить шаблон"></button>
                         <button class="button_delete_template btn btn-danger glyphicon glyphicon-remove" th:value="${template.id}" title="Удалить шаблон"></button>
                     </td>
@@ -74,6 +75,30 @@
     </div>
     <!--End of modal window for rename template-->
 
+    <!--Modal window for rename theme template-->
+    <div id="rename-theme-template-modal" class="modal fade main-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 id="modal-theme-header" class="modal-title">Переименование тему шаблона</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <h5 id="rename-theme-template-modal-err" class="modal-title" style="color: red; text-align: center"></h5>
+                            <label for="template-theme-rename">Отредактируйте тему шаблона</label>
+                            <input id="template-theme-rename" class="form-control" type="text"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="send_theme" type="button" class="btn btn-default">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End of modal window for rename theme template-->
     <div th:replace="fragments/add-template-modal::templateCreateModal"></div>
     <script type="text/javascript" th:src="@{/js/all-templates.js}"></script>
     <script type="text/javascript" th:src="@{/js/all-students.js}"></script>

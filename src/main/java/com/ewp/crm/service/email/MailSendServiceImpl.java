@@ -223,7 +223,7 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
 
-    public void prepareAndSend(Long clientId, String templateText, String body, User principal) {
+    public void prepareAndSend(Long clientId, String templateText, String body, User principal, String templateTheme) {
         String templateFile = "emailStringTemplate";
         Optional<Client> client = clientService.getClientByID(clientId);
         if (client.isPresent()) {
@@ -246,7 +246,11 @@ public class MailSendServiceImpl implements MailSendService {
                 final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
                 try {
                     final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                    mimeMessageHelper.setSubject("Java Mentor");
+                    if (templateTheme == null) {
+                        mimeMessageHelper.setSubject("Java Mentor");
+                    } else {
+                        mimeMessageHelper.setSubject(templateTheme);
+                    }
                     mimeMessageHelper.setTo(recipient);
                     mimeMessageHelper.setFrom(emailLogin);
                     StringBuilder htmlContent = new StringBuilder(htmlTemplateEngine.process(templateFile, ctx));
@@ -292,7 +296,7 @@ public class MailSendServiceImpl implements MailSendService {
 
     @Override
     public void sendSimpleNotification(Long clientId, String templateText) {
-        prepareAndSend(clientId, templateText, "", null);
+        prepareAndSend(clientId, templateText, "", null, null);
     }
 
     @Async
