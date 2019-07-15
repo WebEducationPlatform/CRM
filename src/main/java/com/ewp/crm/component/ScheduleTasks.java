@@ -188,6 +188,7 @@ public class ScheduleTasks {
 			Client client = assignSkypeCall.getToAssignSkypeCall();
 			String skypeTemplateHtml = env.getRequiredProperty("skype.template");
 			String skypeTemplateText = env.getRequiredProperty("skype.textTemplate");
+			String skypeTheme = env.getRequiredProperty("skype.theme");
 			User principal = assignSkypeCall.getFromAssignSkypeCall();
 			Long clientId = client.getId();
 			String dateOfSkypeCall = ZonedDateTime.parse(assignSkypeCall.getNotificationBeforeOfSkypeCall().toString())
@@ -209,7 +210,7 @@ public class ScheduleTasks {
 			}
 			if (client.getEmail().isPresent() && !client.getEmail().get().isEmpty()) {
 				try {
-					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal);
+					mailSendService.prepareAndSend(clientId, skypeTemplateHtml, dateOfSkypeCall, principal, skypeTheme);
 				} catch (Exception e) {
 					logger.warn("E-mail message not sent");
 				}
