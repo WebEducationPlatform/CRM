@@ -169,7 +169,15 @@ public class GoogleEmailConfig {
                             }
                         } else {
                             sendAutoAnswer = true;
-                            statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
+                                Optional<Status> jsPostPayStatus = statusService.get("Постоплата JS");
+                                if (!jsPostPayStatus.isPresent()) {
+                                    statusService.add(new Status("Постоплата JS"));
+                                }
+                                statusService.get("Постоплата JS").ifPresent(client::setStatus);
+                            } else {
+                                statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                            }
                         }
                         if (addClient) {
                             clientService.addClient(client, null);
