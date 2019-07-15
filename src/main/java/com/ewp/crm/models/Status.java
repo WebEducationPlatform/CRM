@@ -2,11 +2,12 @@ package com.ewp.crm.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.*;
 
@@ -27,6 +28,7 @@ public class Status implements Serializable {
 	 * Название статуса клиента (inLearningStatus, trialLearnStatus и тд)
 	 */
 	@Column(name = "status_name", nullable = false, unique = true)
+	@Filter(name="STATUSNAME", condition="name = : SName")
 	private String name;
 
 	/**

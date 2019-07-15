@@ -8,6 +8,8 @@ import com.ewp.crm.repository.interfaces.FilterStatusesRepository;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.*;
+import org.hibernate.Filter;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +17,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +37,7 @@ public class StatusServiceImpl implements StatusService {
 	private final UserService userService;
 	private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
 	private Environment env;
+	private EntityManager entityManager;
 
 
 	private static Logger logger = LoggerFactory.getLogger(StatusServiceImpl.class);
@@ -43,7 +46,7 @@ public class StatusServiceImpl implements StatusService {
 	public StatusServiceImpl(StatusDAO statusDAO, ProjectPropertiesService propertiesService,
 							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
 							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService,
-							 FilterStatusesRepository filterStatusesRepository) {
+							 FilterStatusesRepository filterStatusesRepository, EntityManager entityManager) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
@@ -52,6 +55,7 @@ public class StatusServiceImpl implements StatusService {
 		this.env = env;
 		this.userService = userService;
 		this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+		this.entityManager = entityManager;
 	}
 
 	@Autowired
@@ -90,19 +94,13 @@ public class StatusServiceImpl implements StatusService {
 			} else {
 				statusesWithSortedClients.add(status);
 			}
-//			Фильтры
-//			if(!status.getFilterStatuses().isEmpty()){
-//				for(FilterStatuses filter: status.getFilterStatuses()) {
-//					if( filter.getFilterType().equals(FilterStatuses.FilterType.BY_MENTOR) ){
-//						User mentor = userService.get(filter.getFilterId());
-//
-//						List<Client> clients = status.getClients();
-//						List<Client> newClientList = clients.stream().filter(client -> client.getOwnerMentor().equals(mentor))
-//								.collect(Collectors.toList());
-//						status.setClients(newClientList);
-//					}
-//				}
-//			}
+			//Фильтр
+			if (status.getFilterStatuses().size() != 0 ) {
+				for (FilterStatuses fs : status.getFilterStatuses()){
+
+					status.setClients(status.getClients().stream().filter(client -> (client.getOwnerMentor()!=null && client.getOwnerMentor().getId() == fs.getFilterId())).collect(Collectors.toList()));
+				}
+			}
 		}
 		return statusesWithSortedClients;
 	}

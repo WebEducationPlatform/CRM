@@ -7,12 +7,14 @@ import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
