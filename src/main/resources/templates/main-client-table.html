@@ -26,7 +26,8 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
-                               th:href="'/admin/client/add/' + ${status.name}">Добавить клиента</a></li>
+                               th:href="'/admin/client/add/' + ${status.name}"
+                               th:if="${role.authLevel lt 3}">Добавить клиента</a></li>
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -46,21 +47,23 @@
                                 </li>
                             </ul>
                         </li>
-                        <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
-                                                       data-toggle="modal" th:value="${status.id}">Удалить статус</a>
-                        </li>
-                        <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
-                               th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
-                        </li>
-                        <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
-                               th:value="${status.id}">Скрыть</a></li>
-                        <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox"
-                                                                                         type="checkbox"
-                                                                                         th:value="${status.id}"
-                                                                                         th:checked="${status.createStudent}"/></a>
-                        </li>
-                        <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal" data-target="#all-statuses-to-change-position" onclick="showAllStatuses()">Поменять позицию</a>
-                        </li>
+                        <div th:if="${role.authLevel lt 3}">
+                            <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
+                                                           data-toggle="modal" th:value="${status.id}">Удалить статус</a>
+                            </li>
+                            <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
+                                   th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
+                            </li>
+                            <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
+                                   th:value="${status.id}">Скрыть</a></li>
+                            <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox"
+                                                                                             type="checkbox"
+                                                                                             th:value="${status.id}"
+                                                                                             th:checked="${status.createStudent}"/></a>
+                            </li>
+                            <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal" data-target="#all-statuses-to-change-position" onclick="showAllStatuses()">Поменять позицию</a>
+                            </li>
+                        </div>
                     </ul>
                 </div>
                 <div style="height: 25px">
@@ -75,13 +78,13 @@
             </div>
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
-            <div th:replace="fragments/htmlFragments::deleteNotifications"></div>
+            <div th:replace="fragments/htmlFragments::deleteNotifications"
+                 th:if="${role.authLevel lt 3}"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}"
                  th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
 
                  th:attrprepend="data-card-id=${client.id}">
-                <!--th:onmouseout="'hideOption('+${client.id}+')'" -->
 
                 <div class="portlet-title portlet-title-groups">
 
@@ -96,9 +99,11 @@
                                th:text="${client.ownerUser.fullName}"></p>
                             <span th:id="'chat-notification'+${client.id}"
                                   class="chat-notification glyphicon glyphicon-send pull-right"
-                                  style="color: darkblue;display: none;"></span>
+                                  style="color: darkblue;display: none;"
+                                  th:if="${role.authLevel lt 3}"></span>
 
-                            <th:block th:each="notification_comment:${notifications_type_comment}">
+                            <th:block th:each="notification_comment:${notifications_type_comment}"
+                                      th:if="${role.authLevel lt 3}">
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
 
@@ -127,6 +132,10 @@
                                 </th:block>
 
                             </th:block>
+                            <div th:if="${role.authLevel eq 3}">
+                                <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
+                                  th:text="${client.ownerMentor.id}"></span>
+                            </div>
                             <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
                                   th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
@@ -179,7 +188,8 @@
                             <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
                             <!-- SMS ERROR INFO BTN -->
-                            <th:block th:each="notification_sms:${notifications_type_sms}">
+                            <th:block th:each="notification_sms:${notifications_type_sms}"
+                                      th:if="${role.authLevel lt 3}">
                                 <th:block th:if="${notification_sms.client == client}">
                                     <button type="button"
                                             style="color:red"
@@ -199,6 +209,7 @@
                                     style="display:inline-block"></button>
 
                             <ul class="dropdown-menu">
+                              <div th:if="${role.authLevel lt 3}">
                                 <th:block>
                                     <li class="dropdown-header">Назначить работника</li>
                                     <li th:each="worker : ${users}">
@@ -222,10 +233,12 @@
                                        th:attrappend="data-clientid=${client.id}, data-statusid=${inv_status.id}"></a>
                                 </li>
                                 <li class="divider"></li>
+                              </div>
 
                                 <li class="open-description-btn" th:attr="data-id=${client.id}">
                                     <a>Добавить заметку</a>
                                 </li>
+                              <div th:if="${role.authLevel lt 3}">
                                 <th:block>
                                     <li>
                                         <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с
@@ -243,6 +256,7 @@
                                         <a>Удалить клиента</a>
                                     </li>
                                 </th:block>
+                              </div>
                             </ul>
                         </span>
                     </div>
@@ -270,7 +284,7 @@
                 <!--<div class="portlet-content"></div>-->
             </div>
         </div>
-        <div class="create-new-status-column">
+        <div class="create-new-status-column" th:if="${role.authLevel lt 3}">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
@@ -289,15 +303,17 @@
             </form>
         </div>
     </div>
-    <!--Меню у админов и овнеров-->
-    <div id="panel">
+
+  <div id="panel" th:if="${role.authLevel lt 4}">
         <div id="panel-content">
             <div class="panel-group">
                 <div class="panel-title">
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-                <div id="statuses_group">
+              <div id="showOnlyMyClientsDiv" th:if="${role.authLevel eq 4}">
+              </div>
+              <div id="statuses_group" th:if="${role.authLevel lt 3}">
                     <div class="panel-heading" id="statuses-heading">
                         <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
                            href="#collapseStatuses">Скрытые статусы</a>
@@ -320,7 +336,7 @@
                     </div>
                 </div>
 
-                <div id="client_filter_group">
+                <div id="client_filter_group" th:if="${role.authLevel lt 3}">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseFilter">Фильтр клиентов</a>
@@ -335,7 +351,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="user_group">
+                <div id="user_group" th:if="${role.authLevel lt 3}">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseUser">Список сотрудников</a>
@@ -375,7 +391,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="new_user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
+                <div id="new_user_group" th:if="${role.authLevel lt 3}">
                     <div class="panel-heading" id="new_user_group-heading">
                         <a id="new_user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseNewUser">Список новых сотрудников</a>
@@ -398,19 +414,19 @@
                         </div>
                     </div>
                 </div>
-                <p><a href="/admin/user/add">
+                <p><a href="/admin/user/add" th:if="${role.authLevel lt 3}">
                     <button type="button" id="addNewUser">Добавить пользователя</button>
                 </a></p>
-                <p><a href="/admin/vkontakte/trackedclub">
+                <p><a href="/admin/vkontakte/trackedclub" th:if="${role.authLevel lt 3}">
                     <button type="button" id="vkClubList">Отслеживаемые группы VK</button>
                 </a></p>
-                <p><a href="/admin/YouTubeLive">
+                <p><a href="/admin/YouTubeLive" th:if="${role.authLevel lt 3}">
                     <button type="button" id="YouTubeLive">Отслеживаемая трансляция YouTube</button>
                 </a></p>
-                <p><a href="/feedback/all">
+                <p><a href="/feedback/all" th:if="${role.authLevel lt 3}">
                     <button type="button" id="feedback">Посмотреть все отзывы</button>
                 </a></p>
-                <p><a href="/report">
+                <p><a href="/report" th:if="${role.authLevel lt 3}">
                     <button class="button" type="button" id="report">Отчет</button>
                 </a></p>
             </div>
@@ -422,7 +438,7 @@
 </div>
 
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
-<div id="msg_status_to_new_clients" sec:authorize="hasAnyAuthority('OWNER')">
+<div id="msg_status_to_new_clients" th:if="${role.authLevel lt 2}">
     <span class="msg_close" onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для новых студентов
@@ -431,7 +447,7 @@
 </div>
 
 <!--settings-remainder Модалка для напоминания о birth-->
-<div id="birthday-template-status" sec:authorize="hasAnyAuthority('OWNER')">
+<div id="birthday-template-status" th:if="${role.authLevel lt 2}">
     <span class="msg_close" onclick="document.getElementById('birthday-template-status').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить шаблон для отправки сообщения пользователям о поздравлении с днем рождения!
@@ -440,7 +456,7 @@
 </div>
 
 <!-- Модалка для оповещения о статусе VK кампаний -->
-<div id="msg_campaigns" sec:authorize="hasAnyAuthority('OWNER')">
+<div id="msg_campaigns" th:if="${role.authLevel lt 2}">
     <span class="msg_close"
           onclick="document.getElementById('msg_campaigns').style.display='none'; return false;">X</span>
     <h4>Внимание!</h4>
@@ -449,9 +465,9 @@
     <a href="/vk/campaigns/all">Продвижение</a>
 </div>
 
+<div th:replace="fragments/htmlFragments::client_description_modal" th:if="${role.authLevel eq 3}"></div>
+
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
-<div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
-<div th:replace="fragments/htmlFragments::client_description_modal"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteMessageTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::vkontakteIMModal"></div>
@@ -459,25 +475,33 @@
 <div th:replace="fragments/htmlFragments::sendTemplateModal"></div>
 <div th:replace="fragments/htmlFragments::reAvailableUser"></div>
 <div th:replace="fragments/htmlFragments::deleteUser"></div>
-<div th:replace="fragments/htmlFragments::deleteNewUser"></div>
 <div th:replace="fragments/htmlFragments::sms_error_modal"></div>
 <div th:replace="fragments/conversations::conversationsModal"></div>
 <div th:replace="fragments/htmlFragments::slackLinkModal"></div>
-<div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
 <div th:replace="fragments/contract-client-setting-modal::contractClientSettingModal"></div>
 <div th:replace="fragments/contract-client-link-modal::contractClientLinkModal"></div>
 <div th:replace="fragments/other-information-link::otherInformationLink"></div>
 <div th:replace="fragments/other-information-value::otherInformationValue"></div>
-<div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
-<div th:replace="fragments/message-history::messageHistory"></div>
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
+  <div th:if="${role.authLevel lt 2}">
+    <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
+    <div th:replace="fragments/htmlFragments::client_description_modal"></div>
+    <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
+    <div th:replace="fragments/postponeCommentModal::postpone-comment-modal"></div>
+    <div th:replace="fragments/all-statuses-position-modal::allStatusesPositionsToChange"></div>
+    <div th:replace="fragments/message-history::messageHistory"></div>
 
-    var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
+    <script th:inline="javascript">
+      /*<![CDATA[*/
 
-    /*]]>*/
-</script>
+      var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
+
+      /*]]>*/
+    </script>
+    <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+    <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
+  </div>
+
 <script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
 <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
 <script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>
@@ -485,7 +509,6 @@
 <script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
 <script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
 <script type="text/javascript" th:src="@{/js/comments.js}"></script>
-<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
 <script type="text/javascript" th:src="@{/js/conversations.js}"></script>
@@ -495,12 +518,15 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="/js/moment-timezone.js"></script>
 <script type="text/javascript" th:src="@{/js/moment-timezone.js}"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
-<script type="text/javascript" th:src="@{/js/message-history.js}"></script>
+
+<script type="text/javascript" th:src="@{/js/mentor-menu.js}" th:if="${role.authLevel eq 3}"></script>
+
 </body>
 </html>
