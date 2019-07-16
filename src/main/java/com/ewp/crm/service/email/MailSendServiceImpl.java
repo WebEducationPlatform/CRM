@@ -90,40 +90,6 @@ public class MailSendServiceImpl implements MailSendService {
         }
     }
 
-
-    public void sendJsEmail(Client client) {
-        final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        final MimeMessageHelper mimeMessageHelper;
-        ProjectProperties properties = projectPropertiesService.getOrCreate();
-        MessageTemplate template = properties.getAutoAnswerTemplate();
-        Optional<String> emailOptional = client.getEmail();
-        if (emailOptional.isPresent() && !emailOptional.get().isEmpty()) {
-            try {
-                mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                mimeMessageHelper.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
-                mimeMessageHelper.setTo("Добрый день, спасибо за вашу заявку.\n" +
-                        "\n" +
-                        "В скором времени мы с вами свяжемся!\n" +
-                        "\n" +
-                        "Для оперативной связи вы можете писать нам прямо в vk: https://vk.com/java_mentor.\n" +
-                        "\n" +
-                        "С наилучшими пожеланиями, команда JavaMentor \n" +
-                        "\n" +
-                        "Присоединяйтесь к нашему сообществу JM и изучайте полезный контент в удобном для вас формате: \n" +
-                        "http://t.me/JavaMentor \n" +
-                        "https://vk.com/java_mentor\n" +
-                        "https://www.facebook.com/rujavamentor");
-                mimeMessageHelper.setSubject(env.getProperty("messaging.mailing.set-subject-personal-mentor"));
-                mimeMessageHelper.setText("", true);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
-            javaMailSender.send(mimeMessage);
-        } else {
-            logger.error("Can not send message! client id {} email not found or empty", client.getId());
-        }
-    }
-
     public void sendEmailInAllCases(Client client) {
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         final MimeMessageHelper mimeMessageHelper;
