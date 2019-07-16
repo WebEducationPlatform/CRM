@@ -2,13 +2,11 @@ package com.ewp.crm.service.impl;
 
 import com.ewp.crm.models.SocialProfile;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.User;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.models.conversation.ChatMessage;
 import com.ewp.crm.models.conversation.ChatType;
 import com.ewp.crm.models.conversation.Interlocutor;
-import com.ewp.crm.repository.interfaces.UserFindTurnService;
 import com.ewp.crm.service.conversation.JMConversation;
 import com.ewp.crm.service.interfaces.*;
 import com.google.common.primitives.Longs;
@@ -68,12 +66,12 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     private final SendNotificationService sendNotificationService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SocialProfileService socialProfileService;
-    private final UserFindTurnService userFindTurnService;
+    private final UserService userService;
 
     @Autowired
     public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusDAO statusRepository,
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
-                               ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService, UserFindTurnService userFindTurnService) {
+                               ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService, UserService userService) {
         this.env = env;
         this.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
         this.clientRepository = clientRepository;
@@ -82,7 +80,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         this.sendNotificationService = sendNotificationService;
         this.projectPropertiesService = projectPropertiesService;
         this.socialProfileService = socialProfileService;
-        this.userFindTurnService = userFindTurnService;
+        this.userService = userService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -633,8 +631,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 newClient.setSocialProfiles(Collections.singletonList(profile));
                 newClient.setStatus(statusRepository.findById(projectPropertiesService.getOrCreate().getNewClientStatus()).get());
                 clientHistoryService.createHistory("Telegram").ifPresent(newClient::addHistory);
-                User userToOwnCard = userFindTurnService.getUserToOwnCard();
-                newClient.setOwnerUser(userToOwnCard);
+                userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 sendNotificationService.sendNewClientNotification(newClient, "telegram");

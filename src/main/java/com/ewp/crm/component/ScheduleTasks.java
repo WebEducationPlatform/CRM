@@ -6,7 +6,6 @@ import com.ewp.crm.exceptions.util.FBAccessTokenException;
 import com.ewp.crm.exceptions.util.VKAccessTokenException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.repository.interfaces.UserFindTurnService;
 import com.ewp.crm.service.email.MailingService;
 import com.ewp.crm.service.interfaces.*;
 import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
@@ -89,7 +88,7 @@ public class ScheduleTasks {
 
 	private String adReportTemplate;
 
-	private final UserFindTurnService userFindTurnService;
+	private final UserService userService;
 
 	@Autowired
 	public ScheduleTasks(VKService vkService, PotentialClientService potentialClientService,
@@ -103,7 +102,7 @@ public class ScheduleTasks {
 						 YoutubeClientService youtubeClientService, AssignSkypeCallService assignSkypeCallService,
 						 MailSendService mailSendService, Environment env, ReportService reportService,
 						 VkCampaignService vkCampaignService, TelegramService telegramService,
-						 SlackService slackService, UserFindTurnService userFindTurnService) {
+						 SlackService slackService, UserService userService) {
 		this.vkService = vkService;
 		this.potentialClientService = potentialClientService;
 		this.youTubeTrackingCardService = youTubeTrackingCardService;
@@ -131,7 +130,7 @@ public class ScheduleTasks {
 		this.telegramService = telegramService;
 		this.slackService = slackService;
 		this.projectProperties = projectPropertiesService.getOrCreate();
-		this.userFindTurnService = userFindTurnService;
+		this.userService = userService;
 	}
 
 	private void addClientFromVk(Client newClient) {
@@ -146,8 +145,7 @@ public class ScheduleTasks {
             if (optionalEmail.isPresent() && !optionalEmail.get().matches(ValidationPattern.EMAIL_PATTERN)) {
                 newClient.setClientDescriptionComment(newClient.getClientDescriptionComment() + System.lineSeparator() + env.getProperty("messaging.client.email.error-in-field") + optionalEmail.get());
             }
-            User userToOwnCard = userFindTurnService.getUserToOwnCard();
-            newClient.setOwnerUser(userToOwnCard);
+            userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
             clientService.addClient(newClient, null);
             sendNotificationService.sendNewClientNotification(newClient, "vk");
             logger.info("New client with id {} has added from VK", newClient.getId());
