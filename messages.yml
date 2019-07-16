@@ -82,3 +82,4 @@ messaging:
       invalid-link: "Ссылка на социальную сеть %s недействительна" #IncomeStringToClient
     description:
       java-learn-link: "Заявка с сайта javalearn" #IncomeStringToClient
+      js-learn-link: "Заявка с jslearn.online" #IncomeStringToClient
