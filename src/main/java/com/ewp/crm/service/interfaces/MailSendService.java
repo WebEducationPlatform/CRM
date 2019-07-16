@@ -24,5 +24,7 @@ public interface MailSendService {
 
     void sendEmailInAllCases(Client client);
 
+    void sendJsEmail(Client client);
+
     void sendMessage(String email);
 }
