@@ -3,7 +3,6 @@ package com.ewp.crm.models;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 /**
  * Роль (user, admin, mentor и тд)
@@ -19,6 +18,9 @@ public class Role implements GrantedAuthority {
 
 	@Column(name = "role_name", unique = true, nullable = false)
 	private String roleName;
+
+	@Column(name = "auth_level")
+	private Long authLevel;
 
 	public Role() {
 	}
@@ -41,6 +43,14 @@ public class Role implements GrantedAuthority {
 
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
+	}
+
+	public Long getAuthLevel() {
+		return authLevel;
+	}
+
+	public void setAuthLevel(Long authLevel) {
+		this.authLevel = authLevel;
 	}
 
 	@Override
