@@ -318,18 +318,18 @@ public class MailSendServiceImpl implements MailSendService {
     }
 
     @Async
-    public void sendBootCampAnswer(String email) {
+    public void sendBootCampAnswer(String subject, String text, String email) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setSubject(env.getProperty("messaging.mailing.set-subject-bootcamp-autoanswer"));
-        message.setText(env.getProperty("messaging.mailing.set-message-bootcamp-autoanswer"));
+        message.setSubject(subject);
+        message.setText(text);
         message.setFrom(env.getProperty("messaging.mailing.set-from-Java-Mentor"));
         message.setTo(email);
         javaMailSender.send(message);
     }
 
     @Override
-    public void sendMessage(String email) {
-        sendBootCampAnswer(email);
+    public void sendMessage(String subject, String text, String email) {
+        sendBootCampAnswer(subject, text, email);
     }
 
 }

@@ -24,5 +24,5 @@ public interface MailSendService {
 
     void sendEmailInAllCases(Client client);
 
-    void sendMessage(String email);
+    void sendMessage(String subject, String text, String email);
 }
