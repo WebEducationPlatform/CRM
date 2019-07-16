@@ -152,6 +152,7 @@ public class ClientController {
         modelAndView.addObject("roles", roles);
         modelAndView.addObject("user", userFromSession);
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
+        modelAndView.addObject("users_without_mentors", userList.stream().filter(x -> !x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
