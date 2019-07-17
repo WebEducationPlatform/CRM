@@ -99,11 +99,9 @@
                                th:text="${client.ownerUser.fullName}"></p>
                             <span th:id="'chat-notification'+${client.id}"
                                   class="chat-notification glyphicon glyphicon-send pull-right"
-                                  style="color: darkblue;display: none;"
-                                  th:if="${role.authLevel lt 3}"></span>
+                                  style="color: darkblue;display: none;"></span>
 
-                            <th:block th:each="notification_comment:${notifications_type_comment}"
-                                      th:if="${role.authLevel lt 3}">
+                            <th:block th:each="notification_comment:${notifications_type_comment}">
                                 <th:block th:if="${notification_comment.client == client}">
                                    <span id="notification"
 
@@ -113,10 +111,19 @@
 
                             </th:block>
 
-
                             <th:block th:each="notification_new_user:${notifications_type_new_user}">
                                 <th:block th:if="${notification_new_user.client == client}">
                                    <span id="2у notification-new"
+
+                                         class="notification glyphicon glyphicon-bell"
+                                         style="color: red"></span>
+                                </th:block>
+
+                            </th:block>
+
+                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
+                                <th:block th:if="${notification_assign_skype.client == client}">
+                                   <span id="notification-new"
 
                                          class="notification glyphicon glyphicon-bell"
                                          style="color: red"></span>
@@ -188,8 +195,7 @@
                             <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
 
                             <!-- SMS ERROR INFO BTN -->
-                            <th:block th:each="notification_sms:${notifications_type_sms}"
-                                      th:if="${role.authLevel lt 3}">
+                            <th:block th:each="notification_sms:${notifications_type_sms}">
                                 <th:block th:if="${notification_sms.client == client}">
                                     <button type="button"
                                             style="color:red"
@@ -526,6 +532,7 @@
 <script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
 <script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
 <script type="text/javascript" th:src="@{/js/moment-timezone.js}"></script>
+<script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
@@ -543,7 +550,6 @@
 
 <div th:if="${role.authLevel lt 3}">
     <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
-    <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
 </div>
 
 </body>
