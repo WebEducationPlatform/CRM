@@ -437,6 +437,11 @@
     </div>
 </div>
 
+<div th:if="${role.authLevel eq 2}">
+    <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
+    <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
+</div>
+
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
 <div id="msg_status_to_new_clients" th:if="${role.authLevel lt 2}">
     <span class="msg_close" onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
@@ -465,7 +470,7 @@
     <a href="/vk/campaigns/all">Продвижение</a>
 </div>
 
-<div th:replace="fragments/htmlFragments::client_description_modal" th:if="${role.authLevel eq 3}"></div>
+<div th:replace="fragments/htmlFragments::client_description_modal" th:if="${role.authLevel gt 1}"></div>
 
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -483,7 +488,11 @@
 <div th:replace="fragments/other-information-link::otherInformationLink"></div>
 <div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
-  <div th:if="${role.authLevel lt 2}">
+<div th:if="${role.authLevel eq 2}">
+    <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
+</div>
+
+<div th:if="${role.authLevel lt 3}">
     <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
     <div th:replace="fragments/htmlFragments::client_description_modal"></div>
     <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
@@ -498,35 +507,44 @@
 
       /*]]>*/
     </script>
-    <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
-    <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
   </div>
 
-<script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
-<script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
-<script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>
-<script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
-<script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
-<script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
-<script type="text/javascript" th:src="@{/js/comments.js}"></script>
-<script type="text/javascript" th:src="@{/js/status.js}"></script>
-<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
-<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
-<script type="text/javascript" src="/js/moment-timezone.js"></script>
+<script type="text/javascript" src="https://cdn.voximplant.com/edge/voximplant.min.js"></script>
+
+<script type="text/javascript" th:src="@{/js/clientHistory.js}"></script>
+<script type="text/javascript" th:src="@{/js/comments.js}"></script>
+<script type="text/javascript" th:src="@{/js/conversations.js}"></script>
+<script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
+<script type="text/javascript" th:src="@{/js/doashboard-menu.js}"></script>
+<script type="text/javascript" th:src="@{/js/ip-telephony.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-modal.js}"></script>
+<script type="text/javascript" th:src="@{/js/main-modal-contract.js}"></script>
 <script type="text/javascript" th:src="@{/js/moment-timezone.js}"></script>
+<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
+<script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
+<script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
-<script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
-<script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 
 <script type="text/javascript" th:src="@{/js/mentor-menu.js}" th:if="${role.authLevel eq 3}"></script>
+
+<div th:if="${role.authLevel eq 2}">
+    <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
+    <script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
+    <script type="text/javascript" th:src="@{/js/main-hr-table.js}"></script>
+</div>
+
+<div th:if="${role.authLevel lt 3}">
+    <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
+    <script type="text/javascript" th:src="@{/js/notifications.js}"></script>
+</div>
 
 </body>
 </html>
