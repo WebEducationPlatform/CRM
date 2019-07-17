@@ -1,23 +1,9 @@
 package com.ewp.crm.controllers;
 
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Notification;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.MailingMessageRepository;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ListMailingService;
-import com.ewp.crm.service.interfaces.ListMailingTypeService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.NotificationService;
-import com.ewp.crm.service.interfaces.ProjectPropertiesService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.SlackService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
-import com.ewp.crm.service.interfaces.UserService;
+import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.ewp.crm.util.Constants.*;
 
 @Controller
 public class ClientController {
@@ -110,45 +97,43 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'OWNER', 'MENTOR', 'HR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'OWNER', 'MENTOR', 'HR', 'USER')")
     public ModelAndView getAll(@AuthenticationPrincipal User userFromSession) {
-        List<StatusDtoForBoard> statuses = null;
-        ModelAndView modelAndView = null;
-        //TODO Сделать ещё адекватней
+
+        ModelAndView modelAndView = new ModelAndView("main-client-table");
+        modelAndView.addObject("user", userFromSession);
+
         List<Role> sessionRoles = userFromSession.getRole();
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER"))) {
-            statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, roleService.getRoleByName("OWNER"));
-            modelAndView = new ModelAndView("main-client-table");
-            modelAndView.addObject("statuses", statuses);
-        } else {
-            Role priorityRole = roleService.getRoleByName("USER");
-            modelAndView = new ModelAndView("main-client-table-user");
-            if (sessionRoles.contains(roleService.getRoleByName("MENTOR"))) {
-                priorityRole = roleService.getRoleByName("MENTOR");
-                modelAndView = new ModelAndView("main-client-table-mentor");
-            }
-            if (sessionRoles.contains(roleService.getRoleByName("HR"))) {
-                priorityRole = roleService.getRoleByName("HR");
-                modelAndView = new ModelAndView("main-client-table");
-            }
-            if (sessionRoles.contains(roleService.getRoleByName("ADMIN"))) {
-                priorityRole = roleService.getRoleByName("ADMIN");
-                modelAndView = new ModelAndView("main-client-table");
-            }
-            statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, priorityRole);
-            modelAndView.addObject("statuses", statuses);
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
+            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
         }
-        List<User> userList = userService.getAll();
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
+            role = roleService.getRoleByName(ROLE_NAME_HR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
+            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
+            role = roleService.getRoleByName(ROLE_NAME_OWNER);
+        }
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+        modelAndView.addObject("statuses", statuses);
+
+        // Добавляем список ролей системы, кроме OWNER
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
-        // Добавляем список ролей системы, кроме OWNER
         modelAndView.addObject("roles", roles);
-        modelAndView.addObject("user", userFromSession);
+
+        List<User> userList = userService.getAll();
         modelAndView.addObject("users", userList.stream().filter(User::isVerified).collect(Collectors.toList()));
         modelAndView.addObject("newUsers", userList.stream().filter(x -> !x.isVerified()).collect(Collectors.toList()));
         modelAndView.addObject("mentors", userList.stream().filter(x -> x.getRole().contains(roleService.getRoleByName("MENTOR"))).collect(Collectors.toList()));
+
         modelAndView.addObject("emailTmpl", messageTemplateService.getAll());
+
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
+
         if (sessionRoles.contains(roleService.getRoleByName("OWNER")) ||
                 sessionRoles.contains(roleService.getRoleByName("ADMIN")) ||
                 sessionRoles.contains(roleService.getRoleByName("HR"))) {
