@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/hr")
-@PreAuthorize("hasAnyAuthority('OWNER','HR')")
+@PreAuthorize("hasAnyAuthority('OWNER','HR','MENTOR')")
 @PropertySource("file:./slackbot.properties")
 public class HrController {
 

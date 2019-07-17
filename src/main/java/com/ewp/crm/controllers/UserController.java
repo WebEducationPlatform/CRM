@@ -50,7 +50,7 @@ public class UserController {
 
 
 	@GetMapping(value = "/admin/user/{id}")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR', 'MENTOR')")
 	public ModelAndView clientInfo(@PathVariable Long id,
 								   @AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-info");
@@ -81,7 +81,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/user/customize")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER', 'HR','MENTOR')")
 	public ModelAndView getUserCustomize(@AuthenticationPrincipal User userFromSession) {
 		ModelAndView modelAndView = new ModelAndView("user-customize");
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
