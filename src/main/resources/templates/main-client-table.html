@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
+    <div th:replace="fragments/status-sticky-header::sticky-style"></div>
 </head>
 <body>
 
@@ -19,7 +20,7 @@
         <div th:replace="fragments/htmlFragments::createDefaultStatusModal"></div>
         <div th:id="'status-column'+${status.id}" class="column" th:each="status : ${statuses}" th:value="${status.id}"
              th:if="${!status.invisible}">
-            <div id="column-header">
+            <div class="column-header">
                 <div class="btn-group">
                     <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog"
                             data-toggle="dropdown">
@@ -502,5 +503,6 @@
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
+<div th:replace="fragments/status-sticky-header::sticky-scripts"></div>
 </body>
 </html>
