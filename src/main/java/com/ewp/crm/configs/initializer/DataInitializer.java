@@ -224,7 +224,7 @@ public class DataInitializer {
 
         String newLine = System.getProperty("line.separator");
         String otherText5 = "Добрый день!\n" + newLine +
-                "Спасибо за вашу заявку, скоро мы с вами свяжемся! %coordinator%" + newLine +
+                "Спасибо за вашу заявку, скоро мы с вами свяжемся!" + newLine +
                 "Когда вам было бы удобно провести первый созвон с ментором?" + newLine +
                 "С наилучшими пожеланиями," + newLine +
                 "команда JavaMentor.";
