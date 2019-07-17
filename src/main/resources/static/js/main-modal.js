@@ -377,7 +377,7 @@ $(function () {
                 } else {
                     btnBlock.after(
                         '<div class="remove-tag confirm-skype-interceptor">' +
-                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>' +
+                        '<button id="assign-skype' + client.id + '" onclick="assignSkype(' + client.id + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить первый созвон</button>' +
                         '<div class="skype-notification"></div>' +
                         '</div>')
                 }
@@ -854,7 +854,7 @@ function deleteCallDate(id) {
                     if (btnBlockShow.length > 0)
                     {
                         $('.confirm-skype-interceptor').remove();
-                        btnBlockShow.after('<div class="remove-tag confirm-skype-interceptor"><button id="assign-skype' + clientId + '" onclick="assignSkype(' + clientId + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить беседу в Skype</button>\n' +
+                        btnBlockShow.after('<div class="remove-tag confirm-skype-interceptor"><button id="assign-skype' + clientId + '" onclick="assignSkype(' + clientId + ')" class="btn btn-primary center-block assign-skype-call-btn btn-sm">Назначить первый созвон</button>\n' +
                             '<div class="skype-notification"></div>' +
                             '</div>')
                     } else {
