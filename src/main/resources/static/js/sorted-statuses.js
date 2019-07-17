@@ -5,7 +5,8 @@ $(".change-client-order").on('click', function () {
     console.log(statusId + " " + newOrder);
     $.post("/rest/client/order", {newOrder: newOrder, statusId: statusId})
         .done(function () {
-            location.reload();
+
+            // location.reload();
         });
 });
 

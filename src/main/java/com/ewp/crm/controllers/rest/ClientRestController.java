@@ -172,7 +172,7 @@ public class ClientRestController {
 	}
 
 	@GetMapping(value = "/getClientsData")
-	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR''HR')")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'USER','MENTOR','HR')")
 	public ResponseEntity<InputStreamResource> getClientsData() throws UnsupportedEncodingException {
 		String path = "DownloadData" + File.separator;
 		File file = new File(path + fileName);
