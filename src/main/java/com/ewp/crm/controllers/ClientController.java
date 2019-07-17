@@ -117,8 +117,6 @@ public class ClientController {
         if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
-        modelAndView.addObject("role", role);
-
         List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
         modelAndView.addObject("statuses", statuses);
 
