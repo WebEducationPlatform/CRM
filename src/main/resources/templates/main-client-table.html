@@ -8,11 +8,12 @@
     <link href="/css/bootstrap-social.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/style.css"/>
     <link rel="stylesheet" href="/css/settings-remainder.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
     <div th:replace="fragments/htmlFragments::custom-style"></div>
 </head>
-<body>
 
+<body>
 <div style="margin: 4%">
     <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
     <div id="status-columns" class="status-columns">
@@ -21,7 +22,8 @@
              th:if="${!status.invisible}">
             <div id="column-header">
                 <div class="btn-group">
-                    <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn" class="glyphicon glyphicon glyphicon-cog"
+                    <button type="button" th:onclick="'currentStatus('+ ${status.id} +')'" name="editStatusBtn"
+                            class="glyphicon glyphicon glyphicon-cog"
                             data-toggle="dropdown">
                     </button>
                     <ul class="dropdown-menu">
@@ -48,20 +50,26 @@
                             </ul>
                         </li>
                         <div th:if="${role.authLevel lt 3}">
-                            <li th:if="${status.id!=1}"><a id="delete-status-icon" class="glyphicon glyphicon-remove-circle"
-                                                           data-toggle="modal" th:value="${status.id}">Удалить статус</a>
+                            <li th:if="${status.id!=1}"><a id="delete-status-icon"
+                                                           class="glyphicon glyphicon-remove-circle"
+                                                           data-toggle="modal" th:value="${status.id}">Удалить
+                                статус</a>
                             </li>
-                            <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit" data-toggle="modal"
+                            <li><a id="update-status-icon" class="glyphicon glyphicon glyphicon-edit"
+                                   data-toggle="modal"
                                    th:attrappend="data-target='#renameStatusModal' + ${status.id}">Изменить статус</a>
                             </li>
                             <li><a id="hide-status-icon" class="glyphicon glyphicon-eye-close hide-status-btn"
                                    th:value="${status.id}">Скрыть</a></li>
-                            <li><a class="glyphicon glyphicon-user">Сделать студентом <input class="create_student_checkbox"
-                                                                                             type="checkbox"
-                                                                                             th:value="${status.id}"
-                                                                                             th:checked="${status.createStudent}"/></a>
+                            <li><a class="glyphicon glyphicon-user">Сделать студентом <input
+                                    class="create_student_checkbox"
+                                    type="checkbox"
+                                    th:value="${status.id}"
+                                    th:checked="${status.createStudent}"/></a>
                             </li>
-                            <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal" data-target="#all-statuses-to-change-position" onclick="showAllStatuses()">Поменять позицию</a>
+                            <li class="glyphicon dropdown"><a class="link-cursor-pointer" data-toggle="modal"
+                                                              data-target="#all-statuses-to-change-position"
+                                                              onclick="showAllStatuses()">Поменять позицию</a>
                             </li>
                         </div>
                     </ul>
@@ -141,7 +149,7 @@
                             </th:block>
                             <div th:if="${role.authLevel eq 3}">
                                 <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
-                                  th:text="${client.ownerMentor.id}"></span>
+                                      th:text="${client.ownerMentor.id}"></span>
                             </div>
                             <span th:if="${client.ownerUser != null}" class="user-icon_card"
                                   style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
@@ -310,16 +318,16 @@
         </div>
     </div>
 
-  <div id="panel" th:if="${role.authLevel lt 4}">
+    <div id="panel" th:if="${role.authLevel lt 4}">
         <div id="panel-content">
             <div class="panel-group">
                 <div class="panel-title">
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-              <div id="showOnlyMyClientsDiv" th:if="${role.authLevel eq 4}">
-              </div>
-              <div id="statuses_group" th:if="${role.authLevel lt 3}">
+                <div id="showOnlyMyClientsDiv" th:if="${role.authLevel eq 4}">
+                </div>
+                <div id="statuses_group" th:if="${role.authLevel lt 3}">
                     <div class="panel-heading" id="statuses-heading">
                         <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
                            href="#collapseStatuses">Скрытые статусы</a>
@@ -450,7 +458,8 @@
 
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
 <div id="msg_status_to_new_clients" th:if="${role.authLevel lt 2}">
-    <span class="msg_close" onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
+    <span class="msg_close"
+          onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить статус по умолчанию для новых студентов
     <p></p>
@@ -459,7 +468,8 @@
 
 <!--settings-remainder Модалка для напоминания о birth-->
 <div id="birthday-template-status" th:if="${role.authLevel lt 2}">
-    <span class="msg_close" onclick="document.getElementById('birthday-template-status').style.display='none'; return false;">X</span>
+    <span class="msg_close"
+          onclick="document.getElementById('birthday-template-status').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
     Необходимо установить шаблон для отправки сообщения пользователям о поздравлении с днем рождения!
     <p></p>
@@ -507,13 +517,13 @@
     <div th:replace="fragments/message-history::messageHistory"></div>
 
     <script th:inline="javascript">
-      /*<![CDATA[*/
+        /*<![CDATA[*/
 
-      var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
+        var slack_url = /*[[${slackWorkspaceUrl}]]*/ 'default';
 
-      /*]]>*/
+        /*]]>*/
     </script>
-  </div>
+</div>
 
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.4/jquery.textcomplete.min.js"></script>
