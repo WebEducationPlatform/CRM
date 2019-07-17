@@ -29,7 +29,7 @@
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}"
-                               th:if="${role.authLevel lt 3}">Добавить клиента</a></li>
+                               sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">Добавить клиента</a></li>
                         <li class="glyphicon  dropdown"><a class="link-cursor-pointer"><i
                                 class="glyphicon glyphicon-circle-arrow-up"></i>Упорядочить клиентов
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -49,7 +49,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <div th:if="${role.authLevel lt 3}">
+                        <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                             <li th:if="${status.id!=1}"><a id="delete-status-icon"
                                                            class="glyphicon glyphicon-remove-circle"
                                                            data-toggle="modal" th:value="${status.id}">Удалить
@@ -87,7 +87,7 @@
             <div th:replace="fragments/htmlFragments::changeStatusNameModal"></div>
             <div th:replace="fragments/htmlFragments::deleteStatusModal"></div>
             <div th:replace="fragments/htmlFragments::deleteNotifications"
-                 th:if="${role.authLevel lt 3}"></div>
+                 sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')"></div>
             <div class="portlet common-modal" th:each="client : ${status.clients}"
                  th:if="${!client.hideCard}"
                  th:value="${client.id}" th:onmouseover="'displayOption('+${client.id}+')'"
@@ -129,16 +129,6 @@
 
                             </th:block>
 
-                            <th:block th:each="notification_assign_skype:${notifications_type_assign_skype}">
-                                <th:block th:if="${notification_assign_skype.client == client}">
-                                   <span id="notification-new"
-
-                                         class="notification glyphicon glyphicon-bell"
-                                         style="color: red"></span>
-                                </th:block>
-
-                            </th:block>
-
                             <th:block th:each="notification_postpone:${notifications_type_postpone}">
                                 <th:block th:if="${notification_postpone.client == client}">
                                    <span th:id="'notification-postpone'+${client.id}"
@@ -147,7 +137,7 @@
                                 </th:block>
 
                             </th:block>
-                            <div th:if="${role.authLevel eq 3}">
+                            <div sec:authorize="hasAnyAuthority('MENTOR')">
                                 <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
                                       th:text="${client.ownerMentor.id}"></span>
                             </div>
@@ -223,7 +213,7 @@
                                     style="display:inline-block"></button>
 
                             <ul class="dropdown-menu">
-                              <div th:if="${role.authLevel lt 3}">
+                              <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                                 <th:block>
                                     <li class="dropdown-header">Назначить работника</li>
                                     <li th:each="worker : ${users}">
@@ -252,7 +242,7 @@
                                 <li class="open-description-btn" th:attr="data-id=${client.id}">
                                     <a>Добавить заметку</a>
                                 </li>
-                              <div th:if="${role.authLevel lt 3}">
+                              <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                                 <th:block>
                                     <li>
                                         <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с
@@ -298,7 +288,7 @@
                 <!--<div class="portlet-content"></div>-->
             </div>
         </div>
-        <div class="create-new-status-column" th:if="${role.authLevel lt 3}">
+        <div class="create-new-status-column" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
             <button type="button" id="create-new-status-btn">Новый статус...</button>
             <form role="form" id="new-status-form">
                 <div class="form-group" id="new-status-formgr">
@@ -318,16 +308,16 @@
         </div>
     </div>
 
-    <div id="panel" th:if="${role.authLevel lt 4}">
+    <div id="panel" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR','MENTOR')">
         <div id="panel-content">
             <div class="panel-group">
                 <div class="panel-title">
                     <a id="close-panel-icon" class="glyphicon glyphicon-remove"></a>
                     <h2>Меню</h2>
                 </div>
-                <div id="showOnlyMyClientsDiv" th:if="${role.authLevel eq 4}">
+                <div id="showOnlyMyClientsDiv" sec:authorize="hasAnyAuthority('MENTOR')">
                 </div>
-                <div id="statuses_group" th:if="${role.authLevel lt 3}">
+                <div id="statuses_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="statuses-heading">
                         <a id="status-label" data-toggle="collapse" data-parent="#accordion2"
                            href="#collapseStatuses">Скрытые статусы</a>
@@ -350,7 +340,7 @@
                     </div>
                 </div>
 
-                <div id="client_filter_group" th:if="${role.authLevel lt 3}">
+                <div id="client_filter_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="client-filter-heading">
                         <a id="client_filter_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseFilter">Фильтр клиентов</a>
@@ -365,7 +355,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="user_group" th:if="${role.authLevel lt 3}">
+                <div id="user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="user_group-heading">
                         <a id="user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseUser">Список сотрудников</a>
@@ -405,7 +395,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="new_user_group" th:if="${role.authLevel lt 3}">
+                <div id="new_user_group" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <div class="panel-heading" id="new_user_group-heading">
                         <a id="new_user_group_label" data-toggle="collapse" data-parent="#accordion"
                            href="#collapseNewUser">Список новых сотрудников</a>
@@ -428,19 +418,19 @@
                         </div>
                     </div>
                 </div>
-                <p><a href="/admin/user/add" th:if="${role.authLevel lt 3}">
+                <p><a href="/admin/user/add" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <button type="button" id="addNewUser">Добавить пользователя</button>
                 </a></p>
-                <p><a href="/admin/vkontakte/trackedclub" th:if="${role.authLevel lt 3}">
+                <p><a href="/admin/vkontakte/trackedclub" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <button type="button" id="vkClubList">Отслеживаемые группы VK</button>
                 </a></p>
-                <p><a href="/admin/YouTubeLive" th:if="${role.authLevel lt 3}">
+                <p><a href="/admin/YouTubeLive" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <button type="button" id="YouTubeLive">Отслеживаемая трансляция YouTube</button>
                 </a></p>
-                <p><a href="/feedback/all" th:if="${role.authLevel lt 3}">
+                <p><a href="/feedback/all" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <button type="button" id="feedback">Посмотреть все отзывы</button>
                 </a></p>
-                <p><a href="/report" th:if="${role.authLevel lt 3}">
+                <p><a href="/report" sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                     <button class="button" type="button" id="report">Отчет</button>
                 </a></p>
             </div>
@@ -451,13 +441,8 @@
     </div>
 </div>
 
-<div th:if="${role.authLevel eq 2}">
-    <input hidden="true" id="slackbotIp" th:value="${slackBotIp}"/>
-    <input hidden="true" id="slackbotPort" th:value="${slackBotPort}"/>
-</div>
-
 <!--settings-remainder Модалка для напоминания о статусе для новых студентов-->
-<div id="msg_status_to_new_clients" th:if="${role.authLevel lt 2}">
+<div id="msg_status_to_new_clients" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
     <span class="msg_close"
           onclick="document.getElementById('msg_status_to_new_clients').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
@@ -467,7 +452,7 @@
 </div>
 
 <!--settings-remainder Модалка для напоминания о birth-->
-<div id="birthday-template-status" th:if="${role.authLevel lt 2}">
+<div id="birthday-template-status" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
     <span class="msg_close"
           onclick="document.getElementById('birthday-template-status').style.display='none'; return false;">X</span>
     <h4>Напоминание</h4>
@@ -477,7 +462,7 @@
 </div>
 
 <!-- Модалка для оповещения о статусе VK кампаний -->
-<div id="msg_campaigns" th:if="${role.authLevel lt 2}">
+<div id="msg_campaigns" sec:authorize="hasAnyAuthority('OWNER','ADMIN')">
     <span class="msg_close"
           onclick="document.getElementById('msg_campaigns').style.display='none'; return false;">X</span>
     <h4>Внимание!</h4>
@@ -486,7 +471,8 @@
     <a href="/vk/campaigns/all">Продвижение</a>
 </div>
 
-<div th:replace="fragments/htmlFragments::client_description_modal" th:if="${role.authLevel gt 1}"></div>
+<div th:replace="fragments/htmlFragments::client_description_modal"
+     sec:authorize="hasAnyAuthority('HR','MENTOR','USER')"></div>
 
 <div th:replace="fragments/mainModal::mainModalWindow"></div>
 <div th:replace="fragments/htmlFragments::emailMessageTemplateModal"></div>
@@ -504,11 +490,11 @@
 <div th:replace="fragments/other-information-link::otherInformationLink"></div>
 <div th:replace="fragments/other-information-value::otherInformationValue"></div>
 
-<div th:if="${role.authLevel eq 2}">
+<div sec:authorize="hasAnyAuthority('HR')">
     <div th:replace="fragments/changeColorByStatusModal::change-color-by-status-modal"></div>
 </div>
 
-<div th:if="${role.authLevel lt 3}">
+<div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <div th:replace="fragments/modal-client-history-message::modalClientHistoryMessage"></div>
     <div th:replace="fragments/htmlFragments::client_description_modal"></div>
     <div th:replace="fragments/htmlFragments::deleteNewUser"></div>
@@ -550,15 +536,15 @@
 <script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>
 
-<script type="text/javascript" th:src="@{/js/mentor-menu.js}" th:if="${role.authLevel eq 3}"></script>
+<script type="text/javascript" th:src="@{/js/mentor-menu.js}" sec:authorize="hasAnyAuthority('MENTOR')"></script>
 
-<div th:if="${role.authLevel eq 2}">
+<div sec:authorize="hasAnyAuthority('HR')">
     <script type="text/javascript" th:src="@{/js/all-clients.js}"></script>
     <script type="text/javascript" th:src="@{/js/loading-animation.js}"></script>
     <script type="text/javascript" th:src="@{/js/main-hr-table.js}"></script>
 </div>
 
-<div th:if="${role.authLevel lt 3}">
+<div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
     <script type="text/javascript" th:src="@{/js/message-history.js}"></script>
 </div>
 
