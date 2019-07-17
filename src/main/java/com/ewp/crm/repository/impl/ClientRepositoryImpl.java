@@ -578,29 +578,40 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user) {
-        boolean isFiltered =false;
+        boolean isFiltered = false;
+        User mentor = null;
         StringBuilder filterQuery = new StringBuilder();
+        if (isAdmin){
+            filterQuery.append("SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id  ");
+        }else {
+            filterQuery.append("SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ");
+        }
         if (status.getFilterStatuses().size() != 0 ){
             for (FilterStatuses filterStatuses : status.getFilterStatuses()){
                 if (filterStatuses.getFilterType().equals(FilterStatuses.FilteredType.BY_MENTOR)){
-                    filterQuery.append("");
+                    filterQuery.append(" AND c.ownerMentor=:mentor ");
+                    mentor = (User) entityManager.createQuery("SELECT u FROM User u WHERE u.id=:u_id")
+                            .setParameter("u_id", filterStatuses.getFilterId())
+                            .getSingleResult();
+                    isFiltered = true;
                 }
             }
         }
-
-        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration" :
-                "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ORDER BY c.dateOfRegistration";
+        filterQuery.append(" ORDER BY c.dateOfRegistration");
         if (SortingType.NEW_FIRST.equals(order)) {
-            query += " DESC";
+            filterQuery.append(" DESC");
         }
-        List<Client> orderedClients = isAdmin ?
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .getResultList() :
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .setParameter("ownerUser", user)
-                        .getResultList();
+        Query query = entityManager.createQuery(filterQuery.toString());
+        if ( isAdmin){
+            query.setParameter("status_id", status.getId());
+        } else {
+            query.setParameter("status_id", status.getId())
+                    .setParameter("ownerUser", user);
+        }
+        if ( isFiltered ){
+            query.setParameter("mentor", mentor);
+        }
+        List<Client> orderedClients = query.getResultList();
         return orderedClients;
     }
 

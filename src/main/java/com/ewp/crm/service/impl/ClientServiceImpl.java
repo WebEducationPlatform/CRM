@@ -555,26 +555,7 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         return new ArrayList<>();
     }
 
-    @Override
-    public List<Client> getOrderedFilteredClientsInStatus(Status status, SortingType order, FilterStatuses.FilteredType filterType, User user) {
-        List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
-                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
-                user.getRole().contains(roleService.getRoleByName("HR"));
 
-        if (FilterStatuses.FilteredType.BY_MENTOR.equals(filterType)) {
-            if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-                orderedClients = clientRepository.getClientsInStatusFilteredOrderedByRegistration(status, order,filterType, isAdmin, user);
-                return orderedClients;
-            }
-            if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-                orderedClients = clientRepository.getClientsInStatusFilteredOrderedByHistory(status, order,filterType, isAdmin, user);
-                return orderedClients;
-            }
-        }
-        logger.error("Error with sorting clients");
-        return new ArrayList<>();
-    }
     @Override
     public Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName) {
         return Optional.ofNullable(clientRepository.getClientByNameAndLastNameIgnoreCase(name, lastName));

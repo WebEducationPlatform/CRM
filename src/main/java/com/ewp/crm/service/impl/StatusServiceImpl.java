@@ -75,6 +75,11 @@ public class StatusServiceImpl implements StatusService {
 		for (Status status : statuses) {
 
 			sorted = new SortedStatuses(status, userFromSession);
+			if ( status.getFilterStatuses().size() != 0 ){
+//				SortedStatuses finalSorted = sorted;
+//				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+				status.setClients(clientService.getOrderedClientsInStatus(status, SortingType.NEW_FIRST, userFromSession));
+			}
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
 				SortedStatuses finalSorted = sorted;
 				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
@@ -93,11 +98,7 @@ public class StatusServiceImpl implements StatusService {
 			} else {
 				statusesWithSortedClients.add(status);
 			}
-            if ( status.getFilterStatuses().size() != 0 ){
-                SortedStatuses finalSorted = sorted;
-                SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-                status.setClients(clientService.getOrderedFilteredClientsInStatus(status, sortingType, userFromSession));
-            }
+
 		}
 		return statusesWithSortedClients;
 	}
