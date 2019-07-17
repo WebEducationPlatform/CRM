@@ -1,6 +1,6 @@
 messaging:
   notification:
-    new-client: "\r\nВаш координатор: %s" #SendNotificationServiceImpl
+    new-client: "\r\nКоординатор: %s" #SendNotificationServiceImpl
     set-comment: "Для Вас %s в комментариях под карточкой %s %s написал: \" %s \"" #SendNotificationServiceImpl
   call-records:
     exception:
