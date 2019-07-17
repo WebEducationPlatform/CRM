@@ -20,9 +20,9 @@ public class FilterStatuses implements Serializable {
 
     @Column(name = "filterType")
     @Enumerated(EnumType.STRING)
-    private FilterType filterType ;
+    private FilteredType filterType ;
 
-    public enum FilterType {
+    public enum FilteredType {
         BY_MENTOR,          // выборка списка клиентов в статусе по ментору
         BY_OWNER
         }
@@ -69,11 +69,11 @@ public class FilterStatuses implements Serializable {
         this.user = user;
     }
 
-    public FilterType getFilterType() {
+    public FilteredType getFilterType() {
         return filterType;
     }
 
-    public void setFilterType(FilterType filterType) {
+    public void setFilterType(FilteredType filterType) {
         this.filterType = filterType;
     }
 

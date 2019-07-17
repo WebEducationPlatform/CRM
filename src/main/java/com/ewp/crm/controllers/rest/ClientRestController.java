@@ -579,7 +579,7 @@ public class ClientRestController {
 
     @PostMapping(value = "/filter")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
-    public ResponseEntity setNewClientsOrder(@RequestParam FilterStatuses.FilterType newFilter,
+    public ResponseEntity setNewClientsOrder(@RequestParam FilterStatuses.FilteredType newFilter,
                                              @RequestParam Long statusId,
                                              @RequestParam Long filterId,
                                              @AuthenticationPrincipal User userFromSession) {

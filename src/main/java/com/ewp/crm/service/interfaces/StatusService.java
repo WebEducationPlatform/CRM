@@ -44,7 +44,7 @@ public interface StatusService {
     List<Status> getAllStatusesForStudents();
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
-    void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilterType newFilter, Long statusId,Long filterId, User currentUser);
+    void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser);
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 }

@@ -578,6 +578,16 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user) {
+        boolean isFiltered =false;
+        StringBuilder filterQuery = new StringBuilder();
+        if (status.getFilterStatuses().size() != 0 ){
+            for (FilterStatuses filterStatuses : status.getFilterStatuses()){
+                if (filterStatuses.getFilterType().equals(FilterStatuses.FilteredType.BY_MENTOR)){
+                    filterQuery.append("");
+                }
+            }
+        }
+
         String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration" :
                 "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ORDER BY c.dateOfRegistration";
         if (SortingType.NEW_FIRST.equals(order)) {

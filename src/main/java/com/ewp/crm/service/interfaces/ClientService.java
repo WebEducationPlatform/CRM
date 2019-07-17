@@ -69,6 +69,8 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
 
+	List<Client> getOrderedFilteredClientsInStatus(Status status, SortingType order, FilterStatuses.FilteredType filterType, User user);
+
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
   
 	void updateClientFromContractForm(Client client, ContractDataForm contractForm, User authUser);

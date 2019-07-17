@@ -8,8 +8,6 @@ import com.ewp.crm.repository.interfaces.FilterStatusesRepository;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusDAO;
 import com.ewp.crm.service.interfaces.*;
-import org.hibernate.Filter;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -68,6 +65,7 @@ public class StatusServiceImpl implements StatusService {
 	public List<Status> getStatusesWithSortedClientsByRole(@AuthenticationPrincipal User userFromSession, Role role) {
 		List<Status> statuses;
 		List<Status> statusesWithSortedClients = new ArrayList<>();
+
 		if(role.equals(roleService.getRoleByName("OWNER"))) {
 			statuses = getAll();
 		} else{
@@ -75,6 +73,7 @@ public class StatusServiceImpl implements StatusService {
 		}
 		SortedStatuses sorted;
 		for (Status status : statuses) {
+
 			sorted = new SortedStatuses(status, userFromSession);
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
 				SortedStatuses finalSorted = sorted;
@@ -94,13 +93,11 @@ public class StatusServiceImpl implements StatusService {
 			} else {
 				statusesWithSortedClients.add(status);
 			}
-			//Фильтр
-			if (status.getFilterStatuses().size() != 0 ) {
-				for (FilterStatuses fs : status.getFilterStatuses()){
-
-					status.setClients(status.getClients().stream().filter(client -> (client.getOwnerMentor()!=null && client.getOwnerMentor().getId() == fs.getFilterId())).collect(Collectors.toList()));
-				}
-			}
+            if ( status.getFilterStatuses().size() != 0 ){
+                SortedStatuses finalSorted = sorted;
+                SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+                status.setClients(clientService.getOrderedFilteredClientsInStatus(status, sortingType, userFromSession));
+            }
 		}
 		return statusesWithSortedClients;
 	}
@@ -242,7 +239,7 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilterType newFilter, Long statusId, Long filterId,User currentUser) {
+	public void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser) {
 		if (get(statusId).isPresent()) {
 			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(), currentUser, filterId);
 			filterStatus.setFilterType(newFilter);

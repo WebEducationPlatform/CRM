@@ -17,6 +17,9 @@ import java.util.*;
 @Entity
 @Table(name = "status")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@FilterDefs(@FilterDef(name = "FILTERMENTOR",parameters={
+		@ParamDef( name="mentor", type="long")
+}))
 public class Status implements Serializable {
 
 	@Id
@@ -28,7 +31,6 @@ public class Status implements Serializable {
 	 * Название статуса клиента (inLearningStatus, trialLearnStatus и тд)
 	 */
 	@Column(name = "status_name", nullable = false, unique = true)
-	@Filter(name="STATUSNAME", condition="name = : SName")
 	private String name;
 
 	/**
@@ -56,6 +58,7 @@ public class Status implements Serializable {
 	@JoinTable(name = "status_clients",
 			joinColumns = {@JoinColumn(name = "status_id", foreignKey = @ForeignKey(name = "FK_STATUS"))},
 			inverseJoinColumns = {@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER"))})
+	@Filter(name="FILTERMENTOR", condition="owner_mentor_id = :mentor")
 	private List<Client> clients;
 
 	/**
