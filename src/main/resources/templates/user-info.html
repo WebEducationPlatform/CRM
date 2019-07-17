@@ -87,7 +87,7 @@
                         <label for="edit-user-city">Город</label>
                         <input type="text" class="form-control" required="required" disabled="disabled" id="edit-user-city" th:value="${user.city}"/>
                     </div>
-                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
+                    <div class="form-group" id = "edit-user-roles" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">
                         <label for="edit-user-roles">Роли</label>
                         <div id="current-user-roles">
                             <span th:each="role : ${user.role}" th:value="${role.id}"></span>
@@ -97,7 +97,7 @@
                             <label th:for="'checkbox-user-' + ${role.id}" th:text="${role.roleName}"></label>
                         </div>
                     </div>
-                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">
+                    <div class="form-group" id = "edit-user-notifications-settings" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR', 'MENTOR')">
                         <label for="edit-user-notifications-settings">Настройки оповещений</label>
                         <div class="checkbox">
                             <th:block th:if="${user.enableMailNotifications}">

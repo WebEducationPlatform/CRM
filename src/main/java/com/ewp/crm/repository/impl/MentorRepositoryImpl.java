@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 
 @Repository
 public class MentorRepositoryImpl implements MentorRepository {
@@ -25,7 +26,11 @@ public class MentorRepositoryImpl implements MentorRepository {
 
     @Override
     public Boolean getMentorShowAllClientsById(Long userId) {
-        return (Boolean) entityManager.createNativeQuery("SELECT mentor_show_only_my_clients FROM mentor WHERE user_id = " + userId).getSingleResult();
+        try {
+            return (Boolean) entityManager.createNativeQuery("SELECT mentor_show_only_my_clients FROM mentor WHERE user_id = " + userId).getSingleResult();
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
     @Transactional
