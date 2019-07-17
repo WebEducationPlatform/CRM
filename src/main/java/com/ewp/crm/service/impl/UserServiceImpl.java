@@ -157,11 +157,11 @@ public class UserServiceImpl extends CommonServiceImpl<User> implements UserServ
     public Optional<User> getUserToOwnCard() {
         User userToOwnClient = null;
         long roleId = roleService.getRoleByName("HR").getId();
-            Query query1 = entityManager.createNativeQuery("SELECT * FROM  user, permissions WHERE" +
+            Query query = entityManager.createNativeQuery("SELECT * FROM  user, permissions WHERE" +
                     "    user.user_id = permissions.user_id AND role_id = :roleId ORDER BY user.last_client_date  LIMIT 1;", User.class)
                     .setParameter("roleId", roleId);
-            if (query1.getResultList().size() != 0) {
-                userToOwnClient = (User) query1.getSingleResult();
+            if (query.getResultList().size() != 0) {
+                userToOwnClient = (User) query.getSingleResult();
                 logger.info("Coordinator for new client card to own found: " + userToOwnClient.getFullName());
                 userToOwnClient.setLastClientDate(Instant.now());
                 update(userToOwnClient);
