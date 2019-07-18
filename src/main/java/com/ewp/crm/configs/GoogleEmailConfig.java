@@ -168,8 +168,18 @@ public class GoogleEmailConfig {
                                 statusService.get("Постоплата 3").ifPresent(client::setStatus);
                             }
                         } else {
-                            sendAutoAnswer = true;
-                            statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                            if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
+                                Optional<Status> jsPostPayStatus = statusService.get("Постоплата JS");
+                                if (!jsPostPayStatus.isPresent()) {
+                                    statusService.add(new Status("Постоплата JS"));
+                                }
+                                statusService.get("Постоплата JS").ifPresent(client::setStatus);
+                                sendAutoAnswer = false;
+                                prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-subject-js-learn-autoanswer"), env.getProperty("messaging.mailing.set-message-js-learn-autoanswer"), client.getEmail().get());
+                            } else {
+                                sendAutoAnswer = true;
+                                statusService.getFirstStatusForClient().ifPresent(client::setStatus);
+                            }
                         }
                         if (addClient) {
                             clientService.addClient(client, null);
@@ -182,7 +192,7 @@ public class GoogleEmailConfig {
                         } else {
                             if (client.getEmail().isPresent()) {
                                 logger.info("Got request from javabootcamp, sending auto answer to " + client.getEmail().get());
-                                prepareAndSend.sendMessage(client.getEmail().get());
+                                prepareAndSend.sendMessage(env.getProperty("messaging.mailing.set-subject-bootcamp-autoanswer"), env.getProperty("messaging.mailing.set-message-bootcamp-autoanswer"), client.getEmail().get());
                             } else {
                                 logger.info("No email found when parsing request from javabootcamp.ru: " + parser.getHtmlContent());
                             }

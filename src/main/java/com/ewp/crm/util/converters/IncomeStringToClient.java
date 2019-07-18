@@ -40,7 +40,8 @@ public class IncomeStringToClient {
             "Задать вопрос",
             "Java Test",
             "javalearn",
-            "javabootcamp.ru"
+            "javabootcamp.ru",
+            "jslearn.online"
     );
 
     private enum KEYS {
@@ -89,6 +90,9 @@ public class IncomeStringToClient {
                 client = parseClient(workString);
                 if (income.contains("javalearn")) {
                     client.setClientDescriptionComment(env.getProperty("messaging.client.description.java-learn-link"));
+                }
+                if (income.contains("jslearn.online")) {
+                    client.setClientDescriptionComment(env.getProperty("messaging.client.description.js-learn-link"));
                 }
             } else {
                 logger.error("The incoming email does not match any of the templates!!!");

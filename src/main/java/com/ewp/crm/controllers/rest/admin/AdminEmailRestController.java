@@ -49,6 +49,7 @@ public class AdminEmailRestController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN', 'HR')")
     public HttpStatus editETemplate(@RequestParam("templateName") String templateName,
                                     @RequestParam("templateText") String templateText,
+                                    @RequestParam("theme") String themeTemplate,
                                     @RequestParam String otherTemplateText) {
         //TODO Убрать хардкод
         String msgTemplateDefaultTextBody = "%bodyText%";
@@ -63,13 +64,16 @@ public class AdminEmailRestController {
         if (text.length() == 0 || otherText.length() == 0) {
             throw new MessageTemplateException("Заполните шаблоны для всех типов сообщения: email/vk,sms,facebook");
         }
-
+        if (themeTemplate.length() == 0) {
+            throw new MessageTemplateException("Заполните тему сообщения");
+        }
         if (!messageTemplateOpt.isPresent()) {
-            messageTemplate = new MessageTemplate(templateName, templateText, otherTemplateText);
+            messageTemplate = new MessageTemplate(templateName, templateText, otherTemplateText, themeTemplate);
         } else {
             messageTemplate = messageTemplateOpt.get();
             messageTemplate.setTemplateText(templateText);
             messageTemplate.setOtherText(otherTemplateText);
+            messageTemplate.setTheme(themeTemplate);
         }
 
         messageTemplateService.update(messageTemplate);

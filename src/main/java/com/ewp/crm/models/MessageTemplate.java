@@ -24,6 +24,9 @@ public class MessageTemplate {
 	@Column(name = "other_text")
 	private String otherText;
 
+	@Column(name = "theme")
+	private String theme;
+
 	public MessageTemplate() {
 	}
 
@@ -33,10 +36,11 @@ public class MessageTemplate {
 		this.otherText = "";
 	}
 
-	public MessageTemplate(String name, String templateText, String otherText) {
+	public MessageTemplate(String name, String templateText, String otherText, String theme) {
 		this.name = name;
 		this.templateText = templateText;
 		this.otherText = otherText;
+		this.theme = theme;
 	}
 
 	public Long getId() {
@@ -75,6 +79,14 @@ public class MessageTemplate {
 
 	public void setTemplateText(String templateText) {
 		this.templateText = templateText;
+	}
+
+	public String getTheme() {
+		return theme;
+	}
+
+	public void setTheme(String theme) {
+		this.theme = theme;
 	}
 
 	@Override
