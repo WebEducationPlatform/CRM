@@ -37,10 +37,12 @@ window.onbeforeunload = function () {
 function saveTemplate(templateName) {
     let url = '/admin/editMessageTemplate';
     let text = $('#textTemplateArea').val();
+    let themeTemplate = $('#template-theme-rename').val();
     let wrap = {
         templateName: templateName,
         templateText: CKEDITOR.instances['body'].getData(),
-        otherTemplateText: text
+        otherTemplateText: text,
+        theme: themeTemplate
     };
     var current = document.getElementById("message");
     $.ajax({
