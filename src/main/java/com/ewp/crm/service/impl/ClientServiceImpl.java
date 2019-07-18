@@ -541,17 +541,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+    public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
         List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
-                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
-                user.getRole().contains(roleService.getRoleByName("HR"));
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
             return orderedClients;
         }
         if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
             return orderedClients;
         }
         logger.error("Error with sorting clients");
@@ -677,18 +674,15 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getSortedClientsByStatusAndUser(Status status, User user, SortingType order) {
+    public List<Client> getSortedClientsByStatus(Status status, SortingType order) {
         List<Client> orderedClients = Collections.emptyList();
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
-                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
-                user.getRole().contains(roleService.getRoleByName("HR"));
 
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
         }
 
         if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
         }
 
         return orderedClients;
@@ -699,4 +693,5 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
         super.delete(id);
     }
+
 }

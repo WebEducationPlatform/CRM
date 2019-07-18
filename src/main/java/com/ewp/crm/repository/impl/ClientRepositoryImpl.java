@@ -50,7 +50,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                 "LEFT JOIN c.socialProfiles AS sp " +
                 "LEFT JOIN c.student AS s " +
                 "WHERE s IS NOT NULL AND sp.socialNetworkType = :socialProfileType")
-                .setParameter("socialProfileType",SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
+                .setParameter("socialProfileType", SocialNetworkType.valueOf(socialProfileType.toUpperCase()))
                 .getResultList();
     }
 
@@ -155,18 +155,18 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public ClientHistory getClientFirstStatusChangingHistory(long clientId) {
-         List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE c.id = :clientId AND h.title LIKE CONCAT('%',:status,'% из %') ORDER BY h.date ASC")
-                 .setParameter("clientId", clientId)
-                 .setParameter("status", ClientHistory.Type.STATUS.getInfo())
-                 .setFirstResult(0)
-                 .setMaxResults(1)
-                 .getResultList();
+        List<ClientHistory> result = entityManager.createQuery("SELECT h FROM Client c JOIN c.history AS h WHERE c.id = :clientId AND h.title LIKE CONCAT('%',:status,'% из %') ORDER BY h.date ASC")
+                .setParameter("clientId", clientId)
+                .setParameter("status", ClientHistory.Type.STATUS.getInfo())
+                .setFirstResult(0)
+                .setMaxResults(1)
+                .getResultList();
         return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
     public boolean hasClientStatusChangingHistory(long clientId) {
-         return getClientFirstStatusChangingHistory(clientId) != null;
+        return getClientFirstStatusChangingHistory(clientId) != null;
     }
 
     @Override
@@ -291,7 +291,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
                     .getResultList();
         }
         Map<Client, List<ClientHistory>> result = new HashMap<>();
-        for (ClientHistory history :histories) {
+        for (ClientHistory history : histories) {
             if (!result.containsKey(history.getClient())) {
                 result.put(history.getClient(), new ArrayList<>());
             }
@@ -388,7 +388,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     public boolean isTelegramClientPresent(Integer id) {
         List<SocialProfile> result = entityManager.createQuery("SELECT s FROM SocialProfile s WHERE s.socialId = :telegramId AND s.socialNetworkType = :socialType", SocialProfile.class)
                 .setParameter("telegramId", id.toString())
-                .setParameter("socialType",  SocialNetworkType.valueOf("telegram".toUpperCase()))
+                .setParameter("socialType", SocialNetworkType.valueOf("telegram".toUpperCase()))
                 .getResultList();
         return !result.isEmpty();
     }
@@ -499,7 +499,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
         }
 
         if (filteringCondition.getDateTo() != null) {
-            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo().atTime(23,59,59)).append("'");
+            query.append(" and cl.dateOfRegistration <= '").append(filteringCondition.getDateTo().atTime(23, 59, 59)).append("'");
         }
 
         if (filteringCondition.getStatus() != null) {
@@ -577,39 +577,22 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order, boolean isAdmin, User user) {
-        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration" :
-                "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id AND (c.ownerUser in (:ownerUser) or c.ownerUser is NULL) ORDER BY c.dateOfRegistration";
+    public List<Client> getClientsInStatusOrderedByRegistration(Status status, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s WHERE s.id=:status_id ORDER BY c.dateOfRegistration";
         if (SortingType.NEW_FIRST.equals(order)) {
             query += " DESC";
         }
-        List<Client> orderedClients = isAdmin ?
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .getResultList() :
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .setParameter("ownerUser", user)
-                        .getResultList();
-        return orderedClients;
+
+        return (List<Client>) entityManager.createQuery(query).setParameter("status_id", status.getId()).getResultList();
     }
 
     @Override
-    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user) {
-        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)" :
-                "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
+    public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order) {
+        String query = "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)";
         if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
             query += " DESC";
         }
-        List<Client> orderedClients = isAdmin ?
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .getResultList() :
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .setParameter("ownerUser", user)
-                        .getResultList();
-        return orderedClients;
+        return (List<Client>) entityManager.createQuery(query).setParameter("status_id", status.getId()).getResultList();
     }
 
     @Transactional

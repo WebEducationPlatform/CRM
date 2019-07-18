@@ -4,7 +4,6 @@ import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.RoleService;
 import com.ewp.crm.service.interfaces.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,16 +21,13 @@ import java.util.Optional;
 @RequestMapping(value = "/status")
 public class StatusController {
     private final StatusService statusService;
-    private final RoleService roleService;
     private final MessageTemplateService messageTemplateService;
 
     @Autowired
     public StatusController(
             StatusService statusService,
-            RoleService roleService,
             MessageTemplateService messageTemplateService) {
         this.statusService = statusService;
-        this.roleService = roleService;
         this.messageTemplateService = messageTemplateService;
     }
 
