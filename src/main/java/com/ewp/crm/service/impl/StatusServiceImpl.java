@@ -3,6 +3,7 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
+import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
@@ -282,6 +283,11 @@ public class StatusServiceImpl implements StatusService {
         newStatus.setSortedStatuses(status.getSortedStatuses());
 
         return Optional.of(newStatus);
+    }
+
+    @Override
+    public List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role) {
+        return statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId());
     }
 
 }
