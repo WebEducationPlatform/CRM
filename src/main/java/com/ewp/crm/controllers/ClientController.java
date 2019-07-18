@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.ewp.crm.util.Constants.*;
+
 @Controller
 public class ClientController {
 
@@ -103,7 +105,22 @@ public class ClientController {
         ModelAndView modelAndView = new ModelAndView("main-client-table");
         modelAndView.addObject("user", userFromSession);
 
-        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
+        List<Role> sessionRoles = userFromSession.getRole();
+        Role role = roleService.getRoleByName(ROLE_NAME_USER);
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_MENTOR))) {
+            role = roleService.getRoleByName(ROLE_NAME_MENTOR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_HR))) {
+            role = roleService.getRoleByName(ROLE_NAME_HR);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_ADMIN))) {
+            role = roleService.getRoleByName(ROLE_NAME_ADMIN);
+        }
+        if (sessionRoles.contains(roleService.getRoleByName(ROLE_NAME_OWNER))) {
+            role = roleService.getRoleByName(ROLE_NAME_OWNER);
+        }
+        List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+//        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         modelAndView.addObject("statuses", statuses);
 
         modelAndView.addObject("counter", new AtomicInteger(0));
