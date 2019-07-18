@@ -49,4 +49,6 @@ public interface StatusService {
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 
     Optional<Status> findStatusWithSortedClientsByUser(Long statusId, User userFromSession);
+
+    Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User userFromSession);
 }

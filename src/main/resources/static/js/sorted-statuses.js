@@ -2,6 +2,10 @@ $(document).ready(function () {
     let i = 1;
     while ($("#column-number" + i).length) {
         const statusId = $("#column-number" + i).attr("value");
+        $.get("/rest/client/order", {statusId: statusId})
+            .done(function (order) {
+                $("#" + order + statusId).addClass("active");
+            });
         const url = "/status/" + statusId;
         $("#clients-for-status" + statusId).load(url);
         i++;
@@ -12,14 +16,21 @@ $(document).ready(function () {
 $(".change-client-order").on('click', function () {
     const newOrder = $(this).attr("id");
     const statusId = $(this).parents(".column").attr("value");
-    console.log(statusId + " " + newOrder);
     $.post("/rest/client/order", {newOrder: newOrder, statusId: statusId})
         .done(function () {
-
-            // location.reload();
+            const url = "/status/" + statusId;
+            $("#clients-for-status" + statusId).load(url);
         });
+    clearActiveClientOrder(statusId);
+    $("#" + newOrder + statusId).addClass("active");
 });
 
+function clearActiveClientOrder(statusId) {
+    $("#NEW_FIRST" + statusId).removeClass("active");
+    $("#OLD_FIRST" + statusId).removeClass("active");
+    $("#NEW_CHANGES_FIRST" + statusId).removeClass("active");
+    $("#OLD_CHANGES_FIRST" + statusId).removeClass("active");
+}
 
 function displayOption(clientId) {
     $("#option_" + clientId).show();

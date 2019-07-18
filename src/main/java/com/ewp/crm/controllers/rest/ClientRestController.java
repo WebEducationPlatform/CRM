@@ -504,6 +504,21 @@ public class ClientRestController {
         return ResponseEntity.ok("Ok");
     }
 
+	@GetMapping(value = "/order")
+	public ResponseEntity<SortingType> getClientsOrder(@RequestParam(name = "statusId") final Long statusId,
+													   @AuthenticationPrincipal final User userFromSession) {
+		final Optional<SortingType> optional = statusService.findOrderForChosenStatusForCurrentUser(statusId, userFromSession);
+		SortingType sortingType;
+		if (optional.isPresent()) {
+			sortingType = optional.get();
+		} else {
+			sortingType = SortingType.NEW_FIRST;
+			statusService.setNewOrderForChosenStatusForCurrentUser(sortingType, statusId, userFromSession);
+		}
+
+		return new ResponseEntity<>(sortingType, HttpStatus.OK);
+	}
+
 	@PostMapping(value = "/massInputSend")
 	public void massClientInputSave(@RequestParam(name = "emailList") String emailList,
 									@RequestParam(name = "fioList") String fioList,
