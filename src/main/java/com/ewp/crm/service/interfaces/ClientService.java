@@ -66,7 +66,7 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
+	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
   
@@ -86,5 +86,5 @@ public interface ClientService extends CommonService<Client> {
 
 	void setOtherInformationLink(Long clientId, String hash);
 
-    List<Client> getSortedClientsByStatusAndUser(Status status, User userFromSession, SortingType sortingType);
+    List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
 }
