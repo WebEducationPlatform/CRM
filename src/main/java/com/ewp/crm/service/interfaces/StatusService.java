@@ -45,6 +45,7 @@ public interface StatusService {
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
     void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser);
+     void clearFilterForChosenStatusForCurrentUser(Long statusId,  User currentUser);
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 }

@@ -6,3 +6,9 @@ function setFilterByMentor(mentorId,statusId) {
             location.reload();
         });
 }
+function clearFilterByMentor(statusId) {
+    $.post("/rest/client/filter/clear", { statusId: statusId})
+        .done(function () {
+            location.reload();
+        });
+}

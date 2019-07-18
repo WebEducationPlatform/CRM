@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StatusServiceImpl implements StatusService {
@@ -73,31 +74,40 @@ public class StatusServiceImpl implements StatusService {
 		}
 		SortedStatuses sorted;
 		for (Status status : statuses) {
-
+			Status newStatus = new Status();
+			newStatus.setPosition(status.getPosition());
+			newStatus.setCreateStudent(status.isCreateStudent());
+			newStatus.setName(status.getName());
+			newStatus.setRole(status.getRole());
+			newStatus.setInvisible(status.getInvisible());
+			newStatus.setNextPaymentOffset(status.getNextPaymentOffset());
+			newStatus.setTrialOffset(status.getTrialOffset());
+			newStatus.setId(status.getId());
+			newStatus.setSortedStatuses(status.getSortedStatuses());
+			newStatus.setFilterStatuses(status.getFilterStatuses());
+			newStatus.setClients(status.getClients());
 			sorted = new SortedStatuses(status, userFromSession);
 			if ( status.getFilterStatuses().size() != 0 ){
 //				SortedStatuses finalSorted = sorted;
 //				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-				status.setClients(clientService.getOrderedClientsInStatus(status, SortingType.NEW_FIRST, userFromSession));
+				newStatus.setClients(clientService.getOrderedClientsInStatus(status, SortingType.NEW_FIRST, userFromSession));
 			}
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {
 				SortedStatuses finalSorted = sorted;
 				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
-				Status newStatus = new Status();
-				newStatus.setPosition(status.getPosition());
 				newStatus.setClients(clientService.getOrderedClientsInStatus(status, sortingType, userFromSession));
-				newStatus.setCreateStudent(status.isCreateStudent());
-				newStatus.setName(status.getName());
-				newStatus.setRole(status.getRole());
-				newStatus.setInvisible(status.getInvisible());
-				newStatus.setNextPaymentOffset(status.getNextPaymentOffset());
-				newStatus.setTrialOffset(status.getTrialOffset());
-				newStatus.setId(status.getId());
-				newStatus.setSortedStatuses(status.getSortedStatuses());
-				statusesWithSortedClients.add(newStatus);
-			} else {
-				statusesWithSortedClients.add(status);
+
 			}
+//			а так наверное правильнее филтровать: данные-то уже в памяти все есть, зачем запросы еще в базу делать)
+//			if ( status.getFilterStatuses().size() != 0 ){
+////				SortedStatuses finalSorted = sorted;
+////				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
+//				for ( FilterStatuses fs : newStatus.getFilterStatuses()){
+//					newStatus.setClients(newStatus.getClients().stream().filter(
+//							client -> (client.getOwnerMentor()!= null && client.getOwnerMentor().getId() == fs.getFilterId()) ).collect(Collectors.toList()));
+//				}
+//			}
+				statusesWithSortedClients.add(newStatus);
 
 		}
 		return statusesWithSortedClients;
@@ -245,6 +255,13 @@ public class StatusServiceImpl implements StatusService {
 			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(), currentUser, filterId);
 			filterStatus.setFilterType(newFilter);
 			filterStatusesRepository.save(filterStatus);
+		}
+	}
+	@Override
+	public void clearFilterForChosenStatusForCurrentUser(Long statusId,  User currentUser) {
+		if (get(statusId).isPresent()) {
+			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(),currentUser);
+			filterStatusesRepository.delete(filterStatus);
 		}
 	}
 

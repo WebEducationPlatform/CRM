@@ -617,19 +617,53 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user) {
-        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)" :
-                "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
-        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
-            query += " DESC";
+//        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)" :
+//                "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
+//        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
+//            query += " DESC";
+//        }
+//        List<Client> orderedClients = isAdmin ?
+//                entityManager.createQuery(query)
+//                        .setParameter("status_id", status.getId())
+//                        .getResultList() :
+//                entityManager.createQuery(query)
+//                        .setParameter("status_id", status.getId())
+//                        .setParameter("ownerUser", user)
+//                        .getResultList();
+        boolean isFiltered = false;
+        User mentor = null;
+        StringBuilder filterQuery = new StringBuilder();
+        if (isAdmin){
+            filterQuery.append("SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id ");
+        }else {
+            filterQuery.append("SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) ");
         }
-        List<Client> orderedClients = isAdmin ?
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .getResultList() :
-                entityManager.createQuery(query)
-                        .setParameter("status_id", status.getId())
-                        .setParameter("ownerUser", user)
-                        .getResultList();
+        if (status.getFilterStatuses().size() != 0 ){
+            for (FilterStatuses filterStatuses : status.getFilterStatuses()){
+                if (filterStatuses.getFilterType().equals(FilterStatuses.FilteredType.BY_MENTOR)){
+                    filterQuery.append(" AND c.ownerMentor=:mentor ");
+                    mentor = (User) entityManager.createQuery("SELECT u FROM User u WHERE u.id=:u_id")
+                            .setParameter("u_id", filterStatuses.getFilterId())
+                            .getSingleResult();
+                    isFiltered = true;
+                }
+            }
+        }
+        filterQuery.append(" GROUP BY c ORDER BY MAX(h.date)");
+        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
+            filterQuery.append(" DESC");
+        }
+        Query query = entityManager.createQuery(filterQuery.toString());
+        if ( isAdmin){
+            query.setParameter("status_id", status.getId());
+        } else {
+            query.setParameter("status_id", status.getId())
+                    .setParameter("ownerUser", user);
+        }
+        if ( isFiltered ){
+            query.setParameter("mentor", mentor);
+        }
+        List<Client> orderedClients = query.getResultList();
         return orderedClients;
     }
 

@@ -66,6 +66,9 @@
                             <i class="glyphicon glyphicon-chevron-right"></i></a>
                             <ul class="dropdown-menu sub-menu">
                                 <li class="dropdown-header">... по ментору (выбрать)</li>
+                                <li >  <a class="change-client-filter"
+                                          th:onclick="'clearFilterByMentor('+${status.id}+')'"><i>Очистить фильтр</i></a>
+                                </li>
                                 <li th:each="worker : ${mentors}">
                                     <a class="change-client-filter"
                                        th:text="${worker.fullName}"

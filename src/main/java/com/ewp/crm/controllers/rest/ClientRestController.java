@@ -586,4 +586,14 @@ public class ClientRestController {
         statusService.setNewFilterForChosenStatusForCurrentUser(newFilter, statusId, filterId, userFromSession);
         return ResponseEntity.ok("Ok");
     }
+
+	@PostMapping(value = "/filter/clear")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	public ResponseEntity setNewClientsOrder(
+											 @RequestParam Long statusId,
+
+											 @AuthenticationPrincipal User userFromSession) {
+		statusService.clearFilterForChosenStatusForCurrentUser( statusId,  userFromSession);
+		return ResponseEntity.ok("Ok");
+	}
 }
