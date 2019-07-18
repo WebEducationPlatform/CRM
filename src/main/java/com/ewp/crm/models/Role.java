@@ -3,7 +3,6 @@ package com.ewp.crm.models;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 /**
  * Роль (user, admin, mentor и тд)

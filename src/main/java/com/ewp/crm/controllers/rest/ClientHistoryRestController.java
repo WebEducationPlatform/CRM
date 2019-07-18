@@ -28,8 +28,8 @@ public class ClientHistoryRestController {
 	}
 
 	@GetMapping("/getHistory/{clientId}")
-	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page) {
-		List<ClientHistoryDto> clientHistory = clientHistoryService.getAllDtoByClientId(id, page, pageSize);
+	public ResponseEntity getClientHistory(@PathVariable("clientId") long id, @RequestParam("page")int page, @RequestParam("isAsc")boolean isAsc) {
+		List<ClientHistoryDto> clientHistory = clientHistoryService.getAllDtoByClientId(id, page, pageSize, isAsc);
 		return ResponseEntity.ok(clientHistory);
 	}
 

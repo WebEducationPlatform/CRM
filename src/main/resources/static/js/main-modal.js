@@ -585,11 +585,13 @@ $(function () {
                 }
                 ulComments.append(html);
 
+                /* Client history first loading */
                 $.ajax({
                     method: 'GET',
                     url: '/client/history/rest/getHistory/' + client.id,
                     data: {
-                        page: 0
+                        page: 0,
+                        isAsc: true
                     },
                     success: function (history) {
                         let history_table = $('#client-' + client.id + 'history').find("tbody");
@@ -600,6 +602,8 @@ $(function () {
                         } else {
                             upload_more_btn.show();
                         }
+                        //reset arrow
+                        $('#date').find('i').removeClass('fa-sort-down').addClass('fa-sort-up');
                         //draw client history
                         drawClientHistory(history, history_table);
                     }
@@ -1394,6 +1398,7 @@ function unassignMentor(id) {
             let info_client = $('#info-client' + id);
             info_client.find("p[style*='display:none']").remove();
             info_client.find(".mentor-icon_card").remove();
+            info_client.find(".ownerMentorId").remove();
             if (unassignBtn.length !== 0) {
                 unassignBtn.before(
                     "<button " +

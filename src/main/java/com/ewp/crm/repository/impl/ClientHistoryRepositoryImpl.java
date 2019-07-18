@@ -5,7 +5,7 @@ import com.ewp.crm.models.ClientHistory;
 import com.ewp.crm.models.User;
 import com.ewp.crm.models.dto.ClientHistoryDto;
 import com.ewp.crm.repository.interfaces.ClientHistoryRepositoryCustom;
-import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.repository.interfaces.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +30,11 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
     private final String statusChangeMessageTemplate;
     private final String statusChangeMessageTemplateFull;
     private final EntityManager entityManager;
-    private final StatusDAO statusDao;
+    private final StatusRepository statusDao;
     private final UserDAO userDao;
 
     @Autowired
-    public ClientHistoryRepositoryImpl(EntityManager entityManager, StatusDAO statusDao, UserDAO userDao,
+    public ClientHistoryRepositoryImpl(EntityManager entityManager, StatusRepository statusDao, UserDAO userDao,
                                        Environment env) {
         this.entityManager = entityManager;
         this.statusDao = statusDao;
@@ -44,16 +44,19 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
     }
 
     @Override
-    public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize) {
+    public List<ClientHistoryDto> getAllDtoByClientId(long id, int page, int pageSize, boolean isAsc) {
         List<ClientHistoryDto> result = new ArrayList<>();
 
-        List<Tuple> tuples = entityManager.createNativeQuery(
+        String order = (isAsc) ? " ASC " : " DESC ";
+
+        String sqlQuery =
                 " SELECT * FROM ( " +
                         " ( " +
                         " SELECT 'history' AS `type`, `h`.`date` AS `date`, `h`.`record_link` AS `record_link`, `h`.`link` AS `link`, `h`.`title` AS `title`, null AS `new_status_id`, null AS `source_status_id`, null AS `user_id` " +
                         " FROM `history` `h` " +
                         " LEFT JOIN `history_client` `hc` ON `h`.`history_id` = `hc`.`history_id` " +
                         " WHERE `hc`.`client_id` = :clientId " +
+                        " AND h.history_type NOT LIKE 'STATUS' " +
                         " ) " +
                         " UNION ALL " +
                         " ( " +
@@ -61,9 +64,10 @@ public class ClientHistoryRepositoryImpl implements ClientHistoryRepositoryCusto
                         " FROM `client_status_changing_history` `csch` " +
                         " WHERE `csch`.`client_id` = :clientId " +
                         " )) `result` " +
-                        " ORDER BY `result`.`date` DESC " +
-                        " LIMIT :startFrom , :count ",
-                Tuple.class)
+                        " ORDER BY `result`.`date` " + order +
+                        " LIMIT :startFrom , :count ";
+
+        List<Tuple> tuples = entityManager.createNativeQuery(sqlQuery, Tuple.class)
                 .setParameter("clientId", id)
                 .setParameter("startFrom", page * pageSize)
                 .setParameter("count", pageSize)

@@ -1,7 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
-import com.ewp.crm.repository.interfaces.StatusDAO;
+import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @RestController
@@ -27,7 +26,7 @@ public class TelegramBotRestController {
     private ClientHistoryService clientHistoryService;
     private ClientService clientService;
     private CommentService commentService;
-    private StatusDAO statusRepository;
+    private StatusRepository statusRepository;
     private ProjectPropertiesService projectPropertiesService;
 
     @Autowired
@@ -35,7 +34,7 @@ public class TelegramBotRestController {
                                      ClientHistoryService clientHistoryService,
                                      ClientService clientService,
                                      CommentService commentService,
-                                     StatusDAO statusRepository,
+                                     StatusRepository statusRepository,
                                      ProjectPropertiesService projectPropertiesService
                                      ) {
 
@@ -188,7 +187,7 @@ public class TelegramBotRestController {
             history.setTitle(history.getTitle() + " чата с TelegramBot");
             newClient.addHistory(history);
         });
-        clientService.addClient(newClient);
+        clientService.addClient(newClient, userFromSession);
         telegramClientReq.setClient(newClient);
         telegramClientReqService.add(telegramClientReq);
         logger.info("TelegramBot {} has added client with id {}", userFromSession.getFullName(), newClient.getId());

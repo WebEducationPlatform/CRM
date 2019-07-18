@@ -1,4 +1,4 @@
-package com.ewp.crm.models;
+package com.ewp.crm.models.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -8,17 +8,17 @@ import java.util.List;
  * Class for sending reports in a JSON format via ReportRestController
  */
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Report {
+public class ReportDto {
 
     private String message;
-    private List<Client> clients;
+    private List<ClientDto> clients;
 
-    public Report(String message, List<Client> clients) {
+    public ReportDto(String message, List<ClientDto> clients) {
         this.message = message;
         this.clients = clients;
     }
 
-    public Report() {
+    public ReportDto() {
     }
 
     public String getMessage() {
@@ -29,11 +29,11 @@ public class Report {
         this.message = message;
     }
 
-    public List<Client> getClients() {
+    public List<ClientDto> getClients() {
         return clients;
     }
 
-    public void setClients(List<Client> clients) {
+    public void setClients(List<ClientDto> clients) {
         this.clients = clients;
     }
 }

@@ -97,3 +97,46 @@ function renameTemplate(button) {
         }
     });
 };
+
+//Rename template
+function renameTemplateTheme(button) {
+    //Get id and name
+    var id = button.getAttribute('data');
+    var oldThemeName = button.value;
+    //Set name field
+    document.getElementById('template-theme-rename').value = oldThemeName;
+    //Clean error row
+    $("#rename-theme-template-modal-err").empty();
+    //Show modal
+    $('#rename-theme-template-modal').modal('show');
+    //Save new name, remove old click listeners before
+    $("#send_theme").off('click').click(function () {
+        //Get new name
+        var newThemeName = $('#template-theme-rename').val();
+        var pattern = /^(?!\s*$).+/;
+        //Check name
+        if (oldThemeName === newThemeName) {
+            //Hide modal
+            $('#rename-theme-template-modal').modal('hide');
+        } else if (pattern.test(newThemeName)) {
+            var data = {
+                id: id,
+                theme: newThemeName
+            };
+            $.ajax({
+                type: 'POST',
+                url: '/rest/message-template/renameTheme',
+                data: data,
+                success: function (response) {
+                    if (response === "BAD_REQUEST") {
+                        alert("Такая тема уже используется!");
+                    } else {
+                        location.reload();
+                    }
+                }
+            });
+        } else {
+            $("#rename-theme-template-modal-err").html("Тема шаблона не может быть пустым!");
+        }
+    });
+};
