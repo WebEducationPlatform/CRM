@@ -2,6 +2,7 @@ package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
+import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/rest/status")
@@ -55,6 +54,12 @@ public class StatusRestController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER', 'MENTOR')")
     public ResponseEntity<List<Client>> getStatusByID(@PathVariable Long id) {
         return statusService.get(id).map(s -> ResponseEntity.ok(clientService.getAllClientsByStatus(s))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(value = "lost", method = {RequestMethod.POST}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Client>> getLostStudentByStatus(@RequestBody List<String> emails) {
+        List<Client> clientsToEmails = clientService.getClientsByEmails(emails);
+        return ResponseEntity.ok(clientsToEmails);
     }
 
     @PostMapping(value = "/add")
