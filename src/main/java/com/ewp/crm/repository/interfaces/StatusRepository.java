@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface StatusRepository extends JpaRepository<Status, Long>, StatusRepositoryCustom {
+public interface StatusRepository extends JpaRepository<Status, Long> {
 
 	Status getStatusByName(String name);
 
@@ -36,4 +36,5 @@ public interface StatusRepository extends JpaRepository<Status, Long>, StatusRep
 
 	@Query(value = "SELECT position FROM status WHERE status_id = ?1", nativeQuery = true)
 	Long getStatusPositionById(Long id);
+
 }

@@ -960,6 +960,206 @@
     </div>
 </th:block>
 
+<th:block th:fragment="clientsForStatus">
+    <div class="portlet common-modal"
+         th:each="client : ${status.clients}"
+         th:if="${!client.hideCard}"
+         th:value="${client.id}"
+         th:onmouseover="'displayOption('+${client.id}+')'"
+         th:attrprepend="data-card-id=${client.id}">
+
+        <div class="portlet-title portlet-title-groups">
+            <div class="portlet-title__group-left">
+                <div class="clickModal text-board" th:id="'info-client' + ${client.id}"
+                     style="margin-left: 2px;display: inline-block;height: 12px;">
+
+                    <p th:if="${client.ownerUser != null}" style="display:none"
+                       th:text="${client.ownerUser.fullName}"></p>
+
+                    <span th:id="'chat-notification'+${client.id}"
+                          class="chat-notification glyphicon glyphicon-send pull-right"
+                          style="color: darkblue;display: none;"></span>
+
+                    <th:block th:each="notification_comment:${notifications_type_comment}">
+                        <th:block th:if="${notification_comment.client == client}">
+                                   <span id="notification"
+
+                                         class="notification glyphicon glyphicon-bell"
+                                         style="color: red"></span>
+                        </th:block>
+
+                    </th:block>
+
+                    <th:block th:each="notification_new_user:${notifications_type_new_user}">
+                        <th:block th:if="${notification_new_user.client == client}">
+                                   <span id="2у notification-new"
+
+                                         class="notification glyphicon glyphicon-bell"
+                                         style="color: red"></span>
+                        </th:block>
+
+                    </th:block>
+
+                    <th:block th:each="notification_postpone:${notifications_type_postpone}">
+                        <th:block th:if="${notification_postpone.client == client}">
+                                   <span th:id="'notification-postpone'+${client.id}"
+                                         class="glyphicon glyphicon-time"
+                                         style="color: red" th:onclick="'markAsReadMenu('+ ${client.id} +',0)'"></span>
+                        </th:block>
+
+                    </th:block>
+                    <div sec:authorize="hasAnyAuthority('MENTOR')">
+                                <span class="ownerMentorId" th:if="${client.ownerMentor != null}" style="display:none"
+                                      th:text="${client.ownerMentor.id}"></span>
+                    </div>
+                    <span th:if="${client.ownerUser != null}" class="user-icon_card"
+                          style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
+                          th:text="${#strings.substring(client.ownerUser.firstName, 0,1)
+                                  + #strings.substring(client.ownerUser.lastName, 0,1)
+                                  }"
+                          th:value="${client.ownerUser.firstName} + ' ' + ${client.ownerUser.lastName}"
+                          th:id="'own-' + ${client.id}">
+                                </span>
+                    <span th:if="${client.ownerMentor != null}" class="mentor-icon_card"
+                          style="background: transparent;height: 15px; font-size: 12px;font-weight: bold;"
+                          th:text="' Ментор: ' + ${#strings.substring(client.ownerMentor.firstName, 0,1)
+                                  + #strings.substring(client.ownerMentor.lastName, 0,1)
+                                  }"
+                          th:value="${client.ownerMentor.firstName} + ' ' + ${client.ownerMentor.lastName}"
+                          th:id="'mn-' + ${client.id}">
+                                </span>
+
+                </div>
+            </div>
+
+            <div class="portlet-title__group-right">
+
+                        <span class="btn-group" th:id="'notiff' +${client.id}">
+                            <!-- EMAIL SEND/EDIT TEMPLATE BTN -->
+                            <button name="emailTmplList" th:id="'emailTmplList' +${client.id}" type="button"
+                                    style="margin-right: -8px"
+                                    class="f-18 icon-email-card " data-toggle="dropdown">
+                            </button>
+
+
+                            <ul class="dropdown-menu" th:if="${emailTmpl.size()!=0}">
+                                <li th:id="'eTemplate' + ${template.id}" th:each="template : ${emailTmpl}">
+                                    <a class="glyphicon glyphicon-ok portlet-send-btn"
+                                       th:if="${!template.hasBody()}"
+                                       th:id="'eTemplateBtn' + ${template.id}"
+                                       data-toggle="modal"
+                                       th:attrappend="data-target='#sendTemplateModal'"
+                                       th:text="' ' + ${template.name}"
+                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                    <a class="glyphicon glyphicon-plus portlet-custom-btn"
+                                       th:if="${template.hasBody()}"
+                                       th:id="'eTemplateBtn' + ${template.id}"
+                                       data-toggle="modal" th:attrappend="
+
+                               data-target='#customMessageTemplate'"
+                                       th:text="' ' + ${template.name}"
+                                       th:attrprepend="data-template-id=${template.id}"></a>
+                                </li>
+                            </ul>
+                            <!--/ EMAIL SEND/EDIT TEMPLATE BTN -->
+
+                            <!-- SMS ERROR INFO BTN -->
+                            <th:block th:each="notification_sms:${notifications_type_sms}">
+                                <th:block th:if="${notification_sms.client == client}">
+                                    <button type="button"
+                                            style="color:red"
+                                            class="glyphicon glyphicon-exclamation-sign sms-error-btn"
+                                            th:attrappend="data-id=${client.id}"></button>
+                                </th:block>
+                            </th:block>
+                            <!--/ SMS ERROR INFO BTN -->
+
+                        </span>
+
+
+                <span class="dropdown">
+                            <button type="button" th:id="'option_' +${client.id}"
+                                    class="glyphicon glyphicon-pencil option"
+                                    data-toggle="dropdown"
+                                    style="display:inline-block"></button>
+
+                            <ul class="dropdown-menu">
+                              <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+                                <th:block>
+                                    <li class="dropdown-header">Назначить работника</li>
+                                    <li th:each="worker : ${users_without_mentors}">
+                                        <a th:text="${worker.fullName}"
+                                           th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                    </li>
+                                    <li class="divider"></li>
+                                </th:block>
+                                <th:block>
+                                    <li class="dropdown-header">Назначить ментора</li>
+                                    <li th:each="worker : ${mentors}">
+                                        <a th:text="${worker.fullName}"
+                                           th:onclick="'assignMentor('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                    </li>
+                                    <li class="divider"></li>
+                                </th:block>
+                                <li class="dropdown-header">Скрыть в статус</li>
+                                <li th:each="inv_status:${statuses}"
+                                    th:if="${inv_status.invisible} and ${inv_status.name != 'deleted'}">
+                                    <a class="invisible-client" th:text="${inv_status.name}"
+                                       th:attrappend="data-clientid=${client.id}, data-statusid=${inv_status.id}"></a>
+                                </li>
+                                <li class="divider"></li>
+                              </div>
+
+                                <li class="open-description-btn" th:attr="data-id=${client.id}">
+                                    <a>Добавить заметку</a>
+                                </li>
+                              <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
+                                <th:block>
+                                    <li>
+                                        <a th:onclick="'unassign('+ ${client.id} +')'">Убрать работника с
+                                            карточки</a>
+                                    </li>
+                                </th:block>
+                                <th:block>
+                                    <li>
+                                        <a th:onclick="'unassignMentor('+ ${client.id} +')'">Убрать ментора с
+                                            карточки</a>
+                                    </li>
+                                </th:block>
+                                <th:block>
+                                    <li class="delete-client" th:attrappend="data-clientid=${client.id} ">
+                                        <a>Удалить клиента</a>
+                                    </li>
+                                </th:block>
+                              </div>
+                            </ul>
+                        </span>
+            </div>
+
+        </div>
+        <!--<div class="client-description" th:text="${client.clientDescriptionComment}"></div>-->
+
+        <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
+             th:text="${client.name} + ' ' + ${client.lastName}"
+             th:attr="client-id=${client.id} "
+             th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
+
+        </div>
+
+        <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
+             th:attr="client-id=${client.id} "
+             th:onclick="'changeUrl(\'/client\', '+ ${client.id} +')'">
+
+            <div class="search_text" th:text="${client.name} + ' ' + ${client.lastName} + ' ' + ${client.email} + ' ' +
+                    ${client.phoneNumber} + ' ' + ${client.skype} + ' ' + ${client.socialProfiles} + ' ' + ${client.city} + ' ' +
+                    ${client.country}" hidden="hidden">
+            </div>
+
+        </div>
+        <!--<div class="portlet-content"></div>-->
+    </div>
+    <script type="text/javascript" th:src="@{/js/doashboard.js}"></script>
+</th:block>
 
 </body>
 </html>
