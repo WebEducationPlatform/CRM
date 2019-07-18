@@ -384,7 +384,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
             if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.java-learn-link"))) {
                 statusService.get("Постоплата 3").ifPresent(existClient.get()::setStatus);
             } else {
-                statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+                if (client.getClientDescriptionComment().equals(env.getProperty("messaging.client.description.js-learn-link"))) {
+                    statusService.get("Постоплата JS").ifPresent(existClient.get()::setStatus);
+                } else {
+                    statusService.getRepeatedStatusForClient().ifPresent(existClient.get()::setStatus);
+                }
             }
             if (!lastStatus.equals(existClient.get().getStatus())) {
                 Optional<ClientHistory> historyOfChangingStatus = clientHistoryService.createHistoryOfChangingStatus(existClient.get(), lastStatus);

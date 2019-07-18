@@ -216,9 +216,9 @@
                               <div sec:authorize="hasAnyAuthority('OWNER','ADMIN','HR')">
                                 <th:block>
                                     <li class="dropdown-header">Назначить работника</li>
-                                    <li th:each="worker : ${users}">
+                                    <li th:each="worker : ${users_without_mentors}">
                                         <a th:text="${worker.fullName}"
-                                           th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
+                                            th:onclick="'assignUser('+${client.id}+','+${worker.id}+','+${user.id}+')'"></a>
                                     </li>
                                     <li class="divider"></li>
                                 </th:block>
