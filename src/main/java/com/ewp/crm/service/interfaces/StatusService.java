@@ -4,7 +4,6 @@ import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
 import com.ewp.crm.models.User;
-import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -49,5 +48,5 @@ public interface StatusService {
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 
-    List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
+    Optional<Status> findStatusWithSortedClientsByUser(Long statusId, User userFromSession);
 }

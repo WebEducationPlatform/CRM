@@ -3,7 +3,6 @@ package com.ewp.crm.service.impl;
 import com.ewp.crm.exceptions.status.StatusExistsException;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
-import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
@@ -87,8 +86,37 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
-	public List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role) {
-		return statusDAO.getStatusesForBoard(userFromSession.getId(), userFromSession.getRole(), role.getId());
+	public Optional<Status> findStatusWithSortedClientsByUser(Long statusId, User userFromSession) {
+		final Optional<Status> optionalStatus = get(statusId);
+		if (!(optionalStatus.isPresent())) {
+			return Optional.empty();
+		}
+
+		final Status status = optionalStatus.get();
+		SortedStatuses sortedStatuses = new SortedStatuses(status, userFromSession);
+
+		final Optional<SortedStatuses> optionalSortedStatuses = status.getSortedStatuses().stream()
+				.filter(data -> Objects.equals(data, sortedStatuses))
+				.findFirst();
+		final SortingType sortingType = optionalSortedStatuses.isPresent()
+				? optionalSortedStatuses.get().getSortingType()
+				: SortingType.NEW_FIRST;
+
+		final List<Client> sortedClients = clientService.getSortedClientsByStatusAndUser(status, userFromSession, sortingType);
+
+		final Status newStatus = new Status();
+		newStatus.setClients(sortedClients);
+		newStatus.setPosition(status.getPosition());
+		newStatus.setCreateStudent(status.isCreateStudent());
+		newStatus.setName(status.getName());
+		newStatus.setRole(status.getRole());
+		newStatus.setInvisible(status.getInvisible());
+		newStatus.setNextPaymentOffset(status.getNextPaymentOffset());
+		newStatus.setTrialOffset(status.getTrialOffset());
+		newStatus.setId(status.getId());
+		newStatus.setSortedStatuses(status.getSortedStatuses());
+
+		return Optional.of(newStatus);
 	}
 
 	@Override
