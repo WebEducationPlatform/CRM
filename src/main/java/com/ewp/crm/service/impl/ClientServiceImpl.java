@@ -442,6 +442,11 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
                     //TODO исправить ситуацию, когда не можем получить ID пользователя по ссылке vk
                 }
             }
+            if ("facebook".equals(socialProfile.getSocialNetworkType().getName()) && socialProfile.getSocialId().contains("facebook")) {
+                String currentSocialId = socialProfile.getSocialId();
+                String newSocialId = currentSocialId.substring(currentSocialId.lastIndexOf("/") + 1);
+                socialProfile.setSocialId(newSocialId);
+            }
         }
     }
 
