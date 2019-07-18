@@ -120,6 +120,17 @@ public class StatusServiceImpl implements StatusService {
 	}
 
 	@Override
+	public Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User userFromSession) {
+		if (get(statusId).isPresent()) {
+			Optional<SortedStatuses> optional = sortedStatusesRepository.findSortedStatusesByStatusAndUser(get(statusId).get(), userFromSession);
+			if (optional.isPresent()) {
+				return Optional.of(optional.get().getSortingType());
+			}
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public List<Status> getAll() {
 		return statusDAO.getAllByOrderByIdAsc();
 	}
