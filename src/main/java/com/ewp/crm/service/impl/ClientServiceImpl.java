@@ -694,4 +694,9 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
         super.delete(id);
     }
 
+    @Override
+    public List<Client> getClientsByEmails(List<String> emails){
+        return clientRepository.getClientsOfEmails(emails);
+    }
 }
+
