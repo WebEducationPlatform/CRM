@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,16 +31,21 @@ public class WhatsappWebhook {
     private final StatusService statusService;
     private final SocialProfileService socialProfileService;
     private final ClientHistoryService clientHistoryService;
+    private  final UserService userService;
     private Environment env;
 
     @Autowired
-    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService, WhatsappMessageService whatsappMessageService, StatusService statusService, SocialProfileService socialProfileService, ClientHistoryService clientHistoryService, Environment env) {
+    public WhatsappWebhook(ClientService clientService, SendNotificationService sendNotificationService,
+                           WhatsappMessageService whatsappMessageService, StatusService statusService,
+                           SocialProfileService socialProfileService, ClientHistoryService clientHistoryService,
+                           Environment env, UserService userService) {
         this.clientService = clientService;
         this.sendNotificationService = sendNotificationService;
         this.whatsappMessageService = whatsappMessageService;
         this.statusService = statusService;
         this.socialProfileService = socialProfileService;
         this.clientHistoryService = clientHistoryService;
+        this.userService = userService;
         this.env = env;
     }
 
@@ -66,6 +72,7 @@ public class WhatsappWebhook {
                     checkSocialProfile(whatsappMessage, newClient);
                     statusService.getFirstStatusForClient().ifPresent(newClient::setStatus);
                     newClient.addHistory(new ClientHistory(env.getProperty("messaging.client.history.add-from-whatsapp"), whatsappMessage.getTime(), ClientHistory.Type.SOCIAL_REQUEST));
+                    userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
                     clientService.addClient(newClient, null);
                     sendNotificationService.sendNewClientNotification(newClient, "whatsapp");
                     checkSocialProfile(whatsappMessage, newClient);
