@@ -66,11 +66,12 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
     private final SendNotificationService sendNotificationService;
     private final ProjectPropertiesService projectPropertiesService;
     private final SocialProfileService socialProfileService;
+    private final UserService userService;
 
     @Autowired
     public TelegramServiceImpl(Environment env, ClientRepository clientRepository, StatusRepository statusRepository,
                                ClientHistoryService clientHistoryService, SendNotificationService sendNotificationService,
-                               ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService) {
+                               ProjectPropertiesService projectPropertiesService, SocialProfileService socialProfileService, UserService userService) {
         this.env = env;
         this.useMessageDatabase = Boolean.parseBoolean(env.getRequiredProperty("telegram.useMessageDatabase"));
         this.clientRepository = clientRepository;
@@ -79,6 +80,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
         this.sendNotificationService = sendNotificationService;
         this.projectPropertiesService = projectPropertiesService;
         this.socialProfileService = socialProfileService;
+        this.userService = userService;
         try {
             System.loadLibrary("tdjni");
             Log.setVerbosityLevel(0);
@@ -629,6 +631,7 @@ public class TelegramServiceImpl implements TelegramService, JMConversation {
                 newClient.setSocialProfiles(Collections.singletonList(profile));
                 newClient.setStatus(statusRepository.findById(projectPropertiesService.getOrCreate().getNewClientStatus()).get());
                 clientHistoryService.createHistory("Telegram").ifPresent(newClient::addHistory);
+                userService.getUserToOwnCard().ifPresent(newClient::setOwnerUser);
                 clientRepository.saveAndFlush(newClient);
                 sendNotificationService.sendNotificationsAllUsers(newClient);
                 sendNotificationService.sendNewClientNotification(newClient, "telegram");
