@@ -541,17 +541,14 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
-    public List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user) {
+    public List<Client> getOrderedClientsInStatus(Status status, SortingType order) {
         List<Client> orderedClients;
-        boolean isAdmin = user.getRole().contains(roleService.getRoleByName("ADMIN")) ||
-                user.getRole().contains(roleService.getRoleByName("OWNER")) ||
-                user.getRole().contains(roleService.getRoleByName("HR"));
         if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
             return orderedClients;
         }
         if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
-            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order, isAdmin, user);
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
             return orderedClients;
         }
         logger.error("Error with sorting clients");
@@ -677,12 +674,29 @@ public class ClientServiceImpl extends CommonServiceImpl<Client> implements Clie
     }
 
     @Override
+    public List<Client> getSortedClientsByStatus(Status status, SortingType order) {
+        List<Client> orderedClients = Collections.emptyList();
+
+        if (SortingType.NEW_FIRST.equals(order) || SortingType.OLD_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByRegistration(status, order);
+        }
+
+        if (SortingType.NEW_CHANGES_FIRST.equals(order) || SortingType.OLD_CHANGES_FIRST.equals(order)) {
+            orderedClients = clientRepository.getClientsInStatusOrderedByHistory(status, order);
+        }
+
+        return orderedClients;
+    }
+
+    @Override
     public void delete(Long id) {
         notificationRepository.deleteNotificationsByClient(clientRepository.getClientById(id));
         super.delete(id);
     }
+
     @Override
     public List<Client> getClientsByEmails(List<String> emails){
         return clientRepository.getClientsOfEmails(emails);
     }
 }
+

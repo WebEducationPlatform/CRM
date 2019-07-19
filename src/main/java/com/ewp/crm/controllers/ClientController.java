@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.ewp.crm.util.Constants.*;
@@ -26,6 +27,7 @@ import static com.ewp.crm.util.Constants.*;
 public class ClientController {
 
     private static Logger logger = LoggerFactory.getLogger(ClientController.class);
+
     private final StatusService statusService;
     private final ClientService clientService;
     private final UserService userService;
@@ -118,9 +120,11 @@ public class ClientController {
             role = roleService.getRoleByName(ROLE_NAME_OWNER);
         }
         List<StatusDtoForBoard> statuses = statusService.getStatusesForBoardByUserAndRole(userFromSession, role);
+//        List<StatusDtoForBoard> statuses = StatusDtoForBoard.getListDtoStatuses(statusService.getAll());
         modelAndView.addObject("statuses", statuses);
 
-        // Добавляем список ролей системы, кроме OWNER
+        modelAndView.addObject("counter", new AtomicInteger(0));
+
         List<Role> roles = roleService.getAll();
         roles.remove(roleService.getRoleByName("OWNER"));
         modelAndView.addObject("roles", roles);
@@ -135,15 +139,12 @@ public class ClientController {
 
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
 
-        if (sessionRoles.contains(roleService.getRoleByName("OWNER")) ||
-                sessionRoles.contains(roleService.getRoleByName("ADMIN")) ||
-                sessionRoles.contains(roleService.getRoleByName("HR"))) {
-            modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-            modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
-            modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
-            modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
-            modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
-        }
+        modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+        modelAndView.addObject("notifications_type_sms", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.SMS));
+        modelAndView.addObject("notifications_type_comment", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.COMMENT));
+        modelAndView.addObject("notifications_type_postpone", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.POSTPONE));
+        modelAndView.addObject("notifications_type_new_user", notificationService.getByUserToNotifyAndType(userFromSession, Notification.Type.NEW_USER));
+
         return modelAndView;
     }
 
