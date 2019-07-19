@@ -47,15 +47,15 @@ public class MentorsController {
 		this.roleService = roleService;
 	}
 
-	@Value("${slackbot.ip}")
-	private String slackBotIp;
+	@Value("${slackbot.domain}")
+	private String slackBotDomain;
 	@Value("${mentor.max.students}")
 	private String maxStudents;
 
 	@GetMapping
 	public ModelAndView showMentorsWithThearStudents() {
 		ModelAndView modelAndView = new ModelAndView("mentors-with-students-table");
-		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotDomain", slackBotDomain);
 		modelAndView.addObject("maxStudents", maxStudents);
 		modelAndView.addObject("mentors",
 				userService.getByRole(roleService.getRoleByName("MENTOR"))

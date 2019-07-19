@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -86,4 +87,6 @@ public interface ClientService extends CommonService<Client> {
 	void transferClientsBetweenOwners(User sender, User receiver);
 
 	void setOtherInformationLink(Long clientId, String hash);
+
+	List<Client> getClientsByEmails(List<String> emails);
 }
