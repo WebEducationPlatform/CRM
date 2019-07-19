@@ -31,15 +31,15 @@
                 <ul class="nav navbar-nav">
                     <li><a href="/client">Доска</a></li>
                     <li><a href="/client/allClients">Все клиенты</a></li>
-                    <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER','HR')">Все студенты</a></li>
-                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR')">Пропавшие студенты</a></li>
-                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR')">Статусы обучения</a></li>
+                    <li><a href="/student/all" sec:authorize="hasAnyAuthority('OWNER')">Все студенты</a></li>
+                    <li><a href="/hr/students" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'HR','MENTOR')">Пропавшие студенты</a></li>
+                    <li><a href="/student-status/all" sec:authorize="hasAnyAuthority('OWNER','HR','MENTOR')">Статусы обучения</a></li>
                     <li><a href="/client/mailing" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Рассылка</a></li>
-                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR')">Шаблоны</a></li>
-                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR')">Продвижение</a></li>
+                    <li><a href="/template/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')">Шаблоны</a></li>
+                    <li><a href="/vk/campaigns/all" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Продвижение</a></li>
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
-                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Менторы</a></li>
-                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR')">Координаторы</a></li>
+                    <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>
+                    <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
@@ -143,7 +143,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="/user/customize">Настройки</a></li>
 
-                            <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')"><a
+                            <li sec:authorize="hasAnyAuthority('OWNER', 'ADMIN','HR','MENTOR')"><a
                                     th:href="'/admin/user/' + ${#authentication.getPrincipal().getId()}">Профиль</a>
                             </li>
                             <li>
