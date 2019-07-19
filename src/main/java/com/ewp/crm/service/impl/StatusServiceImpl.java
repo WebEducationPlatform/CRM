@@ -5,6 +5,7 @@ import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
+import com.ewp.crm.repository.interfaces.FilterStatusesRepository;
 import com.ewp.crm.repository.interfaces.SortedStatusesRepository;
 import com.ewp.crm.repository.interfaces.StatusRepository;
 import com.ewp.crm.service.interfaces.*;
@@ -25,6 +26,7 @@ public class StatusServiceImpl implements StatusService {
 	private ClientService clientService;
 	private final ProjectPropertiesService propertiesService;
 	private final SortedStatusesRepository sortedStatusesRepository;
+	private final FilterStatusesRepository filterStatusesRepository;
 	private final RoleService roleService;
 	private final UserService userService;
 	private final ClientStatusChangingHistoryService clientStatusChangingHistoryService;
@@ -36,7 +38,8 @@ public class StatusServiceImpl implements StatusService {
 	@Autowired
 	public StatusServiceImpl(StatusRepository statusDAO, ProjectPropertiesService propertiesService,
 							 SortedStatusesRepository sortedStatusesRepository, RoleService roleService,
-							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService) {
+							 Environment env, UserService userService, ClientStatusChangingHistoryService clientStatusChangingHistoryService,
+							 FilterStatusesRepository filterStatusesRepository) {
 		this.statusDAO = statusDAO;
 		this.propertiesService = propertiesService;
 		this.sortedStatusesRepository = sortedStatusesRepository;
@@ -44,6 +47,7 @@ public class StatusServiceImpl implements StatusService {
 		this.env = env;
 		this.userService = userService;
 		this.clientStatusChangingHistoryService = clientStatusChangingHistoryService;
+		this.filterStatusesRepository = filterStatusesRepository;
 	}
 
 	@Autowired
@@ -234,6 +238,22 @@ public class StatusServiceImpl implements StatusService {
 		}
 	}
 
+
+	@Override
+	public void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser) {
+		if (get(statusId).isPresent()) {
+			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(), currentUser, filterId);
+			filterStatus.setFilterType(newFilter);
+			filterStatusesRepository.save(filterStatus);
+		}
+	}
+	@Override
+	public void clearFilterForChosenStatusForCurrentUser(Long statusId,  User currentUser) {
+		if (get(statusId).isPresent()) {
+			FilterStatuses filterStatus = new FilterStatuses(get(statusId).get(),currentUser);
+			filterStatusesRepository.delete(filterStatus);
+		}
+	}
 	@Override
 	public List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible() {
 		List<BigInteger> ids = statusDAO.getAllIdsWhichNotInvisible();

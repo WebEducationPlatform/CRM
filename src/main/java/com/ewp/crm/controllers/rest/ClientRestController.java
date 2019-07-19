@@ -583,4 +583,24 @@ public class ClientRestController {
 		}
 		return result;
 	}
+
+	@PostMapping(value = "/filter")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	public ResponseEntity setNewClientsOrder(@RequestParam FilterStatuses.FilteredType newFilter,
+											 @RequestParam Long statusId,
+											 @RequestParam Long filterId,
+											 @AuthenticationPrincipal User userFromSession) {
+		statusService.setNewFilterForChosenStatusForCurrentUser(newFilter, statusId, filterId, userFromSession);
+		return ResponseEntity.ok("Ok");
+	}
+
+	@PostMapping(value = "/filter/clear")
+	@PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
+	public ResponseEntity setNewClientsOrder(
+			@RequestParam Long statusId,
+
+			@AuthenticationPrincipal User userFromSession) {
+		statusService.clearFilterForChosenStatusForCurrentUser( statusId,  userFromSession);
+		return ResponseEntity.ok("Ok");
+	}
 }

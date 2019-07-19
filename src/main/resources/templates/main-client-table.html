@@ -71,6 +71,21 @@
                                                               data-target="#all-statuses-to-change-position"
                                                               onclick="showAllStatuses()">Поменять позицию</a>
                             </li>
+                            <li class="glyphicon  dropdown" sec:authorize="hasAnyAuthority('OWNER')" ><a class="link-cursor-pointer"><i
+                                    class="glyphicon glyphicon-filter"></i> Фильтр ...
+                                <i class="glyphicon glyphicon-chevron-right"></i></a>
+                                <ul class="dropdown-menu sub-menu">
+                                    <li class="dropdown-header">... по ментору (выбрать)</li>
+                                    <li >  <a class="change-client-filter"
+                                              th:onclick="'clearFilterByMentor('+${status.id}+')'"><i>Очистить фильтр</i></a>
+                                    </li>
+                                    <li th:each="worker : ${mentors}">
+                                        <a class="change-client-filter"
+                                           th:text="${worker.fullName}"
+                                           th:onclick="'setFilterByMentor('+${worker.id}+','+${status.id}+')'"></a>
+                                    </li>
+                                </ul>
+                            </li>
                         </div>
                     </ul>
                 </div>
@@ -532,6 +547,7 @@
 <script type="text/javascript" th:src="@{/js/other-info-link.js}"></script>
 <script type="text/javascript" th:src="@{/js/settings-remainder.js}"></script>
 <script type="text/javascript" th:src="@{/js/sorted-statuses.js}"></script>
+<script type="text/javascript" th:src="@{/js/filtering-statuses.js}"></script>
 <script type="text/javascript" th:src="@{/js/status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vk-campaigns-status.js}"></script>
 <script type="text/javascript" th:src="@{/js/vkIm.js}"></script>

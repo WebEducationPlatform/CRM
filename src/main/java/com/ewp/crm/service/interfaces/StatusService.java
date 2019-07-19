@@ -1,5 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.FilterStatuses;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
@@ -46,6 +47,9 @@ public interface StatusService {
     List<Status> getAllStatusesForStudents();
 
     void setNewOrderForChosenStatusForCurrentUser(SortingType newOrder, Long statusId, User currentUser);
+    void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser);
+    void clearFilterForChosenStatusForCurrentUser(Long statusId,  User currentUser);
+
 
     List<StatusPositionIdNameDTO> getAllStatusesMinDTOWhichAreNotInvisible();
 

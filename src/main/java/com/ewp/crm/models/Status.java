@@ -104,6 +104,11 @@ public class Status implements Serializable {
 	@Fetch(value = FetchMode.SUBSELECT)
 	private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
+	@JsonIgnore
+	@OneToMany(mappedBy = "filterStatusesId.statusId")
+	@Fetch(value = FetchMode.SUBSELECT)
+	private Set<FilterStatuses> filterStatuses = new HashSet<>();
+
 
 	public Status(String name, Boolean isInvisible, Long position, boolean createStudent, Integer trialOffset, Integer nextPaymentOffset) {
 		this.name = name;
@@ -228,5 +233,13 @@ public class Status implements Serializable {
 
 	public void setSortedStatuses(Set<SortedStatuses> sortedStatuses) {
 		this.sortedStatuses = sortedStatuses;
+	}
+
+	public Set<FilterStatuses> getFilterStatuses() {
+		return filterStatuses;
+	}
+
+	public void setFilterStatuses(Set<FilterStatuses> filterStatuses) {
+		this.filterStatuses = filterStatuses;
 	}
 }

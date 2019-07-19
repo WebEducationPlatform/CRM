@@ -1,9 +1,6 @@
 package com.ewp.crm.repository.impl;
 
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SocialProfile;
-import com.ewp.crm.models.SortedStatuses;
-import com.ewp.crm.models.User;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.dto.ClientDtoForBoard;
 import com.ewp.crm.models.dto.StatusDtoForBoard;
 import com.ewp.crm.repository.interfaces.StatusRepositoryCustom;
@@ -43,7 +40,8 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
 
         // Получаем все видимые статусы, которые доступны роли roleId, отсортированные по позиции
         List<Tuple> tupleStatuses = entityManager.createNativeQuery(
-                "SELECT DISTINCT s.status_id AS id, s.status_name AS name, s.is_invisible, s.create_student, s.position, s.trial_offset, s.next_payment_offset, ss.sorting_type " +
+                "SELECT DISTINCT s.status_id AS id, s.status_name AS name, s.is_invisible, s.create_student, s.position, s.trial_offset, s.next_payment_offset," +
+                        " ss.sorting_type, fs.filter_type, fs.filter_id " +
                         "   FROM status s " +
                         "   LEFT JOIN status_roles sr " +
                         "       ON sr.status_id = s.status_id " +
@@ -55,6 +53,9 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                         "       ON ss.status_status_id = s.status_id " +
                         "       AND ss.user_user_id = p.user_id " +
                         "       AND ss.user_user_id = :userId " +
+                        "   LEFT JOIN filter_statuses fs " +
+                        "       ON fs.status_status_id = s.status_id " +
+                        "       AND fs.user_user_id = :userId " +
                         "   WHERE s.is_invisible IS FALSE " +
                         "   GROUP BY s.status_id " +
                         "   ORDER BY s.position ASC;", Tuple.class)
@@ -71,7 +72,8 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
             String sortingType = (String) tuple.get("sorting_type");
-
+            String filterType = (String) tuple.get("filter_type");
+            BigInteger filterId = (BigInteger) tuple.get("filter_id");
             // Задаем значения для сортировки клиентов внутри статусов
             String sortDirection = " ORDER BY c.date DESC ";
             String historyJoin = "";
@@ -105,6 +107,15 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                         break;
                 }
             }
+            //Фильтр
+            String filter = "";
+            if (filterType != null) {
+                switch (FilterStatuses.FilteredType.valueOf(filterType)) {
+                    case BY_MENTOR:
+                        filter = " AND c.owner_mentor_id =" + filterId.toString();
+                        break;
+                }
+            }
 
             // Для статуса получаем всех клиентов с нужной сортировкой
             List<Tuple> tupleClients = entityManager.createNativeQuery(
@@ -119,6 +130,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                             "           LEFT JOIN user men ON men.user_id = c.owner_mentor_id " +
                                         historyJoin +
                             "           WHERE sc.status_id = :statusId " +
+                                         filter +
                             "           GROUP BY c.client_id " +
                                         sortDirection + " ;", Tuple.class)
                     .setParameter("statusId", statusId)
