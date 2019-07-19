@@ -45,8 +45,8 @@ public class UserController {
 		this.telegramService = telegramService;
 	}
 
-	@Value("${slackbot.ip}")
-	private String slackBotIp;
+	@Value("${slackbot.domain}")
+	private String slackBotDomain;
 
 
 	@GetMapping(value = "/admin/user/{id}")
@@ -58,7 +58,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotDomain", slackBotDomain);
 		return modelAndView;
 	}
 
@@ -69,7 +69,7 @@ public class UserController {
 		modelAndView.addObject("roles", roleService.getAll());
 		modelAndView.addObject("maxSize", imageConfig.getMaxImageSize());
 		modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
-		modelAndView.addObject("slackBotIp", slackBotIp);
+		modelAndView.addObject("slackBotDomain", slackBotDomain);
 		return modelAndView;
 	}
 

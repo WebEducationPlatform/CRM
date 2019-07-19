@@ -3,6 +3,7 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -86,5 +87,8 @@ public interface ClientService extends CommonService<Client> {
 
 	void setOtherInformationLink(Long clientId, String hash);
 
-    List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
+  List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
+
+	List<Client> getClientsByEmails(List<String> emails);
+
 }
