@@ -88,8 +88,6 @@ public class StatusServiceImpl implements StatusService {
 			newStatus.setClients(status.getClients());
 			sorted = new SortedStatuses(status, userFromSession);
 			if ( status.getFilterStatuses().size() != 0 ){
-//				SortedStatuses finalSorted = sorted;
-//				SortingType sortingType = status.getSortedStatuses().stream().filter(data -> Objects.equals(data, finalSorted)).findFirst().get().getSortingType();
 				newStatus.setClients(clientService.getOrderedClientsInStatus(status, SortingType.NEW_FIRST, userFromSession));
 			}
 			if (status.getSortedStatuses().size() != 0 && status.getSortedStatuses().contains(sorted)) {

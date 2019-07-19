@@ -617,19 +617,7 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
 
     @Override
     public List<Client> getClientsInStatusOrderedByHistory(Status status, SortingType order, boolean isAdmin, User user) {
-//        String query = isAdmin ? "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id GROUP BY c ORDER BY MAX(h.date)" :
-//                "SELECT c FROM Client c JOIN c.status s JOIN c.history h WHERE s.id=:status_id AND (c.ownerUser IN (:ownerUser) OR c.ownerUser IS NULL) GROUP BY c ORDER BY MAX(h.date)";
-//        if (SortingType.NEW_CHANGES_FIRST.equals(order)) {
-//            query += " DESC";
-//        }
-//        List<Client> orderedClients = isAdmin ?
-//                entityManager.createQuery(query)
-//                        .setParameter("status_id", status.getId())
-//                        .getResultList() :
-//                entityManager.createQuery(query)
-//                        .setParameter("status_id", status.getId())
-//                        .setParameter("ownerUser", user)
-//                        .getResultList();
+
         boolean isFiltered = false;
         User mentor = null;
         StringBuilder filterQuery = new StringBuilder();
