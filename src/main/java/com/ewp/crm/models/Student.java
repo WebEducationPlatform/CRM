@@ -242,11 +242,65 @@ public class Student implements Diffable<Student> {
                 ", paymentAmount=" + paymentAmount +
                 ", payLater=" + payLater +
                 ", status=" + status +
-                ", notes='" + notes +
-                ", notifyEmail='" + notifyEmail +
-                ", notifySMS='" + notifySMS +
-                ", notifyVK='" + notifyVK +
+                ", notes='" + notes + '\'' +
+                ", notifyEmail=" + notifyEmail +
+                ", notifySMS=" + notifySMS +
+                ", notifyVK=" + notifyVK +
+                ", notifySlack=" + notifySlack +
+                ", color='" + color + '\'' +
                 '}';
+    }
+
+    /**
+     * Проверка равенства выполняется без учета сущности Client!
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Student student = (Student) o;
+
+        if (notifyEmail != student.notifyEmail) return false;
+        if (notifySMS != student.notifySMS) return false;
+        if (notifyVK != student.notifyVK) return false;
+        if (notifySlack != student.notifySlack) return false;
+        if (id != null ? !id.equals(student.id) : student.id != null) return false;
+        if (trialEndDate != null ? !trialEndDate.equals(student.trialEndDate) : student.trialEndDate != null)
+            return false;
+        if (nextPaymentDate != null ? !nextPaymentDate.equals(student.nextPaymentDate) : student.nextPaymentDate != null)
+            return false;
+        if (lastPaymentNotification != null ? !lastPaymentNotification.equals(student.lastPaymentNotification) : student.lastPaymentNotification != null)
+            return false;
+        if (price != null ? !price.equals(student.price) : student.price != null) return false;
+        if (paymentAmount != null ? !paymentAmount.equals(student.paymentAmount) : student.paymentAmount != null)
+            return false;
+        if (payLater != null ? !payLater.equals(student.payLater) : student.payLater != null) return false;
+        if (status != null ? !status.equals(student.status) : student.status != null) return false;
+        if (notes != null ? !notes.equals(student.notes) : student.notes != null) return false;
+        return color != null ? color.equals(student.color) : student.color == null;
+    }
+
+    /**
+     * Вычисление хэш-кода выполняется без учета сущности Client!
+     */
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (trialEndDate != null ? trialEndDate.hashCode() : 0);
+        result = 31 * result + (nextPaymentDate != null ? nextPaymentDate.hashCode() : 0);
+        result = 31 * result + (lastPaymentNotification != null ? lastPaymentNotification.hashCode() : 0);
+        result = 31 * result + (price != null ? price.hashCode() : 0);
+        result = 31 * result + (paymentAmount != null ? paymentAmount.hashCode() : 0);
+        result = 31 * result + (payLater != null ? payLater.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (notes != null ? notes.hashCode() : 0);
+        result = 31 * result + (notifyEmail ? 1 : 0);
+        result = 31 * result + (notifySMS ? 1 : 0);
+        result = 31 * result + (notifyVK ? 1 : 0);
+        result = 31 * result + (notifySlack ? 1 : 0);
+        result = 31 * result + (color != null ? color.hashCode() : 0);
+        return result;
     }
 
     @Override
