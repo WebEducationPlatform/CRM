@@ -192,6 +192,10 @@ function startCall() {
     }
 }
 
+function sendTone(key) {
+    currentCall.sendTone(key);
+}
+
 //call hangup voximplant
 $(document).on('click', '.web-call-off', stopCall);
 
