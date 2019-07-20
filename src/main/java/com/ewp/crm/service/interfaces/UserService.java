@@ -29,4 +29,6 @@ public interface UserService extends CommonService<User> {
 	void setColorBackground(String color, User user);
 
 	List<User> getUserByVkToken(long id);
+
+	Optional<User> getUserToOwnCard();
 }

@@ -130,11 +130,11 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                             "           LEFT JOIN status_clients sc ON sc.user_id = c.client_id " +
                             "           LEFT JOIN user own ON own.user_id = c.owner_user_id " +
                             "           LEFT JOIN user men ON men.user_id = c.owner_mentor_id " +
-                                        historyJoin +
+                            historyJoin +
                             "           WHERE sc.status_id = :statusId " +
                                          filter +
                             "           GROUP BY c.client_id " +
-                                        sortDirection + " ;", Tuple.class)
+                            sortDirection + " ;", Tuple.class)
                     .setParameter("statusId", statusId)
                     .getResultList();
 

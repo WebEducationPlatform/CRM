@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -164,6 +165,9 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "callingUser")
     private List<CallRecord> callRecords = new ArrayList<>();
+
+    @Column(name = "last_client_date",  columnDefinition = "DATETIME(6)")
+    private Instant lastClientDate;
 
     public User() {
         this.isEnabled = false;
@@ -338,6 +342,14 @@ public class User implements UserDetails {
 
     public void setColorBackground(String colorBackground) {
         this.colorBackground = colorBackground;
+    }
+
+    public Instant getLastClientDate() {
+        return lastClientDate;
+    }
+
+    public void setLastClientDate(Instant lastClientDate) {
+        this.lastClientDate = lastClientDate;
     }
 
     @Override

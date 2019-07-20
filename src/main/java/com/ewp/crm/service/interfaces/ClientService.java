@@ -3,8 +3,8 @@ package com.ewp.crm.service.interfaces;
 import com.ewp.crm.models.*;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +67,7 @@ public interface ClientService extends CommonService<Client> {
 
 	List<Client> getClientsBySearchPhrase(String search);
 
-	List<Client> getOrderedClientsInStatus(Status status, SortingType order, User user);
+	List<Client> getOrderedClientsInStatus(Status status, SortingType order);
 
 	Optional<Client> findByNameAndLastNameIgnoreCase(String name, String lastName);
   
@@ -86,4 +86,9 @@ public interface ClientService extends CommonService<Client> {
 	void transferClientsBetweenOwners(User sender, User receiver);
 
 	void setOtherInformationLink(Long clientId, String hash);
+
+  List<Client> getSortedClientsByStatus(Status status, SortingType sortingType);
+
+	List<Client> getClientsByEmails(List<String> emails);
+
 }

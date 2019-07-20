@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/hr")
-@PreAuthorize("hasAnyAuthority('OWNER','HR')")
+@PreAuthorize("hasAnyAuthority('OWNER','HR','MENTOR')")
 @PropertySource("file:./slackbot.properties")
 public class HrController {
 
-    @Value("${slackbot.ip}")
-    private String slackBotIp;
+    @Value("${slackbot.domain}")
+    private String slackBotDomain;
 
 
     private final StatusService statusService;
@@ -64,7 +64,7 @@ public class HrController {
         modelAndView.addObject("allClients",
                 clientService.getAllClientsByPage(
                         PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "dateOfRegistration"))));
-        modelAndView.addObject("slackBotIp", slackBotIp);
+        modelAndView.addObject("slackBotDomain", slackBotDomain);
         modelAndView.addObject("statuses", statusService.getAll());
         modelAndView.addObject("projectProperties", propertiesService.get());
         modelAndView.addObject("users", userService.getAll());
