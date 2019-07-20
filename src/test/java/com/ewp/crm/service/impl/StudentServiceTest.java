@@ -285,11 +285,11 @@ public class StudentServiceTest {
      */
     @BeforeAll
     public void init() {
-        Status firstStatus = new Status("status_stud_serv_test0", false, 1L, true, 5, 10);
-        Status testStatus = new Status("status_stud_serv_test1", false, 2L, true, 7, 11);
+        Status clientStatus1 = new Status("StudentServiceStatusTest0", false, 1L, true, 5, 10);
+        Status clientStatus2 = new Status("StudentServiceStatusTest1", false, 2L, true, 7, 11);
 
-        statusService.addInit(firstStatus);
-        statusService.addInit(testStatus);
+        statusService.addInit(clientStatus1);
+        statusService.addInit(clientStatus2);
 
         Client client1 = new Client.Builder("Юрий", "79993332201", "test01@testStudentService.ru")
                 .lastName("Долгоруков")
@@ -317,7 +317,7 @@ public class StudentServiceTest {
                 .country("Россия")
                 .build();
         client3.setState(Client.State.NEW);
-        client3.setStatus(testStatus);
+        client3.setStatus(clientStatus2);
 
         Client client4 = new Client.Builder("Бильбо", "79993332204", "test04@testStudentService.ru")
                 .lastName("Бэггинс")
@@ -498,7 +498,7 @@ public class StudentServiceTest {
         studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus5").get());
         studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus6").get());
 
-        statusRepository.delete(statusService.get("status_stud_serv_test0").get());
-        statusRepository.delete(statusService.get("status_stud_serv_test1").get());
+        statusRepository.delete(statusService.get("StudentServiceStatusTest0").get());
+        statusRepository.delete(statusService.get("StudentServiceStatusTest1").get());
     }
 }
