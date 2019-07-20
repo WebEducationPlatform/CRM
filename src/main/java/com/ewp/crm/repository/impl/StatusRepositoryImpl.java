@@ -74,6 +74,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             String sortingType = (String) tuple.get("sorting_type");
             String filterType = (String) tuple.get("filter_type");
             BigInteger filterId = (BigInteger) tuple.get("filter_id");
+            boolean isFiltering = false;
             // Задаем значения для сортировки клиентов внутри статусов
             String sortDirection = " ORDER BY c.date DESC ";
             String historyJoin = "";
@@ -115,6 +116,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                         filter = " AND c.owner_mentor_id =" + filterId.toString();
                         break;
                 }
+                isFiltering = true;
             }
 
             // Для статуса получаем всех клиентов с нужной сортировкой
@@ -172,7 +174,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 clients.add(newClientDto);
             }
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset,isFiltering));
 
         }
 
@@ -206,7 +208,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset,false));
         }
 
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);

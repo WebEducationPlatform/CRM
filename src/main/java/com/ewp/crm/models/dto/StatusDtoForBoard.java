@@ -15,6 +15,7 @@ public class StatusDtoForBoard {
     private List<Role> role;
     private Integer trialOffset = 0;
     private Integer nextPaymentOffset = 0;
+    private boolean isFiltering =false;
 
     public StatusDtoForBoard() {
     }
@@ -27,7 +28,8 @@ public class StatusDtoForBoard {
                              Long position,
                              List<Role> role,
                              Integer trialOffset,
-                             Integer nextPaymentOffset) {
+                             Integer nextPaymentOffset,
+                             boolean isFiltering) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -37,6 +39,7 @@ public class StatusDtoForBoard {
         this.role = role;
         this.trialOffset = trialOffset;
         this.nextPaymentOffset = nextPaymentOffset;
+        this.isFiltering = isFiltering;
     }
 
     public Long getId() {
@@ -111,4 +114,11 @@ public class StatusDtoForBoard {
         this.nextPaymentOffset = nextPaymentOffset;
     }
 
+    public boolean getisFiltering() {
+        return isFiltering;
+    }
+
+    public void setFiltering(boolean filtering) {
+        isFiltering = filtering;
+    }
 }

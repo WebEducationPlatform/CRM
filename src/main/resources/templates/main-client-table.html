@@ -26,6 +26,8 @@
                             class="glyphicon glyphicon glyphicon-cog"
                             data-toggle="dropdown">
                     </button>
+                    <i  class="glyphicon glyphicon-filter"
+                        th:if="${status.getisFiltering()}"></i>
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}"
