@@ -17,6 +17,21 @@ $(document).ready(function () {
         id: 'mentors-row'
     }).appendTo('#mentors-column');
     $.ajaxSetup({async: false});
+    let url = "http://" + botDomain + "/mentor/all/students";
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: mentors,
+        dataType: 'json',
+        complete: function (mentorsMap) {
+            console.log("good");
+        },
+        error: function (e) {
+            console.log("Фига");
+
+        }
+
+    });
     $.each(mentors, function (i, mentor) {
         $.get("http://" + botDomain + "/mentor/students?email=" + mentor.email)
             .done(function (response) {
