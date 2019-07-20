@@ -40,6 +40,7 @@
                     <li><a href="/calls" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN', 'MENTOR','HR')">Звонки</a></li>
                     <li><a href="/mentors" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Менторы</a></li>
                     <li><a href="/hr/managers" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Координаторы</a></li>
+                    <li><a href="/analytics" sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')">Аналитика</a></li>
 
                     <li th:if="${#httpServletRequest.getRequestURI() == '/client'}">
                         <div class="search-place">
