@@ -51,6 +51,19 @@ function showAnalyticsChart() {
         }
     };
     window.myLine = new Chart(ctx, config);
+
+    getDataSetForChart();
+}
+
+function getDataSetForChart() {
+    const fromDate = $("#date-from-picker").html;
+    const toDate = $("#date-to-picker").html;
+    const day = '2019-06-12';
+    $.get("/rest/student/count", {day: day})
+        .done(function (numberOfStudents) {
+            console.log("Students on " + day + " is " + numberOfStudents);
+        });
+
 }
 
 /* Russian (UTF-8) initialisation for the jQuery UI date picker plugin. */
