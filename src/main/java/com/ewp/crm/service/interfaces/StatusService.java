@@ -1,5 +1,6 @@
 package com.ewp.crm.service.interfaces;
 
+import com.ewp.crm.models.FilterStatuses;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses.SortingType;
 import com.ewp.crm.models.Status;
@@ -54,4 +55,8 @@ public interface StatusService {
     Optional<SortingType> findOrderForChosenStatusForCurrentUser(Long statusId, User userFromSession);
 
     List<StatusDtoForBoard> getStatusesForBoardByUserAndRole(@AuthenticationPrincipal User userFromSession, Role role);
+
+    void setNewFilterForChosenStatusForCurrentUser(FilterStatuses.FilteredType newFilter, Long statusId, Long filterId, User currentUser);
+
+    void clearFilterForChosenStatusForCurrentUser(Long statusId,  User currentUser);
 }
