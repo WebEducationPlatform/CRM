@@ -24,7 +24,7 @@ $(document).ready(function () {
 function drawMissingStudents() {
     let botDomain = $("#slackBotDomain").val();
     let url = "/rest/status/lost";
-    $.get(`http://${botDomain}/student/lost`)
+    $.get(`https://${botDomain}/student/lost`)
         .done(function (listLostStudentEmail) {
             $.ajax({
                 type: "POST",
