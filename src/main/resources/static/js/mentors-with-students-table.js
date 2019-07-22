@@ -18,7 +18,7 @@ $(document).ready(function () {
     }).appendTo('#mentors-column');
     $.ajaxSetup({async: false});
     $.each(mentors, function (i, mentor) {
-        $.get("http://" + botDomain + "/mentor/students?email=" + mentor.email)
+        $.get("https://" + botDomain + "/mentor/students?email=" + mentor.email)
             .done(function (response) {
                 mentorsMap.set(mentor.id, response);
             })
