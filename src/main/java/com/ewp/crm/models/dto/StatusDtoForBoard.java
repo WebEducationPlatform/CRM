@@ -1,8 +1,13 @@
 package com.ewp.crm.models.dto;
 
 import com.ewp.crm.models.Role;
+import com.ewp.crm.models.SortedStatuses;
+import com.ewp.crm.models.Status;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StatusDtoForBoard {
 
@@ -15,6 +20,7 @@ public class StatusDtoForBoard {
     private List<Role> role;
     private Integer trialOffset = 0;
     private Integer nextPaymentOffset = 0;
+    private Set<SortedStatuses> sortedStatuses = new HashSet<>();
 
     public StatusDtoForBoard() {
     }
@@ -109,6 +115,39 @@ public class StatusDtoForBoard {
 
     public void setNextPaymentOffset(Integer nextPaymentOffset) {
         this.nextPaymentOffset = nextPaymentOffset;
+    }
+
+    public Set<SortedStatuses> getSortedStatuses() {
+        return sortedStatuses;
+    }
+
+    public void setSortedStatuses(Set<SortedStatuses> sortedStatuses) {
+        this.sortedStatuses = sortedStatuses;
+    }
+
+    public static StatusDtoForBoard getStatusDto(Status status) {
+
+        StatusDtoForBoard statusDtoForBoard = new StatusDtoForBoard();
+
+        statusDtoForBoard.id = status.getId();
+        statusDtoForBoard.name = status.getName();
+        statusDtoForBoard.isInvisible = status.getInvisible();
+        statusDtoForBoard.createStudent = status.isCreateStudent();
+        statusDtoForBoard.clients = ClientDtoForBoard.getListDtoClients(status.getClients());
+        statusDtoForBoard.position = status.getPosition();
+        statusDtoForBoard.role = status.getRole();
+        statusDtoForBoard.trialOffset = status.getTrialOffset();
+        statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
+        statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
+
+        return statusDtoForBoard;
+    }
+
+    public static List<StatusDtoForBoard> getListDtoStatuses(List<Status> statuses) {
+        return statuses
+                .stream()
+                .map(StatusDtoForBoard::getStatusDto)
+                .collect(Collectors.toList());
     }
 
 }

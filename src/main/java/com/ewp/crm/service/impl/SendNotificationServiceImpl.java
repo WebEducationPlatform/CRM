@@ -78,6 +78,14 @@ public class SendNotificationServiceImpl implements SendNotificationService {
             Map<String, String> params = new HashMap<>();
             params.put("%from%", from + " c id=" + client.getId() + " ");
             params.put("%link%", shortUrl.orElse(newClientUrl));
+            if(client.getOwnerUser() != null) {
+                String coordinatorName = client.getOwnerUser().getFullName();
+                String coordinator = String.format(env.getProperty("messaging.notification.new-client"),
+                        coordinatorName);
+                params.put("%coordinator%", coordinator);
+            } else {
+                params.put("%coordinator%", "");
+            }
             String notificationMessage = messageTemplateService.replaceName(template.getOtherText(), params);
             List<User> usersToNotify = userService.getAll();
             for (User userToNotify : usersToNotify) {

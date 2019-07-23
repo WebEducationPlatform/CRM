@@ -591,7 +591,7 @@ $(function () {
                     url: '/client/history/rest/getHistory/' + client.id,
                     data: {
                         page: 0,
-                        isAsc: true
+                        isAsc: false
                     },
                     success: function (history) {
                         let history_table = $('#client-' + client.id + 'history').find("tbody");
@@ -603,7 +603,7 @@ $(function () {
                             upload_more_btn.show();
                         }
                         //reset arrow
-                        $('#date').find('i').removeClass('fa-sort-down').addClass('fa-sort-up');
+                        $('#date').find('i').removeClass('fa-sort-up').addClass('fa-sort-down');
                         //draw client history
                         drawClientHistory(history, history_table);
                     }

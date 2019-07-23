@@ -2,7 +2,7 @@ var isAutorizedUserOwner = false;
 var isAutorizedUserAdmin = false;
 var isUpdatedUserOwner = false;
 var myRows = [];
-let botIp = $("#slackbotIp").val();
+let botIp = $("#slackBotDomain").val();
 let botPort = $("#slackbotPort").val();
 $(document).ready(function () {
     $.each(updatedUserRoles, function (i, role) {

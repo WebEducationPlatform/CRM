@@ -14,29 +14,31 @@ $(document).ready(function () {
                         id: 'status-column' + status.id,
                         text: status.name
                     }).appendTo('#status-columns');
-                    drawMissingStudents(status);
+
                 }
-            })
+            });
+            drawMissingStudents();
         })
 });
 
-function drawMissingStudents(status) {
-    let botIp = $("#slackbotIp").val();
-    let botPort = $("#slackbotPort").val();
-    let students;
-    $.get("/rest/status/" + status.id)
-        .done(function (studentsInStatus) {
-            students = studentsInStatus;
-            $.each(students, function (i, student) {
-                if (student.email !== null) {
-                    $.get("https://" + botIp + ":" + botPort + "/student/lost?email=" + student.email)
-                        .done(function (isLost) {
-                            if (isLost === true) {
-                                drawClientsPortlet(student, status);
-                            }
-                        })
+function drawMissingStudents() {
+    let botDomain = $("#slackBotDomain").val();
+    let url = "/rest/status/lost";
+    $.get(`https://${botDomain}/student/lost`)
+        .done(function (listLostStudentEmail) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(listLostStudentEmail),
+                contentType: 'application/json',
+                success: function (students) {
+                    $.each(students, function (i, student) {
+                        drawClientsPortlet(student, student.status);
+                    })
                 }
             })
+
+
         });
 }
 
