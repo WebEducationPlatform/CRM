@@ -268,7 +268,7 @@ public class StudentServiceTest {
      */
     @Test
     public void testResetColor() {
-        Student student = createStudent("test14@testStudentService.ru", "testStudentServiceStatus6", "notes for resetColor");
+        Student student = createStudent("test14@testStudentService.ru", "testStudentServiceStatus7", "notes for resetColor");
         student.setColor("#ff0009");
         studentService.save(student);
         studentService.resetColors();
@@ -497,6 +497,7 @@ public class StudentServiceTest {
         studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus4").get());
         studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus5").get());
         studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus6").get());
+        studentStatusService.delete(studentStatusService.getByName("testStudentServiceStatus7").get());
 
         statusRepository.delete(statusService.get("StudentServiceStatusTest0").get());
         statusRepository.delete(statusService.get("StudentServiceStatusTest1").get());
