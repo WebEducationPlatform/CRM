@@ -1,17 +1,18 @@
 $(document).ready(function () {
     $.datepicker.setDefaults($.datepicker.regional["ru"]);
-    showAnalyticsChart();
-});
-
-$(function () {
     $("#date-from-picker").datepicker();
     $("#date-to-picker").datepicker();
 });
 
+// $(function () {
+//     $("#date-from-picker").datepicker();
+//     $("#date-to-picker").datepicker();
+// });
+
 function showAnalyticsChart() {
 
     const ctx = document.getElementById('analytics-chart').getContext('2d');
-    const config = {
+    const configDemo = {
         type: 'line',
         data: {
             labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
@@ -50,14 +51,59 @@ function showAnalyticsChart() {
             }
         }
     };
-    window.myLine = new Chart(ctx, config);
+    // window.myLine = new Chart(ctx, configDemo);
 
-    getDataSetForChart();
+    const data = getDataForChart();
+    const config = {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                label: "Студенты",
+                borderColor: "#3e95cd",
+                fill: false
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Динамика роста количества студентов'
+            }
+        }
+    };
+
+    new Chart(ctx, config);
 }
 
-function getDataSetForChart() {
-    const fromDate = $("#date-from-picker").html;
-    const toDate = $("#date-to-picker").html;
+function getDataForChart() {
+    let dateComponents = $("#date-from-picker").val().split('.');
+    const fromDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
+    dateComponents = $("#date-to-picker").val().split('.');
+    const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
+    const step = (toDate.getDate() - fromDate.getDate()) / 10;
+
+    const labels = [];
+    const values = [];
+    for (let i = 0; i <= 10; i++) {
+        const day = fromDate;
+        day.setDate(fromDate.getDate() + step);
+        const dayRuFormatted = ('0' + day.getDate()).substr(-2, 2) + '.' + ('0' + day.getMonth()).substr(-2, 2) + '.' + day.getFullYear();
+        labels.push(dayRuFormatted);
+        values.push(getNumberOfStudents(dayRuFormatted));
+    }
+
+    return {labels: labels, values: values};
+}
+
+function getNumberOfStudents(day){
+    $.get("/rest/student/count", {day: day})
+        .done(function (numberOfStudents) {
+            return numberOfStudents;
+        });
+}
+
+function getDemoDataForChart() {
     const day = '2019-06-12';
     $.get("/rest/student/count", {day: day})
         .done(function (numberOfStudents) {

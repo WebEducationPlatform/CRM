@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +88,8 @@ public class StudentRestController {
     @GetMapping("/count")
     @PreAuthorize("hasAnyAuthority('OWNER', 'ADMIN')")
     public ResponseEntity<Long> countActiveByDate(@RequestParam("day") String day) {
-        long numberOfStudents = studentService.countActiveByDate(ZonedDateTime.of(LocalDate.parse(day), LocalTime.MAX, ZoneId.systemDefault()));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
+        long numberOfStudents = studentService.countActiveByDate(ZonedDateTime.of(LocalDate.parse(day,formatter), LocalTime.MAX, ZoneId.systemDefault()));
         return ResponseEntity.ok(numberOfStudents);
     }
 
