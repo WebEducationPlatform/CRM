@@ -1166,7 +1166,7 @@
         <div class="portlet-header" th:name="'client-'+${client.id} + '-modal'"
              th:text="${client.name} + ' ' + ${client.lastName}"
              th:attr="client-id=${client.id} "
-             th:onclick="'showActiveClientDetails('+ ${client.id}+');'">
+             th:onclick="'showActiveClientDetails('+ ${client.id}+');changeUrl(\'/client\', '+ ${client.id} +');'">
         </div>
 
         <div class="portlet-body" th:name="'client-'+${client.id} + '-modal'"
