@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -275,7 +276,16 @@ public class StatusServiceImpl implements StatusService {
         final List<Client> sortedClients = clientService.getSortedClientsByStatus(status, sortingType);
 
         final Status newStatus = new Status();
-        newStatus.setClients(sortedClients);
+        if (status.getFilterStatuses().isEmpty()){
+            newStatus.setClients(sortedClients);
+        }else {
+            for (FilterStatuses fs : status.getFilterStatuses()){
+                newStatus.setClients(sortedClients.stream().filter(
+                        client -> (client.getOwnerMentor() != null && client.getOwnerMentor().getId() == fs.getFilterId()) ).collect(Collectors.toList())
+                );
+            }
+        }
+
         newStatus.setPosition(status.getPosition());
         newStatus.setCreateStudent(status.isCreateStudent());
         newStatus.setName(status.getName());
@@ -285,6 +295,7 @@ public class StatusServiceImpl implements StatusService {
         newStatus.setTrialOffset(status.getTrialOffset());
         newStatus.setId(status.getId());
         newStatus.setSortedStatuses(status.getSortedStatuses());
+        newStatus.setFilterStatuses(status.getFilterStatuses());
 
         return Optional.of(newStatus);
     }

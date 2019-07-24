@@ -150,6 +150,12 @@ public class StatusDtoForBoard {
         statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
         statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
         statusDtoForBoard.filterStatuses = status.getFilterStatuses();
+        if ( !status.getFilterStatuses().isEmpty() ){
+            for (FilterStatuses fs : status.getFilterStatuses()){
+                statusDtoForBoard.clients = statusDtoForBoard.clients.stream().filter(
+                        client -> (client.getOwnerMentor() != null && client.getOwnerMentor().getId() == fs.getFilterId())).collect(Collectors.toList());
+            }
+        }
 
         return statusDtoForBoard;
     }
