@@ -24,9 +24,6 @@ public class VkAdsReportService implements AdReportService {
     private final String version;
     private final String adsClientId;
     private final String accessToken;
-    private final String dateTo;
-    private final String dateFrom;
-    private final String vkAdsStatUri;
     private final String vkAdsBudgetUri;
 
     @Autowired
@@ -36,14 +33,13 @@ public class VkAdsReportService implements AdReportService {
         version = vkConfig.getVersion();
         adsClientId = vkConfig.getVkAdsClientId();
         accessToken = vkConfig.getVkAppAccessToken();
-        dateTo = LocalDateTime.now().toLocalDate().toString(); //текущая дата
-        dateFrom = LocalDateTime.now().minusDays(1).toLocalDate().toString(); //вчерашняя дата - отняли один день
-        vkAdsStatUri = vkAdsStatUri(); //строка запроса для получения статистики рекламного кабинетв ВК
         vkAdsBudgetUri = vkAdsBudgetUri(); //строка запроса для получения баланса рекламногокабинета ВК
     }
 
     //формирование строки запроса для получения статистики рекламного кабинетв ВК
     private String vkAdsStatUri() {
+        String dateTo = LocalDateTime.now().toLocalDate().toString(); //текущая дата
+        String dateFrom = LocalDateTime.now().minusDays(1).toLocalDate().toString(); //вчерашняя дата - отняли один день
         StringBuilder stb = new StringBuilder(vkApi).append("ads.getStatistics")
                 .append("?account_id=").append(adsClientId)
                 .append("&ids_type=office")
@@ -104,7 +100,8 @@ public class VkAdsReportService implements AdReportService {
 
     //получение отчета по потраченным средствам из рекламного кабинета ВК
     public String getSpentMoney() throws JSONException, IOException {
-        JSONObject jsonSpentMoney = getAdsFromVkApi(vkAdsStatUri);
+        String vkAdsStatisticsUri = vkAdsStatUri();
+        JSONObject jsonSpentMoney = getAdsFromVkApi(vkAdsStatisticsUri);
         return spentFromJson(jsonSpentMoney);
     }
 }
