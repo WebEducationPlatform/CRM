@@ -5,6 +5,7 @@ function setFilterByMentor(mentorId,statusId) {
         .done(function () {
             const url = "/status/" + statusId;
             $("#clients-for-status" + statusId).load(url);
+            $("#filter_fics" + statusId).css("display", "inline");
         });
 }
 function clearFilterByMentor(statusId) {
@@ -12,5 +13,6 @@ function clearFilterByMentor(statusId) {
         .done(function () {
             const url = "/status/" + statusId;
             $("#clients-for-status" + statusId).load(url);
+            $("#filter_fics" + statusId).css("display", "none");
         });
 }
