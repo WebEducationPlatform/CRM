@@ -1,5 +1,6 @@
 package com.ewp.crm.models.dto;
 
+import com.ewp.crm.models.FilterStatuses;
 import com.ewp.crm.models.Role;
 import com.ewp.crm.models.SortedStatuses;
 import com.ewp.crm.models.Status;
@@ -21,6 +22,7 @@ public class StatusDtoForBoard {
     private Integer trialOffset = 0;
     private Integer nextPaymentOffset = 0;
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
+    private Set<FilterStatuses> filterStatuses = new HashSet<>();
 
     public StatusDtoForBoard() {
     }
@@ -125,6 +127,14 @@ public class StatusDtoForBoard {
         this.sortedStatuses = sortedStatuses;
     }
 
+    public Set<FilterStatuses> getFilterStatuses() {
+        return filterStatuses;
+    }
+
+    public void setFilterStatuses(Set<FilterStatuses> filterStatuses) {
+        this.filterStatuses = filterStatuses;
+    }
+
     public static StatusDtoForBoard getStatusDto(Status status) {
 
         StatusDtoForBoard statusDtoForBoard = new StatusDtoForBoard();
@@ -139,6 +149,13 @@ public class StatusDtoForBoard {
         statusDtoForBoard.trialOffset = status.getTrialOffset();
         statusDtoForBoard.nextPaymentOffset = status.getNextPaymentOffset();
         statusDtoForBoard.sortedStatuses = status.getSortedStatuses();
+        statusDtoForBoard.filterStatuses = status.getFilterStatuses();
+        if ( !status.getFilterStatuses().isEmpty() ){
+            for (FilterStatuses fs : status.getFilterStatuses()){
+                statusDtoForBoard.clients = statusDtoForBoard.clients.stream().filter(
+                        client -> (client.getOwnerMentor() != null && client.getOwnerMentor().getId() == fs.getFilterId())).collect(Collectors.toList());
+            }
+        }
 
         return statusDtoForBoard;
     }
