@@ -4,56 +4,35 @@ $(document).ready(function () {
     $("#date-to-picker").datepicker();
 });
 
-// $(function () {
-//     $("#date-from-picker").datepicker();
-//     $("#date-to-picker").datepicker();
-// });
+function renderAnalyticsChart() {
+    let dateComponents = $("#date-from-picker").val().split('.');
+    const fromDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
+    dateComponents = $("#date-to-picker").val().split('.');
+    const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
+    const step = (toDate.getDate() - fromDate.getDate()) / 10;
 
-function showAnalyticsChart() {
+    const labels = [];
+    const values = [];
+    const urls = [];
+    const dataUrl = "/rest/student/count?day=";
 
+    for (let i = 0; i < 10; i++) {
+        const day = fromDate;
+        day.setDate(fromDate.getDate() + step * i);
+        const dayRuFormatted = ('0' + day.getDate()).substr(-2, 2) + '.' + ('0' + (day.getMonth() + 1)).substr(-2, 2) + '.' + day.getFullYear();
+        labels.push(dayRuFormatted);
+        urls.push(dataUrl + dayRuFormatted);
+    }
+
+    $.get("/rest/student/count", {day: dayRuFormatted})
+        .then(function (value) {
+            values.push(value);
+            showAnalyticsChart({labels: labels, values: values});
+        });
+}
+
+function showAnalyticsChart(data) {
     const ctx = document.getElementById('analytics-chart').getContext('2d');
-    const configDemo = {
-        type: 'line',
-        data: {
-            labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-            datasets: [{
-                data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-                label: "Africa",
-                borderColor: "#3e95cd",
-                fill: false
-            }, {
-                data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-                label: "Asia",
-                borderColor: "#8e5ea2",
-                fill: false
-            }, {
-                data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
-                label: "Europe",
-                borderColor: "#3cba9f",
-                fill: false
-            }, {
-                data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
-                label: "Latin America",
-                borderColor: "#e8c3b9",
-                fill: false
-            }, {
-                data: [6, 3, 2, 2, 7, 26, 82, 172, 312, 433],
-                label: "North America",
-                borderColor: "#c45850",
-                fill: false
-            }
-            ]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'World population per region (in millions)'
-            }
-        }
-    };
-    // window.myLine = new Chart(ctx, configDemo);
-
-    const data = getDataForChart();
     const config = {
         type: 'line',
         data: {
@@ -74,42 +53,6 @@ function showAnalyticsChart() {
     };
 
     new Chart(ctx, config);
-}
-
-function getDataForChart() {
-    let dateComponents = $("#date-from-picker").val().split('.');
-    const fromDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
-    dateComponents = $("#date-to-picker").val().split('.');
-    const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
-    const step = (toDate.getDate() - fromDate.getDate()) / 10;
-
-    const labels = [];
-    const values = [];
-    for (let i = 0; i <= 10; i++) {
-        const day = fromDate;
-        day.setDate(fromDate.getDate() + step);
-        const dayRuFormatted = ('0' + day.getDate()).substr(-2, 2) + '.' + ('0' + day.getMonth()).substr(-2, 2) + '.' + day.getFullYear();
-        labels.push(dayRuFormatted);
-        values.push(getNumberOfStudents(dayRuFormatted));
-    }
-
-    return {labels: labels, values: values};
-}
-
-function getNumberOfStudents(day){
-    $.get("/rest/student/count", {day: day})
-        .done(function (numberOfStudents) {
-            return numberOfStudents;
-        });
-}
-
-function getDemoDataForChart() {
-    const day = '2019-06-12';
-    $.get("/rest/student/count", {day: day})
-        .done(function (numberOfStudents) {
-            console.log("Students on " + day + " is " + numberOfStudents);
-        });
-
 }
 
 /* Russian (UTF-8) initialisation for the jQuery UI date picker plugin. */
