@@ -201,4 +201,19 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
         return result;
     }
 
+    /**
+     * Метод передает клиентов из одного статуса в другой путем изменения id статусов у клиентов.
+     * @param statusFrom id статуса, из которого передаются клиенты
+     * @param statusTo id статуса, куда передаются клиенты
+     */
+    @Override
+    public void transferClientsBetweenStatuses(Long statusFrom, Long statusTo) {
+        entityManager.createNativeQuery("UPDATE status_clients SET status_id = :statusTo WHERE status_id = :statusFrom")
+                .setParameter("statusTo", statusTo)
+                .setParameter("statusFrom", statusFrom)
+                .executeUpdate();
+
+        logger.info("Clients transferred from status id {} to status id {}", statusFrom, statusTo);
+
+    }
 }
