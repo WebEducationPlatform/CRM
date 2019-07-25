@@ -146,13 +146,12 @@ public class StatusServiceImpl implements StatusService {
         User user = userService.get(1L);
         if (status.getClients() != null) {
             Status defaultStatus = statusDAO.getStatusByName("deleted");
-            defaultStatus.getClients().addAll(status.getClients());
-            for (Client client : status.getClients()) {
+            List<Client> clients = status.getClients();
+            statusDAO.transferClientsBetweenStatuses(status.getId(), defaultStatus.getId());
+            for (Client client : clients) {
                 ClientStatusChangingHistory clientStatusChangingHistory = new ClientStatusChangingHistory(ZonedDateTime.now(), status, defaultStatus, client, user);
                 clientStatusChangingHistoryService.add(clientStatusChangingHistory);
             }
-            status.getClients().clear();
-            statusDAO.saveAndFlush(status);
         }
     }
 
