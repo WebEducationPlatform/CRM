@@ -224,29 +224,29 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 5_000)
-	private void handleRequestsFromVk() {
-		if (vkService.hasTechnicalAccountToken()) {
-			try {
-				Optional<List<String>> newMassages = vkService.getNewMassages();
-				if (newMassages.isPresent()) {
-					for (String message : newMassages.get()) {
-						try {
-							Client newClient = vkService.parseClientFromMessage(message);
-							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
-							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
-							newClient.addHistory(clientHistory);
-							addClientFromVk(newClient);
-						} catch (ParseClientException e) {
-							logger.error(e.getMessage());
-						}
-					}
-				}
-			} catch (VKAccessTokenException ex) {
-				logger.error(ex.getMessage());
-			}
-		}
-	}
+//	@Scheduled(fixedRate = 5_000)
+//	private void handleRequestsFromVk() {
+//		if (vkService.hasTechnicalAccountToken()) {
+//			try {
+//				Optional<List<String>> newMassages = vkService.getNewMassages();
+//				if (newMassages.isPresent()) {
+//					for (String message : newMassages.get()) {
+//						try {
+//							Client newClient = vkService.parseClientFromMessage(message);
+//							String s = newMassages.orElse(Collections.emptyList()).toString().replaceAll("<br><br>","<br>");
+//							ClientHistory clientHistory = new ClientHistory(s,ZonedDateTime.now(ZoneId.systemDefault()),ClientHistory.Type.SOCIAL_REQUEST);
+//							newClient.addHistory(clientHistory);
+//							addClientFromVk(newClient);
+//						} catch (ParseClientException e) {
+//							logger.error(e.getMessage());
+//						}
+//					}
+//				}
+//			} catch (VKAccessTokenException ex) {
+//				logger.error(ex.getMessage());
+//			}
+//		}
+//	}
 
 	@Scheduled(fixedRate = 60_000)
 	private void findNewMembersAndSendFirstMessage() {
@@ -269,21 +269,21 @@ public class ScheduleTasks {
 		}
 	}
 
-	@Scheduled(fixedRate = 5_000)
-	private void handleRequestsFromVkCommunityMessages() {
-		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
-		if (newUsers.isPresent()) {
-			for (Long id : newUsers.get()) {
-				Optional<Client> newClient = vkService.getClientFromVkId(id);
-				if (newClient.isPresent()) {
-					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
-					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
-						addClientFromVk(newClient.get());
-					}
-				}
-			}
-		}
-	}
+//	@Scheduled(fixedRate = 5_000)
+//	private void handleRequestsFromVkCommunityMessages() {
+//		Optional<List<Long>> newUsers = vkService.getUsersIdFromCommunityMessages();
+//		if (newUsers.isPresent()) {
+//			for (Long id : newUsers.get()) {
+//				Optional<Client> newClient = vkService.getClientFromVkId(id);
+//				if (newClient.isPresent()) {
+//					SocialProfile socialProfile = newClient.get().getSocialProfiles().get(0);
+//					if (!(socialProfileService.getSocialProfileBySocialIdAndSocialType(socialProfile.getSocialId(), "vk").isPresent())) {
+//						addClientFromVk(newClient.get());
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	@Scheduled(fixedRate = 6_000)
 	private void checkClientActivationDate() {
@@ -300,10 +300,10 @@ public class ScheduleTasks {
         mailingService.sendMessages();
 	}
 
-	@Scheduled(cron = "0 0 * * * *")
-	private void getSlackProfiles() {
-		slackService.tryLinkSlackAccountToAllStudents();
-	}
+//	@Scheduled(cron = "0 0 * * * *")
+//	private void getSlackProfiles() {
+//		slackService.tryLinkSlackAccountToAllStudents();
+//	}
 
 	@Scheduled(fixedRate = 600_000)
 	private void addFacebookMessageToDatabase() {
