@@ -9,26 +9,36 @@ function renderAnalyticsChart() {
     const fromDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
     dateComponents = $("#date-to-picker").val().split('.');
     const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
-    const step = (toDate.getDate() - fromDate.getDate()) / 10;
 
     const labels = [];
     const values = [];
     const urls = [];
     const dataUrl = "/rest/student/count?day=";
-
-    for (let i = 0; i < 10; i++) {
-        const day = fromDate;
-        day.setDate(fromDate.getDate() + step * i);
-        const dayRuFormatted = ('0' + day.getDate()).substr(-2, 2) + '.' + ('0' + (day.getMonth() + 1)).substr(-2, 2) + '.' + day.getFullYear();
+    const numberOfSteps = 15;
+    for (let i = 0; i <= numberOfSteps; i++) {
+        const day = new Date();
+        day.setTime(fromDate.getTime() + (toDate.getTime() - fromDate.getTime()) / numberOfSteps * i);
+        const dayRuFormatted = formatRuDate(day);
         labels.push(dayRuFormatted);
         urls.push(dataUrl + dayRuFormatted);
     }
 
-    $.get("/rest/student/count", {day: dayRuFormatted})
-        .then(function (value) {
+    let promise = $.when();
+    $.each(urls, function (index, url) {
+        promise = promise.then(function () {
+            return $.ajax(url);
+        }).then(function (value) {
             values.push(value);
-            showAnalyticsChart({labels: labels, values: values});
         });
+    });
+    promise.then(function () {
+        showAnalyticsChart({labels: labels, values: values});
+    });
+
+}
+
+function formatRuDate(day) {
+    return ('0' + day.getDate()).substr(-2, 2) + '.' + ('0' + (day.getMonth() + 1)).substr(-2, 2) + '.' + day.getFullYear();
 }
 
 function showAnalyticsChart(data) {
