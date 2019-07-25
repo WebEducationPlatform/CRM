@@ -173,7 +173,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 clients.add(newClientDto);
             }
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset,isFiltering));
 
         }
 
@@ -207,7 +207,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset,false));
         }
 
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);

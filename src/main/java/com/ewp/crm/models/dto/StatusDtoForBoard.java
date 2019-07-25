@@ -23,6 +23,7 @@ public class StatusDtoForBoard {
     private Integer nextPaymentOffset = 0;
     private Set<SortedStatuses> sortedStatuses = new HashSet<>();
     private Set<FilterStatuses> filterStatuses = new HashSet<>();
+    private Boolean isFiltering = false;
 
     public StatusDtoForBoard() {
     }
@@ -35,7 +36,8 @@ public class StatusDtoForBoard {
                              Long position,
                              List<Role> role,
                              Integer trialOffset,
-                             Integer nextPaymentOffset) {
+                             Integer nextPaymentOffset,
+                             boolean isFiltering) {
         this.id = id;
         this.name = name;
         this.isInvisible = isInvisible;
@@ -45,6 +47,7 @@ public class StatusDtoForBoard {
         this.role = role;
         this.trialOffset = trialOffset;
         this.nextPaymentOffset = nextPaymentOffset;
+        this.isFiltering = isFiltering;
     }
 
     public Long getId() {
@@ -135,6 +138,14 @@ public class StatusDtoForBoard {
         this.filterStatuses = filterStatuses;
     }
 
+    public boolean Filtering() {
+        return isFiltering;
+    }
+
+    public void setFiltering(boolean filtering) {
+        isFiltering = filtering;
+    }
+
     public static StatusDtoForBoard getStatusDto(Status status) {
 
         StatusDtoForBoard statusDtoForBoard = new StatusDtoForBoard();
@@ -154,6 +165,7 @@ public class StatusDtoForBoard {
             for (FilterStatuses fs : status.getFilterStatuses()){
                 statusDtoForBoard.clients = statusDtoForBoard.clients.stream().filter(
                         client -> (client.getOwnerMentor() != null && client.getOwnerMentor().getId() == fs.getFilterId())).collect(Collectors.toList());
+                statusDtoForBoard.setFiltering(true);
             }
         }
 

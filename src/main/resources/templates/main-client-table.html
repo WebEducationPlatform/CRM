@@ -34,7 +34,7 @@
                     </button>
                     <i  class="glyphicon glyphicon-filter"
                         th:id="${'filter_fics'+status.id}"
-                        style="display: none" ></i>
+                        th:style="${(status.Filtering()? 'display: inline' : 'display: none')}"></i>
                     <ul class="dropdown-menu">
                         <li><a id="add-client-in-status" class="glyphicon glyphicon-plus"
                                th:href="'/admin/client/add/' + ${status.name}"
@@ -85,10 +85,10 @@
                                 <i class="glyphicon glyphicon-chevron-right"></i></a>
                                 <ul class="dropdown-menu sub-menu">
                                     <li class="dropdown-header">... по ментору (выбрать)</li>
-                                    <li >  <a class="change-client-filter"
+                                    <li class="link-cursor-pointer" >  <a class="change-client-filter "
                                               th:onclick="'clearFilterByMentor('+${status.id}+')'"><i>Очистить фильтр</i></a>
                                     </li>
-                                    <li th:each="worker : ${mentors}">
+                                    <li class="link-cursor-pointer" th:each="worker : ${mentors}">
                                         <a class="change-client-filter"
                                            th:text="${worker.fullName}"
                                            th:onclick="'setFilterByMentor('+${worker.id}+','+${status.id}+')'"></a>
