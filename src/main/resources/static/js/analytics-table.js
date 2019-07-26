@@ -10,6 +10,11 @@ function renderAnalyticsChart() {
     dateComponents = $("#date-to-picker").val().split('.');
     const toDate = new Date(dateComponents[2], dateComponents[1] - 1, dateComponents[0]);
 
+    if (toDate.getTime() <= fromDate.getTime()){
+        alert("Неверно заданы временные рамки");
+        return;
+    }
+
     const labels = [];
     const values = [];
     const urls = [];
