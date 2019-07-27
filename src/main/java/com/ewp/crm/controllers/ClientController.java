@@ -40,6 +40,7 @@ public class ClientController {
     private final StudentStatusService studentStatus;
     private final ListMailingTypeService listMailingTypeService;
     private final SlackService slackService;
+    private final StatusController statusController;
 
     @Value("${project.pagination.page-size.clients}")
     private int pageSize;
@@ -56,7 +57,7 @@ public class ClientController {
                             MailingMessageRepository messageService,
                             StudentStatusService studentStatus,
                             ListMailingTypeService listMailingTypeService,
-                            SlackService slackService) {
+                            SlackService slackService, StatusController statusController) {
         this.slackService = slackService;
         this.statusService = statusService;
         this.clientService = clientService;
@@ -69,6 +70,7 @@ public class ClientController {
         this.messageService = messageService;
         this.studentStatus = studentStatus;
         this.listMailingTypeService = listMailingTypeService;
+        this.statusController = statusController;
     }
 
     @GetMapping(value = "/admin/client/add/{statusName}")
@@ -137,6 +139,8 @@ public class ClientController {
 
         modelAndView.addObject("slackWorkspaceUrl", slackService.getSlackWorkspaceUrl());
         modelAndView.addObject("notifications", notificationService.getByUserToNotify(userFromSession));
+
+        statusController.prepareCachedStatusModelAttributes(userFromSession);
 
         return modelAndView;
     }
