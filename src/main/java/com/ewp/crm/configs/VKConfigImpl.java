@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-@PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
+@PropertySource( value = "file:./vk.properties", encoding = "UTF-8")
 public class VKConfigImpl implements VKConfig {
 
     private String clubId;

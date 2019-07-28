@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-@PropertySource(value = "file:./slack.properties", encoding = "windows-1251")
+@PropertySource(value = "file:./slack.properties", encoding = "UTF-8")
 public class SlackConfigImpl implements SlackConfig {
     private String appFirstToken;
     private String legacyToken;
@@ -44,7 +44,7 @@ public class SlackConfigImpl implements SlackConfig {
     }
 
     @Override
-    public String getLegacyToke() {
+    public String getLegacyToken() {
         return legacyToken;
     }
 
