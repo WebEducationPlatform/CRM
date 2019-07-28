@@ -8,6 +8,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @PropertySource( value = "file:./vk.properties", encoding = "windows-1251")
 public class VKConfigImpl implements VKConfig {
@@ -80,6 +82,13 @@ public class VKConfigImpl implements VKConfig {
         } catch (IllegalStateException e) {
             logger.error("VK configs have not initialized. Check vk.properties file", e);
             System.exit(1);
+        }
+    }
+
+    @PostConstruct
+    private void checkInitializeProperties() {
+        if (clubId.equals("*") || communityToken.equals("*")) {
+            logger.error("VK configs have not initialized. Check vk.properties file");
         }
     }
 
