@@ -27,6 +27,71 @@
         </encoder>
     </appender>
 
+    <appender name="TELEGRAM_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR_NEW}\telegram_log\telegram.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR_NEW}\telegram_log\log_telegram_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_OUT_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SHEDULE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR_NEW}\shedule_log\shedule.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR_NEW}\shedule_log\log_shedule_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_OUT_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="VK_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR_NEW}\vk_log\vk.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR_NEW}\vk_log\log_vk_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_OUT_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SMS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR_NEW}\sms_log\sms.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR_NEW}\sms_log\log_sms_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_OUT_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SLACK_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR_NEW}\slack_log\slack.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR_NEW}\slack_log\log_slack_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_OUT_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
     <logger name="com.ewp.crm.controllers" level="ALL" additivity="false">
         <appender-ref ref="ALL_LOG"/>
         <appender-ref ref="STDOUT"/>
@@ -40,6 +105,30 @@
     <logger name="com.ewp.crm.service" level="ERROR" additivity="false">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ALL_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.component" level="ALL" additivity="false">
+        <appender-ref ref="SHEDULE_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.service.impl.TelegramServiceImpl" level="ALL" additivity="false">
+        <appender-ref ref="TELEGRAM_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.service.impl.VKServiceImpl" level="ALL" additivity="false">
+        <appender-ref ref="VK_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.service.interfaces.VKService" level="ALL" additivity="false">
+        <appender-ref ref="VK_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.service.impl.SMSServiceImpl" level="ALL" additivity="false">
+        <appender-ref ref="SMS_LOG"/>
+    </logger>
+
+    <logger name="com.ewp.crm.service.slack.SlackServiceImpl" level="ALL" additivity="false">
+        <appender-ref ref="SLACK_LOG"/>
     </logger>
 
     <!--логи для hibernate. При необходимости установить уровень DEBUG-->
