@@ -6,7 +6,6 @@ import com.ewp.crm.models.Student;
 import com.ewp.crm.models.StudentStatus;
 import com.ewp.crm.repository.interfaces.StudentRepository;
 import com.ewp.crm.repository.interfaces.StudentRepositoryCustom;
-import com.ewp.crm.repository.interfaces.StudentStatusRepository;
 import com.ewp.crm.service.interfaces.ProjectPropertiesService;
 import com.ewp.crm.service.interfaces.StudentService;
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +77,11 @@ public class StudentServiceImpl extends CommonServiceImpl<Student> implements St
     @Override
     public List<Student> getStudentsWithTodayNotificationsEnabled() {
         return studentRepositoryCustom.getStudentsWithTodayNotificationsEnabled();
+    }
+
+    @Override
+    public long countActiveByDate(ZonedDateTime day) {
+        return studentRepositoryCustom.countActiveByDate(day);
     }
 
     @Override
