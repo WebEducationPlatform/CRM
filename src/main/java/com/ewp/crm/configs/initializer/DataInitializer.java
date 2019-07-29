@@ -1,63 +1,15 @@
 package com.ewp.crm.configs.initializer;
 
-import com.ewp.crm.configs.inteface.VKConfig;
-import com.ewp.crm.models.CallRecord;
-import com.ewp.crm.models.Client;
-import com.ewp.crm.models.Job;
-import com.ewp.crm.models.ListMailingType;
-import com.ewp.crm.models.MessageTemplate;
-import com.ewp.crm.models.Role;
-import com.ewp.crm.models.SMSInfo;
-import com.ewp.crm.models.SocialProfile;
+import com.ewp.crm.models.*;
 import com.ewp.crm.models.SocialProfile.SocialNetworkType;
-import com.ewp.crm.models.Status;
-import com.ewp.crm.models.StudentStatus;
-import com.ewp.crm.models.User;
-import com.ewp.crm.models.VkRequestForm;
-import com.ewp.crm.repository.interfaces.vkcampaigns.VkAttemptResponseRepository;
-import com.ewp.crm.service.conversation.JMConversationHelper;
-import com.ewp.crm.service.interfaces.CallRecordService;
-import com.ewp.crm.service.interfaces.ClientHistoryService;
-import com.ewp.crm.service.interfaces.ClientService;
-import com.ewp.crm.service.interfaces.ListMailingTypeService;
-import com.ewp.crm.service.interfaces.MessageTemplateService;
-import com.ewp.crm.service.interfaces.RoleService;
-import com.ewp.crm.service.interfaces.StatusService;
-import com.ewp.crm.service.interfaces.StudentService;
-import com.ewp.crm.service.interfaces.StudentStatusService;
-import com.ewp.crm.service.interfaces.UserService;
-import com.ewp.crm.service.interfaces.VKService;
-import com.ewp.crm.service.interfaces.VkMemberService;
-import com.ewp.crm.service.interfaces.VkRequestFormService;
-import com.ewp.crm.service.interfaces.VkTrackedClubService;
-import com.ewp.crm.service.interfaces.vkcampaigns.VkCampaignService;
+import com.ewp.crm.service.interfaces.*;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.*;
+import java.util.*;
 
 public class DataInitializer {
-
-    @Autowired
-    private VkTrackedClubService vkTrackedClubService;
-
-    @Autowired
-    private VKConfig vkConfig;
-
-    @Autowired
-    private VkMemberService vkMemberService;
-
-    @Autowired
-    private VKService vkService;
 
     @Autowired
     private StatusService statusService;
@@ -72,13 +24,10 @@ public class DataInitializer {
     private RoleService roleService;
 
     @Autowired
-    private MessageTemplateService MessageTemplateService;
+    private MessageTemplateService messageTemplateService;
 
     @Autowired
     private ClientHistoryService clientHistoryService;
-
-    @Autowired
-    private StudentService studentService;
 
     @Autowired
     private StudentStatusService studentStatusService;
@@ -87,16 +36,7 @@ public class DataInitializer {
     private VkRequestFormService vkRequestFormService;
 
     @Autowired
-    private VkCampaignService vkCampaignService;
-
-    @Autowired
-    private VkAttemptResponseRepository vkAttemptResponseRepository;
-
-    @Autowired
     private ListMailingTypeService listMailingTypeService;
-
-    @Autowired
-    private JMConversationHelper jmConversationHelper;
 
     @Autowired
     private CallRecordService callRecordService;
@@ -239,19 +179,19 @@ public class DataInitializer {
         String defaultText = "Пожалуйста введите текст сообщения";
         String defaultTheme = "Java mentor";
 
-        MessageTemplate MessageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5,defaultTheme);
-        MessageTemplate MessageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4, defaultTheme);
-        MessageTemplate MessageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3, defaultTheme);
-        MessageTemplate MessageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2, defaultTheme);
-        MessageTemplate MessageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1, defaultTheme);
-        MessageTemplate MessageTemplateWithoutTemplate = new MessageTemplate("Без шаблона", templateText1, defaultText, defaultTheme);
+        MessageTemplate messageTemplate5 = new MessageTemplate("Автоответ из Java-Mentor", templateText5, otherText5, defaultTheme);
+        MessageTemplate messageTemplate4 = new MessageTemplate("Беседа по Skype", templateText4, otherText4, defaultTheme);
+        MessageTemplate messageTemplate3 = new MessageTemplate("Не дозвонился", templateText3, otherText3, defaultTheme);
+        MessageTemplate messageTemplate2 = new MessageTemplate("Оплата за обучение", templateText2, otherText2, defaultTheme);
+        MessageTemplate messageTemplate1 = new MessageTemplate("После разговора", templateText1, otherText1, defaultTheme);
+        MessageTemplate messageTemplateWithoutTemplate = new MessageTemplate("Без шаблона", templateText1, defaultText, defaultTheme);
 
-        MessageTemplateService.add(MessageTemplate1);
-        MessageTemplateService.add(MessageTemplate2);
-        MessageTemplateService.add(MessageTemplate3);
-        MessageTemplateService.add(MessageTemplate4);
-        MessageTemplateService.add(MessageTemplate5);
-        MessageTemplateService.add(MessageTemplateWithoutTemplate);
+        messageTemplateService.add(messageTemplate1);
+        messageTemplateService.add(messageTemplate2);
+        messageTemplateService.add(messageTemplate3);
+        messageTemplateService.add(messageTemplate4);
+        messageTemplateService.add(messageTemplate5);
+        messageTemplateService.add(messageTemplateWithoutTemplate);
 
         Status status1 = new Status("trialLearnStatus", false, 2L, true, 3, 33);
         Status status2 = new Status("inLearningStatus", false, 3L, true, 0, 30);
@@ -490,5 +430,4 @@ public class DataInitializer {
         callRecord23.setCallingUser(user7);
         callRecordService.updateCallRecord(callRecord23);
     }
-
 }
