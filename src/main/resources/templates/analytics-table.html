@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Аналитика</title>
+    <meta charset="UTF-8"/>
+    <div th:replace="fragments/htmlFragments::header"></div>
+    <div th:replace="fragments/htmlFragments::custom-style"></div>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.3/themes/sunny/jquery-ui.css"/>
+</head>
+
+<body>
+<div style="margin: 2%">
+    <div th:replace="fragments/htmlFragments::top-navigation-panel"></div>
+
+    <div class="container-fluid">
+        <div><h1 style="margin-bottom: 20px;">Аналитика по студентам</h1></div>
+
+        <div style="float: left;">
+            <label for="date-from-picker">Дата начала периода анализа:</label>
+            <input type="text" class="form-control-plaintext" id="date-from-picker" size="10"/>
+        </div>
+        <div style="margin-left: 20px; float: left;">
+            <label for="date-to-picker">Дата окончания периода анализа:</label>
+            <input type="text" class="form-control-plaintext" id="date-to-picker" size="10"/>
+        </div>
+        <div style="margin-left: 20px; margin-bottom: 50px; float: left;">
+            <button class="btn btn-info" onclick="renderAnalyticsChart()">Показать</button>
+        </div>
+
+        <div style="width:75%; margin: 0 auto;">
+            <canvas id="analytics-chart"></canvas>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script type="text/javascript" th:src="@{/js/analytics-table.js}"></script>
+
+</body>
+</html>
