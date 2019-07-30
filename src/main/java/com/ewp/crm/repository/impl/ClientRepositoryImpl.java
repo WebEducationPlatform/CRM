@@ -375,8 +375,28 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
     }
 
     @Override
+    public List<String> getClientsEmailsByStatusesIds(List<Long> statusesIds) {
+        return entityManager.createNativeQuery(
+                "SELECT ce.client_email FROM client_emails ce " +
+                "INNER JOIN status_clients sc ON ce.client_id = sc.user_id " +
+                "WHERE sc.status_id IN (:statusesIds)")
+                .setParameter("statusesIds", statusesIds)
+                .getResultList();
+    }
+
+    @Override
     public List<String> getFilteredClientsPhoneNumber(FilteringCondition filteringCondition) {
         return entityManager.createNativeQuery(createQueryForGetPhoneNumbers(filteringCondition)).getResultList();
+    }
+
+    @Override
+    public List<String> getClientsPhoneNumbersByStatusesIds(List<Long> statusesIds) {
+        return entityManager.createNativeQuery(
+                "SELECT cp.client_phone FROM client_phones cp " +
+                        "INNER JOIN status_clients sc ON cp.client_id = sc.user_id " +
+                        "WHERE sc.status_id IN (:statusesIds)")
+                .setParameter("statusesIds", statusesIds)
+                .getResultList();
     }
 
     @Override
@@ -443,11 +463,11 @@ public class ClientRepositoryImpl implements ClientRepositoryCustom {
             query.append(" and cl.birthDate >= '").append(dateFrom).append("'");
         }
 
-        if (!filteringCondition.getCity().isEmpty()) {
+        if (filteringCondition.getCity() != null) {
             query.append(" and cl.city = '").append(filteringCondition.getCity()).append("'");
         }
 
-        if (!filteringCondition.getCountry().isEmpty()) {
+        if (filteringCondition.getCountry() != null) {
             query.append(" and cl.country = '").append(filteringCondition.getCountry()).append("'");
         }
 

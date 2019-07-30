@@ -1,6 +1,7 @@
 package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.*;
+import com.ewp.crm.models.dto.StatusDtoForMailing;
 import com.ewp.crm.models.dto.StatusPositionIdNameDTO;
 import com.ewp.crm.repository.interfaces.ClientRepository;
 import com.ewp.crm.service.interfaces.*;
@@ -48,6 +49,11 @@ public class StatusRestController {
     @GetMapping
     public ResponseEntity<List<Status>> getAllClientStatuses() {
         return ResponseEntity.ok(statusService.getAll());
+    }
+
+    @GetMapping(value="/dto/for-mailing", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<StatusDtoForMailing>> getAllStatusDtoForMailing() {
+        return ResponseEntity.ok(statusService.getStatusesForMailing());
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

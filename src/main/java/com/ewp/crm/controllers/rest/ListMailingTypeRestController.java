@@ -1,4 +1,4 @@
-package com.ewp.crm.controllers;
+package com.ewp.crm.controllers.rest;
 
 import com.ewp.crm.models.ListMailingType;
 import com.ewp.crm.service.interfaces.ListMailingTypeService;
