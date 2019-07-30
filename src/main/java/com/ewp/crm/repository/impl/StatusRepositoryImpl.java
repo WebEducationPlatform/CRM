@@ -72,6 +72,11 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
             String sortingType = (String) tuple.get("sorting_type");
 
+            List<Role> statusRoles = entityManager.createQuery(
+                    "SELECT s.role FROM Status s WHERE s.id = :statusId")
+                    .setParameter("statusId", statusId)
+                    .getResultList();
+
             // Задаем значения для сортировки клиентов внутри статусов
             String sortDirection = " ORDER BY c.date DESC ";
             String historyJoin = "";
@@ -160,7 +165,7 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
                 clients.add(newClientDto);
             }
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, roles, trialOffset, nextPaymentOffset));
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, clients, position, statusRoles, trialOffset, nextPaymentOffset));
 
         }
 
@@ -194,7 +199,12 @@ public class StatusRepositoryImpl implements StatusRepositoryCustom {
             int trialOffset = (int) tuple.get("trial_offset");
             int nextPaymentOffset = (int) tuple.get("next_payment_offset");
 
-            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, roles, trialOffset, nextPaymentOffset));
+            List<Role> statusRoles = entityManager.createQuery(
+                    "SELECT s.role FROM Status s WHERE s.id = :statusId")
+                    .setParameter("statusId", statusId)
+                    .getResultList();
+
+            result.add(new StatusDtoForBoard(statusId, statusName, isInvisible, createStudent, null, position, statusRoles, trialOffset, nextPaymentOffset));
         }
 
         logger.debug("{} getStatusesForBoard({}, {}, {}) finished", StatusRepositoryImpl.class.getName(), userId, roles, roleId);
