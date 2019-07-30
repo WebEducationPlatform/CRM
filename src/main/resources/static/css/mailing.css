@@ -36,3 +36,24 @@
     width: 75% !important;
     height: 75% !important;
 }
+
+#textaria-for-edit-modal, #textaria-for-add-modal {
+    margin: 0;
+}
+
+.clear-list-recipients {
+    margin-top: 10px;
+    text-align: right;
+}
+
+#addresses-area {
+    font-size: 10pt;
+}
+
+#editListRecipients {
+    font-size: 8pt;
+}
+
+#noSend-area {
+    font-size: 10pt;
+}
