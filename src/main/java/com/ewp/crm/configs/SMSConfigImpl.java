@@ -10,6 +10,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
 @PropertySource("file:./sms.properties")
 public class SMSConfigImpl implements SMSConfig {
@@ -30,6 +32,15 @@ public class SMSConfigImpl implements SMSConfig {
             }
         } catch (IllegalStateException | NoSuchFieldException e) {
             logger.error("Sms config hasn't been initialized. Check sms.properties file", e);
+        }
+    }
+
+    @PostConstruct
+    private void checkInitializeProperties() {
+        if (login.equals("*") ||
+                password.equals("*") ||
+                alphaName.equals("*")) {
+            logger.error("Sms config hasn't been initialized. Check sms.properties file");
         }
     }
 
