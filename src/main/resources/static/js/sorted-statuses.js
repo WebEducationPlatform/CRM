@@ -32,6 +32,12 @@ function clearActiveClientOrder(statusId) {
     $("#OLD_CHANGES_FIRST" + statusId).removeClass("active");
 }
 
+function showActiveClientDetails(clientId) {
+    const currentModal = $('#main-modal-window');
+    currentModal.data('clientId', clientId);
+    currentModal.modal('show');
+}
+
 function displayOption(clientId) {
     $("#option_" + clientId).show();
 }
