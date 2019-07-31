@@ -594,7 +594,15 @@ $(function () {
                         isAsc: false
                     },
                     success: function (history) {
-                        let history_table = $('#client-' + client.id + 'history').find("tbody");
+                        let modal_win = $('#main-modal-window');
+                        let history_table;
+                        if(!(modal_win.css('display') == 'none'))
+                        {
+                            let history_pan = modal_win.find("#client-" + client.id + "history");
+                            history_table = history_pan.find("tbody");
+                        } else {
+                            history_table = $('#client-' + client.id + 'history').find("tbody");
+                        }
                         let current = $(document.getElementsByClassName("upload-history"));
                         let upload_more_btn = current.parents("div.panel.panel-default").find(".upload-more-history");
                         if (history.length < 10) {
